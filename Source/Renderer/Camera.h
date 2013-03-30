@@ -137,6 +137,7 @@ namespace TrenchBroom {
             const Vec3f defaultPoint(float x, float y) const;
             const Vec3f project(const Vec3f& point) const;
             const Vec3f unproject(float x, float y, float depth) const;
+            const Vec3f toCameraCoordinateSystem(const Vec3f& point) const;
             const Ray pickRay(float x, float y) const;
             
             const Mat4f& matrix() const;

@@ -25,7 +25,7 @@
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/ShaderManager.h"
-#include "Renderer/Text/StringManager.h"
+#include "Renderer/Text/FontManager.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
 
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         m_palette(NULL),
         m_modelRendererManager(NULL),
         m_textureRendererManager(NULL),
-        m_stringManager(NULL),
+        m_fontManager(NULL),
         m_attribs(NULL),
         m_sharedContext(NULL),
         m_glCanvas(NULL) {
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             m_modelRendererManager = new EntityModelRendererManager(console);
             m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
-            m_stringManager = new Text::StringManager(console);
+            m_fontManager = new Text::FontManager(console);
 
             Hide();
         }
@@ -114,8 +114,8 @@ namespace TrenchBroom {
 
             delete m_attribs;
             m_attribs = NULL;
-            delete m_stringManager;
-            m_stringManager = NULL;
+            delete m_fontManager;
+            m_fontManager = NULL;
             delete m_shaderManager;
             m_shaderManager = NULL;
             delete m_textureRendererManager;

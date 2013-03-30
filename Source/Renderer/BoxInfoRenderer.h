@@ -28,7 +28,7 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Renderer {
         namespace Text {
-            class StringManager;
+            class FontManager;
         }
         
         class Camera;
@@ -37,23 +37,23 @@ namespace TrenchBroom {
         
         class BoxInfoSizeTextAnchor : public Text::TextAnchor {
         private:
-            const BBox m_bounds;
-            const Axis::Type m_axis;
-            const Renderer::Camera& m_camera;
+            BBox m_bounds;
+            Axis::Type m_axis;
+            Renderer::Camera* m_camera;
         public:
-            BoxInfoSizeTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera);
-            const Vec3f position();
-            Text::Alignment::Type alignment();
+            BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
+            const Vec3f position() const;
+            const Text::Alignment::Type alignment() const;
         };
 
         class BoxInfoRenderer {
         private:
             BBox m_bounds;
-            Text::TextRenderer<Axis::Type>* m_textRenderer;
-            Text::TextRenderer<Axis::Type>::SimpleTextRendererFilter m_textFilter;
+            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>* m_textRenderer;
+            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
         public:
-            BoxInfoRenderer(const BBox& bounds, Text::StringManager& stringManager);
+            BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager);
             ~BoxInfoRenderer();
             
             void render(Vbo& vbo, RenderContext& context);

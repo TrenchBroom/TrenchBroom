@@ -34,7 +34,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         namespace Text {
-            class StringManager;
+            class FontManager;
         }
         
         class RenderContext;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             void addSpike(const Vec3f& startPoint, const Vec3f& direction, Vec3f::List& hitPoints);
         public:
-            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::StringManager& stringManager);
+            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager);
             ~BoxGuideRenderer();
             
             inline const BBox& bounds() const {

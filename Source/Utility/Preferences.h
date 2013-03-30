@@ -302,12 +302,11 @@ namespace TrenchBroom {
         extern const Preference<Color>  ResizeBrushFaceColor;
         extern const Preference<Color>  OccludedResizeBrushFaceColor;
         
-        extern const Preference<Color>  BrowserTextureColor;
+        extern const Preference<Color>  BrowserTextColor;
         extern const Preference<Color>  SelectedTextureColor;
         extern const Preference<Color>  UsedTextureColor;
         extern const Preference<Color>  OverriddenTextureColor;
         extern const Preference<Color>  BrowserGroupBackgroundColor;
-        extern const Preference<Color>  BrowserGroupTextColor;
         extern const Preference<int>    TextureBrowserFontSize;
         extern const Preference<int>    EntityBrowserFontSize;
         

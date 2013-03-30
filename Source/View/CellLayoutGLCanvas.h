@@ -237,7 +237,7 @@ namespace TrenchBroom {
                 if (m_scrollBar != NULL) {
                     const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                     float newTop = event.GetWheelRotation() < 0 ? m_layout.rowPosition(top, 1) : m_layout.rowPosition(top, -1);
-                    newTop = std::max(0.0f, newTop - m_layout.rowMargin());
+                    newTop = std::max(0.0f, std::ceil(newTop - m_layout.rowMargin()));
                     
                     m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
                     Refresh();

@@ -24,7 +24,7 @@
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/SharedResources.h"
-#include "Renderer/Text/StringManager.h"
+#include "Renderer/Text/FontManager.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
 
@@ -32,13 +32,13 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera) :
+        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera) :
         m_bounds(bounds.expanded(2.0f)), // create a bit of a margin for the text label
         m_axis(axis),
-        m_camera(camera) {}
+        m_camera(&camera) {}
         
-        const Vec3f BoxInfoSizeTextAnchor::position() {
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
+        const Vec3f BoxInfoSizeTextAnchor::position() const {
+            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
             Vec3f pos;
             const Vec3f half = m_bounds.size() / 2.0f;
             
@@ -112,20 +112,30 @@ namespace TrenchBroom {
             return pos;
         }
 
-        Text::Alignment::Type BoxInfoSizeTextAnchor::alignment() {
+        const Text::Alignment::Type BoxInfoSizeTextAnchor::alignment() const {
             if (m_axis == Axis::AZ)
                 return Text::Alignment::Right;
 
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
+            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
             if (camPos.z == BBox::PointPosition::Less)
                 return Text::Alignment::Top;
             return Text::Alignment::Bottom;
         }
 
-        BoxInfoRenderer::BoxInfoRenderer(const BBox& bounds, Text::StringManager& stringManager) :
+        BoxInfoRenderer::BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager) :
         m_bounds(bounds),
-        m_textRenderer(new Text::TextRenderer<Axis::Type>(stringManager)),
+        m_textRenderer(NULL),
         m_initialized(false) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            
+            const String& fontName = prefs.getString(Preferences::RendererFontName);
+            int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
+            
+            Text::TexturedFont* font = fontManager.font(fontDescriptor);
+            assert(font != NULL);
+
+            m_textRenderer = new Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>(*font);
             m_textRenderer->setFadeDistance(2000.0f);
         }
         
@@ -137,13 +147,7 @@ namespace TrenchBroom {
         void BoxInfoRenderer::render(Vbo& vbo, RenderContext& context) {
             assert(m_textRenderer != NULL);
             
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             if (!m_initialized) {
-                const String fontName = prefs.getString(Preferences::RendererFontName);
-                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
-                assert(fontSize >= 0);
-                
-                const Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
                 const String labels[3] = {"X", "Y", "Z"};
 
                 const Vec3f size = m_bounds.size().corrected();
@@ -151,12 +155,13 @@ namespace TrenchBroom {
                     StringStream buffer;
                     buffer << labels[i] << ": " << size[i];
                     
-                    Text::TextAnchor* anchor = new BoxInfoSizeTextAnchor(m_bounds, i, context.camera());
-                    m_textRenderer->addString(i, font, buffer.str(), anchor);
+                    BoxInfoSizeTextAnchor anchor(m_bounds, i, context.camera());
+                    m_textRenderer->addString(i, buffer.str(), anchor);
                 }
                 m_initialized = true;
             }
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             const Color& textColor = prefs.getColor(Preferences::InfoOverlayTextColor);
             const Color& backgroundColor = prefs.getColor(Preferences::InfoOverlayBackgroundColor);
             ShaderProgram& textShader = context.shaderManager().shaderProgram(Shaders::TextShader);

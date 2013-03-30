@@ -20,19 +20,35 @@
 #include "EntityRenderer.h"
 
 #include "Model/MapDocument.h"
-#include "Renderer/EntityClassnameAnchor.h"
-#include "Renderer/EntityClassnameFilter.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
+#include "Renderer/Text/FontManager.h"
 #include "Utility/Preferences.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
+        EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(Model::Entity& entity) :
+        m_entity(&entity) {}
+        
+        const Vec3f EntityRenderer::EntityClassnameAnchor::position() const {
+            Vec3f position = m_entity->center();
+            position.z = m_entity->bounds().max.z + 1.0f;
+            return position;
+        }
+        
+        const Text::Alignment::Type EntityRenderer::EntityClassnameAnchor::alignment() const {
+            return Text::Alignment::Bottom;
+        }
+
+        bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const EntityKey& entity) const {
+            return context.filter().entityVisible(*entity);
+        }
+
         void EntityRenderer::writeColoredBounds(RenderContext& context, const Model::EntityList& entities) {
             if (entities.empty())
                 return;
@@ -224,8 +240,17 @@ namespace TrenchBroom {
         m_renderOccludedBounds(false),
         m_applyTinting(false),
         m_grayscale(false) {
-            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = new EntityClassnameRenderer(stringManager);
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            
+            const String& fontName = prefs.getString(Preferences::RendererFontName);
+            int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
+
+            Text::FontManager& fontManager = m_document.sharedResources().fontManager();
+            Text::TexturedFont* font = fontManager.font(fontDescriptor);
+            assert(font != NULL);
+            
+            m_classnameRenderer = new EntityClassnameRenderer(*font);
         }
 
         EntityRenderer::~EntityRenderer() {
@@ -243,24 +268,17 @@ namespace TrenchBroom {
             if (!m_entities.insert(&entity).second)
                 return;
 
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-
-            const String& fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::RendererFontSize);
-
-            assert(fontSize > 0);
-            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
-            EntityClassnameAnchor* anchor = new EntityClassnameAnchor(entity);
+            EntityClassnameAnchor anchor(entity);
 
             const String* classname = entity.classname();
             if (classname != NULL) {
                 EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.searchPaths());
                 if (renderer != NULL)
                     m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, *classname);
-                m_classnameRenderer->addString(&entity, fontDescriptor, *classname, anchor);
+                m_classnameRenderer->addString(&entity, *classname, anchor);
             } else {
-                m_classnameRenderer->addString(&entity, fontDescriptor, Model::Entity::NoClassnameValue, anchor);
+                m_classnameRenderer->addString(&entity, Model::Entity::NoClassnameValue, anchor);
             }
 
 
@@ -272,26 +290,19 @@ namespace TrenchBroom {
             if (entities.empty())
                 return;
 
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-
-            const String& fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::RendererFontSize);
-
-            assert(fontSize > 0);
-            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
+                EntityClassnameAnchor anchor(*entity);
                 const String* classname = entity->classname();
                 if (classname != NULL) {
                     EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
                     if (renderer != NULL)
                         m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
-                    m_classnameRenderer->addString(entity, fontDescriptor, *classname, anchor);
+                    m_classnameRenderer->addString(entity, *classname, anchor);
                 } else {
-                    m_classnameRenderer->addString(entity, fontDescriptor, Model::Entity::NoClassnameValue, anchor);
+                    m_classnameRenderer->addString(entity, Model::Entity::NoClassnameValue, anchor);
                 }
             }
 

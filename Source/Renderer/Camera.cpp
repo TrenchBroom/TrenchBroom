@@ -96,8 +96,8 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f win = m_matrix * point;
-            win.x = m_viewport.x + (m_viewport.width  * (win.x + 1.0f)) / 2.0f;
-            win.y = m_viewport.y + (m_viewport.height * (win.y + 1.0f)) / 2.0f;
+            win.x = m_viewport.x + m_viewport.width  * (win.x + 1.0f) / 2.0f;
+            win.y = m_viewport.y + m_viewport.height * (win.y + 1.0f) / 2.0f;
             win.z = (win.z + 1.0f) / 2.0f;
             return win;
         }
@@ -112,6 +112,18 @@ namespace TrenchBroom {
             normalized.z = 2.0f * depth - 1.0f;
             
             return m_invertedMatrix * normalized;
+        }
+
+        const Vec3f Camera::toCameraCoordinateSystem(const Vec3f& point) const {
+            if (!m_valid)
+                validate();
+            
+            Vec3f result = m_matrix * point;
+            result.x = m_viewport.width  * result.x / 2.0f;
+            result.y = m_viewport.height * result.y / 2.0f;
+            result.z = 0.0f;
+            
+            return result;
         }
 
         const Ray Camera::pickRay(float x, float y) const {

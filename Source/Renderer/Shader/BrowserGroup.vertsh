@@ -1,3 +1,5 @@
+#version 120
+
 /*
  Copyright (C) 2010-2012 Kristian Duske
  
@@ -17,26 +19,6 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityClassnameFilter_h
-#define TrenchBroom_EntityClassnameFilter_h
-
-#include "Model/Entity.h"
-#include "Model/Filter.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/Text/TextRenderer.h"
-
-namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-        
-        typedef Model::Entity* EntityKey;
-        class EntityClassnameFilter : public Text::TextRenderer<EntityKey>::TextRendererFilter {
-        public:
-            bool stringVisible(RenderContext& context, const EntityKey& entity) {
-                return context.filter().entityVisible(*entity);
-            }
-        };
-    }
+void main(void) {
+    gl_Position = ftransform();
 }
-
-#endif

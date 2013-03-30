@@ -32,7 +32,8 @@
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
-#include "Renderer/Text/PathRenderer.h"
+#include "Renderer/Text/FontManager.h"
+#include "Renderer/Text/TexturedFont.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 #include "View/DocumentViewHolder.h"
@@ -47,28 +48,14 @@ namespace TrenchBroom {
     namespace View {
         void TextureBrowserCanvas::addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font) {
             if ((!m_hideUnused || texture->usageCount() > 0) && (m_filterText.empty() || Utility::containsString(texture->name(), m_filterText, false))) {
-                Renderer::Text::FontDescriptor actualFont(font);
-                Vec2f actualSize;
-                
-                Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
-                Renderer::Text::StringRendererPtr stringRenderer(NULL);
-                StringRendererCache::iterator it = m_stringRendererCache.find(texture);
-                if (it != m_stringRendererCache.end()) {
-                    stringRenderer = it->second;
-                    actualSize = Vec2f(stringRenderer->width(), stringRenderer->height());
-                } else {
-                    float cellSize = layout.fixedCellSize();
-                    if  (cellSize > 0.0f)
-                        actualSize = stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
-                    else
-                        actualSize = stringManager.measureString(font, texture->name());
-                    stringRenderer = stringManager.stringRenderer(actualFont, texture->name());
-                    m_stringRendererCache.insert(StringRendererCacheEntry(texture, stringRenderer));
-                }
+                Renderer::Text::FontManager& fontManager =  m_documentViewHolder.document().sharedResources().fontManager();
+                const float maxCellWidth = layout.maxCellWidth();
+                const Renderer::Text::FontDescriptor actualFont = fontManager.selectFontSize(font, texture->name(), maxCellWidth, 5);
+                const Vec2f actualSize = fontManager.font(actualFont)->measure(texture->name());
                 
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                layout.addItem(TextureCellData(texture, &textureRenderer, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
+                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -77,13 +64,13 @@ namespace TrenchBroom {
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setFixedCellSize(CRBoth, 64.0f);
+            layout.setCellWidth(64.0f, 64.0f);
+            layout.setCellHeight(64.0f, 128.0f);
         }
         
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
-            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::TextureBrowserFontSize);
@@ -98,7 +85,7 @@ namespace TrenchBroom {
                     Model::TextureCollection* collection = collections[i];
                     if (m_group) {
                         String name = fileManager.pathComponents(collection->name()).back();
-                        layout.addGroup(TextureGroupData(collection, stringManager.stringRenderer(font, name)), fontSize + 2.0f);
+                        layout.addGroup(collection, fontSize + 2.0f);
                     }
                     
                     Model::TextureList textures = collection->textures(m_sortOrder);
@@ -106,6 +93,7 @@ namespace TrenchBroom {
                         addTextureToLayout(layout, textures[j], font);
                 }
             } else {
+                layout.addGroup(NULL, fontSize + 2.0f);
                 Model::TextureList textures = textureManager.textures(m_sortOrder);
                 for (unsigned int i = 0; i < textures.size(); i++)
                     addTextureToLayout(layout, textures[i], font);
@@ -113,15 +101,22 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserCanvas::doClear() {
-            m_stringRendererCache.clear();
         }
 
         void TextureBrowserCanvas::doRender(Layout& layout, float y, float height) {
-            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
-            Renderer::ShaderProgram& textureProgram = shaderManager.shaderProgram(Renderer::Shaders::TextureBrowserShader);
-            Renderer::ShaderProgram& textureBorderProgram = shaderManager.shaderProgram(Renderer::Shaders::TextureBrowserBorderShader);
-            Renderer::ShaderProgram& textProgram = shaderManager.shaderProgram(Renderer::Shaders::TextShader);
+            if (m_vbo == NULL)
+                m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
+            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+            Renderer::Text::FontManager& fontManager = m_documentViewHolder.document().sharedResources().fontManager();
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::Text::FontDescriptor defaultDescriptor(prefs.getString(Preferences::RendererFontName),
+                                                             static_cast<unsigned int>(prefs.getInt(Preferences::TextureBrowserFontSize)));
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
             float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
             float viewTop       = static_cast<float>(GetClientRect().GetBottom());
             float viewRight     = static_cast<float>(GetClientRect().GetRight());
@@ -135,155 +130,174 @@ namespace TrenchBroom {
             view.translate(Vec3f(0.0f, 0.0f, 0.1f));
             Renderer::Transformation transformation(projection * view, true);
 
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
+            size_t visibleGroupCount = 0;
+            size_t visibleItemCount = 0;
 
-            // render borders
-            textureBorderProgram.activate();
+            typedef std::map<Renderer::Text::FontDescriptor, Vec2f::List> StringMap;
+            StringMap stringVertices;
+            
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
+                    visibleGroupCount++;
+                    
+                    Model::TextureCollection* collection = group.item();
+                    if (collection != NULL && !collection->name().empty()) {
+                        const LayoutBounds titleBounds = group.titleBounds();
+                        const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        
+                        Renderer::Text::TexturedFont* font = fontManager.font(defaultDescriptor);
+                        Vec2f::List titleVertices = font->quads(collection->name(), offset);
+                        Vec2f::List& vertices = stringVertices[defaultDescriptor];
+                        vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                    }
+                    
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
+                                visibleItemCount++;
+
                                 const Layout::Group::Row::Cell& cell = row[k];
+                                const LayoutBounds titleBounds = cell.titleBounds();
+                                const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                bool selected = cell.item().texture == m_selectedTexture;
-                                bool inUse = cell.item().texture->usageCount() > 0;
-                                bool overridden = cell.item().texture->overridden();
-                                
-                                if (selected || inUse || overridden) {
-                                    if (selected)
-                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
-                                    else if (inUse)
-                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
-                                    else
-                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
+                                Renderer::Text::TexturedFont* font = fontManager.font(cell.item().fontDescriptor);
+                                Vec2f::List titleVertices = font->quads(cell.item().texture->name(), offset);
+                                Vec2f::List& vertices = stringVertices[cell.item().fontDescriptor];
+                                vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (visibleItemCount > 0) { // render borders
+                unsigned int vertexCount = static_cast<unsigned int>(4 * visibleItemCount);
+                Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
+                                                  Renderer::Attribute::position2f(),
+                                                  Renderer::Attribute::color4f());
+                
+                Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
+                        for (unsigned int j = 0; j < group.size(); j++) {
+                            const Layout::Group::Row& row = group[j];
+                            if (row.intersectsY(y, height)) {
+                                for (unsigned int k = 0; k < row.size(); k++) {
+                                    const Layout::Group::Row::Cell& cell = row[k];
                                     
+                                    bool selected = cell.item().texture == m_selectedTexture;
+                                    bool inUse = cell.item().texture->usageCount() > 0;
+                                    bool overridden = cell.item().texture->overridden();
+                                    
+                                    if (selected || inUse || overridden) {
+                                        const Color& color = selected ? prefs.getColor(Preferences::SelectedTextureColor) : (inUse ? prefs.getColor(Preferences::UsedTextureColor) : prefs.getColor(Preferences::OverriddenTextureColor));
+                                        
+                                        vertexArray.addAttribute(Vec2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().top() - 1.5f - y)));
+                                        vertexArray.addAttribute(color);
+                                        vertexArray.addAttribute(Vec2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().bottom() + 1.5f - y)));
+                                        vertexArray.addAttribute(color);
+                                        vertexArray.addAttribute(Vec2f(cell.itemBounds().right() + 1.5f, height - (cell.itemBounds().bottom() + 1.5f - y)));
+                                        vertexArray.addAttribute(color);
+                                        vertexArray.addAttribute(Vec2f(cell.itemBounds().right() + 1.5f, height - (cell.itemBounds().top() - 1.5f - y)));
+                                        vertexArray.addAttribute(color);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextureBrowserBorderShader);
+                vertexArray.render();
+            }
+            
+            { // render textures
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextureBrowserShader);
+                shader.currentShader().setUniformVariable("ApplyTinting", false);
+                shader.currentShader().setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
+                        for (unsigned int j = 0; j < group.size(); j++) {
+                            const Layout::Group::Row& row = group[j];
+                            if (row.intersectsY(y, height)) {
+                                for (unsigned int k = 0; k < row.size(); k++) {
+                                    const Layout::Group::Row::Cell& cell = row[k];
+                                    shader.currentShader().setUniformVariable("GrayScale", cell.item().texture->overridden());
+                                    shader.currentShader().setUniformVariable("Texture", 0);
+                                    cell.item().textureRenderer->activate();
                                     glBegin(GL_QUADS);
-                                    glVertex2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().top() - 1.5f - y));
-                                    glVertex2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().bottom() + 1.5f - y));
-                                    glVertex2f(cell.itemBounds().right() + 1.5f, height - (cell.itemBounds().bottom() + 1.5f - y));
-                                    glVertex2f(cell.itemBounds().right() + 1.5f, height - (cell.itemBounds().top() - 1.5f - y));
+                                    glTexCoord2f(0.0f, 0.0f);
+                                    glVertex2f(cell.itemBounds().left(), height - (cell.itemBounds().top() - y));
+                                    glTexCoord2f(0.0f, 1.0f);
+                                    glVertex2f(cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+                                    glTexCoord2f(1.0f, 1.0f);
+                                    glVertex2f(cell.itemBounds().right(), height - (cell.itemBounds().bottom() - y));
+                                    glTexCoord2f(1.0f, 0.0f);
+                                    glVertex2f(cell.itemBounds().right(), height - (cell.itemBounds().top() - y));
                                     glEnd();
+                                    cell.item().textureRenderer->deactivate();
                                 }
                             }
                         }
                     }
                 }
             }
-            textureBorderProgram.deactivate();
             
-            // render textures
-            textureProgram.activate();
-            textureProgram.setUniformVariable("ApplyTinting", false);
-            textureProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    for (unsigned int j = 0; j < group.size(); j++) {
-                        const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                textureProgram.setUniformVariable("GrayScale", cell.item().texture->overridden());
-                                textureProgram.setUniformVariable("Texture", 0);
-                                cell.item().textureRenderer->activate();
-                                glBegin(GL_QUADS);
-                                glTexCoord2f(0.0f, 0.0f);
-                                glVertex2f(cell.itemBounds().left(), height - (cell.itemBounds().top() - y));
-                                glTexCoord2f(0.0f, 1.0f);
-                                glVertex2f(cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
-                                glTexCoord2f(1.0f, 1.0f);
-                                glVertex2f(cell.itemBounds().right(), height - (cell.itemBounds().bottom() - y));
-                                glTexCoord2f(1.0f, 0.0f);
-                                glVertex2f(cell.itemBounds().right(), height - (cell.itemBounds().top() - y));
-                                glEnd();
-                                cell.item().textureRenderer->deactivate();
-                            }
+            if (visibleGroupCount > 0) { // render group title background
+                unsigned int vertexCount = static_cast<unsigned int>(4 * visibleGroupCount);
+                Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
+                                                  Renderer::Attribute::position2f());
+
+                Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
+                        if (group.item() != NULL) {
+                            LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
+                            vertexArray.addAttribute(Vec2f(titleBounds.left(), height - (titleBounds.top() - y)));
+                            vertexArray.addAttribute(Vec2f(titleBounds.left(), height - (titleBounds.bottom() - y)));
+                            vertexArray.addAttribute(Vec2f(titleBounds.right(), height - (titleBounds.bottom() - y)));
+                            vertexArray.addAttribute(Vec2f(titleBounds.right(), height - (titleBounds.top() - y)));
                         }
                     }
                 }
+                
+                Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::BrowserGroupShader);
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                vertexArray.render();
             }
-            textureProgram.deactivate();
-
-            // render texture captions
-            textProgram.activate();
-            stringManager.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    for (unsigned int j = 0; j < group.size(); j++) {
-                        const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-
-                                if (cell.item().texture == m_selectedTexture)
-                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
-                                else if (cell.item().texture->usageCount() > 0)
-                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
-                                else if (cell.item().texture->overridden())
-                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
-                                else
-                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
-
-                                Mat4f translation;
-                                translation.translate(Vec3f(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f));
-                                
-                                Renderer::ApplyMatrix applyTranslation(transformation, translation);
-                                Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
-                                stringRenderer->render();
-                            }
-                        }
-                    }
+            
+            if (!stringVertices.empty()) { // render strings
+                StringMap::iterator it, end;
+                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
+                    const Renderer::Text::FontDescriptor& descriptor = it->first;
+                    Renderer::Text::TexturedFont* font = fontManager.font(descriptor);
+                    const Vec2f::List& vertices = it->second;
+                    
+                    unsigned int vertexCount = static_cast<unsigned int>(vertices.size() / 2);
+                    Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
+                                                      Renderer::Attribute::position2f(),
+                                                      Renderer::Attribute::texCoord02f(), 0);
+                    
+                    Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
+                    vertexArray.addAttributes(vertices);
+                    
+                    Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
+                    Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextShader);
+                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
+                    shader.currentShader().setUniformVariable("Texture", 0);
+                    
+                    font->activate();
+                    vertexArray.render();
+                    font->deactivate();
                 }
             }
-            stringManager.deactivate();
-            textProgram.deactivate();
-            
-            // render group title background
-            textureBorderProgram.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    if (group.item().textureCollection != NULL) {
-                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
-                        LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        glBegin(GL_QUADS);
-                        glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
-                        glVertex2f(titleBounds.left(), height - (titleBounds.bottom() - y));
-                        glVertex2f(titleBounds.right(), height - (titleBounds.bottom() - y));
-                        glVertex2f(titleBounds.right(), height - (titleBounds.top() - y));
-                        glEnd();
-                    }
-                }
-            }
-            textureBorderProgram.deactivate();
-            
-            // render group captions
-            textProgram.activate();
-            stringManager.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    if (group.item().textureCollection != NULL) {
-                        LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        
-                        Mat4f translation;
-                        translation.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
-                        
-                        Renderer::ApplyMatrix applyTranslation(transformation, translation);
-                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
-                        Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
-                        stringRenderer->render();
-                    }
-                }
-            }
-            stringManager.deactivate();
-            textProgram.deactivate();
-            
         }
 
         void TextureBrowserCanvas::handleLeftClick(Layout& layout, float x, float y) {
@@ -310,12 +324,14 @@ namespace TrenchBroom {
         m_selectedTexture(NULL),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Model::TextureSortOrder::Name) {}
+        m_sortOrder(Model::TextureSortOrder::Name),
+        m_vbo() {}
 
         TextureBrowserCanvas::~TextureBrowserCanvas() {
             clear();
-            m_stringRendererCache.clear();
             m_selectedTexture = NULL;
+            delete m_vbo;
+            m_vbo = NULL;
         }
     }
 }

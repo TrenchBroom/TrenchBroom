@@ -43,7 +43,6 @@
 #include "Renderer/Shader/ShaderProgram.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Text/FontDescriptor.h"
-#include "Renderer/Text/StringManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/List.h"

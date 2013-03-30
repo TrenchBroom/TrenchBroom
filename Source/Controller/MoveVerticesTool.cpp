@@ -34,6 +34,7 @@
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
+#include "Renderer/Text/FontManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
@@ -187,7 +188,13 @@ namespace TrenchBroom {
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
             if (m_textRenderer == NULL) {
-                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(document().sharedResources().stringManager());
+                const String fontName = prefs.getString(Preferences::RendererFontName);
+                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
+                assert(fontSize >= 0);
+                const Renderer::Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
+                
+                Renderer::Text::TexturedFont* font = document().sharedResources().fontManager().font(fontDescriptor);
+                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>(*font);
                 m_textRenderer->setFadeDistance(10000.0f);
             }
             m_textRenderer->clear();
@@ -201,10 +208,6 @@ namespace TrenchBroom {
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 
-                const String fontName = prefs.getString(Preferences::RendererFontName);
-                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
-                assert(fontSize >= 0);
-                const Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
 
                 if (hitType == Model::HitType::VertexHandleHit) {
                     glDisable(GL_DEPTH_TEST);
@@ -213,8 +216,8 @@ namespace TrenchBroom {
                     glEnable(GL_DEPTH_TEST);
                     
                     if (!m_handleManager.vertexHandleSelected(firstHit->vertex())) {
-                        Renderer::Text::TextAnchor* anchor = new Renderer::Text::SimpleTextAnchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
-                        m_textRenderer->addString(firstHit->vertex(), font, firstHit->vertex().asString(), anchor);
+                        Renderer::Text::SimpleTextAnchor anchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
+                        m_textRenderer->addString(firstHit->vertex(), firstHit->vertex().asString(), anchor);
                     }
                 } else {
                     Renderer::LinesRenderer linesRenderer;

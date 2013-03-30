@@ -421,7 +421,7 @@ namespace TrenchBroom {
                     m_selectionGuideRenderer = new Renderer::BoxGuideRenderer(editStateManager.bounds(),
                                                                               m_documentViewHolder.document().picker(),
                                                                               m_documentViewHolder.view().filter(),
-                                                                              m_documentViewHolder.document().sharedResources().stringManager());
+                                                                              m_documentViewHolder.document().sharedResources().fontManager());
                 
                 if (m_moveObjectsTool->dragType() != Tool::DTNone ||
                     m_rotateObjectsTool->dragType() != Tool::DTNone ||

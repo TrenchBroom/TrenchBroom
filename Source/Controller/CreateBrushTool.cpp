@@ -46,7 +46,7 @@ namespace TrenchBroom {
             assert(m_brushFigure != NULL);
             m_brushFigure->render(vbo, renderContext);
             
-            Renderer::BoxInfoRenderer(m_bounds, document().sharedResources().stringManager()).render(vbo, renderContext);
+            Renderer::BoxInfoRenderer(m_bounds, document().sharedResources().fontManager()).render(vbo, renderContext);
         }
 
         void CreateBrushTool::updateBoundsThickness() {

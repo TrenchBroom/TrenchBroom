@@ -21,6 +21,7 @@
 #define __TrenchBroom__EntityRenderer__
 
 #include "Model/EntityTypes.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/String.h"
@@ -54,10 +55,26 @@ namespace TrenchBroom {
                 renderer(i_renderer),
                 classname(i_classname) {}
             };
-
-            typedef std::map<Model::Entity*, CachedEntityModelRenderer> EntityModelRenderers;
-            typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
-
+            
+            class EntityClassnameAnchor : public Text::TextAnchor {
+            private:
+                Model::Entity* m_entity;
+            public:
+                EntityClassnameAnchor(Model::Entity& entity);
+                
+                const Vec3f position() const;
+                const Text::Alignment::Type alignment() const;
+            };
+            
+            typedef Model::Entity* EntityKey;
+            typedef std::map<EntityKey, CachedEntityModelRenderer> EntityModelRenderers;
+            typedef Text::TextRenderer<EntityKey, EntityClassnameAnchor> EntityClassnameRenderer;
+            
+            class EntityClassnameFilter : public EntityClassnameRenderer::TextRendererFilter {
+            public:
+                inline bool stringVisible(RenderContext& context, const EntityKey& entity) const;
+            };
+            
             Vbo& m_boundsVbo;
             Model::MapDocument& m_document;
             

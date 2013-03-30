@@ -21,7 +21,6 @@
 #define __TrenchBroom__TextureBrowserCanvas__
 
 #include "Model/TextureManager.h"
-#include "Renderer/Text/StringManager.h"
 #include "View/CellLayoutGLCanvas.h"
 
 namespace TrenchBroom {
@@ -48,31 +47,19 @@ namespace TrenchBroom {
     
     namespace View {
         class DocumentViewHolder;
-        
-        class TextureGroupData {
-        public:
-            Model::TextureCollection* textureCollection;
-            Renderer::Text::StringRendererPtr stringRenderer;
-            
-            TextureGroupData(Model::TextureCollection* i_textureCollection, Renderer::Text::StringRendererPtr i_stringRenderer) :
-            textureCollection(i_textureCollection),
-            stringRenderer(i_stringRenderer) {}
-            
-            TextureGroupData() :
-            textureCollection(NULL),
-            stringRenderer(NULL) {}
-        };
-        
+
+        typedef Model::TextureCollection* TextureGroupData;
+
         class TextureCellData {
         public:
             Model::Texture* texture;
             Renderer::TextureRenderer* textureRenderer;
-            Renderer::Text::StringRendererPtr stringRenderer;
+            Renderer::Text::FontDescriptor fontDescriptor;
             
-            TextureCellData(Model::Texture* i_texture, Renderer::TextureRenderer* i_textureRenderer, Renderer::Text::StringRendererPtr i_stringRenderer) :
+            TextureCellData(Model::Texture* i_texture, Renderer::TextureRenderer* i_textureRenderer, const Renderer::Text::FontDescriptor& i_fontDescriptor) :
             texture(i_texture),
             textureRenderer(i_textureRenderer),
-            stringRenderer(i_stringRenderer) {}
+            fontDescriptor(i_fontDescriptor) {}
         };
         
         class TextureBrowserCanvas : public CellLayoutGLCanvas<TextureCellData, TextureGroupData> {
@@ -80,14 +67,11 @@ namespace TrenchBroom {
             DocumentViewHolder& m_documentViewHolder;
             Model::Texture* m_selectedTexture;
             
-            typedef std::map<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCache;
-            typedef std::pair<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCacheEntry;
-            StringRendererCache m_stringRendererCache;
-            
             bool m_group;
             bool m_hideUnused;
             Model::TextureSortOrder::Type m_sortOrder;
             String m_filterText;
+            Renderer::Vbo* m_vbo;
             
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
             virtual void doInitLayout(Layout& layout);
