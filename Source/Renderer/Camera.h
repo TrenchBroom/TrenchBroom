@@ -117,6 +117,10 @@ namespace TrenchBroom {
                 m_valid = false;
             }
 
+            inline const Viewport& viewport() const {
+                return m_viewport;
+            }
+            
             inline void setViewport(int x, int y, int width, int height) {
                 if (x != m_viewport.x ||
                     y != m_viewport.y ||

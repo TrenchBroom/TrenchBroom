@@ -136,6 +136,21 @@ namespace TrenchBroom {
                              y / l);
             }
             
+            inline Vec2f& round() {
+                x = Math::round(x);
+                y = Math::round(y);
+                return *this;
+            }
+            
+            inline const Vec2f rounded() const {
+                return Vec2f(Math::round(x), Math::round(y));
+            }
+            
+            inline bool isInteger(float epsilon = Math::AlmostZero) const {
+                return (std::abs(x - Math::round(x)) < epsilon &&
+                        std::abs(y - Math::round(y)) < epsilon);
+            }
+            
             inline Vec2f& correct(float epsilon = Math::CorrectEpsilon) {
                 x = Math::correct(x, epsilon);
                 y = Math::correct(y, epsilon);

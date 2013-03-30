@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 m_bitmap = NULL;
             }
 
-            Vec2f::List TexturedFont::quads(const String& string, const Vec2f& offset) {
+            Vec2f::List TexturedFont::quads(const String& string, bool clockwise, const Vec2f& offset) {
                 Vec2f::List result;
                 
                 int x = static_cast<int>(Math::round(offset.x));
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                         c = 32; // space
                     
                     const Char& glyph = m_chars[static_cast<size_t>(c - m_minChar)];
-                    glyph.append(result, x, y, m_textureLength);
+                    glyph.append(result, x, y, m_textureLength, clockwise);
                     
                     x += glyph.a;
                 }

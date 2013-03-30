@@ -48,15 +48,26 @@ namespace TrenchBroom {
                     h(i_h),
                     a(i_a) {}
                     
-                    inline void append(Vec2f::List& vertices, int xOffset, int yOffset, int textureLength) const {
-                        vertices.push_back(Vec2f(xOffset, yOffset));
-                        vertices.push_back(Vec2f(x, y + h) / static_cast<float>(textureLength));
-                        vertices.push_back(Vec2f(xOffset, yOffset + h));
-                        vertices.push_back(Vec2f(x, y) / static_cast<float>(textureLength));
-                        vertices.push_back(Vec2f(xOffset + w, yOffset + h));
-                        vertices.push_back(Vec2f(x + w, y) / static_cast<float>(textureLength));
-                        vertices.push_back(Vec2f(xOffset + w, yOffset));
-                        vertices.push_back(Vec2f(x + w, y + h) / static_cast<float>(textureLength));
+                    inline void append(Vec2f::List& vertices, int xOffset, int yOffset, int textureLength, bool clockwise) const {
+                        if (clockwise) {
+                            vertices.push_back(Vec2f(xOffset, yOffset));
+                            vertices.push_back(Vec2f(x, y + h) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset, yOffset + h));
+                            vertices.push_back(Vec2f(x, y) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset + w, yOffset + h));
+                            vertices.push_back(Vec2f(x + w, y) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset + w, yOffset));
+                            vertices.push_back(Vec2f(x + w, y + h) / static_cast<float>(textureLength));
+                        } else {
+                            vertices.push_back(Vec2f(xOffset, yOffset));
+                            vertices.push_back(Vec2f(x, y + h) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset + w, yOffset));
+                            vertices.push_back(Vec2f(x + w, y + h) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset + w, yOffset + h));
+                            vertices.push_back(Vec2f(x + w, y) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(xOffset, yOffset + h));
+                            vertices.push_back(Vec2f(x, y) / static_cast<float>(textureLength));
+                        }
                     }
                     
                     inline float sMin(size_t textureWidth) const {
@@ -90,7 +101,7 @@ namespace TrenchBroom {
                 TexturedFont(FT_Face face, const unsigned char minChar = 32, const unsigned char maxChar = 126);
                 ~TexturedFont();
                 
-                Vec2f::List quads(const String& string, const Vec2f& offset = Vec2f());
+                Vec2f::List quads(const String& string, bool clockwise, const Vec2f& offset = Vec2f());
                 Vec2f measure(const String& string);
                 
                 void activate();

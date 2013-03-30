@@ -203,7 +203,7 @@ namespace TrenchBroom {
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
                         Renderer::Text::TexturedFont* font = fontManager.font(defaultDescriptor);
-                        Vec2f::List titleVertices = font->quads(title, offset);
+                        Vec2f::List titleVertices = font->quads(title, false, offset);
                         Vec2f::List& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                     }
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
                                 Renderer::Text::TexturedFont* font = fontManager.font(cell.item().fontDescriptor);
-                                Vec2f::List titleVertices = font->quads(cell.item().entityDefinition->name(), offset);
+                                Vec2f::List titleVertices = font->quads(cell.item().entityDefinition->name(), false, offset);
                                 Vec2f::List& vertices = stringVertices[cell.item().fontDescriptor];
                                 vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                             }

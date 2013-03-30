@@ -231,20 +231,36 @@ namespace TrenchBroom {
                             const Anchor& anchor = entry.textAnchor();
                             const Vec3f position = anchor.position();
                             const Vec3f cameraLocal = context.camera().toCameraCoordinateSystem(position);
-                            const Vec2f offset(cameraLocal.x, cameraLocal.y);
+                            const Vec2f offset(Vec2f(cameraLocal.x, cameraLocal.y).rounded());
                             
                             const Vec2f::List& vertices = entry.vertices();
                             for (size_t j = 0; j < vertices.size() / 2; j++) {
                                 const Vec2f& vertex = vertices[2 * j];
-                                const Vec2f& texCoords = vertices[2 * i + j];
+                                const Vec2f& texCoords = vertices[2 * j + 1];
                                 
                                 vertexArray.addAttribute(vertex + offset);
                                 vertexArray.addAttribute(texCoords);
                             }
                         }
                         
+                        const Camera::Viewport& viewport = context.camera().viewport();
+                        
+                        Mat4f projection;
+                        projection.setOrtho(-100.0f, 100.0f,
+                                            static_cast<float>(viewport.x - viewport.width / 2),
+                                            static_cast<float>(viewport.y + viewport.height / 2),
+                                            static_cast<float>(viewport.x + viewport.width / 2),
+                                            static_cast<float>(viewport.y - viewport.height / 2));
+                        
+                        Mat4f view;
+                        view.setView(Vec3f::NegZ, Vec3f::PosY);
+                        view.translate(Vec3f(0.0f, 0.0f, 1.0f));
+                        
+                        ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
+
                         SetVboState activateVbo(*m_vbo, Vbo::VboActive);
                         shaderProgram.setUniformVariable("Color", color);
+                        shaderProgram.setUniformVariable("Texture", 0);
                         m_font.activate();
                         vertexArray.render();
                         m_font.deactivate();
@@ -265,7 +281,7 @@ namespace TrenchBroom {
                 }
                 
                 inline void addString(Key key, const String& string, const Anchor& anchor) {
-                    Vec2f::List vertices = m_font.quads(string);
+                    Vec2f::List vertices = m_font.quads(string, true);
                     addString(key, vertices, anchor);
                 }
                 
