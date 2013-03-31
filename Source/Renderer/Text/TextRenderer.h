@@ -222,7 +222,7 @@ namespace TrenchBroom {
                         }
                         
                         VertexArray vertexArray(*m_vbo, GL_QUADS, static_cast<unsigned int>(vertexCount),
-                                                Attribute::position2f(),
+                                                Attribute::position3f(),
                                                 Attribute::texCoord02f());
                         
                         SetVboState mapVbo(*m_vbo, Vbo::VboMapped);
@@ -231,15 +231,15 @@ namespace TrenchBroom {
                             const Anchor& anchor = entry.textAnchor();
                             const Vec3f position = anchor.position();
                             const Vec3f cameraLocal = context.camera().toCameraCoordinateSystem(position);
-                            if (cameraLocal.z >= context.camera().nearPlane()) {
-                                const Vec2f offset(Vec2f(cameraLocal.x, cameraLocal.y).rounded());
+                            if (cameraLocal.z >= 0.0f) {
+                                const Vec3f offset(Math::round(cameraLocal.x), Math::round(cameraLocal.y), cameraLocal.z);
                                 
                                 const Vec2f::List& vertices = entry.vertices();
                                 for (size_t j = 0; j < vertices.size() / 2; j++) {
                                     const Vec2f& vertex = vertices[2 * j];
                                     const Vec2f& texCoords = vertices[2 * j + 1];
                                     
-                                    vertexArray.addAttribute(vertex + offset);
+                                    vertexArray.addAttribute(Vec3f(vertex.x, vertex.y, 0.0f) + offset);
                                     vertexArray.addAttribute(texCoords);
                                 }
                             }

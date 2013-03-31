@@ -181,6 +181,7 @@ namespace TrenchBroom {
             ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
 
             EntityClassnameFilter classnameFilter;
+            /*
             if (m_renderOccludedClassnames) {
                 glDisable(GL_DEPTH_TEST);
                 m_classnameRenderer->render(context, classnameFilter, textProgram,
@@ -188,6 +189,7 @@ namespace TrenchBroom {
                                             m_occludedClassnameBackgroundColor);
                 glEnable(GL_DEPTH_TEST);
             }
+             */
 
             m_classnameRenderer->render(context, classnameFilter, textProgram,
                                         m_classnameColor, textBackgroundProgram,

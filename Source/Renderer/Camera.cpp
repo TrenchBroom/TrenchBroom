@@ -121,7 +121,7 @@ namespace TrenchBroom {
             Vec3f result = m_matrix * point;
             result.x = m_viewport.width  * result.x / 2.0f;
             result.y = m_viewport.height * result.y / 2.0f;
-            result.z = m_farPlane * (1.0f - result.z);
+            result.z = m_nearPlane + (m_farPlane - m_nearPlane) * (1.0f - result.z);
             
             return result;
         }
