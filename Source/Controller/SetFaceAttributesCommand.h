@@ -33,6 +33,13 @@ namespace TrenchBroom {
     namespace Controller {
         class SetFaceAttributesCommand : public SnapshotCommand {
         protected:
+            typedef enum {
+                OpNone,
+                OpSet,
+                OpAdd,
+                OpMul
+            } Operation;
+            
             Model::FaceList m_faces;
             
             float m_xOffset;
@@ -43,11 +50,11 @@ namespace TrenchBroom {
             Model::Texture* m_texture;
             Model::Texture* m_previousMruTexture;
             
-            bool m_setXOffset;
-            bool m_setYOffset;
-            bool m_setXScale;
-            bool m_setYScale;
-            bool m_setRotation;
+            Operation m_xOffsetOp;
+            Operation m_yOffsetOp;
+            Operation m_xScaleOp;
+            Operation m_yScaleOp;
+            Operation m_rotationOp;
             bool m_setTexture;
 
             bool performDo();
@@ -58,29 +65,79 @@ namespace TrenchBroom {
 
             inline void setXOffset(float xOffset) {
                 m_xOffset = xOffset;
-                m_setXOffset = true;
+                m_xOffsetOp = OpSet;
             }
-
+            
+            inline void addXOffset(float xOffset) {
+                m_xOffset = xOffset;
+                m_xOffsetOp = OpAdd;
+            }
+            
+            inline void mulXOffset(float xOffset) {
+                m_xOffset = xOffset;
+                m_xOffsetOp = OpMul;
+            }
+            
             inline void setYOffset(float yOffset) {
                 m_yOffset = yOffset;
-                m_setYOffset = true;
+                m_yOffsetOp = OpSet;
+            }
+            
+            inline void addYOffset(float yOffset) {
+                m_yOffset = yOffset;
+                m_yOffsetOp = OpAdd;
+            }
+            
+            inline void mulYOffset(float yOffset) {
+                m_yOffset = yOffset;
+                m_yOffsetOp = OpMul;
             }
             
             inline void setXScale(float xScale) {
                 m_xScale = xScale;
-                m_setXScale = true;
+                m_xScaleOp = OpSet;
+            }
+            
+            inline void addXScale(float xScale) {
+                m_xScale = xScale;
+                m_xScaleOp = OpAdd;
+            }
+            
+            inline void mulXScale(float xScale) {
+                m_xScale = xScale;
+                m_xScaleOp = OpMul;
             }
             
             inline void setYScale(float yScale) {
                 m_yScale = yScale;
-                m_setYScale = true;
+                m_yScaleOp = OpSet;
+            }
+            
+            inline void addYScale(float yScale) {
+                m_yScale = yScale;
+                m_yScaleOp = OpAdd;
+            }
+            
+            inline void mulYScale(float yScale) {
+                m_yScale = yScale;
+                m_yScaleOp = OpMul;
             }
 
             inline void setRotation(float rotation) {
                 m_rotation = rotation;
-                m_setRotation = true;
+                m_rotationOp = OpSet;
             }
 
+            inline void addRotation(float rotation) {
+                m_rotation = rotation;
+                m_rotationOp = OpAdd;
+            }
+            
+            inline void mulRotation(float rotation) {
+                m_rotation = rotation;
+                m_rotationOp = OpMul;
+            }
+            
             inline void setTexture(Model::Texture* texture) {
                 m_texture = texture;
                 m_setTexture = true;

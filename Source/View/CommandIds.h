@@ -184,6 +184,8 @@ namespace TrenchBroom {
                 static const int ResetFaceAttribsId                 = Lowest + 14;
                 static const int FitTextureId                       = Lowest + 15;
                 static const int AlignTextureId                     = Lowest + 16;
+                static const int FlipTextureHorizontallyId          = Lowest + 17;
+                static const int FlipTextureVerticallyId            = Lowest + 18;
                 static const int Highest                            = Lowest + 99;
             }
             

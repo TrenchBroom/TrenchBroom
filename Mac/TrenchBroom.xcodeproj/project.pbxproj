@@ -25,7 +25,7 @@
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CC98E16DD568F00537742 /* ClassInfo.cpp */; };
-		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
+		481CDAD816026C48003E2EE9 /* PreferencesFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E566D1624451300B403F3 /* EntityRenderer.cpp */; };
 		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
@@ -115,6 +115,9 @@
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
 		4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */; };
+		489221AA170A125000444EA0 /* Flip_Texture_Horizontally.png in Resources */ = {isa = PBXBuildFile; fileRef = 489221A7170A125000444EA0 /* Flip_Texture_Horizontally.png */; };
+		489221AB170A125000444EA0 /* Flip_Texture_Vertically.png in Resources */ = {isa = PBXBuildFile; fileRef = 489221A8170A125000444EA0 /* Flip_Texture_Vertically.png */; };
+		489221AC170A125000444EA0 /* Reset_Texture.png in Resources */ = {isa = PBXBuildFile; fileRef = 489221A9170A125000444EA0 /* Reset_Texture.png */; };
 		48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */; };
 		4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */; };
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
@@ -475,6 +478,9 @@
 		4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RebuildBrushGeometryCommand.cpp; sourceTree = "<group>"; };
 		4889B3141703A5FC004B1BC0 /* RebuildBrushGeometryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RebuildBrushGeometryCommand.h; sourceTree = "<group>"; };
 		488C7A9A16E2628900718B0E /* IOTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOTypes.h; sourceTree = "<group>"; };
+		489221A7170A125000444EA0 /* Flip_Texture_Horizontally.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Flip_Texture_Horizontally.png; path = ../Resources/Graphics/Flip_Texture_Horizontally.png; sourceTree = "<group>"; };
+		489221A8170A125000444EA0 /* Flip_Texture_Vertically.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Flip_Texture_Vertically.png; path = ../Resources/Graphics/Flip_Texture_Vertically.png; sourceTree = "<group>"; };
+		489221A9170A125000444EA0 /* Reset_Texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Reset_Texture.png; path = ../Resources/Graphics/Reset_Texture.png; sourceTree = "<group>"; };
 		48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesCommand.cpp; sourceTree = "<group>"; };
 		48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesCommand.h; sourceTree = "<group>"; };
 		4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTexturesCommand.cpp; sourceTree = "<group>"; };
@@ -811,6 +817,9 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				489221A7170A125000444EA0 /* Flip_Texture_Horizontally.png */,
+				489221A8170A125000444EA0 /* Flip_Texture_Vertically.png */,
+				489221A9170A125000444EA0 /* Reset_Texture.png */,
 				4830050F16EA7E8100C05645 /* GeneralPreferences.png */,
 				4830051016EA7E8100C05645 /* KeyboardPreferences.png */,
 				483E203B16DCB33B00B087BB /* Defs */,
@@ -1361,6 +1370,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				489221AA170A125000444EA0 /* Flip_Texture_Horizontally.png in Resources */,
+				489221AB170A125000444EA0 /* Flip_Texture_Vertically.png in Resources */,
+				489221AC170A125000444EA0 /* Reset_Texture.png in Resources */,
 				4830051116EA7E8100C05645 /* GeneralPreferences.png in Resources */,
 				4830051216EA7E8100C05645 /* KeyboardPreferences.png in Resources */,
 				48A6E45F16D3EB2000CC328C /* Icon.png in Resources */,
