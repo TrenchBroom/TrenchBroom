@@ -156,6 +156,8 @@ namespace TrenchBroom {
 
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
+                glEnable(GL_MULTISAMPLE);
+
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);

@@ -147,6 +147,8 @@ namespace TrenchBroom {
                 */
                  
                 if (SetCurrent(*m_glContext)) {
+                    glEnable(GL_MULTISAMPLE);
+                    
                     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
