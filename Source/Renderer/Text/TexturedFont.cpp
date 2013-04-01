@@ -118,7 +118,7 @@ namespace TrenchBroom {
 
             Vec2f TexturedFont::measure(const String& string) {
                 Vec2f result;
-                result.y = m_lineHeight;
+                result.y = static_cast<float>(m_lineHeight);
 
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
