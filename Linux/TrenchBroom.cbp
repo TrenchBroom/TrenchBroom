@@ -142,6 +142,7 @@
 		<Unit filename="../Source/Controller/ClipTool.cpp" />
 		<Unit filename="../Source/Controller/ClipTool.h" />
 		<Unit filename="../Source/Controller/Command.h" />
+		<Unit filename="../Source/Controller/ControllerUtils.h" />
 		<Unit filename="../Source/Controller/CreateBrushTool.cpp" />
 		<Unit filename="../Source/Controller/CreateBrushTool.h" />
 		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.cpp" />
