@@ -169,6 +169,7 @@ namespace TrenchBroom {
                 return m_selectedFaceHandles.find(position) != m_selectedFaceHandles.end();
             }
             
+            const Model::BrushList& brushes(const Vec3f& handlePosition) const;
             const Model::EdgeList& edges(const Vec3f& handlePosition) const;
             const Model::FaceList& faces(const Vec3f& handlePosition) const;
 

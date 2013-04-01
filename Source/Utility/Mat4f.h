@@ -99,6 +99,13 @@ namespace TrenchBroom {
                              v[ 3] * right, v[ 7] * right, v[11] * right, v[15] * right);
             }
             
+            inline const Vec3f operator* (const Vec2f& right) const {
+                float w =     v[ 3] * right.x + v[ 7] * right.y + v[15];
+                return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[12]) / w,
+                             (v[ 1] * right.x + v[ 5] * right.y + v[13]) / w,
+                             (v[ 2] * right.x + v[ 6] * right.y + v[14]) / w);
+            }
+            
             inline const Vec3f operator* (const Vec3f& right) const {
                 float w =     v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
                 return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,

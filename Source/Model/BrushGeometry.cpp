@@ -99,8 +99,8 @@ namespace TrenchBroom {
                     newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
             }
 
-            // cheat a little bit
-            newVertex->position.correct(0.01f);
+            // cheat a little bit?, just like QBSP
+            newVertex->position.correct();
             
             if (start->mark == Vertex::Drop)
                 start = newVertex;
@@ -1449,7 +1449,7 @@ namespace TrenchBroom {
                 if (result == Redundant)
                     droppedFaces.insert(faces[i]);
                 else if (result == Null)
-                    return false;
+                    throw GeometryException("Empty brush");
             }
             for (size_t i = 0; i < vertices.size(); i++)
                 vertices[i]->position.correct();

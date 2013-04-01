@@ -41,6 +41,8 @@ namespace TrenchBroom {
 
             Vec2f(float i_x, float i_y) : x(i_x), y(i_y) {}
             
+            Vec2f(int i_x, int i_y) : x(static_cast<float>(i_x)), y(static_cast<float>(i_y)) {}
+            
             Vec2f(float f) : x(f), y(f) {}
 
             inline Vec2f& operator= (const Vec2f& right) {
@@ -134,6 +136,21 @@ namespace TrenchBroom {
                 float l = length();
                 return Vec2f(x / l,
                              y / l);
+            }
+            
+            inline Vec2f& round() {
+                x = Math::round(x);
+                y = Math::round(y);
+                return *this;
+            }
+            
+            inline const Vec2f rounded() const {
+                return Vec2f(Math::round(x), Math::round(y));
+            }
+            
+            inline bool isInteger(float epsilon = Math::AlmostZero) const {
+                return (std::abs(x - Math::round(x)) < epsilon &&
+                        std::abs(y - Math::round(y)) < epsilon);
             }
             
             inline Vec2f& correct(float epsilon = Math::CorrectEpsilon) {

@@ -81,6 +81,16 @@ namespace TrenchBroom {
         m_renderStateValid(false),
         m_recreateRenderers(true) {}
         
+        const Model::BrushList& VertexHandleManager::brushes(const Vec3f& handlePosition) const {
+            Model::VertexToBrushesMap::const_iterator mapIt = m_selectedVertexHandles.find(handlePosition);
+            if (mapIt != m_selectedVertexHandles.end())
+                return mapIt->second;
+            mapIt = m_unselectedVertexHandles.find(handlePosition);
+            if (mapIt != m_unselectedVertexHandles.end())
+                return mapIt->second;
+            return Model::EmptyBrushList;
+        }
+
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
             if (mapIt != m_selectedEdgeHandles.end())

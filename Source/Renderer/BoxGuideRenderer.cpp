@@ -49,8 +49,8 @@ namespace TrenchBroom {
             delete result;
         }
         
-        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::StringManager& stringManager) :
-        m_infoRenderer(BoxInfoRenderer(bounds, stringManager)),
+        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
+        m_infoRenderer(BoxInfoRenderer(bounds, fontManager)),
         m_color(Color(1.0f, 1.0f, 0.0f, 1.0f)),
         m_bounds(bounds),
         m_picker(picker),

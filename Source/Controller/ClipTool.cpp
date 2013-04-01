@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
                     if (m_normals[0].size() <= 2) { // the point is not on a vertex
                         validPlane = true;
-                        planePoints[0] = m_points[0].snapped();
+                        planePoints[0] = m_points[0].rounded();
                         
                         const Vec3f normal = m_normals[0].size() == 1 ? m_normals[0][0] : (m_normals[0][0] + m_normals[0][1]) / 2.0f;
                         planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
@@ -102,16 +102,16 @@ namespace TrenchBroom {
                     assert(!m_normals[1].empty());
                     
                     validPlane = true;
-                    planePoints[0] = m_points[0].snapped();
-                    planePoints[2] = m_points[1].snapped();
+                    planePoints[0] = m_points[0].rounded();
+                    planePoints[2] = m_points[1].rounded();
                     
                     const Vec3f normal = selectNormal(m_normals[0], m_normals[1]);
                     planePoints[1] = planePoints[0] + 128.0f * normal.firstAxis();
                 } else {
                     validPlane = true;
-                    planePoints[0] = m_points[0].snapped();
-                    planePoints[1] = m_points[1].snapped();
-                    planePoints[2] = m_points[2].snapped();
+                    planePoints[0] = m_points[0].rounded();
+                    planePoints[1] = m_points[1].rounded();
+                    planePoints[2] = m_points[2].rounded();
                 }
             }
             

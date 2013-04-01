@@ -26,38 +26,26 @@
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
-#include "Renderer/Text/PathRenderer.h"
+#include "Renderer/Text/FontManager.h"
+#include "Renderer/Text/TexturedFont.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace View {
         void EntityBrowserCanvas::addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) && (m_filterText.empty() || Utility::containsString(definition->name(), m_filterText, false))) {
-                Renderer::Text::FontDescriptor actualFont(font);
-                Vec2f actualSize;
-                
-                Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
-                Renderer::Text::StringRendererPtr stringRenderer(NULL);
-                StringRendererCache::iterator it = m_stringRendererCache.find(definition);
-                if (it != m_stringRendererCache.end()) {
-                    stringRenderer = it->second;
-                    actualSize = Vec2f(stringRenderer->width(), stringRenderer->height());
-                } else {
-                    String shortName = definition->shortName();
-                    
-                    float cellSize = layout.fixedCellSize();
-                    if  (cellSize > 0.0f)
-                        actualSize = stringManager.selectFontSizeWithEllipses(font, shortName, Vec2f(cellSize, static_cast<float>(font.size())), 9, actualFont, shortName);
-                    else
-                        actualSize = stringManager.measureString(font, shortName);
-                    stringRenderer = stringManager.stringRenderer(actualFont, shortName);
-                    m_stringRendererCache.insert(StringRendererCacheEntry(definition, stringRenderer));
-                }
+                Renderer::Text::FontManager& fontManager =  m_documentViewHolder.document().sharedResources().fontManager();
+                const float maxCellWidth = layout.maxCellWidth();
+                const Renderer::Text::FontDescriptor actualFont = fontManager.selectFontSize(font, definition->name(), maxCellWidth, 5);
+                const Vec2f actualSize = fontManager.font(actualFont)->measure(definition->name());
                 
                 Renderer::EntityModelRendererManager& modelRendererManager = m_documentViewHolder.document().sharedResources().modelRendererManager();
                 const StringList& searchPaths = m_documentViewHolder.document().searchPaths();
@@ -79,7 +67,7 @@ namespace TrenchBroom {
                 }
                 
                 Vec3f size = rotatedBounds.size();
-                layout.addItem(EntityCellData(definition, modelRenderer, stringRenderer, rotatedBounds), size.y, size.z, actualSize.x, font.size() + 2.0f);
+                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds), size.y, size.z, actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -126,14 +114,14 @@ namespace TrenchBroom {
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setFixedCellSize(CRBoth, 64.0f);
-            layout.setScaleCellsUp(true, 1.5f);
+            layout.setCellWidth(93.0f, 93.0f);
+            layout.setCellHeight(64.0f, 128.0f);
+            layout.setMaxUpScale(1.5f);
         }
         
         void EntityBrowserCanvas::doReloadLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Model::EntityDefinitionManager& definitionManager = m_documentViewHolder.document().definitionManager();
-            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
             
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::EntityBrowserFontSize);
@@ -150,7 +138,7 @@ namespace TrenchBroom {
                     const String& groupName = groupIt->first;
                     const Model::EntityDefinitionList& definitions = groupIt->second;
                     
-                    layout.addGroup(EntityGroupData(groupName, stringManager.stringRenderer(font, groupName)), fontSize + 2.0f);
+                    layout.addGroup(groupName, fontSize + 2.0f);
                     
                     Model::EntityDefinitionList::const_iterator defIt, defEnd;
                     for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
@@ -166,15 +154,23 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserCanvas::doClear() {
-            m_stringRendererCache.clear();
         }
 
         void EntityBrowserCanvas::doRender(Layout& layout, float y, float height) {
-            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
-            Renderer::ShaderProgram& boundsProgram = shaderManager.shaderProgram(Renderer::Shaders::EdgeShader);
-            Renderer::ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Renderer::Shaders::EntityModelShader);
-            Renderer::ShaderProgram& textProgram = shaderManager.shaderProgram(Renderer::Shaders::TextShader);
+            if (m_vbo == NULL)
+                m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
+            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+            Renderer::Text::FontManager& fontManager = m_documentViewHolder.document().sharedResources().fontManager();
+
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::Text::FontDescriptor defaultDescriptor(prefs.getString(Preferences::RendererFontName),
+                                                             static_cast<unsigned int>(prefs.getInt(Preferences::TextureBrowserFontSize)));
+
+            Renderer::EntityModelRendererManager& modelRendererManager = m_documentViewHolder.document().sharedResources().modelRendererManager();
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glEnable(GL_DEPTH_TEST);
 
             float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
@@ -190,124 +186,157 @@ namespace TrenchBroom {
             view.translate(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection * view, true);
 
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Renderer::EntityModelRendererManager& modelRendererManager = m_documentViewHolder.document().sharedResources().modelRendererManager();
-            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
-
-            // render bounds
-            boundsProgram.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    for (unsigned int j = 0; j < group.size(); j++) {
-                        const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                Model::PointEntityDefinition* definition = cell.item().entityDefinition;
-                                Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
-                                if (modelRenderer == NULL)
-                                    renderEntityBounds(transformation, boundsProgram, *definition, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
-                            }
-                        }
-                    }
-                }
-            }
-            boundsProgram.deactivate();
+            size_t visibleGroupCount = 0;
+            size_t visibleItemCount = 0;
             
-            // render models
-            modelRendererManager.activate();
-            entityModelProgram.activate();
-            entityModelProgram.setUniformVariable("ApplyTinting", false);
-            entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-            entityModelProgram.setUniformVariable("GrayScale", false);
+            typedef std::map<Renderer::Text::FontDescriptor, Vec2f::List> StringMap;
+            StringMap stringVertices;
+
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
+                    visibleGroupCount++;
+                    
+                    const String& title = group.item();
+                    if (!title.empty()) {
+                        const LayoutBounds titleBounds = group.titleBounds();
+                        const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        
+                        Renderer::Text::TexturedFont* font = fontManager.font(defaultDescriptor);
+                        Vec2f::List titleVertices = font->quads(title, false, offset);
+                        Vec2f::List& vertices = stringVertices[defaultDescriptor];
+                        vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                    }
+                    
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
+                                visibleItemCount++;
+                                
                                 const Layout::Group::Row::Cell& cell = row[k];
-                                Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
-                                if (modelRenderer != NULL)
-                                    renderEntityModel(transformation, entityModelProgram, *modelRenderer, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
+                                const LayoutBounds titleBounds = cell.titleBounds();
+                                const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                
+                                Renderer::Text::TexturedFont* font = fontManager.font(cell.item().fontDescriptor);
+                                Vec2f::List titleVertices = font->quads(cell.item().entityDefinition->name(), false, offset);
+                                Vec2f::List& vertices = stringVertices[cell.item().fontDescriptor];
+                                vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                             }
                         }
                     }
                 }
             }
-            entityModelProgram.deactivate();
-            modelRendererManager.deactivate();
+            
+            { // render bounds
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::EdgeShader);
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
+                        for (unsigned int j = 0; j < group.size(); j++) {
+                            const Layout::Group::Row& row = group[j];
+                            if (row.intersectsY(y, height)) {
+                                for (unsigned int k = 0; k < row.size(); k++) {
+                                    const Layout::Group::Row::Cell& cell = row[k];
+                                    Model::PointEntityDefinition* definition = cell.item().entityDefinition;
+                                    Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
+                                    if (modelRenderer == NULL)
+                                        renderEntityBounds(transformation,
+                                                           shader.currentShader(),
+                                                           *definition,
+                                                           cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)),
+                                                           cell.scale());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            { // render models
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::EntityModelShader);
+                shader.currentShader().setUniformVariable("ApplyTinting", false);
+                shader.currentShader().setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                shader.currentShader().setUniformVariable("GrayScale", false);
+
+                modelRendererManager.activate();
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
+                        for (unsigned int j = 0; j < group.size(); j++) {
+                            const Layout::Group::Row& row = group[j];
+                            if (row.intersectsY(y, height)) {
+                                for (unsigned int k = 0; k < row.size(); k++) {
+                                    const Layout::Group::Row::Cell& cell = row[k];
+                                    Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
+                                    if (modelRenderer != NULL)
+                                        renderEntityModel(transformation,
+                                                          shader.currentShader(),
+                                                          *modelRenderer,
+                                                          cell.item().bounds,
+                                                          Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)),
+                                                          cell.scale());
+                                }
+                            }
+                        }
+                    }
+                }
+                modelRendererManager.deactivate();
+            }
 
             glDisable(GL_DEPTH_TEST);
             view.setView(Vec3f::NegZ, Vec3f::PosY);
             view.translate(Vec3f(0.0f, 0.0f, -1.0f));
             transformation = Renderer::Transformation(projection * view, true);
 
-            // render entity captions
-            textProgram.activate();
-            stringManager.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    for (unsigned int j = 0; j < group.size(); j++) {
-                        const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                
-                                textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
-                                
-                                Mat4f translation;
-                                translation.translate(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f);
-                                Renderer::ApplyMatrix applyTranslation(transformation, translation);
-                                
-                                Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
-                                stringRenderer->render();
-                            }
-                        }
-                    }
-                }
-            }
-            stringManager.deactivate();
-            
-            // render group title background
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    if (!group.item().groupName.empty()) {
-                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+            if (visibleGroupCount > 0) { // render group title background
+                unsigned int vertexCount = static_cast<unsigned int>(4 * visibleGroupCount);
+                Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
+                                                  Renderer::Attribute::position2f());
+                
+                Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
+                for (unsigned int i = 0; i < layout.size(); i++) {
+                    const Layout::Group& group = layout[i];
+                    if (group.intersectsY(y, height)) {
                         LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        glBegin(GL_QUADS);
-                        glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
-                        glVertex2f(titleBounds.left(), height - (titleBounds.bottom() - y));
-                        glVertex2f(titleBounds.right(), height - (titleBounds.bottom() - y));
-                        glVertex2f(titleBounds.right(), height - (titleBounds.top() - y));
-                        glEnd();
+                        vertexArray.addAttribute(Vec2f(titleBounds.left(), height - (titleBounds.top() - y)));
+                        vertexArray.addAttribute(Vec2f(titleBounds.left(), height - (titleBounds.bottom() - y)));
+                        vertexArray.addAttribute(Vec2f(titleBounds.right(), height - (titleBounds.bottom() - y)));
+                        vertexArray.addAttribute(Vec2f(titleBounds.right(), height - (titleBounds.top() - y)));
                     }
                 }
+                
+                Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
+                Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::BrowserGroupShader);
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                vertexArray.render();
             }
             
-            // render group captions
-            stringManager.activate();
-            for (unsigned int i = 0; i < layout.size(); i++) {
-                const Layout::Group& group = layout[i];
-                if (group.intersectsY(y, height)) {
-                    if (!group.item().groupName.empty()) {
-                        LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        Mat4f translation;
-                        translation.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
-                        Renderer::ApplyMatrix applyTranslation(transformation, translation);
-                        
-                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
-                        Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
-                        stringRenderer->render();
-                    }
+            if (!stringVertices.empty()) { // render strings
+                StringMap::iterator it, end;
+                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
+                    const Renderer::Text::FontDescriptor& descriptor = it->first;
+                    Renderer::Text::TexturedFont* font = fontManager.font(descriptor);
+                    const Vec2f::List& vertices = it->second;
+
+                    unsigned int vertexCount = static_cast<unsigned int>(vertices.size() / 2);
+                    Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
+                                                      Renderer::Attribute::position2f(),
+                                                      Renderer::Attribute::texCoord02f(), 0);
+                    
+                    Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
+                    vertexArray.addAttributes(vertices);
+                    
+                    Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
+                    Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextShader);
+                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
+                    shader.currentShader().setUniformVariable("Texture", 0);
+                    
+                    font->activate();
+                    vertexArray.render();
+                    font->deactivate();
                 }
             }
-            stringManager.deactivate();
-            textProgram.deactivate();
         }
         
         bool EntityBrowserCanvas::dndEnabled() {
@@ -386,6 +415,7 @@ namespace TrenchBroom {
         CellLayoutGLCanvas(parent, windowId, documentViewHolder.document().sharedResources().attribs(), documentViewHolder.document().sharedResources().sharedContext(), scrollBar),
         m_documentViewHolder(documentViewHolder),
         m_offscreenRenderer(GL::glCapabilities()),
+        m_vbo(NULL),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Model::EntityDefinitionManager::Name) {
@@ -396,7 +426,8 @@ namespace TrenchBroom {
         
         EntityBrowserCanvas::~EntityBrowserCanvas() {
             clear();
-            m_stringRendererCache.clear();
+            delete m_vbo;
+            m_vbo = NULL;
         }
     }
 }

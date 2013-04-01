@@ -82,11 +82,6 @@
 		4850D27A15F4C9E8005B162D /* EntityModelRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */; };
 		4850D27F15F4CA62005B162D /* AliasModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */; };
 		4850D28015F4CA62005B162D /* BspModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */; };
-		4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29515F53CE9005B162D /* StringVectorizer.cpp */; };
-		4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29815F5475E005B162D /* PathBuilder.cpp */; };
-		4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A315F73FC7005B162D /* PathRenderer.cpp */; };
-		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
-		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
 		48688C9516E354EC0080F70F /* NSLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48688C9316E354EC0080F70F /* NSLog.mm */; };
@@ -135,6 +130,10 @@
 		48AD1B361646C08D009F839B /* Handle.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48AD1B351646C08D009F839B /* Handle.fragsh */; };
 		48AD1B381646C10C009F839B /* ColoredHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48AD1B371646C10C009F839B /* ColoredHandle.vertsh */; };
 		48AD1B3B1646C151009F839B /* AxisFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AD1B391646C151009F839B /* AxisFigure.cpp */; };
+		48ADAF9E1706F4EC005555DC /* TexturedFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48ADAF9C1706F4EC005555DC /* TexturedFont.cpp */; };
+		48ADAFA117070CCB005555DC /* FontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48ADAF9F17070CCB005555DC /* FontManager.cpp */; };
+		48ADAFA81707483E005555DC /* BrowserGroup.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48ADAFA61707483E005555DC /* BrowserGroup.fragsh */; };
+		48ADAFA91707483E005555DC /* BrowserGroup.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48ADAFA71707483E005555DC /* BrowserGroup.vertsh */; };
 		48AF491F15E77BF90083DE52 /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */; };
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F315F8B7360027C465 /* libfreetype.a */; };
@@ -407,22 +406,7 @@
 		4850D27C15F4CA61005B162D /* AliasModelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasModelRenderer.h; sourceTree = "<group>"; };
 		4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BspModelRenderer.cpp; sourceTree = "<group>"; };
 		4850D27E15F4CA62005B162D /* BspModelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspModelRenderer.h; sourceTree = "<group>"; };
-		4850D28315F52CCE005B162D /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
-		4850D28915F53168005B162D /* FontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontDescriptor.h; sourceTree = "<group>"; };
-		4850D29515F53CE9005B162D /* StringVectorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringVectorizer.cpp; sourceTree = "<group>"; };
-		4850D29615F53CE9005B162D /* StringVectorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringVectorizer.h; sourceTree = "<group>"; };
-		4850D29815F5475E005B162D /* PathBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathBuilder.cpp; sourceTree = "<group>"; };
-		4850D29915F5475E005B162D /* PathBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathBuilder.h; sourceTree = "<group>"; };
-		4850D2A315F73FC7005B162D /* PathRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathRenderer.cpp; sourceTree = "<group>"; };
-		4850D2A415F73FC7005B162D /* PathRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathRenderer.h; sourceTree = "<group>"; };
-		4850D2A715F742CA005B162D /* PathTesselator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTesselator.cpp; sourceTree = "<group>"; };
-		4850D2A815F742CA005B162D /* PathTesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathTesselator.h; sourceTree = "<group>"; };
-		4850D2AB15F743BA005B162D /* PathMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathMesh.h; sourceTree = "<group>"; };
-		4850D2AD15F76244005B162D /* StringManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringManager.cpp; sourceTree = "<group>"; };
-		4850D2AE15F76245005B162D /* StringManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringManager.h; sourceTree = "<group>"; };
 		4850D2B015F76EC0005B162D /* TextRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextRenderer.h; sourceTree = "<group>"; };
-		4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameAnchor.h; sourceTree = "<group>"; };
-		4850D2B315F776A8005B162D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReparentBrushesCommand.cpp; sourceTree = "<group>"; };
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
 		485B70D416AC3240002E95B6 /* RotateHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateHandle.cpp; sourceTree = "<group>"; };
@@ -514,6 +498,14 @@
 		48AD1B371646C10C009F839B /* ColoredHandle.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = ColoredHandle.vertsh; sourceTree = "<group>"; };
 		48AD1B391646C151009F839B /* AxisFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AxisFigure.cpp; sourceTree = "<group>"; };
 		48AD1B3A1646C151009F839B /* AxisFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxisFigure.h; sourceTree = "<group>"; };
+		48ADAF991705F738005555DC /* FontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontDescriptor.h; sourceTree = "<group>"; };
+		48ADAF9B170603C3005555DC /* TextureBitmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureBitmap.h; sourceTree = "<group>"; };
+		48ADAF9C1706F4EC005555DC /* TexturedFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TexturedFont.cpp; sourceTree = "<group>"; };
+		48ADAF9D1706F4EC005555DC /* TexturedFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TexturedFont.h; sourceTree = "<group>"; };
+		48ADAF9F17070CCB005555DC /* FontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontManager.cpp; sourceTree = "<group>"; };
+		48ADAFA017070CCB005555DC /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontManager.h; sourceTree = "<group>"; };
+		48ADAFA61707483E005555DC /* BrowserGroup.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BrowserGroup.fragsh; sourceTree = "<group>"; };
+		48ADAFA71707483E005555DC /* BrowserGroup.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BrowserGroup.vertsh; sourceTree = "<group>"; };
 		48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometry.cpp; sourceTree = "<group>"; };
 		48AF491E15E77BF90083DE52 /* BrushGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGeometry.h; sourceTree = "<group>"; };
 		48AF492115E782E90083DE52 /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
@@ -739,8 +731,6 @@
 				48819C3715EBE92800BEA604 /* Camera.h */,
 				484CEC47165396A9000913D0 /* EdgeRenderer.cpp */,
 				484CEC48165396A9000913D0 /* EdgeRenderer.h */,
-				4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */,
-				4850D2B315F776A8005B162D /* EntityClassnameFilter.h */,
 				487567B016A09BF5008F316F /* EntityDecorator.h */,
 				4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */,
 				4850D27615F4C9C2005B162D /* EntityModelRenderer.h */,
@@ -1092,20 +1082,13 @@
 		4850D28115F52CBE005B162D /* Text */ = {
 			isa = PBXGroup;
 			children = (
-				4850D28315F52CCE005B162D /* Path.h */,
-				4850D29815F5475E005B162D /* PathBuilder.cpp */,
-				4850D29915F5475E005B162D /* PathBuilder.h */,
-				4850D2AB15F743BA005B162D /* PathMesh.h */,
-				4850D2A315F73FC7005B162D /* PathRenderer.cpp */,
-				4850D2A415F73FC7005B162D /* PathRenderer.h */,
-				4850D2A715F742CA005B162D /* PathTesselator.cpp */,
-				4850D2A815F742CA005B162D /* PathTesselator.h */,
-				4850D28915F53168005B162D /* FontDescriptor.h */,
-				4850D29515F53CE9005B162D /* StringVectorizer.cpp */,
-				4850D29615F53CE9005B162D /* StringVectorizer.h */,
-				4850D2AD15F76244005B162D /* StringManager.cpp */,
-				4850D2AE15F76245005B162D /* StringManager.h */,
+				48ADAF991705F738005555DC /* FontDescriptor.h */,
+				48ADAF9F17070CCB005555DC /* FontManager.cpp */,
+				48ADAFA017070CCB005555DC /* FontManager.h */,
 				4850D2B015F76EC0005B162D /* TextRenderer.h */,
+				48ADAF9B170603C3005555DC /* TextureBitmap.h */,
+				48ADAF9C1706F4EC005555DC /* TexturedFont.cpp */,
+				48ADAF9D1706F4EC005555DC /* TexturedFont.h */,
 			);
 			path = Text;
 			sourceTree = "<group>";
@@ -1251,6 +1234,8 @@
 		48EA11A515FA7CAD00391885 /* Shader */ = {
 			isa = PBXGroup;
 			children = (
+				48ADAFA61707483E005555DC /* BrowserGroup.fragsh */,
+				48ADAFA71707483E005555DC /* BrowserGroup.vertsh */,
 				48AD1B2B1646BFAE009F839B /* ColoredEdge.vertsh */,
 				48AD1B371646C10C009F839B /* ColoredHandle.vertsh */,
 				48AD1B2F1646C03D009F839B /* Edge.fragsh */,
@@ -1407,6 +1392,8 @@
 				48AD1B381646C10C009F839B /* ColoredHandle.vertsh in Resources */,
 				480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */,
 				487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */,
+				48ADAFA81707483E005555DC /* BrowserGroup.fragsh in Resources */,
+				48ADAFA91707483E005555DC /* BrowserGroup.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1485,11 +1472,6 @@
 				4850D26915F4A01C005B162D /* Pak.cpp in Sources */,
 				4850D27F15F4CA62005B162D /* AliasModelRenderer.cpp in Sources */,
 				4850D28015F4CA62005B162D /* BspModelRenderer.cpp in Sources */,
-				4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */,
-				4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */,
-				4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */,
-				4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */,
-				4850D2AF15F76245005B162D /* StringManager.cpp in Sources */,
 				48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */,
 				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
 				48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */,
@@ -1601,6 +1583,8 @@
 				48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */,
 				480111B016FCEFC8009B1BFB /* FindPlanePoints.cpp in Sources */,
 				4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */,
+				48ADAF9E1706F4EC005555DC /* TexturedFont.cpp in Sources */,
+				48ADAFA117070CCB005555DC /* FontManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

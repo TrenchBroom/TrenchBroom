@@ -254,6 +254,14 @@ namespace TrenchBroom {
                 return this->dot(*this);
             }
             
+            inline float distanceTo(const Vec3f& other) const {
+                return (*this - other).length();
+            }
+            
+            inline float squaredDistanceTo(const Vec3f& other) const {
+                return (*this - other).lengthSquared();
+            }
+            
             inline Vec3f& normalize() {
                 float l = length();
                 x /= l;
@@ -267,25 +275,6 @@ namespace TrenchBroom {
                 return Vec3f(x / l,
                              y / l,
                              z / l);
-            }
-            
-            inline bool isInteger(float epsilon = Math::AlmostZero) const {
-                return (std::abs(x - Math::round(x)) < epsilon &&
-                        std::abs(y - Math::round(y)) < epsilon &&
-                        std::abs(z - Math::round(z)) < epsilon);
-            }
-            
-            inline Vec3f& correct(float epsilon = Math::CorrectEpsilon) {
-                x = Math::correct(x, epsilon);
-                y = Math::correct(y, epsilon);
-                z = Math::correct(z, epsilon);
-                return *this;
-            }
-            
-            inline const Vec3f corrected(float epsilon = Math::CorrectEpsilon) const {
-                return Vec3f(Math::correct(x, epsilon),
-                             Math::correct(y, epsilon),
-                             Math::correct(z, epsilon));
             }
             
             inline bool equals(const Vec3f& other, float delta = Math::AlmostZero) const {
@@ -447,34 +436,6 @@ namespace TrenchBroom {
                 return result.str();
             }
             
-            inline Vec3f& snap() {
-                snap(Math::AlmostZero);
-                return *this;
-            }
-            
-            inline Vec3f& snap(float epsilon) {
-                float xr = Math::round(x);
-                float yr = Math::round(y);
-                float zr = Math::round(z);
-                x = Math::eq(x, xr) ? xr : x;
-                y = Math::eq(y, yr) ? yr : y;
-                z = Math::eq(z, zr) ? zr : z;
-                return *this;
-            }
-            
-            inline const Vec3f snapped() const {
-                return snapped(Math::AlmostZero);
-            }
-            
-            inline const Vec3f snapped(float epsilon) const {
-                float xr = Math::round(x);
-                float yr = Math::round(y);
-                float zr = Math::round(z);
-                return Vec3f(Math::eq(x, xr) ? xr : x,
-                             Math::eq(y, yr) ? yr : y,
-                             Math::eq(z, zr) ? zr : z);
-            }
-            
             inline Vec3f& round() {
                 x = Math::round(x);
                 y = Math::round(y);
@@ -484,6 +445,25 @@ namespace TrenchBroom {
             
             inline const Vec3f rounded() const {
                 return Vec3f(Math::round(x), Math::round(y), Math::round(z));
+            }
+            
+            inline bool isInteger(float epsilon = Math::AlmostZero) const {
+                return (std::abs(x - Math::round(x)) < epsilon &&
+                        std::abs(y - Math::round(y)) < epsilon &&
+                        std::abs(z - Math::round(z)) < epsilon);
+            }
+            
+            inline Vec3f& correct(float epsilon = Math::CorrectEpsilon) {
+                x = Math::correct(x, epsilon);
+                y = Math::correct(y, epsilon);
+                z = Math::correct(z, epsilon);
+                return *this;
+            }
+            
+            inline const Vec3f corrected(float epsilon = Math::CorrectEpsilon) const {
+                return Vec3f(Math::correct(x, epsilon),
+                             Math::correct(y, epsilon),
+                             Math::correct(z, epsilon));
             }
             
             inline Vec3f& rotate90(Axis::Type axis, bool clockwise) {

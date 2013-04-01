@@ -392,6 +392,12 @@ namespace TrenchBroom {
                 delete face;
             }
 
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -418,6 +424,12 @@ namespace TrenchBroom {
                 delete face;
             }
 
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -444,6 +456,12 @@ namespace TrenchBroom {
                 delete face;
             }
 
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -470,6 +488,12 @@ namespace TrenchBroom {
                 delete face;
             }
 
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -479,15 +503,15 @@ namespace TrenchBroom {
             return newVertexPosition;
         }
 
-        bool Brush::canSplitFace(const FaceInfo& face, const Vec3f& delta) const {
-            return m_geometry->canSplitFace(m_worldBounds, face, delta);
+        bool Brush::canSplitFace(const FaceInfo& faceInfo, const Vec3f& delta) const {
+            return m_geometry->canSplitFace(m_worldBounds, faceInfo, delta);
         }
 
-        Vec3f Brush::splitFace(const FaceInfo& face, const Vec3f& delta) {
+        Vec3f Brush::splitFace(const FaceInfo& faceInfo, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            Vec3f newVertexPosition = m_geometry->splitFace(m_worldBounds, face, delta, newFaces, droppedFaces);
+            Vec3f newVertexPosition = m_geometry->splitFace(m_worldBounds, faceInfo, delta, newFaces, droppedFaces);
 
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* dropFace = *it;
@@ -496,6 +520,12 @@ namespace TrenchBroom {
                 delete dropFace;
             }
 
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* newFace = *it;
                 newFace->setBrush(this);
