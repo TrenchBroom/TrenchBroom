@@ -50,7 +50,7 @@ namespace TrenchBroom {
         const Preference<bool>  GridCheckerboard = Preference<bool>(                            "Renderer/Grid Checkerboard",                                   false);
 
         const Preference<Color> EntityRotationDecoratorColor = Preference<Color>(               "Renderer/Colors/Decorators/Entity rotation",                   Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        
+
         const Preference<Color> BackgroundColor = Preference<Color>(                            "Renderer/Colors/Background",                                   Color(0.0f,  0.0f,  0.0f,  1.0f ));
 
         const Preference<Color> GuideColor = Preference<Color>(                                 "Renderer/Colors/Guide",                                        Color(1.0f,  0.0f,  0.0f,  0.3f ));
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
         const Preference<Color> ResizeBrushFaceColor = Preference<Color>(                        "Renderer/Colors/Face color when resizing",                    Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> OccludedResizeBrushFaceColor = Preference<Color>(                "Renderer/Colors/Occluded face color when resizing",           Color(1.0f,  1.0f,  1.0f,  0.5f ));
-        
+
         const Preference<Color> BrowserTextColor = Preference<Color>(                           "Texture browser/Texture color",                                Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> SelectedTextureColor = Preference<Color>(                       "Texture browser/Selected texture color",                       Color(0.8f,  0.0f,  0.0f,  1.0f ));
         const Preference<Color> UsedTextureColor = Preference<Color>(                           "Texture browser/Used texture color",                           Color(0.8f,  0.8f,  0.0f,  1.0f ));
@@ -145,7 +145,7 @@ namespace TrenchBroom {
         const int               RendererInstancingModeAutodetect    = 0;
         const int               RendererInstancingModeForceOn       = 1;
         const int               RendererInstancingModeForceOff      = 2;
-        
+
         const Preference<KeyboardShortcut>  FileNew = Preference<KeyboardShortcut>(                             "Menu/File/New",                                        KeyboardShortcut(wxID_NEW, WXK_CONTROL, 'N', KeyboardShortcut::SCAny, "New"));
         const Preference<KeyboardShortcut>  FileOpen = Preference<KeyboardShortcut>(                            "Menu/File/Open",                                       KeyboardShortcut(wxID_OPEN, WXK_CONTROL, 'O', KeyboardShortcut::SCAny, "Open..."));
         const Preference<KeyboardShortcut>  FileSave = Preference<KeyboardShortcut>(                            "Menu/File/Save",                                       KeyboardShortcut(wxID_SAVE, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save"));
@@ -181,7 +181,7 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  EditToolsPerformClip = Preference<KeyboardShortcut>(                "Menu/Edit/Tools/Perform Clip",                         KeyboardShortcut(Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCAny, "Perform Clip"));
         const Preference<KeyboardShortcut>  EditToolsToggleVertexTool = Preference<KeyboardShortcut>(           "Menu/Edit/Tools/Toggle Vertex Tool",                   KeyboardShortcut(Menu::EditToggleVertexTool, 'V', KeyboardShortcut::SCAny, "Vertex Tool"));
         const Preference<KeyboardShortcut>  EditToolsToggleRotateTool = Preference<KeyboardShortcut>(           "Menu/Edit/Tools/Toggle Rotate Tool",                   KeyboardShortcut(Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::SCAny, "Rotate Tool"));
-        
+
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesUp = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Move Textures Up (Coarse)",          KeyboardShortcut(Menu::EditMoveTexturesUp, WXK_UP, KeyboardShortcut::SCTextures, "Move Up"));
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesDown = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Textures Down (Coarse)",        KeyboardShortcut(Menu::EditMoveTexturesDown, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down"));
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesLeft = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Textures Left (Coarse)",        KeyboardShortcut(Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  EditActionsFlipObjectsHorizontally = Preference<KeyboardShortcut>(  "Menu/Edit/Actions/Flip Objects Horizontally",          KeyboardShortcut(Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
         const Preference<KeyboardShortcut>  EditActionsFlipObjectsVertically = Preference<KeyboardShortcut>(    "Menu/Edit/Actions/Flip Objects Vertically",            KeyboardShortcut(Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
         const Preference<KeyboardShortcut>  EditActionsDuplicateObjects = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Duplicate Objects",                  KeyboardShortcut(Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
-        
+
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesForward = Preference<KeyboardShortcut>(      "Menu/Edit/Actions/Move Vertices Forward",              KeyboardShortcut(Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesBackward = Preference<KeyboardShortcut>(     "Menu/Edit/Actions/Move Vertices Backward",             KeyboardShortcut(Menu::EditMoveVerticesBackward, WXK_DOWN, KeyboardShortcut::SCVertexTool, "Move Backward"));
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesLeft = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Vertices Left",                 KeyboardShortcut(Menu::EditMoveVerticesLeft, WXK_LEFT, KeyboardShortcut::SCVertexTool, "Move Left"));
