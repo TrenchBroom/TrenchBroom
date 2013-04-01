@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
         const Preference<float> InfoOverlayFadeDistance = Preference<float>(                    "Renderer/Info overlay fade distance",                          400.0f);
         const Preference<float> SelectedInfoOverlayFadeDistance = Preference<float>(            "Renderer/Selected info overlay fade distance",                 400.0f);
-        const Preference<int>   RendererFontSize = Preference<int>(                             "Renderer/Font size",                                           18);
+        const Preference<int>   RendererFontSize = Preference<int>(                             "Renderer/Font size",                                           16);
         const Preference<float> RendererBrightness = Preference<float>(                         "Renderer/Brightness",                                          1.0f);
         const Preference<float> GridAlpha = Preference<float>(                                  "Renderer/Grid Alpha",                                          0.25f);
         const Preference<bool>  GridCheckerboard = Preference<bool>(                            "Renderer/Grid Checkerboard",                                   false);
