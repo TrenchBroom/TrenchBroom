@@ -371,6 +371,7 @@ namespace TrenchBroom {
             
             m_map->setForceIntegerFacePoints(forceIntegerCoordinates);
             worldspawn(true)->setProperty(Entity::FacePointFormatKey, forceIntegerCoordinates);
+            incModificationCount();
 
             Controller::Command loadCommand(Controller::Command::LoadMap);
             UpdateAllViews(NULL, &loadCommand);
