@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         namespace Text {
-            
+
             namespace Alignment {
                 typedef unsigned int Type;
                 static const Type Top       = 1 << 0;
@@ -70,12 +70,12 @@ namespace TrenchBroom {
                 }
             public:
                 virtual ~TextAnchor() {}
-                
+
                 inline const Vec3f offset(const Camera& camera, const Vec2f& size) const {
                     const Vec2f halfSize = size / 2.0f;
                     const Vec2f factors = alignmentFactors();
                     Vec3f offset = camera.project(basePosition());
-                    
+
                     offset.x += factors.x * halfSize.x;
                     offset.y += factors.y * halfSize.y;
                     offset.x -= halfSize.x;
@@ -84,12 +84,12 @@ namespace TrenchBroom {
                     offset.y = Math::round(offset.y);
                     return offset;
                 }
-                
+
                 inline const Vec3f position() const {
                     return basePosition();
                 }
             };
-            
+
             class SimpleTextAnchor : public TextAnchor {
             private:
                 Vec3f m_position;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 inline const Vec3f basePosition() const {
                     return m_position;
                 }
-                
+
                 inline const Alignment::Type alignment() const {
                     return m_alignment;
                 }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 m_position(position),
                 m_alignment(alignment) {}
             };
-            
+
             template <typename Key>
             class DefaultKeyComparator {
             public:
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                     return lhs < rhs;
                 }
             };
-            
+
             template <typename Key, typename Anchor, typename Comparator = DefaultKeyComparator<Key> >
             class TextRenderer {
             public:
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                         return true;
                     }
                 };
-                
+
             protected:
                 class TextEntry {
                 private:
@@ -148,25 +148,25 @@ namespace TrenchBroom {
                     inline const Vec2f::List& vertices() const {
                         return m_vertices;
                     }
-                    
+
                     inline void update(const Vec2f::List& vertices, const Vec2f& size) {
                         m_vertices = vertices;
                         m_size = size;
                     }
-                    
+
                     inline const Vec2f& size() const {
                         return m_size;
                     }
-                    
+
                     inline const Anchor& textAnchor() const {
                         return m_textAnchor;
                     }
                 };
-                
+
                 typedef std::map<Key, TextEntry, Comparator> TextMap;
                 typedef std::pair<Key, TextEntry> TextMapItem;
                 typedef std::vector<TextEntry> EntryList;
-                
+
                 TexturedFont& m_font;
                 float m_fadeDistance;
                 float m_hInset;
@@ -174,16 +174,16 @@ namespace TrenchBroom {
 
                 TextMap m_entries;
                 Vbo* m_vbo;
-                
+
                 inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, const Anchor& anchor) {
                     removeString(key);
                     m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
                 }
-                
+
                 EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) {
                     float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
                     EntryList result;
-                    
+
                     typename TextMap::iterator it, end;
                     for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
                         Key key = it->first;
@@ -191,28 +191,28 @@ namespace TrenchBroom {
                             const TextEntry& entry = it->second;
                             const Anchor& anchor = entry.textAnchor();
                             const Vec3f position = anchor.position();
-                            
+
                             float dist2 = context.camera().squaredDistanceTo(position);
                             if (dist2 <= cutoff)
                                 result.push_back(entry);
                         }
                     }
-                    
+
                     return result;
                 }
-                
+
                 void renderBackground(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color) {
                     /*
                     if (shaderProgram.activate()) {
                         Mat4f billboardMatrix = context.camera().billboardMatrix();
-                        
+
                         unsigned int vertexCount = static_cast<unsigned int>(3 * 16 * entries.size()); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
                         VertexArray vertexArray(*m_vbo, GL_TRIANGLES, vertexCount,
                                                 Attribute::position3f(),
                                                 Attribute::color4f());
                         Vec2f::List vertices;
                         vertices.reserve(vertexCount);
-                        
+
                         SetVboState(*m_vbo, Vbo::VboActive);
                         {
                             SetVboState(*m_vbo, Vbo::VboMapped);
@@ -221,21 +221,21 @@ namespace TrenchBroom {
                                 TextEntry& entry = entryWithDistance.entry();
                                 float dist = entryWithDistance.distance();
                                 float factor = dist / 300.0f;
-                                
+
                                 StringRendererPtr stringRenderer = entry.stringRenderer();
                                 Anchor& anchor = entry.textAnchor();
                                 const Vec3f position = anchor->position();
-                                
+
                                 Mat4f matrix;
                                 matrix.translate(position);
                                 matrix *= billboardMatrix;
                                 matrix.scale(Vec3f(factor, factor, 0.0f));
-                                
+
                                 Vec3f alignment = anchor->alignmentFactors();
                                 alignment.x *= (stringRenderer->width() + 2.0f * m_hInset);
                                 alignment.y *= (stringRenderer->height() + 2.0f * m_vInset);
                                 matrix.translate(alignment);
-                                
+
                                 roundedRect(stringRenderer->width() + 2.0f * m_hInset, stringRenderer->height() + 2.0f * m_vInset, 3.0f, 3, vertices);
                                 for (unsigned int j = 0; j < vertices.size(); j++) {
                                     Vec3f vertex = Vec3f(vertices[j].x, vertices[j].y, 0.0f);
@@ -245,13 +245,13 @@ namespace TrenchBroom {
                                 vertices.clear();
                             }
                         }
-                        
+
                         vertexArray.render();
                         shaderProgram.deactivate();
                     }
                      */
                 }
-                
+
                 void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& textColor, const Color& backgroundColor)  {
 
                 }
@@ -262,34 +262,34 @@ namespace TrenchBroom {
                 m_hInset(4.0f),
                 m_vInset(4.0f),
                 m_vbo(NULL) {}
-                
+
                 ~TextRenderer() {
                     clear();
                     delete m_vbo;
                     m_vbo = NULL;
                 }
-                
+
                 inline void addString(Key key, const String& string, const Anchor& anchor) {
                     const Vec2f::List vertices = m_font.quads(string, true);
                     const Vec2f size = m_font.measure(string);
                     addString(key, vertices, size, anchor);
                 }
-                
+
                 inline void removeString(Key key)  {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         m_entries.erase(it);
                     }
                 }
-                
+
                 inline void updateString(Key key, const String& string) {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
-                        entry.setVertices(m_font.quads(string));
+                        entry.setVertices(m_font.quads(string, true));
                     }
                 }
-                
+
                 inline void transferString(Key key, TextRenderer& destination)  {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
@@ -298,60 +298,60 @@ namespace TrenchBroom {
                         m_entries.erase(it);
                     }
                 }
-                
+
                 inline bool empty() const {
                     return m_entries.empty();
                 }
-                
+
                 inline void clear()  {
                     m_entries.clear();
                 }
-                
+
                 inline void setFadeDistance(float fadeDistance)  {
                     m_fadeDistance = fadeDistance;
                 }
-                
+
                 void render(RenderContext& context, const TextRendererFilter& filter, ShaderProgram& textProgram, const Color& textColor, ShaderProgram& backgroundProgram, const Color& backgroundColor) {
                     if (m_entries.empty())
                         return;
-                    
+
                     EntryList entries = visibleEntries(context, filter);
                     if (entries.empty())
                         return;
-                    
+
                     if (m_vbo == NULL)
                         m_vbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-                    
+
                     size_t textVertexCount = 0;
                     for (size_t i = 0; i < entries.size(); i++) {
                         const TextEntry& entry = entries[i];
                         textVertexCount += entry.vertices().size() / 2;
                     }
-                    
+
                     VertexArray textArray(*m_vbo, GL_QUADS, static_cast<unsigned int>(textVertexCount),
                                           Attribute::position3f(),
                                           Attribute::texCoord02f());
-                    
+
                     size_t rectVertexCount = 3 * 16 * entries.size(); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
                     VertexArray rectArray(*m_vbo, GL_TRIANGLES, static_cast<unsigned int>(rectVertexCount),
                                           Attribute::position3f());
-                    
+
                     SetVboState mapVbo(*m_vbo, Vbo::VboMapped);
                     for (size_t i = 0; i < entries.size(); i++) {
                         const TextEntry& entry = entries[i];
                         const Vec2f& size = entry.size().rounded();
                         const Anchor& anchor = entry.textAnchor();
                         const Vec3f offset = anchor.offset(context.camera(), size);
-                        
+
                         const Vec2f::List& textVertices = entry.vertices();
                         for (size_t j = 0; j < textVertices.size() / 2; j++) {
                             const Vec2f& vertex = textVertices[2 * j];
                             const Vec2f& texCoords = textVertices[2 * j + 1];
-                            
+
                             textArray.addAttribute(Vec3f(vertex.x + offset.x, vertex.y + offset.y, -offset.z));
                             textArray.addAttribute(texCoords);
                         }
-                        
+
                         Vec2f::List rectVertices;
                         rectVertices.reserve(3 * 16);
                         roundedRect(size.x + 2.0f * m_hInset, size.y + 2.0f * m_vInset, 3.0f, 3, rectVertices);
@@ -360,25 +360,25 @@ namespace TrenchBroom {
                             rectArray.addAttribute(Vec3f(vertex.x + offset.x + size.x / 2.0f, vertex.y + offset.y + size.y / 2.0f, -offset.z));
                         }
                     }
-                    
+
                     const Camera::Viewport& viewport = context.camera().viewport();
-                    
+
                     Mat4f projection;
                     projection.setOrtho(0.0f, 1.0f,
                                         static_cast<float>(viewport.x),
                                         static_cast<float>(viewport.height),
                                         static_cast<float>(viewport.width),
                                         static_cast<float>(viewport.y));
-                    
+
                     Mat4f view;
                     view.setView(Vec3f::NegZ, Vec3f::PosY);
                     view.translate(Vec3f::Null);
-                    
+
                     ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
-                    
+
                     SetVboState activateVbo(*m_vbo, Vbo::VboActive);
                     glDepthMask(GL_FALSE);
-                    
+
                     if (backgroundProgram.activate()) {
                         backgroundProgram.setUniformVariable("Color", backgroundColor);
                         rectArray.render();
@@ -391,7 +391,7 @@ namespace TrenchBroom {
                         textArray.render();
                         m_font.deactivate();
                     }
-                    
+
                     glDepthMask(GL_TRUE);
                 }
             };
