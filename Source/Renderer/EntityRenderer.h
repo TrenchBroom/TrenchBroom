@@ -59,11 +59,11 @@ namespace TrenchBroom {
             class EntityClassnameAnchor : public Text::TextAnchor {
             private:
                 Model::Entity* m_entity;
+            protected:
+                inline const Vec3f basePosition() const;
+                inline const Text::Alignment::Type alignment() const;
             public:
                 EntityClassnameAnchor(Model::Entity& entity);
-                
-                const Vec3f position() const;
-                const Text::Alignment::Type alignment() const;
             };
             
             typedef Model::Entity* EntityKey;

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(Model::Entity& entity) :
         m_entity(&entity) {}
         
-        const Vec3f EntityRenderer::EntityClassnameAnchor::position() const {
+        const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
             Vec3f position = m_entity->center();
             position.z = m_entity->bounds().max.z + 1.0f;
             return position;

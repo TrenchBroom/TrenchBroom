@@ -51,29 +51,61 @@ namespace TrenchBroom {
             }
 
             class TextAnchor {
+            protected:
+                virtual const Vec3f basePosition() const = 0;
+                virtual const Alignment::Type alignment() const = 0;
+
+                inline const Vec2f alignmentFactors() const {
+                    const Alignment::Type a = alignment();
+                    Vec2f factors;
+                    if ((a & Alignment::Left))
+                        factors.x = +0.5f;
+                    else if ((a & Alignment::Right))
+                        factors.x = -0.5f;
+                    if ((a & Alignment::Top))
+                        factors.y = -0.5f;
+                    else if ((a & Alignment::Bottom))
+                        factors.y = +0.5f;
+                    return factors;
+                }
             public:
                 virtual ~TextAnchor() {}
                 
-                virtual const Vec3f position() const = 0;
-                virtual const Alignment::Type alignment() const = 0;
+                inline const Vec3f offset(const Camera& camera, const Vec2f& size) const {
+                    const Vec2f halfSize = size / 2.0f;
+                    const Vec2f factors = alignmentFactors();
+                    Vec3f offset = camera.project(basePosition());
+                    
+                    offset.x += factors.x * halfSize.x;
+                    offset.y += factors.y * halfSize.y;
+                    offset.x -= halfSize.x;
+                    offset.y -= halfSize.y;
+                    offset.x = Math::round(offset.x);
+                    offset.y = Math::round(offset.y);
+                    return offset;
+                }
+                
+                inline const Vec3f position() const {
+                    return basePosition();
+                }
             };
             
             class SimpleTextAnchor : public TextAnchor {
             private:
                 Vec3f m_position;
                 Alignment::Type m_alignment;
-            public:
-                SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment) :
-                m_position(position),
-                m_alignment(alignment) {}
-                
-                inline const Vec3f position() const {
+            protected:
+                inline const Vec3f basePosition() const {
                     return m_position;
                 }
                 
                 inline const Alignment::Type alignment() const {
                     return m_alignment;
                 }
+            public:
+                SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment) :
+                m_position(position),
+                m_alignment(alignment) {}
             };
             
             template <typename Key>
@@ -220,69 +252,15 @@ namespace TrenchBroom {
                      */
                 }
                 
-                void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color)  {
-                    if (shaderProgram.activate()) {
-                        size_t vertexCount = 0;
-                        for (size_t i = 0; i < entries.size(); i++) {
-                            const TextEntry& entry = entries[i];
-                            vertexCount += entry.vertices().size() / 2;
-                        }
-                        
-                        VertexArray vertexArray(*m_vbo, GL_QUADS, static_cast<unsigned int>(vertexCount),
-                                                Attribute::position3f(),
-                                                Attribute::texCoord02f());
+                void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& textColor, const Color& backgroundColor)  {
 
-                        SetVboState mapVbo(*m_vbo, Vbo::VboMapped);
-                        for (size_t i = 0; i < entries.size(); i++) {
-                            const TextEntry& entry = entries[i];
-                            const Vec2f& size = entry.size().rounded();
-                            const Anchor& anchor = entry.textAnchor();
-                            Vec3f offset = context.camera().project(anchor.position());
-                            offset.x = Math::round(offset.x - size.x / 2.0f);
-                            offset.y = Math::round(offset.y - size.y / 2.0f);
-                            
-                            
-                            const Vec2f::List& vertices = entry.vertices();
-                            for (size_t j = 0; j < vertices.size() / 2; j++) {
-                                const Vec2f& vertex = vertices[2 * j];
-                                const Vec2f& texCoords = vertices[2 * j + 1];
-                                
-                                vertexArray.addAttribute(Vec3f(vertex.x + offset.x, vertex.y + offset.y, -offset.z));
-                                vertexArray.addAttribute(texCoords);
-                            }
-                        }
-                        
-                        const Camera::Viewport& viewport = context.camera().viewport();
-                        
-                        Mat4f projection;
-                        projection.setOrtho(0.0f, 1.0f,
-                                            static_cast<float>(viewport.x),
-                                            static_cast<float>(viewport.height),
-                                            static_cast<float>(viewport.width),
-                                            static_cast<float>(viewport.y));
-                        
-                        Mat4f view;
-                        view.setView(Vec3f::NegZ, Vec3f::PosY);
-                        view.translate(Vec3f::Null);
-                        
-                        ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
-
-                        glDepthMask(GL_FALSE);
-                        SetVboState activateVbo(*m_vbo, Vbo::VboActive);
-                        shaderProgram.setUniformVariable("Color", color);
-                        shaderProgram.setUniformVariable("Texture", 0);
-                        m_font.activate();
-                        vertexArray.render();
-                        m_font.deactivate();
-                        glDepthMask(GL_TRUE);
-                    }
                 }
             public:
                 TextRenderer(TexturedFont& font) :
                 m_font(font),
                 m_fadeDistance(100.0f),
-                m_hInset(2.5f),
-                m_vInset(2.5f),
+                m_hInset(4.0f),
+                m_vInset(4.0f),
                 m_vbo(NULL) {}
                 
                 ~TextRenderer() {
@@ -344,8 +322,77 @@ namespace TrenchBroom {
                     if (m_vbo == NULL)
                         m_vbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
                     
-                    renderBackground(entries, context, backgroundProgram, backgroundColor);
-                    renderText(entries, context, textProgram, textColor);
+                    size_t textVertexCount = 0;
+                    for (size_t i = 0; i < entries.size(); i++) {
+                        const TextEntry& entry = entries[i];
+                        textVertexCount += entry.vertices().size() / 2;
+                    }
+                    
+                    VertexArray textArray(*m_vbo, GL_QUADS, static_cast<unsigned int>(textVertexCount),
+                                          Attribute::position3f(),
+                                          Attribute::texCoord02f());
+                    
+                    size_t rectVertexCount = 3 * 16 * entries.size(); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
+                    VertexArray rectArray(*m_vbo, GL_TRIANGLES, static_cast<unsigned int>(rectVertexCount),
+                                          Attribute::position3f());
+                    
+                    SetVboState mapVbo(*m_vbo, Vbo::VboMapped);
+                    for (size_t i = 0; i < entries.size(); i++) {
+                        const TextEntry& entry = entries[i];
+                        const Vec2f& size = entry.size().rounded();
+                        const Anchor& anchor = entry.textAnchor();
+                        const Vec3f offset = anchor.offset(context.camera(), size);
+                        
+                        const Vec2f::List& textVertices = entry.vertices();
+                        for (size_t j = 0; j < textVertices.size() / 2; j++) {
+                            const Vec2f& vertex = textVertices[2 * j];
+                            const Vec2f& texCoords = textVertices[2 * j + 1];
+                            
+                            textArray.addAttribute(Vec3f(vertex.x + offset.x, vertex.y + offset.y, -offset.z));
+                            textArray.addAttribute(texCoords);
+                        }
+                        
+                        Vec2f::List rectVertices;
+                        rectVertices.reserve(3 * 16);
+                        roundedRect(size.x + 2.0f * m_hInset, size.y + 2.0f * m_vInset, 3.0f, 3, rectVertices);
+                        for (size_t j = 0; j < rectVertices.size(); j++) {
+                            const Vec2f& vertex = rectVertices[j];
+                            rectArray.addAttribute(Vec3f(vertex.x + offset.x + size.x / 2.0f, vertex.y + offset.y + size.y / 2.0f, -offset.z));
+                        }
+                    }
+                    
+                    const Camera::Viewport& viewport = context.camera().viewport();
+                    
+                    Mat4f projection;
+                    projection.setOrtho(0.0f, 1.0f,
+                                        static_cast<float>(viewport.x),
+                                        static_cast<float>(viewport.height),
+                                        static_cast<float>(viewport.width),
+                                        static_cast<float>(viewport.y));
+                    
+                    Mat4f view;
+                    view.setView(Vec3f::NegZ, Vec3f::PosY);
+                    view.translate(Vec3f::Null);
+                    
+                    ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
+                    
+                    SetVboState activateVbo(*m_vbo, Vbo::VboActive);
+                    glDepthMask(GL_FALSE);
+                    
+                    if (backgroundProgram.activate()) {
+                        backgroundProgram.setUniformVariable("Color", backgroundColor);
+                        rectArray.render();
+                    }
+
+                    if (textProgram.activate()) {
+                        textProgram.setUniformVariable("Color", textColor);
+                        textProgram.setUniformVariable("Texture", 0);
+                        m_font.activate();
+                        textArray.render();
+                        m_font.deactivate();
+                    }
+                    
+                    glDepthMask(GL_TRUE);
                 }
             };
         }

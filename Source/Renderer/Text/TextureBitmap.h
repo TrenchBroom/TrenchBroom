@@ -38,6 +38,11 @@ namespace TrenchBroom {
                 size_t m_height;
                 char* m_buffer;
             public:
+                TextureBitmap() :
+                m_width(0),
+                m_height(0),
+                m_buffer(NULL) {}
+                
                 TextureBitmap(size_t width, size_t height) :
                 m_width(width),
                 m_height(height),
@@ -82,15 +87,16 @@ namespace TrenchBroom {
                     return m_buffer;
                 }
                 
-                inline void drawGlyph(const int x, const int y, const int rowHeight, const FT_GlyphSlot glyph) {
+                inline void drawGlyph(const int x, const int y, const int maxAscend, const FT_GlyphSlot glyph) {
                     const size_t left = static_cast<size_t>(x + glyph->bitmap_left);
-                    const size_t top = static_cast<size_t>(y + rowHeight - glyph->bitmap_top);
+                    const size_t top = static_cast<size_t>(y + maxAscend - glyph->bitmap_top);
                     const size_t rows = static_cast<size_t>(glyph->bitmap.rows);
                     const size_t width = static_cast<size_t>(glyph->bitmap.width);
                     const size_t pitch = static_cast<size_t>(glyph->bitmap.pitch);
                     
                     for (size_t r = 0; r < rows; r++) {
                         const size_t index = (r + top) * m_width + left;
+                        assert(index + width < m_width * m_height);
                         std::memcpy(m_buffer + index, glyph->bitmap.buffer + r * pitch, width);
                     }
                 }

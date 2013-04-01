@@ -37,7 +37,8 @@ namespace TrenchBroom {
                 FT_GlyphSlot glyph = face->glyph;
                 
                 int maxWidth = 0;
-                int maxHeight = 0;
+                int maxAscend = 0;
+                int maxDescend = 0;
                 
                 for (unsigned char c = m_minChar; c <= m_maxChar; c++) {
                     FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
@@ -45,13 +46,14 @@ namespace TrenchBroom {
                         continue;
                     
                     maxWidth = std::max(maxWidth, glyph->bitmap_left + glyph->bitmap.width);
-                    maxHeight = std::max(maxHeight, glyph->bitmap_top + glyph->bitmap.rows);
+                    maxAscend = std::max(maxAscend, glyph->bitmap_top);
+                    maxDescend = std::max(maxDescend, glyph->bitmap.rows - glyph->bitmap_top);
                     m_lineHeight = std::max(m_lineHeight, static_cast<int>(glyph->metrics.height >> 6));
                 }
                 
-                const int cellSize = std::max(maxWidth, maxHeight);
+                const int cellSize = std::max(maxWidth, maxAscend + maxDescend);
                 const int cellCount = static_cast<int>(std::ceil(std::sqrt((maxChar - minChar + 1))));
-                const int minTextureLength = cellCount * cellSize;
+                const int minTextureLength = Border + cellCount * (cellSize + Border);
                 m_textureLength = 1;
                 while (m_textureLength < minTextureLength)
                     m_textureLength = m_textureLength << 1;
@@ -72,12 +74,12 @@ namespace TrenchBroom {
                         y += cellSize + Border;
                     }
                     
-                    m_bitmap->drawGlyph(x, y, cellSize, glyph);
+                    m_bitmap->drawGlyph(x, y, maxAscend, glyph);
                     
                     const int cx = x;
                     const int cy = y;
                     const int cw = cellSize;
-                    const int ch = cellSize + 2;
+                    const int ch = cellSize;
                     const int ca = static_cast<int>(glyph->advance.x >> 6);
                     
                     m_chars.push_back(Char(cx, cy, cw, ch, ca));

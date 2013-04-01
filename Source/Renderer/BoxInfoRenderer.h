@@ -40,10 +40,11 @@ namespace TrenchBroom {
             BBox m_bounds;
             Axis::Type m_axis;
             Renderer::Camera* m_camera;
+        protected:
+            const Vec3f basePosition() const;
+            const Text::Alignment::Type alignment() const;
         public:
             BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
-            const Vec3f position() const;
-            const Text::Alignment::Type alignment() const;
         };
 
         class BoxInfoRenderer {
