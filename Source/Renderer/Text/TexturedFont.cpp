@@ -49,16 +49,17 @@ namespace TrenchBroom {
                     m_lineHeight = std::max(m_lineHeight, static_cast<int>(glyph->metrics.height >> 6));
                 }
                 
-                const int length = static_cast<int>(std::ceil(std::sqrt((maxChar - minChar + 1))));
-                const int minTextureLength = length * std::max(maxWidth, maxHeight);
+                const int cellSize = std::max(maxWidth, maxHeight);
+                const int cellCount = static_cast<int>(std::ceil(std::sqrt((maxChar - minChar + 1))));
+                const int minTextureLength = cellCount * cellSize;
                 m_textureLength = 1;
                 while (m_textureLength < minTextureLength)
                     m_textureLength = m_textureLength << 1;
                 
                 m_bitmap = new TextureBitmap(static_cast<size_t>(m_textureLength), static_cast<size_t>(m_textureLength));
                 
-                int x = 5;
-                int y = 5;
+                int x = Border;
+                int y = Border;
                 for (unsigned char c = m_minChar; c <= m_maxChar; c++) {
                     FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
                     if (error != 0) {
@@ -66,21 +67,21 @@ namespace TrenchBroom {
                         continue;
                     }
                     
-                    if (x + length + 5 > m_textureLength) {
-                        x = 5;
-                        y += length + 10;
+                    if (x + cellSize + Border > m_textureLength) {
+                        x = Border;
+                        y += cellSize + Border;
                     }
                     
-                    m_bitmap->drawGlyph(x, y, length, glyph);
+                    m_bitmap->drawGlyph(x, y, cellSize, glyph);
                     
                     const int cx = x;
                     const int cy = y;
-                    const int cw = length;
-                    const int ch = length + 2;
+                    const int cw = cellSize;
+                    const int ch = cellSize + 2;
                     const int ca = static_cast<int>(glyph->advance.x >> 6);
                     
                     m_chars.push_back(Char(cx, cy, cw, ch, ca));
-                    x += length + 5;
+                    x += cellSize + Border;
                 }
             }
             
@@ -134,10 +135,10 @@ namespace TrenchBroom {
                     assert(m_bitmap != NULL);
                     glGenTextures(1, &m_textureId);
                     glBindTexture(GL_TEXTURE_2D, m_textureId);
-                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, static_cast<GLsizei>(m_textureLength), static_cast<GLsizei>(m_textureLength), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_bitmap->buffer());
                     delete m_bitmap;
                     m_bitmap = NULL;

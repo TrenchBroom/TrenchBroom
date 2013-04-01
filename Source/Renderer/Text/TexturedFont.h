@@ -39,6 +39,8 @@ namespace TrenchBroom {
             
             class TexturedFont {
             private:
+                static const int Border = 3;
+                
                 struct Char {
                     int x, y, w, h, a;
                     Char(int i_x, int i_y, int i_w, int i_h, int i_a) :
@@ -98,7 +100,7 @@ namespace TrenchBroom {
                 int m_textureLength;
                 TextureBitmap* m_bitmap;
             public:
-                TexturedFont(FT_Face face, const unsigned char minChar = 32, const unsigned char maxChar = 126);
+                TexturedFont(FT_Face face, const unsigned char minChar = ' ', const unsigned char maxChar = '~');
                 ~TexturedFont();
                 
                 Vec2f::List quads(const String& string, bool clockwise, const Vec2f& offset = Vec2f());

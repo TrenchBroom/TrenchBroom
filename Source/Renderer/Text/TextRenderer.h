@@ -105,18 +105,25 @@ namespace TrenchBroom {
                 class TextEntry {
                 private:
                     Vec2f::List m_vertices;
+                    Vec2f m_size;
                     Anchor m_textAnchor;
                 public:
-                    TextEntry(const Vec2f::List& vertices, const Anchor& textAnchor) :
+                    TextEntry(const Vec2f::List& vertices, const Vec2f& size, const Anchor& textAnchor) :
                     m_vertices(vertices),
+                    m_size(size),
                     m_textAnchor(textAnchor) {}
 
                     inline const Vec2f::List& vertices() const {
                         return m_vertices;
                     }
                     
-                    inline void setVertices(const Vec2f::List& vertices) {
+                    inline void update(const Vec2f::List& vertices, const Vec2f& size) {
                         m_vertices = vertices;
+                        m_size = size;
+                    }
+                    
+                    inline const Vec2f& size() const {
+                        return m_size;
                     }
                     
                     inline const Anchor& textAnchor() const {
@@ -136,9 +143,9 @@ namespace TrenchBroom {
                 TextMap m_entries;
                 Vbo* m_vbo;
                 
-                inline void addString(Key key, const Vec2f::List& vertices, const Anchor& anchor) {
+                inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, const Anchor& anchor) {
                     removeString(key);
-                    m_entries.insert(TextMapItem(key, TextEntry(vertices, anchor)));
+                    m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
                 }
                 
                 EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) {
@@ -224,48 +231,50 @@ namespace TrenchBroom {
                         VertexArray vertexArray(*m_vbo, GL_QUADS, static_cast<unsigned int>(vertexCount),
                                                 Attribute::position3f(),
                                                 Attribute::texCoord02f());
-                        
+
                         SetVboState mapVbo(*m_vbo, Vbo::VboMapped);
                         for (size_t i = 0; i < entries.size(); i++) {
                             const TextEntry& entry = entries[i];
+                            const Vec2f& size = entry.size().rounded();
                             const Anchor& anchor = entry.textAnchor();
-                            const Vec3f position = anchor.position();
-                            const Vec3f cameraLocal = context.camera().toCameraCoordinateSystem(position);
-                            if (cameraLocal.z >= 0.0f) {
-                                const Vec3f offset(Math::round(cameraLocal.x), Math::round(cameraLocal.y), cameraLocal.z);
+                            Vec3f offset = context.camera().project(anchor.position());
+                            offset.x = Math::round(offset.x - size.x / 2.0f);
+                            offset.y = Math::round(offset.y - size.y / 2.0f);
+                            
+                            
+                            const Vec2f::List& vertices = entry.vertices();
+                            for (size_t j = 0; j < vertices.size() / 2; j++) {
+                                const Vec2f& vertex = vertices[2 * j];
+                                const Vec2f& texCoords = vertices[2 * j + 1];
                                 
-                                const Vec2f::List& vertices = entry.vertices();
-                                for (size_t j = 0; j < vertices.size() / 2; j++) {
-                                    const Vec2f& vertex = vertices[2 * j];
-                                    const Vec2f& texCoords = vertices[2 * j + 1];
-                                    
-                                    vertexArray.addAttribute(Vec3f(vertex.x, vertex.y, 0.0f) + offset);
-                                    vertexArray.addAttribute(texCoords);
-                                }
+                                vertexArray.addAttribute(Vec3f(vertex.x + offset.x, vertex.y + offset.y, -offset.z));
+                                vertexArray.addAttribute(texCoords);
                             }
                         }
                         
                         const Camera::Viewport& viewport = context.camera().viewport();
                         
                         Mat4f projection;
-                        projection.setOrtho(-100.0f, 100.0f,
-                                            static_cast<float>(viewport.x - viewport.width / 2),
-                                            static_cast<float>(viewport.y + viewport.height / 2),
-                                            static_cast<float>(viewport.x + viewport.width / 2),
-                                            static_cast<float>(viewport.y - viewport.height / 2));
+                        projection.setOrtho(0.0f, 1.0f,
+                                            static_cast<float>(viewport.x),
+                                            static_cast<float>(viewport.height),
+                                            static_cast<float>(viewport.width),
+                                            static_cast<float>(viewport.y));
                         
                         Mat4f view;
                         view.setView(Vec3f::NegZ, Vec3f::PosY);
-                        view.translate(Vec3f(0.0f, 0.0f, 1.0f));
+                        view.translate(Vec3f::Null);
                         
                         ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
 
+                        glDepthMask(GL_FALSE);
                         SetVboState activateVbo(*m_vbo, Vbo::VboActive);
                         shaderProgram.setUniformVariable("Color", color);
                         shaderProgram.setUniformVariable("Texture", 0);
                         m_font.activate();
                         vertexArray.render();
                         m_font.deactivate();
+                        glDepthMask(GL_TRUE);
                     }
                 }
             public:
@@ -283,8 +292,9 @@ namespace TrenchBroom {
                 }
                 
                 inline void addString(Key key, const String& string, const Anchor& anchor) {
-                    Vec2f::List vertices = m_font.quads(string, true);
-                    addString(key, vertices, anchor);
+                    const Vec2f::List vertices = m_font.quads(string, true);
+                    const Vec2f size = m_font.measure(string);
+                    addString(key, vertices, size, anchor);
                 }
                 
                 inline void removeString(Key key)  {
