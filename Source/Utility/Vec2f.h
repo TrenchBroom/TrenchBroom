@@ -41,6 +41,8 @@ namespace TrenchBroom {
 
             Vec2f(float i_x, float i_y) : x(i_x), y(i_y) {}
             
+            Vec2f(int i_x, int i_y) : x(static_cast<float>(i_x)), y(static_cast<float>(i_y)) {}
+            
             Vec2f(float f) : x(f), y(f) {}
 
             inline Vec2f& operator= (const Vec2f& right) {

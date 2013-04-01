@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 }
                 
                 const int cellSize = std::max(maxWidth, maxAscend + maxDescend);
-                const int cellCount = static_cast<int>(std::ceil(std::sqrt((maxChar - minChar + 1))));
+                const int cellCount = static_cast<int>(std::ceil(std::sqrt(static_cast<float>(m_maxChar - m_minChar + 1))));
                 const int minTextureLength = Border + cellCount * (cellSize + Border);
                 m_textureLength = 1;
                 while (m_textureLength < minTextureLength)
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 for (unsigned char c = m_minChar; c <= m_maxChar; c++) {
                     FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
                     if (error != 0) {
-                        m_chars.push_back(Char(0.0f, 0.0f, 0.0f, 0.0f, 0.0f));
+                        m_chars.push_back(Char(0, 0, 0, 0, 0));
                         continue;
                     }
                     
