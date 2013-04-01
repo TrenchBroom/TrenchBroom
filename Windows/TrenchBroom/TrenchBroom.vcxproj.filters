@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -1183,6 +1183,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Text\TexturedFont.h">
       <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ControllerUtils.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

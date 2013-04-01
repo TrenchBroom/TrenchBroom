@@ -45,8 +45,6 @@ namespace TrenchBroom {
             void startDrag(InputState& inputState);
             MoveResult performMove(const Vec3f& delta);
             void endDrag(InputState& inputState);
-            
-            void duplicateObjects();
         public:
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };

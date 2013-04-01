@@ -19,9 +19,8 @@
 
 #include "MoveObjectsTool.h"
 
-#include "Controller/AddObjectsCommand.h"
-#include "Controller/ChangeEditStateCommand.h"
 #include "Controller/Command.h"
+#include "Controller/ControllerUtils.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             if ((inputState.modifierKeys() & ModifierKeys::MKCtrlCmd)) {
                 m_mode = MMDuplicate;
                 beginCommandGroup(Command::makeObjectActionName(wxT("Duplicate"), entities, brushes));
-                duplicateObjects();
+                Controller::duplicateObjects(document());
             } else {
                 m_mode = MMMove;
                 beginCommandGroup(Command::makeObjectActionName(wxT("Move"), entities, brushes));
@@ -101,62 +100,6 @@ namespace TrenchBroom {
 
         void MoveObjectsTool::endDrag(InputState& inputState) {
             endCommandGroup();
-        }
-
-        void MoveObjectsTool::duplicateObjects() {
-            typedef std::map<Model::Entity*, Model::Entity*> EntityMap;
-            
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& originalEntities = editStateManager.selectedEntities();
-            const Model::BrushList& originalBrushes = editStateManager.selectedBrushes();
-            
-            Model::EntityList newPointEntities;
-            Model::EntityList newBrushEntities;
-            Model::BrushList newWorldBrushes;
-            Model::BrushList newEntityBrushes;
-            EntityMap brushEntities;
-            
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = originalEntities.begin(), entityEnd = originalEntities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
-                assert(!entity.worldspawn());
-                
-                Model::Entity* newPointEntity = new Model::Entity(document().map().worldBounds(), entity);
-                newPointEntities.push_back(newPointEntity);
-            }
-            
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = originalBrushes.begin(), brushEnd = originalBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                Model::Entity& entity = *brush.entity();
-                
-                Model::Brush* newBrush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), brush);
-                if (entity.worldspawn()) {
-                    newWorldBrushes.push_back(newBrush);
-                } else {
-                    Model::Entity* newEntity = NULL;
-                    EntityMap::iterator newEntityIt = brushEntities.find(&entity);
-                    if (newEntityIt == brushEntities.end()) {
-                        newEntity = new Model::Entity(document().map().worldBounds(), entity);
-                        newBrushEntities.push_back(newEntity);
-                        brushEntities[&entity] = newEntity;
-                    } else {
-                        newEntity = newEntityIt->second;
-                    }
-                    newEntity->addBrush(*newBrush);
-                    newEntityBrushes.push_back(newBrush);
-                }
-            }
-            
-            Model::EntityList allNewEntities = Utility::concatenate(newPointEntities, newBrushEntities);
-            Model::BrushList allNewBrushes = Utility::concatenate(newWorldBrushes, newEntityBrushes);
-            
-            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(document(), allNewEntities, newWorldBrushes);
-            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(document(), newPointEntities, allNewBrushes);
-            
-            submitCommand(addObjectsCommand);
-            submitCommand(changeEditStateCommand);
         }
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

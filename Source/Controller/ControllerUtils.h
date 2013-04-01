@@ -29,6 +29,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
+#include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
