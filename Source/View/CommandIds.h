@@ -112,7 +112,13 @@ namespace TrenchBroom {
                 static const int ViewSwitchToEntityTab              = Lowest + 86;
                 static const int ViewSwitchToFaceTab                = Lowest + 87;
                 static const int ViewSwitchToViewTab                = Lowest + 88;
-                static const int Highest                            = Lowest + 99;
+                static const int EditDuplicateObjectsForward        = Lowest + 89;
+                static const int EditDuplicateObjectsRight          = Lowest + 90;
+                static const int EditDuplicateObjectsBackward       = Lowest + 91;
+                static const int EditDuplicateObjectsLeft           = Lowest + 92;
+                static const int EditDuplicateObjectsUp             = Lowest + 93;
+                static const int EditDuplicateObjectsDown           = Lowest + 94;
+                static const int Highest                            = Lowest + 95;
             }
             
             namespace CreateEntityPopupMenu {

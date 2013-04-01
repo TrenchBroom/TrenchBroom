@@ -289,6 +289,13 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     appendItem(objectActionMenu, EditActionsMoveObjectsUp, mapViewFocused);
     appendItem(objectActionMenu, EditActionsMoveObjectsDown, mapViewFocused);
     objectActionMenu->AppendSeparator();
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsForward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsBackward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsLeft, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsRight, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsUp, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsDown, mapViewFocused);
+    objectActionMenu->AppendSeparator();
     appendItem(objectActionMenu, EditActionsRollObjectsCW, mapViewFocused);
     appendItem(objectActionMenu, EditActionsRollObjectsCCW, mapViewFocused);
     appendItem(objectActionMenu, EditActionsYawObjectsCW, mapViewFocused);

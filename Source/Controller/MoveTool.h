@@ -46,7 +46,7 @@ namespace TrenchBroom {
             } MoveDirection;
 
             virtual bool isApplicable(InputState& inputState, Vec3f& hitPoint) = 0;
-            virtual wxString actionName() = 0;
+            virtual wxString actionName(InputState& inputState) = 0;
             virtual void startDrag(InputState& inputState) {}
             virtual void snapDragDelta(InputState& inputState, Vec3f& delta);
             virtual MoveResult performMove(const Vec3f& delta) = 0;

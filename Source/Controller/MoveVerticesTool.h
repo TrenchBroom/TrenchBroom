@@ -60,7 +60,7 @@ namespace TrenchBroom {
             HandleHitList firstHits(Model::PickResult& pickResult) const;
             
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
-            wxString actionName();
+            wxString actionName(InputState& inputState);
             void startDrag(InputState& inputState);
             void snapDragDelta(InputState& inputState, Vec3f& delta);
             MoveResult performMove(const Vec3f& delta);

@@ -481,6 +481,7 @@
 		489221A7170A125000444EA0 /* Flip_Texture_Horizontally.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Flip_Texture_Horizontally.png; path = ../Resources/Graphics/Flip_Texture_Horizontally.png; sourceTree = "<group>"; };
 		489221A8170A125000444EA0 /* Flip_Texture_Vertically.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Flip_Texture_Vertically.png; path = ../Resources/Graphics/Flip_Texture_Vertically.png; sourceTree = "<group>"; };
 		489221A9170A125000444EA0 /* Reset_Texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Reset_Texture.png; path = ../Resources/Graphics/Reset_Texture.png; sourceTree = "<group>"; };
+		489221B0170A267E00444EA0 /* ControllerUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControllerUtils.h; sourceTree = "<group>"; };
 		48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesCommand.cpp; sourceTree = "<group>"; };
 		48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesCommand.h; sourceTree = "<group>"; };
 		4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTexturesCommand.cpp; sourceTree = "<group>"; };
@@ -1126,6 +1127,7 @@
 				487EC0A8168467F00094927A /* Autosaver.h */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
+				489221B0170A267E00444EA0 /* ControllerUtils.h */,
 				483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */,
 				483F970616A5AB4B009716B1 /* CreateEntityFromMenuHelper.h */,
 				48EE7A14164FF0A3003F5BBE /* Input.h */,

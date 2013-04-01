@@ -394,6 +394,12 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsRight;
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsUp;
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsDown;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsForward;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsBackward;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsLeft;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsRight;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsUp;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsDown;
         extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCW;
         extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCCW;
         extern const Preference<KeyboardShortcut>   EditActionsYawObjectsCW;

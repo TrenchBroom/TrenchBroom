@@ -99,6 +99,7 @@ namespace TrenchBroom {
             View::Inspector& inspector() const;
             Utility::Console& console() const;
             Controller::InputController& inputController() const;
+            AnimationManager& animationManager() const;
             wxMenu* createEntityPopupMenu();
 
             void setModified(bool modified);
@@ -173,6 +174,12 @@ namespace TrenchBroom {
             void OnEditMoveObjectsLeft(wxCommandEvent& event);
             void OnEditMoveObjectsUp(wxCommandEvent& event);
             void OnEditMoveObjectsDown(wxCommandEvent& event);
+            void OnEditDuplicateObjectsForward(wxCommandEvent& event);
+            void OnEditDuplicateObjectsRight(wxCommandEvent& event);
+            void OnEditDuplicateObjectsBackward(wxCommandEvent& event);
+            void OnEditDuplicateObjectsLeft(wxCommandEvent& event);
+            void OnEditDuplicateObjectsUp(wxCommandEvent& event);
+            void OnEditDuplicateObjectsDown(wxCommandEvent& event);
             void OnEditRollObjectsCW(wxCommandEvent& event);
             void OnEditRollObjectsCCW(wxCommandEvent& event);
             void OnEditPitchObjectsCW(wxCommandEvent& event);

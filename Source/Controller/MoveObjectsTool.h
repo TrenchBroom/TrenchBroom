@@ -32,11 +32,21 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsTool : public MoveTool {
         protected:
+            typedef enum {
+                MMMove,
+                MMDuplicate
+            } MoveMode;
+            
             Model::SelectedFilter m_filter;
+            MoveMode m_mode;
 
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
-            wxString actionName();
+            wxString actionName(InputState& inputState);
+            void startDrag(InputState& inputState);
             MoveResult performMove(const Vec3f& delta);
+            void endDrag(InputState& inputState);
+            
+            void duplicateObjects();
         public:
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };

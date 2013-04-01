@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString MoveVerticesTool::actionName() {
+        wxString MoveVerticesTool::actionName(InputState& inputState) {
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +

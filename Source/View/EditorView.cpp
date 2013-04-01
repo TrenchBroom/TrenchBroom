@@ -21,8 +21,9 @@
 
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/CameraEvent.h"
-#include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/Command.h"
+#include "Controller/ControllerUtils.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FlipObjectsCommand.h"
 #include "Controller/InputController.h"
@@ -141,6 +142,12 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditMoveObjectsLeft, EditorView::OnEditMoveObjectsLeft)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsUp, EditorView::OnEditMoveObjectsUp)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsDown, EditorView::OnEditMoveObjectsDown)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsForward, EditorView::OnEditDuplicateObjectsForward)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsRight, EditorView::OnEditDuplicateObjectsRight)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsBackward, EditorView::OnEditDuplicateObjectsBackward)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsLeft, EditorView::OnEditDuplicateObjectsLeft)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsUp, EditorView::OnEditDuplicateObjectsUp)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjectsDown, EditorView::OnEditDuplicateObjectsDown)
         EVT_MENU(CommandIds::Menu::EditRollObjectsCW, EditorView::OnEditRollObjectsCW)
         EVT_MENU(CommandIds::Menu::EditRollObjectsCCW, EditorView::OnEditRollObjectsCCW)
         EVT_MENU(CommandIds::Menu::EditPitchObjectsCW, EditorView::OnEditPitchObjectsCW)
@@ -423,6 +430,10 @@ namespace TrenchBroom {
         Controller::InputController& EditorView::inputController() const {
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
             return frame->mapCanvas().inputController();
+        }
+
+        AnimationManager& EditorView::animationManager() const {
+            return *m_animationManager;
         }
 
         wxMenu* EditorView::createEntityPopupMenu() {
@@ -1257,6 +1268,96 @@ namespace TrenchBroom {
             moveObjects(DDown, true);
         }
 
+        void EditorView::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DForward, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void EditorView::OnEditDuplicateObjectsRight(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DRight, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void EditorView::OnEditDuplicateObjectsBackward(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DBackward, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void EditorView::OnEditDuplicateObjectsLeft(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DLeft, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void EditorView::OnEditDuplicateObjectsUp(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DUp, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void EditorView::OnEditDuplicateObjectsDown(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
+            Controller::duplicateObjects(mapDocument());
+            moveObjects(DDown, true);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
         void EditorView::OnEditMoveTexturesUp(wxCommandEvent& event) {
             moveTextures(DUp, true);
         }
@@ -1338,62 +1439,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditDuplicateObjects(wxCommandEvent& event) {
-            typedef std::map<Model::Entity*, Model::Entity*> EntityMap;
-
-            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            const Model::EntityList& originalEntities = editStateManager.selectedEntities();
-            const Model::BrushList& originalBrushes = editStateManager.selectedBrushes();
-
-            Model::EntityList newPointEntities;
-            Model::EntityList newBrushEntities;
-            Model::BrushList newWorldBrushes;
-            Model::BrushList newEntityBrushes;
-            EntityMap brushEntities;
-
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = originalEntities.begin(), entityEnd = originalEntities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
-                assert(!entity.worldspawn());
-
-                Model::Entity* newPointEntity = new Model::Entity(mapDocument().map().worldBounds(), entity);
-                newPointEntities.push_back(newPointEntity);
-            }
-
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = originalBrushes.begin(), brushEnd = originalBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                Model::Entity& entity = *brush.entity();
-
-                Model::Brush* newBrush = new Model::Brush(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brush);
-                if (entity.worldspawn()) {
-                    newWorldBrushes.push_back(newBrush);
-                } else {
-                    Model::Entity* newEntity = NULL;
-                    EntityMap::iterator newEntityIt = brushEntities.find(&entity);
-                    if (newEntityIt == brushEntities.end()) {
-                        newEntity = new Model::Entity(mapDocument().map().worldBounds(), entity);
-                        newBrushEntities.push_back(newEntity);
-                        brushEntities[&entity] = newEntity;
-                    } else {
-                        newEntity = newEntityIt->second;
-                    }
-                    newEntity->addBrush(*newBrush);
-                    newEntityBrushes.push_back(newBrush);
-                }
-            }
-
-            Model::EntityList allNewEntities = Utility::concatenate(newPointEntities, newBrushEntities);
-            Model::BrushList allNewBrushes = Utility::concatenate(newWorldBrushes, newEntityBrushes);
-
-            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), allNewEntities, newWorldBrushes);
-            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), newPointEntities, allNewBrushes);
-
-            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Duplicate"), originalEntities, originalBrushes));
-            submit(addObjectsCommand);
-            submit(changeEditStateCommand);
-            CommandProcessor::EndGroup(commandProcessor);
+            Controller::duplicateObjects(mapDocument());
             
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
