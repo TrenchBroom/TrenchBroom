@@ -83,6 +83,7 @@ namespace TrenchBroom {
             virtual bool dndEnabled() { return false; }
             virtual wxImage* dndImage(const typename Layout::Group::Row::Cell& cell) { return NULL; }
             virtual wxDataObject* dndData(const typename Layout::Group::Row::Cell& cell) { return NULL; }
+            virtual wxString tooltip(const typename Layout::Group::Row::Cell& cell) { return ""; }
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
@@ -205,11 +206,11 @@ namespace TrenchBroom {
             }
             
             void OnMouseMove(wxMouseEvent& event) {
+                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                float x = static_cast<float>(event.GetX());
+                float y = static_cast<float>(event.GetY() + top);
+                const typename Layout::Group::Row::Cell* cell = NULL;
                 if (event.LeftIsDown() && dndEnabled()) {
-                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                    float x = static_cast<float>(event.GetX());
-                    float y = static_cast<float>(event.GetY() + top);
-                    const typename Layout::Group::Row::Cell* cell = NULL;
                     if (m_layout.cellAt(x, y, &cell)) {
                         wxImage* feedbackImage = dndImage(*cell);
                         wxDataObject* dropData = dndData(*cell);
@@ -224,6 +225,11 @@ namespace TrenchBroom {
                         delete feedbackImage;
                         delete dropData;
                     }
+                } else {
+                    if (m_layout.cellAt(x, y, &cell))
+                        SetToolTip(tooltip(*cell));
+                    else
+                        SetToolTip("");
                 }
             }
             

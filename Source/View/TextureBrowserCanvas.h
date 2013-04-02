@@ -79,6 +79,7 @@ namespace TrenchBroom {
             virtual void doClear();
             virtual void doRender(Layout& layout, float y, float height);
             virtual void handleLeftClick(Layout& layout, float x, float y);
+            virtual wxString tooltip(const Layout::Group::Row::Cell& cell);
         public:
             TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);
             ~TextureBrowserCanvas();

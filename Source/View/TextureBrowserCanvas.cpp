@@ -101,7 +101,7 @@ namespace TrenchBroom {
                         addTextureToLayout(layout, textures[j], font);
                 }
             } else {
-                layout.addGroup(NULL, fontSize + 2.0f);
+                layout.addGroup(NULL, 0.0f);
                 Model::TextureList textures = textureManager.textures(m_sortOrder);
                 for (unsigned int i = 0; i < textures.size(); i++)
                     addTextureToLayout(layout, textures[i], font);
@@ -324,6 +324,13 @@ namespace TrenchBroom {
                     }
                 }
             }
+        }
+
+        wxString TextureBrowserCanvas::tooltip(const Layout::Group::Row::Cell& cell) {
+            wxString tooltip;
+            tooltip << cell.item().texture->name() << "\n";
+            tooltip << cell.item().texture->width() << "x" << cell.item().texture->height();
+            return tooltip;
         }
 
         TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
