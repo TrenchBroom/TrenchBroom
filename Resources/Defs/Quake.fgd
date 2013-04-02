@@ -128,6 +128,7 @@
     ) = item_spikes : "Nailgun/Perforator ammo" []
 
 @PointClass 
+    size(0 0 0, 32 32 16) 
     base(Appearflags) 
     model(
         ":maps/b_bh25.bsp",

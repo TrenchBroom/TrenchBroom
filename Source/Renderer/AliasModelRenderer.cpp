@@ -86,11 +86,11 @@ namespace TrenchBroom {
         }
 
         const Vec3f& AliasModelRenderer::center() const {
-            return m_alias.firstFrame().center();
+            return m_alias.frame(m_frameIndex).center();
         }
 
         const BBox& AliasModelRenderer::bounds() const {
-            return m_alias.firstFrame().bounds();
+            return m_alias.frame(m_frameIndex).bounds();
         }
 
         BBox AliasModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {

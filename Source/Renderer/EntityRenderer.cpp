@@ -32,12 +32,16 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(Model::Entity& entity) :
-        m_entity(&entity) {}
+        EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(Model::Entity& entity, Renderer::EntityModelRenderer* renderer) :
+        m_entity(&entity),
+        m_renderer(renderer) {}
         
         const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
             Vec3f position = m_entity->center();
-            position.z = m_entity->bounds().max.z + 1.0f;
+            position.z = m_entity->bounds().max.z;
+            if (m_renderer != NULL)
+                position.z = std::max(position.z, m_renderer->bounds().max.z + m_entity->origin().z);
+            position.z += 2.0f;
             return position;
         }
         
@@ -269,16 +273,17 @@ namespace TrenchBroom {
                 return;
 
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            EntityClassnameAnchor anchor(entity);
 
             const String* classname = entity.classname();
+            if (classname == NULL)
+                classname = &Model::Entity::NoClassnameValue;
             if (classname != NULL) {
                 EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.searchPaths());
                 if (renderer != NULL)
                     m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, *classname);
+
+                EntityClassnameAnchor anchor(entity, renderer);
                 m_classnameRenderer->addString(&entity, *classname, anchor);
-            } else {
-                m_classnameRenderer->addString(&entity, Model::Entity::NoClassnameValue, anchor);
             }
 
 
@@ -294,15 +299,16 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityClassnameAnchor anchor(*entity);
                 const String* classname = entity->classname();
+                if (classname == NULL)
+                    classname = &Model::Entity::NoClassnameValue;
                 if (classname != NULL) {
                     EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
                     if (renderer != NULL)
                         m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
+
+                    EntityClassnameAnchor anchor(*entity, renderer);
                     m_classnameRenderer->addString(entity, *classname, anchor);
-                } else {
-                    m_classnameRenderer->addString(entity, Model::Entity::NoClassnameValue, anchor);
                 }
             }
 
