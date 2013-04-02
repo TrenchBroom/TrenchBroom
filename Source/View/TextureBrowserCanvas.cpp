@@ -53,19 +53,27 @@ namespace TrenchBroom {
                 const Renderer::Text::FontDescriptor actualFont = fontManager.selectFontSize(font, texture->name(), maxCellWidth, 5);
                 const Vec2f actualSize = fontManager.font(actualFont)->measure(texture->name());
                 
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->width())));
+                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+                
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
+                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), scaledTextureWidth, scaledTextureHeight, actualSize.x, font.size() + 2.0f);
             }
         }
         
         void TextureBrowserCanvas::doInitLayout(Layout& layout) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+            
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setCellWidth(64.0f, 64.0f);
-            layout.setCellHeight(64.0f, 128.0f);
+            layout.setCellWidth(scaleFactor * 64.0f, scaleFactor * 64.0f);
+            layout.setCellHeight(scaleFactor * 64.0f, scaleFactor * 128.0f);
         }
         
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
