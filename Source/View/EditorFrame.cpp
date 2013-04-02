@@ -34,8 +34,11 @@
 #include <wx/docview.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
+#include <wx/srchctrl.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
+#include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/toolbar.h>
 
@@ -63,22 +66,59 @@ namespace TrenchBroom {
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
 
-            m_mapCanvas = new MapGLCanvas(logSplitter, m_documentViewHolder);
+            m_canvasPanel = new wxPanel(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxBORDER_SUNKEN);
+            m_navContainerPanel = new wxPanel(m_canvasPanel, wxID_ANY);
+            m_navPanel = new wxPanel(m_navContainerPanel, wxID_ANY);
+            wxSearchCtrl* searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
+            
+            wxSizer* navContainerInnerSizer = new wxBoxSizer(wxHORIZONTAL);
+            navContainerInnerSizer->AddSpacer(2);
+            navContainerInnerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            navContainerInnerSizer->Add(searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
+            navContainerInnerSizer->AddSpacer(2);
+            navContainerInnerSizer->SetItemMinSize(searchBox, 200, wxDefaultSize.y);
+            
+            wxSizer* navContainerOuterSizer = new wxBoxSizer(wxVERTICAL);
+            navContainerOuterSizer->AddSpacer(2);
+            navContainerOuterSizer->Add(navContainerInnerSizer, 1, wxEXPAND);
+            navContainerOuterSizer->AddSpacer(2);
+            m_navContainerPanel->SetSizer(navContainerOuterSizer);
+            
+            m_mapCanvas = new MapGLCanvas(m_canvasPanel, m_documentViewHolder);
+            
+            wxSizer* canvasPanelSizer = new wxBoxSizer(wxVERTICAL);
+            canvasPanelSizer->Add(m_navContainerPanel, 0, wxEXPAND);
+            canvasPanelSizer->Add(m_mapCanvas, 1, wxEXPAND);
+            m_canvasPanel->SetSizer(canvasPanelSizer);
+            
             m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
 
-            logSplitter->SplitHorizontally(m_mapCanvas, m_logView, -150);
+            logSplitter->SplitHorizontally(m_canvasPanel, m_logView, -150);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
 
+            updateNavigation();
             SetSize(1024, 768);
 
             /*
             m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);
             m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
              */
+        }
+
+        wxStaticText* EditorFrame::makeBreadcrump(const wxString& text, bool link) {
+            wxStaticText* staticText = new wxStaticText(m_navPanel, wxID_ANY, text);
+#if defined __APPLE__
+            staticText->SetFont(*wxSMALL_FONT);
+#endif
+            if (link) {
+                staticText->SetForegroundColour(wxColour(10, 75, 220)); //wxSystemSettings::GetColour(wxSYS_COLOUR_HOTLIGHT));
+                staticText->SetCursor(wxCursor(wxCURSOR_HAND));
+            }
+            return staticText;
         }
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
@@ -92,6 +132,20 @@ namespace TrenchBroom {
             updateMenuBar();
 
             m_mapCanvasHasFocus = false;
+        }
+
+        void EditorFrame::updateNavigation() {
+            m_navPanel->DestroyChildren();
+            
+            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            sizer->Add(makeBreadcrump(wxT("func_door"), true), 0, wxALIGN_CENTRE_VERTICAL);
+            sizer->AddSpacer(2);
+            sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
+            sizer->AddSpacer(2);
+            sizer->Add(makeBreadcrump(wxT("3 / 7 brushes"), false), 0, wxALIGN_CENTRE_VERTICAL);
+            m_navPanel->SetSizer(sizer);
+
+            m_navContainerPanel->Layout();
         }
 
         void EditorFrame::updateMenuBar() {

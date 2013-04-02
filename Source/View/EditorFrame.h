@@ -25,6 +25,8 @@
 #include "View/DocumentViewHolder.h"
 
 class wxDocManager;
+class wxPanel;
+class wxStaticText;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -48,14 +50,20 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
+            wxPanel* m_canvasPanel;
+            wxPanel* m_navContainerPanel;
+            wxPanel* m_navPanel;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             bool m_mapCanvasHasFocus;
             bool m_focusMapCanvasOnIdle;
             
             void CreateGui();
+            wxStaticText* makeBreadcrump(const wxString& text, bool link);
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
+            
+            void updateNavigation();
             
             inline MapGLCanvas& mapCanvas() const {
                 return *m_mapCanvas;
