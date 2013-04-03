@@ -328,10 +328,14 @@ namespace TrenchBroom {
         }
 
         bool Brush::clip(Face& face) {
-            face.setBrush(this);
-            m_faces.push_back(&face);
-            rebuildGeometry();
-            return !m_faces.empty() && closed();
+            try {
+                face.setBrush(this);
+                m_faces.push_back(&face);
+                rebuildGeometry();
+                return !m_faces.empty() && closed();
+            } catch (GeometryException e) {
+                return false;
+            }
         }
 
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
