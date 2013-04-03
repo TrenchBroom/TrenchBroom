@@ -538,7 +538,7 @@ namespace TrenchBroom {
                     case Controller::Command::ChangeGrid:
                         inputController().gridChange();
                         break;
-                    case Controller::Command::LoadMap:
+                    case Controller::Command::LoadMap: {
                         m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
                         m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
                         inputController().cameraChange();
@@ -552,9 +552,12 @@ namespace TrenchBroom {
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
 
-                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavigation();
+                        frame->updateMenuBar();
                         break;
-                    case Controller::Command::ClearMap:
+                    }
+                    case Controller::Command::ClearMap: {
                         m_renderer->clearMap();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser(true);
@@ -564,13 +567,17 @@ namespace TrenchBroom {
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
 
-                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavigation();
+                        frame->updateMenuBar();
                         break;
+                    }
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavigation();
                         frame->updateMenuBar();
                         inputController().editStateChange(changeEditStateCommand->changeSet());
                         if (mapDocument().editStateManager().selectedBrushes().empty() && inputController().clipToolActive())

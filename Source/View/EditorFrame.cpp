@@ -20,9 +20,12 @@
 #include "EditorFrame.h"
 
 #include "Controller/InputController.h"
+#include "Model/Brush.h"
 #include "Model/EditStateManager.h"
+#include "Model/Entity.h"
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
+#include "Utility/List.h"
 #include "View/EditorView.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
@@ -154,12 +157,62 @@ namespace TrenchBroom {
         void EditorFrame::updateNavigation() {
             m_navPanel->DestroyChildren();
             
+            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+            Model::EntitySet entities = Utility::makeSet(editStateManager.selectedEntities());
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            size_t totalEntityBrushCount = 0;
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                Model::Entity* entity = brush.entity();
+                entities.insert(entity);
+            }
+            
+            Model::EntitySet::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                totalEntityBrushCount += entity.brushes().size();
+            }
+
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(makeBreadcrump(wxT("func_door"), true), 0, wxALIGN_CENTRE_VERTICAL);
-            sizer->AddSpacer(2);
-            sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
-            sizer->AddSpacer(2);
-            sizer->Add(makeBreadcrump(wxT("3 / 7 brushes"), false), 0, wxALIGN_CENTRE_VERTICAL);
+            if (entities.empty() && brushes.empty()) {
+                sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
+            } else {
+                if (entities.size() == 1 && (*entities.begin())->worldspawn()) {
+                    const Model::Entity& entity = **entities.begin();
+                    const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
+                    sizer->Add(makeBreadcrump(classname, false), 0, wxALIGN_CENTRE_VERTICAL);
+                } else {
+                    entityIt = entities.begin();
+                    entityEnd = entities.end();
+                    
+                    const Model::Entity* entity = *entityIt++;
+                    const String firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                    bool sameClassname = true;
+                    while (entityIt != entityEnd && sameClassname) {
+                        entity = *entityIt++;
+                        const String classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                        sameClassname = (classname == firstClassname);
+                    }
+                    
+                    wxString entityString;
+                    entityString << entities.size() << " ";
+                    if (sameClassname)
+                        entityString << firstClassname << " ";
+                    entityString << (entities.size() == 1 ? "entity" : "entities");
+                    sizer->Add(makeBreadcrump(entityString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                }
+                if (!brushes.empty()) {
+                    sizer->AddSpacer(2);
+                    sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
+                    sizer->AddSpacer(2);
+                    
+                    wxString brushString;
+                    brushString << brushes.size() << "/" << totalEntityBrushCount << (totalEntityBrushCount == 1 ? " brush" : " brushes");
+                    sizer->Add(makeBreadcrump(brushString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                }
+            }
             m_navPanel->SetSizer(sizer);
 
             m_navContainerPanel->Layout();
