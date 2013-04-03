@@ -53,6 +53,16 @@ namespace TrenchBroom {
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
+        void EditorFrame::PaintNavContainer(wxPaintEvent& event) {
+            wxPaintDC dc(m_navContainerPanel);
+            wxRect rect = m_navContainerPanel->GetClientRect();
+            rect.height -= 1;
+            dc.GradientFillLinear(m_navContainerPanel->GetClientRect(), wxColour(211, 211, 211), wxColour(174, 174, 174), wxDOWN);
+            dc.SetPen(wxPen(wxColour(67, 67, 67)));
+            dc.DrawLine(0, rect.height, rect.width, rect.height);
+            dc.DrawLine(rect.width - 1, 0, rect.width - 1, rect.height);
+        }
+
         void EditorFrame::CreateGui() {
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
@@ -65,17 +75,26 @@ namespace TrenchBroom {
             m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
-
-            m_canvasPanel = new wxPanel(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxBORDER_SUNKEN);
-            m_navContainerPanel = new wxPanel(m_canvasPanel, wxID_ANY);
+            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
+            
+            m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY);
+            m_navContainerPanel = new wxPanel(m_mapCanvasContainerPanel, wxID_ANY);
             m_navPanel = new wxPanel(m_navContainerPanel, wxID_ANY);
+            
             wxSearchCtrl* searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
+#if defined __APPLE__
+            searchBox->SetFont(*wxSMALL_FONT);
+            m_navContainerPanel->SetBackgroundStyle(wxBG_STYLE_PAINT);
+            m_navContainerPanel->Bind(wxEVT_PAINT, &EditorFrame::PaintNavContainer, this);
+#endif
             
             wxSizer* navContainerInnerSizer = new wxBoxSizer(wxHORIZONTAL);
-            navContainerInnerSizer->AddSpacer(2);
+            navContainerInnerSizer->AddSpacer(4);
             navContainerInnerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
             navContainerInnerSizer->Add(searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
-            navContainerInnerSizer->AddSpacer(2);
+#if defined __APPLE__
+            navContainerInnerSizer->AddSpacer(4);
+#endif
             navContainerInnerSizer->SetItemMinSize(searchBox, 200, wxDefaultSize.y);
             
             wxSizer* navContainerOuterSizer = new wxBoxSizer(wxVERTICAL);
@@ -84,16 +103,14 @@ namespace TrenchBroom {
             navContainerOuterSizer->AddSpacer(2);
             m_navContainerPanel->SetSizer(navContainerOuterSizer);
             
-            m_mapCanvas = new MapGLCanvas(m_canvasPanel, m_documentViewHolder);
+            m_mapCanvas = new MapGLCanvas(m_mapCanvasContainerPanel, m_documentViewHolder);
             
-            wxSizer* canvasPanelSizer = new wxBoxSizer(wxVERTICAL);
-            canvasPanelSizer->Add(m_navContainerPanel, 0, wxEXPAND);
-            canvasPanelSizer->Add(m_mapCanvas, 1, wxEXPAND);
-            m_canvasPanel->SetSizer(canvasPanelSizer);
-            
-            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
+            wxSizer* mapCanvasContainerSizer = new wxBoxSizer(wxVERTICAL);
+            mapCanvasContainerSizer->Add(m_navContainerPanel, 0, wxEXPAND);
+            mapCanvasContainerSizer->Add(m_mapCanvas, 1, wxEXPAND);
+            m_mapCanvasContainerPanel->SetSizer(mapCanvasContainerSizer);
 
-            logSplitter->SplitHorizontally(m_canvasPanel, m_logView, -150);
+            logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -150);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

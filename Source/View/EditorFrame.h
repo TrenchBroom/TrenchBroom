@@ -50,7 +50,7 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
-            wxPanel* m_canvasPanel;
+            wxPanel* m_mapCanvasContainerPanel;
             wxPanel* m_navContainerPanel;
             wxPanel* m_navPanel;
             MapGLCanvas* m_mapCanvas;
@@ -58,6 +58,7 @@ namespace TrenchBroom {
             bool m_mapCanvasHasFocus;
             bool m_focusMapCanvasOnIdle;
             
+            void PaintNavContainer(wxPaintEvent& event);
             void CreateGui();
             wxStaticText* makeBreadcrump(const wxString& text, bool link);
         public:
