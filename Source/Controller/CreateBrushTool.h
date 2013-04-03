@@ -45,20 +45,17 @@ namespace TrenchBroom {
             Model::VisibleFilter m_filter;
             Vec3f m_initialPoint;
             BBox m_bounds;
-            Vec3f m_normal;
-            int m_thickness;
             bool m_boundsChanged;
             Model::Brush* m_brush;
             Renderer::BrushFigure* m_brushFigure;
 
-            void updateBoundsThickness();
             void updateBounds(const Vec3f& currentPoint);
             
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
-            void handleScroll(InputState& inputState);
-
+            void handleModifierKeyChange(InputState& inputState);
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
+            void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
         public:

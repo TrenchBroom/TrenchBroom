@@ -119,7 +119,7 @@ namespace TrenchBroom {
             if (validPlane) {
                 const BBox& worldBounds = document().map().worldBounds();
                 const bool forceIntegerFacePoints = document().map().forceIntegerFacePoints();
-                String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
+                const String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
                 
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
