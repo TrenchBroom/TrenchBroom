@@ -42,6 +42,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
+#include <wx/statline.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/toolbar.h>
@@ -79,7 +80,6 @@ namespace TrenchBroom {
             m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
-            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             
             m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY);
             m_navContainerPanel = new wxPanel(m_mapCanvasContainerPanel, wxID_ANY);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             
             m_searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
             m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &EditorFrame::OnSearchPatternChanged, this);
-#if defined __APPLE__
+#ifdef __APPLE__
             m_searchBox->SetFont(*wxSMALL_FONT);
             m_navContainerPanel->SetBackgroundStyle(wxBG_STYLE_PAINT);
             m_navContainerPanel->Bind(wxEVT_PAINT, &EditorFrame::PaintNavContainer, this);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             navContainerInnerSizer->AddSpacer(4);
             navContainerInnerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
             navContainerInnerSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
-#if defined __APPLE__
+#ifdef __APPLE__
             navContainerInnerSizer->AddSpacer(4);
 #endif
             navContainerInnerSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
@@ -116,9 +116,24 @@ namespace TrenchBroom {
             m_mapCanvasContainerPanel->SetSizer(mapCanvasContainerSizer);
 
             logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -100);
+#ifdef __APPLE__
+            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
+#else
+            wxPanel* inspectorPanel = new wxPanel(inspectorSplitter, wxID_ANY);
+            m_inspector = new Inspector(inspectorPanel, m_documentViewHolder);
+            
+            wxSizer* inspectorPanelSizer = new wxBoxSizer(wxVERTICAL);
+            inspectorPanelSizer->AddSpacer(2);
+            inspectorPanelSizer->Add(m_inspector, 1, wxEXPAND);
+            inspectorPanel->SetSizer(inspectorPanelSizer);
+            inspectorSplitter->SplitVertically(logSplitter, inspectorPanel, -350);
+#endif
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+#ifndef __APPLE__
+            outerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
+#endif
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
 
@@ -133,7 +148,7 @@ namespace TrenchBroom {
 
         wxStaticText* EditorFrame::makeBreadcrump(const wxString& text, bool link) {
             wxStaticText* staticText = new wxStaticText(m_navPanel, wxID_ANY, text);
-#if defined __APPLE__
+#ifdef __APPLE__
             staticText->SetFont(*wxSMALL_FONT);
 #endif
             if (link) {
@@ -147,7 +162,7 @@ namespace TrenchBroom {
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
         m_focusMapCanvasOnIdle(true) {
-#if defined _WIN32
+#ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
