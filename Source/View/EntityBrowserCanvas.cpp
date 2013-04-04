@@ -199,7 +199,7 @@ namespace TrenchBroom {
                     
                     const String& title = group.item();
                     if (!title.empty()) {
-                        const LayoutBounds titleBounds = group.titleBounds();
+                        const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
                         Renderer::Text::TexturedFont* font = fontManager.font(defaultDescriptor);
