@@ -19,6 +19,7 @@
 
 #include "EditorFrame.h"
 
+#include "Controller/Command.h"
 #include "Controller/InputController.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -84,9 +85,10 @@ namespace TrenchBroom {
             m_navContainerPanel = new wxPanel(m_mapCanvasContainerPanel, wxID_ANY);
             m_navPanel = new wxPanel(m_navContainerPanel, wxID_ANY);
             
-            wxSearchCtrl* searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
+            m_searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
+            m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &EditorFrame::OnSearchPatternChanged, this);
 #if defined __APPLE__
-            searchBox->SetFont(*wxSMALL_FONT);
+            m_searchBox->SetFont(*wxSMALL_FONT);
             m_navContainerPanel->SetBackgroundStyle(wxBG_STYLE_PAINT);
             m_navContainerPanel->Bind(wxEVT_PAINT, &EditorFrame::PaintNavContainer, this);
 #endif
@@ -94,11 +96,11 @@ namespace TrenchBroom {
             wxSizer* navContainerInnerSizer = new wxBoxSizer(wxHORIZONTAL);
             navContainerInnerSizer->AddSpacer(4);
             navContainerInnerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
-            navContainerInnerSizer->Add(searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
+            navContainerInnerSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
 #if defined __APPLE__
             navContainerInnerSizer->AddSpacer(4);
 #endif
-            navContainerInnerSizer->SetItemMinSize(searchBox, 200, wxDefaultSize.y);
+            navContainerInnerSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
             
             wxSizer* navContainerOuterSizer = new wxBoxSizer(wxVERTICAL);
             navContainerOuterSizer->AddSpacer(2);
@@ -269,6 +271,16 @@ namespace TrenchBroom {
             m_documentViewHolder.invalidate();
         }
 
+        void EditorFrame::OnSearchPatternChanged(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
+            editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
+            Controller::Command command(Controller::Command::InvalidateRendererState);
+            editorView.OnUpdate(NULL, &command);
+        }
+        
         /*
         void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
             m_mapCanvasHasFocus = true;

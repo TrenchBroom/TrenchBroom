@@ -26,6 +26,7 @@
 
 class wxDocManager;
 class wxPanel;
+class wxSearchCtrl;
 class wxStaticText;
 class wxTextCtrl;
 
@@ -53,6 +54,7 @@ namespace TrenchBroom {
             wxPanel* m_mapCanvasContainerPanel;
             wxPanel* m_navContainerPanel;
             wxPanel* m_navPanel;
+            wxSearchCtrl* m_searchBox;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             bool m_mapCanvasHasFocus;
@@ -80,6 +82,8 @@ namespace TrenchBroom {
             
             void updateMenuBar();
             void disableProcessing();
+
+            void OnSearchPatternChanged(wxCommandEvent& event);
 
             /*
             void OnMapCanvasSetFocus(wxFocusEvent& event);

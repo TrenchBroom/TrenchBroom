@@ -25,7 +25,6 @@
 
 class wxCheckBox;
 class wxChoice;
-class wxSearchCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +35,6 @@ namespace TrenchBroom {
         class ViewInspector : public wxPanel {
         protected:
             DocumentViewHolder& m_documentViewHolder;
-            wxSearchCtrl* m_searchBox;
             wxCheckBox* m_toggleEntities;
             wxCheckBox* m_toggleEntityModels;
             wxCheckBox* m_toggleEntityBounds;
@@ -56,7 +54,6 @@ namespace TrenchBroom {
         public:
             ViewInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
-            void OnFilterPatternChanged(wxCommandEvent& event);
             void OnFilterOptionChanged(wxCommandEvent& event);
             void OnRenderFaceModeSelected(wxCommandEvent& event);
             void OnRenderEdgesChanged(wxCommandEvent& event);
