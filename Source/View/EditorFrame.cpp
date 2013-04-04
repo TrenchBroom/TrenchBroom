@@ -115,7 +115,7 @@ namespace TrenchBroom {
             mapCanvasContainerSizer->Add(m_mapCanvas, 1, wxEXPAND);
             m_mapCanvasContainerPanel->SetSizer(mapCanvasContainerSizer);
 
-            logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -150);
+            logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -100);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
