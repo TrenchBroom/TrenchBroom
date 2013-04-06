@@ -51,7 +51,7 @@
 namespace TrenchBroom {
     namespace View {
         const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
-        
+
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
@@ -70,7 +70,7 @@ namespace TrenchBroom {
              *     logView
              *   inspector
              */
-            
+
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
@@ -82,17 +82,17 @@ namespace TrenchBroom {
             m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
-            
+
             m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-#ifdef __APPLE__
-                                                    wxBORDER_NONE
-#else
+#ifdef _WIN32
                                                     wxBORDER_SUNKEN
+#else
+                                                    wxBORDER_NONE
 #endif
                                                     );
             m_navBar = new NavBar(m_mapCanvasContainerPanel, m_documentViewHolder);
             m_mapCanvas = new MapGLCanvas(m_mapCanvasContainerPanel, m_documentViewHolder);
-            
+
             wxSizer* mapCanvasContainerSizer = new wxBoxSizer(wxVERTICAL);
             mapCanvasContainerSizer->Add(m_navBar, 0, wxEXPAND);
             mapCanvasContainerSizer->Add(m_mapCanvas, 1, wxEXPAND);
@@ -231,9 +231,9 @@ namespace TrenchBroom {
                 wxWindow* focus = FindFocus();
                 if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
                     m_mapCanvasHasFocus = (focus == m_mapCanvas);
-                    
+
                     updateMenuBar();
-                    
+
                     wxMenuBar* menuBar = GetMenuBar();
                     size_t menuCount = menuBar->GetMenuCount();
                     for (size_t i = 0; i < menuCount; i++) {
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             }
 #endif
             */
-            
+
             // finally set the top window
             if (IsActive() && wxTheApp->GetTopWindow() != this)
                 wxTheApp->SetTopWindow(this);

@@ -476,6 +476,8 @@
 		<Unit filename="../Source/View/MapGLCanvas.h" />
 		<Unit filename="../Source/View/MapPropertiesDialog.cpp" />
 		<Unit filename="../Source/View/MapPropertiesDialog.h" />
+		<Unit filename="../Source/View/NavBar.cpp" />
+		<Unit filename="../Source/View/NavBar.h" />
 		<Unit filename="../Source/View/PathDialog.cpp" />
 		<Unit filename="../Source/View/PathDialog.h" />
 		<Unit filename="../Source/View/PreferencePane.h" />
