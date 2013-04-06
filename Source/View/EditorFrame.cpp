@@ -106,7 +106,6 @@ namespace TrenchBroom {
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
 
-            updateNavBar();
             SetSize(1024, 768);
 
             /*
@@ -250,6 +249,7 @@ namespace TrenchBroom {
                 m_mapCanvas->SetFocus();
                 m_focusMapCanvasOnIdle = false;
             }
+            updateNavBar();
 
             /*
             // this is a fix for Mac OS X, where the kill focus event is not properly sent

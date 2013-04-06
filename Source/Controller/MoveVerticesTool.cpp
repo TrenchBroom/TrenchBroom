@@ -428,9 +428,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveVerticesTool::handleMouseMove(InputState& inputState) {
-        }
-
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
             if (active() && !m_ignoreObjectChanges) {
                 m_handleManager.clear();
@@ -455,11 +452,6 @@ namespace TrenchBroom {
         m_ignoreObjectChanges(false),
         m_textRenderer(NULL) {}
 
-        bool MoveVerticesTool::hasSelection() {
-            return !m_handleManager.selectedVertexHandles().empty() || !m_handleManager.selectedEdgeHandles().empty() || !m_handleManager.selectedFaceHandles().empty();
-            
-        }
-        
         MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
             m_ignoreObjectChanges = true;
             if (m_mode == VMMove || m_mode == VMSnap) {

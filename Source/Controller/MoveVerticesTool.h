@@ -76,7 +76,6 @@ namespace TrenchBroom {
             bool handleMouseDown(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);
-            void handleMouseMove(InputState& inputState);
 
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
@@ -99,7 +98,34 @@ namespace TrenchBroom {
                 m_changeCount--;
             }
             
-            bool hasSelection();
+            inline bool hasSelection() const {
+                return selectedVertexCount() > 0 || selectedEdgeCount() > 0 || selectedFaceCount() > 0;
+            }
+            
+            inline size_t selectedVertexCount() const {
+                return m_handleManager.selectedVertexCount();
+            }
+            
+            inline size_t totalVertexCount() const {
+                return m_handleManager.totalVertexCount();
+            }
+            
+            inline size_t selectedEdgeCount() const {
+                return m_handleManager.selectedEdgeCount();
+            }
+            
+            inline size_t totalEdgeCount() const {
+                return m_handleManager.totalEdgeCount();
+            }
+            
+            inline size_t selectedFaceCount() const {
+                return m_handleManager.selectedFaceCount();
+            }
+            
+            inline size_t totalFaceCount() const {
+                return m_handleManager.totalFaceCount();
+            }
+
             MoveResult moveVertices(const Vec3f& delta);
             
             void resetInstancedRenderers();

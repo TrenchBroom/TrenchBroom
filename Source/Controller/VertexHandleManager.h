@@ -68,6 +68,13 @@ namespace TrenchBroom {
             Model::VertexToFacesMap m_unselectedFaceHandles;
             Model::VertexToFacesMap m_selectedFaceHandles;
             
+            size_t m_totalVertexCount;
+            size_t m_selectedVertexCount;
+            size_t m_totalEdgeCount;
+            size_t m_selectedEdgeCount;
+            size_t m_totalFaceCount;
+            size_t m_selectedFaceCount;
+            
             Renderer::PointHandleRenderer* m_selectedHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedVertexHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedEdgeHandleRenderer;
@@ -167,6 +174,30 @@ namespace TrenchBroom {
 
             inline bool faceHandleSelected(const Vec3f& position) {
                 return m_selectedFaceHandles.find(position) != m_selectedFaceHandles.end();
+            }
+            
+            inline size_t selectedVertexCount() const {
+                return m_selectedVertexCount;
+            }
+            
+            inline size_t totalVertexCount() const {
+                return m_totalVertexCount;
+            }
+            
+            inline size_t selectedEdgeCount() const {
+                return m_selectedEdgeCount;
+            }
+            
+            inline size_t totalEdgeCount() const {
+                return m_totalEdgeCount;
+            }
+            
+            inline size_t selectedFaceCount() const {
+                return m_selectedFaceCount;
+            }
+            
+            inline size_t totalFaceCount() const {
+                return m_totalFaceCount;
             }
             
             const Model::BrushList& brushes(const Vec3f& handlePosition) const;

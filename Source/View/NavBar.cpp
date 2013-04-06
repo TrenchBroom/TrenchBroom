@@ -19,7 +19,10 @@
 
 #include "NavBar.h"
 
+#include "Controller/ClipTool.h"
 #include "Controller/Command.h"
+#include "Controller/InputController.h"
+#include "Controller/MoveVerticesTool.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
@@ -99,65 +102,95 @@ namespace TrenchBroom {
         
         void NavBar::updateBreadcrump() {
             m_navPanel->DestroyChildren();
-            
-            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            Model::EntitySet entities = Utility::makeSet(editStateManager.selectedEntities());
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            size_t totalEntityBrushCount = 0;
-            
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                Model::Entity* entity = brush.entity();
-                entities.insert(entity);
-            }
-            
-            Model::EntitySet::const_iterator entityIt, entityEnd;
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                totalEntityBrushCount += entity.brushes().size();
-            }
-            
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            if (entities.empty() && brushes.empty()) {
-                sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
-            } else {
-                if (entities.size() == 1 && (*entities.begin())->worldspawn()) {
-                    const Model::Entity& entity = **entities.begin();
-                    const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
-                    sizer->Add(makeBreadcrump(classname, false), 0, wxALIGN_CENTRE_VERTICAL);
-                } else {
-                    entityIt = entities.begin();
-                    entityEnd = entities.end();
-                    
-                    const Model::Entity* entity = *entityIt++;
-                    const String firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
-                    bool sameClassname = true;
-                    while (entityIt != entityEnd && sameClassname) {
-                        entity = *entityIt++;
-                        const String classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
-                        sameClassname = (classname == firstClassname);
-                    }
-                    
-                    wxString entityString;
-                    entityString << entities.size() << " ";
-                    if (sameClassname)
-                        entityString << firstClassname << " ";
-                    entityString << (entities.size() == 1 ? "entity" : "entities");
-                    sizer->Add(makeBreadcrump(entityString, false), 0, wxALIGN_CENTRE_VERTICAL);
+            
+            if (m_documentViewHolder.valid()) {
+                Controller::InputController& inputController = m_documentViewHolder.view().inputController();
+                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+                Model::EntitySet entities = Utility::makeSet(editStateManager.selectedEntities());
+                const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                size_t totalEntityBrushCount = 0;
+                
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    const Model::Brush& brush = **brushIt;
+                    Model::Entity* entity = brush.entity();
+                    entities.insert(entity);
                 }
-                if (!brushes.empty()) {
-                    sizer->AddSpacer(2);
-                    sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
-                    sizer->AddSpacer(2);
-                    
-                    wxString brushString;
-                    brushString << brushes.size() << "/" << totalEntityBrushCount << (totalEntityBrushCount == 1 ? " brush" : " brushes");
-                    sizer->Add(makeBreadcrump(brushString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                
+                Model::EntitySet::const_iterator entityIt, entityEnd;
+                for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                    const Model::Entity& entity = **entityIt;
+                    totalEntityBrushCount += entity.brushes().size();
+                }
+                
+                if (entities.empty() && brushes.empty()) {
+                    sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
+                } else {
+                    if (entities.size() == 1 && (*entities.begin())->worldspawn()) {
+                        const Model::Entity& entity = **entities.begin();
+                        const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
+                        sizer->Add(makeBreadcrump(classname, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    } else {
+                        entityIt = entities.begin();
+                        entityEnd = entities.end();
+                        
+                        const Model::Entity* entity = *entityIt++;
+                        const String firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                        bool sameClassname = true;
+                        while (entityIt != entityEnd && sameClassname) {
+                            entity = *entityIt++;
+                            const String classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                            sameClassname = (classname == firstClassname);
+                        }
+                        
+                        wxString entityString;
+                        entityString << entities.size() << " ";
+                        if (sameClassname)
+                            entityString << firstClassname << " ";
+                        entityString << (entities.size() == 1 ? "entity" : "entities");
+                        sizer->Add(makeBreadcrump(entityString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    }
+                    if (!brushes.empty()) {
+                        sizer->AddSpacer(2);
+                        sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
+                        sizer->AddSpacer(2);
+                        
+                        wxString brushString;
+                        brushString << brushes.size() << "/" << totalEntityBrushCount << (totalEntityBrushCount == 1 ? " brush" : " brushes");
+                        sizer->Add(makeBreadcrump(brushString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    }
+                    if (inputController.clipToolActive()) {
+                        sizer->AddSpacer(2);
+                        sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
+                        sizer->AddSpacer(2);
+
+                        wxString clipString = "clip tool (";
+                        clipString << inputController.clipTool().numPoints() << "/3 points)";
+                        sizer->Add(makeBreadcrump(clipString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    } else if (inputController.moveVerticesToolActive()) {
+                        sizer->AddSpacer(2);
+                        sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
+                        sizer->AddSpacer(2);
+
+                        Controller::MoveVerticesTool& tool = inputController.moveVerticesTool();
+                        wxString vertexString = "vertex tool (";
+                        if (tool.selectedVertexCount() > 0) {
+                            vertexString << tool.selectedVertexCount() << "/" << tool.totalVertexCount() << " vertices";
+                        } else if (tool.selectedEdgeCount() > 0) {
+                            vertexString << tool.selectedEdgeCount() << "/" << tool.totalEdgeCount() << " edges";
+                        } else if (tool.selectedFaceCount() > 0) {
+                            vertexString << tool.selectedFaceCount() << "/" << tool.totalFaceCount() << " faces";
+                        } else {
+                            vertexString << "no selection";
+                        }
+                        vertexString << ")";
+                        sizer->Add(makeBreadcrump(vertexString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    }
                 }
             }
-            m_navPanel->SetSizer(sizer);
             
+            m_navPanel->SetSizer(sizer);
             Layout();
         }
     }
