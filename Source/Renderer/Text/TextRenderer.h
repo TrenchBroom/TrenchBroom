@@ -200,61 +200,6 @@ namespace TrenchBroom {
 
                     return result;
                 }
-
-                void renderBackground(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color) {
-                    /*
-                    if (shaderProgram.activate()) {
-                        Mat4f billboardMatrix = context.camera().billboardMatrix();
-
-                        unsigned int vertexCount = static_cast<unsigned int>(3 * 16 * entries.size()); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
-                        VertexArray vertexArray(*m_vbo, GL_TRIANGLES, vertexCount,
-                                                Attribute::position3f(),
-                                                Attribute::color4f());
-                        Vec2f::List vertices;
-                        vertices.reserve(vertexCount);
-
-                        SetVboState(*m_vbo, Vbo::VboActive);
-                        {
-                            SetVboState(*m_vbo, Vbo::VboMapped);
-                            for (unsigned int i = 0; i < entries.size(); i++) {
-                                const EntryWithDistance& entryWithDistance = entries[i];
-                                TextEntry& entry = entryWithDistance.entry();
-                                float dist = entryWithDistance.distance();
-                                float factor = dist / 300.0f;
-
-                                StringRendererPtr stringRenderer = entry.stringRenderer();
-                                Anchor& anchor = entry.textAnchor();
-                                const Vec3f position = anchor->position();
-
-                                Mat4f matrix;
-                                matrix.translate(position);
-                                matrix *= billboardMatrix;
-                                matrix.scale(Vec3f(factor, factor, 0.0f));
-
-                                Vec3f alignment = anchor->alignmentFactors();
-                                alignment.x *= (stringRenderer->width() + 2.0f * m_hInset);
-                                alignment.y *= (stringRenderer->height() + 2.0f * m_vInset);
-                                matrix.translate(alignment);
-
-                                roundedRect(stringRenderer->width() + 2.0f * m_hInset, stringRenderer->height() + 2.0f * m_vInset, 3.0f, 3, vertices);
-                                for (unsigned int j = 0; j < vertices.size(); j++) {
-                                    Vec3f vertex = Vec3f(vertices[j].x, vertices[j].y, 0.0f);
-                                    vertexArray.addAttribute(matrix * vertex);
-                                    vertexArray.addAttribute(color);
-                                }
-                                vertices.clear();
-                            }
-                        }
-
-                        vertexArray.render();
-                        shaderProgram.deactivate();
-                    }
-                     */
-                }
-
-                void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& textColor, const Color& backgroundColor)  {
-
-                }
             public:
                 TextRenderer(TexturedFont& font) :
                 m_font(font),
