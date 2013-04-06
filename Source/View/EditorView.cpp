@@ -553,7 +553,7 @@ namespace TrenchBroom {
                         inputController().objectsChange();
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavigation();
+                        frame->updateNavBar();
                         frame->updateMenuBar();
                         break;
                     }
@@ -568,7 +568,7 @@ namespace TrenchBroom {
                         inputController().objectsChange();
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavigation();
+                        frame->updateNavBar();
                         frame->updateMenuBar();
                         break;
                     }
@@ -577,7 +577,7 @@ namespace TrenchBroom {
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavigation();
+                        frame->updateNavBar();
                         frame->updateMenuBar();
                         inputController().editStateChange(changeEditStateCommand->changeSet());
                         if (mapDocument().editStateManager().selectedBrushes().empty() && inputController().clipToolActive())

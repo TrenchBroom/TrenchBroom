@@ -365,6 +365,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\KeyboardShortcutEvent.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
+    <ClCompile Include="..\..\Source\View\NavBar.cpp" />
     <ClCompile Include="..\..\Source\View\PathDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PreferencesFrame.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
@@ -585,6 +586,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h" />
+    <ClInclude Include="..\..\Source\View\NavBar.h" />
     <ClInclude Include="..\..\Source\View\PathDialog.h" />
     <ClInclude Include="..\..\Source\View\PreferencesFrame.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />

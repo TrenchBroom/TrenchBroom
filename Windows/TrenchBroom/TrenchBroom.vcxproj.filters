@@ -519,6 +519,9 @@
     <ClCompile Include="..\..\Source\Renderer\Text\TexturedFont.cpp">
       <Filter>Source Files\Renderer\Text</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\NavBar.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1186,6 +1189,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\ControllerUtils.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\NavBar.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

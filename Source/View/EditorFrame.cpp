@@ -27,10 +27,11 @@
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
 #include "Utility/List.h"
+#include "View/CommandIds.h"
 #include "View/EditorView.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
-#include "View/CommandIds.h"
+#include "View/NavBar.h"
 #include "TrenchBroomApp.h"
 
 #include <wx/colour.h>
@@ -58,17 +59,18 @@ namespace TrenchBroom {
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
-        void EditorFrame::PaintNavContainer(wxPaintEvent& event) {
-            wxPaintDC dc(m_navContainerPanel);
-            wxRect rect = m_navContainerPanel->GetClientRect();
-            rect.height -= 1;
-            dc.GradientFillLinear(m_navContainerPanel->GetClientRect(), wxColour(211, 211, 211), wxColour(174, 174, 174), wxDOWN);
-            dc.SetPen(wxPen(wxColour(67, 67, 67)));
-            dc.DrawLine(0, rect.height, rect.width, rect.height);
-            dc.DrawLine(rect.width - 1, 0, rect.width - 1, rect.height);
-        }
-
         void EditorFrame::CreateGui() {
+            /*
+             * Structure:
+             * inspectorSplitter
+             *   logSplitter
+             *     mapCanvasContainerPanel
+             *       navBar
+             *       mapCanvas
+             *     logView
+             *   inspector
+             */
+            
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
@@ -81,63 +83,30 @@ namespace TrenchBroom {
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
             
-            m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY);
-            m_navContainerPanel = new wxPanel(m_mapCanvasContainerPanel, wxID_ANY);
-            m_navPanel = new wxPanel(m_navContainerPanel, wxID_ANY);
-            
-            m_searchBox = new wxSearchCtrl(m_navContainerPanel, wxID_ANY);
-            m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &EditorFrame::OnSearchPatternChanged, this);
+            m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 #ifdef __APPLE__
-            m_searchBox->SetFont(*wxSMALL_FONT);
-            m_navContainerPanel->SetBackgroundStyle(wxBG_STYLE_PAINT);
-            m_navContainerPanel->Bind(wxEVT_PAINT, &EditorFrame::PaintNavContainer, this);
+                                                    wxBORDER_NONE
+#else
+                                                    wxBORDER_SUNKEN
 #endif
-            
-            wxSizer* navContainerInnerSizer = new wxBoxSizer(wxHORIZONTAL);
-            navContainerInnerSizer->AddSpacer(4);
-            navContainerInnerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
-            navContainerInnerSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
-#ifdef __APPLE__
-            navContainerInnerSizer->AddSpacer(4);
-#endif
-            navContainerInnerSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
-            
-            wxSizer* navContainerOuterSizer = new wxBoxSizer(wxVERTICAL);
-            navContainerOuterSizer->AddSpacer(2);
-            navContainerOuterSizer->Add(navContainerInnerSizer, 1, wxEXPAND);
-            navContainerOuterSizer->AddSpacer(2);
-            m_navContainerPanel->SetSizer(navContainerOuterSizer);
-            
+                                                    );
+            m_navBar = new NavBar(m_mapCanvasContainerPanel, m_documentViewHolder);
             m_mapCanvas = new MapGLCanvas(m_mapCanvasContainerPanel, m_documentViewHolder);
             
             wxSizer* mapCanvasContainerSizer = new wxBoxSizer(wxVERTICAL);
-            mapCanvasContainerSizer->Add(m_navContainerPanel, 0, wxEXPAND);
+            mapCanvasContainerSizer->Add(m_navBar, 0, wxEXPAND);
             mapCanvasContainerSizer->Add(m_mapCanvas, 1, wxEXPAND);
             m_mapCanvasContainerPanel->SetSizer(mapCanvasContainerSizer);
 
             logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -100);
-#ifdef __APPLE__
             m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
-#else
-            wxPanel* inspectorPanel = new wxPanel(inspectorSplitter, wxID_ANY);
-            m_inspector = new Inspector(inspectorPanel, m_documentViewHolder);
-            
-            wxSizer* inspectorPanelSizer = new wxBoxSizer(wxVERTICAL);
-            inspectorPanelSizer->AddSpacer(2);
-            inspectorPanelSizer->Add(m_inspector, 1, wxEXPAND);
-            inspectorPanel->SetSizer(inspectorPanelSizer);
-            inspectorSplitter->SplitVertically(logSplitter, inspectorPanel, -350);
-#endif
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-#ifndef __APPLE__
-            outerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
-#endif
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
 
-            updateNavigation();
+            updateNavBar();
             SetSize(1024, 768);
 
             /*
@@ -146,17 +115,6 @@ namespace TrenchBroom {
              */
         }
 
-        wxStaticText* EditorFrame::makeBreadcrump(const wxString& text, bool link) {
-            wxStaticText* staticText = new wxStaticText(m_navPanel, wxID_ANY, text);
-#ifdef __APPLE__
-            staticText->SetFont(*wxSMALL_FONT);
-#endif
-            if (link) {
-                staticText->SetForegroundColour(wxColour(10, 75, 220)); //wxSystemSettings::GetColour(wxSYS_COLOUR_HOTLIGHT));
-                staticText->SetCursor(wxCursor(wxCURSOR_HAND));
-            }
-            return staticText;
-        }
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
@@ -171,68 +129,10 @@ namespace TrenchBroom {
             m_mapCanvasHasFocus = false;
         }
 
-        void EditorFrame::updateNavigation() {
-            m_navPanel->DestroyChildren();
-            
-            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            Model::EntitySet entities = Utility::makeSet(editStateManager.selectedEntities());
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            size_t totalEntityBrushCount = 0;
-            
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                Model::Entity* entity = brush.entity();
-                entities.insert(entity);
-            }
-            
-            Model::EntitySet::const_iterator entityIt, entityEnd;
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                totalEntityBrushCount += entity.brushes().size();
-            }
-
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            if (entities.empty() && brushes.empty()) {
-                sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
-            } else {
-                if (entities.size() == 1 && (*entities.begin())->worldspawn()) {
-                    const Model::Entity& entity = **entities.begin();
-                    const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
-                    sizer->Add(makeBreadcrump(classname, false), 0, wxALIGN_CENTRE_VERTICAL);
-                } else {
-                    entityIt = entities.begin();
-                    entityEnd = entities.end();
-                    
-                    const Model::Entity* entity = *entityIt++;
-                    const String firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
-                    bool sameClassname = true;
-                    while (entityIt != entityEnd && sameClassname) {
-                        entity = *entityIt++;
-                        const String classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
-                        sameClassname = (classname == firstClassname);
-                    }
-                    
-                    wxString entityString;
-                    entityString << entities.size() << " ";
-                    if (sameClassname)
-                        entityString << firstClassname << " ";
-                    entityString << (entities.size() == 1 ? "entity" : "entities");
-                    sizer->Add(makeBreadcrump(entityString, false), 0, wxALIGN_CENTRE_VERTICAL);
-                }
-                if (!brushes.empty()) {
-                    sizer->AddSpacer(2);
-                    sizer->Add(makeBreadcrump(L"\u00BB", false), 0, wxALIGN_CENTRE_VERTICAL);
-                    sizer->AddSpacer(2);
-                    
-                    wxString brushString;
-                    brushString << brushes.size() << "/" << totalEntityBrushCount << (totalEntityBrushCount == 1 ? " brush" : " brushes");
-                    sizer->Add(makeBreadcrump(brushString, false), 0, wxALIGN_CENTRE_VERTICAL);
-                }
-            }
-            m_navPanel->SetSizer(sizer);
-
-            m_navContainerPanel->Layout();
+        void EditorFrame::updateNavBar() {
+            if (!m_documentViewHolder.valid())
+                return;
+            m_navBar->updateBreadcrump();
         }
 
         void EditorFrame::updateMenuBar() {
@@ -286,16 +186,6 @@ namespace TrenchBroom {
             m_documentViewHolder.invalidate();
         }
 
-        void EditorFrame::OnSearchPatternChanged(wxCommandEvent& event) {
-            if (!m_documentViewHolder.valid())
-                return;
-            
-            EditorView& editorView = m_documentViewHolder.view();
-            editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
-            Controller::Command command(Controller::Command::InvalidateRendererState);
-            editorView.OnUpdate(NULL, &command);
-        }
-        
         /*
         void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
             m_mapCanvasHasFocus = true;

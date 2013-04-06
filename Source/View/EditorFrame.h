@@ -26,8 +26,6 @@
 
 class wxDocManager;
 class wxPanel;
-class wxSearchCtrl;
-class wxStaticText;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -44,6 +42,7 @@ namespace TrenchBroom {
         class EditorView;
         class Inspector;
         class MapGLCanvas;
+        class NavBar;
         
         class EditorFrame : public wxFrame {
         public:
@@ -52,21 +51,15 @@ namespace TrenchBroom {
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
             wxPanel* m_mapCanvasContainerPanel;
-            wxPanel* m_navContainerPanel;
-            wxPanel* m_navPanel;
-            wxSearchCtrl* m_searchBox;
+            NavBar* m_navBar;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             bool m_mapCanvasHasFocus;
             bool m_focusMapCanvasOnIdle;
             
-            void PaintNavContainer(wxPaintEvent& event);
             void CreateGui();
-            wxStaticText* makeBreadcrump(const wxString& text, bool link);
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
-            
-            void updateNavigation();
             
             inline MapGLCanvas& mapCanvas() const {
                 return *m_mapCanvas;
@@ -80,10 +73,9 @@ namespace TrenchBroom {
                 return m_logView;
             }
             
+            void updateNavBar();
             void updateMenuBar();
             void disableProcessing();
-
-            void OnSearchPatternChanged(wxCommandEvent& event);
 
             /*
             void OnMapCanvasSetFocus(wxFocusEvent& event);
