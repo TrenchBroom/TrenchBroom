@@ -104,20 +104,21 @@ namespace TrenchBroom {
             }
             
             template <typename Element>
-            inline bool moveHandle(const Vec3f& position, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& from, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& to) {
+            inline size_t moveHandle(const Vec3f& position, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& from, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& to) {
                 typedef std::vector<Element*> List;
                 typedef std::map<Vec3f, List, Vec3f::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = from.find(position);
                 if (mapIt == from.end())
-                    return false;
+                    return 0;
                 
                 List& fromElements = mapIt->second;
                 List& toElements = to[position];
+                size_t elementCount = fromElements.size();
                 toElements.insert(toElements.end(), fromElements.begin(), fromElements.end());
                 
                 from.erase(mapIt);
-                return true;
+                return elementCount;
             }
             
             inline Model::VertexHandleHit* pickHandle(const Ray& ray, const Vec3f& position, Model::HitType::Type type) const {
