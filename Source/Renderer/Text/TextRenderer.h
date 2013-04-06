@@ -372,7 +372,6 @@ namespace TrenchBroom {
 
                     Mat4f view;
                     view.setView(Vec3f::NegZ, Vec3f::PosY);
-                    view.translate(Vec3f::Null);
 
                     ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
 
@@ -382,6 +381,7 @@ namespace TrenchBroom {
                     if (backgroundProgram.activate()) {
                         backgroundProgram.setUniformVariable("Color", backgroundColor);
                         rectArray.render();
+                        backgroundProgram.deactivate();
                     }
 
                     if (textProgram.activate()) {
@@ -390,6 +390,7 @@ namespace TrenchBroom {
                         m_font.activate();
                         textArray.render();
                         m_font.deactivate();
+                        textProgram.deactivate();
                     }
 
                     glDepthMask(GL_TRUE);
