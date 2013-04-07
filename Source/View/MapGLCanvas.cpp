@@ -180,8 +180,7 @@ namespace TrenchBroom {
                 if (FindFocus() == this) {
                     Mat4f ortho = Mat4f::Identity;
                     ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
-
-                    renderContext.transformation().loadMatrix(ortho);
+                    Renderer::ApplyMatrix applyOrtho(renderContext.transformation(), ortho);
 
                     wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
                     float r = static_cast<float>(color.Red()) / 0xFF;
@@ -191,7 +190,7 @@ namespace TrenchBroom {
 
                     float w = GetSize().x;
                     float h = GetSize().y;
-                    float t = 3.0f;
+                    float t = 2.0f;
 
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glDisable(GL_CULL_FACE);

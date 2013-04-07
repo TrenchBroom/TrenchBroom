@@ -535,7 +535,19 @@ namespace TrenchBroom {
                 result += center;
                 return result;
             }
-            
+
+            static inline void rotate90(Axis::Type axis, bool clockwise, Vec3f::List& points) {
+                Vec3f::List::iterator it, end;
+                for (it = points.begin(), end = points.end(); it != end; ++it)
+                    it->rotate90(axis, clockwise);
+            }
+                    
+            static inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, Vec3f::List& points) {
+                Vec3f::List::iterator it, end;
+                for (it = points.begin(), end = points.end(); it != end; ++it)
+                    it->rotate90(axis, center, clockwise);
+            }
+
             inline Vec3f& flip(Axis::Type axis) {
                 switch (axis) {
                     case Axis::AX:

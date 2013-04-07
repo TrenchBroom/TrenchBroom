@@ -96,12 +96,68 @@ namespace TrenchBroom {
             vertices.reserve(segments);
             
             float a = 0.0f;
-            float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                
                 vertices.push_back(Vec2f(radius * s, radius * c));
+                a += d;
+            }
+        }
+        
+        inline void circle(float radius, unsigned int segments, Vec3f::List& vertices) {
+            assert(radius > 0.0f);
+            assert(segments > 2);
+            
+            vertices.clear();
+            vertices.reserve(segments);
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            for (unsigned int i = 0; i < segments; i++) {
+                float s = std::sin(a);
+                float c = std::cos(a);
+                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
+                a += d;
+            }
+        }
+        
+        inline void cylinder(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+            assert(length > 0.0f);
+            assert(radius > 0.0f);
+            assert(segments > 2);
+
+            vertices.clear();
+            vertices.reserve(2 * segments);
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            for (unsigned int i = 0; i < segments; i++) {
+                float s = std::sin(a);
+                float c = std::cos(a);
+                float x = radius * s;
+                float y = radius * c;
+                vertices.push_back(Vec3f(x, y, 0.0f));
+                vertices.push_back(Vec3f(x, y, length));
+                a += d;
+            }
+        }
+        
+        inline void cone(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+            assert(length > 0.0f);
+            assert(radius > 0.0f);
+            assert(segments > 2);
+            
+            vertices.clear();
+            vertices.reserve(segments + 1);
+            vertices.push_back(Vec3f(0.0f, 0.0f, length));
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            for (unsigned int i = 0; i < segments; i++) {
+                float s = std::sin(a);
+                float c = std::cos(a);
+                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
                 a += d;
             }
         }
