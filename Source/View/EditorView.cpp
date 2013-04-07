@@ -653,6 +653,8 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateEntities();
                         m_renderer->invalidateSelectedEntities();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
                         break;
                     }
                     case Controller::Command::UpdateFigures:

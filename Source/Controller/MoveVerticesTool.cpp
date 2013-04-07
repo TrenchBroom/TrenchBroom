@@ -442,9 +442,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveVerticesTool::handleMouseMove(InputState& inputState) {
-        }
-
         void MoveVerticesTool::handleUpdate(const Command& command, InputState& inputState) {
             if (active()) {
                 switch (command.type()) {
