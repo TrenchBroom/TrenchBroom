@@ -374,6 +374,10 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::MoveVerticesToolChange, document());
+            submitCommand(command, false);
+            
             return true;
         }
 
@@ -397,6 +401,10 @@ namespace TrenchBroom {
             
             m_handleManager.deselectAll();
             m_mode = VMMove;
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::MoveVerticesToolChange, document());
+            submitCommand(command, false);
+            
             return true;
         }
 
@@ -425,6 +433,10 @@ namespace TrenchBroom {
                 m_handleManager.selectFaceHandle(hit->vertex());
                 m_mode = VMSplit;
             }
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::MoveVerticesToolChange, document());
+            submitCommand(command, false);
+            
             return true;
         }
 

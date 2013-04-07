@@ -63,7 +63,9 @@ namespace TrenchBroom {
                 RebuildBrushGeometry,
                 ResizeBrushes,
                 ReparentBrushes,
-                UpdateFigures
+                UpdateFigures,
+                ClipToolChange,
+                MoveVerticesToolChange
             } Type;
             
             typedef enum {
@@ -148,7 +150,7 @@ namespace TrenchBroom {
                 m_document.UpdateAllViews(NULL, this);
             }
         public:
-            DocumentCommand(Type type, Model::MapDocument& document, bool undoable, const wxString& name, bool modifiesDocument) :
+            DocumentCommand(Type type, Model::MapDocument& document, bool undoable = false, const wxString& name = wxT(""), bool modifiesDocument = false) :
             Command(type, undoable, name),
             m_document(document),
             m_modifiesDocument(modifiesDocument) {}

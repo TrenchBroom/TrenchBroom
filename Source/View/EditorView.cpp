@@ -634,6 +634,8 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
                         break;
                     }
                     case Controller::Command::AddObjects: {
@@ -648,7 +650,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case Controller::Command::RebuildBrushGeometry:
-                    case Controller::Command::MoveVertices:
+                    case Controller::Command::MoveVertices: {
                         if (command->type() == Controller::Command::RebuildBrushGeometry) {
                             Controller::RebuildBrushGeometryCommand* rebuildCommand = static_cast<Controller::RebuildBrushGeometryCommand*>(command);
                             if (rebuildCommand->state() == Controller::Command::Undoing && rebuildCommand->activateMoveVerticesTool()) {
@@ -662,6 +664,9 @@ namespace TrenchBroom {
                             else
                                 inputController().moveVerticesTool().decChangeCount();
                         }
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
+                    }
                     case Controller::Command::SnapVertices:
                     case Controller::Command::MoveObjects:
                     case Controller::Command::RotateObjects:
@@ -671,6 +676,8 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedEntities();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
                         break;
                     }
                     case Controller::Command::RemoveObjects: {
@@ -684,24 +691,36 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
-                    case Controller::Command::ReparentBrushes:
+                    case Controller::Command::ReparentBrushes: {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateEntities();
                         m_renderer->invalidateSelectedEntities();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
                         break;
+                    }
                     case Controller::Command::UpdateFigures:
                         break;
                     case Controller::Command::SetMod:
-                    case Controller::Command::SetEntityDefinitionFile:
+                    case Controller::Command::SetEntityDefinitionFile: {
                         mapDocument().sharedResources().modelRendererManager().clearMismatches();
                         m_renderer->invalidateEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
                         m_renderer->invalidateAll();
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
                         break;
+                    }
+                    case Controller::Command::ClipToolChange:
+                    case Controller::Command::MoveVerticesToolChange: {
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateNavBar();
+                        break;
+                    }
                     default:
                         break;
                 }

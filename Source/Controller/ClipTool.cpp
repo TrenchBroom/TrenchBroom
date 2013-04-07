@@ -432,6 +432,9 @@ namespace TrenchBroom {
             m_hitIndex = -1;
             updateBrushes();
             
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
+
             return true;
         }
         
@@ -475,6 +478,10 @@ namespace TrenchBroom {
             }
             
             updateBrushes();
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
+
             return true;
         }
         
@@ -520,6 +527,9 @@ namespace TrenchBroom {
             assert(m_numPoints > 0);
             m_numPoints--;
             updateBrushes();
+
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
         }
         
         void ClipTool::performClip() {
@@ -569,6 +579,9 @@ namespace TrenchBroom {
             // only update if there are still brushes left because otherwise we have been deactivated
             if (active())
                 updateBrushes();
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
        }
     }
 }

@@ -248,8 +248,8 @@ namespace TrenchBroom {
             if (m_focusMapCanvasOnIdle) {
                 m_mapCanvas->SetFocus();
                 m_focusMapCanvasOnIdle = false;
+                updateNavBar();
             }
-            updateNavBar();
 
             /*
             // this is a fix for Mac OS X, where the kill focus event is not properly sent
