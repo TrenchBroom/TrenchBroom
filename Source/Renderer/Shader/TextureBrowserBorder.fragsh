@@ -19,8 +19,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
+varying vec4 vertexColor;
 
 void main() {
-    gl_FragColor = Color;
+    gl_FragColor = vertexColor;
 }

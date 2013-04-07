@@ -64,8 +64,7 @@ namespace TrenchBroom {
             }
             
             void reloadLayout() {
-                if (!m_layoutInitialized)
-                    initLayout();
+                initLayout(); // always initialize the layout when reloading
 
                 m_layout.clear();
                 doReloadLayout(m_layout);
@@ -84,6 +83,7 @@ namespace TrenchBroom {
             virtual bool dndEnabled() { return false; }
             virtual wxImage* dndImage(const typename Layout::Group::Row::Cell& cell) { return NULL; }
             virtual wxDataObject* dndData(const typename Layout::Group::Row::Cell& cell) { return NULL; }
+            virtual wxString tooltip(const typename Layout::Group::Row::Cell& cell) { return ""; }
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
@@ -148,6 +148,8 @@ namespace TrenchBroom {
                 */
                  
                 if (SetCurrent(*m_glContext)) {
+                    glEnable(GL_MULTISAMPLE);
+                    
                     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -204,11 +206,11 @@ namespace TrenchBroom {
             }
             
             void OnMouseMove(wxMouseEvent& event) {
+                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                float x = static_cast<float>(event.GetX());
+                float y = static_cast<float>(event.GetY() + top);
+                const typename Layout::Group::Row::Cell* cell = NULL;
                 if (event.LeftIsDown() && dndEnabled()) {
-                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                    float x = static_cast<float>(event.GetX());
-                    float y = static_cast<float>(event.GetY() + top);
-                    const typename Layout::Group::Row::Cell* cell = NULL;
                     if (m_layout.cellAt(x, y, &cell)) {
                         wxImage* feedbackImage = dndImage(*cell);
                         wxDataObject* dropData = dndData(*cell);
@@ -223,6 +225,11 @@ namespace TrenchBroom {
                         delete feedbackImage;
                         delete dropData;
                     }
+                } else {
+                    if (m_layout.cellAt(x, y, &cell))
+                        SetToolTip(tooltip(*cell));
+                    else
+                        SetToolTip("");
                 }
             }
             
@@ -237,7 +244,7 @@ namespace TrenchBroom {
                 if (m_scrollBar != NULL) {
                     const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                     float newTop = event.GetWheelRotation() < 0 ? m_layout.rowPosition(top, 1) : m_layout.rowPosition(top, -1);
-                    newTop = std::max(0.0f, newTop - m_layout.rowMargin());
+                    newTop = std::max(0.0f, std::ceil(newTop - m_layout.rowMargin()));
                     
                     m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
                     Refresh();

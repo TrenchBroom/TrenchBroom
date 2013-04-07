@@ -134,28 +134,35 @@ namespace TrenchBroom {
                 Valve
             };
             
+            enum FacePointFormat {
+                Integer,
+                Float,
+                Unknown
+            };
+            
             Utility::Console& m_console;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
             size_t m_size;
-            Model::BrushList m_staleBrushes;
 
             inline void expect(unsigned int expectedType, const Token& actualToken) const {
                 if ((actualToken.type() & expectedType) == 0)
                     throw MapParserException(actualToken, expectedType);
             }
+
+            Model::Entity* parseEntity(const BBox& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator);
         public:
             MapParser(const char* begin, const char* end, Utility::Console& console);
             MapParser(const String& str, Utility::Console& console);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
-            Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);
-            Model::Brush* parseBrush(const BBox& worldBounds, Utility::ProgressIndicator* indicator);
-            Model::Face* parseFace(const BBox& worldBounds);
+            Model::Entity* parseEntity(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
+            Model::Brush* parseBrush(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
+            Model::Face* parseFace(const BBox& worldBounds, bool forceIntegerFacePoints);
 
-            bool parseEntities(const BBox& worldBounds, Model::EntityList& entities);
-            bool parseBrushes(const BBox& worldBounds, Model::BrushList& brushes);
-            bool parseFaces(const BBox& worldBounds, Model::FaceList& faces);
+            bool parseEntities(const BBox& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities);
+            bool parseBrushes(const BBox& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes);
+            bool parseFaces(const BBox& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces);
         };
 
     }

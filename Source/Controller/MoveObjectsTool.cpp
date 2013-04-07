@@ -20,45 +20,68 @@
 #include "MoveObjectsTool.h"
 
 #include "Controller/Command.h"
+#include "Controller/ControllerUtils.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
+#include "View/EditorFrame.h"
+#include "View/FlashSelectionAnimation.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
         bool MoveObjectsTool::isApplicable(InputState& inputState, Vec3f& hitPoint) {
-            if ((inputState.mouseButtons() != MouseButtons::MBNone &&
-                 inputState.mouseButtons() != MouseButtons::MBLeft) ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
-                return false;
+            if (inputState.mouseButtons() == MouseButtons::MBLeft &&
+                (inputState.modifierKeys() == ModifierKeys::MKNone ||
+                 inputState.modifierKeys() == ModifierKeys::MKAlt ||
+                 inputState.modifierKeys() == ModifierKeys::MKCtrlCmd ||
+                 inputState.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))) {
+                    
+                    Model::EditStateManager& editStateManager = document().editStateManager();
+                    const Model::EntityList& entities = editStateManager.selectedEntities();
+                    const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                    
+                    if (entities.empty() && brushes.empty())
+                        return false;
+                    
+                    Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, m_filter));
+                    if (hit == NULL)
+                        return false;
+                    
+                    hitPoint = hit->hitPoint();
+                    return true;
+                }
             
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
-            if (entities.empty() && brushes.empty())
-                return false;
-            
-            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, m_filter));
-            if (hit == NULL)
-                return false;
-            
-            hitPoint = hit->hitPoint();
-            return true;
+            return false;
         }
         
-        wxString MoveObjectsTool::actionName() {
+        wxString MoveObjectsTool::actionName(InputState& inputState) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
+            if ((inputState.modifierKeys() & ModifierKeys::MKCtrlCmd))
+                return Command::makeObjectActionName(wxT("Duplicate"), entities, brushes);
             return Command::makeObjectActionName(wxT("Move"), entities, brushes);
         }
         
+        void MoveObjectsTool::startDrag(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+
+            if ((inputState.modifierKeys() & ModifierKeys::MKCtrlCmd)) {
+                m_mode = MMDuplicate;
+                beginCommandGroup(Command::makeObjectActionName(wxT("Duplicate"), entities, brushes));
+                Controller::duplicateObjects(document());
+            } else {
+                m_mode = MMMove;
+                beginCommandGroup(Command::makeObjectActionName(wxT("Move"), entities, brushes));
+            }
+        }
+
         MoveTool::MoveResult MoveObjectsTool::performMove(const Vec3f& delta) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -73,6 +96,10 @@ namespace TrenchBroom {
             submitCommand(command);
             
             return Continue;
+        }
+
+        void MoveObjectsTool::endDrag(InputState& inputState) {
+            endCommandGroup();
         }
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

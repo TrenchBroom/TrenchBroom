@@ -252,6 +252,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\MoveTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\RebuildBrushGeometryCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ReparentBrushesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ResizeBrushesCommand.cpp" />
@@ -329,15 +330,13 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\SphereFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\TextureRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\TextureRendererManager.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\Text\StringManager.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\Text\StringVectorizer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\FontManager.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\TexturedFont.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Vbo.cpp" />
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
+    <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat3f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
@@ -366,6 +365,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\KeyboardShortcutEvent.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
+    <ClCompile Include="..\..\Source\View\NavBar.cpp" />
     <ClCompile Include="..\..\Source\View\PathDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PreferencesFrame.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
@@ -389,6 +389,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ClipTool.h" />
     <ClInclude Include="..\..\Source\Controller\Command.h" />
+    <ClInclude Include="..\..\Source\Controller\ControllerUtils.h" />
     <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h" />
@@ -407,6 +408,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h" />
+    <ClInclude Include="..\..\Source\Controller\RebuildBrushGeometryCommand.h" />
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ReparentBrushesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ResizeBrushesCommand.h" />
@@ -521,14 +523,10 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\TextureRendererTypes.h" />
     <ClInclude Include="..\..\Source\Renderer\TextureVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\Path.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\PathMesh.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\PathRenderer.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\PathTesselator.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h" />
-    <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\FontManager.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\TextureBitmap.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\TexturedFont.h" />
     <ClInclude Include="..\..\Source\Renderer\Transformation.h" />
     <ClInclude Include="..\..\Source\Renderer\Vbo.h" />
     <ClInclude Include="..\..\Source\Renderer\VertexArray.h" />
@@ -540,6 +538,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
+    <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h" />
     <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
     <ClInclude Include="..\..\Source\Utility\List.h" />
@@ -587,6 +586,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h" />
+    <ClInclude Include="..\..\Source\View\NavBar.h" />
     <ClInclude Include="..\..\Source\View\PathDialog.h" />
     <ClInclude Include="..\..\Source\View\PreferencesFrame.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />

@@ -49,15 +49,17 @@ namespace TrenchBroom {
             unsigned int m_selectedFaceCount;
 
             const BBox& m_worldBounds;
+            bool m_forceIntegerFacePoints;
 
             void init();
         public:
-            Brush(const BBox& worldBounds);
-            Brush(const BBox& worldBounds, const Brush& brushTemplate);
-            Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture);
             ~Brush();
 
             void restore(const Brush& brushTemplate, bool checkId = false);
+            void restore(const FaceList& faces);
 
             inline MapObject::Type objectType() const {
                 return MapObject::BrushObject;
@@ -72,12 +74,6 @@ namespace TrenchBroom {
             inline const FaceList& faces() const {
                 return m_faces;
             }
-
-            bool addFace(Face* face);
-
-            void replaceFaces(const FaceList& newFaces);
-
-            void setFaces(const FaceList& newFaces);
 
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
@@ -97,6 +93,12 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            inline bool forceIntegerFacePoints() const {
+                return m_forceIntegerFacePoints;
+            }
+            
+            void setForceIntegerFacePoints(bool forceIntegerFacePoints);
+            
             inline const Vec3f& center() const {
                 return m_geometry->center;
             }
@@ -131,6 +133,8 @@ namespace TrenchBroom {
                 return m_geometry->closed();
             }
 
+            void rebuildGeometry();
+
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
@@ -139,6 +143,8 @@ namespace TrenchBroom {
             void correct(float epsilon);
             void snap(unsigned int snapTo);
 
+            bool clip(Face& face);
+            
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
 

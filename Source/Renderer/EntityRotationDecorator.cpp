@@ -28,6 +28,7 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Utility/VecMath.h"
+#include "View/ViewOptions.h"
 
 using namespace TrenchBroom::Math;
 
@@ -40,6 +41,9 @@ namespace TrenchBroom {
         m_valid(false) {}
 
         void EntityRotationDecorator::render(Vbo& vbo, RenderContext& context) {
+            if (!context.viewOptions().showEntities() || !context.viewOptions().showEntityBounds())
+                return;
+            
             const Model::EntityList& entities = map().entities();
             if (entities.empty())
                 return;

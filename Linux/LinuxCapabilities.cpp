@@ -138,10 +138,10 @@ namespace TrenchBroom {
             GLXFBConfig* config = NULL;
 
             while (config == NULL && attribs[index] != 0) {
-                config = glXChooseFBConfig(dpy, DefaultScreen(dpy), 0, &configCount);
+                config = glXChooseFBConfig(dpy, DefaultScreen(dpy), &attribs[index], &configCount);
                 if (config == NULL || configCount == 0) {
                     while (attribs[index] != 0)
-                        index++;
+                        index += 2;
                     index++;
                 }
             }

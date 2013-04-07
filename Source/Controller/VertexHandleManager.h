@@ -68,6 +68,13 @@ namespace TrenchBroom {
             Model::VertexToFacesMap m_unselectedFaceHandles;
             Model::VertexToFacesMap m_selectedFaceHandles;
             
+            size_t m_totalVertexCount;
+            size_t m_selectedVertexCount;
+            size_t m_totalEdgeCount;
+            size_t m_selectedEdgeCount;
+            size_t m_totalFaceCount;
+            size_t m_selectedFaceCount;
+            
             Renderer::PointHandleRenderer* m_selectedHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedVertexHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedEdgeHandleRenderer;
@@ -97,20 +104,21 @@ namespace TrenchBroom {
             }
             
             template <typename Element>
-            inline bool moveHandle(const Vec3f& position, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& from, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& to) {
+            inline size_t moveHandle(const Vec3f& position, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& from, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& to) {
                 typedef std::vector<Element*> List;
                 typedef std::map<Vec3f, List, Vec3f::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = from.find(position);
                 if (mapIt == from.end())
-                    return false;
+                    return 0;
                 
                 List& fromElements = mapIt->second;
                 List& toElements = to[position];
+                size_t elementCount = fromElements.size();
                 toElements.insert(toElements.end(), fromElements.begin(), fromElements.end());
                 
                 from.erase(mapIt);
-                return true;
+                return elementCount;
             }
             
             inline Model::VertexHandleHit* pickHandle(const Ray& ray, const Vec3f& position, Model::HitType::Type type) const {
@@ -169,6 +177,31 @@ namespace TrenchBroom {
                 return m_selectedFaceHandles.find(position) != m_selectedFaceHandles.end();
             }
             
+            inline size_t selectedVertexCount() const {
+                return m_selectedVertexCount;
+            }
+            
+            inline size_t totalVertexCount() const {
+                return m_totalVertexCount;
+            }
+            
+            inline size_t selectedEdgeCount() const {
+                return m_selectedEdgeCount;
+            }
+            
+            inline size_t totalEdgeCount() const {
+                return m_totalEdgeCount;
+            }
+            
+            inline size_t selectedFaceCount() const {
+                return m_selectedFaceCount;
+            }
+            
+            inline size_t totalFaceCount() const {
+                return m_totalFaceCount;
+            }
+            
+            const Model::BrushList& brushes(const Vec3f& handlePosition) const;
             const Model::EdgeList& edges(const Vec3f& handlePosition) const;
             const Model::FaceList& faces(const Vec3f& handlePosition) const;
 

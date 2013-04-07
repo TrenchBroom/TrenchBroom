@@ -17,26 +17,35 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityClassnameFilter_h
-#define TrenchBroom_EntityClassnameFilter_h
+#ifndef __TrenchBroom__CompassRenderer__
+#define __TrenchBroom__CompassRenderer__
 
-#include "Model/Entity.h"
-#include "Model/Filter.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/Text/TextRenderer.h"
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class IndexedVertexArray;
         class RenderContext;
+        class Vbo;
+        class VertexArray;
         
-        typedef Model::Entity* EntityKey;
-        class EntityClassnameFilter : public Text::TextRenderer<EntityKey>::TextRendererFilter {
+        class CompassRenderer {
+        private:
+            static const unsigned int m_segments = 12;
+            static const float m_shaftLength;
+            static const float m_shaftRadius;
+            static const float m_headLength;
+            static const float m_headRadius;
+            
+            IndexedVertexArray* m_fans;
+            VertexArray* m_strip;
         public:
-            bool stringVisible(RenderContext& context, const EntityKey& entity) {
-                return context.filter().entityVisible(*entity);
-            }
+            CompassRenderer();
+            ~CompassRenderer();
+            
+            void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__CompassRenderer__) */

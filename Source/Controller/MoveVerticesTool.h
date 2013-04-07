@@ -22,11 +22,11 @@
 
 #include "Controller/MoveTool.h"
 #include "Controller/VertexHandleManager.h"
+#include "Model/Picker.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
-#include <algorithm>
-#include <cassert>
+#include <vector>
 
 using namespace TrenchBroom::Math;
 
@@ -39,21 +39,28 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveVerticesTool : public MoveTool {
         protected:
+            static const float MaxVertexDistance;
+            
             typedef enum {
                 VMMove,
                 VMSplit,
                 VMSnap
             } VertexToolMode;
             
+            typedef std::vector<Model::VertexHandleHit*> HandleHitList;
+            
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             bool m_ignoreObjectChanges;
-            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
-            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
+            size_t m_changeCount;
+            Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>* m_textRenderer;
+            Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
             Vec3f m_dragHandlePosition;
             
+            HandleHitList firstHits(Model::PickResult& pickResult) const;
+            
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
-            wxString actionName();
+            wxString actionName(InputState& inputState);
             void startDrag(InputState& inputState);
             void snapDragDelta(InputState& inputState, Vec3f& delta);
             MoveResult performMove(const Vec3f& delta);
@@ -69,14 +76,56 @@ namespace TrenchBroom {
             bool handleMouseDown(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);
-            void handleMouseMove(InputState& inputState);
 
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);
         
-            bool hasSelection();
+            inline void setChangeCount(size_t changeCount) {
+                assert(active());
+                m_changeCount = changeCount;
+            }
+            
+            inline void incChangeCount() {
+                assert(active());
+                m_changeCount++;
+            }
+            
+            inline void decChangeCount() {
+                assert(active());
+                assert(m_changeCount > 0);
+                m_changeCount--;
+            }
+            
+            inline bool hasSelection() const {
+                return selectedVertexCount() > 0 || selectedEdgeCount() > 0 || selectedFaceCount() > 0;
+            }
+            
+            inline size_t selectedVertexCount() const {
+                return m_handleManager.selectedVertexCount();
+            }
+            
+            inline size_t totalVertexCount() const {
+                return m_handleManager.totalVertexCount();
+            }
+            
+            inline size_t selectedEdgeCount() const {
+                return m_handleManager.selectedEdgeCount();
+            }
+            
+            inline size_t totalEdgeCount() const {
+                return m_handleManager.totalEdgeCount();
+            }
+            
+            inline size_t selectedFaceCount() const {
+                return m_handleManager.selectedFaceCount();
+            }
+            
+            inline size_t totalFaceCount() const {
+                return m_handleManager.totalFaceCount();
+            }
+
             MoveResult moveVertices(const Vec3f& delta);
             
             void resetInstancedRenderers();

@@ -19,17 +19,34 @@
 
 #include "Map.h"
 
+#include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map(const BBox& worldBounds) :
+        Map::Map(const BBox& worldBounds, bool forceIntegerFacePoints) :
         m_worldBounds(worldBounds),
+        m_forceIntegerFacePoints(forceIntegerFacePoints),
         m_worldspawn(NULL) {}
 
         Map::~Map() {
             clear();
+        }
+
+        void Map::setForceIntegerFacePoints(bool forceIntegerFacePoints) {
+            EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const Model::BrushList& brushes = entity.brushes();
+                BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush& brush = **brushIt;
+                    brush.setForceIntegerFacePoints(forceIntegerFacePoints);
+                }
+            }
+            
+            m_forceIntegerFacePoints = forceIntegerFacePoints;
         }
 
         void Map::addEntity(Entity& entity) {

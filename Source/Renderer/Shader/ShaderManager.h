@@ -65,6 +65,7 @@ namespace TrenchBroom {
             extern const ShaderConfig TextBackgroundShader;
             extern const ShaderConfig TextureBrowserShader;
             extern const ShaderConfig TextureBrowserBorderShader;
+            extern const ShaderConfig BrowserGroupShader;
             extern const ShaderConfig HandleShader;
             extern const ShaderConfig PointHandleShader;
             extern const ShaderConfig InstancedPointHandleShader;

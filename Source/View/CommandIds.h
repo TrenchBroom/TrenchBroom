@@ -109,7 +109,16 @@ namespace TrenchBroom {
                 static const int HelpShowHelp                       = Lowest + 83;
                 static const int EditPasteAtOriginalPosition        = Lowest + 84;
                 static const int EditSelectByFilePosition           = Lowest + 85;
-                static const int Highest                            = Lowest + 99;
+                static const int ViewSwitchToEntityTab              = Lowest + 86;
+                static const int ViewSwitchToFaceTab                = Lowest + 87;
+                static const int ViewSwitchToViewTab                = Lowest + 88;
+                static const int EditDuplicateObjectsForward        = Lowest + 89;
+                static const int EditDuplicateObjectsRight          = Lowest + 90;
+                static const int EditDuplicateObjectsBackward       = Lowest + 91;
+                static const int EditDuplicateObjectsLeft           = Lowest + 92;
+                static const int EditDuplicateObjectsUp             = Lowest + 93;
+                static const int EditDuplicateObjectsDown           = Lowest + 94;
+                static const int Highest                            = Lowest + 95;
             }
             
             namespace CreateEntityPopupMenu {
@@ -132,8 +141,8 @@ namespace TrenchBroom {
                 static const int ShowSkipBrushesCheckBoxId          = Lowest +  7;
                 static const int FaceRenderModeChoiceId             = Lowest +  8;
                 static const int RenderEdgesCheckBoxId              = Lowest +  9;
-					 static const int FaceShadingCheckBoxId              = Lowest + 10;
-					 static const int FogCheckBoxId                      = Lowest + 11;
+                static const int FaceShadingCheckBoxId              = Lowest + 10;
+                static const int FogCheckBoxId                      = Lowest + 11;
                 static const int Highest                            = Lowest + 99;
             }
             
@@ -152,6 +161,8 @@ namespace TrenchBroom {
                 static const int GridModeChoiceId                   = Lowest + 11;
                 static const int InstancingModeModeChoiceId         = Lowest + 12;
                 static const int EnableAltMoveCheckBoxId            = Lowest + 13;
+                static const int MoveCameraInCursorDirCheckBoxId    = Lowest + 14;
+                static const int TextureBrowserIconSideChoiceId     = Lowest + 15;
                 static const int Highest                            = Lowest + 99;
             }
 
@@ -179,6 +190,8 @@ namespace TrenchBroom {
                 static const int ResetFaceAttribsId                 = Lowest + 14;
                 static const int FitTextureId                       = Lowest + 15;
                 static const int AlignTextureId                     = Lowest + 16;
+                static const int FlipTextureHorizontallyId          = Lowest + 17;
+                static const int FlipTextureVerticallyId            = Lowest + 18;
                 static const int Highest                            = Lowest + 99;
             }
             
@@ -205,6 +218,7 @@ namespace TrenchBroom {
                 static const int MoveWadUpButtonId                  = Lowest +  6;
                 static const int MoveWadDownButtonId                = Lowest +  7;
                 static const int PathChoiceId                       = Lowest +  8;
+                static const int ForceIntCoordsId                   = Lowest +  9;
                 static const int Highest                            = Lowest + 99;
             }
         }

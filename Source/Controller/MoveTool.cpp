@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
             
             startDrag(inputState);
-            beginCommandGroup(actionName());
+            beginCommandGroup(actionName(inputState));
             
             return true;
         }

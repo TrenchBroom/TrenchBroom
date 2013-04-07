@@ -48,6 +48,7 @@ namespace TrenchBroom {
         EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::GridAlphaSliderId, GeneralPreferencePane::OnViewSliderChanged)
         EVT_CHOICE(CommandIds::GeneralPreferencePane::GridModeChoiceId, GeneralPreferencePane::OnGridModeChoice)
         EVT_CHOICE(CommandIds::GeneralPreferencePane::InstancingModeModeChoiceId, GeneralPreferencePane::OnInstancingModeChoice)
+        EVT_CHOICE(CommandIds::GeneralPreferencePane::TextureBrowserIconSideChoiceId, GeneralPreferencePane::OnTextureBrowserIconSizeChoice)
         
         EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::LookSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
         EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
@@ -58,6 +59,9 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
         
         EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::MoveSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::EnableAltMoveCheckBoxId, GeneralPreferencePane::OnEnableAltMoveChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::MoveCameraInCursorDirCheckBoxId, GeneralPreferencePane::OnMoveCameraInCursorDirChanged)
+        
 		END_EVENT_TABLE()
         
         void GeneralPreferencePane::updateControls() {
@@ -77,6 +81,22 @@ namespace TrenchBroom {
             else
                 m_instancingModeChoice->SetSelection(Preferences::RendererInstancingModeForceOff);
             
+            float textureBrowserIconSize = prefs.getFloat(Preferences::TextureBrowserIconSize);
+            if (textureBrowserIconSize == 0.25f)
+                m_textureBrowserIconSizeChoice->SetSelection(0);
+            else if (textureBrowserIconSize == 0.5f)
+                m_textureBrowserIconSizeChoice->SetSelection(1);
+            else if (textureBrowserIconSize == 1.5f)
+                m_textureBrowserIconSizeChoice->SetSelection(3);
+            else if (textureBrowserIconSize == 2.0f)
+                m_textureBrowserIconSizeChoice->SetSelection(4);
+            else if (textureBrowserIconSize == 2.5f)
+                m_textureBrowserIconSizeChoice->SetSelection(5);
+            else if (textureBrowserIconSize == 3.0f)
+                m_textureBrowserIconSizeChoice->SetSelection(6);
+            else
+                m_textureBrowserIconSizeChoice->SetSelection(2);
+
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
             m_invertLookYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertY));
@@ -86,6 +106,8 @@ namespace TrenchBroom {
             m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
             
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
+            m_enableAltMoveCheckBox->SetValue(prefs.getBool(Preferences::CameraEnableAltMove));
+            m_moveInCursorDirCheckBox->SetValue(prefs.getBool(Preferences::CameraMoveInCursorDir));
         }
         
         wxWindow* GeneralPreferencePane::createQuakePreferences() {
@@ -140,6 +162,16 @@ namespace TrenchBroom {
             instancingModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             instancingModeSizer->Add(m_instancingModeChoice);
             
+            wxStaticText* textureBrowserLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Texture Browser"));
+            wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Icon Size"));
+            wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
+            m_textureBrowserIconSizeChoice = new wxChoice(viewBox, CommandIds::GeneralPreferencePane::TextureBrowserIconSideChoiceId, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
+            
+            wxSizer* textureBrowserIconSizeSizer = new wxBoxSizer(wxHORIZONTAL);
+            textureBrowserIconSizeSizer->Add(textureBrowserIconSizeLabel);
+            textureBrowserIconSizeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            textureBrowserIconSizeSizer->Add(m_textureBrowserIconSizeChoice);
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(brightnessLabel);
@@ -150,6 +182,8 @@ namespace TrenchBroom {
             innerSizer->Add(gridModeSizer);
             innerSizer->Add(instancingModeFakeLabel);
             innerSizer->Add(instancingModeSizer);
+            innerSizer->Add(textureBrowserLabel);
+            innerSizer->Add(textureBrowserIconSizeSizer);
             innerSizer->SetItemMinSize(brightnessLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -188,6 +222,13 @@ namespace TrenchBroom {
             
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
             m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::GeneralPreferencePane::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            wxStaticText* enableAltMoveFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::EnableAltMoveCheckBoxId, wxT("Alt+MMB drag to move camera"));
+            m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::MoveCameraInCursorDirCheckBoxId, wxT("Move camera towards cursor"));
+            wxSizer* moveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
+            moveOptionsSizer->Add(m_enableAltMoveCheckBox);
+            moveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            moveOptionsSizer->Add(m_moveInCursorDirCheckBox);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
@@ -201,6 +242,8 @@ namespace TrenchBroom {
             innerSizer->Add(invertPanSizer);
             innerSizer->Add(moveSpeedLabel);
             innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
+            innerSizer->Add(enableAltMoveFakeLabel);
+            innerSizer->Add(moveOptionsSizer);
             innerSizer->SetItemMinSize(lookSpeedLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -294,6 +337,40 @@ namespace TrenchBroom {
 #endif
         }
         
+        void GeneralPreferencePane::OnTextureBrowserIconSizeChoice(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
+            int selection = m_textureBrowserIconSizeChoice->GetSelection();
+            switch (selection) {
+                case 0:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 0.25f);
+                    break;
+                case 1:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 0.5f);
+                    break;
+                case 2:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 1.0f);
+                    break;
+                case 3:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 1.5f);
+                    break;
+                case 4:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 2.0f);
+                    break;
+                case 5:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 2.5f);
+                    break;
+                case 6:
+                    prefs.setFloat(Preferences::TextureBrowserIconSize, 3.0f);
+                    break;
+            }
+
+#ifdef __APPLE__
+            Controller::Command command(Controller::Command::RefreshTextureBrowser);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+#endif
+        }
+
         void GeneralPreferencePane::OnMouseSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             float value = sender->GetValue() / 100.0f;
@@ -336,6 +413,20 @@ namespace TrenchBroom {
                 default:
                     break;
             }
+        }
+
+        void GeneralPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
+            bool value = event.GetInt() != 0;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::CameraEnableAltMove, value);
+        }
+        
+        void GeneralPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
+            bool value = event.GetInt() != 0;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::CameraMoveInCursorDir, value);
         }
 	}
 }

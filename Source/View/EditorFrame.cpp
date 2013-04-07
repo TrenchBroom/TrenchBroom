@@ -19,14 +19,19 @@
 
 #include "EditorFrame.h"
 
+#include "Controller/Command.h"
 #include "Controller/InputController.h"
+#include "Model/Brush.h"
 #include "Model/EditStateManager.h"
+#include "Model/Entity.h"
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
+#include "Utility/List.h"
+#include "View/CommandIds.h"
 #include "View/EditorView.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
-#include "View/CommandIds.h"
+#include "View/NavBar.h"
 #include "TrenchBroomApp.h"
 
 #include <wx/colour.h>
@@ -34,15 +39,19 @@
 #include <wx/docview.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
+#include <wx/srchctrl.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/toolbar.h>
 
 namespace TrenchBroom {
     namespace View {
         const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
-        
+
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
@@ -51,6 +60,17 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         void EditorFrame::CreateGui() {
+            /*
+             * Structure:
+             * inspectorSplitter
+             *   logSplitter
+             *     mapCanvasContainerPanel
+             *       navBar
+             *       mapCanvas
+             *     logView
+             *   inspector
+             */
+
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
@@ -63,10 +83,23 @@ namespace TrenchBroom {
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
 
-            m_mapCanvas = new MapGLCanvas(logSplitter, m_documentViewHolder);
-            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
+            m_mapCanvasContainerPanel = new wxPanel(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+#ifdef _WIN32
+                                                    wxBORDER_SUNKEN
+#else
+                                                    wxBORDER_NONE
+#endif
+                                                    );
+            m_navBar = new NavBar(m_mapCanvasContainerPanel, m_documentViewHolder);
+            m_mapCanvas = new MapGLCanvas(m_mapCanvasContainerPanel, m_documentViewHolder);
 
-            logSplitter->SplitHorizontally(m_mapCanvas, m_logView, -150);
+            wxSizer* mapCanvasContainerSizer = new wxBoxSizer(wxVERTICAL);
+            mapCanvasContainerSizer->Add(m_navBar, 0, wxEXPAND);
+            mapCanvasContainerSizer->Add(m_mapCanvas, 1, wxEXPAND);
+            m_mapCanvasContainerPanel->SetSizer(mapCanvasContainerSizer);
+
+            logSplitter->SplitHorizontally(m_mapCanvasContainerPanel, m_logView, -100);
+            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -81,15 +114,24 @@ namespace TrenchBroom {
              */
         }
 
+
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
-        m_documentViewHolder(DocumentViewHolder(&document, &view)) {
-#if defined _WIN32
+        m_documentViewHolder(DocumentViewHolder(&document, &view)),
+        m_focusMapCanvasOnIdle(true) {
+#ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
             updateMenuBar();
+
             m_mapCanvasHasFocus = false;
+        }
+
+        void EditorFrame::updateNavBar() {
+            if (!m_documentViewHolder.valid())
+                return;
+            m_navBar->updateBreadcrump();
         }
 
         void EditorFrame::updateMenuBar() {
@@ -188,9 +230,9 @@ namespace TrenchBroom {
                 wxWindow* focus = FindFocus();
                 if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
                     m_mapCanvasHasFocus = (focus == m_mapCanvas);
-                    
+
                     updateMenuBar();
-                    
+
                     wxMenuBar* menuBar = GetMenuBar();
                     size_t menuCount = menuBar->GetMenuCount();
                     for (size_t i = 0; i < menuCount; i++) {
@@ -203,6 +245,12 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
+            if (m_focusMapCanvasOnIdle) {
+                m_mapCanvas->SetFocus();
+                m_focusMapCanvasOnIdle = false;
+            }
+            updateNavBar();
+
             /*
             // this is a fix for Mac OS X, where the kill focus event is not properly sent
             // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
@@ -226,7 +274,7 @@ namespace TrenchBroom {
             }
 #endif
             */
-            
+
             // finally set the top window
             if (IsActive() && wxTheApp->GetTopWindow() != this)
                 wxTheApp->SetTopWindow(this);

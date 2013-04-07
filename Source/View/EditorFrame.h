@@ -25,6 +25,7 @@
 #include "View/DocumentViewHolder.h"
 
 class wxDocManager;
+class wxPanel;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
         class EditorView;
         class Inspector;
         class MapGLCanvas;
+        class NavBar;
         
         class EditorFrame : public wxFrame {
         public:
@@ -48,9 +50,12 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
+            wxPanel* m_mapCanvasContainerPanel;
+            NavBar* m_navBar;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             bool m_mapCanvasHasFocus;
+            bool m_focusMapCanvasOnIdle;
             
             void CreateGui();
         public:
@@ -68,6 +73,7 @@ namespace TrenchBroom {
                 return m_logView;
             }
             
+            void updateNavBar();
             void updateMenuBar();
             void disableProcessing();
 

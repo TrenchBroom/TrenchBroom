@@ -163,11 +163,20 @@ namespace TrenchBroom {
             m_document.console().debug("Autosaved to %s in %f seconds", backupFilePath.c_str(), watch.Time() / 1000.0f);
         }
         
+        Autosaver::Autosaver(Model::MapDocument& document, time_t saveInterval, time_t idleInterval, unsigned int maxBackups) :
+        m_document(document),
+        m_saveInterval(saveInterval),
+        m_idleInterval(idleInterval),
+        m_maxBackups(maxBackups),
+        m_lastSaveTime(time(NULL)),
+        m_lastModificationTime(0),
+        m_dirty(false) {}
+
         void Autosaver::triggerAutosave() {
             time_t currentTime = time(NULL);
             IO::FileManager fileManager;
             if (fileManager.exists(m_document.GetFilename().ToStdString()) &&
-                m_dirty &&
+                // m_dirty &&
                 m_lastModificationTime > 0 &&
                 currentTime - m_lastModificationTime >= m_idleInterval &&
                 currentTime - m_lastSaveTime >= m_saveInterval) {

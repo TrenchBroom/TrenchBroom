@@ -40,7 +40,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         namespace Text {
-            class StringManager;
+            class FontManager;
         }
         
         class EntityModelRendererManager;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EntityModelRendererManager* m_modelRendererManager;
             ShaderManager* m_shaderManager;
             TextureRendererManager* m_textureRendererManager;
-            Text::StringManager* m_stringManager;
+            Text::FontManager* m_fontManager;
             
             int* m_attribs;
             wxGLContext* m_sharedContext;
@@ -84,8 +84,8 @@ namespace TrenchBroom {
                 return *m_textureRendererManager;
             }
             
-            inline Text::StringManager& stringManager() const {
-                return *m_stringManager;
+            inline Text::FontManager& fontManager() const {
+                return *m_fontManager;
             }
             
             inline const int* attribs() const {

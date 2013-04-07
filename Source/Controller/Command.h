@@ -49,6 +49,7 @@ namespace TrenchBroom {
                 RemoveTextureCollection,
                 MoveTextureCollectionUp,
                 MoveTextureCollectionDown,
+                RefreshTextureBrowser,
                 SetEntityPropertyValue,
                 SetEntityPropertyKey,
                 RemoveEntityProperty,
@@ -59,6 +60,7 @@ namespace TrenchBroom {
                 RemoveObjects,
                 MoveVertices,
                 SnapVertices,
+                RebuildBrushGeometry,
                 ResizeBrushes,
                 ReparentBrushes,
                 UpdateFigures

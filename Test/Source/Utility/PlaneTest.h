@@ -17,35 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityClassnameAnchor_h
-#define TrenchBroom_EntityClassnameAnchor_h
+#ifndef TrenchBroom_PlaneTest_h
+#define TrenchBroom_PlaneTest_h
 
-#include "Model/Entity.h"
-#include "Renderer/Text/TextRenderer.h"
+#include "TestSuite.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
-
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
-    namespace Renderer {
-        class EntityClassnameAnchor : public Text::TextAnchor {
-        private:
-            Model::Entity& m_entity;
-        public:
-            EntityClassnameAnchor(Model::Entity& entity) : m_entity(entity) {}
-
-            inline const Vec3f position() {
-                Vec3f position = m_entity.center();
-                position.z = m_entity.bounds().max.z + 1.0f;
-                return position;
+    namespace Math {
+        class PlaneTest : public TestSuite<PlaneTest> {
+        protected:
+            void registerTestCases() {
+                registerTestCase(&PlaneTest::testZ);
             }
-            
-            inline Text::Alignment::Type alignment() {
-                return Text::Alignment::Center | Text::Alignment::Bottom;
+        public:
+            void testZ() {
+                Plane plane;
+                
+                plane = Plane(Vec3f(1.0, 0.0f, 1.0f).normalized(), 0.0f);
+                assert(Math::eq(plane.z(1.0f, 0.0f), -1.0f));
+
+                plane = Plane(Vec3f(0.0, 0.0f, 1.0f).normalized(), 1.0f);
+                assert(Math::eq(plane.z(0.0f, 0.0f), 1.0f));
             }
         };
     }

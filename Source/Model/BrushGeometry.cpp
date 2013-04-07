@@ -99,6 +99,9 @@ namespace TrenchBroom {
                     newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
             }
 
+            // cheat a little bit?, just like QBSP
+            newVertex->position.correct();
+            
             if (start->mark == Vertex::Drop)
                 start = newVertex;
             else
@@ -158,21 +161,18 @@ namespace TrenchBroom {
             if (Math::isnan(dist))
                 return Math::nan();
 
-            Vec3f hit, projectedHit, v0, v1;
             CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
 
-            hit = ray.pointAtDistance(dist);
-            cPlane.project(hit, projectedHit);
+            const Vec3f hit = ray.pointAtDistance(dist);
+            const Vec3f projectedHit = cPlane.swizzle(hit);
 
             const Vertex* vertex = vertices.back();
-            cPlane.project(vertex->position, v0);
-            v0 -= projectedHit;
+            Vec3f v0 = cPlane.swizzle(vertex->position) - projectedHit;
 
             int c = 0;
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 vertex = vertices[i];
-                cPlane.project(vertex->position, v1);
-                v1 -= projectedHit;
+                Vec3f v1 = cPlane.swizzle(vertex->position) - projectedHit;
 
                 if ((Math::zero(v0.x) && Math::zero(v0.y)) || (Math::zero(v1.x) && Math::zero(v1.y))) {
                     // the point is identical to a polygon vertex, cancel search
@@ -352,7 +352,7 @@ namespace TrenchBroom {
             bool flipped[] = {prevEdge->left == this, edge->left == this, true};
 
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(face->worldBounds(), *face);
+            newSide->face = new Face(face->worldBounds(), face->forceIntegerFacePoints(), *face);
             newSide->face->setSide(newSide);
 
             replaceEdges(pred(index, edges.size(), 2),
@@ -1017,7 +1017,7 @@ namespace TrenchBroom {
                 newSide->edges.push_back(newEdge);
                 newEdge->left = newSide;
 
-                newSide->face = new Face(side->face->worldBounds(), *side->face);
+                newSide->face = new Face(side->face->worldBounds(), side->face->forceIntegerFacePoints(), *side->face);
                 newSide->face->setSide(newSide);
                 sides.push_back(newSide);
                 faceManager.addFace(side->face, newSide->face);
@@ -1291,7 +1291,7 @@ namespace TrenchBroom {
                 sides[i]->face->setSide(sides[i]);
         }
 
-        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) {
+        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceSet& droppedFaces) {
             // if all of the face's points are on a previous face, it's a duplicate
             for (size_t i = 0; i < sides.size(); i++) {
                 const Side& side = *sides[i];
@@ -1315,9 +1315,9 @@ namespace TrenchBroom {
             unsigned int undecided = 0;
 
             // mark vertices
-            for (unsigned int i = 0; i < vertices.size(); i++) {
+            for (size_t i = 0; i < vertices.size(); i++) {
                 Vertex& vertex = *vertices[i];
-                PointStatus::Type vs = boundary.pointStatus(vertex.position);
+                PointStatus::Type vs = boundary.pointStatus(vertex.position, 0.1f);
                 if (vs == PointStatus::PSAbove) {
                     vertex.mark = Vertex::Drop;
                     drop++;
@@ -1337,7 +1337,7 @@ namespace TrenchBroom {
                 return Null;
 
             // mark and split edges
-            for (unsigned int i = 0; i < edges.size(); i++) {
+            for (size_t i = 0; i < edges.size(); i++) {
                 Edge& edge = *edges[i];
                 edge.updateMark();
                 if (edge.mark == Edge::Split) {
@@ -1357,7 +1357,7 @@ namespace TrenchBroom {
                 if (side->mark == Side::Drop) {
                     Face* dropFace = side->face;
                     if (dropFace != NULL) {
-                        droppedFaces.push_back(dropFace);
+                        droppedFaces.insert(dropFace);
                         dropFace->setSide(NULL);
                     }
                     delete side;
@@ -1382,9 +1382,9 @@ namespace TrenchBroom {
 
             // create new side from newly created edges
             // first, sort the new edges to form a polygon in clockwise order
-            for (unsigned int i = 0; i < newEdges.size() - 1; i++) {
+            for (size_t i = 0; i < newEdges.size() - 1; i++) {
                 Edge* edge = newEdges[i];
-                for (unsigned int j = i + 2; j < newEdges.size(); j++) {
+                for (size_t j = i + 2; j < newEdges.size(); j++) {
                     Edge* candidate = newEdges[j];
                     if (edge->start == candidate->end) {
                         newEdges[j] = newEdges[i + 1];
@@ -1399,12 +1399,12 @@ namespace TrenchBroom {
             sides.push_back(newSide);
 
             // sanity checks
-            for (unsigned int i = 0; i < sides.size(); i++) {
+            for (size_t i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 VertexList& sideVertices = side->vertices;
                 EdgeList& sideEdges = side->edges;
                 assert(sideVertices.size() == sideEdges.size());
-                for (unsigned int j = 0; j < sideVertices.size(); j++) {
+                for (size_t j = 0; j < sideVertices.size(); j++) {
                     assert(sideVertices[j]->mark != Vertex::Drop);
                     assert(sideEdges[j]->mark != Edge::Drop);
                     assert(sideEdges[j]->startVertex(side) == sideVertices[j]);
@@ -1443,57 +1443,24 @@ namespace TrenchBroom {
             return Split;
         }
 
-        bool BrushGeometry::addFaces(const FaceList& faces, FaceList& droppedFaces) {
-            for (unsigned int i = 0; i < faces.size(); i++)
-                if (addFace(*faces[i], droppedFaces) == Null)
-                    return false;
+        bool BrushGeometry::addFaces(const FaceList& faces, FaceSet& droppedFaces) {
+            for (size_t i = 0; i < faces.size(); i++) {
+                CutResult result = addFace(*faces[i], droppedFaces);
+                if (result == Redundant)
+                    droppedFaces.insert(faces[i]);
+                else if (result == Null)
+                    throw GeometryException("Empty brush");
+            }
+            for (size_t i = 0; i < vertices.size(); i++)
+                vertices[i]->position.correct();
             return true;
         }
 
-        void BrushGeometry::translate(const Vec3f& delta) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position += delta;
-            bounds.translate(delta);
-            center += delta;
-        }
-
-        void BrushGeometry::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position.rotate90(axis, rotationCenter, clockwise);
-            bounds = boundsOfVertices(vertices);
-            center = centerOfVertices(vertices);
-        }
-
-        void BrushGeometry::rotate(const Quat& rotation, const Vec3f& rotationCenter) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position = rotation * (vertices[i]->position - rotationCenter) + rotationCenter;
-            bounds = boundsOfVertices(vertices);
-            center = centerOfVertices(vertices);
-        }
-
-        void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position.flip(axis, flipCenter);
-            for (unsigned int i = 0; i < edges.size(); i++) {
-                // std::swap(edges[i]->left, edges[i]->right);
-                std::swap(edges[i]->start, edges[i]->end);
-            }
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                VertexList::iterator first = sides[i]->vertices.begin();
-                std::advance(first, 1); // vertex 0 is invariant
-                std::reverse(first, sides[i]->vertices.end());
-                std::reverse(sides[i]->edges.begin(), sides[i]->edges.end());
-            }
-
-            bounds.flip(axis, flipCenter);
-            center.flip(axis, flipCenter);
-
-            assert(sanityCheck());
-        }
-
         void BrushGeometry::updateFacePoints() {
-            for (unsigned int i = 0; i < sides.size(); i++)
-                sides[i]->face->updatePoints();
+            for (unsigned int i = 0; i < sides.size(); i++) {
+                sides[i]->face->updatePointsFromVertices();
+                sides[i]->face->updatePointsFromBoundary();
+            }
         }
 
         void BrushGeometry::correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon) {
@@ -1523,9 +1490,9 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
         }
 
@@ -1557,9 +1524,9 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
         }
 
@@ -1617,9 +1584,8 @@ namespace TrenchBroom {
                 MoveVertexResult result = moveVertex(vertex, true, start, end, faceManager);
                 if (result.type == MoveVertexResult::VertexMoved)
                     movedVertices.push_back(result.vertex);
+                updateFacePoints();
             }
-
-            updateFacePoints();
 
             Vec3f::List newVertexPositions;
             newVertexPositions.reserve(movedVertices.size());
@@ -1701,9 +1667,9 @@ namespace TrenchBroom {
 
                 MoveVertexResult result = moveVertex(vertex, false, start, end, faceManager);
                 assert(result.type == MoveVertexResult::VertexMoved);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
 
             EdgeInfoList result;

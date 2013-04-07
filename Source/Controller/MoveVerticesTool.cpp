@@ -22,6 +22,7 @@
 #include "Controller/MoveEdgesCommand.h"
 #include "Controller/MoveFacesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
+#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/SplitEdgesCommand.h"
 #include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
@@ -33,12 +34,54 @@
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
+#include "Renderer/Text/FontManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
 
+#include <algorithm>
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Controller {
+        const float MoveVerticesTool::MaxVertexDistance = 0.25f;
+        
+        MoveVerticesTool::HandleHitList MoveVerticesTool::firstHits(Model::PickResult& pickResult) const {
+            HandleHitList list;
+            Model::BrushSet brushes;
+
+            Model::VertexHandleHit* firstHit = static_cast<Model::VertexHandleHit*>(pickResult.first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            if (firstHit != NULL) {
+                list.push_back(firstHit);
+                
+                const Model::BrushList& firstHandleBrushes = m_handleManager.brushes(firstHit->vertex());
+                brushes.insert(firstHandleBrushes.begin(), firstHandleBrushes.end());
+                
+                const Model::HitList allHits = pickResult.hits(firstHit->type(), view().filter());
+                Model::HitList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = allHits.begin(), vertexEnd = allHits.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(*vertexIt);
+                    if (hit != firstHit && firstHit->vertex().squaredDistanceTo(hit->vertex()) < MaxVertexDistance * MaxVertexDistance) {
+                        bool newBrush = true;
+                        const Model::BrushList& handleBrushes = m_handleManager.brushes(hit->vertex());
+                        Model::BrushList::const_iterator brushIt, brushEnd;
+                        for (brushIt = handleBrushes.begin(), brushEnd = handleBrushes.end(); brushIt != brushEnd && newBrush; ++brushIt) {
+                            Model::Brush* brush = *brushIt;
+                            newBrush = brushes.count(brush) == 0;
+                        }
+                        
+                        if (newBrush) {
+                            list.push_back(hit);
+                            brushes.insert(handleBrushes.begin(), handleBrushes.end());
+                        }
+                    }
+                    
+                }
+            }
+            
+            return list;
+        }
+
         bool MoveVerticesTool::isApplicable(InputState& inputState, Vec3f& hitPoint) {
             if ((inputState.mouseButtons() != MouseButtons::MBNone &&
                  inputState.mouseButtons() != MouseButtons::MBLeft) ||
@@ -55,7 +98,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString MoveVerticesTool::actionName() {
+        wxString MoveVerticesTool::actionName(InputState& inputState) {
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
@@ -109,12 +152,18 @@ namespace TrenchBroom {
             m_mode = VMMove;
             m_handleManager.clear();
             m_handleManager.add(document().editStateManager().selectedBrushes());
-            
+            m_changeCount = 0;
             return true;
         }
         
         bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
             m_handleManager.clear();
+            
+            if (m_changeCount > 0) {
+                RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document(), document().editStateManager().selectedBrushes(), m_changeCount);
+                submitCommand(command);
+        }
+        
             return true;
         }
         
@@ -139,58 +188,73 @@ namespace TrenchBroom {
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
             if (m_textRenderer == NULL) {
-                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(document().sharedResources().stringManager());
+                const String fontName = prefs.getString(Preferences::RendererFontName);
+                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
+                assert(fontSize >= 0);
+                const Renderer::Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
+                
+                Renderer::Text::TexturedFont* font = document().sharedResources().fontManager().font(fontDescriptor);
+                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>(*font);
                 m_textRenderer->setFadeDistance(10000.0f);
             }
             m_textRenderer->clear();
             
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
-            if (hit != NULL) {
-                const Color& color = hit->type() == Model::HitType::VertexHandleHit ? prefs.getColor(Preferences::VertexHandleColor) : (hit->type() == Model::HitType::EdgeHandleHit ? prefs.getColor(Preferences::EdgeHandleColor) : prefs.getColor(Preferences::FaceHandleColor));
+            HandleHitList hits = firstHits(inputState.pickResult());
+            if (!hits.empty()) {
+                const Model::VertexHandleHit* firstHit = hits.front();
+                const Model::HitType::Type hitType = firstHit->type();
+                
+                const Color& color = firstHit->type() == Model::HitType::VertexHandleHit ? prefs.getColor(Preferences::VertexHandleColor) : (firstHit->type() == Model::HitType::EdgeHandleHit ? prefs.getColor(Preferences::EdgeHandleColor) : prefs.getColor(Preferences::FaceHandleColor));
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 
-                const String fontName = prefs.getString(Preferences::RendererFontName);
-                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
-                assert(fontSize >= 0);
-                const Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
 
-                glDisable(GL_DEPTH_TEST);
-                Renderer::PointHandleHighlightFigure highlightFigure(hit->vertex(), color, radius, scalingFactor);
-                highlightFigure.render(vbo, renderContext);
-                glEnable(GL_DEPTH_TEST);
-                
-                if (hit->type() == Model::HitType::VertexHandleHit) {
-                    Renderer::Text::TextAnchor* anchor = new Renderer::Text::SimpleTextAnchor(hit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
-                    m_textRenderer->addString(hit->vertex(), font, hit->vertex().asString(), anchor);
-                } else if (hit->type() == Model::HitType::EdgeHandleHit) {
+                if (hitType == Model::HitType::VertexHandleHit) {
+                    glDisable(GL_DEPTH_TEST);
+                    Renderer::PointHandleHighlightFigure highlightFigure(firstHit->vertex(), color, radius, scalingFactor);
+                    highlightFigure.render(vbo, renderContext);
+                    glEnable(GL_DEPTH_TEST);
+                    
+                    if (!m_handleManager.vertexHandleSelected(firstHit->vertex())) {
+                        Renderer::Text::SimpleTextAnchor anchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
+                        m_textRenderer->addString(firstHit->vertex(), firstHit->vertex().asString(), anchor);
+                    }
+                } else {
                     Renderer::LinesRenderer linesRenderer;
                     linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
-                    
-                    const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
-                    Model::EdgeList::const_iterator edgeIt, edgeEnd;
-                    for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                        const Model::Edge& edge = **edgeIt;
-                        linesRenderer.add(edge.start->position, edge.end->position);
-                    }
-                    
-                    linesRenderer.render(vbo, renderContext);
-                } else if (hit->type() == Model::HitType::FaceHandleHit) {
-                    Renderer::LinesRenderer linesRenderer;
-                    linesRenderer.setColor(prefs.getColor(Preferences::FaceHandleColor), prefs.getColor(Preferences::OccludedFaceHandleColor));
 
-                    const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
-                    Model::FaceList::const_iterator faceIt, faceEnd;
-                    for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                        const Model::Face& face = **faceIt;
-                        const Model::EdgeList& edges = face.edges();
-                        Model::EdgeList::const_iterator edgeIt, edgeEnd;
-                        for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                            const Model::Edge& edge = **edgeIt;
-                            linesRenderer.add(edge.start->position, edge.end->position);
+                    if (hitType == Model::HitType::EdgeHandleHit) {
+                        HandleHitList::const_iterator it, end;
+                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                            const Model::VertexHandleHit* hit = *it;
+                            const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
+                            
+                            Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                                const Model::Edge& edge = **edgeIt;
+                                linesRenderer.add(edge.start->position, edge.end->position);
+                            }
+                        }
+                    } else {
+                        HandleHitList::const_iterator it, end;
+                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                            const Model::VertexHandleHit* hit = *it;
+                            const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
+                            
+                            Model::FaceList::const_iterator faceIt, faceEnd;
+                            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                                const Model::Face& face = **faceIt;
+                                const Model::EdgeList& edges = face.edges();
+                                
+                                Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                                    const Model::Edge& edge = **edgeIt;
+                                    linesRenderer.add(edge.start->position, edge.end->position);
+                                }
+                            }
                         }
                     }
-
+                    
                     linesRenderer.render(vbo, renderContext);
                 }
                 
@@ -221,48 +285,93 @@ namespace TrenchBroom {
                  inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
                 return false;
 
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
-            if (hit == NULL)
+            HandleHitList hits = firstHits(inputState.pickResult());
+            if (hits.empty())
                 return false;
-
-            if (hit->type() == Model::HitType::VertexHandleHit) {
+            
+            const Model::VertexHandleHit* firstHit = hits.front();
+            const Model::HitType::Type hitType = firstHit->type();
+            
+            if (hitType == Model::HitType::VertexHandleHit) {
                 m_handleManager.deselectEdgeHandles();
                 m_handleManager.deselectFaceHandles();
-                bool selected = m_handleManager.vertexHandleSelected(hit->vertex());
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    if (selected)
-                        m_handleManager.deselectVertexHandle(hit->vertex());
-                    else
+                
+                size_t selected = 0;
+                HandleHitList::const_iterator it, end;
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Model::VertexHandleHit* hit = *it;
+                    if (m_handleManager.vertexHandleSelected(hit->vertex()))
+                        selected++;
+                }
+                
+                if (selected < hits.size()) {
+                    if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
+                        m_handleManager.deselectAll();
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Model::VertexHandleHit* hit = *it;
                         m_handleManager.selectVertexHandle(hit->vertex());
-                } else if (!selected) {
-                    m_handleManager.deselectAll();
-                    m_handleManager.selectVertexHandle(hit->vertex());
+                    }
+                } else {
+                    if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                            const Model::VertexHandleHit* hit = *it;
+                            m_handleManager.deselectVertexHandle(hit->vertex());
+                        }
+                    }
                 }
-            } else if (hit->type() == Model::HitType::EdgeHandleHit) {
+            } else if (hitType == Model::HitType::EdgeHandleHit) {
                 m_handleManager.deselectVertexHandles();
                 m_handleManager.deselectFaceHandles();
-                bool selected = m_handleManager.edgeHandleSelected(hit->vertex());
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    if (selected)
-                        m_handleManager.deselectEdgeHandle(hit->vertex());
-                    else
-                        m_handleManager.selectEdgeHandle(hit->vertex());
-                } else if (!selected) {
-                    m_handleManager.deselectAll();
-                    m_handleManager.selectEdgeHandle(hit->vertex());
+                
+                size_t selected = 0;
+                HandleHitList::const_iterator it, end;
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Model::VertexHandleHit* hit = *it;
+                    if (m_handleManager.edgeHandleSelected(hit->vertex()))
+                        selected++;
                 }
-            } else if (hit->type() == Model::HitType::FaceHandleHit) {
+                
+                if (selected < hits.size()) {
+                    if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
+                        m_handleManager.deselectAll();
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Model::VertexHandleHit* hit = *it;
+                        m_handleManager.selectEdgeHandle(hit->vertex());
+                    }
+                } else {
+                    if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                            const Model::VertexHandleHit* hit = *it;
+                            m_handleManager.deselectEdgeHandle(hit->vertex());
+                        }
+                    }
+                }
+            } else if (hitType == Model::HitType::FaceHandleHit) {
                 m_handleManager.deselectVertexHandles();
                 m_handleManager.deselectEdgeHandles();
-                bool selected = m_handleManager.faceHandleSelected(hit->vertex());
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    if (selected)
-                        m_handleManager.deselectFaceHandle(hit->vertex());
-                    else
+
+                size_t selected = 0;
+                HandleHitList::const_iterator it, end;
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Model::VertexHandleHit* hit = *it;
+                    if (m_handleManager.faceHandleSelected(hit->vertex()))
+                        selected++;
+                }
+                
+                if (selected < hits.size()) {
+                    if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
+                        m_handleManager.deselectAll();
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Model::VertexHandleHit* hit = *it;
                         m_handleManager.selectFaceHandle(hit->vertex());
-                } else if (!selected) {
-                    m_handleManager.deselectAll();
-                    m_handleManager.selectFaceHandle(hit->vertex());
+                    }
+                } else {
+                    if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                            const Model::VertexHandleHit* hit = *it;
+                            m_handleManager.deselectFaceHandle(hit->vertex());
+                        }
+                    }
                 }
             }
             return true;
@@ -319,9 +428,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveVerticesTool::handleMouseMove(InputState& inputState) {
-        }
-
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
             if (active() && !m_ignoreObjectChanges) {
                 m_handleManager.clear();
@@ -346,11 +452,6 @@ namespace TrenchBroom {
         m_ignoreObjectChanges(false),
         m_textRenderer(NULL) {}
 
-        bool MoveVerticesTool::hasSelection() {
-            return !m_handleManager.selectedVertexHandles().empty() || !m_handleManager.selectedEdgeHandles().empty() || !m_handleManager.selectedFaceHandles().empty();
-            
-        }
-        
         MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
             m_ignoreObjectChanges = true;
             if (m_mode == VMMove || m_mode == VMSnap) {

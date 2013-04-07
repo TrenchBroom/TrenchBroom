@@ -350,6 +350,12 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(EditActionsMoveObjectsRight));
             newEntries.push_back(Entry(EditActionsMoveObjectsUp));
             newEntries.push_back(Entry(EditActionsMoveObjectsDown));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsForward));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsBackward));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsLeft));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsRight));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsUp));
+            newEntries.push_back(Entry(EditActionsDuplicateObjectsDown));
             newEntries.push_back(Entry(EditActionsRollObjectsCW));
             newEntries.push_back(Entry(EditActionsRollObjectsCCW));
             newEntries.push_back(Entry(EditActionsYawObjectsCW));
@@ -393,6 +399,10 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(ViewCameraMoveToNextPoint));
             newEntries.push_back(Entry(ViewCameraMoveToPreviousPoint));
             newEntries.push_back(Entry(ViewCameraCenterCameraOnSelection));
+
+            newEntries.push_back(Entry(ViewSwitchToEntityTab));
+            newEntries.push_back(Entry(ViewSwitchToFaceTab));
+            newEntries.push_back(Entry(ViewSwitchToViewTab));
 
             bool hasDuplicates = markDuplicates(newEntries);
             

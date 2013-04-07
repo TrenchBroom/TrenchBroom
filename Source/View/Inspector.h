@@ -51,7 +51,6 @@ namespace TrenchBroom {
             wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
             EntityInspector* CreateEntityInspector();
-            wxNotebookPage* CreateBrushInspector();
             FaceInspector* CreateFaceInspector();
             ViewInspector* CreateViewInspector();
         public:
@@ -64,6 +63,8 @@ namespace TrenchBroom {
             inline FaceInspector& faceInspector() const {
                 return *m_faceInspector;
             }
+            
+            void switchToInspector(size_t index);
         };
     }
 }

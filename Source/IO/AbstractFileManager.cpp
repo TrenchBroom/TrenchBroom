@@ -296,7 +296,8 @@ namespace TrenchBroom {
                 prot |= PROT_READ;
             }
             if ((mode & std::ios_base::out)) {
-                flags = O_WRONLY;
+                if (!(mode & std::ios_base::in))
+                    flags = O_WRONLY;
                 prot |= PROT_WRITE;
             }
             

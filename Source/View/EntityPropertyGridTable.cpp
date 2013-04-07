@@ -246,7 +246,7 @@ namespace TrenchBroom {
             if (row >= 0 && row < GetNumberRows()) {
                 const Entry& entry = m_entries[static_cast<size_t>(row)];
                 if (col == 0) {
-                    bool readonly = !Model::Entity::propertyKeyIsMutable(entry.key);
+                    bool readonly = !Model::Entity::propertyKeyIsMutable(entry.key) || !Model::Entity::propertyIsMutable(entry.key);
                     if (readonly) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
@@ -257,6 +257,12 @@ namespace TrenchBroom {
                         attr->SetTextColour(m_specialCellColor);
                     }
                 } else if (col == 1) {
+                    bool readonly = !Model::Entity::propertyIsMutable(entry.key);
+                    if (readonly) {
+                        if (attr == NULL)
+                            attr = new wxGridCellAttr();
+                        attr->SetReadOnly(true);
+                    }
                     if (entry.multi()) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();

@@ -33,27 +33,28 @@ namespace TrenchBroom {
         const Preference<bool>  CameraPanInvertX = Preference<bool>(                            "Controls/Camera/Pan X inverted",                               false);
         const Preference<bool>  CameraPanInvertY = Preference<bool>(                            "Controls/Camera/Pan Y inverted",                               false);
         const Preference<bool>  CameraEnableAltMove = Preference<bool>(                         "Controls/Camera/Enable Alt to move",                           false);
+        const Preference<bool>  CameraMoveInCursorDir = Preference<bool>(                       "Controls/Camera/Move camera towards cursor",                   false);
         const Preference<float> HandleRadius = Preference<float>(                               "Controls/Vertex handle radius",                                3.0f);
         const Preference<float> MaximumHandleDistance = Preference<float>(                      "Controls/Maximum handle distance",                             1000.0f);
         const Preference<float> HandleScalingFactor = Preference<float>(                        "Controls/Handle scaling factor",                               1.0f / 300.0f);
         const Preference<float> MaximumNearFaceDistance = Preference<float>(                    "Controls/Maximum near face distance",                          8.0f);
         const Preference<float> CameraFieldOfVision = Preference<float>(                        "Renderer/Camera field of vision",                              90.0f);
         const Preference<float> CameraNearPlane = Preference<float>(                            "Renderer/Camera near plane",                                   1.0f);
-        const Preference<float> CameraFarPlane = Preference<float>(                             "Renderer/Camera far plane",                                    5000.0f);
+        const Preference<float> CameraFarPlane = Preference<float>(                             "Renderer/Camera far plane",                                    8192.0f);
 
         const Preference<float> InfoOverlayFadeDistance = Preference<float>(                    "Renderer/Info overlay fade distance",                          400.0f);
         const Preference<float> SelectedInfoOverlayFadeDistance = Preference<float>(            "Renderer/Selected info overlay fade distance",                 400.0f);
-        const Preference<int>   RendererFontSize = Preference<int>(                             "Renderer/Font size",                                           9);
+        const Preference<int>   RendererFontSize = Preference<int>(                             "Renderer/Font size",                                           16);
         const Preference<float> RendererBrightness = Preference<float>(                         "Renderer/Brightness",                                          1.0f);
         const Preference<float> GridAlpha = Preference<float>(                                  "Renderer/Grid Alpha",                                          0.25f);
         const Preference<bool>  GridCheckerboard = Preference<bool>(                            "Renderer/Grid Checkerboard",                                   false);
 
         const Preference<Color> EntityRotationDecoratorColor = Preference<Color>(               "Renderer/Colors/Decorators/Entity rotation",                   Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        
+
         const Preference<Color> BackgroundColor = Preference<Color>(                            "Renderer/Colors/Background",                                   Color(0.0f,  0.0f,  0.0f,  1.0f ));
 
         const Preference<Color> GuideColor = Preference<Color>(                                 "Renderer/Colors/Guide",                                        Color(1.0f,  0.0f,  0.0f,  0.3f ));
-        const Preference<Color> HoveredGuideColor = Preference<Color>(                          "Renderer/Colors/Hovered guide",                                Color(1.0f,  1.0f,  1.0f,  0.5f ));
+        const Preference<Color> HoveredGuideColor = Preference<Color>(                          "Renderer/Colors/Hovered guide",                                Color(1.0f,  0.0f,  0.0f,  0.7f ));
 
         const Preference<Color> FaceColor = Preference<Color>(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
         const Preference<Color> SelectedFaceColor = Preference<Color>(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
@@ -117,14 +118,14 @@ namespace TrenchBroom {
         const Preference<Color> ResizeBrushFaceColor = Preference<Color>(                        "Renderer/Colors/Face color when resizing",                    Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> OccludedResizeBrushFaceColor = Preference<Color>(                "Renderer/Colors/Occluded face color when resizing",           Color(1.0f,  1.0f,  1.0f,  0.5f ));
 
-        const Preference<Color> BrowserTextureColor = Preference<Color>(                        "Texture browser/Texture color",                                Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        const Preference<Color> BrowserTextColor = Preference<Color>(                           "Texture browser/Texture color",                                Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> SelectedTextureColor = Preference<Color>(                       "Texture browser/Selected texture color",                       Color(0.8f,  0.0f,  0.0f,  1.0f ));
         const Preference<Color> UsedTextureColor = Preference<Color>(                           "Texture browser/Used texture color",                           Color(0.8f,  0.8f,  0.0f,  1.0f ));
         const Preference<Color> OverriddenTextureColor = Preference<Color>(                     "Texture browser/Overridden texture color",                     Color(0.5f,  0.5f,  0.5f,  1.0f ));
-        const Preference<Color> BrowserGroupBackgroundColor = Preference<Color>(                "Texture browser/Group background color",                       Color(0.5f,  0.5f,  0.5f,  1.0f ));
-        const Preference<Color> BrowserGroupTextColor = Preference<Color>(                      "Texture browser/Group text color",                             Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        const Preference<Color> BrowserGroupBackgroundColor = Preference<Color>(                "Texture browser/Group background color",                       Color(0.5f,  0.5f,  0.5f,  0.5f ));
         const Preference<int>   TextureBrowserFontSize = Preference<int>(                       "Texture browser/Font size",                                    12);
         const Preference<int>   EntityBrowserFontSize = Preference<int>(                        "Entity browser/Font size",                                     12);
+        const Preference<float> TextureBrowserIconSize = Preference<float>(                     "Texture browser/Icon size",                                    1.0f);
 
 #if defined _WIN32
         const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.3f);
@@ -144,7 +145,7 @@ namespace TrenchBroom {
         const int               RendererInstancingModeAutodetect    = 0;
         const int               RendererInstancingModeForceOn       = 1;
         const int               RendererInstancingModeForceOff      = 2;
-        
+
         const Preference<KeyboardShortcut>  FileNew = Preference<KeyboardShortcut>(                             "Menu/File/New",                                        KeyboardShortcut(wxID_NEW, WXK_CONTROL, 'N', KeyboardShortcut::SCAny, "New"));
         const Preference<KeyboardShortcut>  FileOpen = Preference<KeyboardShortcut>(                            "Menu/File/Open",                                       KeyboardShortcut(wxID_OPEN, WXK_CONTROL, 'O', KeyboardShortcut::SCAny, "Open..."));
         const Preference<KeyboardShortcut>  FileSave = Preference<KeyboardShortcut>(                            "Menu/File/Save",                                       KeyboardShortcut(wxID_SAVE, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save"));
@@ -180,7 +181,7 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  EditToolsPerformClip = Preference<KeyboardShortcut>(                "Menu/Edit/Tools/Perform Clip",                         KeyboardShortcut(Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCAny, "Perform Clip"));
         const Preference<KeyboardShortcut>  EditToolsToggleVertexTool = Preference<KeyboardShortcut>(           "Menu/Edit/Tools/Toggle Vertex Tool",                   KeyboardShortcut(Menu::EditToggleVertexTool, 'V', KeyboardShortcut::SCAny, "Vertex Tool"));
         const Preference<KeyboardShortcut>  EditToolsToggleRotateTool = Preference<KeyboardShortcut>(           "Menu/Edit/Tools/Toggle Rotate Tool",                   KeyboardShortcut(Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::SCAny, "Rotate Tool"));
-        
+
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesUp = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Move Textures Up (Coarse)",          KeyboardShortcut(Menu::EditMoveTexturesUp, WXK_UP, KeyboardShortcut::SCTextures, "Move Up"));
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesDown = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Textures Down (Coarse)",        KeyboardShortcut(Menu::EditMoveTexturesDown, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down"));
         const Preference<KeyboardShortcut>  EditActionsMoveTexturesLeft = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Textures Left (Coarse)",        KeyboardShortcut(Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
@@ -200,16 +201,22 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  EditActionsMoveObjectsRight = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Objects Right",                 KeyboardShortcut(Menu::EditMoveObjectsRight, WXK_RIGHT, KeyboardShortcut::SCObjects, "Move Right"));
         const Preference<KeyboardShortcut>  EditActionsMoveObjectsUp = Preference<KeyboardShortcut>(            "Menu/Edit/Actions/Move Objects Up",                    KeyboardShortcut(Menu::EditMoveObjectsUp, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Move Up"));
         const Preference<KeyboardShortcut>  EditActionsMoveObjectsDown = Preference<KeyboardShortcut>(          "Menu/Edit/Actions/Move Objects Down",                  KeyboardShortcut(Menu::EditMoveObjectsDown, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Move Down"));
-        const Preference<KeyboardShortcut>  EditActionsRollObjectsCW = Preference<KeyboardShortcut>(            "Menu/Edit/Actions/Roll Objects CW",                    KeyboardShortcut(Menu::EditRollObjectsCW, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCObjects, "Rotate Clockwise by 90"));
-        const Preference<KeyboardShortcut>  EditActionsRollObjectsCCW = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Roll Objects CCW",                   KeyboardShortcut(Menu::EditRollObjectsCCW, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCObjects, "Rotate Counter-clockwise by 90"));
-        const Preference<KeyboardShortcut>  EditActionsYawObjectsCW = Preference<KeyboardShortcut>(             "Menu/Edit/Actions/Yaw Objects CW",                     KeyboardShortcut(Menu::EditYawObjectsCW, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCObjects, "Rotate Left by 90"));
-        const Preference<KeyboardShortcut>  EditActionsYawObjectsCCW = Preference<KeyboardShortcut>(            "Menu/Edit/Actions/Yaw Objects CCW",                    KeyboardShortcut(Menu::EditYawObjectsCCW, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCObjects, "Rotate Right by 90"));
-        const Preference<KeyboardShortcut>  EditActionsPitchObjectsCW = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Pitch Objects CW",                   KeyboardShortcut(Menu::EditPitchObjectsCW, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Rotate Up by 90"));
-        const Preference<KeyboardShortcut>  EditActionsPitchObjectsCCW = Preference<KeyboardShortcut>(          "Menu/Edit/Actions/Pitch Objects CCW",                  KeyboardShortcut(Menu::EditPitchObjectsCCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Rotate Down by 90"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsForward = Preference<KeyboardShortcut>(  "Menu/Edit/Actions/Duplicate Objects Forward",          KeyboardShortcut(Menu::EditDuplicateObjectsForward, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCObjects, "Duplicate & Move Forward"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsBackward = Preference<KeyboardShortcut>( "Menu/Edit/Actions/Duplicate Objects Backward",         KeyboardShortcut(Menu::EditDuplicateObjectsBackward, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Backward"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsLeft = Preference<KeyboardShortcut>(     "Menu/Edit/Actions/Duplicate Objects Left",             KeyboardShortcut(Menu::EditDuplicateObjectsLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCObjects, "Duplicate & Move Left"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsRight = Preference<KeyboardShortcut>(    "Menu/Edit/Actions/Duplicate Objects Right",            KeyboardShortcut(Menu::EditDuplicateObjectsRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCObjects, "Duplicate & Move Right"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsUp = Preference<KeyboardShortcut>(       "Menu/Edit/Actions/Duplicate Objects Up",               KeyboardShortcut(Menu::EditDuplicateObjectsUp, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Duplicate & Move Up"));
+        const Preference<KeyboardShortcut>  EditActionsDuplicateObjectsDown = Preference<KeyboardShortcut>(     "Menu/Edit/Actions/Duplicate Objects Down",             KeyboardShortcut(Menu::EditDuplicateObjectsDown, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Down"));
+        const Preference<KeyboardShortcut>  EditActionsRollObjectsCW = Preference<KeyboardShortcut>(            "Menu/Edit/Actions/Roll Objects CW",                    KeyboardShortcut(Menu::EditRollObjectsCW, WXK_ALT, WXK_UP, KeyboardShortcut::SCObjects, "Rotate Clockwise by 90"));
+        const Preference<KeyboardShortcut>  EditActionsRollObjectsCCW = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Roll Objects CCW",                   KeyboardShortcut(Menu::EditRollObjectsCCW, WXK_ALT, WXK_DOWN, KeyboardShortcut::SCObjects, "Rotate Counter-clockwise by 90"));
+        const Preference<KeyboardShortcut>  EditActionsYawObjectsCW = Preference<KeyboardShortcut>(             "Menu/Edit/Actions/Yaw Objects CW",                     KeyboardShortcut(Menu::EditYawObjectsCW, WXK_ALT, WXK_LEFT, KeyboardShortcut::SCObjects, "Rotate Left by 90"));
+        const Preference<KeyboardShortcut>  EditActionsYawObjectsCCW = Preference<KeyboardShortcut>(            "Menu/Edit/Actions/Yaw Objects CCW",                    KeyboardShortcut(Menu::EditYawObjectsCCW, WXK_ALT, WXK_RIGHT, KeyboardShortcut::SCObjects, "Rotate Right by 90"));
+        const Preference<KeyboardShortcut>  EditActionsPitchObjectsCW = Preference<KeyboardShortcut>(           "Menu/Edit/Actions/Pitch Objects CW",                   KeyboardShortcut(Menu::EditPitchObjectsCW, WXK_ALT, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Rotate Up by 90"));
+        const Preference<KeyboardShortcut>  EditActionsPitchObjectsCCW = Preference<KeyboardShortcut>(          "Menu/Edit/Actions/Pitch Objects CCW",                  KeyboardShortcut(Menu::EditPitchObjectsCCW, WXK_ALT, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Rotate Down by 90"));
         const Preference<KeyboardShortcut>  EditActionsFlipObjectsHorizontally = Preference<KeyboardShortcut>(  "Menu/Edit/Actions/Flip Objects Horizontally",          KeyboardShortcut(Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
         const Preference<KeyboardShortcut>  EditActionsFlipObjectsVertically = Preference<KeyboardShortcut>(    "Menu/Edit/Actions/Flip Objects Vertically",            KeyboardShortcut(Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
         const Preference<KeyboardShortcut>  EditActionsDuplicateObjects = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Duplicate Objects",                  KeyboardShortcut(Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
-        
+
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesForward = Preference<KeyboardShortcut>(      "Menu/Edit/Actions/Move Vertices Forward",              KeyboardShortcut(Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesBackward = Preference<KeyboardShortcut>(     "Menu/Edit/Actions/Move Vertices Backward",             KeyboardShortcut(Menu::EditMoveVerticesBackward, WXK_DOWN, KeyboardShortcut::SCVertexTool, "Move Backward"));
         const Preference<KeyboardShortcut>  EditActionsMoveVerticesLeft = Preference<KeyboardShortcut>(         "Menu/Edit/Actions/Move Vertices Left",                 KeyboardShortcut(Menu::EditMoveVerticesLeft, WXK_LEFT, KeyboardShortcut::SCVertexTool, "Move Left"));
@@ -234,14 +241,18 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  ViewGridSetSize128 = Preference<KeyboardShortcut>(                  "Menu/View/Grid/Set Grid Size 128",                     KeyboardShortcut(Menu::ViewSetGridSize128, WXK_CONTROL, '8', KeyboardShortcut::SCAny, "Set Grid Size 128"));
         const Preference<KeyboardShortcut>  ViewGridSetSize256 = Preference<KeyboardShortcut>(                  "Menu/View/Grid/Set Grid Size 256",                     KeyboardShortcut(Menu::ViewSetGridSize256, WXK_CONTROL, '9', KeyboardShortcut::SCAny, "Set Grid Size 256"));
 
-        const Preference<KeyboardShortcut>  ViewCameraMoveForward = Preference<KeyboardShortcut>(               "Menu/View/Camera/Move Forward",                        KeyboardShortcut(Menu::ViewMoveCameraForward, WXK_ALT, WXK_UP, KeyboardShortcut::SCAny, "Move Forward"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveBackward = Preference<KeyboardShortcut>(              "Menu/View/Camera/Move Backward",                       KeyboardShortcut(Menu::ViewMoveCameraBackward, WXK_ALT, WXK_DOWN, KeyboardShortcut::SCAny, "Move Backward"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveLeft = Preference<KeyboardShortcut>(                  "Menu/View/Camera/Move Left",                           KeyboardShortcut(Menu::ViewMoveCameraLeft, WXK_ALT, WXK_LEFT, KeyboardShortcut::SCAny, "Move Left"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveRight = Preference<KeyboardShortcut>(                 "Menu/View/Camera/Move Right",                          KeyboardShortcut(Menu::ViewMoveCameraRight, WXK_ALT, WXK_RIGHT, KeyboardShortcut::SCAny, "Move Right"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveUp = Preference<KeyboardShortcut>(                    "Menu/View/Camera/Move Up",                             KeyboardShortcut(Menu::ViewMoveCameraUp, WXK_ALT, WXK_PAGEUP, KeyboardShortcut::SCAny, "Move Up"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveDown = Preference<KeyboardShortcut>(                  "Menu/View/Camera/Move Down",                           KeyboardShortcut(Menu::ViewMoveCameraDown, WXK_ALT, WXK_PAGEDOWN, KeyboardShortcut::SCAny, "Move Down"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveToNextPoint = Preference<KeyboardShortcut>(           "Menu/View/Camera/Move to Next Point",                  KeyboardShortcut(Menu::ViewMoveCameraToNextPoint, WXK_ALT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
-        const Preference<KeyboardShortcut>  ViewCameraMoveToPreviousPoint = Preference<KeyboardShortcut>(       "Menu/View/Camera/Move to Previous Point",              KeyboardShortcut(Menu::ViewMoveCameraToPreviousPoint, WXK_ALT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
-        const Preference<KeyboardShortcut>  ViewCameraCenterCameraOnSelection = Preference<KeyboardShortcut>(   "Menu/View/Camera/Center on Selection",                 KeyboardShortcut(Menu::ViewCenterCameraOnSelection, WXK_ALT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveForward = Preference<KeyboardShortcut>(               "Menu/View/Camera/Move Forward",                        KeyboardShortcut(Menu::ViewMoveCameraForward, 'W', KeyboardShortcut::SCAny, "Move Forward"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveBackward = Preference<KeyboardShortcut>(              "Menu/View/Camera/Move Backward",                       KeyboardShortcut(Menu::ViewMoveCameraBackward, 'S', KeyboardShortcut::SCAny, "Move Backward"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveLeft = Preference<KeyboardShortcut>(                  "Menu/View/Camera/Move Left",                           KeyboardShortcut(Menu::ViewMoveCameraLeft, 'A', KeyboardShortcut::SCAny, "Move Left"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveRight = Preference<KeyboardShortcut>(                 "Menu/View/Camera/Move Right",                          KeyboardShortcut(Menu::ViewMoveCameraRight, 'D', KeyboardShortcut::SCAny, "Move Right"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveUp = Preference<KeyboardShortcut>(                    "Menu/View/Camera/Move Up",                             KeyboardShortcut(Menu::ViewMoveCameraUp, WXK_SHIFT, 'W', KeyboardShortcut::SCAny, "Move Up"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveDown = Preference<KeyboardShortcut>(                  "Menu/View/Camera/Move Down",                           KeyboardShortcut(Menu::ViewMoveCameraDown, WXK_SHIFT, 'S', KeyboardShortcut::SCAny, "Move Down"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveToNextPoint = Preference<KeyboardShortcut>(           "Menu/View/Camera/Move to Next Point",                  KeyboardShortcut(Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
+        const Preference<KeyboardShortcut>  ViewCameraMoveToPreviousPoint = Preference<KeyboardShortcut>(       "Menu/View/Camera/Move to Previous Point",              KeyboardShortcut(Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
+        const Preference<KeyboardShortcut>  ViewCameraCenterCameraOnSelection = Preference<KeyboardShortcut>(   "Menu/View/Camera/Center on Selection",                 KeyboardShortcut(Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
+
+        const Preference<KeyboardShortcut>  ViewSwitchToEntityTab = Preference<KeyboardShortcut>(               "Menu/View/Switch to Entity tab",                       KeyboardShortcut(Menu::ViewSwitchToEntityTab, '1', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
+        const Preference<KeyboardShortcut>  ViewSwitchToFaceTab = Preference<KeyboardShortcut>(                 "Menu/View/Switch to Face tab",                         KeyboardShortcut(Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
+        const Preference<KeyboardShortcut>  ViewSwitchToViewTab = Preference<KeyboardShortcut>(                 "Menu/View/Switch to View tab",                         KeyboardShortcut(Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
     }
 }

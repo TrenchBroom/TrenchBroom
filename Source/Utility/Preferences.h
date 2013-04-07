@@ -233,6 +233,7 @@ namespace TrenchBroom {
         extern const Preference<bool>   CameraPanInvertX;
         extern const Preference<bool>   CameraPanInvertY;
         extern const Preference<bool>   CameraEnableAltMove;
+        extern const Preference<bool>   CameraMoveInCursorDir;
         extern const Preference<float>  HandleRadius;
         extern const Preference<float>  MaximumHandleDistance;
         extern const Preference<float>  HandleScalingFactor;
@@ -317,14 +318,14 @@ namespace TrenchBroom {
         extern const Preference<Color>  ResizeBrushFaceColor;
         extern const Preference<Color>  OccludedResizeBrushFaceColor;
         
-        extern const Preference<Color>  BrowserTextureColor;
+        extern const Preference<Color>  BrowserTextColor;
         extern const Preference<Color>  SelectedTextureColor;
         extern const Preference<Color>  UsedTextureColor;
         extern const Preference<Color>  OverriddenTextureColor;
         extern const Preference<Color>  BrowserGroupBackgroundColor;
-        extern const Preference<Color>  BrowserGroupTextColor;
         extern const Preference<int>    TextureBrowserFontSize;
         extern const Preference<int>    EntityBrowserFontSize;
+        extern const Preference<float>  TextureBrowserIconSize;
         
         extern const Preference<String> QuakePath;
         extern const Preference<String> RendererFontName;
@@ -393,6 +394,12 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsRight;
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsUp;
         extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsDown;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsForward;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsBackward;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsLeft;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsRight;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsUp;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjectsDown;
         extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCW;
         extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCCW;
         extern const Preference<KeyboardShortcut>   EditActionsYawObjectsCW;
@@ -440,6 +447,11 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   ViewCameraMoveToNextPoint;
         extern const Preference<KeyboardShortcut>   ViewCameraMoveToPreviousPoint;
         extern const Preference<KeyboardShortcut>   ViewCameraCenterCameraOnSelection;
+        
+        // View menu
+        extern const Preference<KeyboardShortcut>   ViewSwitchToEntityTab;
+        extern const Preference<KeyboardShortcut>   ViewSwitchToFaceTab;
+        extern const Preference<KeyboardShortcut>   ViewSwitchToViewTab;
         
         class PreferenceManager {
         private:

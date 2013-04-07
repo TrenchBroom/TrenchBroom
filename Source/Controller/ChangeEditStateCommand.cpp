@@ -64,7 +64,7 @@ namespace TrenchBroom {
                 if (!m_faces.empty()) {
                     m_changeSet = document().editStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
                     m_mruTexture = document().mruTexture();
-                    // document().setMruTexture(m_faces.back()->texture());
+                    document().setMruTexture(m_faces.back()->texture());
                 } else {
                     if (!m_entities.empty()) {
                         if (!m_brushes.empty())

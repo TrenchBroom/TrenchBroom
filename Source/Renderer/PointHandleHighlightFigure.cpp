@@ -31,29 +31,45 @@
 namespace TrenchBroom {
     namespace Renderer {
         PointHandleHighlightFigure::PointHandleHighlightFigure(const Vec3f& position, const Color& color, float radius, float scalingFactor) :
-        m_position(position),
         m_color(color),
         m_radius(radius),
         m_scalingFactor(scalingFactor) {
             assert(radius > 0.0f);
             assert(scalingFactor > 0.0f);
+            m_positions.push_back(position);
         }
         
-        void PointHandleHighlightFigure::render(Vbo& vbo, RenderContext& context) {
-            float factor = context.camera().distanceTo(m_position) * m_scalingFactor;
-            
-            Mat4f billboardMatrix = context.camera().billboardMatrix();
-            Mat4f matrix = Mat4f::Identity;
-            matrix.translate(m_position);
-            matrix *= billboardMatrix;
-            matrix.scale(Vec3f(factor, factor, 0.0f));
-            ApplyMatrix applyBillboard(context.transformation(), matrix);
+        PointHandleHighlightFigure::PointHandleHighlightFigure(const Vec3f::List& positions, const Color& color, float radius, float scalingFactor) :
+        m_positions(positions),
+        m_color(color),
+        m_radius(radius),
+        m_scalingFactor(scalingFactor) {
+            assert(radius > 0.0f);
+            assert(scalingFactor > 0.0f);
+            assert(!m_positions.empty());
+        }
 
+        void PointHandleHighlightFigure::render(Vbo& vbo, RenderContext& context) {
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
             shader.currentShader().setUniformVariable("Color", m_color);
-            
+
+            Mat4f billboardMatrix = context.camera().billboardMatrix();
             CircleFigure circle(Axis::AZ, 0.0f, 2.0f * Math::Pi, 2.0f * m_radius, 16, false);
-            circle.render(vbo, context);
+
+            Vec3f::List::const_iterator it, end;
+            for (it = m_positions.begin(), end = m_positions.end(); it != end; ++it) {
+                const Vec3f& position = *it;
+
+                float factor = context.camera().distanceTo(position) * m_scalingFactor;
+                
+                Mat4f matrix = Mat4f::Identity;
+                matrix.translate(position);
+                matrix *= billboardMatrix;
+                matrix.scale(Vec3f(factor, factor, 0.0f));
+                ApplyMatrix applyBillboard(context.transformation(), matrix);
+
+                circle.render(vbo, context);
+            }
         }
     }
 }

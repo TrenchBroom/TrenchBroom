@@ -208,6 +208,11 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
     
+    viewMenu->AppendSeparator();
+    appendItem(viewMenu, ViewSwitchToEntityTab, mapViewFocused);
+    appendItem(viewMenu, ViewSwitchToFaceTab, mapViewFocused);
+    appendItem(viewMenu, ViewSwitchToViewTab, mapViewFocused);
+    
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;
 }
@@ -283,6 +288,13 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     appendItem(objectActionMenu, EditActionsMoveObjectsRight, mapViewFocused);
     appendItem(objectActionMenu, EditActionsMoveObjectsUp, mapViewFocused);
     appendItem(objectActionMenu, EditActionsMoveObjectsDown, mapViewFocused);
+    objectActionMenu->AppendSeparator();
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsForward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsBackward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsLeft, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsRight, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsUp, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsDuplicateObjectsDown, mapViewFocused);
     objectActionMenu->AppendSeparator();
     appendItem(objectActionMenu, EditActionsRollObjectsCW, mapViewFocused);
     appendItem(objectActionMenu, EditActionsRollObjectsCCW, mapViewFocused);

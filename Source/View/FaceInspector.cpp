@@ -20,15 +20,6 @@
 
 #include "FaceInspector.h"
 
-#include <wx/button.h>
-#include <wx/filedlg.h>
-#include <wx/gbsizer.h>
-#include <wx/listbox.h>
-#include <wx/sizer.h>
-#include <wx/splitter.h>
-#include <wx/statline.h>
-#include <wx/stattext.h>
-
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
@@ -47,6 +38,17 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureBrowserCanvas.h"
 #include "View/TextureSelectedCommand.h"
+
+#include <wx/bitmap.h>
+#include <wx/bmpbuttn.h>
+#include <wx/button.h>
+#include <wx/filedlg.h>
+#include <wx/gbsizer.h>
+#include <wx/listbox.h>
+#include <wx/sizer.h>
+#include <wx/splitter.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
 
 #include <limits>
 
@@ -71,14 +73,25 @@ namespace TrenchBroom {
         EVT_BUTTON(CommandIds::FaceInspector::ResetFaceAttribsId, FaceInspector::OnResetFaceAttribsPressed)
         EVT_BUTTON(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnAlignTexturePressed)
         EVT_BUTTON(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnFitTexturePressed)
+        EVT_BUTTON(CommandIds::FaceInspector::FlipTextureHorizontallyId, FaceInspector::OnFlipTextureHorizontallyPressed)
+        EVT_BUTTON(CommandIds::FaceInspector::FlipTextureVerticallyId, FaceInspector::OnFlipTextureVerticallyPressed)
         EVT_UPDATE_UI(CommandIds::FaceInspector::ResetFaceAttribsId, FaceInspector::OnUpdateFaceButtons)
         EVT_UPDATE_UI(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnUpdateFaceButtons)
         EVT_UPDATE_UI(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnUpdateFaceButtons)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::FlipTextureHorizontallyId, FaceInspector::OnUpdateFaceButtons)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::FlipTextureVerticallyId, FaceInspector::OnUpdateFaceButtons)
         EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
         EVT_IDLE(FaceInspector::OnIdle)
         END_EVENT_TABLE()
 
         wxWindow* FaceInspector::createFaceEditor() {
+            IO::FileManager fileManager;
+            String resourcePath = fileManager.resourceDirectory();
+            
+            wxBitmap reset(fileManager.appendPath(resourcePath, "Reset_Texture.png"), wxBITMAP_TYPE_PNG);
+            wxBitmap flipH(fileManager.appendPath(resourcePath, "Flip_Texture_Horizontally.png"), wxBITMAP_TYPE_PNG);
+            wxBitmap flipV(fileManager.appendPath(resourcePath, "Flip_Texture_Vertically.png"), wxBITMAP_TYPE_PNG);
+
             wxPanel* faceEditorPanel = new wxPanel(this);
             
             m_textureViewer = new SingleTextureViewer(faceEditorPanel, m_documentViewHolder.document().sharedResources());
@@ -106,16 +119,23 @@ namespace TrenchBroom {
             m_rotationEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
 
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::ResetFaceAttribsId, wxT("Reset"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
+            wxBitmapButton* resetFaceAttribsButton = new wxBitmapButton(faceEditorPanel, CommandIds::FaceInspector::ResetFaceAttribsId, reset, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            resetFaceAttribsButton->SetMinSize(wxSize(20, 20));
+            resetFaceAttribsButton->SetToolTip(wxT("Reset face attributes"));
+            wxBitmapButton* flipTextureHorizontallyButton = new wxBitmapButton(faceEditorPanel, CommandIds::FaceInspector::FlipTextureHorizontallyId, flipH, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            flipTextureHorizontallyButton->SetMinSize(wxSize(20, 20));
+            flipTextureHorizontallyButton->SetToolTip(wxT("Flip texture X axis"));
+            wxBitmapButton* flipTextureVerticallyButton = new wxBitmapButton(faceEditorPanel, CommandIds::FaceInspector::FlipTextureVerticallyId, flipV, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            flipTextureVerticallyButton->SetMinSize(wxSize(20, 20));
+            flipTextureVerticallyButton->SetToolTip(wxT("Flip texture Y axis"));
             
-            /*
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(flipTextureHorizontallyButton);
             buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::AlignTextureId, wxT("A"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
+            buttonSizer->Add(flipTextureVerticallyButton);
             buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::FitTextureId, wxT("F"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
-             */
-
+            buttonSizer->Add(resetFaceAttribsButton);
+            
             wxGridBagSizer* textureAttribsSizer = new wxGridBagSizer(LayoutConstants::TextureAttribsControlMargin, LayoutConstants::TextureAttribsControlMargin);
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("")), wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER); // fake
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
@@ -132,9 +152,7 @@ namespace TrenchBroom {
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("Rotation"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
             textureAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
             
-            textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(4, 0), wxDefaultSpan, wxALIGN_RIGHT);
-            textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(4, 1), wxDefaultSpan, wxALIGN_LEFT);
-            textureAttribsSizer->Add(buttonSizer, wxGBPosition(4, 2), wxDefaultSpan, wxALIGN_LEFT);
+            textureAttribsSizer->Add(buttonSizer, wxGBPosition(4, 0), wxGBSpan(1, 3), wxALIGN_RIGHT);
             
             textureAttribsSizer->AddGrowableCol(1);
             textureAttribsSizer->AddGrowableCol(2);
@@ -342,7 +360,7 @@ namespace TrenchBroom {
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
-            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Scale");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Reset Face Attributes");
             command->setXOffset(0.0f);
             command->setYOffset(0.0f);
             command->setXScale(1.0f);
@@ -357,6 +375,26 @@ namespace TrenchBroom {
         void FaceInspector::OnFitTexturePressed(wxCommandEvent& event) {
         }
         
+        void FaceInspector::OnFlipTextureHorizontallyPressed(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            Model::MapDocument& document = m_documentViewHolder.document();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Flip Texture X Axis");
+            command->mulXScale(-1.0f);
+            document.GetCommandProcessor()->Submit(command);
+        }
+        
+        void FaceInspector::OnFlipTextureVerticallyPressed(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            Model::MapDocument& document = m_documentViewHolder.document();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Flip Texture Y Axis");
+            command->mulYScale(-1.0f);
+            document.GetCommandProcessor()->Submit(command);
+        }
+
         void FaceInspector::OnUpdateFaceButtons(wxUpdateUIEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().allSelectedFaces();

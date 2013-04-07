@@ -356,16 +356,19 @@ namespace TrenchBroom {
             }
 
             inline void addAttributes(const Vec2f::List& values) {
-                assert(m_vertexCount + values.size() <= m_vertexCapacity);
-                assert(m_attributes.size() == 1);
-                assert(m_attributes.front().valueType() == GL_FLOAT);
-                assert(m_attributes.front().size() == 2);
+                assert(values.size() % m_attributes.size() == 0);
+                assert(m_vertexCount + values.size() / m_attributes.size() <= m_vertexCapacity);
+                for (size_t i = 0; i < m_attributes.size(); i++) {
+                    const Attribute& attribute = m_attributes[i];
+                    assert(attribute.valueType() == GL_FLOAT);
+                    assert(attribute.size() == 2);
+                }
                 assert(m_padBy == 0);
                 
                 const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
                 unsigned int length = static_cast<unsigned int>(values.size() * 2 * sizeof(float));
                 m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
-                attributesAdded(static_cast<unsigned int>(values.size()));
+                attributesAdded(static_cast<unsigned int>(values.size() / m_attributes.size()));
             }
 
             inline void addAttribute(const Vec3f& value) {
@@ -378,16 +381,19 @@ namespace TrenchBroom {
             }
             
             inline void addAttributes(const Vec3f::List& values) {
-                assert(m_vertexCount + values.size() <= m_vertexCapacity);
-                assert(m_attributes.size() == 1);
-                assert(m_attributes.front().valueType() == GL_FLOAT);
-                assert(m_attributes.front().size() == 3);
+                assert(values.size() % m_attributes.size() == 0);
+                assert(m_vertexCount + values.size() / m_attributes.size() <= m_vertexCapacity);
+                for (size_t i = 0; i < m_attributes.size(); i++) {
+                    const Attribute& attribute = m_attributes[i];
+                    assert(attribute.valueType() == GL_FLOAT);
+                    assert(attribute.size() == 3);
+                }
                 assert(m_padBy == 0);
                 
                 const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
                 unsigned int length = static_cast<unsigned int>(values.size() * 3 * sizeof(float));
                 m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
-                attributesAdded(static_cast<unsigned int>(values.size()));
+                attributesAdded(static_cast<unsigned int>(values.size() / m_attributes.size()));
             }
 
             inline void addAttribute(const Vec4f& value) {
@@ -399,6 +405,29 @@ namespace TrenchBroom {
                 attributesAdded();
             }
 
+            inline void addAttributes(const Vec3f::List& vertices, const Vec4f& color) {
+                assert(m_attributes.size() == 2);
+                assert(m_attributes[0].valueType() == GL_FLOAT);
+                assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].valueType() == GL_FLOAT);
+                assert(m_attributes[1].size() == 4);
+                assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
+                if (m_padBy == 0) {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        m_writeOffset = m_block->writeVec(color, m_writeOffset);
+                    }
+                    attributesAdded(static_cast<unsigned int>(vertices.size()));
+                } else {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        attributesAdded();
+                        m_writeOffset = m_block->writeVec(color, m_writeOffset);
+                        attributesAdded();
+                    }
+                }
+            }
+            
             inline void addAttributes(const FaceVertex::List& cachedVertices) {
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);

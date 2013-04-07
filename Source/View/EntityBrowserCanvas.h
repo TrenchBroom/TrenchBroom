@@ -23,7 +23,6 @@
 #include "Model/EntityDefinitionManager.h"
 #include "Renderer/OffscreenRenderer.h"
 #include "Renderer/Shader/Shader.h"
-#include "Renderer/Text/StringManager.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 #include "View/CellLayoutGLCanvas.h"
@@ -38,36 +37,25 @@ namespace TrenchBroom {
     namespace Renderer {
         class EntityModelRenderer;
         class ShaderProgram;
+        class Vbo;
     }
 
     namespace View {
         class DocumentViewHolder;
 
-        class EntityGroupData {
-        public:
-            String groupName;
-            Renderer::Text::StringRendererPtr stringRenderer;
-
-            EntityGroupData(const String& i_groupName, Renderer::Text::StringRendererPtr i_stringRenderer) :
-            groupName(i_groupName),
-            stringRenderer(i_stringRenderer) {}
-
-            EntityGroupData() :
-            groupName(""),
-            stringRenderer(NULL) {}
-        };
+        typedef String EntityGroupData;
 
         class EntityCellData {
         public:
             Model::PointEntityDefinition* entityDefinition;
             Renderer::EntityModelRenderer* modelRenderer;
-            Renderer::Text::StringRendererPtr stringRenderer;
+            Renderer::Text::FontDescriptor fontDescriptor;
             BBox bounds;
 
-            EntityCellData(Model::PointEntityDefinition* i_entityDefinition, Renderer::EntityModelRenderer* i_modelRenderer, Renderer::Text::StringRendererPtr i_stringRenderer, const BBox& i_bounds) :
+            EntityCellData(Model::PointEntityDefinition* i_entityDefinition, Renderer::EntityModelRenderer* i_modelRenderer, const Renderer::Text::FontDescriptor& i_fontDescriptor, const BBox& i_bounds) :
             entityDefinition(i_entityDefinition),
             modelRenderer(i_modelRenderer),
-            stringRenderer(i_stringRenderer),
+            fontDescriptor(i_fontDescriptor),
             bounds(i_bounds) {}
         };
 
@@ -75,11 +63,8 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder& m_documentViewHolder;
             Renderer::OffscreenRenderer m_offscreenRenderer;
+            Renderer::Vbo* m_vbo;
             Quat m_rotation;
-
-            typedef std::map<Model::PointEntityDefinition*, Renderer::Text::StringRendererPtr> StringRendererCache;
-            typedef std::pair<Model::PointEntityDefinition*, Renderer::Text::StringRendererPtr> StringRendererCacheEntry;
-            StringRendererCache m_stringRendererCache;
 
             bool m_group;
             bool m_hideUnused;

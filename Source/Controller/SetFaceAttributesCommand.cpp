@@ -31,16 +31,71 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Model::Face& face = **faceIt;
-                if (m_setXOffset)
-                    face.setXOffset(m_xOffset);
-                if (m_setYOffset)
-                    face.setYOffset(m_yOffset);
-                if (m_setXScale)
-                    face.setXScale(m_xScale);
-                if (m_setYScale)
-                    face.setYScale(m_yScale);
-                if (m_setRotation)
-                    face.setRotation(m_rotation);
+                switch (m_xOffsetOp) {
+                    case OpSet:
+                        face.setXOffset(m_xOffset);
+                        break;
+                    case OpAdd:
+                        face.setXOffset(face.xOffset() + m_xOffset);
+                        break;
+                    case OpMul:
+                        face.setXOffset(face.xOffset() * m_xOffset);
+                        break;
+                    default:
+                        break;
+                }
+                switch (m_yOffsetOp) {
+                    case OpSet:
+                        face.setYOffset(m_yOffset);
+                        break;
+                    case OpAdd:
+                        face.setYOffset(face.yOffset() + m_yOffset);
+                        break;
+                    case OpMul:
+                        face.setYOffset(face.yOffset() * m_yOffset);
+                        break;
+                    default:
+                        break;
+                }
+                switch (m_xScaleOp) {
+                    case OpSet:
+                        face.setXScale(m_xScale);
+                        break;
+                    case OpAdd:
+                        face.setXScale(face.xScale() + m_xScale);
+                        break;
+                    case OpMul:
+                        face.setXScale(face.xScale() * m_xScale);
+                        break;
+                    default:
+                        break;
+                }
+                switch (m_yScaleOp) {
+                    case OpSet:
+                        face.setYScale(m_yScale);
+                        break;
+                    case OpAdd:
+                        face.setYScale(face.yScale() + m_yScale);
+                        break;
+                    case OpMul:
+                        face.setYScale(face.yScale() * m_yScale);
+                        break;
+                    default:
+                        break;
+                }
+                switch (m_rotationOp) {
+                    case OpSet:
+                        face.setRotation(m_rotation);
+                        break;
+                    case OpAdd:
+                        face.setRotation(face.rotation() + m_rotation);
+                        break;
+                    case OpMul:
+                        face.setRotation(face.rotation() * m_rotation);
+                        break;
+                    default:
+                        break;
+                }
                 if (m_setTexture)
                     face.setTexture(m_texture);
             }
@@ -73,11 +128,11 @@ namespace TrenchBroom {
         m_rotation(0.0f),
         m_texture(NULL),
         m_previousMruTexture(NULL),
-        m_setXOffset(false),
-        m_setYOffset(false),
-        m_setXScale(false),
-        m_setYScale(false),
-        m_setRotation(false),
+        m_xOffsetOp(OpNone),
+        m_yOffsetOp(OpNone),
+        m_xScaleOp(OpNone),
+        m_yScaleOp(OpNone),
+        m_rotationOp(OpNone),
         m_setTexture(false) {}
 
         void SetFaceAttributesCommand::setTemplate(const Model::Face& face) {

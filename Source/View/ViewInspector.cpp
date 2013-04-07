@@ -39,7 +39,6 @@ namespace TrenchBroom {
     namespace View {
 
         BEGIN_EVENT_TABLE(ViewInspector, wxPanel)
-        EVT_TEXT(wxID_ANY, ViewInspector::OnFilterPatternChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntitiesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, ViewInspector::OnFilterOptionChanged)
@@ -60,7 +59,6 @@ namespace TrenchBroom {
             EditorView& editorView = m_documentViewHolder.view();
             ViewOptions& viewOptions = editorView.viewOptions();
 
-            m_searchBox->ChangeValue(viewOptions.filterPattern());
             m_toggleEntities->SetValue(viewOptions.showEntities());
             m_toggleEntityModels->SetValue(viewOptions.showEntityModels());
             m_toggleEntityBounds->SetValue(viewOptions.showEntityBounds());
@@ -83,14 +81,7 @@ namespace TrenchBroom {
 
         wxWindow* ViewInspector::createFilterBox() {
             wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, wxT("Filter"));
-            m_searchBox = new wxSearchCtrl(filterBox, wxID_ANY);
-            m_searchBox->ShowCancelButton(true);
             
-            wxFlexGridSizer* searchPanelSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
-            searchPanelSizer->AddGrowableCol(1);
-            searchPanelSizer->Add(new wxStaticText(filterBox, wxID_ANY, wxT("Show objects matching")), 0, wxALIGN_CENTER_VERTICAL);
-            searchPanelSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL);
-
             m_toggleEntities = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, wxT("Entities"));
             m_toggleEntityModels = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, wxT("Models"));
             m_toggleEntityBounds = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, wxT("Bounds"));
@@ -114,10 +105,6 @@ namespace TrenchBroom {
             // layout of the contained controls
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(searchPanelSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            outerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             outerSizer->Add(filterPanelSizer, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
@@ -142,15 +129,14 @@ namespace TrenchBroom {
             wxStaticText* toggleFogLabel = new wxStaticText( renderModeBox, wxID_ANY, wxT(""));
             m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
              */
-            
-            // layout of the contained controls
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
             innerSizer->Add(faceRenderModeLabel);
             innerSizer->Add(m_faceRenderModeChoice);
-            innerSizer->Add(toggleRenderEdgesLabel);
-            innerSizer->Add(m_toggleRenderEdges);
-            innerSizer->Add(toggleFaceShadingLabel);
-            innerSizer->Add(m_toggleFaceShading);
+            innerSizer->Add(toggleRenderEdgesLabel, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(m_toggleRenderEdges, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(toggleFaceShadingLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
+            innerSizer->Add(m_toggleFaceShading, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
             
             /*
             innerSizer->Add(toggleFogLabel);
@@ -183,16 +169,6 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
 
             updateControls();
-        }
-
-        void ViewInspector::OnFilterPatternChanged(wxCommandEvent& event) {
-            if (!m_documentViewHolder.valid())
-                return;
-
-            EditorView& editorView = m_documentViewHolder.view();
-            editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
-            Controller::Command command(Controller::Command::InvalidateRendererState);
-            editorView.OnUpdate(NULL, &command);
         }
 
         void ViewInspector::OnFilterOptionChanged(wxCommandEvent& event){

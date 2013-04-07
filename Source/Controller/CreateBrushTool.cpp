@@ -46,30 +46,7 @@ namespace TrenchBroom {
             assert(m_brushFigure != NULL);
             m_brushFigure->render(vbo, renderContext);
             
-            Renderer::BoxInfoRenderer(m_bounds, document().sharedResources().stringManager()).render(vbo, renderContext);
-        }
-
-        void CreateBrushTool::updateBoundsThickness() {
-            Utility::Grid& grid = document().grid();
-            int gridSize = static_cast<int>(grid.actualSize());
-            
-            Axis::Type c = m_normal.firstComponent();
-            if (m_normal[c] > 0.0f) {
-                m_bounds.min[c] = m_bounds.max[c] = grid.snapDown(m_initialPoint[c]);
-                m_bounds.max[c] += gridSize;
-                if (m_thickness > 0)
-                    m_bounds.max[c] += (m_thickness - 1) * gridSize;
-                else
-                    m_bounds.min[c] += m_thickness * gridSize;
-            } else {
-                m_bounds.min[c] = m_bounds.max[c] = grid.snapUp(m_initialPoint[c]);
-                m_bounds.min[c] -= gridSize;
-                if (m_thickness > 0)
-                    m_bounds.min[c] -= (m_thickness - 1) * gridSize;
-                else
-                    m_bounds.max[c] -= m_thickness * gridSize;
-            }
-            m_boundsChanged = true;
+            Renderer::BoxInfoRenderer(m_bounds, document().sharedResources().fontManager()).render(vbo, renderContext);
         }
 
         void CreateBrushTool::updateBounds(const Vec3f& currentPoint) {
@@ -79,28 +56,20 @@ namespace TrenchBroom {
             Utility::Grid& grid = document().grid();
             m_bounds.min = grid.snapDown(m_bounds.min);
             m_bounds.max = grid.snapUp(m_bounds.max);
-
-            updateBoundsThickness();
+            
+            if (m_bounds.max.x <= m_bounds.min.x)
+                m_bounds.max.x = m_bounds.min.x + grid.actualSize();
+            if (m_bounds.max.y <= m_bounds.min.y)
+                m_bounds.max.y = m_bounds.min.y + grid.actualSize();
+            if (m_bounds.max.z <= m_bounds.min.z)
+                m_bounds.max.z = m_bounds.min.z + grid.actualSize();
         }
 
-        void CreateBrushTool::handleScroll(InputState& inputState) {
+        void CreateBrushTool::handleModifierKeyChange(InputState& inputState) {
             if (dragType() != DTDrag)
                 return;
-            
-            if (inputState.scroll() < 0.0f) {
-                m_thickness++;
-                if (m_thickness == 0)
-                    m_thickness++;
-            } else {
-                m_thickness--;
-                if (m_thickness == 0)
-                    m_thickness--;
-            }
-            updateBoundsThickness();
 
-            delete m_brush;
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
-            m_brushFigure->setBrush(*m_brush);
+            resetPlane(inputState);
         }
 
         bool CreateBrushTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
@@ -114,18 +83,14 @@ namespace TrenchBroom {
             
             Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (hit != NULL) {
-                m_normal = hit->face().boundary().normal.firstAxis();
                 initialPoint = hit->hitPoint();
-                plane = Plane(m_normal, initialPoint);
             } else {
                 Renderer::Camera& camera = view().camera();
-                m_normal = -camera.direction().firstAxis();
                 initialPoint = camera.defaultPoint(inputState.pickRay().direction);
-                plane = Plane(m_normal, initialPoint);
             }
-            
+
+            plane = Plane(Vec3f::PosZ, initialPoint);
             m_initialPoint = initialPoint;
-            m_thickness = 1;
             updateBounds(m_initialPoint);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -137,12 +102,28 @@ namespace TrenchBroom {
             m_brushFigure->setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
             m_brushFigure->setEdgeMode(Renderer::BrushFigure::EMRenderOccluded);
 
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
+            m_brush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
             
             return true;
         }
         
+        void CreateBrushTool::handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+            float distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return;
+            initialPoint = inputState.pickRay().pointAtDistance(distance);
+            
+            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                Vec3f planeNorm = inputState.pickRay().direction;
+                planeNorm.z = 0.0f;
+                planeNorm.normalize();
+                plane = Plane(planeNorm, initialPoint);
+            } else {
+                plane = Plane::horizontalDragPlane(initialPoint);
+            }
+        }
+
         bool CreateBrushTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             assert(m_brush != NULL);
             assert(m_brushFigure != NULL);
@@ -150,7 +131,7 @@ namespace TrenchBroom {
             updateBounds(curPoint);
             
             delete m_brush;
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
+            m_brush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
             return true;
         }

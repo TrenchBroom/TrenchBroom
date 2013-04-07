@@ -17,7 +17,7 @@
 		<br style="clear:left;"/>
 		
 		<a id="drawing_new_brushes"></a><h3>Drawing New Brushes Using the Mouse</h3>
-		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse on the 3D view to create a new cuboid. While the mouse button is held down, you can move your mouse to resize the brush along two axes and your can spin the <b>mouse wheel</b> to resize along the third axis.</p>
+		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse on the 3D view to create a new cuboid. Note that for this to work, you must first deselect everything. While the mouse button is held down, you can move your mouse to resize the brush along the X and Y axes. To resize along the Z axis, hold the <script>print_key("Alt");</script> key while you keep dragging. If you start your drag while the mouse is over another brush, TrenchBroom will try to align the new brush with the other brush.</p>
 		<p>The position and orientation of the new brush depends on where you started to draw it. If you started in the void, it is positioned at a default distance from the camera. If you started your drag on another brush, it is positioned on that brush's surface at the point where you clicked. You can only draw a new brush if you deselect everything first.</p>
 		<img src="images/mru_texture.jpg" width="120" height="120" alt="Most Recently Used Texture" class="inline" style="margin-right: 10px;" />
 		<p>Note that TrenchBroom automatically selects the most recently used texture when you draw a brush. The most recently used texture updated whenever you select a face or when you select a texture in the texture browser. A red border is drawn around that texture in the browser. <a href="working_with_textures.html#managing_wad_files">Click here</a> to find out more about texture management in TrenchBroom.</p>
@@ -37,6 +37,9 @@
 		<a id="duplicating_objects"></a><h3>Duplicating Objects</h3>
 		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <script>print_menu_command("edit_duplicate_selection");</script>. The duplicated objects are offset by the current grid size towards the camera. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
 
+		<a id="drag_copy_objects"></a><h4>Ctrl Dragging to Duplicate</h4>
+		<p>You can also duplicate the current selection by pressing the <script>print_key("Ctrl");</script>, clicking on the current selection and dragging the mouse.  This will duplicate the current selection while also moving to where you want immediately.  If you desire more fine control, you can press <script>print_key("Ctrl");</script> along with any of the Arrow Keys <script>print_key("ArrowKeys");</script> to duplicate the current selection.</p>
+		
 		<a id="copy_and_paste"></a><h3>Copy and Paste</h3>
 		<p>Standard commands apply: Cut (<script>print_menu_command("edit_cut");</script>), Copy (<script>print_menu_command("edit_copy");</script>) and Paste (<script>print_menu_command("edit_paste");</script>).</p>
 		<p>Just like in any other application, you can cut, copy and paste entities and brushes in TrenchBroom.  Copied objects are placed on the clipboard as text snippets in the standard map format.  This means that you can copy objects in TrenchBroom and paste them into a text editor and vice versa, however it is important to note that doing so may introduce floating point errors because Trenchbroom uses 'hidden' information during Copying and Pasting which helps preserve the complete structure of a brush but that information is lost when copying and pasting from text snippets.</p>
