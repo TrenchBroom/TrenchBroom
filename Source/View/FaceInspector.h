@@ -35,8 +35,16 @@ class wxSpinDoubleEvent;
 class wxStaticText;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
     namespace Model {
         class Texture;
+    }
+    
+    namespace Renderer {
+        class Camera;
     }
     
     namespace View {
@@ -62,13 +70,16 @@ namespace TrenchBroom {
 
             wxWindow* createFaceEditor();
             wxWindow* createTextureBrowser();
-        public:
-            FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
-            
+
             void updateFaceAttributes();
             void updateSelectedTexture();
             void updateTextureBrowser(bool reloadTextures);
+        public:
+            FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
+            void update(const Controller::Command& command);
+            void cameraChanged(const Renderer::Camera& camera) {}
+
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
             void OnXScaleChanged(SpinControlEvent& event);

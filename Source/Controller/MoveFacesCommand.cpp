@@ -17,6 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Controller/VertexHandleManager.h"
 #include "MoveFacesCommand.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -28,33 +29,42 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
 
-            m_faces.clear();
+            m_handleManager.remove(m_brushes);
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
+            m_facesAfter.clear();
 
             Model::BrushFacesMap::const_iterator it, end;
             for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::FaceInfoList& faceInfos = it->second;
                 const Model::FaceInfoList newFaces = brush->moveFaces(faceInfos, m_delta);
-                m_faces.insert(m_faces.end(), newFaces.begin(), newFaces.end());
+                m_facesAfter.insert(m_facesAfter.end(), newFaces.begin(), newFaces.end());
             }
 
             document().brushesDidChange(m_brushes);
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectFaceHandles(m_facesAfter);
+
             return true;
         }
 
         bool MoveFacesCommand::performUndo() {
+            m_handleManager.remove(m_brushes);
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
-            m_faces = m_originalFaces;
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectFaceHandles(m_facesBefore);
+            
             return true;
         }
 
-        MoveFacesCommand::MoveFacesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta) :
+        MoveFacesCommand::MoveFacesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
+        m_handleManager(handleManager),
         m_delta(delta) {
+            const Model::VertexToFacesMap& brushFaces = m_handleManager.selectedFaceHandles();
             Model::VertexToFacesMap::const_iterator mapIt, mapEnd;
             for (mapIt = brushFaces.begin(), mapEnd = brushFaces.end(); mapIt != mapEnd; ++mapIt) {
                 const Model::FaceList& faces = mapIt->second;
@@ -68,8 +78,7 @@ namespace TrenchBroom {
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(faceInfo);
-                    m_originalFaces.push_back(faceInfo);
-                    m_faces.push_back(faceInfo);
+                    m_facesBefore.push_back(faceInfo);
                 }
             }
 
@@ -77,8 +86,8 @@ namespace TrenchBroom {
             assert(m_brushes.size() == m_brushFaces.size());
         }
 
-        MoveFacesCommand* MoveFacesCommand::moveFaces(Model::MapDocument& document, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta) {
-            return new MoveFacesCommand(document, brushFaces.size() == 1 ? wxT("Move Face") : wxT("Move Faces"), brushFaces, delta);
+        MoveFacesCommand* MoveFacesCommand::moveFaces(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta) {
+            return new MoveFacesCommand(document, handleManager.selectedFaceHandles().size() == 1 ? wxT("Move Face") : wxT("Move Faces"), handleManager, delta);
         }
 
         bool MoveFacesCommand::canDo() const {

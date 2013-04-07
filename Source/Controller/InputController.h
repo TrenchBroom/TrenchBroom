@@ -34,6 +34,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class BoxGuideRenderer;
+        class Camera;
         class RenderContext;
         class Vbo;
     }
@@ -45,6 +46,7 @@ namespace TrenchBroom {
     namespace Controller {
         class CameraTool;
         class ClipTool;
+        class Command;
         class CreateBrushTool;
         class CreateEntityFromMenuHelper;
         class CreateEntityTool;
@@ -110,10 +112,8 @@ namespace TrenchBroom {
             bool drop(const String& payload, int x, int y);
             void dragLeave();
             
-            void objectsChange();
-            void editStateChange(const Model::EditStateChangeSet& changeSet);
-            void cameraChange();
-            void gridChange();
+            void update(const Command& command);
+            void cameraChanged();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
             void freeRenderResources();

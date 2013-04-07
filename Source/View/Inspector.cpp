@@ -63,5 +63,15 @@ namespace TrenchBroom {
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
         }
+
+        void Inspector::update(const Controller::Command& command) {
+            m_entityInspector->update(command);
+            m_faceInspector->update(command);
+        }
+
+        void Inspector::cameraChanged(const Renderer::Camera& camera) {
+            m_entityInspector->cameraChanged(camera);
+            m_faceInspector->cameraChanged(camera);
+        }
     }
 }

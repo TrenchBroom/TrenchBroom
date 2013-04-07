@@ -19,6 +19,8 @@
 
 #include "MoveVerticesTool.h"
 
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/Command.h"
 #include "Controller/MoveEdgesCommand.h"
 #include "Controller/MoveFacesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
@@ -431,20 +433,30 @@ namespace TrenchBroom {
         void MoveVerticesTool::handleMouseMove(InputState& inputState) {
         }
 
-        void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
-            if (active() && !m_ignoreObjectChanges) {
-                m_handleManager.clear();
-                m_handleManager.add(document().editStateManager().selectedBrushes());
-            }
-        }
-        
-        void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+        void MoveVerticesTool::handleUpdate(const Command& command, InputState& inputState) {
             if (active()) {
-                if (document().editStateManager().selectedBrushes().empty()) {
-                    m_handleManager.clear();
-                } else {
-                    m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
-                    m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
+                switch (command.type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap:
+                    case Controller::Command::MoveObjects:
+                    case Controller::Command::RotateObjects:
+                    case Controller::Command::FlipObjects:
+                    case Controller::Command::ResizeBrushes:
+                        m_handleManager.clear();
+                        m_handleManager.add(document().editStateManager().selectedBrushes());
+                        break;
+                    case Controller::Command::ChangeEditState:
+                        if (document().editStateManager().selectedBrushes().empty()) {
+                            m_handleManager.clear();
+                        } else {
+                            const ChangeEditStateCommand& changeEditStateCommand = static_cast<const ChangeEditStateCommand&>(command);
+                            const Model::EditStateChangeSet& changeSet = changeEditStateCommand.changeSet();
+                            m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
+                            m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -452,7 +464,6 @@ namespace TrenchBroom {
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize) :
         MoveTool(documentViewHolder, inputController, true),
         m_mode(VMMove),
-        m_ignoreObjectChanges(false),
         m_textRenderer(NULL) {}
 
         bool MoveVerticesTool::hasSelection() {
@@ -461,65 +472,35 @@ namespace TrenchBroom {
         }
         
         MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
-            m_ignoreObjectChanges = true;
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
                 
                 if (!m_handleManager.selectedVertexHandles().empty()) {
-                    MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
-                    m_handleManager.remove(command->brushes());
-                    
+                    MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager, delta);
                     if (submitCommand(command)) {
-                        m_handleManager.add(command->brushes());
-                        
-                        const Vec3f::Set& vertices = command->vertices();
-                        if (vertices.empty() || m_mode == VMSnap) {
-                            m_ignoreObjectChanges = false;
+                        if (!command->hasRemainingVertices() || m_mode == VMSnap)
                             return Conclude;
-                        }
-                        
-                        m_handleManager.selectVertexHandles(command->vertices());
-                        m_ignoreObjectChanges = false;
                         m_dragHandlePosition += delta;
                         return Continue;
                     } else {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectVertexHandles(command->vertices());
-                        m_ignoreObjectChanges = false;
                         return Deny;
                     }
                 } else if (!m_handleManager.selectedEdgeHandles().empty()) {
-                    MoveEdgesCommand* command = MoveEdgesCommand::moveEdges(document(), m_handleManager.selectedEdgeHandles(), delta);
-                    m_handleManager.remove(command->brushes());
-                    
+                    MoveEdgesCommand* command = MoveEdgesCommand::moveEdges(document(), m_handleManager, delta);
                     if (submitCommand(command)) {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectEdgeHandles(command->edges());
-                        m_ignoreObjectChanges = false;
                         m_dragHandlePosition += delta;
                         return Continue;
                     } else {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectEdgeHandles(command->edges());
-                        m_ignoreObjectChanges = false;
                         return Deny;
                     }
                 } else if (!m_handleManager.selectedFaceHandles().empty()) {
-                    MoveFacesCommand* command = MoveFacesCommand::moveFaces(document(), m_handleManager.selectedFaceHandles(), delta);
-                    m_handleManager.remove(command->brushes());
-                    
+                    MoveFacesCommand* command = MoveFacesCommand::moveFaces(document(), m_handleManager, delta);
                     if (submitCommand(command)) {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectFaceHandles(command->faces());
-                        m_ignoreObjectChanges = false;
                         m_dragHandlePosition += delta;
                         return Continue;
                     } else {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectFaceHandles(command->faces());
-                        m_ignoreObjectChanges = false;
                         return Deny;
                     }
                 }
@@ -530,51 +511,25 @@ namespace TrenchBroom {
                        );
                 
                 if (!m_handleManager.selectedEdgeHandles().empty()) {
-                    const Vec3f position = m_handleManager.selectedEdgeHandles().begin()->first;
-                    
-                    SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
-                    m_handleManager.remove(command->brushes());
-                    
+                    SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager, delta);
                     if (submitCommand(command)) {
-                        m_handleManager.add(command->brushes());
-                        const Vec3f::Set& vertices = command->vertices();
-                        assert(!vertices.empty());
-                        m_handleManager.selectVertexHandles(command->vertices());
                         m_mode = VMMove;
-                        m_ignoreObjectChanges = false;
                         m_dragHandlePosition += delta;
                         return Continue;
                     } else {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectEdgeHandle(position);
-                        m_ignoreObjectChanges = false;
                         return Deny;
                     }
                 } else if (!m_handleManager.selectedFaceHandles().empty()) {
-                    const Vec3f position = m_handleManager.selectedFaceHandles().begin()->first;
-                    
-                    SplitFacesCommand* command = SplitFacesCommand::splitFaces(document(), m_handleManager.faces(position), delta);
-                    m_handleManager.remove(command->brushes());
-                    
+                    SplitFacesCommand* command = SplitFacesCommand::splitFaces(document(), m_handleManager, delta);
                     if (submitCommand(command)) {
-                        m_handleManager.add(command->brushes());
-                        const Vec3f::Set& vertices = command->vertices();
-                        assert(!vertices.empty());
-                        m_handleManager.selectVertexHandles(command->vertices());
                         m_mode = VMMove;
-                        m_ignoreObjectChanges = false;
                         m_dragHandlePosition += delta;
                         return Continue;
                     } else {
-                        m_handleManager.add(command->brushes());
-                        m_handleManager.selectFaceHandle(position);
-                        m_ignoreObjectChanges = false;
-                        m_ignoreObjectChanges = false;
                         return Deny;
                     }
                 }
             }
-            m_ignoreObjectChanges = false;
             return Continue;
         }
 

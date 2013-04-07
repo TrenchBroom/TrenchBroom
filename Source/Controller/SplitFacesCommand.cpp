@@ -19,6 +19,7 @@
 
 #include "SplitFacesCommand.h"
 
+#include "Controller/VertexHandleManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Face.h"
@@ -29,57 +30,82 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
             
-            m_vertices.clear();
+            m_handleManager.remove(m_brushes);
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
+            m_verticesAfter.clear();
 
-            BrushFaceMap::const_iterator it, end;
-            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Model::FaceInfo& faceInfo = it->second;
-                Vec3f newVertexPosition = brush->splitFace(faceInfo, m_delta);
-                m_vertices.insert(newVertexPosition);
+            Model::BrushFacesMap::const_iterator bIt, bEnd;
+            for (bIt = m_brushFaces.begin(), bEnd = m_brushFaces.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = bIt->first;
+                const Model::FaceInfoList& faceInfos = bIt->second;
+                Model::FaceInfoList::const_iterator fIt, fEnd;
+                for (fIt = faceInfos.begin(), fEnd = faceInfos.end(); fIt != fEnd; ++fIt) {
+                    const Model::FaceInfo& faceInfo = *fIt;
+                    Vec3f newVertexPosition = brush->splitFace(faceInfo, m_delta);
+                    m_verticesAfter.insert(newVertexPosition);
+                }
             }
 
             document().brushesDidChange(m_brushes);
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectVertexHandles(m_verticesAfter);
+
             return true;
         }
         
         bool SplitFacesCommand::performUndo() {
+            m_handleManager.remove(m_brushes);
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectFaceHandles(m_facesBefore);
             
-            m_vertices.clear();
             return true;
         }
 
-        SplitFacesCommand::SplitFacesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Vec3f& delta) :
+        SplitFacesCommand::SplitFacesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
+        m_handleManager(handleManager),
         m_delta(delta) {
-            Model::FaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                const Model::Face& face = **it;
-                Model::FaceInfo faceInfo = face.faceInfo();
-                Model::Brush* brush = face.brush();
-                
-                BrushFaceMapInsertResult result = m_brushFaces.insert(BrushFaceMapEntry(brush, faceInfo));
-                assert(result.second);
-                m_brushes.push_back(brush);
+            const Model::VertexToFacesMap& brushFaces = m_handleManager.selectedFaceHandles();
+            Model::VertexToFacesMap::const_iterator mapIt, mapEnd;
+            for (mapIt = brushFaces.begin(), mapEnd = brushFaces.end(); mapIt != mapEnd; ++mapIt) {
+                const Model::FaceList& faces = mapIt->second;
+                Model::FaceList::const_iterator faceIt, faceEnd;
+                for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                    Model::Face* face = *faceIt;
+                    Model::Brush* brush = face->brush();
+                    const Model::FaceInfo faceInfo = face->faceInfo();
+                    
+                    Model::BrushFacesMapInsertResult result = m_brushFaces.insert(Model::BrushFacesMapEntry(brush, Model::FaceInfoList()));
+                    if (result.second)
+                        m_brushes.push_back(brush);
+                    result.first->second.push_back(faceInfo);
+                    m_facesBefore.push_back(faceInfo);
+                }
             }
+            
+            assert(!m_brushes.empty());
+            assert(m_brushes.size() == m_brushFaces.size());
         }
 
-        SplitFacesCommand* SplitFacesCommand::splitFaces(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta) {
-            return new SplitFacesCommand(document, faces.size() == 1 ? wxT("Split Face") : wxT("Split Faces"), faces, delta);
+        SplitFacesCommand* SplitFacesCommand::splitFaces(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta) {
+            return new SplitFacesCommand(document, handleManager.selectedFaceHandles().size() == 1 ? wxT("Split Face") : wxT("Split Faces"), handleManager, delta);
         }
 
         bool SplitFacesCommand::canDo() const {
-            BrushFaceMap::const_iterator it, end;
-            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
-                const Model::Brush* brush = it->first;
-                const Model::FaceInfo& faceInfo = it->second;
-                if (!brush->canSplitFace(faceInfo, m_delta))
-                    return false;
+            Model::BrushFacesMap::const_iterator bIt, bEnd;
+            for (bIt = m_brushFaces.begin(), bEnd = m_brushFaces.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = bIt->first;
+                const Model::FaceInfoList& faceInfos = bIt->second;
+                Model::FaceInfoList::const_iterator fIt, fEnd;
+                for (fIt = faceInfos.begin(), fEnd = faceInfos.end(); fIt != fEnd; ++fIt) {
+                    const Model::FaceInfo& faceInfo = *fIt;
+                    if (!brush->canSplitFace(faceInfo, m_delta))
+                        return false;
+                }
             }
             return true;
         }

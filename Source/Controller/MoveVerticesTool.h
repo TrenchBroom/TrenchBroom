@@ -37,6 +37,8 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Command;
+        
         class MoveVerticesTool : public MoveTool {
         protected:
             static const float MaxVertexDistance;
@@ -51,7 +53,6 @@ namespace TrenchBroom {
             
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
-            bool m_ignoreObjectChanges;
             size_t m_changeCount;
             Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>* m_textRenderer;
             Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
@@ -78,8 +79,7 @@ namespace TrenchBroom {
             bool handleMouseDClick(InputState& inputState);
             void handleMouseMove(InputState& inputState);
 
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            void handleUpdate(const Command& command, InputState& inputState);
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);
         

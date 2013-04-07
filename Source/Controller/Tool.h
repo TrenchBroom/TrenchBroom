@@ -55,6 +55,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Command;
         class InputController;
         
         class Tool {
@@ -204,10 +205,8 @@ namespace TrenchBroom {
             virtual void handleDragLeave(InputState& inputState, const String& payload) {}
             virtual bool handleDragDrop(InputState& inputState, const String& payload) { return false; }
             
-            virtual void handleObjectsChange(InputState& inputState) {}
-            virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
-            virtual void handleCameraChange(InputState& inputState) {}
-            virtual void handleGridChange(InputState& inputState) {}
+            virtual void handleUpdate(const Command& command, InputState& inputState) {}
+            virtual void handleCameraChanged(InputState& inputState) {}
         public:
             virtual ~Tool() {
                 deleteFigures();
@@ -418,28 +417,16 @@ namespace TrenchBroom {
                 return success;
             }
             
-            void objectsChange(InputState& inputState) {
-                handleObjectsChange(inputState);
+            void update(const Command& command, InputState& inputState) {
+                handleUpdate(command, inputState);
                 if (nextTool() != NULL)
-                    nextTool()->objectsChange(inputState);
+                    nextTool()->update(command, inputState);
             }
             
-            void editStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-                handleEditStateChange(inputState, changeSet);
+            void cameraChanged(InputState& inputState) {
+                handleCameraChanged(inputState);
                 if (nextTool() != NULL)
-                    nextTool()->editStateChange(inputState, changeSet);
-            }
-            
-            void cameraChange(InputState& inputState) {
-                handleCameraChange(inputState);
-                if (nextTool() != NULL)
-                    nextTool()->cameraChange(inputState);
-            }
-            
-            void gridChange(InputState& inputState) {
-                handleGridChange(inputState);
-                if (nextTool() != NULL)
-                    nextTool()->gridChange(inputState);
+                    nextTool()->cameraChanged(inputState);
             }
         };
         

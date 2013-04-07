@@ -509,33 +509,17 @@ namespace TrenchBroom {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
                     case Controller::Command::ChangeGrid:
-                        inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
                         m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
                         m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
-                        inputController().cameraChange();
 
                         m_renderer->loadMap();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
 
                         static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
 
                         static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
@@ -545,13 +529,7 @@ namespace TrenchBroom {
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                         frame->updateMenuBar();
-                        inputController().editStateChange(changeEditStateCommand->changeSet());
-                        if (mapDocument().editStateManager().selectedBrushes().empty() && inputController().clipToolActive())
-                            inputController().toggleClipTool();
 
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateSelectedTexture();
-                        inspector().entityInspector().updateProperties();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -566,7 +544,6 @@ namespace TrenchBroom {
                     case Controller::Command::InvalidateEntityModelRendererCache:
                         mapDocument().invalidateSearchPaths();
                         m_renderer->invalidateEntityModelRendererCache();
-                        inspector().entityInspector().updateEntityBrowser();
                         break;
                     case Controller::Command::InvalidateInstancedRenderers:
                         inputController().moveVerticesTool().resetInstancedRenderers();
@@ -575,9 +552,6 @@ namespace TrenchBroom {
                     case Controller::Command::MoveTextures:
                     case Controller::Command::RotateTextures: {
                         m_renderer->invalidateSelectedBrushes();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
@@ -586,11 +560,6 @@ namespace TrenchBroom {
                         mapDocument().sharedResources().textureRendererManager().invalidate();
                     case Controller::Command::AddTextureCollection:
                         m_renderer->invalidateAll();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
                         break;
                     }
                     case Controller::Command::SetEntityPropertyKey:
@@ -598,8 +567,6 @@ namespace TrenchBroom {
                     case Controller::Command::RemoveEntityProperty: {
                         m_renderer->invalidateEntities();
                         m_renderer->invalidateSelectedEntityModelRendererCache();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
                         break;
                     }
                     case Controller::Command::AddObjects: {
@@ -610,7 +577,6 @@ namespace TrenchBroom {
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
                         if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
-                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
                     case Controller::Command::RebuildBrushGeometry:
@@ -635,8 +601,6 @@ namespace TrenchBroom {
                     case Controller::Command::ResizeBrushes: {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
                         break;
                     }
                     case Controller::Command::RemoveObjects: {
@@ -647,15 +611,12 @@ namespace TrenchBroom {
                             m_renderer->addEntities(removeObjectsCommand->removedEntities());
                         if (!removeObjectsCommand->removedBrushes().empty())
                             m_renderer->invalidateBrushes();
-                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateEntities();
                         m_renderer->invalidateSelectedEntities();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
                         break;
                     case Controller::Command::UpdateFigures:
                         break;
@@ -663,9 +624,6 @@ namespace TrenchBroom {
                     case Controller::Command::SetEntityDefinitionFile:
                         mapDocument().sharedResources().modelRendererManager().clearMismatches();
                         m_renderer->invalidateEntityModelRendererCache();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
                         m_renderer->invalidateAll();
                         break;
                     default:
@@ -727,30 +685,30 @@ namespace TrenchBroom {
 
         void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {
             m_camera->moveBy(event.forward(), event.right(), event.up());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraLook(Controller::CameraLookEvent& event) {
             m_camera->rotate(event.hAngle(), event.vAngle());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraSet(Controller::CameraSetEvent& event) {
             m_camera->moveTo(event.position());
             m_camera->setDirection(event.direction(), event.up());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 

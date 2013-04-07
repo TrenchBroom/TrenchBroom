@@ -74,17 +74,25 @@ namespace TrenchBroom {
             m_rotateHandle.render(hit, vbo, renderContext, m_angle);
         }
 
-        void RotateObjectsTool::handleObjectsChange(InputState& inputState) {
-            if (!m_ignoreObjectsChange)
-                updateHandlePosition(inputState);
-        }
-
-        void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            updateHandlePosition(inputState);
-        }
-
-        void RotateObjectsTool::handleGridChange(InputState& inputState) {
-            updateHandlePosition(inputState);
+        void RotateObjectsTool::handleUpdate(const Command& command, InputState& inputState) {
+            if (active()) {
+                switch (command.type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap:
+                    case Controller::Command::MoveObjects:
+                    case Controller::Command::RotateObjects:
+                    case Controller::Command::FlipObjects:
+                    case Controller::Command::ResizeBrushes:
+                    case Controller::Command::MoveVertices:
+                    case Controller::Command::SnapVertices:
+                    case Controller::Command::ChangeEditState:
+                    case Controller::Command::ChangeGrid:
+                        updateHandlePosition(inputState);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         bool RotateObjectsTool::handleStartDrag(InputState& inputState) {

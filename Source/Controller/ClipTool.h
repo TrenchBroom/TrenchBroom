@@ -58,6 +58,8 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Command;
+        
         class ClipTool : public Tool {
         public:
             typedef enum {
@@ -125,8 +127,7 @@ namespace TrenchBroom {
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
 
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            void handleUpdate(const Command& command, InputState& inputState);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
             

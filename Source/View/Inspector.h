@@ -29,9 +29,17 @@
 class wxGLContext;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
     namespace Model {
         class MapDocument;
         class Texture;
+    }
+    
+    namespace Renderer {
+        class Camera;
     }
     
     namespace View {
@@ -64,6 +72,9 @@ namespace TrenchBroom {
             inline FaceInspector& faceInspector() const {
                 return *m_faceInspector;
             }
+            
+            void update(const Controller::Command& command);
+            void cameraChanged(const Renderer::Camera& camera);
         };
     }
 }
