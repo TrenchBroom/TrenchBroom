@@ -31,6 +31,14 @@ class wxGLContext;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
         class DocumentViewHolder;
         class EntityBrowser;
@@ -54,13 +62,15 @@ namespace TrenchBroom {
             wxWindow* createEntityBrowser(wxWindow* parent);
             
             void updateSmartEditor(int row);
+            void updateProperties();
+            void updateSmartEditor();
+            void updateEntityBrowser();
         public:
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~EntityInspector();
             
-            void updateProperties();
-            void updateSmartEditor();
-            void updateEntityBrowser();
+            void update(const Controller::Command& command);
+            void cameraChanged(const Renderer::Camera& camera);
 
             void OnPropertyGridSize(wxSizeEvent& event);
             void OnPropertyGridSelectCell(wxGridEvent& event);

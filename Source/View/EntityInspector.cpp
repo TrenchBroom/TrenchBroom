@@ -19,6 +19,7 @@
 
 #include "EntityInspector.h"
 
+#include "Controller/Command.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "View/CommandIds.h"
@@ -106,6 +107,19 @@ namespace TrenchBroom {
             m_smartPropertyEditorManager->selectEditor(key);
         }
 
+        void EntityInspector::updateProperties() {
+            m_propertyTable->update();
+            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
+        }
+        
+        void EntityInspector::updateSmartEditor() {
+            m_smartPropertyEditorManager->updateEditor();
+        }
+        
+        void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
+        }
+
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder),
@@ -131,17 +145,41 @@ namespace TrenchBroom {
             m_smartPropertyEditorManager = NULL;
         }
 
-        void EntityInspector::updateProperties() {
-            m_propertyTable->update();
-            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
+        void EntityInspector::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                case Controller::Command::SetMod:
+                case Controller::Command::SetEntityDefinitionFile:
+                    updateProperties();
+                    updateSmartEditor();
+                    updateEntityBrowser();
+                    break;
+                case Controller::Command::ChangeEditState:
+                case Controller::Command::AddTextureCollection:
+                case Controller::Command::RemoveTextureCollection:
+                case Controller::Command::MoveTextureCollectionUp:
+                case Controller::Command::MoveTextureCollectionDown:
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty:
+                case Controller::Command::MoveObjects:
+                case Controller::Command::RotateObjects:
+                case Controller::Command::FlipObjects:
+                case Controller::Command::ReparentBrushes:
+                    updateProperties();
+                    updateSmartEditor();
+                    break;
+                case Controller::Command::InvalidateEntityModelRendererCache:
+                    updateEntityBrowser();
+                    break;
+                default:
+                    break;
+            }
         }
-        
-        void EntityInspector::updateSmartEditor() {
-            m_smartPropertyEditorManager->updateEditor();
-        }
-        
-        void EntityInspector::updateEntityBrowser() {
-            m_entityBrowser->reload();
+
+        void EntityInspector::cameraChanged(const Renderer::Camera& camera) {
+            updateSmartEditor();
         }
 
         void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {

@@ -19,6 +19,7 @@
 
 #include "SplitEdgesCommand.h"
 
+#include "Controller/VertexHandleManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Face.h"
@@ -29,57 +30,79 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
             
-            m_vertices.clear();
+            m_handleManager.remove(m_brushes);
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
+            m_verticesAfter.clear();
 
-            BrushEdgeMap::const_iterator it, end;
-            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Model::EdgeInfo& edgeInfo = it->second;
-                Vec3f newVertexPosition = brush->splitEdge(edgeInfo, m_delta);
-                m_vertices.insert(newVertexPosition);
+            Model::BrushEdgesMap::const_iterator bIt, bEnd;
+            for (bIt = m_brushEdges.begin(), bEnd = m_brushEdges.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = bIt->first;
+                const Model::EdgeInfoList& edgeInfos = bIt->second;
+                Model::EdgeInfoList::const_iterator eIt, eEnd;
+                for (eIt = edgeInfos.begin(), eEnd = edgeInfos.end(); eIt != eEnd; ++eIt) {
+                    const Model::EdgeInfo& edgeInfo = *eIt;
+                    const Vec3f newVertexPosition = brush->splitEdge(edgeInfo, m_delta);
+                    m_verticesAfter.insert(newVertexPosition);
+                }
             }
 
             document().brushesDidChange(m_brushes);
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectVertexHandles(m_verticesAfter);
+
             return true;
         }
         
         bool SplitEdgesCommand::performUndo() {
+            m_handleManager.remove(m_brushes);
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
-            
-            m_vertices.clear();
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectEdgeHandles(m_edgesBefore);
+
             return true;
         }
 
-        SplitEdgesCommand::SplitEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::EdgeList& edges, const Vec3f& delta) :
+        SplitEdgesCommand::SplitEdgesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
+        m_handleManager(handleManager),
         m_delta(delta) {
-            Model::EdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                const Model::Edge& edge = **it;
-                Model::EdgeInfo edgeInfo = edge.info();
-                Model::Brush* brush = edge.left->face->brush();
-                
-                BrushEdgeMapInsertResult result = m_brushEdges.insert(BrushEdgeMapEntry(brush, edgeInfo));
-                assert(result.second);
-                m_brushes.push_back(brush);
+            const Model::VertexToEdgesMap& brushEdges = m_handleManager.selectedEdgeHandles();
+            Model::VertexToEdgesMap::const_iterator mapIt, mapEnd;
+            for (mapIt = brushEdges.begin(), mapEnd = brushEdges.end(); mapIt != mapEnd; ++mapIt) {
+                const Model::EdgeList& edges = mapIt->second;
+                Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                    Model::Edge* edge = *edgeIt;
+                    Model::Brush* brush = edge->left->face->brush();
+                    const Model::EdgeInfo edgeInfo = edge->info();
+                    
+                    Model::BrushEdgesMapInsertResult result = m_brushEdges.insert(Model::BrushEdgesMapEntry(brush, Model::EdgeInfoList()));
+                    if (result.second)
+                        m_brushes.push_back(brush);
+                    result.first->second.push_back(edgeInfo);
+                    m_edgesBefore.push_back(edgeInfo);
+                }
             }
         }
 
-        SplitEdgesCommand* SplitEdgesCommand::splitEdges(Model::MapDocument& document, const Model::EdgeList& edges, const Vec3f& delta) {
-            return new SplitEdgesCommand(document, edges.size() == 1 ? wxT("Split Edge") : wxT("Split Edges"), edges, delta);
+        SplitEdgesCommand* SplitEdgesCommand::splitEdges(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta) {
+            return new SplitEdgesCommand(document, handleManager.selectedEdgeHandles().size() == 1 ? wxT("Split Edge") : wxT("Split Edges"), handleManager, delta);
         }
 
         bool SplitEdgesCommand::canDo() const {
-            BrushEdgeMap::const_iterator it, end;
-            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
-                const Model::Brush* brush = it->first;
-                const Model::EdgeInfo& edgeInfo = it->second;
-                if (!brush->canSplitEdge(edgeInfo, m_delta))
-                    return false;
+            Model::BrushEdgesMap::const_iterator bIt, bEnd;
+            for (bIt = m_brushEdges.begin(), bEnd = m_brushEdges.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = bIt->first;
+                const Model::EdgeInfoList& edgeInfos = bIt->second;
+                Model::EdgeInfoList::const_iterator eIt, eEnd;
+                for (eIt = edgeInfos.begin(), eEnd = edgeInfos.end(); eIt != eEnd; ++eIt) {
+                    const Model::EdgeInfo& edgeInfo = *eIt;
+                    if (!brush->canSplitEdge(edgeInfo, m_delta))
+                        return false;
+                }
             }
             return true;
         }

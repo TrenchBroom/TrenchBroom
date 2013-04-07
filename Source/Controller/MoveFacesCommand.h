@@ -32,30 +32,26 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
+        class VertexHandleManager;
+        
         class MoveFacesCommand : public SnapshotCommand {
         protected:
+            VertexHandleManager& m_handleManager;
+            
             Model::BrushList m_brushes;
-            Model::FaceInfoList m_originalFaces;
-            Model::FaceInfoList m_faces;
             Model::BrushFacesMap m_brushFaces;
+            Model::FaceInfoList m_facesBefore;
+            Model::FaceInfoList m_facesAfter;
             Vec3f m_delta;
 
             bool performDo();
             bool performUndo();
 
-            MoveFacesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta);
+            MoveFacesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta);
         public:
-            static MoveFacesCommand* moveFaces(Model::MapDocument& document, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta);
+            static MoveFacesCommand* moveFaces(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta);
 
             bool canDo() const;
-
-            inline const Model::BrushList& brushes() const {
-                return m_brushes;
-            }
-
-            inline const Model::FaceInfoList& faces() const {
-                return m_faces;
-            }
         };
     }
 }

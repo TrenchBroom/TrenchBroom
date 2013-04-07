@@ -31,33 +31,26 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
+        class VertexHandleManager;
+        
         class SplitFacesCommand : public SnapshotCommand {
         protected:
-            typedef std::map<Model::Brush*, Model::FaceInfo> BrushFaceMap;
-            typedef std::pair<Model::Brush*, Model::FaceInfo> BrushFaceMapEntry;
-            typedef std::pair<BrushFaceMap::iterator, bool> BrushFaceMapInsertResult;
+            VertexHandleManager& m_handleManager;
             
             Model::BrushList m_brushes;
-            BrushFaceMap m_brushFaces;
-            Vec3f::Set m_vertices;
+            Model::BrushFacesMap m_brushFaces;
+            Model::FaceInfoList m_facesBefore;
+            Vec3f::Set m_verticesAfter;
             Vec3f m_delta;
             
             bool performDo();
             bool performUndo();
 
-            SplitFacesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Vec3f& delta);
+            SplitFacesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta);
         public:
-            static SplitFacesCommand* splitFaces(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta);
+            static SplitFacesCommand* splitFaces(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta);
             
             bool canDo() const;
-            
-            inline const Model::BrushList& brushes() const {
-                return m_brushes;
-            }
-            
-            inline const Vec3f::Set& vertices() const {
-                return m_vertices;
-            }
         };
     }
 }

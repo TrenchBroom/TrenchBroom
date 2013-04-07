@@ -21,6 +21,7 @@
 
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/Command.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -488,14 +489,21 @@ namespace TrenchBroom {
         void ClipTool::handleEndDrag(InputState& inputState) {
         }
         
-        void ClipTool::handleObjectsChange(InputState& inputState) {
-            if (active())
-                updateBrushes();
-        }
-        
-        void ClipTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            if (active())
-                updateBrushes();
+        void ClipTool::handleUpdate(const Command& command, InputState& inputState) {
+            if (active()) {
+                switch (command.type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap:
+                    case Controller::Command::MoveObjects:
+                    case Controller::Command::RotateObjects:
+                    case Controller::Command::FlipObjects:
+                    case Controller::Command::ResizeBrushes:
+                        updateBrushes();
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

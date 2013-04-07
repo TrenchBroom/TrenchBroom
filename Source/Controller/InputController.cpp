@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/AddObjectsCommand.h"
+#include "Controller/Command.h"
 #include "Controller/CreateEntityFromMenuHelper.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
@@ -387,40 +388,41 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-
-        void InputController::objectsChange() {
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-
+        
+        void InputController::update(const Command& command) {
+            switch (command.type()) {
+                case Controller::Command::ChangeEditState:
+                    if (m_documentViewHolder.document().editStateManager().selectedBrushes().empty())
+                        deactivateAll();
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty:
+                case Controller::Command::SnapVertices:
+                case Controller::Command::MoveObjects:
+                case Controller::Command::RotateObjects:
+                case Controller::Command::FlipObjects:
+                case Controller::Command::ResizeBrushes:
+                case Controller::Command::ReparentBrushes:
+                case Controller::Command::SetMod:
+                case Controller::Command::SetEntityDefinitionFile:
+                    delete m_selectionGuideRenderer;
+                    m_selectionGuideRenderer = NULL;
+                    break;
+                default:
+                    break;
+            }
+            
             updateHits();
-            m_toolChain->objectsChange(m_inputState);
+            m_toolChain->update(command, m_inputState);
             updateModalTool();
             updateViews();
         }
-
-        void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-
-            if (m_documentViewHolder.document().editStateManager().selectedBrushes().empty())
-                deactivateAll();
-
+        
+        void InputController::cameraChanged() {
             updateHits();
-            m_toolChain->editStateChange(m_inputState, changeSet);
-            updateModalTool();
-            updateViews();
-        }
-
-        void InputController::cameraChange() {
-            updateHits();
-            m_toolChain->cameraChange(m_inputState);
-            updateModalTool();
-            updateViews();
-        }
-
-        void InputController::gridChange() {
-            updateHits();
-            m_toolChain->gridChange(m_inputState);
+            m_toolChain->cameraChanged(m_inputState);
             updateModalTool();
             updateViews();
         }
