@@ -64,6 +64,11 @@
 			<div class="imagecaption">The color editor.</div>
 		</div>
 		<p>For color properties, TrenchBroom will display the smart color editor, shown in the screenshot above. You can use the sliders to adjust the RGB color values or you can click on the button below the sliders to bring up a color selection dialog. Next to the sliders, there is a list of all colors which are in use in the currently edited map. Click to select a color from the palette and to apply it to the currently selected entities.</p>
+
+		<a name="selection_isolation"></a><h3>Trenchbroom Entity Keys</h3>
+		<p>There are some entity keys that are Trenchbroom specific, these are the _def, _mod and _point_format keys and tell Trenchbroom which map specific settings to use.  These keys allow the settings to persist across saves.</p>
+		<p>The _def key tells Trenchbroom which entity defition to use, the _mod key tells Trenchbroom which mod this map uses  and controls things like what directories are searched for models and the _point_format key controls if Trenchbroom is using integer or float plane coordinates.</p>
+		<p>They cannot be modified by you through the smart editor interface.  Instead, use the <a href="getting_started.html#entity_definition_files">Map Properties</a> dialog window.</p>
 	</div>
 	<script src="scripts/jquery.js"></script>
 	<script src="scripts/misc.js"></script>
