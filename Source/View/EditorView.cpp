@@ -535,8 +535,6 @@ namespace TrenchBroom {
             if (hint != NULL) {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
-                    case Controller::Command::ChangeGrid:
-                        break;
                     case Controller::Command::LoadMap: {
                         m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
                         m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
@@ -677,6 +675,8 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
+                inputController().update(*command);
+                inspector().update(*command);
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
