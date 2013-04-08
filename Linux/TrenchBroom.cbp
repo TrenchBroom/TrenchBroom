@@ -314,10 +314,10 @@
 		<Unit filename="../Source/Renderer/Camera.h" />
 		<Unit filename="../Source/Renderer/CircleFigure.cpp" />
 		<Unit filename="../Source/Renderer/CircleFigure.h" />
+		<Unit filename="../Source/Renderer/CompassRenderer.cpp" />
+		<Unit filename="../Source/Renderer/CompassRenderer.h" />
 		<Unit filename="../Source/Renderer/EdgeRenderer.cpp" />
 		<Unit filename="../Source/Renderer/EdgeRenderer.h" />
-		<Unit filename="../Source/Renderer/EntityClassnameAnchor.h" />
-		<Unit filename="../Source/Renderer/EntityClassnameFilter.h" />
 		<Unit filename="../Source/Renderer/EntityDecorator.h" />
 		<Unit filename="../Source/Renderer/EntityFigure.cpp" />
 		<Unit filename="../Source/Renderer/EntityFigure.h" />
@@ -343,6 +343,8 @@
 		<Unit filename="../Source/Renderer/MovementIndicator.h" />
 		<Unit filename="../Source/Renderer/OffscreenRenderer.cpp" />
 		<Unit filename="../Source/Renderer/OffscreenRenderer.h" />
+		<Unit filename="../Source/Renderer/OverlayRenderer.cpp" />
+		<Unit filename="../Source/Renderer/OverlayRenderer.h" />
 		<Unit filename="../Source/Renderer/Palette.cpp" />
 		<Unit filename="../Source/Renderer/Palette.h" />
 		<Unit filename="../Source/Renderer/PointGuideRenderer.cpp" />
@@ -351,8 +353,8 @@
 		<Unit filename="../Source/Renderer/PointHandleHighlightFigure.h" />
 		<Unit filename="../Source/Renderer/PointHandleRenderer.cpp" />
 		<Unit filename="../Source/Renderer/PointHandleRenderer.h" />
-		<Unit filename="../Source/Renderer/PointTraceFigure.cpp" />
-		<Unit filename="../Source/Renderer/PointTraceFigure.h" />
+		<Unit filename="../Source/Renderer/PointTraceRenderer.cpp" />
+		<Unit filename="../Source/Renderer/PointTraceRenderer.h" />
 		<Unit filename="../Source/Renderer/RenderContext.h" />
 		<Unit filename="../Source/Renderer/RenderUtils.h" />
 		<Unit filename="../Source/Renderer/RingFigure.cpp" />
@@ -507,6 +509,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
