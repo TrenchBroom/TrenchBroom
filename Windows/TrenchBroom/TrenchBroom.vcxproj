@@ -306,6 +306,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\BspModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
     <ClCompile Include="..\..\Source\Renderer\CircleFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\CompassRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRenderer.cpp" />
@@ -317,11 +318,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\OverlayRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointGuideRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\PointTraceRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RingFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp" />
@@ -487,6 +489,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\BspModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Camera.h" />
     <ClInclude Include="..\..\Source\Renderer\CircleFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\CompassRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EdgeRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
@@ -504,11 +507,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h" />
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\OverlayRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />
     <ClInclude Include="..\..\Source\Renderer\PointGuideRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
-    <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\PointTraceRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h" />
