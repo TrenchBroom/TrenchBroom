@@ -149,8 +149,6 @@ namespace TrenchBroom {
             m_createBrushTool->activate(m_inputState);
             m_moveObjectsTool->activate(m_inputState);
             m_resizeBrushesTool->activate(m_inputState);
-
-            m_documentViewHolder.view().renderer().addFigure(new InputControllerFigure(*this));
         }
 
         InputController::~InputController() {
@@ -685,17 +683,6 @@ namespace TrenchBroom {
 
             document.GetCommandProcessor()->Submit(select);
             CommandProcessor::EndGroup(document.GetCommandProcessor());
-        }
-
-        InputControllerFigure::InputControllerFigure(InputController& inputController) :
-        m_inputController(inputController) {}
-
-        InputControllerFigure::~InputControllerFigure() {
-            m_inputController.freeRenderResources();
-        }
-
-        void InputControllerFigure::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
-            m_inputController.render(vbo, context);
         }
     }
 }

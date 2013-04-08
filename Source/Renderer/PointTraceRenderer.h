@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointTraceFigure__
-#define __TrenchBroom__PointTraceFigure__
+#ifndef __TrenchBroom__PointTraceRenderer__
+#define __TrenchBroom__PointTraceRenderer__
 
 #include "Renderer/Figure.h"
 #include "Utility/Color.h"
@@ -32,14 +32,14 @@ namespace TrenchBroom {
         class Vbo;
         class VertexArray;
         
-        class PointTraceFigure : public Figure {
+        class PointTraceRenderer {
         private:
             Vec3f::List m_points;
             Color m_color;
             VertexArray* m_vertexArray;
         public:
-            PointTraceFigure(const Vec3f::List& points);
-            ~PointTraceFigure();
+            PointTraceRenderer(const Vec3f::List& points);
+            ~PointTraceRenderer();
 
             inline void setColor(const Color& color) {
                 m_color = color;
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PointTraceFigure__) */
+#endif /* defined(__TrenchBroom__PointTraceRenderer__) */

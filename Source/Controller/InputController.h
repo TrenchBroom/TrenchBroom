@@ -152,17 +152,6 @@ namespace TrenchBroom {
                 return m_inputState;
             }
         };
-
-        class InputControllerFigure : public Renderer::Figure {
-        private:
-            InputController& m_inputController;
-        public:
-            InputControllerFigure(InputController& inputController);
-            ~InputControllerFigure();
-
-            void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
-        };
-
     }
 }
 

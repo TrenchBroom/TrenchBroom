@@ -89,7 +89,7 @@
 		486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFABE16B31B780097657D /* ColorEditor.cpp */; };
 		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
 		486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC516B3D9540097657D /* AngleEditor.cpp */; };
-		486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC816B3DE570097657D /* PointTraceFigure.cpp */; };
+		486AFACA16B3DE570097657D /* PointTraceRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */; };
 		486AFACC16B555940097657D /* Mat3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFACB16B555940097657D /* Mat3f.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
@@ -424,8 +424,8 @@
 		486AFAC316B33ABE0097657D /* PointFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointFile.h; sourceTree = "<group>"; };
 		486AFAC516B3D9540097657D /* AngleEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AngleEditor.cpp; sourceTree = "<group>"; };
 		486AFAC616B3D9540097657D /* AngleEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleEditor.h; sourceTree = "<group>"; };
-		486AFAC816B3DE570097657D /* PointTraceFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointTraceFigure.cpp; sourceTree = "<group>"; };
-		486AFAC916B3DE570097657D /* PointTraceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceFigure.h; sourceTree = "<group>"; };
+		486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointTraceRenderer.cpp; sourceTree = "<group>"; };
+		486AFAC916B3DE570097657D /* PointTraceRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceRenderer.h; sourceTree = "<group>"; };
 		486AFACB16B555940097657D /* Mat3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3f.cpp; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -774,6 +774,8 @@
 				48B059C61617866100E6B0AD /* Palette.h */,
 				48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */,
 				48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */,
+				486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */,
+				486AFAC916B3DE570097657D /* PointTraceRenderer.h */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
 				48B059CC161799FC00E6B0AD /* SharedResources.cpp */,
@@ -1301,8 +1303,6 @@
 				48FBD13C16258DE70059953D /* Figure.h */,
 				482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */,
 				482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */,
-				486AFAC816B3DE570097657D /* PointTraceFigure.cpp */,
-				486AFAC916B3DE570097657D /* PointTraceFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1583,7 +1583,7 @@
 				486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */,
 				486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */,
 				486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */,
-				486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */,
+				486AFACA16B3DE570097657D /* PointTraceRenderer.cpp in Sources */,
 				486AFACC16B555940097657D /* Mat3f.cpp in Sources */,
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
 				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,

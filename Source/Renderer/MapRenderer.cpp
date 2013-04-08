@@ -33,7 +33,7 @@
 #include "Renderer/EntityRotationDecorator.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
-#include "Renderer/PointTraceFigure.h"
+#include "Renderer/PointTraceRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -205,15 +205,6 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
-        void MapRenderer::deleteFigures(Figure::List& figures) {
-            Figure::List::const_iterator it, end;
-            for (it = figures.begin(), end = figures.end(); it != end; ++it) {
-                Figure* figure = *it;
-                delete figure;
-            }
-            figures.clear();
-        }
-
         void MapRenderer::validate(RenderContext& context) {
             if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
@@ -272,19 +263,11 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MapRenderer::renderFigures(RenderContext& context) {
-            Figure::List::const_iterator it, end;
-            for (it = m_figures.begin(), end = m_figures.end(); it != end; ++it) {
-                Figure* figure = *it;
-                figure->render(*m_figureVbo, context);
-            }
-        }
-
         void MapRenderer::renderDecorators(RenderContext& context) {
             EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
             for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
                 EntityDecorator& decorator = **decoratorIt;
-                decorator.render(*m_decoratorVbo, context);
+                decorator.render(*m_utilityVbo, context);
             }
         }
 
@@ -302,9 +285,8 @@ namespace TrenchBroom {
         m_entityRenderer(NULL),
         m_selectedEntityRenderer(NULL),
         m_lockedEntityRenderer(NULL),
-        m_figureVbo(NULL),
-        m_decoratorVbo(NULL),
-        m_pointTraceFigure(NULL),
+        m_utilityVbo(NULL),
+        m_pointTraceRenderer(NULL),
         m_overrideSelectionColors(false),
         m_rendering(false),
         m_geometryDataValid(false),
@@ -315,8 +297,7 @@ namespace TrenchBroom {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_decoratorVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_utilityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
             m_entityRenderer = new EntityRenderer(*m_entityVbo, m_document);
             m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
@@ -342,14 +323,7 @@ namespace TrenchBroom {
         
         MapRenderer::~MapRenderer() {
             Utility::deleteAll(m_entityDecorators);
-            delete m_decoratorVbo;
-            m_decoratorVbo = NULL;
-
             removePointTrace();
-            deleteFigures(m_deletedFigures);
-            deleteFigures(m_figures);
-            delete m_figureVbo;
-            m_figureVbo = NULL;
             
             delete m_lockedEntityRenderer;
             m_lockedEntityRenderer = NULL;
@@ -375,6 +349,8 @@ namespace TrenchBroom {
             m_faceRenderer = NULL;
             delete m_faceVbo;
             m_faceVbo = NULL;
+            delete m_utilityVbo;
+            m_utilityVbo = NULL;
         }
 
         void MapRenderer::addEntity(Model::Entity& entity) {
@@ -532,40 +508,21 @@ namespace TrenchBroom {
             m_selectedEntityRenderer->invalidateModels();
         }
 
-        void MapRenderer::addFigure(Figure* figure) {
-            m_figures.push_back(figure);
-        }
-        
-        void MapRenderer::removeFigure(Figure* figure) {
-            m_figures.erase(std::remove(m_figures.begin(), m_figures.end(), figure), m_figures.end());
-        }
-        
-        void MapRenderer::deleteFigure(Figure* figure) {
-            removeFigure(figure);
-            m_deletedFigures.push_back(figure);
-        }
-
         void MapRenderer::setPointTrace(const Vec3f::List& points) {
             removePointTrace();
-            m_pointTraceFigure = new PointTraceFigure(points);
-            m_pointTraceFigure->setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
-            addFigure(m_pointTraceFigure);
+            m_pointTraceRenderer = new PointTraceRenderer(points);
+            m_pointTraceRenderer->setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
         }
         
         void MapRenderer::removePointTrace() {
-            if (m_pointTraceFigure != NULL) {
-                deleteFigure(m_pointTraceFigure);
-                m_pointTraceFigure = NULL;
-            }
+            delete m_pointTraceRenderer;
+            m_pointTraceRenderer = NULL;
         }
 
         void MapRenderer::render(RenderContext& context) {
             if (m_rendering)
                 return;
             m_rendering = true;
-            
-            if (!m_deletedFigures.empty())
-                deleteFigures(m_deletedFigures);
             
             validate(context);
             
@@ -592,7 +549,8 @@ namespace TrenchBroom {
                 renderDecorators(context);
             }
             
-            renderFigures(context);
+            if (m_pointTraceRenderer != NULL)
+                m_pointTraceRenderer->render(*m_utilityVbo, context);
             
             m_rendering = false;
         }

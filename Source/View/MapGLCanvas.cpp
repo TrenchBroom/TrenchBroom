@@ -28,6 +28,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
@@ -131,6 +132,7 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().sharedResources().attribs()),
         m_documentViewHolder(documentViewHolder),
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
+        m_vbo(NULL),
         m_inputController(new Controller::InputController(documentViewHolder)),
         m_hasFocus(false),
         m_ignoreNextClick(false) {
@@ -138,14 +140,11 @@ namespace TrenchBroom {
         }
 
         MapGLCanvas::~MapGLCanvas() {
-            if (m_inputController != NULL) {
-                delete m_inputController;
-                m_inputController = NULL;
-            }
-            if (m_glContext != NULL) {
-                wxDELETE(m_glContext);
-                m_glContext = NULL;
-            }
+            delete m_inputController;
+            m_inputController = NULL;
+            delete m_vbo;
+            m_vbo = NULL;
+            wxDELETE(m_glContext);
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
@@ -171,12 +170,20 @@ namespace TrenchBroom {
 
 				view.camera().update(0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
 
+                // render the scene
                 Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
                 Utility::Grid& grid = m_documentViewHolder.document().grid();
 				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), view.console());
 				view.renderer().render(renderContext);
 
-                // draw focus rectangle
+                // render input controller
+                if (m_vbo == NULL)
+                    m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+                m_inputController->render(*m_vbo, renderContext);
+                
+                // render overlays
+                
+                // render focus rectangle
                 if (FindFocus() == this) {
                     Mat4f ortho = Mat4f::Identity;
                     ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
@@ -229,9 +236,6 @@ namespace TrenchBroom {
                     glVertex2f(w - t, h - t);
                     glVertex2f(w - t, t);
                     glEnd();
-
-					glEnable(GL_CULL_FACE);
-					glEnable(GL_DEPTH_TEST);
                 }
 
 				SwapBuffers();

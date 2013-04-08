@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PointTraceFigure.h"
+#include "PointTraceRenderer.h"
 
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -27,16 +27,16 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        PointTraceFigure::PointTraceFigure(const Vec3f::List& points) :
+        PointTraceRenderer::PointTraceRenderer(const Vec3f::List& points) :
         m_points(points),
         m_vertexArray(NULL) {}
         
-        PointTraceFigure::~PointTraceFigure() {
+        PointTraceRenderer::~PointTraceRenderer() {
             delete m_vertexArray;
             m_vertexArray = NULL;
         }
         
-        void PointTraceFigure::render(Vbo& vbo, RenderContext& context) {
+        void PointTraceRenderer::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             if (m_vertexArray == NULL) {
                 m_vertexArray = new VertexArray(vbo, GL_LINE_STRIP, static_cast<unsigned int>(m_points.size()), Attribute::position3f(), 0);
