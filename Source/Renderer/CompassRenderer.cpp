@@ -38,8 +38,8 @@ namespace TrenchBroom {
     namespace Renderer {
         const float CompassRenderer::m_shaftLength = 28.0f;
         const float CompassRenderer::m_shaftRadius = 1.5f;
-        const float CompassRenderer::m_headLength = 8.0f;
-        const float CompassRenderer::m_headRadius = 4.0f;
+        const float CompassRenderer::m_headLength = 7.0f;
+        const float CompassRenderer::m_headRadius = 4.5f;
 
         CompassRenderer::CompassRenderer() :
         m_fans(NULL),
@@ -120,9 +120,11 @@ namespace TrenchBroom {
             ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
             compassShader.currentShader().setUniformVariable("LightDirection", Vec3f(0.0f, 0.0f, 1.0f).normalized());
             compassShader.currentShader().setUniformVariable("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            compassShader.currentShader().setUniformVariable("GlobalAmbient", Color(1.0f, 1.0f, 1.0f, 1.0f));
             
             // render Z axis
             compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 0.0f, 1.0f, 1.0f));
+            compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.0f, 0.2f, 1.0f));
             m_strip->render();
             m_set->render();
             m_fans->render();
@@ -130,6 +132,7 @@ namespace TrenchBroom {
             { // render X axis
                 ApplyModelMatrix xRotation(context.transformation(), Mat4f::Rot90YCCW);
                 compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(1.0f, 0.0f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.2f, 0.0f, 0.0f, 1.0f));
                 m_strip->render();
                 m_set->render();
                 m_fans->render();
@@ -138,6 +141,7 @@ namespace TrenchBroom {
             { // render Y axis
                 ApplyModelMatrix yRotation(context.transformation(), Mat4f::Rot90XCW);
                 compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 1.0f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.2f, 0.0f, 1.0f));
                 m_strip->render();
                 m_set->render();
                 m_fans->render();
