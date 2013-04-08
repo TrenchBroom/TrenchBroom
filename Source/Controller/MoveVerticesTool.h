@@ -78,6 +78,7 @@ namespace TrenchBroom {
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);
 
+            bool handleNavigateUp(InputState& inputState);
             void handleUpdate(const Command& command, InputState& inputState);
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);

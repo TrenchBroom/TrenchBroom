@@ -113,6 +113,7 @@ namespace TrenchBroom {
             bool drop(const String& payload, int x, int y);
             void dragLeave();
             
+            bool navigateUp();
             void update(const Command& command);
             void cameraChanged();
 

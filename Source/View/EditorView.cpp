@@ -168,6 +168,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditMoveVerticesDown, EditorView::OnEditMoveVerticesDown)
 
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
+        EVT_MENU(CommandIds::Menu::EditNavigateUp, EditorView::OnEditNavigateUp)
         EVT_MENU(CommandIds::Menu::EditShowMapProperties, EditorView::OnEditShowMapProperties)
 
         EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
@@ -1477,6 +1478,16 @@ namespace TrenchBroom {
             mapDocument().setTextureLock(!mapDocument().textureLock());
         }
 
+        void EditorView::OnEditNavigateUp(wxCommandEvent& event) {
+            if (!inputController().navigateUp()) {
+                wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+                submit(command);
+            } else {
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                frame->updateNavBar();
+            }
+        }
+
         void EditorView::OnEditShowMapProperties(wxCommandEvent& event) {
             MapPropertiesDialog dialog(GetFrame(), mapDocument());
 
@@ -1907,6 +1918,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Check(mapDocument().textureLock());
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditNavigateUp:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case CommandIds::Menu::EditShowMapProperties:
                     event.Enable(true);

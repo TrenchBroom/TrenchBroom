@@ -489,6 +489,21 @@ namespace TrenchBroom {
         void ClipTool::handleEndDrag(InputState& inputState) {
         }
         
+        bool ClipTool::handleNavigateUp(InputState& inputState) {
+            assert(active());
+            if (m_numPoints > 0) {
+                m_numPoints = 0;
+                updateBrushes();
+                
+                Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+                submitCommand(command, false);
+                
+                return true;
+            }
+            
+            return false;
+        }
+
         void ClipTool::handleUpdate(const Command& command, InputState& inputState) {
             if (active()) {
                 switch (command.type()) {

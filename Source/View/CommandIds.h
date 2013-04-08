@@ -118,7 +118,8 @@ namespace TrenchBroom {
                 static const int EditDuplicateObjectsLeft           = Lowest + 92;
                 static const int EditDuplicateObjectsUp             = Lowest + 93;
                 static const int EditDuplicateObjectsDown           = Lowest + 94;
-                static const int Highest                            = Lowest + 95;
+                static const int EditNavigateUp                     = Lowest + 95;
+                static const int Highest                            = Lowest + 99;
             }
             
             namespace CreateEntityPopupMenu {

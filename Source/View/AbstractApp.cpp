@@ -140,6 +140,8 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     appendItem(editMenu, EditLockSelected, mapViewFocused);
     appendItem(editMenu, EditLockUnselected, mapViewFocused);
     appendItem(editMenu, EditUnlockAll, mapViewFocused);
+    editMenu->AppendSeparator();
+    appendItem(editMenu, EditNavigateUp, mapViewFocused);
     
     appendCheckItem(toolsMenu, EditToolsToggleClipTool, mapViewFocused);
     appendItem(toolsMenu, EditToolsToggleClipSide, mapViewFocused);

@@ -127,6 +127,7 @@ namespace TrenchBroom {
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
 
+            bool handleNavigateUp(InputState& inputState);
             void handleUpdate(const Command& command, InputState& inputState);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);

@@ -323,6 +323,7 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(EditLockUnselected));
             newEntries.push_back(Entry(EditUnlockAll));
             newEntries.push_back(Entry(EditToggleTextureLock));
+            newEntries.push_back(Entry(EditNavigateUp));
             newEntries.push_back(Entry(EditShowMapProperties));
             
             newEntries.push_back(Entry(EditToolsToggleClipTool));

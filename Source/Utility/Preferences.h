@@ -364,6 +364,7 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   EditLockUnselected;
         extern const Preference<KeyboardShortcut>   EditUnlockAll;
         extern const Preference<KeyboardShortcut>   EditToggleTextureLock;
+        extern const Preference<KeyboardShortcut>   EditNavigateUp;
         extern const Preference<KeyboardShortcut>   EditShowMapProperties;
         
         // Edit > Tools menu

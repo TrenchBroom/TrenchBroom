@@ -389,6 +389,18 @@ namespace TrenchBroom {
             updateViews();
         }
         
+        bool InputController::navigateUp() {
+            updateHits();
+            bool done = m_toolChain->navigateUp(m_inputState);
+            if (!done && (clipToolActive() || moveVerticesToolActive() || rotateObjectsToolActive())) {
+                done = true;
+                deactivateAll();
+            }
+            updateModalTool();
+            updateViews();
+            return done;
+        }
+
         void InputController::update(const Command& command) {
             switch (command.type()) {
                 case Controller::Command::ChangeEditState:

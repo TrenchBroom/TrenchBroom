@@ -205,6 +205,7 @@ namespace TrenchBroom {
             virtual void handleDragLeave(InputState& inputState, const String& payload) {}
             virtual bool handleDragDrop(InputState& inputState, const String& payload) { return false; }
             
+            virtual bool handleNavigateUp(InputState& inputState) { return false; }
             virtual void handleUpdate(const Command& command, InputState& inputState) {}
             virtual void handleCameraChanged(InputState& inputState) {}
         public:
@@ -415,6 +416,13 @@ namespace TrenchBroom {
                 m_dragPayload = "";
                 m_dragType = DTNone;
                 return success;
+            }
+            
+            bool navigateUp(InputState& inputState) {
+                bool result = !active() ? false : handleNavigateUp(inputState);
+                if (!result && nextTool() != NULL)
+                    result = nextTool()->navigateUp(inputState);
+                return result;
             }
             
             void update(const Command& command, InputState& inputState) {

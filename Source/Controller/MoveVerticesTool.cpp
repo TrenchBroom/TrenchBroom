@@ -442,6 +442,16 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MoveVerticesTool::handleNavigateUp(InputState& inputState) {
+            assert(active());
+            if (hasSelection()) {
+                m_mode = VMMove;
+                m_handleManager.deselectAll();
+                return true;
+            }
+            return false;
+        }
+
         void MoveVerticesTool::handleUpdate(const Command& command, InputState& inputState) {
             if (active()) {
                 switch (command.type()) {
