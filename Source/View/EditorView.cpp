@@ -629,6 +629,8 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
+                inputController().update(*command);
+                inspector().update(*command);
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
