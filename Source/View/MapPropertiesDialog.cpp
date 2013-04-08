@@ -220,20 +220,6 @@ namespace TrenchBroom {
             modBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             modBox->SetSizerAndFit(modBoxSizer);
 
-            wxStaticBox* coordBox = new wxStaticBox(this, wxID_ANY, wxT("Plane Point Coordinates"));
-            wxStaticText* coordText = new wxStaticText(coordBox, wxID_ANY, wxT("By default, TrenchBroom stores plane point coordinates as floating point values internally and in the map file. Checking this option will force it to use integer coordinates. This improves compatibility with older compilers, but it will lead to less precision when editing vertices."));
-#if defined __APPLE__
-            coordText->SetFont(*wxSMALL_FONT);
-#endif
-            coordText->Wrap(width);
-            m_intFacePointsCheckBox = new wxCheckBox(coordBox, CommandIds::MapPropertiesDialog::ForceIntCoordsId, wxT("Force integer plane points"));
-            
-            wxSizer* coordBoxSizer = new wxBoxSizer(wxVERTICAL);
-            coordBoxSizer->Add(coordText, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, LayoutConstants::StaticBoxInnerMargin);
-            coordBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            coordBoxSizer->Add(m_intFacePointsCheckBox, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
-            coordBox->SetSizerAndFit(coordBoxSizer);
-            
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             
@@ -278,6 +264,20 @@ namespace TrenchBroom {
             wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxInnerMargin);
             wadBox->SetSizerAndFit(wadBoxSizer);
             
+            wxStaticBox* coordBox = new wxStaticBox(this, wxID_ANY, wxT("Plane Point Coordinates"));
+            wxStaticText* coordText = new wxStaticText(coordBox, wxID_ANY, wxT("By default, TrenchBroom stores plane point coordinates as floating point values internally and in the map file. Checking this option will force it to use integer coordinates. This improves compatibility with older compilers, but it will lead to less precision when editing vertices."));
+#if defined __APPLE__
+            coordText->SetFont(*wxSMALL_FONT);
+#endif
+            coordText->Wrap(width);
+            m_intFacePointsCheckBox = new wxCheckBox(coordBox, CommandIds::MapPropertiesDialog::ForceIntCoordsId, wxT("Force integer plane points"));
+            
+            wxSizer* coordBoxSizer = new wxBoxSizer(wxVERTICAL);
+            coordBoxSizer->Add(coordText, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, LayoutConstants::StaticBoxInnerMargin);
+            coordBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            coordBoxSizer->Add(m_intFacePointsCheckBox, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            coordBox->SetSizerAndFit(coordBoxSizer);
+            
             wxSizer* buttonSizer = CreateButtonSizer(wxCLOSE);
             SetAffirmativeId(wxCLOSE);
             SetEscapeId(wxCLOSE);
@@ -285,9 +285,9 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(modBox, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(coordBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(wadBox, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(coordBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
             
             SetSizerAndFit(outerSizer);
