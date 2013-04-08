@@ -435,9 +435,6 @@
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp">
       <Filter>Source Files\View\PropertyEditor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Model\PointFile.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
@@ -521,6 +518,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\View\NavBar.cpp">
       <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\CompassRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\OverlayRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointTraceRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1085,9 +1091,6 @@
     <ClInclude Include="..\..\Source\View\AngleEditor.h">
       <Filter>Header Files\View\PropertyEditor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Model\PointFile.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
@@ -1192,6 +1195,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\NavBar.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\CompassRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\OverlayRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointTraceRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
