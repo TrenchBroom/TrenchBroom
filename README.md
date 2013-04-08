@@ -38,6 +38,7 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 ## Changes
 ### TrenchBroom 1.0.7
 - Emergency bugfix
+
 ### TrenchBroom 1.0.6
 - New text rendering system (faster and fewer glitches)
 - Brush drawing now more accurate (see docs)
@@ -53,6 +54,7 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - Keep more autosaves and save only every 10 minutes
 - Don't show rotation decorators for invisible entities
 - Documentation updates and fixes
+
 ### TrenchBroom 1.0.5
 - Fixed a crash when undoing edge and face move operations.
 - Improved map loading speed.
