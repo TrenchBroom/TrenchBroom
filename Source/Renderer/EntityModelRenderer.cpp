@@ -39,7 +39,7 @@ namespace TrenchBroom {
             matrix.translate(position);
             matrix.rotate(rotation);
 
-            ApplyMatrix applyMatrux(transformation, matrix);
+            ApplyModelMatrix applyMatrix(transformation, matrix);
             render(shaderProgram);
         }
     }

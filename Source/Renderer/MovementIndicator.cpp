@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         void MovementIndicator::renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const {
-            ApplyMatrix applyMatrix(context.transformation(), matrix);
+            ApplyModelMatrix applyMatrix(context.transformation(), matrix);
             shader.setUniformVariable("Color", m_outlineColor);
             m_outline->render();
             shader.setUniformVariable("Color", m_fillColor);
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             if (m_direction != Horizontal)
                 matrix *= context.camera().billboardMatrix(true);
             
-            ApplyMatrix applyMatrix(context.transformation(), matrix);
+            ApplyModelMatrix applyMatrix(context.transformation(), matrix);
             shader.currentShader().setUniformVariable("Color", m_fillColor);
             m_triangles->render();
             shader.currentShader().setUniformVariable("Color", m_outlineColor);

@@ -53,6 +53,18 @@ namespace TrenchBroom {
                                                  1.0f,  0.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  1.0f,  0.0f,
                                                  0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot180X      = Mat4f( 1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f, -1.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f, -1.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot180Y      = Mat4f(-1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f,  1.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f, -1.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot180Z      = Mat4f(-1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f, -1.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f,  1.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
         const Mat4f Mat4f::MirX         = Mat4f(-1.0f,  0.0f,  0.0f,  0.0f,
                                                  0.0f,  1.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  1.0f,  0.0f,

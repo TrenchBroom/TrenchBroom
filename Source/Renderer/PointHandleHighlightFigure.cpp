@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 matrix.translate(position);
                 matrix *= billboardMatrix;
                 matrix.scale(Vec3f(factor, factor, 0.0f));
-                ApplyMatrix applyBillboard(context.transformation(), matrix);
+                ApplyModelMatrix applyBillboard(context.transformation(), matrix);
 
                 circle.render(vbo, context);
             }

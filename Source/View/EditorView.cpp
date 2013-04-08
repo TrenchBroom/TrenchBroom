@@ -384,6 +384,92 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
+        Vec3f EditorView::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            
+            float minDist = std::numeric_limits<float>::max();
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+                        
+                        const Vec3f toPosition = vertex - m_camera->position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+                    
+                    const Vec3f toPosition = vertex.position - m_camera->position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                }
+            }
+            
+            if (minDist < 0.0f) { // move camera so that all vertices are in front of it
+                Controller::CameraMoveEvent moveBack;
+                moveBack.setForward(minDist - 10.0f);
+                moveBack.SetEventObject(this);
+                ProcessEvent(moveBack);
+            }
+            
+            // now look at the center
+            const BBox bounds = Model::MapObject::bounds(entities, brushes);
+            const Vec3f center = bounds.center();
+            
+            // act as if the camera were there already:
+            const Vec3f oldPosition = camera().position();
+            camera().moveTo(center);
+            
+            float offset = std::numeric_limits<float>::max();
+            
+            Plane frustumPlanes[4];
+            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+                        
+                        for (size_t j = 0; j < 4; j++) {
+                            const Plane& plane = frustumPlanes[j];
+                            float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                            offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                        }
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+                    
+                    for (size_t i = 0; i < 4; i++) {
+                        const Plane& plane = frustumPlanes[i];
+                        float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                        offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                    }
+                }
+            }
+            
+            // jump back
+            camera().moveTo(oldPosition);
+            
+            return center + camera().direction() * offset;
+        }
+
         EditorView::EditorView() :
         wxView(),
         m_animationManager(new AnimationManager()),
@@ -537,9 +623,19 @@ namespace TrenchBroom {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
                     case Controller::Command::LoadMap: {
-                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
-                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
+                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+                        Model::Entity* worldspawn = mapDocument().worldspawn(false);
 
+                        if (worldspawn != NULL && !worldspawn->brushes().empty()) {
+                            const Vec3f newPosition = centerCameraOnObjectsPosition(Model::EmptyEntityList, worldspawn->brushes());
+                            m_camera->moveTo(newPosition);
+                        } else {
+                            m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+                        }
+
+                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+                        m_camera->setDirection(Vec3f::NegZ, Vec3f::PosY);
+                        
                         m_renderer->loadMap();
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
@@ -1647,93 +1743,9 @@ namespace TrenchBroom {
         void EditorView::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             assert(editStateManager.hasSelectedObjects());
-
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            Model::BrushList::const_iterator brushIt, brushEnd;
-
-            float minDist = std::numeric_limits<float>::max();
-
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                if (entity.brushes().empty()) {
-                    for (unsigned int i = 0; i < 8; i++) {
-                        const Vec3f vertex = entity.bounds().vertex(i);
-
-                        const Vec3f toPosition = vertex - m_camera->position();
-                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
-                    }
-                }
-            }
-
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                const Model::VertexList& vertices = brush.vertices();
-                Model::VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                    const Model::Vertex& vertex = **vertexIt;
-
-                    const Vec3f toPosition = vertex.position - m_camera->position();
-                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
-                }
-            }
-
-            if (minDist < 0.0f) { // move camera so that all vertices are in front of it
-                Controller::CameraMoveEvent moveBack;
-                moveBack.setForward(minDist - 10.0f);
-                moveBack.SetEventObject(this);
-                ProcessEvent(moveBack);
-            }
-
-            // now look at the center
-            const BBox bounds = Model::MapObject::bounds(entities, brushes);
-            const Vec3f center = bounds.center();
-
-            // act as if the camera were there already:
-            const Vec3f oldPosition = camera().position();
-            camera().moveTo(center);
             
-            float offset = std::numeric_limits<float>::max();
-
-            Plane frustumPlanes[4];
-            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
-
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                if (entity.brushes().empty()) {
-                    for (unsigned int i = 0; i < 8; i++) {
-                        const Vec3f vertex = entity.bounds().vertex(i);
-
-                        for (size_t j = 0; j < 4; j++) {
-                            const Plane& plane = frustumPlanes[j];
-                            float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
-                            offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
-                        }
-                    }
-                }
-            }
-
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                const Model::VertexList& vertices = brush.vertices();
-                Model::VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                    const Model::Vertex& vertex = **vertexIt;
-
-                    for (size_t i = 0; i < 4; i++) {
-                        const Plane& plane = frustumPlanes[i];
-                        float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
-                        offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
-                    }
-                }
-            }
-
-            // jump back
-            camera().moveTo(oldPosition);
+            const Vec3f newPosition = centerCameraOnObjectsPosition(editStateManager.selectedEntities(), editStateManager.selectedBrushes());
             
-            const Vec3f newPosition = center + camera().direction() * offset;
             CameraAnimation* animation = new CameraAnimation(*this, newPosition, camera().direction(), camera().up(), 150);
             m_animationManager->runAnimation(animation, true);
         }

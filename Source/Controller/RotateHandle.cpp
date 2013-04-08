@@ -93,7 +93,7 @@ namespace TrenchBroom {
             Mat4f rotation;
             if (hit->hitArea() == Model::RotateHandleHit::HAXAxis) {
                 rotation.rotateCCW(angle, Vec3f::PosX);
-                Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
+                Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
                 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateHandleHit::HAYAxis) {
                 rotation.rotateCCW(angle, Vec3f::PosY);
-                Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
+                Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
                 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
                 rotation.rotateCCW(angle, Vec3f::PosZ);
-                Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
+                Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
                 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             Mat4f translation;
             translation.translate(position());
             translation.scale(factor);
-            Renderer::ApplyMatrix applyTranslation(renderContext.transformation(), translation);
+            Renderer::ApplyModelMatrix applyTranslation(renderContext.transformation(), translation);
             
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);

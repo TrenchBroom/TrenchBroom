@@ -318,7 +318,7 @@ namespace TrenchBroom {
                     Mat4f view;
                     view.setView(Vec3f::NegZ, Vec3f::PosY);
 
-                    ApplyMatrix orthoMatrix(context.transformation(), projection * view, true);
+                    ApplyTransformation ortho(context.transformation(), projection, view);
 
                     SetVboState activateVbo(*m_vbo, Vbo::VboActive);
                     glDepthMask(GL_FALSE);

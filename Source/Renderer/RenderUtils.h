@@ -100,64 +100,90 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec2f(radius * s, radius * c));
+                vertices.push_back(Vec2f(radius * c, radius * s));
                 a += d;
             }
         }
         
-        inline void circle(float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void circle(float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(radius > 0.0f);
             assert(segments > 2);
             
             vertices.clear();
             vertices.reserve(segments);
+            normals.clear();
+            normals.reserve(segments);
             
             float a = 0.0f;
             const float d = 2.0f * Math::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
+                vertices.push_back(Vec3f(radius * c, radius * s, 0.0f));
+                normals.push_back(Vec3f::PosZ);
                 a += d;
             }
         }
         
-        inline void cylinder(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void cylinder(float length, float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
 
             vertices.clear();
-            vertices.reserve(2 * segments);
+            vertices.reserve(2 * (segments + 1));
+            normals.clear();
+            normals.reserve(2 * (segments + 1));
             
             float a = 0.0f;
             const float d = 2.0f * Math::Pi / static_cast<float>(segments);
-            for (unsigned int i = 0; i < segments; i++) {
+            for (unsigned int i = 0; i <= segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                float x = radius * s;
-                float y = radius * c;
-                vertices.push_back(Vec3f(x, y, 0.0f));
+                float x = radius * c;
+                float y = radius * s;
                 vertices.push_back(Vec3f(x, y, length));
+                vertices.push_back(Vec3f(x, y, 0.0f));
+                normals.push_back(Vec3f(c, s, 0.0f));
+                normals.push_back(Vec3f(c, s, 0.0f));
                 a += d;
             }
         }
         
-        inline void cone(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void cone(float length, float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
             
             vertices.clear();
-            vertices.reserve(segments + 1);
-            vertices.push_back(Vec3f(0.0f, 0.0f, length));
+            vertices.reserve(3 * segments);
+            normals.clear();
+            normals.reserve(3 * segments);
+            
+            const float t = std::atan(length / radius);
+            const float n = std::cos(Math::Pi / 2.0f - t);
             
             float a = 0.0f;
             const float d = 2.0f * Math::Pi / static_cast<float>(segments);
-            for (unsigned int i = 0; i < segments; i++) {
+            float lastS = std::sin(a);
+            float lastC = std::cos(a);
+            a += d;
+            
+            for (unsigned int i = 0; i <= segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
+                
+                vertices.push_back(Vec3f(0.0f, 0.0f, length));
+                normals.push_back(Vec3f(std::cos(a - d / 2.0f), std::sin(a - d / 2.0f), n).normalize());
+                
+                vertices.push_back(Vec3f(radius * lastC, radius * lastS, 0.0f));
+                normals.push_back(Vec3f(lastC, lastS, n).normalize());
+                
+                vertices.push_back(Vec3f(radius * c, radius * s, 0.0f));
+                normals.push_back(Vec3f(c, s, n).normalize());
+                
+                lastS = s;
+                lastC = c;
                 a += d;
             }
         }

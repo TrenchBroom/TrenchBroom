@@ -19,9 +19,12 @@
 
 #include "CompassRenderer.h"
 
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/IndexedVertexArray.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Shader/Shader.h"
+#include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Utility/VecMath.h"
@@ -33,10 +36,10 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        const float CompassRenderer::m_shaftLength = 32.0f;
-        const float CompassRenderer::m_shaftRadius = 3.0f;
-        const float CompassRenderer::m_headLength = 12.0f;
-        const float CompassRenderer::m_headRadius = 6.0f;
+        const float CompassRenderer::m_shaftLength = 28.0f;
+        const float CompassRenderer::m_shaftRadius = 1.5f;
+        const float CompassRenderer::m_headLength = 8.0f;
+        const float CompassRenderer::m_headRadius = 4.0f;
 
         CompassRenderer::CompassRenderer() :
         m_fans(NULL),
@@ -54,49 +57,92 @@ namespace TrenchBroom {
             if (m_fans == NULL) {
                 assert(m_strip == NULL);
 
-                Vec3f::List head;
-                Vec3f::List shaft;
-                Vec3f::List topCap;
-                Vec3f::List bottomCap;
+                Vec3f::List headVertices, headNormals;
+                Vec3f::List shaftVertices, shaftNormals;
+                Vec3f::List topCapVertices, topCapNormals;
+                Vec3f::List bottomCapVertices, bottomCapNormals;
                 
-                cylinder(m_shaftLength, m_shaftRadius, m_segments, shaft);
-                for (size_t i = 0; i < shaft.size(); i++)
-                    shaft[i].z -= m_shaftLength / 2.0f;
+                cylinder(m_shaftLength, m_shaftRadius, m_segments, shaftVertices, shaftNormals);
+                for (size_t i = 0; i < shaftVertices.size(); i++)
+                    shaftVertices[i].z -= m_shaftLength / 2.0f;
                 
-                cone(m_headLength, m_headRadius, m_segments, head);
-                for (size_t i = 0; i < head.size(); i++)
-                    head[i].z += m_shaftLength / 2.0f;
+                cone(m_headLength, m_headRadius, m_segments, headVertices, headNormals);
+                for (size_t i = 0; i < headVertices.size(); i++)
+                    headVertices[i].z += m_shaftLength / 2.0f;
                 
-                circle(m_headRadius, m_segments, topCap);
-                std::reverse(topCap.begin(), topCap.end());
-                for (size_t i = 0; i < topCap.size(); i++)
-                    topCap[i].z += m_shaftLength / 2.0f;
+                circle(m_headRadius, m_segments, topCapVertices, topCapNormals);
+                topCapVertices = Mat4f::Rot180X * topCapVertices;
+                topCapNormals = Mat4f::Rot180X * topCapNormals;
+                for (size_t i = 0; i < topCapVertices.size(); i++)
+                    topCapVertices[i].z += m_shaftLength / 2.0f;
 
-                circle(m_shaftRadius, m_segments, bottomCap);
-                std::reverse(bottomCap.begin(), bottomCap.end());
-                for (size_t i = 0; i < bottomCap.size(); i++)
-                    bottomCap[i].z -= m_shaftLength / 2.0f;
+                circle(m_shaftRadius, m_segments, bottomCapVertices, bottomCapNormals);
+                bottomCapVertices = Mat4f::Rot180X * bottomCapVertices;
+                bottomCapNormals = Mat4f::Rot180X * bottomCapNormals;
+                for (size_t i = 0; i < bottomCapVertices.size(); i++)
+                    bottomCapVertices[i].z -= m_shaftLength / 2.0f;
                 
-                m_strip = new VertexArray(vbo, GL_TRIANGLE_FAN, static_cast<unsigned int>(shaft.size()),
+                m_strip = new VertexArray(vbo, GL_TRIANGLE_STRIP, static_cast<unsigned int>(shaftVertices.size()),
                                           Attribute::position3f(),
+                                          Attribute::normal3f(),
                                           0);
-                m_strip->addAttributes(shaft);
 
-                m_fans = new IndexedVertexArray(vbo, GL_TRIANGLE_STRIP, static_cast<unsigned int>(head.size() + topCap.size() + bottomCap.size()),
+                m_set = new VertexArray(vbo, GL_TRIANGLES, static_cast<unsigned int>(headVertices.size()),
+                                        Attribute::position3f(),
+                                        Attribute::normal3f(),
+                                        0);
+
+                m_fans = new IndexedVertexArray(vbo, GL_TRIANGLE_FAN, static_cast<unsigned int>(topCapVertices.size() + bottomCapVertices.size()),
                                                 Attribute::position3f(),
+                                                Attribute::normal3f(),
                                                 0);
+                
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                m_fans->addAttributes(head);
+                m_strip->addAttributes(shaftVertices, shaftNormals);
+                m_set->addAttributes(headVertices, headNormals);
+                m_fans->addAttributes(topCapVertices, topCapNormals);
                 m_fans->endPrimitive();
-                m_fans->addAttributes(topCap);
-                m_fans->endPrimitive();
-                m_fans->addAttributes(bottomCap);
+                m_fans->addAttributes(bottomCapVertices, bottomCapNormals);
                 m_fans->endPrimitive();
             }
             
-            // activate shader
-            // set color
-            // render Z
+            glFrontFace(GL_CCW);
+            
+            Mat4f rotation = Mat4f::Identity;
+            rotation.setColumn(0, context.camera().right());
+            rotation.setColumn(1, -context.camera().up());
+            rotation.setColumn(2, -context.camera().direction());
+            bool invertible;
+            rotation.invert(invertible);
+            
+            ApplyModelMatrix applyRotation(context.transformation(), rotation);
+            
+            ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
+            compassShader.currentShader().setUniformVariable("LightDirection", Vec3f(0.0f, 0.0f, 1.0f).normalized());
+            compassShader.currentShader().setUniformVariable("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            
+            // render Z axis
+            compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 0.0f, 1.0f, 1.0f));
+            m_strip->render();
+            m_set->render();
+            m_fans->render();
+
+            { // render X axis
+                ApplyModelMatrix xRotation(context.transformation(), Mat4f::Rot90YCCW);
+                compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(1.0f, 0.0f, 0.0f, 1.0f));
+                m_strip->render();
+                m_set->render();
+                m_fans->render();
+            }
+            
+            { // render Y axis
+                ApplyModelMatrix yRotation(context.transformation(), Mat4f::Rot90XCW);
+                compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 1.0f, 0.0f, 1.0f));
+                m_strip->render();
+                m_set->render();
+                m_fans->render();
+            }
+            
             // set color
             // set rotation matrix
             // render X

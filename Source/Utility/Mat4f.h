@@ -43,6 +43,9 @@ namespace TrenchBroom {
             static const Mat4f Rot90XCCW;
             static const Mat4f Rot90YCCW;
             static const Mat4f Rot90ZCCW;
+            static const Mat4f Rot180X;
+            static const Mat4f Rot180Y;
+            static const Mat4f Rot180Z;
             static const Mat4f MirX;
             static const Mat4f MirY;
             static const Mat4f MirZ;
@@ -106,6 +109,14 @@ namespace TrenchBroom {
                              (v[ 2] * right.x + v[ 6] * right.y + v[14]) / w);
             }
             
+            inline const Vec3f::List operator* (const Vec2f::List& right) const {
+                Vec3f::List result;
+                Vec2f::List::const_iterator it, end;
+                for (it = right.begin(), end = right.end(); it != end; ++it)
+                    result.push_back(*this * *it);
+                return result;
+            }
+            
             inline const Vec3f operator* (const Vec3f& right) const {
                 float w =     v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
                 return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,
@@ -113,11 +124,27 @@ namespace TrenchBroom {
                              (v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14]) / w);
             }
             
+            inline const Vec3f::List operator* (const Vec3f::List& right) const {
+                Vec3f::List result;
+                Vec3f::List::const_iterator it, end;
+                for (it = right.begin(), end = right.end(); it != end; ++it)
+                    result.push_back(*this * *it);
+                return result;
+            }
+            
             inline const Vec4f operator* (const Vec4f& right) const {
                 return Vec4f(v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12] * right.w,
                              v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13] * right.w,
                              v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14] * right.w,
                              v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15] * right.w);
+            }
+            
+            inline const Vec4f::List operator* (const Vec4f::List& right) const {
+                Vec4f::List result;
+                Vec4f::List::const_iterator it, end;
+                for (it = right.begin(), end = right.end(); it != end; ++it)
+                    result.push_back(*this * *it);
+                return result;
             }
             
             inline const Mat4f operator* (const Mat4f& right) const {

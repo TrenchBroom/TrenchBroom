@@ -123,11 +123,11 @@ namespace TrenchBroom {
                 
                 Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
 
-                Renderer::Transformation transformation(camera.matrix(), false);
+                Renderer::Transformation transformation(camera.projectionMatrix(), camera.viewMatrix());
                 Mat4f matrix;
                 matrix.rotateCCW(camAngle, Vec3f::PosZ);
                 matrix.translate(Vec3f(0.0f, 0.0f, 0.0f));
-                Renderer::ApplyMatrix apply(transformation, matrix);
+                Renderer::ApplyModelMatrix apply(transformation, matrix);
                 
                 Renderer::ActivateShader handleShader(m_sharedResources.shaderManager(), Renderer::Shaders::HandleShader);
                 handleShader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));

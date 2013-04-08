@@ -70,6 +70,7 @@ namespace TrenchBroom {
             extern const ShaderConfig PointHandleShader;
             extern const ShaderConfig InstancedPointHandleShader;
             extern const ShaderConfig ColoredHandleShader;
+            extern const ShaderConfig CompassShader;
         }
 
         class Shader;

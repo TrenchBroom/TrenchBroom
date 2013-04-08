@@ -114,6 +114,9 @@
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		488611C0171039850001C423 /* NavBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488611BE171039850001C423 /* NavBar.cpp */; };
 		488611C91710BEA70001C423 /* CompassRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488611C71710BEA70001C423 /* CompassRenderer.cpp */; };
+		488611CC171327000001C423 /* OverlayRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488611CA171327000001C423 /* OverlayRenderer.cpp */; };
+		488611CF17132A4B0001C423 /* Compass.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 488611CD17132A4A0001C423 /* Compass.fragsh */; };
+		488611D017132A4B0001C423 /* Compass.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 488611CE17132A4A0001C423 /* Compass.vertsh */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
 		4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */; };
@@ -477,6 +480,10 @@
 		488611BF171039850001C423 /* NavBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavBar.h; sourceTree = "<group>"; };
 		488611C71710BEA70001C423 /* CompassRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompassRenderer.cpp; sourceTree = "<group>"; };
 		488611C81710BEA70001C423 /* CompassRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompassRenderer.h; sourceTree = "<group>"; };
+		488611CA171327000001C423 /* OverlayRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OverlayRenderer.cpp; sourceTree = "<group>"; };
+		488611CB171327000001C423 /* OverlayRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayRenderer.h; sourceTree = "<group>"; };
+		488611CD17132A4A0001C423 /* Compass.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Compass.fragsh; sourceTree = "<group>"; };
+		488611CE17132A4A0001C423 /* Compass.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Compass.vertsh; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
 		488865491634211C0071F9C6 /* RotateObjects90Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjects90Command.cpp; sourceTree = "<group>"; };
@@ -772,6 +779,8 @@
 				488457CF161C839A002ADDAE /* OffscreenRenderer.h */,
 				48B059C51617866100E6B0AD /* Palette.cpp */,
 				48B059C61617866100E6B0AD /* Palette.h */,
+				488611CA171327000001C423 /* OverlayRenderer.cpp */,
+				488611CB171327000001C423 /* OverlayRenderer.h */,
 				48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */,
 				48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */,
 				486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */,
@@ -1261,6 +1270,8 @@
 				48ADAFA71707483E005555DC /* BrowserGroup.vertsh */,
 				48AD1B2B1646BFAE009F839B /* ColoredEdge.vertsh */,
 				48AD1B371646C10C009F839B /* ColoredHandle.vertsh */,
+				488611CD17132A4A0001C423 /* Compass.fragsh */,
+				488611CE17132A4A0001C423 /* Compass.vertsh */,
 				48AD1B2F1646C03D009F839B /* Edge.fragsh */,
 				48AD1B301646C03D009F839B /* Edge.vertsh */,
 				48E2ECD116007A4400B8D476 /* EntityModel.vertsh */,
@@ -1418,6 +1429,8 @@
 				487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */,
 				48ADAFA81707483E005555DC /* BrowserGroup.fragsh in Resources */,
 				48ADAFA91707483E005555DC /* BrowserGroup.vertsh in Resources */,
+				488611CF17132A4B0001C423 /* Compass.fragsh in Resources */,
+				488611D017132A4B0001C423 /* Compass.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1611,6 +1624,7 @@
 				48ADAFA117070CCB005555DC /* FontManager.cpp in Sources */,
 				488611C0171039850001C423 /* NavBar.cpp in Sources */,
 				488611C91710BEA70001C423 /* CompassRenderer.cpp in Sources */,
+				488611CC171327000001C423 /* OverlayRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

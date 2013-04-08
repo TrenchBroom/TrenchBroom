@@ -1,0 +1,32 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2012 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform vec3 LightDirection;
+uniform vec4 LightDiffuse;
+uniform vec4 MaterialDiffuse;
+
+void main(void) {
+    vec4 diffuse = LightDiffuse * MaterialDiffuse;
+    float NdotL = max(dot(gl_NormalMatrix * gl_Normal, LightDirection), 0.0); // cosine of normal and light direction
+
+	gl_FrontColor = vec4(vec3(NdotL * diffuse * 2.0f), 1.0f);
+	gl_Position = ftransform();
+}

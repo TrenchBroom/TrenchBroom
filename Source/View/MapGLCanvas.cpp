@@ -26,6 +26,7 @@
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/OverlayRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Vbo.h"
@@ -134,6 +135,7 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
         m_vbo(NULL),
         m_inputController(new Controller::InputController(documentViewHolder)),
+        m_overlayRenderer(NULL),
         m_hasFocus(false),
         m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
@@ -142,6 +144,8 @@ namespace TrenchBroom {
         MapGLCanvas::~MapGLCanvas() {
             delete m_inputController;
             m_inputController = NULL;
+            delete m_overlayRenderer;
+            m_overlayRenderer = NULL;
             delete m_vbo;
             m_vbo = NULL;
             wxDELETE(m_glContext);
@@ -182,12 +186,15 @@ namespace TrenchBroom {
                 m_inputController->render(*m_vbo, renderContext);
                 
                 // render overlays
+                if (m_overlayRenderer == NULL)
+                    m_overlayRenderer = new Renderer::OverlayRenderer();
+                m_overlayRenderer->render(renderContext, GetClientSize().x, GetClientSize().y);
                 
                 // render focus rectangle
                 if (FindFocus() == this) {
-                    Mat4f ortho = Mat4f::Identity;
-                    ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
-                    Renderer::ApplyMatrix applyOrtho(renderContext.transformation(), ortho);
+                    Mat4f projection;
+                    projection.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
+                    Renderer::ApplyTransformation ortho(renderContext.transformation(), projection, Mat4f::Identity);
 
                     wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
                     float r = static_cast<float>(color.Red()) / 0xFF;

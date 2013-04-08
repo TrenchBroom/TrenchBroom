@@ -25,18 +25,17 @@ namespace TrenchBroom {
     namespace Renderer {
         void Camera::validate() const {
             if (m_ortho)
-                m_matrix.setOrtho(m_nearPlane, m_farPlane,
+                m_projectionMatrix.setOrtho(m_nearPlane, m_farPlane,
                                   static_cast<float>(m_viewport.x - m_viewport.width / 2),
                                   static_cast<float>(m_viewport.y + m_viewport.height / 2),
                                   static_cast<float>(m_viewport.x + m_viewport.width / 2),
                                   static_cast<float>(m_viewport.y - m_viewport.height / 2));
             else
-                m_matrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
+                m_projectionMatrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             
-            Mat4f view;
-            view.setView(m_direction, m_up);
-            view.translate(-1.0f * m_position);
-            m_matrix *= view;
+            m_viewMatrix.setView(m_direction, m_up);
+            m_viewMatrix.translate(-1.0f * m_position);
+            m_matrix = m_projectionMatrix * m_viewMatrix;
             
             bool invertible;
             m_invertedMatrix = m_matrix.inverted(invertible);
@@ -129,10 +128,6 @@ namespace TrenchBroom {
         const Ray Camera::pickRay(float x, float y) const {
             Vec3f direction = (unproject(x, y, 0.5f) - m_position).normalized();
             return Ray(m_position, direction);
-        }
-
-        const Mat4f& Camera::matrix() const {
-            return m_matrix;
         }
 
         const Mat4f Camera::billboardMatrix(bool fixUp) const {

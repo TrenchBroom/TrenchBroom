@@ -37,6 +37,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class Camera;
         class MapRenderer;
+        class OverlayRenderer;
         class Vbo;
     }
     
@@ -69,6 +70,8 @@ namespace TrenchBroom {
             wxGLContext* m_glContext;
             Renderer::Vbo* m_vbo;
             Controller::InputController* m_inputController;
+            Renderer::OverlayRenderer* m_overlayRenderer;
+            
             bool m_hasFocus;
             bool m_ignoreNextClick;
 

@@ -87,6 +87,8 @@ namespace TrenchBroom {
             void flipObjects(bool horizontally);
             void moveVertices(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
+            
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
             EditorView();
             ~EditorView();

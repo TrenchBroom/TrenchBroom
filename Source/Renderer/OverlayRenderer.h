@@ -17,36 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CompassRenderer__
-#define __TrenchBroom__CompassRenderer__
+#ifndef __TrenchBroom__OverlayRenderer__
+#define __TrenchBroom__OverlayRenderer__
 
 #include <iostream>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class IndexedVertexArray;
+        class CompassRenderer;
         class RenderContext;
         class Vbo;
-        class VertexArray;
         
-        class CompassRenderer {
+        class OverlayRenderer {
         private:
-            static const unsigned int m_segments = 12;
-            static const float m_shaftLength;
-            static const float m_shaftRadius;
-            static const float m_headLength;
-            static const float m_headRadius;
-            
-            VertexArray* m_strip;
-            VertexArray* m_set;
-            IndexedVertexArray* m_fans;
+            Vbo* m_vbo;
+            CompassRenderer* m_compass;
         public:
-            CompassRenderer();
-            ~CompassRenderer();
+            OverlayRenderer();
+            ~OverlayRenderer();
             
-            void render(Vbo& vbo, RenderContext& context);
+            void render(RenderContext& context, const float viewWidth, const float viewHeight);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CompassRenderer__) */
+#endif /* defined(__TrenchBroom__OverlayRenderer__) */

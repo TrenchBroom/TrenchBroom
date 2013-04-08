@@ -28,18 +28,31 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class ApplyMatrix {
+        class ApplyTransformation {
         protected:
             Transformation& m_transformation;
         public:
-            ApplyMatrix(Transformation& transformation, const Mat4f& matrix, bool replace = false) :
+            ApplyTransformation(Transformation& transformation, const Mat4f& projectionMatrix, const Mat4f& viewMatrix, const Mat4f& modelMatrix = Mat4f::Identity) :
             m_transformation(transformation) {
-                const Mat4f& currentMatrix = m_transformation.pushMatrix();
-                m_transformation.loadMatrix(replace ? matrix : currentMatrix * matrix);
+                m_transformation.pushTransformation(projectionMatrix, viewMatrix, modelMatrix);
+            }
+
+            ~ApplyTransformation() {
+                m_transformation.popTransformation();
+            }
+        };
+
+        class ApplyModelMatrix {
+        protected:
+            Transformation& m_transformation;
+        public:
+            ApplyModelMatrix(Transformation& transformation, const Mat4f& modelMatrix, bool replace = false) :
+            m_transformation(transformation) {
+                m_transformation.pushModelMatrix(modelMatrix, replace);
             }
             
-            ~ApplyMatrix() {
-                m_transformation.popMatrix();
+            ~ApplyModelMatrix() {
+                m_transformation.popModelMatrix();
             }
         };
     }

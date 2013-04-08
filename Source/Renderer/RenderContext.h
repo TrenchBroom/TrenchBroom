@@ -53,7 +53,7 @@ namespace TrenchBroom {
             RenderContext(Camera& camera, Model::Filter& filter, ShaderManager& shaderManager, Utility::Grid& grid, View::ViewOptions& viewOptions, Utility::Console& console) :
             m_camera(camera),
             m_filter(filter),
-            m_transformation(m_camera.matrix(), false),
+            m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
             m_shaderManager(shaderManager),
             m_grid(grid),
             m_viewOptions(viewOptions),

@@ -395,14 +395,29 @@ namespace TrenchBroom {
                 m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
                 attributesAdded(static_cast<unsigned int>(values.size() / m_attributes.size()));
             }
-
-            inline void addAttribute(const Vec4f& value) {
-                assert(m_vertexCount < m_vertexCapacity);
-                assert(m_attributes[m_specIndex].valueType() == GL_FLOAT);
-                assert(m_attributes[m_specIndex].size() == 4);
-
-                m_writeOffset = m_block->writeVec(value, m_writeOffset);
-                attributesAdded();
+            
+            inline void addAttributes(const Vec3f::List& vertices, const Vec3f::List& normals) {
+                assert(vertices.size() == normals.size());
+                assert(m_attributes.size() == 2);
+                assert(m_attributes[0].valueType() == GL_FLOAT);
+                assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].valueType() == GL_FLOAT);
+                assert(m_attributes[1].size() == 3);
+                assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
+                if (m_padBy == 0) {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        m_writeOffset = m_block->writeVec(normals[i], m_writeOffset);
+                    }
+                    attributesAdded(static_cast<unsigned int>(vertices.size()));
+                } else {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        attributesAdded();
+                        m_writeOffset = m_block->writeVec(normals[i], m_writeOffset);
+                        attributesAdded();
+                    }
+                }
             }
 
             inline void addAttributes(const Vec3f::List& vertices, const Vec4f& color) {
@@ -426,6 +441,15 @@ namespace TrenchBroom {
                         attributesAdded();
                     }
                 }
+            }
+            
+            inline void addAttribute(const Vec4f& value) {
+                assert(m_vertexCount < m_vertexCapacity);
+                assert(m_attributes[m_specIndex].valueType() == GL_FLOAT);
+                assert(m_attributes[m_specIndex].size() == 4);
+                
+                m_writeOffset = m_block->writeVec(value, m_writeOffset);
+                attributesAdded();
             }
             
             inline void addAttributes(const FaceVertex::List& cachedVertices) {

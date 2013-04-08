@@ -136,7 +136,7 @@ namespace TrenchBroom {
             Mat4f view;
             view.setView(Vec3f::NegZ, Vec3f::PosY);
             view.translate(Vec3f(0.0f, 0.0f, 0.1f));
-            Renderer::Transformation transformation(projection * view, true);
+            Renderer::Transformation transformation(projection, view);
 
             size_t visibleGroupCount = 0;
             size_t visibleItemCount = 0;

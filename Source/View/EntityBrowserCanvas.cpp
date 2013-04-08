@@ -81,7 +81,7 @@ namespace TrenchBroom {
             itemMatrix.translate(bounds.center());
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * bounds.center());
-            Renderer::ApplyMatrix applyItemMatrix(transformation, itemMatrix);
+            Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
             
             boundsProgram.setUniformVariable("Color", definition.color());
             
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             itemMatrix.translate(rotationCenter);
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * rotationCenter);
-            Renderer::ApplyMatrix applyItemMatrix(transformation, itemMatrix);
+            Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
             
             renderer.render(entityModelProgram);
         }
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             Mat4f view;
             view.setView(Vec3f::NegX, Vec3f::PosZ);
             view.translate(Vec3f(256.0f, 0.0f, 0.0f));
-            Renderer::Transformation transformation(projection * view, true);
+            Renderer::Transformation transformation(projection, view);
 
             size_t visibleGroupCount = 0;
             size_t visibleItemCount = 0;
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             view.setView(Vec3f::NegZ, Vec3f::PosY);
             view.translate(Vec3f(0.0f, 0.0f, -1.0f));
-            transformation = Renderer::Transformation(projection * view, true);
+            transformation = Renderer::Transformation(projection, view);
 
             if (visibleGroupCount > 0) { // render group title background
                 unsigned int vertexCount = static_cast<unsigned int>(4 * visibleGroupCount);
@@ -373,7 +373,7 @@ namespace TrenchBroom {
             Mat4f view;
             view.setView(Vec3f::NegX, Vec3f::PosZ);
             view.translate(Vec3f(256.0f, 0.0f, 0.0f));
-            Renderer::Transformation transformation(projection * view, true);
+            Renderer::Transformation transformation(projection, view);
 
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
