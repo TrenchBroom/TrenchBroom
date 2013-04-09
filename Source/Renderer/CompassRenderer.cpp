@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,9 +42,10 @@ namespace TrenchBroom {
         const float CompassRenderer::m_headRadius = 4.5f;
 
         CompassRenderer::CompassRenderer() :
-        m_fans(NULL),
-        m_strip(NULL) {}
-        
+        m_strip(NULL),
+        m_set(NULL),
+        m_fans(NULL) {}
+
         CompassRenderer::~CompassRenderer() {
             delete m_fans;
             m_fans = NULL;
@@ -61,15 +62,15 @@ namespace TrenchBroom {
                 Vec3f::List shaftVertices, shaftNormals;
                 Vec3f::List topCapVertices, topCapNormals;
                 Vec3f::List bottomCapVertices, bottomCapNormals;
-                
+
                 cylinder(m_shaftLength, m_shaftRadius, m_segments, shaftVertices, shaftNormals);
                 for (size_t i = 0; i < shaftVertices.size(); i++)
                     shaftVertices[i].z -= m_shaftLength / 2.0f;
-                
+
                 cone(m_headLength, m_headRadius, m_segments, headVertices, headNormals);
                 for (size_t i = 0; i < headVertices.size(); i++)
                     headVertices[i].z += m_shaftLength / 2.0f;
-                
+
                 circle(m_headRadius, m_segments, topCapVertices, topCapNormals);
                 topCapVertices = Mat4f::Rot180X * topCapVertices;
                 topCapNormals = Mat4f::Rot180X * topCapNormals;
@@ -81,7 +82,7 @@ namespace TrenchBroom {
                 bottomCapNormals = Mat4f::Rot180X * bottomCapNormals;
                 for (size_t i = 0; i < bottomCapVertices.size(); i++)
                     bottomCapVertices[i].z -= m_shaftLength / 2.0f;
-                
+
                 m_strip = new VertexArray(vbo, GL_TRIANGLE_STRIP, static_cast<unsigned int>(shaftVertices.size()),
                                           Attribute::position3f(),
                                           Attribute::normal3f(),
@@ -96,7 +97,7 @@ namespace TrenchBroom {
                                                 Attribute::position3f(),
                                                 Attribute::normal3f(),
                                                 0);
-                
+
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 m_strip->addAttributes(shaftVertices, shaftNormals);
                 m_set->addAttributes(headVertices, headNormals);
@@ -105,26 +106,31 @@ namespace TrenchBroom {
                 m_fans->addAttributes(bottomCapVertices, bottomCapNormals);
                 m_fans->endPrimitive();
             }
-            
+
             glFrontFace(GL_CCW);
-            
+
             Mat4f rotation = Mat4f::Identity;
             rotation.setColumn(0, context.camera().right());
             rotation.setColumn(1, -context.camera().up());
             rotation.setColumn(2, -context.camera().direction());
+
             bool invertible;
             rotation.invert(invertible);
-            
+
             ApplyModelMatrix applyRotation(context.transformation(), rotation);
-            
+
             ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
-            compassShader.currentShader().setUniformVariable("LightDirection", Vec3f(0.0f, 0.0f, 1.0f).normalized());
+            compassShader.currentShader().setUniformVariable("CameraPosition", Vec3f(0, 0, -100.0f));
+            compassShader.currentShader().setUniformVariable("LightDirection", Vec3f(0.0f, -1.0f, 1.0f).normalized());
             compassShader.currentShader().setUniformVariable("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            compassShader.currentShader().setUniformVariable("LightSpecular", Color(1.0f, 1.0f, 1.0f, 1.0f));
             compassShader.currentShader().setUniformVariable("GlobalAmbient", Color(1.0f, 1.0f, 1.0f, 1.0f));
-            
+            compassShader.currentShader().setUniformVariable("MaterialShininess", 32.0f);
+
             // render Z axis
             compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 0.0f, 1.0f, 1.0f));
-            compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.0f, 0.2f, 1.0f));
+            compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.0f, 0.1f, 1.0f));
+            compassShader.currentShader().setUniformVariable("MaterialSpecular", Color(0.0f, 0.0f, 1.0f, 1.0f));
             m_strip->render();
             m_set->render();
             m_fans->render();
@@ -132,21 +138,23 @@ namespace TrenchBroom {
             { // render X axis
                 ApplyModelMatrix xRotation(context.transformation(), Mat4f::Rot90YCCW);
                 compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(1.0f, 0.0f, 0.0f, 1.0f));
-                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.2f, 0.0f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.1f, 0.0f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialSpecular", Color(1.0f, 0.0f, 0.0f, 1.0f));
                 m_strip->render();
                 m_set->render();
                 m_fans->render();
             }
-            
+
             { // render Y axis
                 ApplyModelMatrix yRotation(context.transformation(), Mat4f::Rot90XCW);
                 compassShader.currentShader().setUniformVariable("MaterialDiffuse", Color(0.0f, 1.0f, 0.0f, 1.0f));
-                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.2f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialAmbient", Color(0.0f, 0.1f, 0.0f, 1.0f));
+                compassShader.currentShader().setUniformVariable("MaterialSpecular", Color(0.0f, 1.0f, 0.0f, 1.0f));
                 m_strip->render();
                 m_set->render();
                 m_fans->render();
             }
-            
+
             // set color
             // set rotation matrix
             // render X
