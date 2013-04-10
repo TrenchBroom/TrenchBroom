@@ -34,7 +34,7 @@ namespace TrenchBroom {
         public:
             ApplyMatrix(Transformation& transformation, const Mat4f& matrix, bool replace = false) :
             m_transformation(transformation) {
-                const Mat4f& currentMatrix = m_transformation.pushMatrix();
+                Mat4f& currentMatrix = m_transformation.pushMatrix();
                 m_transformation.loadMatrix(replace ? matrix : currentMatrix *= matrix);
             }
             
