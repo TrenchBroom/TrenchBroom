@@ -170,9 +170,9 @@ namespace TrenchBroom {
 
                 Renderer::AxisFigure axisFigure(m_axisLength);
                 axisFigure.setAxes(true, true, true);
-                axisFigure.setXColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
-                axisFigure.setYColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
-                axisFigure.setZColor(Color(0.0f, 0.0f, 1.0f, 1.0f));
+                axisFigure.setXColor(prefs.getColor(Preferences::XColor));
+                axisFigure.setYColor(prefs.getColor(Preferences::YColor));
+                axisFigure.setZColor(prefs.getColor(Preferences::ZColor));
                 axisFigure.render(vbo, renderContext);
                 
                 Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
