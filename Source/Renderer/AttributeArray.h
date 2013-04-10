@@ -120,6 +120,10 @@ namespace TrenchBroom {
             inline GLenum valueType() const {
                 return m_valueType;
             }
+            
+            inline AttributeType attributeType() const {
+                return m_attributeType;
+            }
 
             inline const String& name() const {
                 return m_name;
@@ -399,8 +403,10 @@ namespace TrenchBroom {
             inline void addAttributes(const Vec3f::List& vertices, const Vec3f::List& normals) {
                 assert(vertices.size() == normals.size());
                 assert(m_attributes.size() == 2);
+                assert(m_attributes[0].attributeType() == Attribute::Position);
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Normal);
                 assert(m_attributes[1].valueType() == GL_FLOAT);
                 assert(m_attributes[1].size() == 3);
                 assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
@@ -422,8 +428,10 @@ namespace TrenchBroom {
 
             inline void addAttributes(const Vec3f::List& vertices, const Vec4f& color) {
                 assert(m_attributes.size() == 2);
+                assert(m_attributes[0].attributeType() == Attribute::Position);
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Color);
                 assert(m_attributes[1].valueType() == GL_FLOAT);
                 assert(m_attributes[1].size() == 4);
                 assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
@@ -453,10 +461,13 @@ namespace TrenchBroom {
             }
             
             inline void addAttributes(const FaceVertex::List& cachedVertices) {
+                assert(m_attributes[0].attributeType() == Attribute::Position);
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Normal);
                 assert(m_attributes[1].valueType() == GL_FLOAT);
                 assert(m_attributes[1].size() == 3);
+                assert(m_attributes[2].attributeType() == Attribute::TexCoord0);
                 assert(m_attributes[2].valueType() == GL_FLOAT);
                 assert(m_attributes[2].size() == 2);
                 assert(m_padBy == 0);

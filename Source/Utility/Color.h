@@ -30,7 +30,8 @@ namespace TrenchBroom {
     public:
         Color() : Vec4f() {}
         Color(const std::string& str) : Vec4f(str) {}
-        Color(float x, float y, float z, float w) : Vec4f(x, y, z, w) {}
+        explicit Color(float x, float y, float z, float w = 1.0f) : Vec4f(x, y, z, w) {}
+        explicit Color(int x, int y, int z, int w = 0xFF) : Vec4f(static_cast<float>(x) / 255.0f, static_cast<float>(y) / 255.0f, static_cast<float>(z) / 255.0f, static_cast<float>(w) / 255.0f) {}
         Color(const Color& color, float w) : Vec4f(color, w) {}
         
         inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {

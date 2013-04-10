@@ -47,15 +47,6 @@ void gridCheckerboard(vec2 inCoords) {
         gl_FragColor.rgb -= vec3(GridAlpha * 0.1);
 }
 
-void gridLines(vec2 inCoords) {
-	vec2 prepCoords = inCoords + vec2(0.3);
-
-	if (abs(mod(prepCoords.x, 64)) <= 0.6 || abs(mod(prepCoords.y, 64)) <= 0.6)
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.75);
-	else if (abs(mod(prepCoords.x, GridSize)) <= 0.6 || abs(mod(prepCoords.y, GridSize)) <= 0.6)
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.5);
-}
-
 float getSoftStripes(float value, float gridSize, float stripeSize) {
 	float mainVal = value * gridSize;
 	float triangle = abs(2.0 * fract(mainVal) - 1.0);
@@ -179,7 +170,6 @@ void main() {
 		if (GridCheckerboard) {
 			gridCheckerboard(baseCoords);
 		} else {
-			//gridLines( baseCoords );
 			gridLinesSoft(baseCoords, gS, gT, gS2, gT2, gridBlend);
 		}
 	}

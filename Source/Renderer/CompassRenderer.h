@@ -31,7 +31,7 @@ namespace TrenchBroom {
         
         class CompassRenderer {
         private:
-            static const unsigned int m_segments = 12;
+            static const unsigned int m_segments = 32;
             static const float m_shaftLength;
             static const float m_shaftRadius;
             static const float m_headLength;

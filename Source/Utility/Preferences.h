@@ -251,6 +251,9 @@ namespace TrenchBroom {
         
         extern const Preference<Color>  EntityRotationDecoratorColor;
         
+        extern const Preference<Color>  XColor;
+        extern const Preference<Color>  YColor;
+        extern const Preference<Color>  ZColor;
         extern const Preference<Color>  BackgroundColor;
         
         extern const Preference<Color>  GuideColor;

@@ -633,9 +633,6 @@ namespace TrenchBroom {
                             m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
                         }
 
-                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
-                        m_camera->setDirection(Vec3f::NegZ, Vec3f::PosY);
-                        
                         m_renderer->loadMap();
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
