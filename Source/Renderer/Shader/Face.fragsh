@@ -19,9 +19,6 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// if this is defined, major lines are the same thickness as the rest of the grid ( remove unwanted code path later )
-//#define GRID_MajorLines_IntensityOnly
-
 uniform float Brightness;
 uniform bool ApplyTexture;
 uniform sampler2D FaceTexture;
@@ -50,11 +47,7 @@ void gridCheckerboard(vec2 inCoords) {
         gl_FragColor.rgb -= vec3(GridAlpha * 0.1);
 }
 
-#ifdef GRID_MajorLines_IntensityOnly
 float getSoftStripes(float value, float gridSize, float stripeSize) {
-#else
-float getSoftStripes(float value, float gridSize, float stripeSize, float stripeSizeMajor) {
-#endif
 	float mainVal = value * gridSize;
 	float triangle = abs(2.0 * fract(mainVal) - 1.0);
 	float filterWidth = fwidth(value);
@@ -65,13 +58,8 @@ float getSoftStripes(float value, float gridSize, float stripeSize, float stripe
 	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
 	float isMajor = step(1.0 - mValue, triMajor);
 
-#ifdef GRID_MajorLines_IntensityOnly
-	float outIntensity = isMajor * 0.5 + 0.85; // tweak intensities here
+	float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
 	float sSize = stripeSize;
-#else
-	float outIntensity = isMajor * 0.3 + 0.85; // tweak intensities here
-	float sSize = mix(stripeSize, stripeSizeMajor, isMajor);
-#endif
 
 	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
 }
@@ -84,20 +72,10 @@ void gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseS
 
 	float theGrid, nextGrid;
 
-#ifdef GRID_MajorLines_IntensityOnly
 	theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
 	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
 	nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2);
 	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2));
-#else
-    float stripeSizeM = 1.0 - stripeRatio * 1.75;
-    float stripeSizeM2 = 1.0 - stripeRatio2 * 1.75;
-
-	theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize, stripeSizeM);
-	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize, stripeSizeM));
-	nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2, stripeSizeM2);
-	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2, stripeSizeM2));
-#endif
 
 	theGrid = mix(theGrid, nextGrid, gridBlend);
 
