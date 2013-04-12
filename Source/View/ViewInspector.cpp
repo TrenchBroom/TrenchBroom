@@ -50,6 +50,7 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
         // EVT_CHECKBOX(CommandIds::ViewInspector::FogCheckBoxId, ViewInspector::OnFogChanged)
+        EVT_CHOICE(CommandIds::ViewInspector::LinkDisplayModeChoiceId, ViewInspector::OnLinkDisplayModeSelected)
         END_EVENT_TABLE()
 
         void ViewInspector::updateControls() {
@@ -77,6 +78,7 @@ namespace TrenchBroom {
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
             m_toggleFaceShading->SetValue(viewOptions.shadeFaces());
 //            m_toggleFog->SetValue(viewOptions.useFog());
+            m_linkDisplayModeChoice->SetSelection(viewOptions.linkDisplayMode());
         }
 
         wxWindow* ViewInspector::createFilterBox() {
@@ -137,11 +139,8 @@ namespace TrenchBroom {
             innerSizer->Add(m_toggleRenderEdges, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(toggleFaceShadingLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
             innerSizer->Add(m_toggleFaceShading, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
-            
-            /*
-            innerSizer->Add(toggleFogLabel);
-            innerSizer->Add(m_toggleFog);
-             */
+            innerSizer->Add(linkDisplayModeLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
+            innerSizer->Add(m_linkDisplayModeChoice, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
 
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -241,24 +240,51 @@ namespace TrenchBroom {
             editorView.OnUpdate(NULL); // will just trigger a refresh
         }
 
-		  void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setShadeFaces(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
 
         /*
-		  void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setUseFog(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
          */
+
+        void ViewInspector::OnLinkDisplayModeSelected(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+
+            EditorView& editorView = m_documentViewHolder.view();
+            ViewOptions::LinkDisplayMode mode;
+
+            switch (m_linkDisplayModeChoice->GetSelection()) {
+            case 1:
+                mode = ViewOptions::LinkDisplayLocal;
+                break;
+            case 2:
+                mode = ViewOptions::LinkDisplayAll;
+                break;
+            case 3:
+                mode = ViewOptions::LinkDisplayNone;
+                break;
+            default:
+                mode = ViewOptions::LinkDisplayContext;
+            }
+
+            editorView.viewOptions().setLinkDisplayMode(mode);
+            Controller::Command command(Controller::Command::InvalidateRendererEntityState);
+            editorView.OnUpdate(NULL, &command); // invalidate entities to invalidate decorators
+            updateControls(); // if something went wrong, set the choice selection to the default value ("Textured")
+        }
     }
 }

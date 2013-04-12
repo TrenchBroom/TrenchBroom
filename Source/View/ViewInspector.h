@@ -46,6 +46,7 @@ namespace TrenchBroom {
             wxCheckBox* m_toggleRenderEdges;
             wxCheckBox* m_toggleFaceShading;
             // wxCheckBox* m_toggleFog;
+            wxChoice* m_linkDisplayModeChoice;
             
             void updateControls();
             
@@ -59,6 +60,7 @@ namespace TrenchBroom {
             void OnRenderEdgesChanged(wxCommandEvent& event);
             void OnFaceShadingChanged(wxCommandEvent& event);
             // void OnFogChanged(wxCommandEvent& event);
+            void OnLinkDisplayModeSelected(wxCommandEvent& event);
             
             DECLARE_EVENT_TABLE();
         };

@@ -651,6 +651,7 @@ namespace TrenchBroom {
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
+                        m_renderer->invalidateDecorators();
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                         frame->updateNavBar();
@@ -800,10 +801,10 @@ namespace TrenchBroom {
             if (deleteWindow) {
                 EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                 if (frame != NULL) {
-					frame->Disable();
+                    frame->Disable();
                     frame->disableProcessing();
                     frame->Destroy(); // don't call close because that method will try to destroy the document again
-				}
+                }
             }
 
             if (m_filter != NULL) {

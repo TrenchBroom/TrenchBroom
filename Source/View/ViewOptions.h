@@ -31,6 +31,12 @@ namespace TrenchBroom {
                 Flat,
                 Discard
             } FaceRenderMode;
+            typedef enum {
+                LinkDisplayContext,
+                LinkDisplayLocal,
+                LinkDisplayAll,
+                LinkDisplayNone
+            } LinkDisplayMode;
         private:
             String m_filterPattern;
             bool m_showEntities;
@@ -45,6 +51,7 @@ namespace TrenchBroom {
             bool m_renderSelection;
             bool m_shadeFaces;
             bool m_useFog;
+            LinkDisplayMode m_linkDisplayMode;
         public:
             ViewOptions() :
             m_filterPattern(""),
@@ -163,6 +170,14 @@ namespace TrenchBroom {
 
             inline void setUseFog(bool useFog) {
                 m_useFog = useFog;
+            }
+
+            inline LinkDisplayMode linkDisplayMode() const {
+                return m_linkDisplayMode;
+            }
+
+            inline void setLinkDisplayMode(LinkDisplayMode linkDisplayMode) {
+                m_linkDisplayMode = linkDisplayMode;
             }
         };
     }

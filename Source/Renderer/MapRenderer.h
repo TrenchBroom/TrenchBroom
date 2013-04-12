@@ -101,7 +101,6 @@ namespace TrenchBroom {
             void rebuildGeometryData(RenderContext& context);
             
             void validate(RenderContext& context);
-            void invalidateDecorators();
             
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
@@ -131,6 +130,7 @@ namespace TrenchBroom {
             void invalidateAll();
             void invalidateEntityModelRendererCache();
             void invalidateSelectedEntityModelRendererCache();
+            void invalidateDecorators();
             
             void setPointTrace(const Vec3f::List& points);
             void removePointTrace();
