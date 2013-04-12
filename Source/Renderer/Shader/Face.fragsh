@@ -19,6 +19,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// if this is defined, major lines are the same thickness as the rest of the grid ( remove unwanted code path later )
+//#define GRID_MajorLines_IntensityOnly
+
 uniform float Brightness;
 uniform bool ApplyTexture;
 uniform sampler2D FaceTexture;
@@ -47,16 +50,11 @@ void gridCheckerboard(vec2 inCoords) {
         gl_FragColor.rgb -= vec3(GridAlpha * 0.1);
 }
 
-void gridLines(vec2 inCoords) {
-	vec2 prepCoords = inCoords + vec2(0.3);
-
-	if (abs(mod(prepCoords.x, 64)) <= 0.6 || abs(mod(prepCoords.y, 64)) <= 0.6)
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.75);
-	else if (abs(mod(prepCoords.x, GridSize)) <= 0.6 || abs(mod(prepCoords.y, GridSize)) <= 0.6)
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.5);
-}
-
+#ifdef GRID_MajorLines_IntensityOnly
 float getSoftStripes(float value, float gridSize, float stripeSize) {
+#else
+float getSoftStripes(float value, float gridSize, float stripeSize, float stripeSizeMajor) {
+#endif
 	float mainVal = value * gridSize;
 	float triangle = abs(2.0 * fract(mainVal) - 1.0);
 	float filterWidth = fwidth(value);
@@ -66,19 +64,41 @@ float getSoftStripes(float value, float gridSize, float stripeSize) {
 	float mValue = 1.0 / (64.0 * gridSize);
 	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
 	float isMajor = step(1.0 - mValue, triMajor);
-	float outIntensity = isMajor * 0.3 + 0.85;
-	float sSize = mix(stripeSize, 1.0 - stripeSize * gridSize * 1.1, isMajor);
+
+#ifdef GRID_MajorLines_IntensityOnly
+	float outIntensity = isMajor * 0.5 + 0.85; // tweak intensities here
+	float sSize = stripeSize;
+#else
+	float outIntensity = isMajor * 0.3 + 0.85; // tweak intensities here
+	float sSize = mix(stripeSize, stripeSizeMajor, isMajor);
+#endif
 
 	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
 }
 
-void gridLinesSoft(vec2 inCoords, float gridSize, float stripeSize, float gridSize2, float stripeSize2, float gridBlend) {
+void gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseStripeSize, float gridBlend) {
+	float stripeRatio = baseStripeSize * gridRatio;
+	float stripeRatio2 = baseStripeSize * gridRatio2;
+	float stripeSize = 1.0 - stripeRatio;
+    float stripeSize2 = 1.0 - stripeRatio2;
+
 	float theGrid, nextGrid;
 
-	theGrid = getSoftStripes(inCoords.x, gridSize, stripeSize);
-	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridSize, stripeSize));
-	nextGrid = getSoftStripes(inCoords.x, gridSize2, stripeSize2);
-	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridSize2, stripeSize2));
+#ifdef GRID_MajorLines_IntensityOnly
+	theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
+	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
+	nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2);
+	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2));
+#else
+    float stripeSizeM = 1.0 - stripeRatio * 1.75;
+    float stripeSizeM2 = 1.0 - stripeRatio2 * 1.75;
+
+	theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize, stripeSizeM);
+	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize, stripeSizeM));
+	nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2, stripeSizeM2);
+	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2, stripeSizeM2));
+#endif
+
 	theGrid = mix(theGrid, nextGrid, gridBlend);
 
 	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
@@ -157,11 +177,8 @@ void main() {
 
 		gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);
 
-		float gS = 1.0 / baseGridSize;
-		float gS2 = 1.0 / nextGridSize;
-
-		float gT = 1.0 - gridThickness * gS;
-        float gT2 = 1.0 - gridThickness * gS2;
+		float gridRatio = 1.0 / baseGridSize;
+		float gridRatio2 = 1.0 / nextGridSize;
 
 		vec2 baseCoords; // coordinates used for overlay creation
 
@@ -179,8 +196,7 @@ void main() {
 		if (GridCheckerboard) {
 			gridCheckerboard(baseCoords);
 		} else {
-			//gridLines( baseCoords );
-			gridLinesSoft(baseCoords, gS, gT, gS2, gT2, gridBlend);
+			gridLinesSoft(baseCoords, gridRatio, gridRatio2, gridThickness, gridBlend);
 		}
 	}
 }
