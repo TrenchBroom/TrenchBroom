@@ -132,6 +132,10 @@ namespace TrenchBroom {
             m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
              */
 
+            wxStaticText* linkDisplayModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Links"));
+            wxString linkDisplayModes[4] = {wxT("Context"), wxT("Local"), wxT("All"), wxT("Don't show")};
+            m_linkDisplayModeChoice = new wxChoice(renderModeBox, CommandIds::ViewInspector::LinkDisplayModeChoiceId, wxDefaultPosition, wxDefaultSize, 4, linkDisplayModes);
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
             innerSizer->Add(faceRenderModeLabel);
             innerSizer->Add(m_faceRenderModeChoice);

@@ -23,6 +23,8 @@
 #include "Model/EntityTypes.h"
 #include "Utility/VecMath.h"
 
+#include <map>
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
@@ -31,10 +33,28 @@ namespace TrenchBroom {
         
         class Map {
         protected:
+            typedef std::map<String, EntitySet> TargetnameEntityMap;
+            
             BBox m_worldBounds;
             bool m_forceIntegerFacePoints;
             EntityList m_entities;
+            TargetnameEntityMap m_entitiesWithTargetname;
+            TargetnameEntityMap m_entitiesWithTarget;
+            TargetnameEntityMap m_entitiesWithKillTarget;
             Entity* m_worldspawn;
+            
+            void addEntityTargetname(Entity& entity, const String* targetname);
+            void removeEntityTargetname(Entity& entity, const String* targetname);
+
+            void addEntityTarget(Entity& entity, const String* targetname);
+            void removeEntityTarget(Entity& entity, const String* targetname);
+            void addEntityTargets(Entity& entity);
+            void removeEntityTargets(Entity& entity);
+            
+            void addEntityKillTarget(Entity& entity, const String* targetname);
+            void removeEntityKillTarget(Entity& entity, const String* targetname);
+            void addEntityKillTargets(Entity& entity);
+            void removeEntityKillTargets(Entity& entity);
         public:
             Map(const BBox& worldBounds, bool forceIntegerFacePoints);
             ~Map();
@@ -52,6 +72,15 @@ namespace TrenchBroom {
             void addEntity(Entity& entity);
             void removeEntity(Entity& entity);
 
+            EntityList entitiesWithTargetname(const String& targetname) const;
+            void updateEntityTargetname(Entity& entity, const String* newTargetname, const String* oldTargetname);
+            
+            EntityList entitiesWithTarget(const String& targetname) const;
+            void updateEntityTarget(Entity& entity, const String* newTargetname, const String* oldTargetname);
+            
+            EntityList entitiesWithKillTarget(const String& targetname) const;
+            void updateEntityKillTarget(Entity& entity, const String* newTargetname, const String* oldTargetname);
+            
             inline const EntityList& entities() const {
                 return m_entities;
             }

@@ -55,11 +55,23 @@ namespace TrenchBroom {
             static String const ModKey;
             static String const TargetKey;
             static String const KillTargetKey;
-            static String const TargetNameKey;
+            static String const TargetnameKey;
             static String const WadKey;
             static String const DefKey;
             static String const DefaultDefinition;
             static String const FacePointFormatKey;
+            
+            inline static bool isNumberedProperty(const String& pattern, const String& key) {
+                if (key.size() < pattern.size())
+                    return false;
+                for (size_t i = 0; i < pattern.size(); i++)
+                    if (key[i] != pattern[i])
+                        return false;
+                for (size_t i = pattern.size(); i < key.size(); i++)
+                    if (key[i] < '0' || key[i] > '9')
+                        return false;
+                return true;
+            }
         protected:
             Map* m_map;
             PropertyStore m_propertyStore;
@@ -77,14 +89,22 @@ namespace TrenchBroom {
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
 
-            mutable EntityList m_linkTargets;
-            mutable EntityList m_linkSources;
-            mutable bool m_linksValid;
+            EntityList m_linkTargets;
+            EntityList m_linkSources;
+            EntityList m_killTargets;
+            EntityList m_killSources;
 
+            void addLinkTarget(Entity& entity);
+            void removeLinkTarget(Entity& entity);
+            void addLinkSource(Entity& entity);
+            void removeLinkSource(Entity& entity);
+            void addKillTarget(Entity& entity);
+            void removeKillTarget(Entity& entity);
+            void addKillSource(Entity& entity);
+            void removeKillSource(Entity& entity);
+            
             void init();
             void validateGeometry() const;
-            void validateLinks();
-            void invalidateNeighbourLinks();
 
             typedef enum {
                 RTNone,
@@ -117,12 +137,7 @@ namespace TrenchBroom {
                 return m_map;
             }
 
-            inline void setMap(Map* map) {
-                m_map = map;
-
-                invalidateNeighbourLinks();
-                invalidateLinks();
-            }
+            inline void setMap(Map* map);
 
             inline const PropertyList& properties() const {
                 return m_propertyStore.properties();
@@ -143,20 +158,14 @@ namespace TrenchBroom {
             static bool propertyKeyIsMutable(const PropertyKey& key);
             void removeProperty(const PropertyKey& key);
 
-            void updateLinkTargets();
-            void updateLinkSources();
-
-            inline EntityList& linkTargets() {
-                if (!m_linksValid)
-                    validateLinks();
-
+            StringList linkTargetnames() const;
+            StringList killTargetnames() const;
+            
+            inline const EntityList& linkTargets() const {
                 return m_linkTargets;
             }
 
-            inline EntityList& linkSources() {
-                if (!m_linksValid)
-                    validateLinks();
-
+            inline const EntityList& linkSources() const {
                 return m_linkSources;
             }
 
@@ -252,10 +261,6 @@ namespace TrenchBroom {
 
             inline void invalidateGeometry() {
                 m_geometryValid = false;
-            }
-
-            inline void invalidateLinks() {
-                m_linksValid = false;
             }
 
             void translate(const Vec3f& delta, bool lockTextures);

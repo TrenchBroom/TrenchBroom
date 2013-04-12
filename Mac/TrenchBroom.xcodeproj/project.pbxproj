@@ -128,6 +128,9 @@
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
 		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
+		4898742F17189EB000029097 /* EntityLinkDecorator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898742D17189EAF00029097 /* EntityLinkDecorator.cpp */; };
+		489874321718C05400029097 /* EntityLink.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 489874301718C05300029097 /* EntityLink.fragsh */; };
+		489874331718C05400029097 /* EntityLink.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 489874311718C05400029097 /* EntityLink.vertsh */; };
 		48A6E45F16D3EB2000CC328C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 48A6E45E16D3EB2000CC328C /* Icon.png */; };
 		48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
@@ -503,6 +506,10 @@
 		4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTexturesCommand.h; sourceTree = "<group>"; };
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
+		4898742D17189EAF00029097 /* EntityLinkDecorator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityLinkDecorator.cpp; sourceTree = "<group>"; };
+		4898742E17189EB000029097 /* EntityLinkDecorator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityLinkDecorator.h; sourceTree = "<group>"; };
+		489874301718C05300029097 /* EntityLink.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EntityLink.fragsh; sourceTree = "<group>"; };
+		489874311718C05400029097 /* EntityLink.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EntityLink.vertsh; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
 		48A6E45E16D3EB2000CC328C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Resources/Graphics/Icon.png; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
@@ -754,6 +761,8 @@
 				484CEC47165396A9000913D0 /* EdgeRenderer.cpp */,
 				484CEC48165396A9000913D0 /* EdgeRenderer.h */,
 				487567B016A09BF5008F316F /* EntityDecorator.h */,
+				4898742D17189EAF00029097 /* EntityLinkDecorator.cpp */,
+				4898742E17189EB000029097 /* EntityLinkDecorator.h */,
 				4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */,
 				4850D27615F4C9C2005B162D /* EntityModelRenderer.h */,
 				4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */,
@@ -1274,6 +1283,8 @@
 				488611CE17132A4A0001C423 /* Compass.vertsh */,
 				48AD1B2F1646C03D009F839B /* Edge.fragsh */,
 				48AD1B301646C03D009F839B /* Edge.vertsh */,
+				489874301718C05300029097 /* EntityLink.fragsh */,
+				489874311718C05400029097 /* EntityLink.vertsh */,
 				48E2ECD116007A4400B8D476 /* EntityModel.vertsh */,
 				48E2ECD316007A7400B8D476 /* EntityModel.fragsh */,
 				48E2ECBE15FFC14400B8D476 /* Face.vertsh */,
@@ -1431,6 +1442,8 @@
 				48ADAFA91707483E005555DC /* BrowserGroup.vertsh in Resources */,
 				488611CF17132A4B0001C423 /* Compass.fragsh in Resources */,
 				488611D017132A4B0001C423 /* Compass.vertsh in Resources */,
+				489874321718C05400029097 /* EntityLink.fragsh in Resources */,
+				489874331718C05400029097 /* EntityLink.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1625,6 +1638,7 @@
 				488611C0171039850001C423 /* NavBar.cpp in Sources */,
 				488611C91710BEA70001C423 /* CompassRenderer.cpp in Sources */,
 				488611CC171327000001C423 /* OverlayRenderer.cpp in Sources */,
+				4898742F17189EB000029097 /* EntityLinkDecorator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
