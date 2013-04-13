@@ -340,7 +340,7 @@ namespace TrenchBroom {
                 for (nameIt = l_killTargetnames.begin(), nameEnd = l_killTargetnames.end(); nameIt != nameEnd; ++nameIt) {
                     const String& targetname = *nameIt;
                     const EntityList killTargets = m_map->entitiesWithTargetname(targetname);
-                    m_killTargets.insert(m_linkTargets.end(), killTargets.begin(), killTargets.end());
+                    m_killTargets.insert(m_killTargets.end(), killTargets.begin(), killTargets.end());
                 }
                 for (entityIt = m_killTargets.begin(), entityEnd = m_killTargets.end(); entityIt != entityEnd; ++entityIt) {
                     Entity& target = **entityIt;
