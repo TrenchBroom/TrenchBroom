@@ -46,6 +46,7 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHOICE(CommandIds::ViewInspector::FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
@@ -67,12 +68,14 @@ namespace TrenchBroom {
             m_toggleBrushes->SetValue(viewOptions.showBrushes());
             m_toggleClipBrushes->SetValue(viewOptions.showClipBrushes());
             m_toggleSkipBrushes->SetValue(viewOptions.showSkipBrushes());
+            m_toggleHintBrushes->SetValue(viewOptions.showHintBrushes());
 
             m_toggleEntityModels->Enable(viewOptions.showEntities());
             m_toggleEntityBounds->Enable(viewOptions.showEntities());
             m_toggleEntityClassnames->Enable(viewOptions.showEntities());
             m_toggleClipBrushes->Enable(viewOptions.showBrushes());
             m_toggleSkipBrushes->Enable(viewOptions.showBrushes());
+            m_toggleHintBrushes->Enable(viewOptions.showBrushes());
 
             m_faceRenderModeChoice->SetSelection(viewOptions.faceRenderMode());
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
@@ -92,6 +95,7 @@ namespace TrenchBroom {
             m_toggleBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowBrushesCheckBoxId, wxT("Brushes"));
             m_toggleClipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
             m_toggleSkipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
+            m_toggleHintBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, wxT("Hint brushes"));
             
             wxGridBagSizer* filterPanelSizer = new wxGridBagSizer(LayoutConstants::CheckBoxVerticalMargin, LayoutConstants::ControlHorizontalMargin);
             filterPanelSizer->Add(m_toggleEntities, wxGBPosition(0, 0));
@@ -102,6 +106,7 @@ namespace TrenchBroom {
             filterPanelSizer->Add(m_toggleBrushes, wxGBPosition(0, 1));
             filterPanelSizer->Add(m_toggleClipBrushes, wxGBPosition(1, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->Add(m_toggleSkipBrushes, wxGBPosition(2, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleHintBrushes, wxGBPosition(3, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->AddGrowableCol(1);
             
             // layout of the contained controls
@@ -210,6 +215,12 @@ namespace TrenchBroom {
                 }
                 case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
                     editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
+                    editorView.OnUpdate(NULL, &command);
+                    break;
+                }
+                case CommandIds::ViewInspector::ShowHintBrushesCheckBoxId: {
+                    editorView.viewOptions().setShowHintBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState);
                     editorView.OnUpdate(NULL, &command);
                     break;

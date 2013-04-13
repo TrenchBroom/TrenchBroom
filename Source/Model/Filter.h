@@ -126,6 +126,7 @@ namespace TrenchBroom {
                     const Model::FaceList& faces = brush.faces();
                     unsigned int clipCount = 0;
                     unsigned int skipCount = 0;
+                    unsigned int hintCount = 0;
                     bool matches = pattern.empty();
                     for (unsigned int i = 0; i < faces.size(); i++) {
                         const String& textureName = faces[i]->textureName();
@@ -133,6 +134,8 @@ namespace TrenchBroom {
                             clipCount++;
                         if (!m_viewOptions.showSkipBrushes() && Utility::containsString(textureName, "skip", false))
                             skipCount++;
+                        if (!m_viewOptions.showHintBrushes() && Utility::containsString(textureName, "hint", false))
+                            hintCount++;
                         if (!matches)
                             matches = Utility::containsString(textureName, pattern, false);
                     }
@@ -140,6 +143,8 @@ namespace TrenchBroom {
                     if (!m_viewOptions.showClipBrushes() && clipCount == faces.size())
                         return false;
                     if (!m_viewOptions.showSkipBrushes() && skipCount == faces.size())
+                        return false;
+                    if (!m_viewOptions.showHintBrushes() && hintCount == faces.size())
                         return false;
 
                     return matches;

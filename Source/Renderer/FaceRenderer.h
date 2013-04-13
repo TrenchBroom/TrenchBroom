@@ -44,6 +44,20 @@ namespace TrenchBroom {
 
             Color m_faceColor;
             TextureVertexArrayList m_vertexArrays;
+            TextureVertexArrayList m_transparentVertexArrays;
+            
+            static String AlphaBlendedTextures[];
+            
+            inline static bool alphaBlend(const String& textureName) {
+                if (textureName.empty())
+                    return false;
+                if (textureName[0] == '*')
+                    return true;
+                for (size_t i = 0; i < 5; i++)
+                    if (textureName == AlphaBlendedTextures[i])
+                        return true;
+                return false;
+            }
             
             void writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter);
             void render(RenderContext& context, bool grayScale, const Color* tintColor);

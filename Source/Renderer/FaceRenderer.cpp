@@ -34,6 +34,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", "skip", "skiphint", "trigger"};
+
         void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter) {
             const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
             if (faceCollectionMap.empty())
@@ -57,7 +59,10 @@ namespace TrenchBroom {
                     vertexArray->addAttributes(face->cachedVertices());
                 }
                 
-                m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
+                if (texture != NULL && alphaBlend(texture->name()))
+                    m_transparentVertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
+                else
+                    m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
             }
         }
 
@@ -76,6 +81,7 @@ namespace TrenchBroom {
                 
                 const bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
                 faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                faceProgram.setUniformVariable("Alpha", 1.0f);
                 faceProgram.setUniformVariable("RenderGrid", grid.visible());
                 faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 faceProgram.setUniformVariable("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
@@ -89,8 +95,27 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("ShadeFaces", context.viewOptions().shadeFaces() );
                 faceProgram.setUniformVariable("UseFog", context.viewOptions().useFog() );
                 
-                for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
+                for (size_t i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
+                    if (textureVertexArray.texture != NULL) {
+                        textureVertexArray.texture->activate();
+                        faceProgram.setUniformVariable("ApplyTexture", applyTexture);
+                        faceProgram.setUniformVariable("FaceTexture", 0);
+                        faceProgram.setUniformVariable("Color", textureVertexArray.texture->averageColor());
+                    } else {
+                        faceProgram.setUniformVariable("ApplyTexture", false);
+                        faceProgram.setUniformVariable("Color", m_faceColor);
+                    }
+                    
+                    textureVertexArray.vertexArray->render();
+                    
+                    if (textureVertexArray.texture != NULL)
+                        textureVertexArray.texture->deactivate();
+                }
+
+                faceProgram.setUniformVariable("Alpha", 0.4f);
+                for (size_t i = 0; i < m_transparentVertexArrays.size(); i++) {
+                    TextureVertexArray& textureVertexArray = m_transparentVertexArrays[i];
                     if (textureVertexArray.texture != NULL) {
                         textureVertexArray.texture->activate();
                         faceProgram.setUniformVariable("ApplyTexture", applyTexture);

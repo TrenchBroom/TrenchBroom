@@ -35,7 +35,9 @@ namespace TrenchBroom {
             texture(i_texture),
             vertexArray(i_vertexArray) {}
             
-            TextureVertexArray(const TextureVertexArray& other) : texture(other.texture), vertexArray(other.vertexArray) {
+            TextureVertexArray(const TextureVertexArray& other) :
+            texture(other.texture),
+            vertexArray(other.vertexArray) {
                 other.vertexArray = NULL;
             }
             

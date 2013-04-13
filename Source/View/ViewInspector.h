@@ -42,6 +42,7 @@ namespace TrenchBroom {
             wxCheckBox* m_toggleBrushes;
             wxCheckBox* m_toggleClipBrushes;
             wxCheckBox* m_toggleSkipBrushes;
+            wxCheckBox* m_toggleHintBrushes;
             wxChoice* m_faceRenderModeChoice;
             wxCheckBox* m_toggleRenderEdges;
             wxCheckBox* m_toggleFaceShading;
