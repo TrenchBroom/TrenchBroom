@@ -22,6 +22,7 @@
 #include "Model/Entity.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
+#include "Model/MapDocument.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -34,8 +35,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRotationDecorator::EntityRotationDecorator(const Model::Map& map, const Color& color) :
-        EntityDecorator(map),
+        EntityRotationDecorator::EntityRotationDecorator(const Model::MapDocument& document, const Color& color) :
+        EntityDecorator(document),
         m_color(color),
         m_vertexArray(NULL),
         m_valid(false) {}
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             if (!context.viewOptions().showEntities() || !context.viewOptions().showEntityBounds())
                 return;
             
-            const Model::EntityList& entities = map().entities();
+            const Model::EntityList& entities = document().map().entities();
             if (entities.empty())
                 return;
             

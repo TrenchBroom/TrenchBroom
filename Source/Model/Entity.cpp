@@ -52,27 +52,35 @@ namespace TrenchBroom {
         String const Entity::FacePointFormatKey  = "_point_format";
 
         void Entity::addLinkTarget(Entity& entity) {
+            m_linkTargets.push_back(&entity);
         }
         
         void Entity::removeLinkTarget(Entity& entity) {
+            Utility::erase(m_linkTargets, &entity);
         }
         
         void Entity::addLinkSource(Entity& entity) {
+            m_linkSources.push_back(&entity);
         }
         
         void Entity::removeLinkSource(Entity& entity) {
+            Utility::erase(m_linkSources, &entity);
         }
         
         void Entity::addKillTarget(Entity& entity) {
+            m_killTargets.push_back(&entity);
         }
         
         void Entity::removeKillTarget(Entity& entity) {
+            Utility::erase(m_killTargets, &entity);
         }
         
         void Entity::addKillSource(Entity& entity) {
+            m_killSources.push_back(&entity);
         }
         
         void Entity::removeKillSource(Entity& entity) {
+            Utility::erase(m_killSources, &entity);
         }
 
         void Entity::init() {
@@ -395,18 +403,21 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                // create link to new target
-                if (value != NULL && !value->empty()) {
-                    const EntityList targets = m_map->entitiesWithTargetname(*value);
-                    EntityList::const_iterator it, end;
-                    for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                        Entity& entity = **it;
-                        entity.addLinkSource(*this);
-                        m_linkTargets.push_back(&entity);
-                    }
-                }
                 
-                m_map->updateEntityTarget(*this, value, oldValue);
+                if (m_map != NULL) {
+                    // create link to new target
+                    if (value != NULL && !value->empty()) {
+                        const EntityList targets = m_map->entitiesWithTargetname(*value);
+                        EntityList::const_iterator it, end;
+                        for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                            Entity& entity = **it;
+                            entity.addLinkSource(*this);
+                            m_linkTargets.push_back(&entity);
+                        }
+                    }
+                    
+                    m_map->updateEntityTarget(*this, value, oldValue);
+                }
             } else if (isNumberedProperty(KillTargetKey, key)) {
                 // sever link to old killtarget
                 if (oldValue != NULL && !oldValue->empty()) {
@@ -426,18 +437,21 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                // create link to new killtarget
-                if (value != NULL && !value->empty()) {
-                    const EntityList targets = m_map->entitiesWithTargetname(*value);
-                    EntityList::const_iterator it, end;
-                    for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                        Entity& entity = **it;
-                        entity.addKillSource(*this);
-                        m_killTargets.push_back(&entity);
-                    }
-                }
                 
-                m_map->updateEntityKillTarget(*this, value, oldValue);
+                if (m_map != NULL) {
+                    // create link to new killtarget
+                    if (value != NULL && !value->empty()) {
+                        const EntityList targets = m_map->entitiesWithTargetname(*value);
+                        EntityList::const_iterator it, end;
+                        for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                            Entity& entity = **it;
+                            entity.addKillSource(*this);
+                            m_killTargets.push_back(&entity);
+                        }
+                    }
+                    
+                    m_map->updateEntityKillTarget(*this, value, oldValue);
+                }
             } else if (key == TargetnameKey) {
                 EntityList::const_iterator it, end;
                 
@@ -455,24 +469,26 @@ namespace TrenchBroom {
                 }
                 m_killSources.clear();
                 
-                if (value != NULL && !value->empty()) {
-                    // add links from everything targeting this
-                    const EntityList linkSources = m_map->entitiesWithTarget(*value);
-                    for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
-                        Entity& source = **it;
-                        source.addLinkTarget(*this);
-                        m_linkSources.push_back(&source);
+                if (m_map != NULL) {
+                    if (value != NULL && !value->empty()) {
+                        // add links from everything targeting this
+                        const EntityList linkSources = m_map->entitiesWithTarget(*value);
+                        for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
+                            Entity& source = **it;
+                            source.addLinkTarget(*this);
+                            m_linkSources.push_back(&source);
+                        }
+                        
+                        const EntityList killSources = m_map->entitiesWithKillTarget(*value);
+                        for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
+                            Entity& source = **it;
+                            source.addKillTarget(*this);
+                            m_killSources.push_back(&source);
+                        }
                     }
                     
-                    const EntityList killSources = m_map->entitiesWithKillTarget(*value);
-                    for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
-                        Entity& source = **it;
-                        source.addKillTarget(*this);
-                        m_killSources.push_back(&source);
-                    }
+                    m_map->updateEntityTargetname(*this, value, oldValue);
                 }
-                
-                m_map->updateEntityTargetname(*this, value, oldValue);
             }
             
             if (value == NULL)

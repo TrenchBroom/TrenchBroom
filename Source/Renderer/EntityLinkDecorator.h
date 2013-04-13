@@ -22,12 +22,13 @@
 
 #include "Renderer/EntityDecorator.h"
 
-#include "Utility/Color.h"
 #include "Model/Entity.h"
+#include "Utility/Color.h"
+#include "View/ViewOptions.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Map;
+        class MapDocument;
     }
     
     namespace Renderer {
@@ -36,21 +37,20 @@ namespace TrenchBroom {
         class EntityLinkDecorator : public EntityDecorator {
         private:
             Color m_color;
-            VertexArray* m_vertexArray;
+            VertexArray* m_selectedLinkArray;
+            VertexArray* m_unselectedLinkArray;
             bool m_valid;
-            bool m_doRebuild;
+            
+            void makeLink(Model::Entity& source, Model::Entity& target, Vec3f::List& vertices) const;
+            void buildLinks(RenderContext& context, Model::Entity& entity, size_t depth, Model::EntitySet& visitedEntities, Vec3f::List& selectedLinks, Vec3f::List& unselectedLinks) const;
         public:
-            EntityLinkDecorator(const Model::Map& map, const Color& color);
+            EntityLinkDecorator(const Model::MapDocument& document, const Color& color);
+            ~EntityLinkDecorator();
             
             inline void invalidate() {
                 m_valid = false;
-                m_doRebuild = true;
             }
 
-            void addArrowVerts(Vec4f::List& vList, const Vec3f& pointA, const Vec3f& pointB);
-            void gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, Model::Entity& curEnt, Model::EntitySet &visitedEntities);
-            void gatherLinksLocal(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt);
-            void gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Map;
+        class MapDocument;
     }
     
     namespace Renderer {
@@ -33,15 +33,15 @@ namespace TrenchBroom {
         
         class EntityDecorator {
         private:
-            const Model::Map& m_map;
+            const Model::MapDocument& m_document;
         protected:
-            inline const Model::Map& map() const {
-                return m_map;
+            inline const Model::MapDocument& document() const {
+                return m_document;
             }
         public:
             typedef std::vector<EntityDecorator*> List;
             
-            EntityDecorator(const Model::Map& map) : m_map(map) {}
+            EntityDecorator(const Model::MapDocument& document) : m_document(document) {}
             virtual ~EntityDecorator() {}
 
             virtual void invalidate() = 0;

@@ -169,6 +169,14 @@ namespace TrenchBroom {
                 return m_linkSources;
             }
 
+            inline const EntityList& killTargets() const {
+                return m_killTargets;
+            }
+            
+            inline const EntityList& killSources() const {
+                return m_killSources;
+            }
+            
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
             }

@@ -20,31 +20,10 @@
  */
 
 uniform vec3 CameraPosition;
-uniform vec4 Color;
-uniform float Occluded;
 
-varying vec4 vertexColor;
-varying vec3 viewVector;
-varying float lineGradient; // goes from 0( at source ) to 1( at target ) along the link
+varying float distance;
 
 void main(void) {
     gl_Position = ftransform();
-
-    vec4 vertColor;
-
-    // these should probably be view-preferences
-    if( gl_Color.g < 0.4 ) {
-    	vertColor = vec4( 0.5, 0.5, 0.5, 0.35 ); // unrelated color
-    } else
-    if( gl_Color.g < 0.9 ) {
-    	vertColor = vec4( 0.2, 0.431, 0.8, 0.75 ); // context color
-    } else {
-    	vertColor = vec4( 1.0, 0.35, 0.0, 1.0 ); // local color
-    }
-
-    vertexColor.rgb = vertColor.rgb;
-    vertexColor.a = vertColor.a * ( 0.9 - Occluded * 0.4 );
-    lineGradient = gl_Color.r;
-
-    viewVector = CameraPosition - gl_Vertex.xyz;
+    distance = length(CameraPosition - gl_Vertex.xyz);
 }

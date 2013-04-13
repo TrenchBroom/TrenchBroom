@@ -508,8 +508,8 @@
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
 		4898742D17189EAF00029097 /* EntityLinkDecorator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityLinkDecorator.cpp; sourceTree = "<group>"; };
 		4898742E17189EB000029097 /* EntityLinkDecorator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityLinkDecorator.h; sourceTree = "<group>"; };
-		489874301718C05300029097 /* EntityLink.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EntityLink.fragsh; sourceTree = "<group>"; };
-		489874311718C05400029097 /* EntityLink.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EntityLink.vertsh; sourceTree = "<group>"; };
+		489874301718C05300029097 /* EntityLink.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.fragsh; sourceTree = "<group>"; };
+		489874311718C05400029097 /* EntityLink.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.vertsh; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
 		48A6E45E16D3EB2000CC328C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Resources/Graphics/Icon.png; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };

@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Map;
+        class MapDocument;
     }
     
     namespace Renderer {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             VertexArray* m_vertexArray;
             bool m_valid;
         public:
-            EntityRotationDecorator(const Model::Map& map, const Color& color);
+            EntityRotationDecorator(const Model::MapDocument& document, const Color& color);
             
             inline void invalidate() {
                 m_valid = false;
