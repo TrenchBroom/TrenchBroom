@@ -60,7 +60,7 @@ namespace TrenchBroom {
             static String const DefKey;
             static String const DefaultDefinition;
             static String const FacePointFormatKey;
-            
+
             inline static bool isNumberedProperty(const String& pattern, const String& key) {
                 if (key.size() < pattern.size())
                     return false;
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             void removeKillTarget(Entity& entity);
             void addKillSource(Entity& entity);
             void removeKillSource(Entity& entity);
-            
+
             void init();
             void validateGeometry() const;
 
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 RTZAngleWithUpDown,
                 RTEulerAngles
             } RotationType;
-            
+
             struct RotationInfo {
                 const RotationType type;
                 const PropertyKey property;
@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 return m_map;
             }
 
-            inline void setMap(Map* map);
+            void setMap(Map* map);
 
             inline const PropertyList& properties() const {
                 return m_propertyStore.properties();
@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
             StringList linkTargetnames() const;
             StringList killTargetnames() const;
-            
+
             inline const EntityList& linkTargets() const {
                 return m_linkTargets;
             }
@@ -172,11 +172,11 @@ namespace TrenchBroom {
             inline const EntityList& killTargets() const {
                 return m_killTargets;
             }
-            
+
             inline const EntityList& killSources() const {
                 return m_killSources;
             }
-            
+
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
             }

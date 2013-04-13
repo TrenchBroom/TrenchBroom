@@ -321,6 +321,8 @@
 		<Unit filename="../Source/Renderer/EntityDecorator.h" />
 		<Unit filename="../Source/Renderer/EntityFigure.cpp" />
 		<Unit filename="../Source/Renderer/EntityFigure.h" />
+		<Unit filename="../Source/Renderer/EntityLinkDecorator.cpp" />
+		<Unit filename="../Source/Renderer/EntityLinkDecorator.h" />
 		<Unit filename="../Source/Renderer/EntityModelRenderer.cpp" />
 		<Unit filename="../Source/Renderer/EntityModelRenderer.h" />
 		<Unit filename="../Source/Renderer/EntityModelRendererManager.cpp" />
