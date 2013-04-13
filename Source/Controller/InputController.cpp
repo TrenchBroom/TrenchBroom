@@ -386,7 +386,7 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-        
+
         bool InputController::navigateUp() {
             updateHits();
             bool done = m_toolChain->navigateUp(m_inputState);
@@ -423,13 +423,13 @@ namespace TrenchBroom {
                 default:
                     break;
             }
-            
+
             updateHits();
             m_toolChain->update(command, m_inputState);
             updateModalTool();
             updateViews();
         }
-        
+
         void InputController::cameraChanged() {
             updateHits();
             m_toolChain->cameraChanged(m_inputState);
@@ -515,7 +515,7 @@ namespace TrenchBroom {
             updateHits();
             updateViews();
         }
-        
+
         void InputController::toggleMoveVerticesTool(size_t changeCount) {
             toggleTool(m_moveVerticesTool);
             if (m_moveVerticesTool->active())
@@ -580,11 +580,21 @@ namespace TrenchBroom {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 Model::EditStateManager& editStateManager = document.editStateManager();
                 assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+
                 const Model::BrushList brushes = editStateManager.selectedBrushes(); // we need a copy here!
                 assert(!brushes.empty());
 
+                // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+                Model::BrushList::const_iterator brushIt = brushes.begin();
+                Model::BrushList::const_iterator brushEnd = brushes.end();
+                Model::Entity* entityTemplate = (*brushIt++)->entity();
+                while (brushIt != brushEnd && entityTemplate != NULL) {
+                    if ((*brushIt++)->entity() != entityTemplate)
+                        entityTemplate = NULL;
+                }
+
                 const BBox& worldBounds = document.map().worldBounds();
-                Model::Entity* entity = new Model::Entity(worldBounds);
+                Model::Entity* entity = entityTemplate == NULL || entityTemplate->worldspawn() ? new Model::Entity(worldBounds) : new Model::Entity(worldBounds, *entityTemplate);
                 entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 entity->setDefinition(&definition);
 
