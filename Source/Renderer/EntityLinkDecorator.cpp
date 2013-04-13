@@ -38,12 +38,23 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        void EntityLinkDecorator::clear() {
+            delete m_selectedLinkArray;
+            m_selectedLinkArray = NULL;
+            delete m_unselectedLinkArray;
+            m_unselectedLinkArray = NULL;
+            delete m_selectedKillLinkArray;
+            m_selectedKillLinkArray = NULL;
+            delete m_unselectedKillLinkArray;
+            m_unselectedKillLinkArray = NULL;
+        }
+        
         void EntityLinkDecorator::makeLink(Model::Entity& source, Model::Entity& target, Vec3f::List& vertices) const {
             vertices.push_back(source.center());
             vertices.push_back(target.center());
         }
 
-        void EntityLinkDecorator::buildLinks(RenderContext& context, Model::Entity& entity, size_t depth, Model::EntitySet& visitedEntities, Vec3f::List& selectedLinks, Vec3f::List& unselectedLinks) const {
+        void EntityLinkDecorator::buildLinks(RenderContext& context, Model::Entity& entity, size_t depth, Model::EntitySet& visitedEntities, Vec3f::List& selectedLinks, Vec3f::List& unselectedLinks, Vec3f::List& selectedKillLinks, Vec3f::List& unselectedKillLinks) const {
             if (context.viewOptions().linkDisplayMode() == View::ViewOptions::LinkDisplayLocal && depth > 1)
                 return;
 
@@ -63,14 +74,14 @@ namespace TrenchBroom {
                     (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected()))
                     makeLink(target, entity, entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected() ? selectedLinks : unselectedLinks);
                 if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth == 0)
-                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks);
             }
             
             const Model::EntityList& linkSources = entity.linkSources();
             for (entityIt = linkSources.begin(), entityEnd = linkSources.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& source = **entityIt;
                 if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth <= 1)
-                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks);
             }
             
             const Model::EntityList& killTargets = entity.killTargets();
@@ -78,16 +89,16 @@ namespace TrenchBroom {
                 Model::Entity& target = **entityIt;
                 if (entityVisible && context.filter().entityVisible(target) &&
                     (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected()))
-                    makeLink(target, entity, entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected() ? selectedLinks : unselectedLinks);
+                    makeLink(target, entity, entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected() ? selectedKillLinks : unselectedKillLinks);
                 if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth == 0)
-                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks);
             }
             
             const Model::EntityList& killSources = entity.killSources();
             for (entityIt = killSources.begin(), entityEnd = killSources.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& source = **entityIt;
                 if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth <= 1)
-                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks);
             }
         }
 
@@ -96,13 +107,12 @@ namespace TrenchBroom {
         m_color(color),
         m_selectedLinkArray(NULL),
         m_unselectedLinkArray(NULL),
+        m_selectedKillLinkArray(NULL),
+        m_unselectedKillLinkArray(NULL),
         m_valid(false) {}
 
         EntityLinkDecorator::~EntityLinkDecorator() {
-            delete m_selectedLinkArray;
-            m_selectedLinkArray = NULL;
-            delete m_unselectedLinkArray;
-            m_unselectedLinkArray = NULL;
+            clear();
         }
 
         void EntityLinkDecorator::render(Vbo& vbo, RenderContext& context) {
@@ -112,30 +122,37 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
             if (!m_valid) {
-                delete m_selectedLinkArray;
-                m_selectedLinkArray = NULL;
-                delete m_unselectedLinkArray;
-                m_unselectedLinkArray = NULL;
-
-                Vec3f::List selectedVertices, unselectedVertices;
+                clear();
+                
+                Vec3f::List selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks;
                 Model::EntitySet visitedEntities;
 
                 const Model::EntityList& entities = context.viewOptions().linkDisplayMode() == View::ViewOptions::LinkDisplayAll ? document().map().entities() : document().editStateManager().allSelectedEntities();
                 Model::EntityList::const_iterator it, end;
                 for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                     Model::Entity& entity = **it;
-                    buildLinks(context, entity, 0, visitedEntities, selectedVertices, unselectedVertices);
+                    buildLinks(context, entity, 0, visitedEntities, selectedLinks, unselectedLinks, selectedKillLinks, unselectedKillLinks);
                 }
                 
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                if (!selectedVertices.empty()) {
-                    m_selectedLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(selectedVertices.size()), Attribute::position3f(), 0);
-                    m_selectedLinkArray->addAttributes(selectedVertices);
+                if (!selectedLinks.empty()) {
+                    m_selectedLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(selectedLinks.size()), Attribute::position3f(), 0);
+                    m_selectedLinkArray->addAttributes(selectedLinks);
                 }
                 
-                if (!unselectedVertices.empty()) {
-                    m_unselectedLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(unselectedVertices.size()), Attribute::position3f(), 0);
-                    m_unselectedLinkArray->addAttributes(unselectedVertices);
+                if (!unselectedLinks.empty()) {
+                    m_unselectedLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(unselectedLinks.size()), Attribute::position3f(), 0);
+                    m_unselectedLinkArray->addAttributes(unselectedLinks);
+                }
+
+                if (!selectedKillLinks.empty()) {
+                    m_selectedKillLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(selectedKillLinks.size()), Attribute::position3f(), 0);
+                    m_selectedKillLinkArray->addAttributes(selectedKillLinks);
+                }
+                
+                if (!unselectedKillLinks.empty()) {
+                    m_unselectedKillLinkArray = new VertexArray(vbo, GL_LINES, static_cast<unsigned int>(unselectedKillLinks.size()), Attribute::position3f(), 0);
+                    m_unselectedKillLinkArray->addAttributes(unselectedKillLinks);
                 }
 
                 m_valid = true;
@@ -165,6 +182,16 @@ namespace TrenchBroom {
                 m_selectedLinkArray->render();
             }
             
+            if (m_unselectedKillLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityKillLinkColor));
+                m_unselectedKillLinkArray->render();
+            }
+            
+            if (m_selectedKillLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityKillLinkColor));
+                m_selectedKillLinkArray->render();
+            }
+            
             glEnable(GL_DEPTH_TEST);
 
             if (m_unselectedLinkArray != NULL) {
@@ -177,6 +204,16 @@ namespace TrenchBroom {
                 m_selectedLinkArray->render();
             }
             
+            if (m_unselectedKillLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::EntityKillLinkColor));
+                m_unselectedKillLinkArray->render();
+            }
+            
+            if (m_selectedKillLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityKillLinkColor));
+                m_selectedKillLinkArray->render();
+            }
+
             glDepthMask(GL_TRUE);
             glLineWidth(1.0f);
         }

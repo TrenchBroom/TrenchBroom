@@ -64,6 +64,11 @@ namespace TrenchBroom {
         const Preference<Color> SelectedEntityLinkColor = Preference<Color>(                    "Renderer/Colors/Selected entity link",                         Color(0.8f,  0.4f,  0.1f,  1.0f ));
         const Preference<Color> OccludedSelectedEntityLinkColor = Preference<Color>(            "Renderer/Colors/Occluded selected entity link",                Color(0.8f,  0.4f,  0.1f,  0.5f ));
 
+        const Preference<Color> EntityKillLinkColor = Preference<Color>(                        "Renderer/Colors/Entity kill link",                             Color(0.1f,  0.6f,  0.3f,  1.0f ));
+        const Preference<Color> OccludedEntityKillLinkColor = Preference<Color>(                "Renderer/Colors/Occluded entity kill link",                    Color(0.1f,  0.6f,  0.3f,  0.5f ));
+        const Preference<Color> SelectedEntityKillLinkColor = Preference<Color>(                "Renderer/Colors/Selected entity kill link",                    Color(0.8f,  0.4f,  0.1f,  1.0f ));
+        const Preference<Color> OccludedSelectedEntityKillLinkColor = Preference<Color>(        "Renderer/Colors/Occluded selected entity kill link",           Color(0.8f,  0.4f,  0.1f,  0.5f ));
+        
         const Preference<Color> FaceColor = Preference<Color>(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
         const Preference<Color> SelectedFaceColor = Preference<Color>(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
         const Preference<Color> LockedFaceColor = Preference<Color>(                            "Renderer/Colors/Locked face",                                  Color(0.35f, 0.35f, 0.6f,  1.0f ));

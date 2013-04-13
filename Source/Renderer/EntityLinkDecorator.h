@@ -39,10 +39,13 @@ namespace TrenchBroom {
             Color m_color;
             VertexArray* m_selectedLinkArray;
             VertexArray* m_unselectedLinkArray;
+            VertexArray* m_selectedKillLinkArray;
+            VertexArray* m_unselectedKillLinkArray;
             bool m_valid;
             
+            void clear();
             void makeLink(Model::Entity& source, Model::Entity& target, Vec3f::List& vertices) const;
-            void buildLinks(RenderContext& context, Model::Entity& entity, size_t depth, Model::EntitySet& visitedEntities, Vec3f::List& selectedLinks, Vec3f::List& unselectedLinks) const;
+            void buildLinks(RenderContext& context, Model::Entity& entity, size_t depth, Model::EntitySet& visitedEntities, Vec3f::List& selectedLinks, Vec3f::List& unselectedLinks, Vec3f::List& selectedKillLinks, Vec3f::List& unselectedKillLinks) const;
         public:
             EntityLinkDecorator(const Model::MapDocument& document, const Color& color);
             ~EntityLinkDecorator();
