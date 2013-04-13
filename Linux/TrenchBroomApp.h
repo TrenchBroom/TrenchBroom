@@ -24,7 +24,7 @@
 
 class TrenchBroomApp : public AbstractApp {
 protected:
-    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
 	bool OnInit();
 public:

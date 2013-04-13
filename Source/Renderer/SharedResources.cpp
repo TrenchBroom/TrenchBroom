@@ -72,10 +72,10 @@ namespace TrenchBroom {
             sizer->Add(m_glCanvas, 1, wxEXPAND);
             SetSizer(sizer);
 
-            SetSize(0, 0);
-            SetPosition(wxPoint(9999, 9999));
+            SetSize(1, 1);
+            SetPosition(wxPoint(-9999, -9999));
             Show();
-            Raise();
+            // Raise();
 
             m_sharedContext->SetCurrent(*m_glCanvas);
 
