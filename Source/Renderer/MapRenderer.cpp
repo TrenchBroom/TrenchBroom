@@ -19,6 +19,10 @@
 
 #include "MapRenderer.h"
 
+#include "Controller/AddObjectsCommand.h"
+#include "Controller/Command.h"
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/RemoveObjectsCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -272,6 +276,140 @@ namespace TrenchBroom {
             }
         }
 
+        void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
+            m_entityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Default));
+            m_entityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Default));
+            m_selectedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Selected));
+            m_selectedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Selected));
+            m_lockedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Locked));
+            m_lockedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Locked));
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Default) ||
+                changeSet.brushStateChangedTo(Model::EditState::Default) ||
+                changeSet.faceSelectionChanged()) {
+                m_geometryDataValid = false;
+                invalidateDecorators();
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Selected) ||
+                changeSet.brushStateChangedTo(Model::EditState::Selected) ||
+                changeSet.faceSelectionChanged()) {
+                m_selectedGeometryDataValid = false;
+                
+                const Model::BrushList& selectedBrushes = changeSet.brushesTo(Model::EditState::Selected);
+                for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                    Model::Brush* brush = selectedBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && entity->partiallySelected()) {
+                        m_entityRenderer->removeEntity(*entity);
+                        m_selectedEntityRenderer->addEntity(*entity);
+                    }
+                }
+                
+                const Model::BrushList& deselectedBrushes = changeSet.brushesFrom(Model::EditState::Selected);
+                for (unsigned int i = 0; i < deselectedBrushes.size(); i++) {
+                    Model::Brush* brush = deselectedBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && !entity->partiallySelected()) {
+                        m_selectedEntityRenderer->removeEntity(*entity);
+                        m_entityRenderer->addEntity(*entity);
+                    }
+                }
+            }
+            
+            if (changeSet.entityStateChangedFrom(Model::EditState::Hidden) ||
+                changeSet.entityStateChangedTo(Model::EditState::Hidden)) {
+                invalidateDecorators();
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Hidden) ||
+                changeSet.brushStateChangedTo(Model::EditState::Hidden)) {
+                
+                const Model::BrushList& hiddenBrushes = changeSet.brushesTo(Model::EditState::Hidden);
+                for (unsigned int i = 0; i < hiddenBrushes.size(); i++) {
+                    Model::Brush* brush = hiddenBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && entity->fullyHidden())
+                        m_entityRenderer->removeEntity(*entity);
+                }
+                
+                const Model::BrushList& unhiddenBrushes = changeSet.brushesFrom(Model::EditState::Hidden);
+                for (unsigned int i = 0; i < unhiddenBrushes.size(); i++) {
+                    Model::Brush* brush = unhiddenBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn())
+                        m_entityRenderer->addEntity(*entity);
+                }
+                
+                invalidateDecorators();
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
+                changeSet.brushStateChangedTo(Model::EditState::Locked)) {
+                m_lockedGeometryDataValid = false;
+            }
+        }
+        
+        void MapRenderer::invalidateEntities() {
+            m_entityRenderer->invalidateBounds();
+            m_selectedEntityRenderer->invalidateBounds();
+            m_lockedEntityRenderer->invalidateBounds();
+            invalidateDecorators();
+        }
+        
+        void MapRenderer::invalidateSelectedEntities() {
+            m_selectedEntityRenderer->invalidateBounds();
+            invalidateDecorators();
+        }
+        
+        void MapRenderer::invalidateBrushes() {
+            m_geometryDataValid = false;
+            m_selectedGeometryDataValid = false;
+            m_lockedGeometryDataValid = false;
+        }
+        
+        void MapRenderer::invalidateSelectedBrushes() {
+            m_selectedGeometryDataValid = false;
+        }
+        
+        void MapRenderer::invalidateAll() {
+            invalidateEntities();
+            invalidateBrushes();
+        }
+        
+        void MapRenderer::invalidateEntityModelRendererCache() {
+            m_entityRenderer->invalidateModels();
+            m_selectedEntityRenderer->invalidateModels();
+            m_lockedEntityRenderer->invalidateModels();
+        }
+        
+        void MapRenderer::invalidateSelectedEntityModelRendererCache() {
+            m_selectedEntityRenderer->invalidateModels();
+        }
+        
+        void MapRenderer::clear() {
+            delete m_faceRenderer;
+            m_faceRenderer = NULL;
+            delete m_selectedFaceRenderer;
+            m_selectedFaceRenderer = NULL;
+            delete m_lockedFaceRenderer;
+            m_lockedFaceRenderer = NULL;
+            
+            delete m_edgeRenderer;
+            m_edgeRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
+            delete m_lockedEdgeRenderer;
+            m_lockedEdgeRenderer = NULL;
+            
+            m_entityRenderer->clear();
+            m_selectedEntityRenderer->clear();
+            m_lockedEntityRenderer->clear();
+            
+            invalidateAll();
+            invalidateEntityModelRendererCache();
+        }
+        
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document),
         m_faceVbo(NULL),
@@ -356,159 +494,101 @@ namespace TrenchBroom {
             m_utilityVbo = NULL;
         }
 
-        void MapRenderer::addEntity(Model::Entity& entity) {
-            m_entityRenderer->addEntity(entity);
-        }
-
-        void MapRenderer::addEntities(const Model::EntityList& entities) {
-            m_entityRenderer->addEntities(entities);
-        }
-
-        void MapRenderer::removeEntity(Model::Entity& entity) {
-            m_entityRenderer->removeEntity(entity);
-        }
-        
-        void MapRenderer::removeEntities(const Model::EntityList& entities) {
-            m_entityRenderer->removeEntities(entities);
-        }
-        
-        void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
-            m_entityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Default));
-            m_entityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Default));
-            m_selectedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Selected));
-            m_selectedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Selected));
-            m_lockedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Locked));
-            m_lockedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Locked));
-            
-            if (changeSet.brushStateChangedFrom(Model::EditState::Default) ||
-                changeSet.brushStateChangedTo(Model::EditState::Default) ||
-                changeSet.faceSelectionChanged()) {
-                m_geometryDataValid = false;
-                invalidateDecorators();
-            }
-
-            if (changeSet.brushStateChangedFrom(Model::EditState::Selected) ||
-                changeSet.brushStateChangedTo(Model::EditState::Selected) ||
-                changeSet.faceSelectionChanged()) {
-                m_selectedGeometryDataValid = false;
-
-                const Model::BrushList& selectedBrushes = changeSet.brushesTo(Model::EditState::Selected);
-                for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
-                    Model::Brush* brush = selectedBrushes[i];
-                    Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn() && entity->partiallySelected()) {
-                        m_entityRenderer->removeEntity(*entity);
-                        m_selectedEntityRenderer->addEntity(*entity);
-                    }
+        void MapRenderer::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap: {
+                    clear();
+                    m_entityRenderer->addEntities(m_document.map().entities());
+                    break;
                 }
-
-                const Model::BrushList& deselectedBrushes = changeSet.brushesFrom(Model::EditState::Selected);
-                for (unsigned int i = 0; i < deselectedBrushes.size(); i++) {
-                    Model::Brush* brush = deselectedBrushes[i];
-                    Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn() && !entity->partiallySelected()) {
-                        m_selectedEntityRenderer->removeEntity(*entity);
-                        m_entityRenderer->addEntity(*entity);
-                    }
+                case Controller::Command::ClearMap: {
+                    clear();
+                    break;
                 }
-            }
-            
-            if (changeSet.entityStateChangedFrom(Model::EditState::Hidden) ||
-                changeSet.entityStateChangedTo(Model::EditState::Hidden)) {
-                invalidateDecorators();
-            }
-            
-            if (changeSet.brushStateChangedFrom(Model::EditState::Hidden) ||
-                changeSet.brushStateChangedTo(Model::EditState::Hidden)) {
-                
-                const Model::BrushList& hiddenBrushes = changeSet.brushesTo(Model::EditState::Hidden);
-                for (unsigned int i = 0; i < hiddenBrushes.size(); i++) {
-                    Model::Brush* brush = hiddenBrushes[i];
-                    Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn() && entity->fullyHidden())
-                        m_entityRenderer->removeEntity(*entity);
+                case Controller::Command::ChangeEditState: {
+                    const Controller::ChangeEditStateCommand& changeEditStateCommand = static_cast<const Controller::ChangeEditStateCommand&>(command);
+                    changeEditState(changeEditStateCommand.changeSet());
+                    invalidateDecorators();
+                    break;
                 }
-                
-                const Model::BrushList& unhiddenBrushes = changeSet.brushesFrom(Model::EditState::Hidden);
-                for (unsigned int i = 0; i < unhiddenBrushes.size(); i++) {
-                    Model::Brush* brush = unhiddenBrushes[i];
-                    Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn())
-                        m_entityRenderer->addEntity(*entity);
+                case Controller::Command::InvalidateRendererEntityState: {
+                    invalidateEntities();
+                    break;
                 }
-                
-                invalidateDecorators();
+                case Controller::Command::InvalidateRendererBrushState: {
+                    invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::InvalidateEntityModelRendererCache: {
+                    invalidateEntityModelRendererCache();
+                    break;
+                }
+                case Controller::Command::SetFaceAttributes:
+                case Controller::Command::MoveTextures:
+                case Controller::Command::RotateTextures: {
+                    invalidateSelectedBrushes();
+                    break;
+                }
+                case Controller::Command::InvalidateRendererState:
+                case Controller::Command::RemoveTextureCollection:
+                case Controller::Command::MoveTextureCollectionUp:
+                case Controller::Command::MoveTextureCollectionDown:
+                case Controller::Command::AddTextureCollection: {
+                    invalidateAll();
+                    break;
+                }
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    invalidateEntities();
+                    invalidateSelectedEntityModelRendererCache();
+                    break;
+                }
+                case Controller::Command::AddObjects: {
+                    const Controller::AddObjectsCommand& addObjectsCommand = static_cast<const Controller::AddObjectsCommand&>(command);
+                    if (addObjectsCommand.state() == Controller::Command::Doing)
+                        m_entityRenderer->addEntities(addObjectsCommand.addedEntities());
+                    else
+                        m_entityRenderer->removeEntities(addObjectsCommand.addedEntities());
+                    if (addObjectsCommand.hasAddedBrushes())
+                        invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::RebuildBrushGeometry:
+                case Controller::Command::MoveVertices:
+                case Controller::Command::SnapVertices:
+                case Controller::Command::MoveObjects:
+                case Controller::Command::RotateObjects:
+                case Controller::Command::FlipObjects:
+                case Controller::Command::ResizeBrushes: {
+                    invalidateSelectedBrushes();
+                    invalidateSelectedEntities();
+                    break;
+                }
+                case Controller::Command::RemoveObjects: {
+                    const Controller::RemoveObjectsCommand& removeObjectsCommand = static_cast<const Controller::RemoveObjectsCommand&>(command);
+                    if (removeObjectsCommand.state() == Controller::Command::Doing)
+                        m_entityRenderer->removeEntities(removeObjectsCommand.removedEntities());
+                    else
+                        m_entityRenderer->addEntities(removeObjectsCommand.removedEntities());
+                    if (!removeObjectsCommand.removedBrushes().empty())
+                        invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::ReparentBrushes: {
+                    invalidateSelectedBrushes();
+                    invalidateEntities();
+                    invalidateSelectedEntities();
+                    break;
+                }
+                case Controller::Command::SetMod:
+                case Controller::Command::SetEntityDefinitionFile: {
+                    invalidateEntityModelRendererCache();
+                    invalidateAll();
+                }
+                default:
+                    break;
             }
-
-            if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
-                changeSet.brushStateChangedTo(Model::EditState::Locked)) {
-                m_lockedGeometryDataValid = false;
-            }
-        }
-
-        void MapRenderer::loadMap() {
-            clearMap();
-            addEntities(m_document.map().entities());
-        }
-        
-        void MapRenderer::clearMap() {
-            delete m_faceRenderer;
-            m_faceRenderer = NULL;
-            delete m_selectedFaceRenderer;
-            m_selectedFaceRenderer = NULL;
-            delete m_lockedFaceRenderer;
-            m_lockedFaceRenderer = NULL;
-            
-            delete m_edgeRenderer;
-            m_edgeRenderer = NULL;
-            delete m_selectedEdgeRenderer;
-            m_selectedEdgeRenderer = NULL;
-            delete m_lockedEdgeRenderer;
-            m_lockedEdgeRenderer = NULL;
-
-            m_entityRenderer->clear();
-            m_selectedEntityRenderer->clear();
-            m_lockedEntityRenderer->clear();
-
-            invalidateAll();
-            invalidateEntityModelRendererCache();
-        }
-
-        void MapRenderer::invalidateEntities() {
-            m_entityRenderer->invalidateBounds();
-            m_selectedEntityRenderer->invalidateBounds();
-            m_lockedEntityRenderer->invalidateBounds();
-            invalidateDecorators();
-        }
-        
-        void MapRenderer::invalidateSelectedEntities() {
-            m_selectedEntityRenderer->invalidateBounds();
-            invalidateDecorators();
-        }
-
-        void MapRenderer::invalidateBrushes() {
-            m_geometryDataValid = false;
-            m_selectedGeometryDataValid = false;
-            m_lockedGeometryDataValid = false;
-        }
-
-        void MapRenderer::invalidateSelectedBrushes() {
-            m_selectedGeometryDataValid = false;
-        }
-
-        void MapRenderer::invalidateAll() {
-            invalidateEntities();
-            invalidateBrushes();
-        }
-
-        void MapRenderer::invalidateEntityModelRendererCache() {
-            m_entityRenderer->invalidateModels();
-            m_selectedEntityRenderer->invalidateModels();
-            m_lockedEntityRenderer->invalidateModels();
-        }
-
-        void MapRenderer::invalidateSelectedEntityModelRendererCache() {
-            m_selectedEntityRenderer->invalidateModels();
         }
 
         void MapRenderer::setPointTrace(const Vec3f::List& points) {

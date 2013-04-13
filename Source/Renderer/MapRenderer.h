@@ -38,6 +38,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
     namespace Model {
         class EditStateChangeSet;
         class MapDocument;
@@ -105,6 +109,17 @@ namespace TrenchBroom {
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
             void renderDecorators(RenderContext& context);
+
+            void changeEditState(const Model::EditStateChangeSet& changeSet);
+            void invalidateEntities();
+            void invalidateSelectedEntities();
+            void invalidateBrushes();
+            void invalidateSelectedBrushes();
+            void invalidateAll();
+            void invalidateEntityModelRendererCache();
+            void invalidateSelectedEntityModelRendererCache();
+            void invalidateDecorators();
+            void clear();
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
@@ -116,22 +131,8 @@ namespace TrenchBroom {
                 m_occludedSelectedEdgeColor = occludedEdgeColor;
             }
             
-            void addEntity(Model::Entity& entity);
-            void addEntities(const Model::EntityList& entities);
-            void removeEntity(Model::Entity& entity);
-            void removeEntities(const Model::EntityList& entities);
-            void changeEditState(const Model::EditStateChangeSet& changeSet);
-            void loadMap();
-            void clearMap();
-            void invalidateEntities();
-            void invalidateSelectedEntities();
-            void invalidateBrushes();
-            void invalidateSelectedBrushes();
-            void invalidateAll();
-            void invalidateEntityModelRendererCache();
-            void invalidateSelectedEntityModelRendererCache();
-            void invalidateDecorators();
-            
+            void update(const Controller::Command& command);
+
             void setPointTrace(const Vec3f::List& points);
             void removePointTrace();
             

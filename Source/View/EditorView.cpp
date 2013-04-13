@@ -635,79 +635,19 @@ namespace TrenchBroom {
                         } else {
                             m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
                         }
-
-                        m_renderer->loadMap();
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
                         break;
                     }
-                    case Controller::Command::ClearMap: {
-                        m_renderer->clearMap();
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
-                        break;
-                    }
-                    case Controller::Command::ChangeEditState: {
-                        Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
-                        m_renderer->changeEditState(changeEditStateCommand->changeSet());
-                        m_renderer->invalidateDecorators();
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
-
-                        break;
-                    }
-                    case Controller::Command::InvalidateRendererEntityState:
-                        m_renderer->invalidateEntities();
-                        break;
-                    case Controller::Command::InvalidateRendererBrushState:
-                        m_renderer->invalidateBrushes();
-                        break;
-                    case Controller::Command::InvalidateRendererState:
-                        m_renderer->invalidateAll();
-                        break;
                     case Controller::Command::InvalidateEntityModelRendererCache:
                         mapDocument().invalidateSearchPaths();
-                        m_renderer->invalidateEntityModelRendererCache();
                         break;
                     case Controller::Command::InvalidateInstancedRenderers:
                         inputController().moveVerticesTool().resetInstancedRenderers();
                         break;
-                    case Controller::Command::SetFaceAttributes:
-                    case Controller::Command::MoveTextures:
-                    case Controller::Command::RotateTextures: {
-                        m_renderer->invalidateSelectedBrushes();
-                        break;
-                    }
                     case Controller::Command::RemoveTextureCollection:
                     case Controller::Command::MoveTextureCollectionUp:
                     case Controller::Command::MoveTextureCollectionDown:
                         mapDocument().sharedResources().textureRendererManager().invalidate();
-                    case Controller::Command::AddTextureCollection:
-                        m_renderer->invalidateAll();
                         break;
-                    case Controller::Command::SetEntityPropertyKey:
-                    case Controller::Command::SetEntityPropertyValue:
-                    case Controller::Command::RemoveEntityProperty: {
-                        m_renderer->invalidateEntities();
-                        m_renderer->invalidateSelectedEntityModelRendererCache();
-                        break;
-                    }
-                    case Controller::Command::AddObjects: {
-                        Controller::AddObjectsCommand* addObjectsCommand = static_cast<Controller::AddObjectsCommand*>(command);
-                        if (addObjectsCommand->state() == Controller::Command::Doing)
-                            m_renderer->addEntities(addObjectsCommand->addedEntities());
-                        else
-                            m_renderer->removeEntities(addObjectsCommand->addedEntities());
-                        if (addObjectsCommand->hasAddedBrushes())
-                            m_renderer->invalidateBrushes();
-                        break;
-                    }
                     case Controller::Command::RebuildBrushGeometry:
                     case Controller::Command::MoveVertices: {
                         if (command->type() == Controller::Command::RebuildBrushGeometry) {
@@ -723,51 +663,11 @@ namespace TrenchBroom {
                             else
                                 inputController().moveVerticesTool().decChangeCount();
                         }
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                    }
-                    case Controller::Command::SnapVertices:
-                    case Controller::Command::MoveObjects:
-                    case Controller::Command::RotateObjects:
-                    case Controller::Command::FlipObjects:
-                    case Controller::Command::ResizeBrushes: {
-                        m_renderer->invalidateSelectedBrushes();
-                        m_renderer->invalidateSelectedEntities();
                         break;
                     }
-                    case Controller::Command::RemoveObjects: {
-                        Controller::RemoveObjectsCommand* removeObjectsCommand = static_cast<Controller::RemoveObjectsCommand*>(command);
-                        if (removeObjectsCommand->state() == Controller::Command::Doing)
-                            m_renderer->removeEntities(removeObjectsCommand->removedEntities());
-                        else
-                            m_renderer->addEntities(removeObjectsCommand->removedEntities());
-                        if (!removeObjectsCommand->removedBrushes().empty())
-                            m_renderer->invalidateBrushes();
-                        break;
-                    }
-                    case Controller::Command::ReparentBrushes: {
-                        m_renderer->invalidateSelectedBrushes();
-                        m_renderer->invalidateEntities();
-                        m_renderer->invalidateSelectedEntities();
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        break;
-                    }
-                    case Controller::Command::UpdateFigures:
-                        break;
                     case Controller::Command::SetMod:
                     case Controller::Command::SetEntityDefinitionFile: {
                         mapDocument().sharedResources().modelRendererManager().clearMismatches();
-                        m_renderer->invalidateEntityModelRendererCache();
-                        m_renderer->invalidateAll();
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        break;
-                    }
-                    case Controller::Command::ClipToolChange:
-                    case Controller::Command::MoveVerticesToolChange: {
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
                         break;
                     }
                     default:
@@ -775,6 +675,10 @@ namespace TrenchBroom {
                 }
                 inputController().update(*command);
                 inspector().update(*command);
+                renderer().update(*command);
+                
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                frame->update(*command);
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());

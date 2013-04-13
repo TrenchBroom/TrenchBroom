@@ -29,6 +29,10 @@ class wxPanel;
 class wxTextCtrl;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
     namespace Model {
         class MapDocument;
     }
@@ -73,8 +77,10 @@ namespace TrenchBroom {
                 return m_logView;
             }
             
-            void updateNavBar();
+            void update(const Controller::Command& command);
             void updateMenuBar();
+            void updateNavBar();
+            
             void disableProcessing();
 
             /*
