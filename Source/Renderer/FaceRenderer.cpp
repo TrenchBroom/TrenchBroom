@@ -34,7 +34,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", "skip", "skiphint", "trigger"};
+        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", "skip", "hintskip", "trigger"};
 
         void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter) {
             const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
