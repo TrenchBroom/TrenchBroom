@@ -59,6 +59,11 @@ namespace TrenchBroom {
         const Preference<Color> GuideColor = Preference<Color>(                                 "Renderer/Colors/Guide",                                        Color(1.0f,  0.0f,  0.0f,  0.3f ));
         const Preference<Color> HoveredGuideColor = Preference<Color>(                          "Renderer/Colors/Hovered guide",                                Color(1.0f,  0.0f,  0.0f,  0.7f ));
 
+        const Preference<Color> EntityLinkColor = Preference<Color>(                            "Renderer/Colors/Entity link",                                  Color(0.4f,  0.4f,  0.4f,  1.0f ));
+        const Preference<Color> OccludedEntityLinkColor = Preference<Color>(                    "Renderer/Colors/Occluded entity link",                         Color(0.4f,  0.4f,  0.4f,  0.5f ));
+        const Preference<Color> SelectedEntityLinkColor = Preference<Color>(                    "Renderer/Colors/Selected entity link",                         Color(0.8f,  0.4f,  0.1f,  1.0f ));
+        const Preference<Color> OccludedSelectedEntityLinkColor = Preference<Color>(            "Renderer/Colors/Occluded selected entity link",                Color(0.8f,  0.4f,  0.1f,  0.5f ));
+
         const Preference<Color> FaceColor = Preference<Color>(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
         const Preference<Color> SelectedFaceColor = Preference<Color>(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
         const Preference<Color> LockedFaceColor = Preference<Color>(                            "Renderer/Colors/Locked face",                                  Color(0.35f, 0.35f, 0.6f,  1.0f ));

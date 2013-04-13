@@ -259,6 +259,11 @@ namespace TrenchBroom {
         extern const Preference<Color>  GuideColor;
         extern const Preference<Color>  HoveredGuideColor;
         
+        extern const Preference<Color>  EntityLinkColor;
+        extern const Preference<Color>  OccludedEntityLinkColor;
+        extern const Preference<Color>  SelectedEntityLinkColor;
+        extern const Preference<Color>  OccludedSelectedEntityLinkColor;
+        
         extern const Preference<Color>  FaceColor;
         extern const Preference<Color>  SelectedFaceColor;
         extern const Preference<Color>  LockedFaceColor;

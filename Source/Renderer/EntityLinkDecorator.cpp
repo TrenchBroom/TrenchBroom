@@ -31,6 +31,7 @@
 #include "Renderer/VertexArray.h"
 #include "Utility/Console.h"
 #include "Utility/List.h"
+#include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -58,29 +59,35 @@ namespace TrenchBroom {
             const Model::EntityList& linkTargets = entity.linkTargets();
             for (entityIt = linkTargets.begin(), entityEnd = linkTargets.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& target = **entityIt;
-                if (entityVisible && context.filter().entityVisible(target))
+                if (entityVisible && context.filter().entityVisible(target) &&
+                    (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected()))
                     makeLink(target, entity, entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected() ? selectedLinks : unselectedLinks);
-                buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth == 0)
+                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
             }
             
             const Model::EntityList& linkSources = entity.linkSources();
             for (entityIt = linkSources.begin(), entityEnd = linkSources.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& source = **entityIt;
-                buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth <= 1)
+                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
             }
             
             const Model::EntityList& killTargets = entity.killTargets();
             for (entityIt = killTargets.begin(), entityEnd = killTargets.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& target = **entityIt;
-                if (entityVisible && context.filter().entityVisible(target))
+                if (entityVisible && context.filter().entityVisible(target) &&
+                    (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected()))
                     makeLink(target, entity, entity.selected() || entity.partiallySelected() || target.selected() || target.partiallySelected() ? selectedLinks : unselectedLinks);
-                buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth == 0)
+                    buildLinks(context, target, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
             }
             
             const Model::EntityList& killSources = entity.killSources();
             for (entityIt = killSources.begin(), entityEnd = killSources.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& source = **entityIt;
-                buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
+                if (context.viewOptions().linkDisplayMode() != View::ViewOptions::LinkDisplayLocal || depth <= 1)
+                    buildLinks(context, source, depth + 1, visitedEntities, selectedLinks, unselectedLinks);
             }
         }
 
@@ -137,6 +144,8 @@ namespace TrenchBroom {
             if (m_selectedLinkArray == NULL && m_unselectedLinkArray == NULL)
                 return;
 
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
             ActivateShader shader(context.shaderManager(), Shaders::EntityLinkShader);
             shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
             shader.currentShader().setUniformVariable("MaxDistance", 512.0f);
@@ -146,28 +155,28 @@ namespace TrenchBroom {
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
 
-            if (m_selectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 0.0f, 0.0f, 0.3f));
-                m_selectedLinkArray->render();
-            }
-
             if (m_unselectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityLinkColor));
                 m_unselectedLinkArray->render();
+            }
+            
+            if (m_selectedLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityLinkColor));
+                m_selectedLinkArray->render();
             }
             
             glEnable(GL_DEPTH_TEST);
 
-            if (m_selectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 0.0f, 0.0f, 1.0f));
-                m_selectedLinkArray->render();
-            }
-            
             if (m_unselectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.6f));
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::EntityLinkColor));
                 m_unselectedLinkArray->render();
             }
 
+            if (m_selectedLinkArray != NULL) {
+                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityLinkColor));
+                m_selectedLinkArray->render();
+            }
+            
             glDepthMask(GL_TRUE);
             glLineWidth(1.0f);
         }

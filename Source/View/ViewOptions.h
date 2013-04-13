@@ -32,9 +32,9 @@ namespace TrenchBroom {
                 Discard
             } FaceRenderMode;
             typedef enum {
+                LinkDisplayAll,
                 LinkDisplayContext,
                 LinkDisplayLocal,
-                LinkDisplayAll,
                 LinkDisplayNone
             } LinkDisplayMode;
         private:
@@ -66,7 +66,8 @@ namespace TrenchBroom {
             m_renderEdges(true),
             m_renderSelection(true),
             m_shadeFaces(true),
-            m_useFog(false) {}
+            m_useFog(false),
+            m_linkDisplayMode(LinkDisplayLocal) {}
 
             inline const String& filterPattern() const {
                 return m_filterPattern;

@@ -132,8 +132,8 @@ namespace TrenchBroom {
             m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
              */
 
-            wxStaticText* linkDisplayModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Links"));
-            wxString linkDisplayModes[4] = {wxT("Context"), wxT("Local"), wxT("All"), wxT("Don't show")};
+            wxStaticText* linkDisplayModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Entity links"));
+            wxString linkDisplayModes[4] = {wxT("All"), wxT("Connected"), wxT("Selected"), wxT("None")};
             m_linkDisplayModeChoice = new wxChoice(renderModeBox, CommandIds::ViewInspector::LinkDisplayModeChoiceId, wxDefaultPosition, wxDefaultSize, 4, linkDisplayModes);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
@@ -143,8 +143,8 @@ namespace TrenchBroom {
             innerSizer->Add(m_toggleRenderEdges, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(toggleFaceShadingLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
             innerSizer->Add(m_toggleFaceShading, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
-            innerSizer->Add(linkDisplayModeLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
-            innerSizer->Add(m_linkDisplayModeChoice, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
+            innerSizer->Add(linkDisplayModeLabel, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(m_linkDisplayModeChoice, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
 
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -269,21 +269,7 @@ namespace TrenchBroom {
                 return;
 
             EditorView& editorView = m_documentViewHolder.view();
-            ViewOptions::LinkDisplayMode mode;
-
-            switch (m_linkDisplayModeChoice->GetSelection()) {
-            case 1:
-                mode = ViewOptions::LinkDisplayLocal;
-                break;
-            case 2:
-                mode = ViewOptions::LinkDisplayAll;
-                break;
-            case 3:
-                mode = ViewOptions::LinkDisplayNone;
-                break;
-            default:
-                mode = ViewOptions::LinkDisplayContext;
-            }
+            ViewOptions::LinkDisplayMode mode = static_cast<ViewOptions::LinkDisplayMode>(event.GetSelection());
 
             editorView.viewOptions().setLinkDisplayMode(mode);
             Controller::Command command(Controller::Command::InvalidateRendererEntityState);
