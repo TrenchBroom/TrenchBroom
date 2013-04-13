@@ -597,7 +597,11 @@ namespace TrenchBroom {
                 case WXK_F24:
                     return true;
                 default:
-                    return hasModifier();
+                    if (!hasModifier())
+                        return false;
+                    if (m_modifierKey1 == WXK_SHIFT && m_modifierKey2 == WXK_NONE)
+                        return false;
+                    return true;
             }
         }
 
