@@ -109,6 +109,7 @@ namespace TrenchBroom {
                 Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
                 Model::EntitySet entities = Utility::makeSet(editStateManager.selectedEntities());
                 const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                const Model::FaceList& faces = editStateManager.selectedFaces();
                 size_t totalEntityBrushCount = 0;
                 
                 Model::BrushList::const_iterator brushIt, brushEnd;
@@ -125,7 +126,29 @@ namespace TrenchBroom {
                 }
                 
                 if (entities.empty() && brushes.empty()) {
-                    sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
+                    if (faces.empty()) {
+                        sizer->Add(makeBreadcrump(wxT("no selection"), false), 0, wxALIGN_CENTRE_VERTICAL);
+                    } else {
+                        Model::FaceList::const_iterator faceIt = faces.begin();
+                        Model::FaceList::const_iterator faceEnd = faces.end();
+                        
+                        const Model::Face* face = *faceIt++;
+                        const String& firstTextureName = face->textureName();
+                        bool sameTexturename = true;
+                        while (faceIt != faceEnd && sameTexturename) {
+                            face = *faceIt++;
+                            const String& textureName = face->textureName();
+                            sameTexturename = (textureName == firstTextureName);
+                        }
+                        
+                        wxString faceString;
+                        faceString << faces.size() << " " << (faces.size() == 1 ? "face" : "faces");
+                        if (sameTexturename)
+                            faceString << " (" << (firstTextureName.empty() ? "no texture set" : firstTextureName) << ")";
+                        else
+                            faceString << " (multiple textures)";
+                        sizer->Add(makeBreadcrump(faceString, false), 0, wxALIGN_CENTRE_VERTICAL);
+                    }
                 } else {
                     if (entities.size() == 1 && (*entities.begin())->worldspawn()) {
                         const Model::Entity& entity = **entities.begin();
@@ -136,11 +159,11 @@ namespace TrenchBroom {
                         entityEnd = entities.end();
                         
                         const Model::Entity* entity = *entityIt++;
-                        const String firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                        const String& firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
                         bool sameClassname = true;
                         while (entityIt != entityEnd && sameClassname) {
                             entity = *entityIt++;
-                            const String classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                            const String& classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
                             sameClassname = (classname == firstClassname);
                         }
                         
