@@ -39,6 +39,7 @@ namespace TrenchBroom {
             bool m_valid;
         public:
             EntityRotationDecorator(const Model::MapDocument& document, const Color& color);
+            ~EntityRotationDecorator();
             
             inline void invalidate() {
                 m_valid = false;

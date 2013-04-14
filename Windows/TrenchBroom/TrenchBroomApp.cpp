@@ -52,7 +52,14 @@ bool TrenchBroomApp::OnInit() {
 	if (AbstractApp::OnInit()) {
 		SetExitOnFrameDelete(true);
 		m_docManager->SetUseSDI(true);
-		m_docManager->CreateNewDocument();
+        if (wxApp::argc > 1) {
+            wxString filename = wxApp::argv[1];
+            if (m_docManager->CreateDocument(filename) == NULL) {
+                return false;
+            }
+        } else {
+		    m_docManager->CreateNewDocument();
+        }
 		return true;
 	}
 

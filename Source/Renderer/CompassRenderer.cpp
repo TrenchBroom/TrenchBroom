@@ -50,6 +50,8 @@ namespace TrenchBroom {
         CompassRenderer::~CompassRenderer() {
             delete m_fans;
             m_fans = NULL;
+            delete m_set;
+            m_set = NULL;
             delete m_strip;
             m_strip = NULL;
         }

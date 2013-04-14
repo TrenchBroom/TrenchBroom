@@ -714,22 +714,15 @@ namespace TrenchBroom {
                 }
             }
 
-            if (m_filter != NULL) {
-                delete m_filter;
-                m_filter = NULL;
-            }
-            if (m_viewOptions != NULL) {
-                delete m_viewOptions;
-                m_viewOptions = NULL;
-            }
-            if (m_camera != NULL) {
-                delete m_camera;
-                m_camera = NULL;
-            }
-            if (m_renderer != NULL) {
-                delete m_renderer;
-                m_renderer = NULL;
-            }
+            delete m_filter;
+            m_filter = NULL;
+            delete m_viewOptions;
+            m_viewOptions = NULL;
+            delete m_camera;
+            m_camera = NULL;
+            delete m_renderer;
+            m_renderer = NULL;
+
             return true;
         }
 

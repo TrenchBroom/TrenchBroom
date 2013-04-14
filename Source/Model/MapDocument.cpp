@@ -95,9 +95,13 @@ namespace TrenchBroom {
                 return true;
             }
 
-            console().info("Could not open file %s", path.c_str());
+            console().error("Could not open file %s", path.c_str());
+            wxString errorMessage = "Could not open file ";
+            errorMessage << path;
+            wxMessageDialog dialog(NULL, errorMessage, wxT("Error"), wxCENTRE | wxICON_ERROR | wxOK);
+            dialog.ShowModal();
 
-            return true;
+            return false;
         }
 
         bool MapDocument::DoSaveDocument(const wxString& file) {

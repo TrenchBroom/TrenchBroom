@@ -41,6 +41,11 @@ namespace TrenchBroom {
         m_vertexArray(NULL),
         m_valid(false) {}
 
+        EntityRotationDecorator::~EntityRotationDecorator() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+
         void EntityRotationDecorator::render(Vbo& vbo, RenderContext& context) {
             if (!context.viewOptions().showEntities() || !context.viewOptions().showEntityBounds())
                 return;

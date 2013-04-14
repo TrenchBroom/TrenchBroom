@@ -29,6 +29,9 @@ public:
 
     virtual bool OnInit();
     virtual void OnFileExit(wxCommandEvent& event);
+    virtual void MacNewFile();
+    virtual void MacOpenFiles(const wxArrayString& filenames);
+
     
     DECLARE_EVENT_TABLE()
 };

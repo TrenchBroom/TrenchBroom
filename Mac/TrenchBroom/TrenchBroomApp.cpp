@@ -63,6 +63,25 @@ bool TrenchBroomApp::OnInit() {
     return false;
 }
 
+void TrenchBroomApp::MacNewFile() {
+    if (m_docManager != NULL)
+        m_docManager->CreateNewDocument();
+}
+
+void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
+    if (m_docManager != NULL) {
+        for (size_t i = 0; i < filenames.size(); i++) {
+            const wxString& filename = filenames[i];
+            if (m_docManager->CreateDocument(filename)) {
+                wxString errorMessage = "Could not open file ";
+                errorMessage << filename;
+                wxMessageDialog dialog(NULL, errorMessage, wxT("Error"), wxCENTRE | wxICON_ERROR | wxOK);
+                dialog.ShowModal();
+            }
+        }
+    }
+}
+
 
 void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
     Exit();

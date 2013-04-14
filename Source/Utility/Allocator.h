@@ -26,21 +26,24 @@
 #include <stack>
 #include <vector>
 
+// Undefine this to prevent false positives when looking for memory leaks.
+#define _ENABLE_ALLOCATOR 1
+
 namespace TrenchBroom {
     namespace Utility {
-        template <class T, unsigned int PoolSize = 32>
+        template <class T, size_t PoolSize = 64, size_t BlocksPerChunk = 256>
         class Allocator {
         private:
             class Chunk {
             private:
                 unsigned char m_firstFreeBlock;
                 unsigned char m_numFreeBlocks;
-                unsigned char m_blocks[256 * sizeof(T)];
+                unsigned char m_blocks[BlocksPerChunk * sizeof(T)];
             public:
                 Chunk() :
                 m_firstFreeBlock(0),
-                m_numFreeBlocks(255) {
-                    for (unsigned int i = 0; i < 255; i++)
+                m_numFreeBlocks(BlocksPerChunk - 1) {
+                    for (size_t i = 0; i < BlocksPerChunk - 1; i++)
                         m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
                 }
 
@@ -49,7 +52,7 @@ namespace TrenchBroom {
                     if (block < m_blocks)
                         return false;
                     size_t offset = static_cast<size_t>(block - m_blocks);
-                    return offset < 255 * sizeof(T);
+                    return offset < (BlocksPerChunk - 1) * sizeof(T);
                 }
 
                 inline T* allocate() {
@@ -63,7 +66,7 @@ namespace TrenchBroom {
                 };
 
                 inline void deallocate(T* t) {
-                    assert(m_numFreeBlocks < 255);
+                    assert(m_numFreeBlocks < BlocksPerChunk - 1);
                     assert(contains(t));
 
                     unsigned char* block = reinterpret_cast<unsigned char*>(t);
@@ -72,7 +75,7 @@ namespace TrenchBroom {
                     assert(offset % sizeof(T) == 0);
 
                     size_t index = offset / sizeof(T);
-                    assert(index < 256);
+                    assert(index < BlocksPerChunk);
 
                     *block = m_firstFreeBlock;
                     m_firstFreeBlock = static_cast<unsigned char>(index);
@@ -80,7 +83,7 @@ namespace TrenchBroom {
                 }
 
                 inline bool empty() const {
-                    return m_numFreeBlocks == 255;
+                    return m_numFreeBlocks == BlocksPerChunk - 1;
                 }
 
                 inline bool full() const {
@@ -111,6 +114,7 @@ namespace TrenchBroom {
                 return chunks;
             }
         public:
+#ifdef _ENABLE_ALLOCATOR
             inline void* operator new(size_t size) {
                 assert(size == sizeof(T));
 
@@ -146,7 +150,7 @@ namespace TrenchBroom {
             inline void operator delete(void* block) {
                 T* t = reinterpret_cast<T*>(block);
 
-                unsigned int poolSize = PoolSize;
+                size_t poolSize = PoolSize;
                 if (poolSize > 0 && pool().size() < poolSize) {
                     pool().push(t);
                     return;
@@ -195,6 +199,7 @@ namespace TrenchBroom {
                         delete chunk;
                 }
             }
+#endif
         };
     }
 }
