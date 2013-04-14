@@ -60,6 +60,7 @@ bool TrenchBroomApp::OnInit() {
         } else {
 		    m_docManager->CreateNewDocument();
         }
+        return true;
 	}
 
 	return false;
