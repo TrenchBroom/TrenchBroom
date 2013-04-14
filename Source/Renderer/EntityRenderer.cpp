@@ -282,8 +282,7 @@ namespace TrenchBroom {
                 if (renderer != NULL)
                     m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, *classname);
 
-                EntityClassnameAnchor anchor(entity, renderer);
-                m_classnameRenderer->addString(&entity, *classname, anchor);
+                m_classnameRenderer->addString(&entity, *classname, Text::TextAnchor::Ptr(new EntityClassnameAnchor(entity, renderer)));
             }
 
 
@@ -307,8 +306,7 @@ namespace TrenchBroom {
                     if (renderer != NULL)
                         m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
 
-                    EntityClassnameAnchor anchor(*entity, renderer);
-                    m_classnameRenderer->addString(entity, *classname, anchor);
+                    m_classnameRenderer->addString(entity, *classname, Text::TextAnchor::Ptr(new EntityClassnameAnchor(*entity, renderer)));
                 }
             }
 

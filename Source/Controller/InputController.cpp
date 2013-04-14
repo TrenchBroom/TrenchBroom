@@ -152,6 +152,12 @@ namespace TrenchBroom {
         }
 
         InputController::~InputController() {
+            m_toolChain->freeRenderResources();
+            delete m_selectionGuideRenderer;
+            m_selectionGuideRenderer = NULL;
+            delete m_createEntityHelper;
+            m_createEntityHelper = NULL;
+
             m_toolChain = NULL;
             m_dragTool = NULL;
             m_nextDropReceiver = NULL;
@@ -471,14 +477,6 @@ namespace TrenchBroom {
 
             if (m_createEntityHelper != NULL)
                 m_createEntityHelper->render(vbo, context);
-        }
-
-        void InputController::freeRenderResources() {
-            m_toolChain->freeRenderResources();
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-            delete m_createEntityHelper;
-            m_createEntityHelper = NULL;
         }
 
         void InputController::toggleClipTool() {

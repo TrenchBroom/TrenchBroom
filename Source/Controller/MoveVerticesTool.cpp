@@ -196,7 +196,7 @@ namespace TrenchBroom {
                 const Renderer::Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
                 
                 Renderer::Text::TexturedFont* font = document().sharedResources().fontManager().font(fontDescriptor);
-                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>(*font);
+                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(*font);
                 m_textRenderer->setFadeDistance(10000.0f);
             }
             m_textRenderer->clear();
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                     glEnable(GL_DEPTH_TEST);
                     
                     if (!m_handleManager.vertexHandleSelected(firstHit->vertex())) {
-                        Renderer::Text::SimpleTextAnchor anchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
+                        Renderer::Text::TextAnchor::Ptr anchor(new Renderer::Text::SimpleTextAnchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom));
                         m_textRenderer->addString(firstHit->vertex(), firstHit->vertex().asString(), anchor);
                     }
                 } else {

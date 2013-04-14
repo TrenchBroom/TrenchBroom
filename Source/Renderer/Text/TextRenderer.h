@@ -27,6 +27,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Text/TexturedFont.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -51,6 +52,8 @@ namespace TrenchBroom {
             }
 
             class TextAnchor {
+            public:
+                typedef std::tr1::shared_ptr<TextAnchor> Ptr;
             protected:
                 virtual const Vec3f basePosition() const = 0;
                 virtual const Alignment::Type alignment() const = 0;
@@ -76,8 +79,8 @@ namespace TrenchBroom {
                     const Vec2f factors = alignmentFactors();
                     Vec3f offset = camera.project(basePosition());
 
-                    offset.x += factors.x * halfSize.x;
-                    offset.y += factors.y * halfSize.y;
+                    offset.x += factors.x * size.x;
+                    offset.y += factors.y * size.y;
                     offset.x -= halfSize.x;
                     offset.y -= halfSize.y;
                     offset.x = Math::round(offset.x);
@@ -116,7 +119,7 @@ namespace TrenchBroom {
                 }
             };
 
-            template <typename Key, typename Anchor, typename Comparator = DefaultKeyComparator<Key> >
+            template <typename Key, typename Comparator = DefaultKeyComparator<Key> >
             class TextRenderer {
             public:
                 class TextRendererFilter {
@@ -138,13 +141,13 @@ namespace TrenchBroom {
                 private:
                     Vec2f::List m_vertices;
                     Vec2f m_size;
-                    Anchor m_textAnchor;
+                    TextAnchor::Ptr m_textAnchor;
                 public:
-                    TextEntry(const Vec2f::List& vertices, const Vec2f& size, const Anchor& textAnchor) :
+                    TextEntry(const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr textAnchor) :
                     m_vertices(vertices),
                     m_size(size),
                     m_textAnchor(textAnchor) {}
-
+                    
                     inline const Vec2f::List& vertices() const {
                         return m_vertices;
                     }
@@ -158,8 +161,8 @@ namespace TrenchBroom {
                         return m_size;
                     }
 
-                    inline const Anchor& textAnchor() const {
-                        return m_textAnchor;
+                    inline const TextAnchor& textAnchor() const {
+                        return *m_textAnchor.get();
                     }
                 };
 
@@ -175,7 +178,7 @@ namespace TrenchBroom {
                 TextMap m_entries;
                 Vbo* m_vbo;
 
-                inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, const Anchor& anchor) {
+                inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
                     removeString(key);
                     m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
                 }
@@ -189,7 +192,7 @@ namespace TrenchBroom {
                         Key key = it->first;
                         if (filter.stringVisible(context, key)) {
                             const TextEntry& entry = it->second;
-                            const Anchor& anchor = entry.textAnchor();
+                            const TextAnchor& anchor = entry.textAnchor();
                             const Vec3f position = anchor.position();
 
                             float dist2 = context.camera().squaredDistanceTo(position);
@@ -214,7 +217,7 @@ namespace TrenchBroom {
                     m_vbo = NULL;
                 }
 
-                inline void addString(Key key, const String& string, const Anchor& anchor) {
+                inline void addString(Key key, const String& string, TextAnchor::Ptr anchor) {
                     const Vec2f::List vertices = m_font.quads(string, true);
                     const Vec2f size = m_font.measure(string);
                     addString(key, vertices, size, anchor);
@@ -285,7 +288,7 @@ namespace TrenchBroom {
                     for (size_t i = 0; i < entries.size(); i++) {
                         const TextEntry& entry = entries[i];
                         const Vec2f& size = entry.size().rounded();
-                        const Anchor& anchor = entry.textAnchor();
+                        const TextAnchor& anchor = entry.textAnchor();
                         const Vec3f offset = anchor.offset(context.camera(), size);
 
                         const Vec2f::List& textVertices = entry.vertices();

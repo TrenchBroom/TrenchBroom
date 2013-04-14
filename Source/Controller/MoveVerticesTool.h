@@ -54,8 +54,8 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             size_t m_changeCount;
-            Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>* m_textRenderer;
-            Renderer::Text::TextRenderer<Vec3f, Renderer::Text::SimpleTextAnchor, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
+            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
+            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
             Vec3f m_dragHandlePosition;
             
             HandleHitList firstHits(Model::PickResult& pickResult) const;

@@ -39,19 +39,36 @@ namespace TrenchBroom {
         private:
             BBox m_bounds;
             Axis::Type m_axis;
-            Renderer::Camera* m_camera;
+            Renderer::Camera& m_camera;
         protected:
             const Vec3f basePosition() const;
             const Text::Alignment::Type alignment() const;
         public:
-            BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
+            BoxInfoSizeTextAnchor(const BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
+        };
+        
+        class BoxInfoMinMaxTextAnchor : public Text::TextAnchor {
+        public:
+            typedef enum {
+                BoxMin,
+                BoxMax
+            } EMinMax;
+        private:
+            BBox m_bounds;
+            EMinMax m_minMax;
+            Renderer::Camera& m_camera;
+        protected:
+            const Vec3f basePosition() const;
+            const Text::Alignment::Type alignment() const;
+        public:
+            BoxInfoMinMaxTextAnchor(const BBox& bounds, EMinMax minMax, Renderer::Camera& camera);
         };
 
         class BoxInfoRenderer {
         private:
             BBox m_bounds;
-            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>* m_textRenderer;
-            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>::SimpleTextRendererFilter m_textFilter;
+            Text::TextRenderer<unsigned int>* m_textRenderer;
+            Text::TextRenderer<unsigned int>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
         public:
             BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager);

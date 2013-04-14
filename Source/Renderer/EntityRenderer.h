@@ -69,7 +69,7 @@ namespace TrenchBroom {
             
             typedef Model::Entity* EntityKey;
             typedef std::map<EntityKey, CachedEntityModelRenderer> EntityModelRenderers;
-            typedef Text::TextRenderer<EntityKey, EntityClassnameAnchor> EntityClassnameRenderer;
+            typedef Text::TextRenderer<EntityKey> EntityClassnameRenderer;
             
             class EntityClassnameFilter : public EntityClassnameRenderer::TextRendererFilter {
             public:

@@ -104,11 +104,18 @@ namespace TrenchBroom {
                 int y = static_cast<int>(Math::round(offset.y));
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
+                    if (c == '\n') {
+                        x = 0;
+                        y += m_lineHeight;
+                        continue;
+                    }
+                    
                     if (c < m_minChar || c > m_maxChar)
-                        c = 32; // space
+                        c = ' '; // space
 
                     const Char& glyph = m_chars[static_cast<size_t>(c - m_minChar)];
-                    glyph.append(result, x, y, m_textureLength, clockwise);
+                    if (c != ' ')
+                        glyph.append(result, x, y, m_textureLength, clockwise);
 
                     x += glyph.a;
                 }
@@ -118,17 +125,27 @@ namespace TrenchBroom {
 
             Vec2f TexturedFont::measure(const String& string) {
                 Vec2f result;
-                result.y = static_cast<float>(m_lineHeight);
 
+                int x = 0;
+                int y = 0;
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
+                    if (c == '\n') {
+                        result.x = std::max(result.x, static_cast<float>(x));
+                        x = 0;
+                        y += m_lineHeight;
+                        continue;
+                    }
+
                     if (c < m_minChar || c > m_maxChar)
                         c = 32; // space
 
                     const Char& glyph = m_chars[static_cast<size_t>(c - m_minChar)];
-                    result.x += glyph.a;
+                    x += glyph.a;
                 }
 
+                result.x = std::max(result.x, static_cast<float>(x));
+                result.y = static_cast<float>(y + m_lineHeight);
                 return result;
             }
 

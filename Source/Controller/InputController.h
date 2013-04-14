@@ -118,7 +118,6 @@ namespace TrenchBroom {
             void cameraChanged();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
-            void freeRenderResources();
 
             inline ClipTool& clipTool() const {
                 return *m_clipTool;

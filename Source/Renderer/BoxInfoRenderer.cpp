@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         const Vec3f BoxInfoSizeTextAnchor::basePosition() const {
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
+            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
             Vec3f pos;
             const Vec3f half = m_bounds.size() / 2.0f;
             
@@ -111,17 +111,40 @@ namespace TrenchBroom {
             if (m_axis == Axis::AZ)
                 return Text::Alignment::Right;
 
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
+            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
             if (camPos.z == BBox::PointPosition::Less)
                 return Text::Alignment::Top;
             return Text::Alignment::Bottom;
         }
 
-        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera) :
-        m_bounds(bounds.expanded(2.0f)), // create a bit of a margin for the text label
+        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(const BBox& bounds, Axis::Type axis, Renderer::Camera& camera) :
+        m_bounds(bounds.expanded(1.0f)), // create a bit of a margin for the text label
         m_axis(axis),
-        m_camera(&camera) {}
+        m_camera(camera) {}
         
+        const Vec3f BoxInfoMinMaxTextAnchor::basePosition() const {
+            if (m_minMax == BoxMin)
+                return m_bounds.min;
+            return m_bounds.max;
+        }
+        
+        const Text::Alignment::Type BoxInfoMinMaxTextAnchor::alignment() const {
+            const BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
+            if (m_minMax == BoxMin) {
+                if (camPos.y == BBox::PointPosition::Less || (camPos.y == BBox::PointPosition::Within && camPos.x != BBox::PointPosition::Less))
+                    return Text::Alignment::Top | Text::Alignment::Right;
+                return Text::Alignment::Top | Text::Alignment::Left;
+            }
+            if (camPos.y == BBox::PointPosition::Less || (camPos.y == BBox::PointPosition::Within && camPos.x != BBox::PointPosition::Less))
+                return Text::Alignment::Bottom | Text::Alignment::Left;
+            return Text::Alignment::Bottom | Text::Alignment::Right;
+        }
+
+        BoxInfoMinMaxTextAnchor::BoxInfoMinMaxTextAnchor(const BBox& bounds, EMinMax minMax, Renderer::Camera& camera) :
+        m_bounds(bounds.expanded(0.2f)),
+        m_minMax(minMax),
+        m_camera(camera) {}
+
         BoxInfoRenderer::BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager) :
         m_bounds(bounds),
         m_textRenderer(NULL),
@@ -135,7 +158,7 @@ namespace TrenchBroom {
             Text::TexturedFont* font = fontManager.font(fontDescriptor);
             assert(font != NULL);
 
-            m_textRenderer = new Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>(*font);
+            m_textRenderer = new Text::TextRenderer<unsigned int>(*font);
             m_textRenderer->setFadeDistance(2000.0f);
         }
         
@@ -155,9 +178,17 @@ namespace TrenchBroom {
                     StringStream buffer;
                     buffer << labels[i] << ": " << size[i];
                     
-                    BoxInfoSizeTextAnchor anchor(m_bounds, i, context.camera());
-                    m_textRenderer->addString(i, buffer.str(), anchor);
+                    m_textRenderer->addString(i, buffer.str(), Text::TextAnchor::Ptr(new BoxInfoSizeTextAnchor(m_bounds, i, context.camera())));
                 }
+                
+                StringStream minBuffer;
+                minBuffer << "Min: " << m_bounds.min.x << " " << m_bounds.min.y << " " << m_bounds.min.z;
+                m_textRenderer->addString(3, minBuffer.str(), Text::TextAnchor::Ptr(new BoxInfoMinMaxTextAnchor(m_bounds, BoxInfoMinMaxTextAnchor::BoxMin, context.camera())));
+                
+                StringStream maxBuffer;
+                maxBuffer << "Max: " << m_bounds.min.x << " " << m_bounds.min.y << " " << m_bounds.min.z;
+                m_textRenderer->addString(4, maxBuffer.str(), Text::TextAnchor::Ptr(new BoxInfoMinMaxTextAnchor(m_bounds, BoxInfoMinMaxTextAnchor::BoxMax, context.camera())));
+                
                 m_initialized = true;
             }
             
