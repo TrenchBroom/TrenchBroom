@@ -50,6 +50,11 @@ namespace TrenchBroom {
             m_rotateHandle.setPosition(position);
         }
 
+        bool RotateObjectsTool::handleActivate(InputState& inputState) {
+            updateHandlePosition(inputState);
+            return true;
+        }
+
         bool RotateObjectsTool::handleIsModal(InputState& inputState) {
             return true;
         }
