@@ -36,6 +36,12 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.0.8
+- Fix the rotation tool
+- Allow snapping faces to the grid when resizing brushes
+- Improved major grid line shading (rebb)
+- Fixed umlauts in About dialog
+
 ### TrenchBroom 1.0.7
 - Emergency bugfix
 
