@@ -46,6 +46,7 @@ namespace TrenchBroom {
             
             void updateHandlePosition(InputState& inputState);
 
+            bool handleActivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
 
             void handlePick(InputState& inputState);
