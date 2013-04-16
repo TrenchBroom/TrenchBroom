@@ -67,11 +67,13 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::handleIsModal(InputState& inputState) {
-            return inputState.modifierKeys() == ModifierKeys::MKShift;
+            return (inputState.modifierKeys() == ModifierKeys::MKShift ||
+                    inputState.modifierKeys() == (ModifierKeys::MKShift | ModifierKeys::MKAlt));
         }
 
         void ResizeBrushesTool::handlePick(InputState& inputState) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift)
+            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return;
 
             float closestEdgeDist = std::numeric_limits<float>::max();
@@ -159,7 +161,8 @@ namespace TrenchBroom {
         void ResizeBrushesTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
-                if (inputState.modifierKeys() != ModifierKeys::MKShift)
+                if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                    inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                     return;
 
                 Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
@@ -208,13 +211,16 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift)
+            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return false;
 
             Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
             if (hit == NULL)
                 return false;
 
+            m_snapMode = inputState.modifierKeys() == ModifierKeys::MKShift ? SMRelative : SMAbsolute;
+            
             Model::Face& dragFace = hit->dragFace();
 
             const Vec3f& dragNormal = dragFace.boundary().normal;
@@ -245,7 +251,7 @@ namespace TrenchBroom {
             Model::Face& dragFace = *m_faces.front();
             const Vec3f& faceAxis = dragFace.boundary().normal.firstAxis();
             const float faceDist = planeDelta.dot(faceAxis);
-            const Vec3f faceDelta = grid.snap(faceDist * faceAxis);
+            const Vec3f faceDelta = m_snapMode == SMRelative ? grid.snap(faceDist * faceAxis) : grid.snap(faceDist * faceAxis + dragFace.point(0)) - dragFace.point(0);
 
             if (faceDelta.null())
                 return true;

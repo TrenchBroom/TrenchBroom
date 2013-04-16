@@ -54,9 +54,15 @@ namespace TrenchBroom {
     namespace Controller {
         class ResizeBrushesTool : public PlaneDragTool {
         protected:
+            typedef enum {
+                SMRelative,
+                SMAbsolute
+            } SnapMode;
+            
             Model::SelectedFilter m_filter;
             Model::FaceList m_faces;
             Vec3f m_totalDelta;
+            SnapMode m_snapMode;
             
             Model::FaceList dragFaces(Model::Face& dragFace);
             
