@@ -20,12 +20,11 @@
 #ifndef TrenchBroom_TextureBitmap_h
 #define TrenchBroom_TextureBitmap_h
 
+#include "Utility/FreeType.h"
+
 #include <cassert>
 #include <cstring>
 #include <memory>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 namespace TrenchBroom {
     namespace Renderer {

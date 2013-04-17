@@ -419,6 +419,7 @@
 		<Unit filename="../Source/Utility/DocManager.h" />
 		<Unit filename="../Source/Utility/FindPlanePoints.cpp" />
 		<Unit filename="../Source/Utility/FindPlanePoints.h" />
+		<Unit filename="../Source/Utility/FreeType.h" />
 		<Unit filename="../Source/Utility/Grid.cpp" />
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />
