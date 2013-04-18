@@ -113,7 +113,7 @@ namespace TrenchBroom {
             if (m_sharedContext != NULL && m_glCanvas != NULL)
                 m_sharedContext->SetCurrent(*m_glCanvas);
 
-            delete m_attribs;
+            delete [] m_attribs;
             m_attribs = NULL;
             delete m_fontManager;
             m_fontManager = NULL;
