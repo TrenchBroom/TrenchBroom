@@ -66,7 +66,16 @@ namespace TrenchBroom {
             }
 
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs);
-            m_sharedContext = new wxGLContext(m_glCanvas);
+
+            /*
+            GLXFBConfig *fbc = m_glCanvas->GetGLXFBConfig();
+            assert(fbc != NULL);
+
+            GLXContext glxContext = glXCreateNewContext( wxGetX11Display(), fbc[0], GLX_RGBA_TYPE,
+                                                NULL,
+                                                GL_TRUE );
+            assert(glxContext != NULL);
+            */
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_glCanvas, 1, wxEXPAND);
@@ -74,16 +83,16 @@ namespace TrenchBroom {
 
             SetSize(1, 1);
             SetPosition(wxPoint(-9999, -9999));
+            Layout();
             Show();
-            // Raise();
 
+            m_sharedContext = new wxGLContext(m_glCanvas);
             m_sharedContext->SetCurrent(*m_glCanvas);
 
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
             console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
-
             console.info("Depth buffer bits: %d", capabilities.depthBits);
 
             if (capabilities.multisample)
