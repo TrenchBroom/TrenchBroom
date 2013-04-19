@@ -19,7 +19,6 @@
 
 #include "SharedResources.h"
 
-#include "GL/Capabilities.h"
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/Palette.h"
 #include "Renderer/PointHandleRenderer.h"
@@ -42,31 +41,105 @@ namespace TrenchBroom {
         m_textureRendererManager(NULL),
         m_fontManager(NULL),
         m_attribs(NULL),
+        m_multisample(false),
+        m_samples(0),
+        m_depthbits(0),
         m_sharedContext(NULL),
         m_glCanvas(NULL) {
-            GL::Capabilities capabilities = GL::glCapabilities();
-            if (capabilities.multisample) {
-                m_attribs = new int[9];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_SAMPLE_BUFFERS;
-                m_attribs[3] = 1;
-                m_attribs[4] = WX_GL_SAMPLES;
-                m_attribs[5] = capabilities.samples;
-                m_attribs[6] = WX_GL_DEPTH_SIZE;
-                m_attribs[7] = capabilities.depthBits;
-                m_attribs[8] = 0;
-            } else {
-                m_attribs = new int[5];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_DEPTH_SIZE;
-                m_attribs[3] = capabilities.depthBits;
-                m_attribs[4] = 0;
+            int attribs[] =
+            {
+                // 32 bit depth buffer, 4 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       32,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          4,
+                0,
+                // 24 bit depth buffer, 4 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       24,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          4,
+                0,
+                // 32 bit depth buffer, 2 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       32,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          2,
+                0,
+                // 24 bit depth buffer, 2 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       24,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          2,
+                0,
+                // 16 bit depth buffer, 4 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       16,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          4,
+                0,
+                // 16 bit depth buffer, 2 samples
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       16,
+                WX_GL_SAMPLE_BUFFERS,   1,
+                WX_GL_SAMPLES,          2,
+                0,
+                // 32 bit depth buffer, no multisampling
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       32,
+                0,
+                // 24 bit depth buffer, no multisampling
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       24,
+                0,
+                // 16 bit depth buffer, no multisampling
+                WX_GL_RGBA,
+                WX_GL_DOUBLEBUFFER,
+                WX_GL_DEPTH_SIZE,       16,
+                0,
+                0,
+            };
+
+            size_t index = 0;
+
+            while (m_attribs == NULL && attribs[index] != 0) {
+                size_t count = 0;
+                for (; attribs[index + count] != 0; count++);
+                if (wxGLCanvas::IsDisplaySupported(&attribs[index])) {
+                    m_attribs = new int[count];
+                    for (size_t i = 0; i < count; i++)
+                        m_attribs[i] = attribs[index + i];
+                    m_depthbits = m_attribs[2];
+                    if (m_attribs[4] > 0) {
+                        m_multisample = true;
+                        m_samples = m_attribs[7];
+                    }
+                }
+                index += count + 1;
             }
+
+            assert(m_attribs != NULL);
 
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs);
             m_sharedContext = new wxGLContext(m_glCanvas);
+
+            /*
+            GLXFBConfig *fbc = m_glCanvas->GetGLXFBConfig();
+            assert(fbc != NULL);
+
+            GLXContext glxContext = glXCreateNewContext( wxGetX11Display(), fbc[0], GLX_RGBA_TYPE,
+                                                NULL,
+                                                GL_TRUE );
+            assert(glxContext != NULL);
+            */
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_glCanvas, 1, wxEXPAND);
@@ -75,18 +148,15 @@ namespace TrenchBroom {
             SetSize(1, 1);
             SetPosition(wxPoint(-9999, -9999));
             Show();
-            // Raise();
 
             m_sharedContext->SetCurrent(*m_glCanvas);
-
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
             console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
+            console.info("Depth buffer bits: %d", m_depthbits);
 
-            console.info("Depth buffer bits: %d", capabilities.depthBits);
-
-            if (capabilities.multisample)
+            if (m_multisample)
                 console.info("Multisampling enabled");
             else
                 console.info("Multisampling disabled");
@@ -113,7 +183,7 @@ namespace TrenchBroom {
             if (m_sharedContext != NULL && m_glCanvas != NULL)
                 m_sharedContext->SetCurrent(*m_glCanvas);
 
-            delete m_attribs;
+            delete [] m_attribs;
             m_attribs = NULL;
             delete m_fontManager;
             m_fontManager = NULL;

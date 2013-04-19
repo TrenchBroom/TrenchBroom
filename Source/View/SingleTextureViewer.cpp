@@ -1,25 +1,24 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "SingleTextureViewer.h"
 
-#include "GL/Capabilities.h"
 #include "Model/Texture.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -36,7 +35,7 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(SingleTextureViewer, wxGLCanvas)
         EVT_PAINT(SingleTextureViewer::OnPaint)
         END_EVENT_TABLE()
-        
+
         SingleTextureViewer::SingleTextureViewer(wxWindow* parent, Renderer::SharedResources& sharedResources) :
         wxGLCanvas(parent, wxID_ANY, sharedResources.attribs(), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
         m_textureRendererManager(sharedResources.textureRendererManager()),
@@ -74,31 +73,31 @@ namespace TrenchBroom {
                     float viewBottom    = static_cast<float>(bounds.GetBottom());
                     float viewWidth = viewRight - viewLeft;
                     float viewHeight = viewBottom - viewTop;
-                    
+
                     Mat4f projection;
                     projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-                    
+
                     Mat4f view;
                     view.setView(Vec3f::NegZ, Vec3f::PosY);
                     view.translate(Vec3f(0.0f, 0.0f, 0.1f));
-                    
+
                     glMatrixMode(GL_PROJECTION);
                     glLoadMatrixf(projection.v);
                     glMatrixMode(GL_MODELVIEW);
                     glLoadMatrixf(view.v);
-                    
+
                     float texLeft, texTop, texRight, texBottom;
                     float scale;
                     if (m_texture->width() >= m_texture->height())
                         scale = m_texture->width() <= viewWidth ? 1.0f : viewWidth / m_texture->width();
                     else
                         scale = m_texture->height() <= viewHeight ? 1.0f : viewHeight / m_texture->height();
-                    
+
                     texLeft = viewLeft + (viewWidth - m_texture->width() * scale) / 2.0f;
                     texRight = texLeft + m_texture->width() * scale;
                     texBottom = viewTop + (viewHeight - m_texture->height() * scale) / 2.0f;
                     texTop = texBottom + m_texture->height() * scale;
-                    
+
                     glEnable(GL_TEXTURE_2D);
                     textureRenderer.activate();
                     glBegin(GL_QUADS);
@@ -113,7 +112,7 @@ namespace TrenchBroom {
                     glEnd();
                     textureRenderer.deactivate();
                 }
-                
+
 				SwapBuffers();
             }
         }

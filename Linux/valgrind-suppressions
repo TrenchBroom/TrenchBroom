@@ -1,0 +1,12 @@
+{
+   wcslen
+   Memcheck:Addr8
+   fun:wcslen
+   ...
+}
+{
+   wcslen
+   Memcheck:Cond
+   fun:wcslen
+   ...
+}
