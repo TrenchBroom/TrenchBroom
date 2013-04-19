@@ -60,20 +60,20 @@ namespace TrenchBroom {
         private:
             class Entry {
             private:
-                const Preferences::Preference<KeyboardShortcut>* m_pref;
+                const Preferences::ShortcutMenuItem* m_item;
                 bool m_duplicate;
                 
             public:
-                Entry(const Preferences::Preference<KeyboardShortcut>& pref) :
-                m_pref(&pref),
+                Entry(const Preferences::ShortcutMenuItem& item) :
+                m_item(&item),
                 m_duplicate(false) {}
                 
-                inline const Preferences::Preference<KeyboardShortcut>& pref() const {
-                    return *m_pref;
+                inline const Preferences::ShortcutMenuItem& item() const {
+                    return *m_item;
                 }
                 
                 inline const KeyboardShortcut& shortcut() const {
-                    return m_pref->value();
+                    return m_item->shortcut();
                 }
                 
                 inline bool duplicate() const {
@@ -111,6 +111,7 @@ namespace TrenchBroom {
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
             
             bool markDuplicates(EntryList& entries);
+            void addMenu(const Preferences::Menu& menu, EntryList& entries);
         public:
             KeyboardGridTable();
             ~KeyboardGridTable();

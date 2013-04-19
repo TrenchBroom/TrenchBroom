@@ -136,7 +136,7 @@ namespace TrenchBroom {
         m_vbo(NULL),
         m_inputController(new Controller::InputController(documentViewHolder)),
         m_overlayRenderer(NULL),
-        m_hasFocus(false),
+        m_hasFocus(true),
         m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }

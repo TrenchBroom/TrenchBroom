@@ -45,17 +45,24 @@ namespace TrenchBroom {
 
 class AbstractApp : public wxApp {
 protected:
+    class DefaultMenuSelector : public TrenchBroom::Preferences::MultiMenuSelector {
+    public:
+        const TrenchBroom::Preferences::Menu* select(const TrenchBroom::Preferences::MultiMenu& multiMenu) const {
+            return NULL;
+        }
+    };
+    
 	DocManager* m_docManager;
     TrenchBroom::View::PreferencesFrame* m_preferencesFrame;
     wxExtHelpController* m_helpController;
 
-    void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
-    void appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
+    wxMenu* buildMenu(const TrenchBroom::Preferences::Menu& menu, const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
     
-    virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
-    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
-    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
-    virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
+    
+    virtual wxMenu* CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateViewMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
 public:
     inline void setPreferencesFrame(TrenchBroom::View::PreferencesFrame* preferencesFrame) {
         assert(m_preferencesFrame == NULL || preferencesFrame == NULL);
@@ -66,11 +73,8 @@ public:
         return m_preferencesFrame;
     }
     
-    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
+    virtual wxMenuBar* CreateMenuBar(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
     void DetachFileHistoryMenu(wxMenuBar* menuBar);
-    virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);
-    virtual wxMenu* CreateObjectActionMenu(bool mapViewFocused);
-    virtual wxMenu* CreateVertexActionMenu(bool mapViewFocused);
 
     void UpdateAllViews(wxView* sender = NULL, wxObject* hint = NULL);
 

@@ -59,6 +59,39 @@ namespace TrenchBroom {
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
+        EditorFrame::MenuSelector::MenuSelector(DocumentViewHolder& documentViewHolder) :
+        m_documentViewHolder(documentViewHolder) {}
+                             
+        const Preferences::Menu* EditorFrame::MenuSelector::select(const Preferences::MultiMenu& multiMenu) const {
+            if (m_documentViewHolder.valid()) {
+                Controller::InputController& inputController = m_documentViewHolder.view().inputController();
+                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+                
+                switch (multiMenu.menuId()) {
+                    case View::CommandIds::Menu::EditActions:
+                        if (inputController.moveVerticesToolActive())
+                            return multiMenu.menuById(View::CommandIds::Menu::EditVertexActions);
+                        if (inputController.clipToolActive())
+                            return multiMenu.menuById(View::CommandIds::Menu::EditClipActions);
+                        switch (editStateManager.selectionMode()) {
+                            case Model::EditStateManager::SMFaces:
+                                return multiMenu.menuById(View::CommandIds::Menu::EditFaceActions);
+                            case Model::EditStateManager::SMEntities:
+                            case Model::EditStateManager::SMBrushes:
+                            case Model::EditStateManager::SMEntitiesAndBrushes:
+                                return multiMenu.menuById(View::CommandIds::Menu::EditObjectActions);
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            return NULL;
+        }
+
         void EditorFrame::CreateGui() {
             /*
              * Structure:
@@ -117,14 +150,12 @@ namespace TrenchBroom {
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
+        m_mapCanvasHasFocus(false),
         m_focusMapCanvasOnIdle(true) {
 #ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
-            updateMenuBar();
-
-            m_mapCanvasHasFocus = false;
         }
 
         void EditorFrame::update(const Controller::Command& command) {
@@ -150,31 +181,8 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             
-            bool mapViewFocused = FindFocus() == m_mapCanvas;
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-            wxMenu* actionMenu = NULL;
-            if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {
-                if (m_mapCanvas->inputController().moveVerticesToolActive()) {
-                    actionMenu = app->CreateVertexActionMenu(mapViewFocused);
-                } else if (m_mapCanvas->inputController().clipToolActive()) {
-                } else {
-                    Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-                    switch (editStateManager.selectionMode()) {
-                        case Model::EditStateManager::SMFaces:
-                            actionMenu = app->CreateTextureActionMenu(mapViewFocused);
-                            break;
-                        case Model::EditStateManager::SMEntities:
-                        case Model::EditStateManager::SMBrushes:
-                        case Model::EditStateManager::SMEntitiesAndBrushes:
-                            actionMenu = app->CreateObjectActionMenu(mapViewFocused);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            
-            wxMenuBar* menuBar = app->CreateMenuBar(&m_documentViewHolder.view(), actionMenu, mapViewFocused);
+            wxMenuBar* menuBar = app->CreateMenuBar(MenuSelector(m_documentViewHolder), &m_documentViewHolder.view(), m_mapCanvasHasFocus);
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
@@ -265,8 +273,11 @@ namespace TrenchBroom {
         void EditorFrame::OnIdle(wxIdleEvent& event) {
             if (m_focusMapCanvasOnIdle) {
                 m_mapCanvas->SetFocus();
-                m_focusMapCanvasOnIdle = false;
+                m_mapCanvasHasFocus = true;
+                updateMenuBar();
                 updateNavBar();
+                m_mapCanvas->Refresh();
+                m_focusMapCanvasOnIdle = false;
             }
 
             /*

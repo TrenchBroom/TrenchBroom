@@ -159,6 +159,41 @@ namespace TrenchBroom {
             return hasDuplicates;
         }
 
+        void KeyboardGridTable::addMenu(const Preferences::Menu& menu, EntryList& entries) {
+            using namespace TrenchBroom::Preferences;
+            
+            const MenuItem::List& items = menu.items();
+            MenuItem::List::const_iterator itemIt, itemEnd;
+            for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
+                const MenuItem& item = **itemIt;
+                switch (item.type()) {
+                    case MenuItem::MITAction:
+                    case MenuItem::MITCheck: {
+                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
+                        entries.push_back(Entry(shortcutItem));
+                        break;
+                    }
+                    case MenuItem::MITMenu: {
+                        const Menu& subMenu = static_cast<const Menu&>(item);
+                        addMenu(subMenu, entries);
+                        break;
+                    }
+                    case MenuItem::MITMultiMenu: {
+                        const MultiMenu& multiMenu = static_cast<const MultiMenu&>(item);
+                        const MenuItem::List& multiItems = multiMenu.items();
+                        MenuItem::List::const_iterator multiIt, multiEnd;
+                        for (multiIt = multiItems.begin(), multiEnd = multiItems.end(); multiIt != multiEnd; ++multiIt) {
+                            const Menu& multiItem = static_cast<const Menu&>(**multiIt);
+                            addMenu(multiItem, entries);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+
         KeyboardGridTable::KeyboardGridTable() :
         m_cellEditor(new KeyboardGridCellEditor()) {
             m_cellEditor->IncRef();
@@ -212,11 +247,8 @@ namespace TrenchBroom {
                                                             oldShortcut.context(),
                                                             oldShortcut.text());
 
-            using namespace TrenchBroom::Preferences;
-            PreferenceManager& prefs = PreferenceManager::preferences();
-            
-            const Preference<KeyboardShortcut>& pref = m_entries[rowIndex].pref();
-            prefs.setKeyboardShortcut(pref, newShortcut);
+            const Preferences::ShortcutMenuItem& item = m_entries[rowIndex].item();
+            item.setShortcut(newShortcut);
             
             if (markDuplicates(m_entries))
                 notifyRowsUpdated(m_entries.size());
@@ -292,118 +324,13 @@ namespace TrenchBroom {
 
         bool KeyboardGridTable::update() {
             using namespace TrenchBroom::Preferences;
+            PreferenceManager& prefs = PreferenceManager::preferences();
 
             EntryList newEntries;
-
-            newEntries.push_back(Entry(FileNew));
-            newEntries.push_back(Entry(FileOpen));
-            newEntries.push_back(Entry(FileSave));
-            newEntries.push_back(Entry(FileSaveAs));
-            newEntries.push_back(Entry(FileLoadPointFile));
-            newEntries.push_back(Entry(FileUnloadPointFile));
-            newEntries.push_back(Entry(FileClose));
             
-            newEntries.push_back(Entry(EditUndo));
-            newEntries.push_back(Entry(EditRedo));
-            newEntries.push_back(Entry(EditCut));
-            newEntries.push_back(Entry(EditCopy));
-            newEntries.push_back(Entry(EditPaste));
-            newEntries.push_back(Entry(EditPasteAtOriginalPosition));
-            newEntries.push_back(Entry(EditDelete));
-            
-            newEntries.push_back(Entry(EditSelectAll));
-            newEntries.push_back(Entry(EditSelectSiblings));
-            newEntries.push_back(Entry(EditSelectTouching));
-            newEntries.push_back(Entry(EditSelectByFilePosition));
-            newEntries.push_back(Entry(EditSelectNone));
-            newEntries.push_back(Entry(EditHideSelected));
-            newEntries.push_back(Entry(EditHideUnselected));
-            newEntries.push_back(Entry(EditUnhideAll));
-            newEntries.push_back(Entry(EditLockSelected));
-            newEntries.push_back(Entry(EditLockUnselected));
-            newEntries.push_back(Entry(EditUnlockAll));
-            newEntries.push_back(Entry(EditToggleTextureLock));
-            newEntries.push_back(Entry(EditNavigateUp));
-            newEntries.push_back(Entry(EditShowMapProperties));
-            
-            newEntries.push_back(Entry(EditToolsToggleClipTool));
-            newEntries.push_back(Entry(EditToolsToggleClipSide));
-            newEntries.push_back(Entry(EditToolsPerformClip));
-            newEntries.push_back(Entry(EditToolsToggleVertexTool));
-            newEntries.push_back(Entry(EditToolsToggleRotateTool));
-            
-            newEntries.push_back(Entry(EditActionsMoveTexturesUp));
-            newEntries.push_back(Entry(EditActionsMoveTexturesDown));
-            newEntries.push_back(Entry(EditActionsMoveTexturesLeft));
-            newEntries.push_back(Entry(EditActionsMoveTexturesRight));
-            newEntries.push_back(Entry(EditActionsRotateTexturesCW));
-            newEntries.push_back(Entry(EditActionsRotateTexturesCCW));
-            newEntries.push_back(Entry(EditActionsMoveTexturesUpFine));
-            newEntries.push_back(Entry(EditActionsMoveTexturesDownFine));
-            newEntries.push_back(Entry(EditActionsMoveTexturesLeftFine));
-            newEntries.push_back(Entry(EditActionsMoveTexturesRightFine));
-            newEntries.push_back(Entry(EditActionsRotateTexturesCWFine));
-            newEntries.push_back(Entry(EditActionsRotateTexturesCCWFine));
-            
-            newEntries.push_back(Entry(EditActionsMoveObjectsForward));
-            newEntries.push_back(Entry(EditActionsMoveObjectsBackward));
-            newEntries.push_back(Entry(EditActionsMoveObjectsLeft));
-            newEntries.push_back(Entry(EditActionsMoveObjectsRight));
-            newEntries.push_back(Entry(EditActionsMoveObjectsUp));
-            newEntries.push_back(Entry(EditActionsMoveObjectsDown));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsForward));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsBackward));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsLeft));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsRight));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsUp));
-            newEntries.push_back(Entry(EditActionsDuplicateObjectsDown));
-            newEntries.push_back(Entry(EditActionsRollObjectsCW));
-            newEntries.push_back(Entry(EditActionsRollObjectsCCW));
-            newEntries.push_back(Entry(EditActionsYawObjectsCW));
-            newEntries.push_back(Entry(EditActionsYawObjectsCCW));
-            newEntries.push_back(Entry(EditActionsPitchObjectsCW));
-            newEntries.push_back(Entry(EditActionsPitchObjectsCCW));
-            newEntries.push_back(Entry(EditActionsFlipObjectsHorizontally));
-            newEntries.push_back(Entry(EditActionsFlipObjectsVertically));
-            newEntries.push_back(Entry(EditActionsDuplicateObjects));
-            
-            newEntries.push_back(Entry(EditActionsMoveVerticesForward));
-            newEntries.push_back(Entry(EditActionsMoveVerticesBackward));
-            newEntries.push_back(Entry(EditActionsMoveVerticesLeft));
-            newEntries.push_back(Entry(EditActionsMoveVerticesRight));
-            newEntries.push_back(Entry(EditActionsMoveVerticesUp));
-            newEntries.push_back(Entry(EditActionsMoveVerticesDown));
-            
-            newEntries.push_back(Entry(EditActionsCorrectVertices));
-            newEntries.push_back(Entry(EditActionsSnapVertices));
-            
-            newEntries.push_back(Entry(ViewGridToggleShowGrid));
-            newEntries.push_back(Entry(ViewGridToggleSnapToGrid));
-            newEntries.push_back(Entry(ViewGridIncGridSize));
-            newEntries.push_back(Entry(ViewGridDecGridSize));
-            newEntries.push_back(Entry(ViewGridSetSize1));
-            newEntries.push_back(Entry(ViewGridSetSize2));
-            newEntries.push_back(Entry(ViewGridSetSize4));
-            newEntries.push_back(Entry(ViewGridSetSize8));
-            newEntries.push_back(Entry(ViewGridSetSize16));
-            newEntries.push_back(Entry(ViewGridSetSize32));
-            newEntries.push_back(Entry(ViewGridSetSize64));
-            newEntries.push_back(Entry(ViewGridSetSize128));
-            newEntries.push_back(Entry(ViewGridSetSize256));
-            
-            newEntries.push_back(Entry(ViewCameraMoveForward));
-            newEntries.push_back(Entry(ViewCameraMoveBackward));
-            newEntries.push_back(Entry(ViewCameraMoveLeft));
-            newEntries.push_back(Entry(ViewCameraMoveRight));
-            newEntries.push_back(Entry(ViewCameraMoveUp));
-            newEntries.push_back(Entry(ViewCameraMoveDown));
-            newEntries.push_back(Entry(ViewCameraMoveToNextPoint));
-            newEntries.push_back(Entry(ViewCameraMoveToPreviousPoint));
-            newEntries.push_back(Entry(ViewCameraCenterCameraOnSelection));
-
-            newEntries.push_back(Entry(ViewSwitchToEntityTab));
-            newEntries.push_back(Entry(ViewSwitchToFaceTab));
-            newEntries.push_back(Entry(ViewSwitchToViewTab));
+            addMenu(prefs.getMenu(FileMenu), newEntries);
+            addMenu(prefs.getMenu(EditMenu), newEntries);
+            addMenu(prefs.getMenu(ViewMenu), newEntries);
 
             bool hasDuplicates = markDuplicates(newEntries);
             

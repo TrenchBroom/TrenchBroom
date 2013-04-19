@@ -35,8 +35,8 @@ EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
 
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    wxMenu* fileMenu = AbstractApp::CreateFileMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+    wxMenu* fileMenu = AbstractApp::CreateFileMenu(DefaultMenuSelector(), eventHandler, mapViewFocused);
 
     // these won't show up in the app menu if we don't add them here
     fileMenu->Append(wxID_ABOUT, wxT("About"));
@@ -54,7 +54,7 @@ bool TrenchBroomApp::OnInit() {
         SetExitOnFrameDelete(false);
         m_docManager->SetUseSDI(false);
         
-        wxMenuBar* menuBar = CreateMenuBar(this, NULL, false);
+        wxMenuBar* menuBar = CreateMenuBar(DefaultMenuSelector(), this, false);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;

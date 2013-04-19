@@ -22,6 +22,7 @@
 
 #include <wx/frame.h>
 
+#include "Utility/Preferences.h"
 #include "View/DocumentViewHolder.h"
 
 class wxDocManager;
@@ -52,6 +53,14 @@ namespace TrenchBroom {
         public:
             static const wxEventType EVT_SET_FOCUS;
         protected:
+            class MenuSelector : public Preferences::MultiMenuSelector {
+            private:
+                DocumentViewHolder& m_documentViewHolder;
+            public:
+                MenuSelector(DocumentViewHolder& documentViewHolder);
+                const Preferences::Menu* select(const Preferences::MultiMenu& multiMenu) const;
+            };
+            
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
             wxPanel* m_mapCanvasContainerPanel;
