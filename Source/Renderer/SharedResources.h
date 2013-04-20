@@ -110,6 +110,10 @@ namespace TrenchBroom {
             inline wxGLContext* sharedContext() const {
                 return m_sharedContext;
             }
+
+            void OnIdle(wxIdleEvent& event);
+
+            DECLARE_EVENT_TABLE()
         };
     }
 }

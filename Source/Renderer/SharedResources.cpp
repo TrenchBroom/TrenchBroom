@@ -34,6 +34,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        BEGIN_EVENT_TABLE(SharedResources, wxFrame)
+        EVT_IDLE(SharedResources::OnIdle)
+        END_EVENT_TABLE()
+
         SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
         m_palette(NULL),
@@ -108,8 +112,11 @@ namespace TrenchBroom {
                 0,
             };
 
-            size_t index = 0;
+            SetSize(0, 0);
+            Show(true);
+            Raise();
 
+            size_t index = 0;
             while (m_attribs == NULL && attribs[index] != 0) {
                 size_t count = 0;
                 for (; attribs[index + count] != 0; count++);
@@ -128,7 +135,7 @@ namespace TrenchBroom {
 
             assert(m_attribs != NULL);
 
-            m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs);
+            m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs, wxDefaultPosition, GetClientSize());
             m_sharedContext = new wxGLContext(m_glCanvas);
 
             /*
@@ -140,14 +147,6 @@ namespace TrenchBroom {
                                                 GL_TRUE );
             assert(glxContext != NULL);
             */
-
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_glCanvas, 1, wxEXPAND);
-            SetSizer(sizer);
-
-            SetSize(1, 1);
-            SetPosition(wxPoint(-9999, -9999));
-            Show();
 
             m_sharedContext->SetCurrent(*m_glCanvas);
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
@@ -176,6 +175,7 @@ namespace TrenchBroom {
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_fontManager = new Text::FontManager(console);
 
+            SetPosition(wxPoint(-10, -10));
             Hide();
         }
 
@@ -207,5 +207,9 @@ namespace TrenchBroom {
             m_textureRendererManager->setPalette(*m_palette);
         }
 
+        void SharedResources::OnIdle(wxIdleEvent& event) {
+            SetPosition(wxPoint(-10, -10));
+            Hide();
+        }
     }
 }
