@@ -55,7 +55,7 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
-        EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnSetFocus)
+        EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
@@ -150,8 +150,7 @@ namespace TrenchBroom {
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
-        m_mapCanvasHasFocus(false),
-        m_focusMapCanvasOnIdle(true) {
+        m_focusMapCanvasOnIdle(2) {
 #ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
@@ -182,7 +181,7 @@ namespace TrenchBroom {
                 return;
             
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-            wxMenuBar* menuBar = app->CreateMenuBar(MenuSelector(m_documentViewHolder), &m_documentViewHolder.view(), m_mapCanvasHasFocus);
+            wxMenuBar* menuBar = app->CreateMenuBar(MenuSelector(m_documentViewHolder), &m_documentViewHolder.view(), m_mapCanvas->hasFocus());
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
@@ -251,12 +250,10 @@ namespace TrenchBroom {
         }
          */
 
-        void EditorFrame::OnSetFocus(wxCommandEvent& event) {
+        void EditorFrame::OnChangeFocus(wxCommandEvent& event) {
             if (m_documentViewHolder.valid()) {
                 wxWindow* focus = FindFocus();
-                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
-                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
-
+                if (m_mapCanvas->setHasFocus(m_mapCanvas == focus)) {
                     updateMenuBar();
 
                     wxMenuBar* menuBar = GetMenuBar();
@@ -265,19 +262,17 @@ namespace TrenchBroom {
                         wxMenu* menu = menuBar->GetMenu(i);
                         menu->UpdateUI(&m_documentViewHolder.view());
                     }
-                    m_mapCanvas->Refresh();
                 }
             }
         }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
-            if (m_focusMapCanvasOnIdle) {
+            if (m_focusMapCanvasOnIdle > 0) {
                 m_mapCanvas->SetFocus();
-                m_mapCanvasHasFocus = true;
+                m_mapCanvas->setHasFocus(true, true);
                 updateMenuBar();
                 updateNavBar();
-                m_mapCanvas->Refresh();
-                m_focusMapCanvasOnIdle = false;
+                m_focusMapCanvasOnIdle--;
             }
 
             /*

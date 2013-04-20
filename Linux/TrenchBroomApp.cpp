@@ -31,15 +31,15 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused) {
-	wxMenu* editMenu = AbstractApp::CreateEditMenu(eventHandler, actionMenu, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+	wxMenu* editMenu = AbstractApp::CreateEditMenu(selector, eventHandler, mapViewFocused);
 	editMenu->AppendSeparator();
     editMenu->Append(wxID_PREFERENCES, wxT("Preferences"));
 	return editMenu;
 }
 
-wxMenu* TrenchBroomApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    wxMenu* helpMenu = AbstractApp::CreateHelpMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+    wxMenu* helpMenu = AbstractApp::CreateHelpMenu(selector, eventHandler, mapViewFocused);
     helpMenu->AppendSeparator();
     helpMenu->Append(wxID_ABOUT, wxT("About TrenchBroom..."));
     return helpMenu;

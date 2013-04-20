@@ -194,7 +194,6 @@
 		48D937F816C2ABFE005A4684 /* Remove.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F316C2ABFE005A4684 /* Remove.png */; };
 		48D937F916C2ABFE005A4684 /* Up.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F416C2ABFE005A4684 /* Up.png */; };
 		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */; };
 		48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
 		48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC515FFC31600B8D476 /* Face.fragsh */; };
@@ -642,7 +641,6 @@
 		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
 		48DFD4B716061AAE00E554E1 /* wglew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wglew.h; path = ../Source/GL/wglew.h; sourceTree = "<group>"; };
-		48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacCapabilities.cpp; sourceTree = "<group>"; };
 		48DFD4BD160656F500E554E1 /* Capabilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Capabilities.h; path = ../Source/GL/Capabilities.h; sourceTree = "<group>"; };
 		48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureCollectionCommand.cpp; sourceTree = "<group>"; };
 		48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollectionCommand.h; sourceTree = "<group>"; };
@@ -908,7 +906,6 @@
 			isa = PBXGroup;
 			children = (
 				484763DC15E2BC5000095BC0 /* Supporting Files */,
-				48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */,
 				4875679B1697922D008F316F /* MacDropSource.cpp */,
 				4875679C1697922D008F316F /* MacDropSource.h */,
 				48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */,
@@ -1528,7 +1525,6 @@
 				481CDAD816026C48003E2EE9 /* PreferencesFrame.cpp in Sources */,
 				481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */,
 				48DFD4B816061AAE00E554E1 /* glew.c in Sources */,
-				48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */,
 				48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */,
 				48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */,
 				48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */,

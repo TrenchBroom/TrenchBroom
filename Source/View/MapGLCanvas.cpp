@@ -64,8 +64,6 @@ namespace TrenchBroom {
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         EVT_MOUSE_CAPTURE_LOST(MapGLCanvas::OnMouseCaptureLost)
-        EVT_KILL_FOCUS(MapGLCanvas::OnKillFocus)
-        EVT_IDLE(MapGLCanvas::OnIdle)
         END_EVENT_TABLE()
 
         wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
@@ -136,7 +134,7 @@ namespace TrenchBroom {
         m_vbo(NULL),
         m_inputController(new Controller::InputController(documentViewHolder)),
         m_overlayRenderer(NULL),
-        m_hasFocus(true),
+        m_hasFocus(false),
         m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
@@ -191,7 +189,7 @@ namespace TrenchBroom {
                 m_overlayRenderer->render(renderContext, GetClientSize().x, GetClientSize().y);
 
                 // render focus rectangle
-                if (FindFocus() == this) {
+                if (m_hasFocus) {
                     Mat4f projection;
                     projection.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
                     Renderer::ApplyTransformation ortho(renderContext.transformation(), projection, Mat4f::Identity);
@@ -392,26 +390,5 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             m_inputController->endDrag();
         }
-
-        void MapGLCanvas::OnKillFocus(wxFocusEvent& event) {
-            m_ignoreNextClick = true;
-            m_hasFocus = false;
-            event.Skip();
-        }
-
-        void MapGLCanvas::OnIdle(wxIdleEvent& event) {
-            // this is a fix for Mac OS X, where the kill focus event is not properly sent
-            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
-
-#ifdef __APPLE__
-            wxWindow* focus = FindFocus();
-            if (m_hasFocus != (focus == this)) {
-                m_hasFocus = (focus == this);
-                if (!m_hasFocus)
-                    m_ignoreNextClick = true;
-            }
-#endif
-        }
-
     }
 }

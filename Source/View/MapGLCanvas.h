@@ -84,8 +84,23 @@ namespace TrenchBroom {
                 return *m_inputController;
             }
             
+            inline bool hasFocus() const {
+                return m_hasFocus;
+            }
+            
+            inline bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false) {
+                if (m_hasFocus == hasFocus)
+                    return false;
+                m_hasFocus = hasFocus;
+                if (!m_hasFocus)
+                    m_ignoreNextClick = true;
+                if (dontIgnoreNextClick)
+                    m_ignoreNextClick = false;
+                Refresh();
+                return true;
+            }
+            
             void OnPaint(wxPaintEvent& event);
-
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
             void OnMouseLeftDown(wxMouseEvent& event);
@@ -100,8 +115,6 @@ namespace TrenchBroom {
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnIdle(wxIdleEvent& event);
 
             DECLARE_EVENT_TABLE()
         };

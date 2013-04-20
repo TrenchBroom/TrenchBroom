@@ -381,7 +381,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp" />
     <ClCompile Include="..\..\Source\View\ViewInspector.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
-    <ClCompile Include="WinCapabilities.cpp" />
     <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -432,7 +431,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h" />
     <ClInclude Include="..\..\Source\Controller\Tool.h" />
     <ClInclude Include="..\..\Source\Controller\VertexHandleManager.h" />
-    <ClInclude Include="..\..\Source\GL\Capabilities.h" />
     <ClInclude Include="..\..\Source\GL\glew.h" />
     <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />

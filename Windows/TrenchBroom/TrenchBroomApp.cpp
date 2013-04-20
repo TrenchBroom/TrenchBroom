@@ -23,6 +23,8 @@
 #include <wx/menu.h>
 
 #include "Utility/DocManager.h"
+#include "View/CommandIds.h"
+#include "View/PreferencesFrame.h"
 
 #include <clocale>
 
@@ -31,15 +33,15 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-	wxMenu* viewMenu = AbstractApp::CreateViewMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateViewMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+	wxMenu* viewMenu = AbstractApp::CreateViewMenu(selector, eventHandler, mapViewFocused);
 	viewMenu->AppendSeparator();
     viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
 	return viewMenu;
 }
 
-wxMenu* TrenchBroomApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-	wxMenu* helpMenu = AbstractApp::CreateHelpMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+	wxMenu* helpMenu = AbstractApp::CreateHelpMenu(selector, eventHandler, mapViewFocused);
 	helpMenu->AppendSeparator();
     helpMenu->Append(wxID_ABOUT, wxT("About TrenchBroom..."));
 	return helpMenu;

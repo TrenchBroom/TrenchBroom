@@ -24,8 +24,8 @@
 
 class TrenchBroomApp : public AbstractApp {
 protected:
-    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
-    virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
 	bool OnInit();
 public:
     DECLARE_EVENT_TABLE()

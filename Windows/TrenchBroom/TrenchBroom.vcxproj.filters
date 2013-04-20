@@ -87,9 +87,6 @@
     <ClCompile Include="..\..\Source\GL\glew.c">
       <Filter>Source Files\GL</Filter>
     </ClCompile>
-    <ClCompile Include="WinCapabilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp">
       <Filter>Source Files\Renderer\Shader</Filter>
     </ClCompile>
@@ -528,6 +525,9 @@
     <ClCompile Include="..\..\Source\Renderer\PointTraceRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityLinkDecorator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -538,9 +538,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
       <Filter>Header Files\Renderer\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GL\Capabilities.h">
-      <Filter>Header Files\GL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\GL\wglew.h">
       <Filter>Header Files\GL</Filter>
@@ -1204,6 +1201,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\PointTraceRenderer.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityLinkDecorator.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
