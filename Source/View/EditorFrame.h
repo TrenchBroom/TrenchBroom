@@ -88,18 +88,11 @@ namespace TrenchBroom {
             void update(const Controller::Command& command);
             void updateMenuBar();
             void updateNavBar();
-
             void disableProcessing();
 
-            /*
-            void OnMapCanvasSetFocus(wxFocusEvent& event);
-            void OnMapCanvasKillFocus(wxFocusEvent& event);
-             */
             void OnChangeFocus(wxCommandEvent& event);
             void OnIdle(wxIdleEvent& event);
-
             void OnClose(wxCloseEvent& event);
-
             void OnMenuOpen(wxMenuEvent& event);
 
             DECLARE_EVENT_TABLE()

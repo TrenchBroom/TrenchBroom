@@ -140,11 +140,6 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
 
             SetSize(1024, 768);
-
-            /*
-            m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);
-            m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
-             */
         }
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
@@ -187,8 +182,6 @@ namespace TrenchBroom {
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
             m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
 
-            // SetMenuBar(NULL);
-
             wxMenuBar* oldMenuBar = GetMenuBar();
             app->DetachFileHistoryMenu(oldMenuBar);
 
@@ -210,60 +203,11 @@ namespace TrenchBroom {
             m_documentViewHolder.invalidate();
         }
 
-        /*
-        void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
-            m_mapCanvasHasFocus = true;
-
-            if (m_documentViewHolder.valid()) {
-                updateMenuBar();
-
-                wxMenuBar* menuBar = GetMenuBar();
-                size_t menuCount = menuBar->GetMenuCount();
-                for (size_t i = 0; i < menuCount; i++) {
-                    wxMenu* menu = menuBar->GetMenu(i);
-                    menu->UpdateUI(&m_documentViewHolder.view());
-                }
-
-                m_mapCanvas->Refresh();
-            }
-
-            event.Skip();
-        }
-
-        void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
-            m_mapCanvasHasFocus = false;
-
-            if (m_documentViewHolder.valid()) {
-                updateMenuBar();
-
-                wxMenuBar* menuBar = GetMenuBar();
-                size_t menuCount = menuBar->GetMenuCount();
-                for (size_t i = 0; i < menuCount; i++) {
-                    wxMenu* menu = menuBar->GetMenu(i);
-                    menu->UpdateUI(&m_documentViewHolder.view());
-                }
-
-                m_mapCanvas->Refresh();
-            }
-
-            event.Skip();
-        }
-         */
-
         void EditorFrame::OnChangeFocus(wxCommandEvent& event) {
             if (m_documentViewHolder.valid()) {
                 wxWindow* focus = FindFocus();
-                if (m_mapCanvas->setHasFocus(m_mapCanvas == focus)) {
+                if (m_mapCanvas->setHasFocus(m_mapCanvas == focus))
                     updateMenuBar();
-/*
-                    wxMenuBar* menuBar = GetMenuBar();
-                    size_t menuCount = menuBar->GetMenuCount();
-                    for (size_t i = 0; i < menuCount; i++) {
-                        wxMenu* menu = menuBar->GetMenu(i);
-                        menu->UpdateUI(&m_documentViewHolder.view());
-                    }
-*/
-                }
             }
         }
 
@@ -275,30 +219,6 @@ namespace TrenchBroom {
                 updateNavBar();
                 m_focusMapCanvasOnIdle--;
             }
-
-            /*
-            // this is a fix for Mac OS X, where the kill focus event is not properly sent
-            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
-
-#ifdef __APPLE__
-            if (m_documentViewHolder.valid()) {
-                wxWindow* focus = FindFocus();
-                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
-                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
-
-                    updateMenuBar();
-
-                    wxMenuBar* menuBar = GetMenuBar();
-                    size_t menuCount = menuBar->GetMenuCount();
-                    for (size_t i = 0; i < menuCount; i++) {
-                        wxMenu* menu = menuBar->GetMenu(i);
-                        menu->UpdateUI(&m_documentViewHolder.view());
-                    }
-                    m_mapCanvas->Refresh();
-                }
-            }
-#endif
-            */
 
             // FIXME: Workaround for a bug in Ubuntu GTK where menus are not updated
 #ifdef __linux__
@@ -325,6 +245,7 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnMenuOpen(wxMenuEvent& event) {
+            // FIXME is this still necessaryß
 #ifdef _WIN32
             wxMenu* menu = event.GetMenu();
 			menu->UpdateUI(&m_documentViewHolder.view());
