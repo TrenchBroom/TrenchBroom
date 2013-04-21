@@ -172,6 +172,17 @@ namespace TrenchBroom {
             return Utility::join(components, "/");
         }
 
+        ShortcutMenuItem::ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent) :
+        TextMenuItem(type, parent),
+        m_shortcut(shortcut) {
+            assert(type == MITAction || type == MITCheck);
+            PreferenceManager& prefs = PreferenceManager::preferences();
+            const String p = path();
+            Preference<KeyboardShortcut> preference(p, m_shortcut);
+            prefs.getKeyboardShortcut(preference);
+        }
+
+
         const String ShortcutMenuItem::longText() const {
             StringList components;
             components.push_back(shortcut().text());
@@ -186,10 +197,6 @@ namespace TrenchBroom {
         }
 
         const KeyboardShortcut& ShortcutMenuItem::shortcut() const {
-            PreferenceManager& prefs = PreferenceManager::preferences();
-            const String p = path();
-            Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.getKeyboardShortcut(preference);
             return m_shortcut;
         }
 
@@ -198,6 +205,7 @@ namespace TrenchBroom {
             const String p = path();
             Preference<KeyboardShortcut> preference(p, m_shortcut);
             prefs.setKeyboardShortcut(preference, shortcut);
+            m_shortcut = preference.value();
         }
 
         const Menu* MultiMenu::menuById(const int menuId) const {

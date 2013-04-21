@@ -114,13 +114,17 @@ namespace TrenchBroom {
                     // not supported
                     break;
 #endif
-                default:
-                    if (m_key == WXK_NONE && !wasReset) {
-                        m_key = key;
-                    } else if (key == WXK_BACK || key == WXK_DELETE) {
+                case WXK_BACK:
+                case WXK_DELETE:
+                    if (m_key != WXK_NONE) {
                         SetShortcut();
                         m_resetOnNextKey = false;
+                    } else if (!wasReset) {
+                        m_key = key;
                     }
+                    break;
+                default:
+                    m_key = key;
                     break;
             }
             update();

@@ -406,12 +406,7 @@ namespace TrenchBroom {
 
             String path() const;
         public:
-            ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent) :
-            TextMenuItem(type, parent),
-            m_shortcut(shortcut) {
-                assert(type == MITAction || type == MITCheck);
-            }
-
+            ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent);
             virtual ~ShortcutMenuItem() {}
 
             inline const String& text() const {

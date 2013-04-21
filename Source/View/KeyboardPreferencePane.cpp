@@ -27,6 +27,7 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
+#include <wx/stopwatch.h>
 
 #include <cassert>
 
