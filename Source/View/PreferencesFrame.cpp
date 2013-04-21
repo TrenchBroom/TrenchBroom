@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 m_toolBar->ToggleTool(PPKeyboard, m_currentPane == PPKeyboard);
                 return;
             }
-            
+
             if (m_panel != NULL) {
                 m_panel->Destroy();
                 m_panel = NULL;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
             m_toolBar->ToggleTool(PPGeneral, pane == PPGeneral);
             m_toolBar->ToggleTool(PPKeyboard, pane == PPKeyboard);
-            
+
             switch (pane) {
                 case PPKeyboard:
                     m_pane = new KeyboardPreferencePane(m_panel);
@@ -69,30 +69,29 @@ namespace TrenchBroom {
                     m_pane = new GeneralPreferencePane(m_panel);
                     break;
             }
-            
+
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
 #ifndef __APPLE__
             innerSizer->Add(m_pane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
-            
+
             wxButton* okButton = new wxButton(m_panel, wxID_OK, wxT("OK"));
             wxButton* cancelButton = new wxButton(m_panel, wxID_CANCEL, wxT("Cancel"));
-            
+
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
             buttonSizer->SetAffirmativeButton(okButton);
             buttonSizer->SetCancelButton(cancelButton);
             buttonSizer->Realize();
-            
+
             innerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
 #else
             innerSizer->Add(m_pane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif
-            innerSizer->SetItemMinSize(m_pane, 600, m_pane->GetSize().y);
             m_panel->SetSizerAndFit(innerSizer);
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_panel, 1, wxEXPAND);
             SetSizerAndFit(outerSizer);
-            
+
 #ifdef __APPLE__
             // allow the dialog to be closed using CMD+W
             // but only if the keyboard preference pane is not active
@@ -109,7 +108,7 @@ namespace TrenchBroom {
 
             m_currentPane = pane;
         }
-        
+
         PreferencesFrame::PreferencesFrame() :
         wxFrame(NULL, wxID_ANY, wxT("Preferences"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER),
         m_toolBar(NULL),
@@ -125,7 +124,7 @@ namespace TrenchBroom {
             m_toolBar->AddCheckTool(PPKeyboard, wxT("Keyboard"), keyboard, wxNullBitmap);
             m_toolBar->Realize();
             SetToolBar(m_toolBar);
-            
+
             switchToPane(PPGeneral);
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(this);

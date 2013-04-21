@@ -64,7 +64,7 @@ namespace TrenchBroom {
         const Preference<Color> OccludedEntityKillLinkColor = Preference<Color>(                "Renderer/Colors/Occluded entity kill link",                    Color(0.1f,  0.6f,  0.3f,  0.5f ));
         const Preference<Color> SelectedEntityKillLinkColor = Preference<Color>(                "Renderer/Colors/Selected entity kill link",                    Color(0.8f,  0.4f,  0.1f,  1.0f ));
         const Preference<Color> OccludedSelectedEntityKillLinkColor = Preference<Color>(        "Renderer/Colors/Occluded selected entity kill link",           Color(0.8f,  0.4f,  0.1f,  0.5f ));
-        
+
         const Preference<Color> FaceColor = Preference<Color>(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
         const Preference<Color> SelectedFaceColor = Preference<Color>(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
         const Preference<Color> LockedFaceColor = Preference<Color>(                            "Renderer/Colors/Locked face",                                  Color(0.35f, 0.35f, 0.6f,  1.0f ));
@@ -163,14 +163,28 @@ namespace TrenchBroom {
             StringList components;
             const MenuItemParent* p = parent();
             while (p != NULL) {
-                components.push_back(p->text());
+                if (!p->text().empty())
+                    components.push_back(p->text());
                 p = p->parent();
             }
             components.push_back("Menu");
             std::reverse(components.begin(), components.end());
             return Utility::join(components, "/");
         }
-        
+
+        const String ShortcutMenuItem::longText() const {
+            StringList components;
+            components.push_back(shortcut().text());
+            const MenuItemParent* p = parent();
+            while (p != NULL) {
+                if (!p->text().empty())
+                    components.push_back(p->text());
+                p = p->parent();
+            }
+            std::reverse(components.begin(), components.end());
+            return Utility::join(components, " > ");
+        }
+
         const KeyboardShortcut& ShortcutMenuItem::shortcut() const {
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
@@ -178,7 +192,7 @@ namespace TrenchBroom {
             prefs.getKeyboardShortcut(preference);
             return m_shortcut;
         }
-        
+
         void ShortcutMenuItem::setShortcut(const KeyboardShortcut& shortcut) const {
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
@@ -196,8 +210,8 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        Menu& MultiMenu::addMenu(const int menuId) {
-            Menu* menu = new Menu("", this, menuId);
+        Menu& MultiMenu::addMenu(const String& text, const int menuId) {
+            Menu* menu = new Menu(text, this, menuId);
             m_items.push_back(MenuItem::Ptr(menu));
             return *menu;
         }

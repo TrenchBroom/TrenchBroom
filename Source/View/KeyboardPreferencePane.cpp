@@ -47,7 +47,7 @@ namespace TrenchBroom {
             SetControl(m_editor);
             // wxGridCellEditor::Create(parent, windowId, evtHandler);
         }
-        
+
         wxGridCellEditor* KeyboardGridCellEditor::Clone() const {
             return new KeyboardGridCellEditor(m_editor->GetParent(), wxID_ANY, m_evtHandler,
                                               m_editor->modifierKey1(),
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                                               m_editor->modifierKey3(),
                                               m_editor->key());
         }
-        
+
         void KeyboardGridCellEditor::BeginEdit(int row, int col, wxGrid* grid) {
             int modifierKey1, modifierKey2, modifierKey3, key;
             KeyboardShortcut::parseShortcut(grid->GetCellValue(row, col),
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
             m_editor->SetFocus();
         }
-        
+
         bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
             *newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
                                                               m_editor->modifierKey2(),
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 return false;
             return true;
         }
-        
+
         void KeyboardGridCellEditor::ApplyEdit(int row, int col, wxGrid* grid) {
             wxString newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
                                                                       m_editor->modifierKey2(),
@@ -84,18 +84,18 @@ namespace TrenchBroom {
                                                                       m_editor->key());
             grid->SetCellValue(row, col, newValue);
         }
-        
+
         void KeyboardGridCellEditor::HandleReturn(wxKeyEvent& event) {
         }
-        
+
         void KeyboardGridCellEditor::Reset() {
             m_editor->SetShortcut();
         }
-        
+
         void KeyboardGridCellEditor::Show(bool show, wxGridCellAttr* attr) {
             m_editor->Show(show);
         }
-        
+
         wxString KeyboardGridCellEditor::GetValue() const {
             return KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
                                                          m_editor->modifierKey2(),
@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-        
+
         bool KeyboardGridTable::markDuplicates(EntryList& entries) {
             for (size_t i = 0; i < entries.size(); i++)
                 entries[i].setDuplicate(false);
@@ -161,7 +161,7 @@ namespace TrenchBroom {
 
         void KeyboardGridTable::addMenu(const Preferences::Menu& menu, EntryList& entries) {
             using namespace TrenchBroom::Preferences;
-            
+
             const MenuItem::List& items = menu.items();
             MenuItem::List::const_iterator itemIt, itemEnd;
             for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         m_cellEditor(new KeyboardGridCellEditor()) {
             m_cellEditor->IncRef();
         }
-        
+
         KeyboardGridTable::~KeyboardGridTable() {
             m_cellEditor->DecRef();
         }
@@ -219,7 +219,7 @@ namespace TrenchBroom {
 
             switch (col) {
                 case 0:
-                    return m_entries[rowIndex].shortcut().text();
+                    return m_entries[rowIndex].item().longText();
                 case 1:
                     return KeyboardShortcut::contextName(m_entries[rowIndex].shortcut().context());
                 case 2:
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             int modifierKey1, modifierKey2, modifierKey3, key;
             bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
             assert(success);
-            
+
             size_t rowIndex = static_cast<size_t>(row);
             const KeyboardShortcut& oldShortcut = m_entries[rowIndex].shortcut();
             KeyboardShortcut newShortcut = KeyboardShortcut(oldShortcut.commandId(),
@@ -249,7 +249,7 @@ namespace TrenchBroom {
 
             const Preferences::ShortcutMenuItem& item = m_entries[rowIndex].item();
             item.setShortcut(newShortcut);
-            
+
             if (markDuplicates(m_entries))
                 notifyRowsUpdated(m_entries.size());
             else
@@ -327,13 +327,13 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::preferences();
 
             EntryList newEntries;
-            
+
             addMenu(prefs.getMenu(FileMenu), newEntries);
             addMenu(prefs.getMenu(EditMenu), newEntries);
             addMenu(prefs.getMenu(ViewMenu), newEntries);
 
             bool hasDuplicates = markDuplicates(newEntries);
-            
+
             size_t oldSize = m_entries.size();
             m_entries = newEntries;
 
@@ -342,7 +342,7 @@ namespace TrenchBroom {
                 notifyRowsAppended(m_entries.size() - oldSize);
             else if (oldSize > m_entries.size())
                 notifyRowsDeleted(oldSize, oldSize - m_entries.size());
-            
+
             return hasDuplicates;
         }
 
@@ -355,7 +355,7 @@ namespace TrenchBroom {
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-            
+
             m_table = new KeyboardGridTable();
             m_grid = new wxGrid(box, CommandIds::KeyboardPreferencePane::ShortcutEditorId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
@@ -368,9 +368,10 @@ namespace TrenchBroom {
             m_grid->SetCellHighlightPenWidth(0);
             m_grid->SetCellHighlightROPenWidth(0);
 //            m_grid->EnableEditing(false);
-            
+
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
+            m_grid->DisableColResize(2);
             m_grid->DisableDragColMove();
             m_grid->DisableDragCell();
             m_grid->DisableDragColSize();
@@ -378,7 +379,6 @@ namespace TrenchBroom {
             m_grid->DisableDragRowSize();
 
             m_table->update();
-            m_grid->AutoSize();
 
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
@@ -387,10 +387,10 @@ namespace TrenchBroom {
             innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             box->SetSizer(innerSizer);
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(box, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(box, wxDefaultSize.x, 500);
+            outerSizer->SetItemMinSize(box, wxDefaultSize.x, 550);
             SetSizerAndFit(outerSizer);
         }
 
@@ -404,8 +404,8 @@ namespace TrenchBroom {
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
             int width = m_grid->GetClientSize().x;
-            m_grid->SetColSize(0, width / 3);
-            m_grid->SetColSize(1, width / 3);
+            m_grid->AutoSizeColumn(0);
+            m_grid->AutoSizeColumn(1);
             m_grid->SetColSize(2, width - m_grid->GetColSize(0) - m_grid->GetColSize(1));
             event.Skip();
         }
