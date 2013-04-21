@@ -390,7 +390,7 @@ namespace TrenchBroom {
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(box, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(box, wxDefaultSize.x, 550);
+            outerSizer->SetItemMinSize(box, 650, 550);
             SetSizerAndFit(outerSizer);
         }
 

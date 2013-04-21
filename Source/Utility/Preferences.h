@@ -765,7 +765,7 @@ namespace TrenchBroom {
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::SCVertexTool, "Move Up"));
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::SCVertexTool, "Move Down"));
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditCorrectVertices, KeyboardShortcut::SCVertexTool, "Correct Vertices"));
-                objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCVertexTool, "Snap Vertices"));
+                vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCVertexTool, "Snap Vertices"));
 
                 Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", View::CommandIds::Menu::EditClipActions);
                 clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipSide, WXK_TAB, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));

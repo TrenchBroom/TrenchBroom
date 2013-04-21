@@ -161,7 +161,7 @@ namespace TrenchBroom {
         }
 
         bool ShaderProgram::setUniformVariable(const String& name, const Vec4f& value) {
-            // assert(checkActive());
+            assert(checkActive());
             checkActive();
             GLint location = uniformLocation(name);
             if (location == -1)
