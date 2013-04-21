@@ -210,6 +210,7 @@ namespace TrenchBroom {
         void SharedResources::OnIdle(wxIdleEvent& event) {
             SetPosition(wxPoint(-10, -10));
             Hide();
+            event.Skip();
         }
     }
 }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -70,10 +70,9 @@ wxMenu* AbstractApp::buildMenu(const TrenchBroom::Preferences::Menu& menu, const
     using TrenchBroom::Preferences::MenuItem;
     using TrenchBroom::Preferences::MultiMenu;
     using TrenchBroom::Preferences::ShortcutMenuItem;
-    
+
     wxMenu* result = new wxMenu();
-    result->SetEventHandler(eventHandler);
-    
+
     const Menu::List& items = menu.items();
     Menu::List::const_iterator it, end;
     for (it = items.begin(), end = items.end(); it != end; ++it) {
@@ -122,14 +121,15 @@ wxMenu* AbstractApp::buildMenu(const TrenchBroom::Preferences::Menu& menu, const
             }
         }
     }
-    
+
+    result->SetEventHandler(eventHandler);
     return result;
 }
 
 wxMenu* AbstractApp::CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
     using TrenchBroom::Preferences::PreferenceManager;
     using TrenchBroom::Preferences::Menu;
-    
+
     PreferenceManager& prefs = PreferenceManager::preferences();
     const Menu& menu = prefs.getMenu(TrenchBroom::Preferences::FileMenu);
     wxMenu* fileMenu = buildMenu(menu, selector, eventHandler, mapViewFocused);
@@ -140,14 +140,14 @@ wxMenu* AbstractApp::CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSel
     assert(openRecentMenu != NULL);
     m_docManager->FileHistoryUseMenu(openRecentMenu);
     m_docManager->FileHistoryAddFilesToMenu(openRecentMenu);
-    
+
     return fileMenu;
 }
 
 wxMenu* AbstractApp::CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
     using TrenchBroom::Preferences::PreferenceManager;
     using TrenchBroom::Preferences::Menu;
-    
+
     PreferenceManager& prefs = PreferenceManager::preferences();
     const Menu& menu = prefs.getMenu(TrenchBroom::Preferences::EditMenu);
     return buildMenu(menu, selector, eventHandler, mapViewFocused);
@@ -156,7 +156,7 @@ wxMenu* AbstractApp::CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSel
 wxMenu* AbstractApp::CreateViewMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
     using TrenchBroom::Preferences::PreferenceManager;
     using TrenchBroom::Preferences::Menu;
-    
+
     PreferenceManager& prefs = PreferenceManager::preferences();
     const Menu& menu = prefs.getMenu(TrenchBroom::Preferences::ViewMenu);
     return buildMenu(menu, selector, eventHandler, mapViewFocused);
@@ -164,7 +164,7 @@ wxMenu* AbstractApp::CreateViewMenu(const TrenchBroom::Preferences::MultiMenuSel
 
 wxMenu* AbstractApp::CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* helpMenu = new wxMenu();
     helpMenu->Append(HelpShowHelp, wxT("TrenchBroom Help"));
     helpMenu->SetEventHandler(eventHandler);
@@ -177,7 +177,7 @@ wxMenuBar* AbstractApp::CreateMenuBar(const TrenchBroom::Preferences::MultiMenuS
     menuBar->Append(CreateEditMenu(selector, eventHandler, mapViewFocused), wxT("Edit"));
     menuBar->Append(CreateViewMenu(selector, eventHandler, mapViewFocused), wxT("View"));
     menuBar->Append(CreateHelpMenu(selector, eventHandler, mapViewFocused), wxT("Help"));
-    
+
     return menuBar;
 }
 
@@ -185,20 +185,20 @@ void AbstractApp::DetachFileHistoryMenu(wxMenuBar* menuBar) {
     if (menuBar != NULL) {
         int fileMenuIndex = menuBar->FindMenu(wxT("File"));
         assert(fileMenuIndex != wxNOT_FOUND);
-        
+
         wxMenu* fileMenu = menuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
         wxMenuItem* openRecentItem = fileMenu->FindItem(TrenchBroom::View::CommandIds::Menu::FileOpenRecent);
         assert(openRecentItem != NULL);
         wxMenu* openRecentMenu = openRecentItem->GetSubMenu();
         assert(openRecentMenu != NULL);
-        
+
         m_docManager->FileHistoryRemoveMenu(openRecentMenu);
     }
 }
 
 void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
     const wxList& documents = m_docManager->GetDocuments();
-    
+
     wxList::const_iterator it, end;
     for (it = documents.begin(), end = documents.end(); it != end; ++it) {
         wxDocument* document = static_cast<wxDocument*>(*it);
@@ -208,15 +208,15 @@ void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
 
 bool AbstractApp::OnInit() {
     m_preferencesFrame = NULL;
-    
+
     // initialize globals
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
     TrenchBroom::Model::BspManager::sharedManager = new TrenchBroom::Model::BspManager();
-    
+
 	m_docManager = new DocManager();
     m_docManager->FileHistoryLoad(*wxConfig::Get());
-    
+
     new wxDocTemplate(m_docManager,
                       wxT("Quake map document"),
 #if defined __linux__ // appears to be a bug in wxWidgets' file dialog, on Linux it will only allow lowercase extensions
@@ -231,20 +231,20 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
-    
+
     // load file system handlers
     wxFileSystem::AddHandler(new wxMemoryFSHandler());
-    
+
     // load image handles
     wxImage::AddHandler(new wxGIFHandler());
     wxImage::AddHandler(new wxPNGHandler());
-    
+
     TrenchBroom::IO::FileManager fileManager;
     String helpPath = fileManager.appendPath(fileManager.resourceDirectory(), "Documentation");
-    
+
     m_helpController = new wxExtHelpController();
     m_helpController->Initialize(helpPath);
-    
+
     return true;
 }
 
@@ -252,14 +252,14 @@ int AbstractApp::OnExit() {
     m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
     wxDELETE(m_helpController);
-    
+
     delete TrenchBroom::IO::PakManager::sharedManager;
     TrenchBroom::IO::PakManager::sharedManager = NULL;
     delete TrenchBroom::Model::AliasManager::sharedManager;
     TrenchBroom::Model::AliasManager::sharedManager = NULL;
     delete TrenchBroom::Model::BspManager::sharedManager;
     TrenchBroom::Model::BspManager::sharedManager = NULL;
-    
+
     return wxApp::OnExit();
 }
 
@@ -324,7 +324,7 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(m_preferencesFrame == NULL);
     else
         event.Enable(false);
-    
+
     if (GetTopWindow() != NULL && m_preferencesFrame == NULL)
         event.Skip();
 }
@@ -345,7 +345,7 @@ int AbstractApp::FilterEvent(wxEvent& event) {
                     frame = wxDynamicCast(parent, wxFrame);
                     parent = parent->GetParent();
                 }
-                
+
                 // If we found a frame, and window is not a menu, then send a command event to the frame
                 // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
                 // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
@@ -367,6 +367,6 @@ int AbstractApp::FilterEvent(wxEvent& event) {
             return 1;
         }
     }
-    
+
     return wxApp::FilterEvent(event);
 }

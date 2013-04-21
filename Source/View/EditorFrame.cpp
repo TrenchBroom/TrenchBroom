@@ -61,12 +61,12 @@ namespace TrenchBroom {
 
         EditorFrame::MenuSelector::MenuSelector(DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder) {}
-                             
+
         const Preferences::Menu* EditorFrame::MenuSelector::select(const Preferences::MultiMenu& multiMenu) const {
             if (m_documentViewHolder.valid()) {
                 Controller::InputController& inputController = m_documentViewHolder.view().inputController();
                 Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-                
+
                 switch (multiMenu.menuId()) {
                     case View::CommandIds::Menu::EditActions:
                         if (inputController.moveVerticesToolActive())
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                         break;
                 }
             }
-            
+
             return NULL;
         }
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
              */
         }
-        
+
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
@@ -179,29 +179,29 @@ namespace TrenchBroom {
         void EditorFrame::updateMenuBar() {
             if (!m_documentViewHolder.valid())
                 return;
-            
+
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenuBar* menuBar = app->CreateMenuBar(MenuSelector(m_documentViewHolder), &m_documentViewHolder.view(), m_mapCanvas->hasFocus());
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
             m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
-            
+
             // SetMenuBar(NULL);
-            
+
             wxMenuBar* oldMenuBar = GetMenuBar();
             app->DetachFileHistoryMenu(oldMenuBar);
-            
+
             SetMenuBar(menuBar);
             delete oldMenuBar;
         }
-        
+
         void EditorFrame::updateNavBar() {
             if (!m_documentViewHolder.valid())
                 return;
             m_navBar->updateBreadcrump();
         }
-        
+
         void EditorFrame::disableProcessing() {
             wxMenuBar* oldMenuBar = GetMenuBar();
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
@@ -255,13 +255,14 @@ namespace TrenchBroom {
                 wxWindow* focus = FindFocus();
                 if (m_mapCanvas->setHasFocus(m_mapCanvas == focus)) {
                     updateMenuBar();
-
+/*
                     wxMenuBar* menuBar = GetMenuBar();
                     size_t menuCount = menuBar->GetMenuCount();
                     for (size_t i = 0; i < menuCount; i++) {
                         wxMenu* menu = menuBar->GetMenu(i);
                         menu->UpdateUI(&m_documentViewHolder.view());
                     }
+*/
                 }
             }
         }
@@ -299,6 +300,16 @@ namespace TrenchBroom {
 #endif
             */
 
+            // FIXME: Workaround for a bug in Ubuntu GTK where menus are not updated
+#ifdef __linux__
+            wxMenuBar* menuBar = GetMenuBar();
+            size_t menuCount = menuBar->GetMenuCount();
+            for (size_t i = 0; i < menuCount; i++) {
+                wxMenu* menu = menuBar->GetMenu(i);
+                menu->UpdateUI(&m_documentViewHolder.view());
+            }
+#endif
+
             // finally set the top window
             if (IsActive() && wxTheApp->GetTopWindow() != this)
                 wxTheApp->SetTopWindow(this);
@@ -320,5 +331,5 @@ namespace TrenchBroom {
 #endif
             event.Skip();
         }
-    }
+   }
 }
