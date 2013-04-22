@@ -20,10 +20,13 @@
 #ifndef __TrenchBroom__MapGLCanvas__
 #define __TrenchBroom__MapGLCanvas__
 
+#include "Controller/Input.h"
+
 // glew must be included before glcanvas
 #include <GL/glew.h>
 #include <wx/dnd.h>
 #include <wx/glcanvas.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -75,7 +78,7 @@ namespace TrenchBroom {
             bool m_hasFocus;
             bool m_ignoreNextClick;
 
-            bool HandleModifierKey(int keyCode, bool down);
+            bool handleModifierKey(int keyCode, bool down);
         public:
             MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
@@ -88,17 +91,7 @@ namespace TrenchBroom {
                 return m_hasFocus;
             }
             
-            inline bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false) {
-                if (m_hasFocus == hasFocus)
-                    return false;
-                m_hasFocus = hasFocus;
-                if (!m_hasFocus)
-                    m_ignoreNextClick = true;
-                if (dontIgnoreNextClick)
-                    m_ignoreNextClick = false;
-                Refresh();
-                return true;
-            }
+            bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false);
             
             void OnPaint(wxPaintEvent& event);
             void OnKeyDown(wxKeyEvent& event);

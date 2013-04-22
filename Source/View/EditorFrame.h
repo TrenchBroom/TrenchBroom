@@ -52,6 +52,8 @@ namespace TrenchBroom {
         class EditorFrame : public wxFrame {
         public:
             static const wxEventType EVT_SET_FOCUS;
+        private:
+            DECLARE_DYNAMIC_CLASS(EditorFrame)
         protected:
             class MenuSelector : public Preferences::MultiMenuSelector {
             private:
@@ -71,7 +73,10 @@ namespace TrenchBroom {
 
             void CreateGui();
         public:
+            EditorFrame();
             EditorFrame(Model::MapDocument& document, EditorView& view);
+            
+            void Create(Model::MapDocument& document, EditorView& view);
 
             inline MapGLCanvas& mapCanvas() const {
                 return *m_mapCanvas;

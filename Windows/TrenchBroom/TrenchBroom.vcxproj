@@ -243,6 +243,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\EntityDefinitionCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\FlyTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp" />
@@ -339,6 +340,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
+    <ClCompile Include="..\..\Source\Utility\ExecutableEvent.cpp" />
     <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat3f.cpp" />
@@ -398,6 +400,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\EntityDefinitionCommand.h" />
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h" />
     <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\FlyTool.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h" />
@@ -542,6 +545,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
+    <ClInclude Include="..\..\Source\Utility\ExecutableEvent.h" />
     <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h" />
     <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />

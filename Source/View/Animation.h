@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Animation__
 #define __TrenchBroom__Animation__
 
+#include "Utility/ExecutableEvent.h"
 #include "Utility/SharedPointer.h"
 
 #include <map>
@@ -102,20 +103,15 @@ namespace TrenchBroom {
             void update();
         };
 
-        class AnimationEvent : public wxEvent {
+        class AnimationExecutable : public ExecutableEvent::Executable {
         private:
             Animation::List m_animations;
-        public:
-            AnimationEvent() {}
-            AnimationEvent(const Animation::List& animations);
-
+        protected:
             void execute();
-
-            virtual wxEvent* Clone() const;
-
-            DECLARE_DYNAMIC_CLASS(AnimationEvent);
+        public:
+            AnimationExecutable(const Animation::List& animations);
         };
-
+        
         class AnimationManager : public wxThread {
         private:
             typedef std::map<Animation::Type, Animation::List> AnimationMap;
@@ -140,21 +136,5 @@ namespace TrenchBroom {
         };
     }
 }
-
-#define WXDLLIMPEXP_CUSTOM_EVENT
-
-BEGIN_DECLARE_EVENT_TYPES()
-DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_ANIMATION_EVENT, 1)
-END_DECLARE_EVENT_TYPES()
-
-typedef void (wxEvtHandler::*animationEventFunction)(TrenchBroom::View::AnimationEvent&);
-
-#define EVT_ANIMATION(func) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_ANIMATION_EVENT, \
-        wxID_ANY, \
-        wxID_ANY, \
-        (wxObjectEventFunction) \
-        (animationEventFunction) & func, \
-        (wxObject *) NULL),
 
 #endif /* defined(__TrenchBroom__Animation__) */

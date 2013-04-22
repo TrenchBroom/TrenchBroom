@@ -50,6 +50,7 @@ namespace TrenchBroom {
         class CreateBrushTool;
         class CreateEntityFromMenuHelper;
         class CreateEntityTool;
+        class FlyTool;
         class MoveObjectsTool;
         class MoveVerticesTool;
         class ResizeBrushesTool;
@@ -65,10 +66,11 @@ namespace TrenchBroom {
 
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
-            MoveVerticesTool* m_moveVerticesTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
+            FlyTool* m_flyTool;
             MoveObjectsTool* m_moveObjectsTool;
+            MoveVerticesTool* m_moveVerticesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
             SetFaceAttributesTool* m_setFaceAttributesTool;

@@ -45,7 +45,9 @@ namespace TrenchBroom {
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
 
+
         class InputState {
+        public:
         private:
             MouseButtonState m_mouseButtons;
             int m_mouseX;
@@ -54,17 +56,12 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
-            
+
             const Renderer::Camera& m_camera;
             bool m_valid;
             Ray m_pickRay;
             Model::Picker& m_picker;
             Model::PickResult* m_pickResult;
-            
-            // edit state
-            // picking hits
-            // camera
-            
         public:
             InputState(const Renderer::Camera& camera, Model::Picker& picker) :
             m_mouseButtons(MouseButtons::MBNone),

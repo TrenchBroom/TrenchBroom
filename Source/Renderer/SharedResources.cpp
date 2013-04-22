@@ -34,9 +34,24 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        IMPLEMENT_DYNAMIC_CLASS(SharedResources, wxFrame)
+        
         BEGIN_EVENT_TABLE(SharedResources, wxFrame)
         EVT_IDLE(SharedResources::OnIdle)
         END_EVENT_TABLE()
+
+        SharedResources::SharedResources() :
+        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
+        m_palette(NULL),
+        m_modelRendererManager(NULL),
+        m_textureRendererManager(NULL),
+        m_fontManager(NULL),
+        m_attribs(NULL),
+        m_multisample(false),
+        m_samples(0),
+        m_depthbits(0),
+        m_sharedContext(NULL),
+        m_glCanvas(NULL) {}
 
         SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
@@ -50,6 +65,10 @@ namespace TrenchBroom {
         m_depthbits(0),
         m_sharedContext(NULL),
         m_glCanvas(NULL) {
+            Create(textureManager, console);
+        }
+        
+        void SharedResources::Create(Model::TextureManager& textureManager, Utility::Console& console) {
             int attribs[] =
             {
                 // 32 bit depth buffer, 4 samples
@@ -111,11 +130,11 @@ namespace TrenchBroom {
                 0,
                 0,
             };
-
+            
             SetSize(0, 0);
             Show(true);
             Raise();
-
+            
             size_t index = 0;
             while (m_attribs == NULL && attribs[index] != 0) {
                 size_t count = 0;
@@ -132,49 +151,49 @@ namespace TrenchBroom {
                 }
                 index += count + 1;
             }
-
+            
             assert(m_attribs != NULL);
-
+            
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs, wxDefaultPosition, GetClientSize());
             m_sharedContext = new wxGLContext(m_glCanvas);
-
+            
             /*
-            GLXFBConfig *fbc = m_glCanvas->GetGLXFBConfig();
-            assert(fbc != NULL);
-
-            GLXContext glxContext = glXCreateNewContext( wxGetX11Display(), fbc[0], GLX_RGBA_TYPE,
-                                                NULL,
-                                                GL_TRUE );
-            assert(glxContext != NULL);
-            */
-
+             GLXFBConfig *fbc = m_glCanvas->GetGLXFBConfig();
+             assert(fbc != NULL);
+             
+             GLXContext glxContext = glXCreateNewContext( wxGetX11Display(), fbc[0], GLX_RGBA_TYPE,
+             NULL,
+             GL_TRUE );
+             assert(glxContext != NULL);
+             */
+            
             m_sharedContext->SetCurrent(*m_glCanvas);
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
             console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
             console.info("Depth buffer bits: %d", m_depthbits);
-
+            
             if (m_multisample)
                 console.info("Multisampling enabled");
             else
                 console.info("Multisampling disabled");
-
+            
             glewExperimental = GL_TRUE;
             GLenum glewState = glewInit();
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
-
+            
             if (PointHandleRenderer::instancingSupported())
                 console.info("OpenGL instancing enabled");
             else
                 console.info("OpenGL instancing disabled");
-
+            
             m_modelRendererManager = new EntityModelRendererManager(console);
             m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_fontManager = new Text::FontManager(console);
-
+            
             SetPosition(wxPoint(-10, -10));
             Hide();
         }

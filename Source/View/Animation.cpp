@@ -26,8 +26,6 @@
 
 #include <cassert>
 
-DEFINE_EVENT_TYPE(EVT_ANIMATION_EVENT)
-
 namespace TrenchBroom {
     namespace View {
         Animation::Animation(Curve curve, wxLongLong duration) :
@@ -63,12 +61,7 @@ namespace TrenchBroom {
             doUpdate(m_progress);
         }
 
-        IMPLEMENT_DYNAMIC_CLASS(AnimationEvent, wxEvent)
-        AnimationEvent::AnimationEvent(const Animation::List& animations) :
-        wxEvent(wxID_ANY, EVT_ANIMATION_EVENT),
-        m_animations(animations) {}
-
-        void AnimationEvent::execute() {
+        void AnimationExecutable::execute() {
             Animation::List::const_iterator it, end;
             for (it = m_animations.begin(), end = m_animations.end(); it != end; ++it) {
                 Animation& animation = **it;
@@ -76,10 +69,8 @@ namespace TrenchBroom {
             }
         }
 
-        wxEvent* AnimationEvent::Clone() const {
-            return new AnimationEvent(*this);
-        }
-
+        AnimationExecutable::AnimationExecutable(const Animation::List& animations) :
+        m_animations(animations) {}
 
         wxThread::ExitCode AnimationManager::Entry() {
             m_lastTime = wxGetLocalTimeMillis();
@@ -111,7 +102,8 @@ namespace TrenchBroom {
                 }
                 m_lastTime += elapsed;
 
-                wxTheApp->QueueEvent(new AnimationEvent(updateAnimations));
+                ExecutableEvent::Executable::Ptr executable(new AnimationExecutable(updateAnimations));
+                wxTheApp->QueueEvent(new ExecutableEvent(executable));
                 Sleep(20);
             }
 

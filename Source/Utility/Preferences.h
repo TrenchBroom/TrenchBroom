@@ -790,12 +790,6 @@ namespace TrenchBroom {
                 gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize256, WXK_CONTROL, '9', KeyboardShortcut::SCAny, "Set Grid Size 256"));
 
                 Menu& cameraMenu = viewMenu->addMenu("Camera");
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraForward, 'W', KeyboardShortcut::SCAny, "Move Forward"));
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraBackward, 'S', KeyboardShortcut::SCAny, "Move Backward"));
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraLeft, 'A', KeyboardShortcut::SCAny, "Move Left"));
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraRight, 'D', KeyboardShortcut::SCAny, "Move Right"));
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraUp, WXK_SHIFT, 'W', KeyboardShortcut::SCAny, "Move Up"));
-                cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraDown, WXK_SHIFT, 'S', KeyboardShortcut::SCAny, "Move Down"));
                 cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
                 cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
                 cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));

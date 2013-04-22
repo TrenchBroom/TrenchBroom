@@ -49,6 +49,8 @@ namespace TrenchBroom {
         class TextureRendererManager;
 
         class SharedResources : public wxFrame {
+        private:
+            DECLARE_DYNAMIC_CLASS(SharedResources)
         protected:
             Palette* m_palette;
             EntityModelRendererManager* m_modelRendererManager;
@@ -65,8 +67,11 @@ namespace TrenchBroom {
 
             unsigned int m_retainCount;
         public:
+            SharedResources();
             SharedResources(Model::TextureManager& textureManager, Utility::Console& console);
             ~SharedResources();
+            
+            void Create(Model::TextureManager& textureManager, Utility::Console& console);
 
             inline const Palette& palette() const {
                 assert(m_palette != NULL);

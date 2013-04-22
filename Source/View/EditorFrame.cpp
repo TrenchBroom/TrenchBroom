@@ -52,6 +52,8 @@ namespace TrenchBroom {
     namespace View {
         const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
 
+        IMPLEMENT_DYNAMIC_CLASS(EditorFrame, wxFrame)
+        
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
@@ -138,18 +140,42 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
-
-            SetSize(1024, 768);
         }
+
+        EditorFrame::EditorFrame() :
+        wxFrame(NULL, wxID_ANY, wxT("")),
+        m_focusMapCanvasOnIdle(2) {}
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
         m_focusMapCanvasOnIdle(2) {
+            Create(document, view);
+        }
+        
+        void EditorFrame::Create(Model::MapDocument& document, EditorView& view) {
 #ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
+            SetSize(1024, 768);
+            EditorFrame* topWindow = wxDynamicCast(wxTheApp->GetTopWindow(), EditorFrame);
+            if (topWindow != NULL) {
+                wxPoint position = topWindow->GetPosition();
+#ifdef __APPLE__
+                position.x += 23;
+                position.y += 23;
+#elif defined _WIN32
+                position.x += 23;
+                position.y += 23;
+#else
+                position.x += 23;
+                position.y += 23;
+#endif
+                SetPosition(position);
+            } else {
+                Center();
+            }
         }
 
         void EditorFrame::update(const Controller::Command& command) {

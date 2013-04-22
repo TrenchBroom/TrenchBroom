@@ -263,7 +263,7 @@ namespace TrenchBroom {
             }
             
             inline Vec3f& normalize() {
-                float l = length();
+                const float l = length();
                 x /= l;
                 y /= l;
                 z /= l;

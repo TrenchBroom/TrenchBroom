@@ -55,6 +55,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class EditorFrame;
         class Inspector;
         class MapWindow;
         class ViewOptions;
@@ -100,6 +101,7 @@ namespace TrenchBroom {
             Renderer::MapRenderer& renderer() const;
             View::Inspector& inspector() const;
             Utility::Console& console() const;
+            View::EditorFrame& editorFrame() const;
             Controller::InputController& inputController() const;
             AnimationManager& animationManager() const;
             wxMenu* createEntityPopupMenu();

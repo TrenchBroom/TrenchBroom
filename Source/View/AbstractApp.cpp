@@ -50,6 +50,7 @@ EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpS
 
 EVT_UPDATE_UI(wxID_NEW, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_OPEN, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(TrenchBroom::View::CommandIds::Menu::FileOpenRecent, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_SAVE, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_SAVEAS, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_CLOSE, AbstractApp::OnUpdateMenuItem)
@@ -61,7 +62,7 @@ EVT_UPDATE_UI(wxID_PASTE, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_DELETE, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, AbstractApp::OnUpdateMenuItem)
 
-EVT_ANIMATION(AbstractApp::OnAnimation)
+EVT_EXECUTABLE(AbstractApp::OnExecutableEvent)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::buildMenu(const TrenchBroom::Preferences::Menu& menu, const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -140,6 +141,7 @@ wxMenu* AbstractApp::CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSel
     assert(openRecentMenu != NULL);
     m_docManager->FileHistoryUseMenu(openRecentMenu);
     m_docManager->FileHistoryAddFilesToMenu(openRecentMenu);
+    openRecentMenu->SetEventHandler(m_docManager);
 
     return fileMenu;
 }
@@ -320,7 +322,8 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(true);
     else if (event.GetId() == wxID_PREFERENCES ||
              event.GetId() == wxID_NEW ||
-             event.GetId() == wxID_OPEN)
+             event.GetId() == wxID_OPEN ||
+             event.GetId() == TrenchBroom::View::CommandIds::Menu::FileOpenRecent)
         event.Enable(m_preferencesFrame == NULL);
     else
         event.Enable(false);
@@ -329,7 +332,7 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Skip();
 }
 
-void AbstractApp::OnAnimation(TrenchBroom::View::AnimationEvent& event) {
+void AbstractApp::OnExecutableEvent(TrenchBroom::ExecutableEvent& event) {
     event.execute();
 }
 

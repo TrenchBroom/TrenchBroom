@@ -514,9 +514,12 @@ namespace TrenchBroom {
             return mapDocument().console();
         }
 
+        View::EditorFrame& EditorView::editorFrame() const {
+            return *static_cast<EditorFrame*>(GetFrame());
+        }
+
         Controller::InputController& EditorView::inputController() const {
-            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            return frame->mapCanvas().inputController();
+            return editorFrame().mapCanvas().inputController();
         }
 
         AnimationManager& EditorView::animationManager() const {

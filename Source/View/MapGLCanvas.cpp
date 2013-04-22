@@ -20,7 +20,6 @@
 #include "MapGLCanvas.h"
 
 #include "Controller/CameraEvent.h"
-#include "Controller/Input.h"
 #include "Controller/InputController.h"
 #include "Model/MapDocument.h"
 #include "Renderer/ApplyMatrix.h"
@@ -99,7 +98,7 @@ namespace TrenchBroom {
             return m_inputController.drop(text.ToStdString(), x, y);
         }
 
-        bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {
+        bool MapGLCanvas::handleModifierKey(int keyCode, bool down) {
             Controller::ModifierKeyState key;
             switch (keyCode) {
                 case WXK_SHIFT:
@@ -140,6 +139,9 @@ namespace TrenchBroom {
         }
 
         MapGLCanvas::~MapGLCanvas() {
+			if (GetCapture() == this)
+				ReleaseMouse();
+
             delete m_inputController;
             m_inputController = NULL;
             delete m_overlayRenderer;
@@ -147,6 +149,19 @@ namespace TrenchBroom {
             delete m_vbo;
             m_vbo = NULL;
             wxDELETE(m_glContext);
+        }
+
+        bool MapGLCanvas::setHasFocus(bool hasFocus, bool dontIgnoreNextClick) {
+            if (m_hasFocus == hasFocus)
+                return false;
+            m_hasFocus = hasFocus;
+            if (!m_hasFocus)
+                m_ignoreNextClick = true;
+            if (dontIgnoreNextClick)
+                m_ignoreNextClick = false;
+            Refresh();
+            
+            return true;
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
@@ -251,12 +266,12 @@ namespace TrenchBroom {
 
         void MapGLCanvas::OnKeyDown(wxKeyEvent& event) {
             m_ignoreNextClick = false;
-            HandleModifierKey(event.GetKeyCode(), true);
+            handleModifierKey(event.GetKeyCode(), true);
         }
 
         void MapGLCanvas::OnKeyUp(wxKeyEvent& event) {
             m_ignoreNextClick = false;
-            HandleModifierKey(event.GetKeyCode(), false);
+            handleModifierKey(event.GetKeyCode(), false);
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {

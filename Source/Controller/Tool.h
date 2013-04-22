@@ -91,6 +91,10 @@ namespace TrenchBroom {
             m_dragType(DTNone),
             m_nextTool(NULL) {}
             
+            inline bool holderValid() const {
+                return m_documentViewHolder.valid();
+            }
+            
             inline Model::MapDocument& document() const {
                 return m_documentViewHolder.document();
             }
@@ -187,6 +191,7 @@ namespace TrenchBroom {
 
             /* Input Protocol */
             virtual void handleModifierKeyChange(InputState& inputState) {}
+            virtual bool handleKeyChange(InputState& inputState) { return false; }
             virtual bool handleMouseDown(InputState& inputState) { return false; }
             virtual bool handleMouseUp(InputState& inputState) { return false; }
             virtual bool handleMouseDClick(InputState& inputState) { return false; }
@@ -304,6 +309,14 @@ namespace TrenchBroom {
                     handleModifierKeyChange(inputState);
                 if (nextTool() != NULL)
                     nextTool()->modifierKeyChange(inputState);
+            }
+            
+            Tool* keyChange(InputState& inputState) {
+                if ((active() & !m_suppressed) && handleKeyChange(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->keyChange(inputState);
+                return NULL;
             }
             
             Tool* mouseDown(InputState& inputState) {

@@ -20,8 +20,8 @@
 #ifndef __TrenchBroom__AbstractApp__
 #define __TrenchBroom__AbstractApp__
 
+#include "Utility/ExecutableEvent.h"
 #include "Utility/Preferences.h"
-#include "View/Animation.h"
 
 #include <wx/wx.h>
 
@@ -93,7 +93,7 @@ public:
 
     void OnUpdateMenuItem(wxUpdateUIEvent& event);
     
-    void OnAnimation(TrenchBroom::View::AnimationEvent& event);
+    void OnExecutableEvent(TrenchBroom::ExecutableEvent& event);
     
     int FilterEvent(wxEvent& event);
     

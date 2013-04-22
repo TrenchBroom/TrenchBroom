@@ -30,6 +30,7 @@
 #include "Controller/ClipTool.h"
 #include "Controller/CreateBrushTool.h"
 #include "Controller/CreateEntityTool.h"
+#include "Controller/FlyTool.h"
 #include "Controller/MoveObjectsTool.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ResizeBrushesTool.h"
@@ -109,7 +110,9 @@ namespace TrenchBroom {
         m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_createEntityTool(NULL),
+        m_flyTool(NULL),
         m_moveObjectsTool(NULL),
+        m_moveVerticesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
         m_setFaceAttributesTool(NULL),
@@ -126,15 +129,18 @@ namespace TrenchBroom {
         m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
             m_clipTool = new ClipTool(m_documentViewHolder, *this);
-            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder, *this);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder, *this);
+            m_flyTool = new FlyTool(m_documentViewHolder, *this);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, *this);
+            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
             m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f, 32.0f);
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
             m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
             m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
 
+            m_toolChain = m_flyTool;
+            m_flyTool->setNextTool(m_cameraTool);
             m_cameraTool->setNextTool(m_clipTool);
             m_clipTool->setNextTool(m_rotateObjectsTool);
             m_rotateObjectsTool->setNextTool(m_moveVerticesTool);
@@ -144,8 +150,8 @@ namespace TrenchBroom {
             m_moveObjectsTool->setNextTool(m_resizeBrushesTool);
             m_resizeBrushesTool->setNextTool(m_setFaceAttributesTool);
             m_setFaceAttributesTool->setNextTool(m_selectionTool);
-            m_toolChain = m_cameraTool;
 
+            m_flyTool->activate(m_inputState);
             m_createBrushTool->activate(m_inputState);
             m_moveObjectsTool->activate(m_inputState);
             m_resizeBrushesTool->activate(m_inputState);
@@ -163,6 +169,8 @@ namespace TrenchBroom {
             m_nextDropReceiver = NULL;
             m_modalTool = NULL;
 
+            delete m_flyTool;
+            m_flyTool = NULL;
             delete m_cameraTool;
             m_cameraTool = NULL;
             delete m_clipTool;
@@ -482,7 +490,7 @@ namespace TrenchBroom {
         void InputController::toggleClipTool() {
             toggleTool(m_clipTool);
         }
-
+        
         bool InputController::clipToolActive() {
             return m_clipTool->active();
         }

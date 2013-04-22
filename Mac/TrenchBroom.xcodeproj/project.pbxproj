@@ -131,6 +131,8 @@
 		4898742F17189EB000029097 /* EntityLinkDecorator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898742D17189EAF00029097 /* EntityLinkDecorator.cpp */; };
 		489874321718C05400029097 /* EntityLink.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 489874301718C05300029097 /* EntityLink.fragsh */; };
 		489874331718C05400029097 /* EntityLink.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 489874311718C05400029097 /* EntityLink.vertsh */; };
+		48A5B4911725835C0023B59F /* FlyTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A5B48F1725835C0023B59F /* FlyTool.cpp */; };
+		48A5B4941725C6810023B59F /* ExecutableEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A5B4931725C6800023B59F /* ExecutableEvent.cpp */; };
 		48A6E45F16D3EB2000CC328C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 48A6E45E16D3EB2000CC328C /* Icon.png */; };
 		48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
@@ -510,6 +512,10 @@
 		489874301718C05300029097 /* EntityLink.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.fragsh; sourceTree = "<group>"; };
 		489874311718C05400029097 /* EntityLink.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.vertsh; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
+		48A5B48F1725835C0023B59F /* FlyTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlyTool.cpp; sourceTree = "<group>"; };
+		48A5B4901725835C0023B59F /* FlyTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlyTool.h; sourceTree = "<group>"; };
+		48A5B4921725C5710023B59F /* ExecutableEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExecutableEvent.h; sourceTree = "<group>"; };
+		48A5B4931725C6800023B59F /* ExecutableEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExecutableEvent.cpp; sourceTree = "<group>"; };
 		48A6E45E16D3EB2000CC328C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Resources/Graphics/Icon.png; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
 		48A8391416356CFC00175857 /* FlipObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipObjectsCommand.h; sourceTree = "<group>"; };
@@ -1083,6 +1089,8 @@
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
 				4850D24415F2AAE8005B162D /* DocManager.cpp */,
 				4850D24515F2AAE8005B162D /* DocManager.h */,
+				48A5B4931725C6800023B59F /* ExecutableEvent.cpp */,
+				48A5B4921725C5710023B59F /* ExecutableEvent.h */,
 				480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */,
 				483AE27E16F918600073686A /* FindPlanePoints.h */,
 				48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */,
@@ -1176,6 +1184,8 @@
 				48F1FBA71652ACB100C79278 /* CreateBrushTool.h */,
 				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
 				4878F923165142B4003857EA /* CreateEntityTool.h */,
+				48A5B48F1725835C0023B59F /* FlyTool.cpp */,
+				48A5B4901725835C0023B59F /* FlyTool.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
 				48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */,
 				48C4637416B97A76008159DC /* MoveTool.cpp */,
@@ -1635,6 +1645,8 @@
 				488611C91710BEA70001C423 /* CompassRenderer.cpp in Sources */,
 				488611CC171327000001C423 /* OverlayRenderer.cpp in Sources */,
 				4898742F17189EB000029097 /* EntityLinkDecorator.cpp in Sources */,
+				48A5B4911725835C0023B59F /* FlyTool.cpp in Sources */,
+				48A5B4941725C6810023B59F /* ExecutableEvent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
