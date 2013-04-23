@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 const StringList& searchPaths = m_documentViewHolder.document().searchPaths();
                 Renderer::EntityModelRenderer* modelRenderer = modelRendererManager.modelRenderer(*definition, searchPaths);
 
-                BBox rotatedBounds;
+                BBoxf rotatedBounds;
                 if (modelRenderer != NULL) {
                     const Vec3f& center = modelRenderer->center();
                     Mat4f transformation;
@@ -71,8 +71,8 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
-            const BBox& bounds = definition.bounds();
+        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scale) {
+            const BBoxf& bounds = definition.bounds();
 
             Mat4f itemMatrix;
             itemMatrix.translate(offset.x, offset.y, offset.z);
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             glEnd();
         }
 
-        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scale) {
             const Vec3f& rotationCenter = renderer.center();
 
             Mat4f itemMatrix;
@@ -419,8 +419,8 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Model::EntityDefinitionManager::Name) {
-            Quat hRotation = Quat(radians(-30.0f), Vec3f::PosZ);
-            Quat vRotation = Quat(radians(20.0f), Vec3f::PosY);
+            const Quatf hRotation = Quatf(Math<float>::radians(-30.0f), Vec3f::PosZ);
+            const Quatf vRotation = Quatf(Math<float>::radians(20.0f), Vec3f::PosY);
             m_rotation = vRotation * hRotation;
         }
 

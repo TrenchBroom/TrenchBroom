@@ -60,7 +60,7 @@ namespace TrenchBroom {
             const float m_ringRadius;
             const float m_ringThickness;
 
-            Model::RotateHandleHit* pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateHandleHit::HitArea hitArea);
+            Model::RotateHandleHit* pickRing(const Rayf& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateHandleHit::HitArea hitArea);
             
             void renderAxis(Model::RotateHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& context);
             void renderRing(Model::RotateHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& context, float angle);
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             RotateHandle(float axisLength, float ringRadius, float ringThickness);
             ~RotateHandle();
 
-            Model::RotateHandleHit* pick(const Ray& ray);
+            Model::RotateHandleHit* pick(const Rayf& ray);
             void render(Model::RotateHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, float angle);
         };
     }

@@ -34,7 +34,7 @@
 #include <stdint.h>
 #endif
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         };
         
         class BspFace {
-            BBox m_bounds;
+            BBoxf m_bounds;
             BspTextureInfo* m_textureInfo;
             Vec3f::List m_vertices;
         public:
@@ -152,9 +152,9 @@ namespace TrenchBroom {
             BspFaceList m_faces;
             unsigned int m_vertexCount;
             Vec3f m_center;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
-            BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBox& bounds);
+            BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBoxf& bounds);
             ~BspModel();
             
             inline unsigned int vertexCount() const {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 return m_center;
             }
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
         };

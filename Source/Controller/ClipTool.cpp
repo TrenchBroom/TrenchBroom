@@ -118,7 +118,7 @@ namespace TrenchBroom {
             
             const Model::BrushList& brushes = document().editStateManager().selectedBrushes();
             if (validPlane) {
-                const BBox& worldBounds = document().map().worldBounds();
+                const BBoxf& worldBounds = document().map().worldBounds();
                 const bool forceIntegerFacePoints = document().map().forceIntegerFacePoints();
                 const String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
                 
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_numPoints; i++) {
                 float distance = inputState.pickRay().intersectWithSphere(m_points[i], handleRadius, scalingFactor, maxDistance);
-                if (!Math::isnan(distance)) {
+                if (!Math<float>::isnan(distance)) {
                     Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
                     inputState.pickResult().add(new Model::ClipHandleHit(hitPoint, distance, i));
                 }
@@ -457,9 +457,9 @@ namespace TrenchBroom {
             
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if  (faceHit == NULL) {
-                const Plane plane(m_normals[m_hitIndex].front(), m_points[m_hitIndex]);
+                const Planef plane(m_normals[m_hitIndex].front(), m_points[m_hitIndex]);
                 const float distance = plane.intersectWithRay(inputState.pickRay());
-                if (Math::isnan(distance))
+                if (Math<float>::isnan(distance))
                     return true;
                 
                 const Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
@@ -468,7 +468,7 @@ namespace TrenchBroom {
                 Vec3f point = grid.snap(hitPoint, plane);
                 m_points[m_hitIndex] = point;
             } else {
-                const Plane& plane = faceHit->face().boundary();
+                const Planef& plane = faceHit->face().boundary();
                 const Vec3f& hitPoint = faceHit->hitPoint();
                 
                 Utility::Grid& grid = document().grid();

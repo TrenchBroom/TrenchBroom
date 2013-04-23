@@ -27,7 +27,7 @@
 #include <functional>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         class Vec3fTest : public TestSuite<Vec3fTest> {
         protected:
             void registerTestCases() {

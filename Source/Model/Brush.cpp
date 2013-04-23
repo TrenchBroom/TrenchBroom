@@ -36,7 +36,7 @@ namespace TrenchBroom {
             m_selectedFaceCount = 0;
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             restore(brushTemplate, false);
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const BBoxf& brushBounds, Texture* texture) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -220,8 +220,8 @@ namespace TrenchBroom {
 
             // sort the faces by the weight of their plane normals like QBSP does
             Model::FaceList sortedFaces = m_faces;
-            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Planef::WeightOrder(true)));
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Planef::WeightOrder(false)));
 
             FaceSet droppedFaces;
             bool success = m_geometry->addFaces(sortedFaces, droppedFaces);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
 
-        void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
+        void Brush::rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures) {
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Face& face = **faceIt;
@@ -370,7 +370,7 @@ namespace TrenchBroom {
             // so we use a smaller bounding box that's still big enough to fit the brush
             // OTOH it's just fake, so let's not do it
             /*
-            BBox maxBounds = m_geometry->bounds;
+            BBoxf maxBounds = m_geometry->bounds;
             float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
             maxBounds.expand(2.0f * max);
             */
@@ -539,19 +539,19 @@ namespace TrenchBroom {
             return newVertexPosition;
         }
 
-        void Brush::pick(const Ray& ray, PickResult& pickResults) {
+        void Brush::pick(const Rayf& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (Math::isnan(dist))
+            if (Math<float>::isnan(dist))
                 return;
 
-            dist = Math::nan();
+            dist = Math<float>::nan();
             Side* side;
-            for (unsigned int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
+            for (unsigned int i = 0; i < m_geometry->sides.size() && Math<float>::isnan(dist); i++) {
                 side = m_geometry->sides[i];
                 dist = side->intersectWithRay(ray);
             }
 
-            if (!Math::isnan(dist)) {
+            if (!Math<float>::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
                 FaceHit* hit = new FaceHit(*side->face, hitPoint, dist);
                 pickResults.add(hit);
@@ -642,7 +642,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::intersectsEntity(const Entity& entity) const {
-            BBox theirBounds = entity.bounds();
+            BBoxf theirBounds = entity.bounds();
             if (!bounds().intersects(theirBounds))
                 return false;
 
@@ -674,7 +674,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::containsEntity(const Entity& entity) const {
-            BBox theirBounds = entity.bounds();
+            BBoxf theirBounds = entity.bounds();
             if (!bounds().contains(theirBounds))
                 return false;
 

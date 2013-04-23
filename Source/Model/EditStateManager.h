@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 return faces;
             }
             
-            inline BBox bounds() const {
+            inline BBoxf bounds() const {
                 return MapObject::bounds(selectedEntities(), selectedBrushes());
             }
             

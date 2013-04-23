@@ -33,7 +33,7 @@
 #include <cstdint>
 #endif
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -163,9 +163,9 @@ namespace TrenchBroom {
             String m_name;
             AliasFrameTriangleList m_triangles;
             Vec3f m_center;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
-            AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBox& bounds);
+            AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBoxf& bounds);
             ~AliasSingleFrame();
             
             inline const String& name() const {
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 return m_center;
             }
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
             
@@ -191,7 +191,7 @@ namespace TrenchBroom {
         private:
             AliasTimeList m_times;
             AliasSingleFrameList m_frames;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
             AliasFrameGroup(const AliasTimeList& times, const AliasSingleFrameList& frames);
             ~AliasFrameGroup();

@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
+                const BBoxf& bounds = entity->bounds();
                 const Model::EntityDefinition* definition = entity->definition();
                 Color entityColor;
                 if (definition != NULL) {
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             Vec3f::List vertices(24);
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
+                const BBoxf& bounds = entity->bounds();
                 bounds.vertices(vertices);
 
                 for (unsigned int j = 0; j < vertices.size(); j++)

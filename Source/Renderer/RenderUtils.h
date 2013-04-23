@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             vertices.reserve(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             normals.reserve(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             normals.reserve(2 * (segments + 1));
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i <= segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
@@ -161,10 +161,10 @@ namespace TrenchBroom {
             normals.reserve(3 * segments);
             
             const float t = std::atan(length / radius);
-            const float n = std::cos(Math::Pi / 2.0f - t);
+            const float n = std::cos(Math<float>::Pi / 2.0f - t);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             float lastS = std::sin(a);
             float lastC = std::cos(a);
             a += d;
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
-            const float angle = Math::Pi / 2.0f / cornerSegments;
+            const float angle = Math<float>::Pi / 2.0f / cornerSegments;
             Vec2f center(0.0f, 0.0f);
             Vec2f translation;
 

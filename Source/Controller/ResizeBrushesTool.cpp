@@ -101,7 +101,7 @@ namespace TrenchBroom {
                                                                                              edge->end->position,
                                                                                              pointOnSegment,
                                                                                              distanceToClosestPointOnRay);
-                    if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                    if (!Math<float>::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
                         closestEdge = edge;
                         closestEdgeDist = distanceBetweenRayAndEdge;
                         hitDistance = distanceToClosestPointOnRay;
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                                                                                                      edge->end->position,
                                                                                                      pointOnSegment,
                                                                                                      distanceToClosestPointOnRay);
-                            if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                            if (!Math<float>::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
                                 closestEdge = edge;
                                 closestEdgeDist = distanceBetweenRayAndEdge;
                                 hitDistance = distanceToClosestPointOnRay;
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             Renderer::glResetEdgeOffset();
         }
 
-        bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             if (inputState.modifierKeys() != ModifierKeys::MKShift &&
                 inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return false;
@@ -230,7 +230,7 @@ namespace TrenchBroom {
 
             planeNormal = dragNormal.crossed(planeNormal);
             planeNormal.normalize();
-            plane = Plane(planeNormal, hit->hitPoint());
+            plane = Planef(planeNormal, hit->hitPoint());
 
             m_faces = dragFaces(dragFace);
             initialPoint = hit->hitPoint();

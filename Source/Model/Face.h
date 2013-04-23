@@ -28,7 +28,7 @@
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class FindFacePoints {
         protected:
             virtual size_t selectInitialPoints(const Face& face, FacePoints& points) const = 0;
-            virtual void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const = 0;
+            virtual void findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const = 0;
         public:
             virtual ~FindFacePoints() {}
 
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             FindIntegerPlanePoints m_findPoints;
         protected:
             inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
-            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+            inline void findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const;
         public:
             static const FindIntegerFacePoints Instance;
         };
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             FindFloatPlanePoints m_findPoints;
         protected:
             inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
-            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+            inline void findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const;
         public:
             static const FindFloatFacePoints Instance;
         };
@@ -81,9 +81,9 @@ namespace TrenchBroom {
         public:
             class WeightOrder {
             private:
-                const Plane::WeightOrder& m_planeOrder;
+                const Planef::WeightOrder& m_planeOrder;
             public:
-                WeightOrder(const Plane::WeightOrder& planeOrder) :
+                WeightOrder(const Planef::WeightOrder& planeOrder) :
                 m_planeOrder(planeOrder) {}
 
                 inline bool operator()(const Face* lhs, const Face* rhs) const {
@@ -112,8 +112,8 @@ namespace TrenchBroom {
              * (m_points[2] - m_points[0]).cross(m_points[1] - m_points[0]).equals(boundary().normal)
              */
             FacePoints m_points;
-            Plane m_boundary;
-            BBox m_worldBounds;
+            Planef m_boundary;
+            BBoxf m_worldBounds;
             bool m_forceIntegerFacePoints;
 
             String m_textureName;
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             float m_yScale;
 
             mutable bool m_texAxesValid;
-            mutable unsigned int m_texPlaneNormIndex;
+            mutable unsigned int m_texPlanefNormIndex;
             mutable unsigned int m_texFaceNormIndex;
             mutable Vec3f m_texAxisX;
             mutable Vec3f m_texAxisY;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
             inline void rotateTexAxes(Vec3f& xAxis, Vec3f& yAxis, const float angle, const unsigned int planeNormIndex) const {
                 // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-                Quat rot(planeNormIndex == 12 ? -angle : angle, *BaseAxes[planeNormIndex]);
+                Quatf rot(planeNormIndex == 12 ? -angle : angle, *BaseAxes[planeNormIndex]);
                 xAxis = rot * xAxis;
                 yAxis = rot * yAxis;
             }
@@ -150,12 +150,12 @@ namespace TrenchBroom {
             void validateTexAxes(const Vec3f& faceNormal) const;
             void validateVertexCache() const;
 
-            void projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis);
+            void projectOntoTexturePlanef(Vec3f& xAxis, Vec3f& yAxis);
 
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
-            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate);
+            Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
+            Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate);
             Face(const Face& face);
 			~Face();
 
@@ -242,14 +242,14 @@ namespace TrenchBroom {
             /**
              * Returns the boundary plane.
              */
-            inline const Plane& boundary() const {
+            inline const Planef& boundary() const {
                 return m_boundary;
             }
 
             /**
              * Returns the maximum bounds of the world.
              */
-            inline const BBox& worldBounds() const {
+            inline const BBoxf& worldBounds() const {
                 return m_worldBounds;
             }
 
@@ -483,7 +483,7 @@ namespace TrenchBroom {
             /**
              * Rotates this face by the given rotation and center.
              */
-            void rotate(const Quat& rotation, const Vec3f& center, bool lockTexture);
+            void rotate(const Quatf& rotation, const Vec3f& center, bool lockTexture);
 
             /**
              * Flips this face along the given axis.

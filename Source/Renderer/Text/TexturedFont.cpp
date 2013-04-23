@@ -100,8 +100,8 @@ namespace TrenchBroom {
             Vec2f::List TexturedFont::quads(const String& string, bool clockwise, const Vec2f& offset) {
                 Vec2f::List result;
 
-                int x = static_cast<int>(Math::round(offset.x));
-                int y = static_cast<int>(Math::round(offset.y));
+                int x = static_cast<int>(Math<float>::round(offset.x));
+                int y = static_cast<int>(Math<float>::round(offset.y));
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
                     if (c == '\n') {

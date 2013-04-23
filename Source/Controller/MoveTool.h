@@ -57,8 +57,8 @@ namespace TrenchBroom {
             
             virtual void handleModifierKeyChange(InputState& inputState);
             
-            virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            virtual void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint);
+            virtual bool handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint);
+            virtual void handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint);
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             virtual void handleEndPlaneDrag(InputState& inputState);
         private:

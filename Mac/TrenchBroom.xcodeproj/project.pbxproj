@@ -37,7 +37,6 @@
 		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
 		482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */; };
-		482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
 		482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */; };
 		4830050E16EA745900C05645 /* GeneralPreferencePane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4830050C16EA745900C05645 /* GeneralPreferencePane.cpp */; };
 		4830051116EA7E8100C05645 /* GeneralPreferences.png in Resources */ = {isa = PBXBuildFile; fileRef = 4830050F16EA7E8100C05645 /* GeneralPreferences.png */; };
@@ -52,10 +51,6 @@
 		483323ED16AF250700FC9721 /* SmartPropertyEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483323EB16AF250700FC9721 /* SmartPropertyEditor.cpp */; };
 		483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */; };
 		483AE27616F8FE450073686A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483AE27416F8FE450073686A /* main.cpp */; };
-		483AE27A16F9179D0073686A /* Mat3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFACB16B555940097657D /* Mat3f.cpp */; };
-		483AE27B16F9179D0073686A /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
-		483AE27C16F9179D0073686A /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
-		483AE27D16F9179D0073686A /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
 		483E203C16DCB33B00B087BB /* Defs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 483E203B16DCB33B00B087BB /* Defs */; };
 		483F970716A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */; };
 		4842AF67162176100042AD66 /* GenericDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* GenericDropSource.cpp */; };
@@ -90,7 +85,6 @@
 		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
 		486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC516B3D9540097657D /* AngleEditor.cpp */; };
 		486AFACA16B3DE570097657D /* PointTraceRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */; };
-		486AFACC16B555940097657D /* Mat3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFACB16B555940097657D /* Mat3f.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -182,8 +176,6 @@
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
 		48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBFA2416AF24F300E81617 /* ViewInspector.cpp */; };
 		48CDA82216A424E70050E152 /* MovementIndicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CDA82016A424E70050E152 /* MovementIndicator.cpp */; };
-		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
-		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
@@ -314,7 +306,6 @@
 		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
 		482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinesRenderer.cpp; sourceTree = "<group>"; };
 		482C644B16BAFFD9009C75CB /* LinesRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinesRenderer.h; sourceTree = "<group>"; };
-		482F4BCA1690681A0012D821 /* Vec4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec4f.cpp; sourceTree = "<group>"; };
 		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
 		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
 		4830050A16E93C2200C05645 /* KeyboardShortcut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcut.h; sourceTree = "<group>"; };
@@ -377,7 +368,7 @@
 		4847640C15E2E03000095BC0 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		4847640D15E2E03000095BC0 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		4847641015E2E06900095BC0 /* MapObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapObject.h; sourceTree = "<group>"; };
-		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
+		4847641415E2E0E800095BC0 /* Vec2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2.h; sourceTree = "<group>"; };
 		4847AC8B16466BED00726872 /* SphereFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphereFigure.cpp; sourceTree = "<group>"; };
 		4847AC8C16466BED00726872 /* SphereFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereFigure.h; sourceTree = "<group>"; };
 		4848BBE916E5084100866FE7 /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
@@ -433,7 +424,6 @@
 		486AFAC616B3D9540097657D /* AngleEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleEditor.h; sourceTree = "<group>"; };
 		486AFAC816B3DE570097657D /* PointTraceRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointTraceRenderer.cpp; sourceTree = "<group>"; };
 		486AFAC916B3DE570097657D /* PointTraceRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceRenderer.h; sourceTree = "<group>"; };
-		486AFACB16B555940097657D /* Mat3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3f.cpp; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
@@ -610,14 +600,12 @@
 		48CDA82016A424E70050E152 /* MovementIndicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovementIndicator.cpp; sourceTree = "<group>"; };
 		48CDA82116A424E70050E152 /* MovementIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementIndicator.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
-		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
+		48D1BE9A15E2E35C0073C030 /* Vec3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
-		48D1BE9C15E2E5550073C030 /* Vec3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec3f.cpp; sourceTree = "<group>"; };
-		48D1BE9E15E2EC5D0073C030 /* Vec4f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec4f.h; sourceTree = "<group>"; };
-		48D1BE9F15E2EDAE0073C030 /* Mat2f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat2f.h; sourceTree = "<group>"; };
-		48D1BEA015E2EE920073C030 /* Mat3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat3f.h; sourceTree = "<group>"; };
-		48D1BEA115E2F3200073C030 /* Mat4f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat4f.h; sourceTree = "<group>"; };
-		48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat4f.cpp; sourceTree = "<group>"; };
+		48D1BE9E15E2EC5D0073C030 /* Vec4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec4.h; sourceTree = "<group>"; };
+		48D1BE9F15E2EDAE0073C030 /* Mat2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat2.h; sourceTree = "<group>"; };
+		48D1BEA015E2EE920073C030 /* Mat3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat3.h; sourceTree = "<group>"; };
+		48D1BEA115E2F3200073C030 /* Mat4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat4.h; sourceTree = "<group>"; };
 		48D1BEA415E2F4F80073C030 /* Quat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Quat.h; sourceTree = "<group>"; };
 		48D1BEA515E2F8CC0073C030 /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
 		48D1BEA815E2FBAC0073C030 /* Line.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Line.h; sourceTree = "<group>"; };
@@ -1098,11 +1086,9 @@
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
 				4850D25115F39974005B162D /* List.h */,
 				481CC98C16DD407A00537742 /* Map.h */,
-				48D1BE9F15E2EDAE0073C030 /* Mat2f.h */,
-				486AFACB16B555940097657D /* Mat3f.cpp */,
-				48D1BEA015E2EE920073C030 /* Mat3f.h */,
-				48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */,
-				48D1BEA115E2F3200073C030 /* Mat4f.h */,
+				48D1BE9F15E2EDAE0073C030 /* Mat2.h */,
+				48D1BEA015E2EE920073C030 /* Mat3.h */,
+				48D1BEA115E2F3200073C030 /* Mat4.h */,
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
@@ -1113,11 +1099,9 @@
 				48D1BEA515E2F8CC0073C030 /* Ray.h */,
 				483D0C3716C050DE0050710B /* SharedPointer.h */,
 				4810277015E541A200250C9C /* String.h */,
-				4847641415E2E0E800095BC0 /* Vec2f.h */,
-				48D1BE9C15E2E5550073C030 /* Vec3f.cpp */,
-				48D1BE9A15E2E35C0073C030 /* Vec3f.h */,
-				482F4BCA1690681A0012D821 /* Vec4f.cpp */,
-				48D1BE9E15E2EC5D0073C030 /* Vec4f.h */,
+				4847641415E2E0E800095BC0 /* Vec2.h */,
+				48D1BE9A15E2E35C0073C030 /* Vec3.h */,
+				48D1BE9E15E2EC5D0073C030 /* Vec4.h */,
 				48D1BE9B15E2E3B50073C030 /* VecMath.h */,
 			);
 			name = Utility;
@@ -1478,10 +1462,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				480111B116FCF32D009B1BFB /* FindPlanePoints.cpp in Sources */,
-				483AE27A16F9179D0073686A /* Mat3f.cpp in Sources */,
-				483AE27B16F9179D0073686A /* Mat4f.cpp in Sources */,
-				483AE27C16F9179D0073686A /* Vec3f.cpp in Sources */,
-				483AE27D16F9179D0073686A /* Vec4f.cpp in Sources */,
 				483AE27616F8FE450073686A /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1501,8 +1481,6 @@
 				48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */,
 				4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */,
 				4847640E15E2E03000095BC0 /* Entity.cpp in Sources */,
-				48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */,
-				48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */,
 				48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */,
 				48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */,
 				48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */,
@@ -1596,7 +1574,6 @@
 				48BB02BF16870CF300E6E948 /* ResizeBrushesTool.cpp in Sources */,
 				48BB02C31687AEE300E6E948 /* ResizeBrushesCommand.cpp in Sources */,
 				48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */,
-				482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */,
 				482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */,
 				48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */,
 				48BDA1B71696CA5E00FF2CC5 /* EntityProperty.cpp in Sources */,
@@ -1616,7 +1593,6 @@
 				486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */,
 				486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */,
 				486AFACA16B3DE570097657D /* PointTraceRenderer.cpp in Sources */,
-				486AFACC16B555940097657D /* Mat3f.cpp in Sources */,
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
 				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,
 				48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */,

@@ -21,12 +21,12 @@
 #define TrenchBroom_CoordinatePlane_h
 
 #include "Utility/Math.h"
-#include "Utility/Vec3f.h"
+#include "Utility/Vec3.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         class CoordinatePlane {
         private:
             enum Which {

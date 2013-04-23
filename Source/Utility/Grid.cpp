@@ -29,23 +29,23 @@
 #include <algorithm>
 #include <limits>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Utility {
-        const float Grid::SnapAngle = Math::radians(15.0f);
+        const float Grid::SnapAngle = Math<float>::radians(15.0f);
 
         float Grid::snap(float f) const {
             if (!snap())
                 return f;
             unsigned int actSize = actualSize();
-            return actSize * Math::round(f / actSize);
+            return actSize * Math<float>::round(f / actSize);
         }
 
         float Grid::snapAngle(float a) const {
             if (!snap())
                 return a;
-            return SnapAngle * Math::round(a / SnapAngle);
+            return SnapAngle * Math<float>::round(a / SnapAngle);
         }
 
         float Grid::snapUp(float f, bool skip) const {
@@ -96,15 +96,15 @@ namespace TrenchBroom {
             if (!snap())
                 return p;
             Vec3f result;
-            if (Math::pos(d.x))         result.x = snapUp(p.x, skip);
-            else if(Math::neg(d.x))     result.x = snapDown(p.x, skip);
-            else                        result.x = snap(p.x);
-            if (Math::pos(d.y))         result.y = snapUp(p.y, skip);
-            else if(Math::neg(d.y))     result.y = snapDown(p.y, skip);
-            else                        result.y = snap(p.y);
-            if (Math::pos(d.z))         result.z = snapUp(p.z, skip);
-            else if(Math::neg(d.z))     result.z = snapDown(p.z, skip);
-            else                        result.z = snap(p.z);
+            if (Math<float>::pos(d.x))      result.x = snapUp(p.x, skip);
+            else if(Math<float>::neg(d.x))  result.x = snapDown(p.x, skip);
+            else                            result.x = snap(p.x);
+            if (Math<float>::pos(d.y))      result.y = snapUp(p.y, skip);
+            else if(Math<float>::neg(d.y))  result.y = snapDown(p.y, skip);
+            else                            result.y = snap(p.y);
+            if (Math<float>::pos(d.z))      result.z = snapUp(p.z, skip);
+            else if(Math<float>::neg(d.z))  result.z = snapDown(p.z, skip);
+            else                            result.z = snap(p.z);
             return result;
         }
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             return p - snap(p);
         }
 
-        Vec3f Grid::snap(const Vec3f& p, const Plane& onPlane) const {
+        Vec3f Grid::snap(const Vec3f& p, const Planef& onPlane) const {
             Vec3f result;
             switch(onPlane.normal.firstComponent()) {
                 case Axis::AX:
@@ -136,32 +136,32 @@ namespace TrenchBroom {
             return result;
         }
         
-        float Grid::intersectWithRay(const Ray& ray, unsigned int skip) const {
+        float Grid::intersectWithRay(const Rayf& ray, unsigned int skip) const {
             Vec3f planeAnchor;
             
             planeAnchor.x = ray.direction.x > 0 ? snapUp(ray.origin.x, true) + skip * actualSize() : snapDown(ray.origin.x, true) - skip * actualSize();
             planeAnchor.y = ray.direction.y > 0 ? snapUp(ray.origin.y, true) + skip * actualSize() : snapDown(ray.origin.y, true) - skip * actualSize();
             planeAnchor.z = ray.direction.z > 0 ? snapUp(ray.origin.z, true) + skip * actualSize() : snapDown(ray.origin.z, true) - skip * actualSize();
 
-            Plane plane(Vec3f::PosX, planeAnchor);
+            Planef plane(Vec3f::PosX, planeAnchor);
             float distX = plane.intersectWithRay(ray);
             
-            plane = Plane(Vec3f::PosY, planeAnchor);
+            plane = Planef(Vec3f::PosY, planeAnchor);
             float distY = plane.intersectWithRay(ray);
             
-            plane = Plane(Vec3f::PosZ, planeAnchor);
+            plane = Planef(Vec3f::PosZ, planeAnchor);
             float distZ = plane.intersectWithRay(ray);
             
             float dist = distX;
-            if (!Math::isnan(distY) && (Math::isnan(dist) || std::abs(distY) < std::abs(dist)))
+            if (!Math<float>::isnan(distY) && (Math<float>::isnan(dist) || std::abs(distY) < std::abs(dist)))
                 dist = distY;
-            if (!Math::isnan(distZ) && (Math::isnan(dist) || std::abs(distZ) < std::abs(dist)))
+            if (!Math<float>::isnan(distZ) && (Math<float>::isnan(dist) || std::abs(distZ) < std::abs(dist)))
                 dist = distZ;
             
             return dist;
         }
 
-        Vec3f Grid::moveDeltaForPoint(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const {
+        Vec3f Grid::moveDeltaForPoint(const Vec3f& point, const BBoxf& worldBounds, const Vec3f& delta) const {
             Vec3f newPoint = snap(point + delta);
             Vec3f actualDelta = newPoint - point;
             
@@ -171,8 +171,8 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3f Grid::moveDeltaForBounds(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const {
-            const Plane dragPlane = Plane::alignedOrthogonalDragPlane(position, face.boundary().normal);
+        Vec3f Grid::moveDeltaForBounds(const Model::Face& face, const BBoxf& bounds, const BBoxf& worldBounds, const Rayf& ray, const Vec3f& position) const {
+            const Planef dragPlane = Planef::alignedOrthogonalDragPlane(position, face.boundary().normal);
             
             const Vec3f halfSize = bounds.size() * 0.5f;
             float offsetLength = halfSize.dot(dragPlane.normal);
@@ -191,10 +191,10 @@ namespace TrenchBroom {
             return delta;
         }
 
-        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) const {
+        Vec3f Grid::moveDelta(const BBoxf& bounds, const BBoxf& worldBounds, const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++) {
-                if (!Math::zero(delta[i])) {
+                if (!Math<float>::zero(delta[i])) {
                     float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
                     float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
                     
@@ -215,10 +215,10 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const {
+        Vec3f Grid::moveDelta(const Vec3f& point, const BBoxf& worldBounds, const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++)
-                if (!Math::zero(delta[i]))
+                if (!Math<float>::zero(delta[i]))
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
             
             if (delta.lengthSquared() < (delta - actualDelta).lengthSquared())
@@ -230,7 +230,7 @@ namespace TrenchBroom {
         Vec3f Grid::moveDelta(const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++)
-                if (!Math::zero(delta[i]))
+                if (!Math<float>::zero(delta[i]))
                     actualDelta[i] = snap(delta[i]);
             
             if (delta.lengthSquared() < (delta - actualDelta).lengthSquared())
@@ -245,21 +245,21 @@ namespace TrenchBroom {
             return delta2;
         }
 
-        Vec3f Grid::referencePoint(const BBox& bounds) {
+        Vec3f Grid::referencePoint(const BBoxf& bounds) {
             return snap(bounds.center());
         }
 
         /*
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
             float dist = delta.dot(face.boundary().normal);
-            if (Math::zero(dist))
-                return Math::nan();
+            if (Math<float>::zero(dist))
+                return Math<float>::nan();
             
             const Model::EdgeList& brushEdges = face.brush()->edges();
             const Model::VertexList& faceVertices = face.vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
-            std::vector<Ray> edgeRays;
+            std::vector<Rayf> edgeRays;
             for (unsigned int i = 0; i < brushEdges.size(); i++) {
                 const Model::Edge* edge = brushEdges[i];
                 unsigned int c = 0;
@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 }
                 
                 if (c == 1) {
-                    Ray ray;
+                    Rayf ray;
                     if (invert) {
                         ray.origin = edge->end->position;
                         ray.direction = (edge->start->position - edge->end->position).normalized();
@@ -309,7 +309,7 @@ namespace TrenchBroom {
                 // it is large enough so that the face boundary changes when the drag is applied.
                 
                 for (unsigned int i = 0; i < edgeRays.size(); i++) {
-                    const Ray& ray = edgeRays[i];
+                    const Rayf& ray = edgeRays[i];
                     float vertexDist = intersectWithRay(ray, gridSkip);
                     Vec3f vertexDelta = ray.direction * vertexDist;
                     float vertexNormDist = vertexDelta.dot(face.boundary().normal);
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             } while (actualDist == std::numeric_limits<float>::max());
             
             if (std::abs(actualDist) > std::abs(dist))
-                return Math::nan();
+                return Math<float>::nan();
 
             normDelta = face.boundary().normal * actualDist;
             Vec3f deltaNormalized = delta.normalized();

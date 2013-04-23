@@ -32,7 +32,7 @@
 
 //#define _DEBUG_VBO 1
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {

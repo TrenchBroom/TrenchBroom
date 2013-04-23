@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 removeEntityKillTarget(entity, &*it);
         }
 
-        Map::Map(const BBox& worldBounds, bool forceIntegerFacePoints) :
+        Map::Map(const BBoxf& worldBounds, bool forceIntegerFacePoints) :
         m_worldBounds(worldBounds),
         m_forceIntegerFacePoints(forceIntegerFacePoints),
         m_worldspawn(NULL) {}

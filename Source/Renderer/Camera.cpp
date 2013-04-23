@@ -125,9 +125,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        const Ray Camera::pickRay(float x, float y) const {
+        const Rayf Camera::pickRay(float x, float y) const {
             Vec3f direction = (unproject(x, y, 0.5f) - m_position).normalized();
-            return Ray(m_position, direction);
+            return Rayf(m_position, direction);
         }
 
         const Mat4f Camera::billboardMatrix(bool fixUp) const {
@@ -152,26 +152,26 @@ namespace TrenchBroom {
                          0.0f,       0.0f,       0.0f,       1.0f);
         }
 
-        void Camera::frustumPlanes(Plane& top, Plane& right, Plane& bottom, Plane& left) const {
-            float vFrustum = std::tan(Math::radians(m_fieldOfVision) / 2.0f) * 0.75f * m_nearPlane;
+        void Camera::frustumPlanes(Planef& top, Planef& right, Planef& bottom, Planef& left) const {
+            float vFrustum = std::tan(Math<float>::radians(m_fieldOfVision) / 2.0f) * 0.75f * m_nearPlane;
             float hFrustum = vFrustum * static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height);
             const Vec3f center = m_position + m_direction * m_nearPlane;
 
             Vec3f d = center + m_up * vFrustum - m_position;
             d.normalize();
-            top = Plane(m_right.crossed(d), m_position);
+            top = Planef(m_right.crossed(d), m_position);
             
             d = center + m_right * hFrustum - m_position;
             d.normalize();
-            right = Plane(d.crossed(m_up), m_position);
+            right = Planef(d.crossed(m_up), m_position);
             
             d = center - m_up * vFrustum - m_position;
             d.normalize();
-            bottom = Plane(d.crossed(m_right), m_position);
+            bottom = Planef(d.crossed(m_right), m_position);
             
             d = center - m_right * hFrustum - m_position;
             d.normalize();
-            left = Plane(m_up.crossed(d), m_position);
+            left = Planef(m_up.crossed(d), m_position);
         }
 
         float Camera::distanceTo(const Vec3f& point) const {
@@ -205,7 +205,7 @@ namespace TrenchBroom {
         void Camera::rotate(float yawAngle, float pitchAngle) {
             if (yawAngle == 0.0f && pitchAngle == 0.0f) return;
             
-            Quat rotation = Quat(yawAngle, Vec3f::PosZ) * Quat(pitchAngle, m_right);
+            Quatf rotation = Quatf(yawAngle, Vec3f::PosZ) * Quatf(pitchAngle, m_right);
             Vec3f newDirection = rotation * m_direction;
             Vec3f newUp = rotation * m_up;
 
@@ -224,7 +224,7 @@ namespace TrenchBroom {
         void Camera::orbit(Vec3f center, float hAngle, float vAngle) {
             if (hAngle == 0.0f && vAngle == 0.0f) return;
             
-            Quat rotation = Quat(hAngle, Vec3f::PosZ) * Quat(vAngle, m_right);
+            Quatf rotation = Quatf(hAngle, Vec3f::PosZ) * Quatf(vAngle, m_right);
             Vec3f newDirection = rotation * m_direction;
             Vec3f newUp = rotation * m_up;
             Vec3f offset = m_position - center;
@@ -240,9 +240,9 @@ namespace TrenchBroom {
                 // correct rounding errors
                 float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction.dot(newDirection)));
                 float angle = acosf(cos);
-                if (!Math::zero(angle)) {
+                if (!Math<float>::zero(angle)) {
                     Vec3f axis = (m_direction.crossed(newDirection)).normalized();
-                    rotation = Quat(angle, axis);
+                    rotation = Quatf(angle, axis);
                     offset = rotation * offset;
                     newUp = rotation * newUp;
                 }

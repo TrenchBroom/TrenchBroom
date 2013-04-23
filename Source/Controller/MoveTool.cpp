@@ -69,7 +69,7 @@ namespace TrenchBroom {
             resetPlane(inputState);
         }
         
-        bool MoveTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        bool MoveTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
 
@@ -84,10 +84,10 @@ namespace TrenchBroom {
                 if (planeNorm.null())
                     return false;
                 
-                plane = Plane(planeNorm, initialPoint);
+                plane = Planef(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
-                plane = Plane::horizontalDragPlane(initialPoint);
+                plane = Planef::horizontalDragPlane(initialPoint);
                 m_direction = Horizontal;
             }
             
@@ -97,9 +97,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveTool::handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        void MoveTool::handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             float distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            if (Math<float>::isnan(distance))
                 return;
             initialPoint = inputState.pickRay().pointAtDistance(distance);
             
@@ -108,10 +108,10 @@ namespace TrenchBroom {
                 planeNorm.z = 0.0f;
                 planeNorm.normalize();
                 
-                plane = Plane(planeNorm, initialPoint);
+                plane = Planef(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
-                plane = Plane::horizontalDragPlane(initialPoint);
+                plane = Planef::horizontalDragPlane(initialPoint);
                 m_direction = Horizontal;
             }
         }

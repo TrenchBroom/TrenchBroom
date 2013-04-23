@@ -55,7 +55,7 @@
 #include <wx/stdpaths.h>
 #include <wx/stopwatch.h>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -630,7 +630,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::OnCreate(const wxString& path, long flags) {
-            BBox worldBounds(Vec3f(-16384, -16384, -16384), Vec3f(16384, 16384, 16384));
+            BBoxf worldBounds(Vec3f(-16384, -16384, -16384), Vec3f(16384, 16384, 16384));
 
             m_console = new Utility::Console();
             m_textureManager = new TextureManager();
@@ -657,7 +657,7 @@ namespace TrenchBroom {
                 setEntityDefinitionFile("");
 
                 // place 1 new brush at origin
-                BBox brushBounds(Vec3f(0.0f, 0.0f, -16.0f), Vec3f(64.0f, 64.0f, 0.0f));
+                BBoxf brushBounds(Vec3f(0.0f, 0.0f, -16.0f), Vec3f(64.0f, 64.0f, 0.0f));
                 Model::Brush* brush = new Model::Brush(m_map->worldBounds(), m_map->forceIntegerFacePoints(), brushBounds, NULL);
                 addBrush(*worldspawn(true), *brush);
                 

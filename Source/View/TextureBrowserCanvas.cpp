@@ -42,7 +42,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace View {
@@ -55,8 +55,8 @@ namespace TrenchBroom {
                 
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
-                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math<float>::round(scaleFactor * static_cast<float>(texture->width())));
+                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math<float>::round(scaleFactor * static_cast<float>(texture->height())));
                 
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);

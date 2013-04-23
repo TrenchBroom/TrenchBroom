@@ -31,7 +31,7 @@
 #include <memory>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -150,19 +150,19 @@ namespace TrenchBroom {
                     throw MapParserException(actualToken, expectedType);
             }
 
-            Model::Entity* parseEntity(const BBox& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator);
+            Model::Entity* parseEntity(const BBoxf& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator);
         public:
             MapParser(const char* begin, const char* end, Utility::Console& console);
             MapParser(const String& str, Utility::Console& console);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
-            Model::Entity* parseEntity(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
-            Model::Brush* parseBrush(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
-            Model::Face* parseFace(const BBox& worldBounds, bool forceIntegerFacePoints);
+            Model::Entity* parseEntity(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
+            Model::Brush* parseBrush(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator);
+            Model::Face* parseFace(const BBoxf& worldBounds, bool forceIntegerFacePoints);
 
-            bool parseEntities(const BBox& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities);
-            bool parseBrushes(const BBox& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes);
-            bool parseFaces(const BBox& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces);
+            bool parseEntities(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities);
+            bool parseBrushes(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes);
+            bool parseFaces(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces);
         };
 
     }

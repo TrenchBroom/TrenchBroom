@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             const Renderer::Camera& m_camera;
             bool m_valid;
-            Ray m_pickRay;
+            Rayf m_pickRay;
             Model::Picker& m_picker;
             Model::PickResult* m_pickResult;
         public:
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 return m_camera;
             }
             
-            inline const Ray& pickRay() {
+            inline const Rayf& pickRay() {
                 validate();
                 return m_pickRay;
             }

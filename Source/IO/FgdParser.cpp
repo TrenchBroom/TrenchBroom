@@ -98,7 +98,7 @@ namespace TrenchBroom {
         ClassInfo::ClassInfo() :
         hasDescription(false),
         hasColor(false),
-        size(BBox(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
+        size(BBoxf(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
         hasSize(false) {}
         
         
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         hasDescription(false),
         color(defaultColor),
         hasColor(false),
-        size(BBox(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
+        size(BBoxf(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
         hasSize(false) {}
 
         String FgdParser::typeNames(unsigned int types) {
@@ -371,8 +371,8 @@ namespace TrenchBroom {
             return properties;
         }
 
-        BBox FgdParser::parseSize() {
-            BBox size;
+        BBoxf FgdParser::parseSize() {
+            BBoxf size;
             Token token;
             expect(OParenthesis, token = m_tokenizer.nextToken());
             expect(Integer | Decimal, token = m_tokenizer.nextToken());

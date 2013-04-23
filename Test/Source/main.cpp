@@ -27,13 +27,13 @@
 int main(int argc, const char * argv[]) {
     using namespace TrenchBroom;
     
-    Math::Vec3fTest vec3fTest;
+    Math<T>::Vec3fTest vec3fTest;
     vec3fTest.run();
     
-    Math::PlaneTest planeTest;
+    Math<T>::PlaneTest planeTest;
     planeTest.run();
 
-    Math::FindIntegerPlanePointsTest planePointsTest;
+    Math<T>::FindIntegerPlanePointsTest planePointsTest;
     planePointsTest.run();
     
     return 0;

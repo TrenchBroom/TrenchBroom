@@ -32,7 +32,7 @@ namespace TrenchBroom {
             float maxLength = 512.0f;
             Vec3f endPoint = startPoint + maxLength * direction;
             
-            Model::PickResult* result = m_picker.pick(Ray(startPoint, direction));
+            Model::PickResult* result = m_picker.pick(Rayf(startPoint, direction));
             Model::HitList hits = result->hits(Model::HitType::FaceHit, m_filter);
             Model::HitList::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             delete result;
         }
         
-        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
+        BoxGuideRenderer::BoxGuideRenderer(const BBoxf& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
         m_infoRenderer(BoxInfoRenderer(bounds, fontManager)),
         m_color(Color(1.0f, 1.0f, 0.0f, 1.0f)),
         m_bounds(bounds),

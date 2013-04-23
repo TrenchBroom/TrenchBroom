@@ -32,7 +32,7 @@
 #include <limits>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         class FindIntegerPlanePointsTest : public TestSuite<FindIntegerPlanePointsTest> {
         protected:
             void registerTestCases() {
@@ -55,13 +55,13 @@ namespace TrenchBroom {
                 findPoints(xz, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.equals(xz.normal));
-                assert(test.distance == Math::round(xz.distance));
+                assert(test.distance == Math<T>::round(xz.distance));
 
                 Plane yz(Vec3f::PosY, 1223.127372f);
                 findPoints(yz, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.equals(yz.normal));
-                assert(test.distance == Math::round(yz.distance));
+                assert(test.distance == Math<T>::round(yz.distance));
             }
             
             void testNonParallelPlane() {
@@ -127,56 +127,56 @@ namespace TrenchBroom {
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(0.3185f, 0.000606089f, 0.947923f).normalized(), 224.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(0.990495f, 0.0042303f, 0.137485f).normalized(), 1706.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(835.0f, 825.0f, 3703.0f).normalized(), 1861.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(625.0f, 1418.0f, 1418.0f).normalized(), 1630.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(1424.0f, 2160.0f, 2160.0f).normalized(), 442.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 // planes with a "diagonal" XY normal are the worst!
                 plane = Plane(Vec3f(3998.0f, 3998.0f, 1948.0f).normalized(), 839.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
 
                 plane = Plane(Vec3f(2522.0f, 1.0f, 1600.0f).normalized(), 1906.0f);
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
 
                 plane.setPoints(Vec3f(160.01f, 176.0f, 128.0f), Vec3f(160.01f, 176.0f, 0.0f), Vec3f(112.0f, 160.0f, 128.0f));
                 findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                assert(Math<T>::lte(std::abs(plane.distance - test.distance), 1.0f));
             }
             
             void testRandomPlanes() {
@@ -217,15 +217,15 @@ namespace TrenchBroom {
                     maxDistanceError = std::max(maxDistanceError, distanceError);
                     avgDistanceError += distanceError;
                     
-                    assert(normalError < Math::radians(1.0f));
-                    assert(Math::lte(distanceError, 2.0f));
+                    assert(normalError < Math<T>::radians(1.0f));
+                    assert(Math<T>::lte(distanceError, 2.0f));
                 }
                 
                 avgNormalError /= static_cast<float>(NumPlanes);
                 avgDistanceError /= static_cast<float>(NumPlanes);
                 
                 std::cout.setf( std::ios::fixed, std:: ios::floatfield );
-                std::cout << "Normal error min: " << Math::degrees(minNormalError) << " max: " << Math::degrees(maxNormalError) << " avg: " << Math::degrees(avgNormalError) << std::endl;
+                std::cout << "Normal error min: " << Math<T>::degrees(minNormalError) << " max: " << Math<T>::degrees(maxNormalError) << " avg: " << Math<T>::degrees(avgNormalError) << std::endl;
                 std::cout << "Distance error min: " << minDistanceError << " max: " << maxDistanceError << " avg: " << avgDistanceError << std::endl;
             }
         };

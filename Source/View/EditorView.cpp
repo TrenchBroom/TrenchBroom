@@ -422,7 +422,7 @@ namespace TrenchBroom {
             }
 
             // now look at the center
-            const BBox bounds = Model::MapObject::bounds(entities, brushes);
+            const BBoxf bounds = Model::MapObject::bounds(entities, brushes);
             const Vec3f center = bounds.center();
 
             // act as if the camera were there already:
@@ -431,7 +431,7 @@ namespace TrenchBroom {
 
             float offset = std::numeric_limits<float>::max();
 
-            Plane frustumPlanes[4];
+            Planef frustumPlanes[4];
             m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -441,7 +441,7 @@ namespace TrenchBroom {
                         const Vec3f vertex = entity.bounds().vertex(i);
 
                         for (size_t j = 0; j < 4; j++) {
-                            const Plane& plane = frustumPlanes[j];
+                            const Planef& plane = frustumPlanes[j];
                             float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
                             offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
                         }
@@ -457,7 +457,7 @@ namespace TrenchBroom {
                     const Model::Vertex& vertex = **vertexIt;
 
                     for (size_t i = 0; i < 4; i++) {
-                        const Plane& plane = frustumPlanes[i];
+                        const Planef& plane = frustumPlanes[i];
                         float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
                         offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
                     }
@@ -887,7 +887,7 @@ namespace TrenchBroom {
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
-                            const BBox objectsBounds = Model::MapObject::bounds(entities, brushes);
+                            const BBoxf objectsBounds = Model::MapObject::bounds(entities, brushes);
                             const Vec3f objectsPosition = mapDocument().grid().referencePoint(objectsBounds);
 
                             Vec3f delta;

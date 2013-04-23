@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
             }
 
-            inline bool contains(const Vec3f& point, float maxDistance = Math::AlmostZero) const {
+            inline bool contains(const Vec3f& point, float maxDistance = Math<float>::AlmostZero) const {
                 const Vec3f edgeVec = vector();
                 const Vec3f edgeDir = edgeVec.normalized();
                 const float dot = (point - start->position).dot(edgeDir);
@@ -164,21 +164,21 @@ namespace TrenchBroom {
                 return (start == vertex1 && end == vertex2) || (start == vertex2 && end == vertex1);
             }
             
-            inline bool connects(const Vec3f& vertex1, const Vec3f& vertex2, const float epsilon = Math::AlmostZero) const {
+            inline bool connects(const Vec3f& vertex1, const Vec3f& vertex2, const float epsilon = Math<float>::AlmostZero) const {
                 return ((start->position.equals(vertex1, epsilon) && end->position.equals(vertex2, epsilon)) ||
                         (start->position.equals(vertex2, epsilon) && end->position.equals(vertex1, epsilon)));
             }
 
             void updateMark();
 
-            Vertex* split(const Plane& plane);
+            Vertex* split(const Planef& plane);
 
             inline void flip() {
                 std::swap(left, right);
                 std::swap(start, end);
             }
 
-            inline bool intersectWithRay(const Ray& ray, float& distanceToRaySquared, float& distanceOfClosestPoint) const {
+            inline bool intersectWithRay(const Rayf& ray, float& distanceToRaySquared, float& distanceOfClosestPoint) const {
                 Vec3f u = vector();
                 Vec3f w = start->position - ray.origin;
 
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                 float sN, sD = D;
                 float tN, tD = D;
 
-                if (Math::zero(D)) {
+                if (Math<float>::zero(D)) {
                     sN = 0.0f;
                     sD = 1.0f;
                     tN = e;
@@ -213,8 +213,8 @@ namespace TrenchBroom {
                 if (tN < 0.0f)
                     return false;
 
-                float sc = Math::zero(sN) ? 0.0f : sN / sD;
-                float tc = Math::zero(tN) ? 0.0f : tN / tD;
+                float sc = Math<float>::zero(sN) ? 0.0f : sN / sD;
+                float tc = Math<float>::zero(tN) ? 0.0f : tN / tD;
 
                 Vec3f dP = w + u * sc - ray.direction * tc;
                 distanceToRaySquared = dP.lengthSquared();
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             Side(Face& face, EdgeList& newEdges);
 			~Side();
 
-            float intersectWithRay(const Ray& ray);
+            float intersectWithRay(const Rayf& ray);
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
             Edge* split();
             void chop(size_t index, Side*& newSide, Edge*& newEdge);
@@ -261,7 +261,7 @@ namespace TrenchBroom {
             bool isDegenerate();
             size_t isCollinearTriangle();
 
-            inline bool hasVertices(const Vec3f::List& vecs, float epsilon = Math::AlmostZero) const {
+            inline bool hasVertices(const Vec3f::List& vecs, float epsilon = Math<float>::AlmostZero) const {
                 if (vertices.size() != vecs.size())
                     return false;
 
@@ -337,9 +337,9 @@ namespace TrenchBroom {
             EdgeList edges;
             SideList sides;
             Vec3f center;
-            BBox bounds;
+            BBoxf bounds;
 
-            BrushGeometry(const BBox& bounds);
+            BrushGeometry(const BBoxf& bounds);
             BrushGeometry(const BrushGeometry& original);
             BrushGeometry(const Model::VertexList& i_vertices, const Model::EdgeList& i_edges, const Model::SideList& i_sides);
             ~BrushGeometry();
@@ -357,17 +357,17 @@ namespace TrenchBroom {
 
             SideList incidentSides(const Vertex* vertex);
 
-            bool canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta);
-            Vec3f::List moveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canMoveEdges(const BBox& worldBounds, const EdgeInfoList& edgeInfos, const Vec3f& delta);
-            EdgeInfoList moveEdges(const BBox& worldBounds, const EdgeInfoList& edgeInfos, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canMoveFaces(const BBox& worldBounds, const FaceInfoList& faceInfos, const Vec3f& delta);
-            FaceInfoList moveFaces(const BBox& worldBounds, const FaceInfoList& faceInfos, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canMoveVertices(const BBoxf& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta);
+            Vec3f::List moveVertices(const BBoxf& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canMoveEdges(const BBoxf& worldBounds, const EdgeInfoList& edgeInfos, const Vec3f& delta);
+            EdgeInfoList moveEdges(const BBoxf& worldBounds, const EdgeInfoList& edgeInfos, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canMoveFaces(const BBoxf& worldBounds, const FaceInfoList& faceInfos, const Vec3f& delta);
+            FaceInfoList moveFaces(const BBoxf& worldBounds, const FaceInfoList& faceInfos, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
 
-            bool canSplitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta);
-            Vec3f splitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canSplitFace(const BBox& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta);
-            Vec3f splitFace(const BBox& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canSplitEdge(const BBoxf& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta);
+            Vec3f splitEdge(const BBoxf& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canSplitFace(const BBoxf& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta);
+            Vec3f splitFace(const BBoxf& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
         };
 
         template <class T>
@@ -396,12 +396,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vertex* findVertex(const VertexList& vertices, const Vec3f& position, float epsilon = Math::AlmostZero);
-        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2, float epsilon = Math::AlmostZero);
-        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions, float epsilon = Math::AlmostZero);
+        Vertex* findVertex(const VertexList& vertices, const Vec3f& position, float epsilon = Math<float>::AlmostZero);
+        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2, float epsilon = Math<float>::AlmostZero);
+        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions, float epsilon = Math<float>::AlmostZero);
 
         Vec3f centerOfVertices(const VertexList& vertices);
-        BBox boundsOfVertices(const VertexList& vertices);
+        BBoxf boundsOfVertices(const VertexList& vertices);
         PointStatus::Type vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices);
     }
 }

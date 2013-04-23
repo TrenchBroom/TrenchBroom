@@ -26,7 +26,7 @@
 
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -62,14 +62,14 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            static BBox bounds(const std::vector<T*>& objects) {
+            static BBoxf bounds(const std::vector<T*>& objects) {
                 assert(!objects.empty());
                 
                 typename std::vector<T*>::const_iterator it, end;
                 it = objects.begin();
                 end = objects.end();
                 
-                BBox result = (**it).bounds();
+                BBoxf result = (**it).bounds();
                 while (++it != end) {
                     T& object = **it;
                     result.mergeWith(object.bounds());
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
             
             template <typename T1, typename T2>
-            static BBox bounds(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
+            static BBoxf bounds(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
                 assert(!objects1.empty() || !objects2.empty());
                 
                 if (objects1.empty())
@@ -133,15 +133,15 @@ namespace TrenchBroom {
             }
             
             virtual const Vec3f& center() const = 0;
-            virtual const BBox& bounds() const = 0;
+            virtual const BBoxf& bounds() const = 0;
             virtual Type objectType() const = 0;
             
             virtual void translate(const Vec3f& delta, bool lockTextures) = 0;
             virtual void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) = 0;
-            virtual void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) = 0;
+            virtual void rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures) = 0;
             virtual void flip(Axis::Type axis, const Vec3f& center, bool lockTextures) = 0;
             
-            virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
+            virtual void pick(const Rayf& ray, PickResult& pickResults) = 0;
 
             inline size_t fileLine() const {
                 return m_fileFirstLine;

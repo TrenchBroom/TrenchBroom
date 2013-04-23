@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = vertexBrushes.begin(), brushEnd = vertexBrushes.end(); brushIt != brushEnd; ++brushIt) {
                     Model::Brush* brush = *brushIt;
-                    BrushVerticesMapInsertResult result = m_brushVertices.insert(BrushVerticesMapEntry(brush, Vec3f::EmptyList));
+                    BrushVerticesMapInsertResult result = m_brushVertices.insert(BrushVerticesMapEntry(brush, Vec3f::List()));
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(position);

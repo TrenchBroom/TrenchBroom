@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         bool OctreeNode::addObject(MapObject& object, unsigned int childIndex) {
             if (m_children[childIndex] == NULL) {
-                BBox childBounds;
+                BBoxf childBounds;
                 switch (childIndex) {
                     case WSB:
                         childBounds.min.x = m_bounds.min.x;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
 
-        OctreeNode::OctreeNode(const BBox& bounds, unsigned int minSize) :
+        OctreeNode::OctreeNode(const BBoxf& bounds, unsigned int minSize) :
         m_minSize(minSize),
         m_bounds(bounds) {
             for (unsigned int i = 0; i < 8; i++)
@@ -153,8 +153,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        void OctreeNode::intersect(const Ray& ray, MapObjectList& objects) {
-            if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
+        void OctreeNode::intersect(const Rayf& ray, MapObjectList& objects) {
+            if (m_bounds.contains(ray.origin) || !Math<float>::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (unsigned int i = 0; i < 8; i++)
                     if (m_children[i] != NULL)
@@ -218,7 +218,7 @@ namespace TrenchBroom {
             }
         }
         
-        MapObjectList Octree::intersect(const Ray& ray) {
+        MapObjectList Octree::intersect(const Rayf& ray) {
             MapObjectList result;
             m_root->intersect(ray, result);
             return result;

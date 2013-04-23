@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             
-            BBox bounds = editStateManager.bounds();
+            BBoxf bounds = editStateManager.bounds();
             bounds.translate(delta);
             if (!document().map().worldBounds().contains(bounds))
                 return Deny;

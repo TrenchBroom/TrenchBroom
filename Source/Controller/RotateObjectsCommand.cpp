@@ -30,11 +30,11 @@ namespace TrenchBroom {
         bool RotateObjectsCommand::performDo() {
             float angle = m_angle;
             if (angle > 0.0f) {
-                while (angle - 2.0f * Math::Pi >= 0.0f)
-                    angle -= 2.0f * Math::Pi;
+                while (angle - 2.0f * Math<float>::Pi >= 0.0f)
+                    angle -= 2.0f * Math<float>::Pi;
             } else if (angle < 0.0f) {
-                while (angle + 2.0f * Math::Pi <= 0.0f)
-                    angle += 2.0f * Math::Pi;
+                while (angle + 2.0f * Math<float>::Pi <= 0.0f)
+                    angle += 2.0f * Math<float>::Pi;
             }
             
             if (angle == 0.0f)
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             // if we are rotating about one of the coordinate system axes, we can get a more precise result by rotating
             // by 90 degrees as often as possible
             if (m_axis.equals(m_axis.firstAxis())) {
-                unsigned int quarters = static_cast<unsigned int>(2.0f * std::abs(angle) / Math::Pi);
+                unsigned int quarters = static_cast<unsigned int>(2.0f * std::abs(angle) / Math<float>::Pi);
                 quarters %= 4;
                 
                 if (quarters > 0) {
@@ -57,9 +57,9 @@ namespace TrenchBroom {
                     bool clockwise90 = (m_axis[component] < 0.0f) != (angle < 0.0f);
                     
                     if (angle > 0.0f)
-                        angle = angle - quarters * Math::Pi / 2.0f;
+                        angle = angle - quarters * Math<float>::Pi / 2.0f;
                     else
-                        angle = angle + quarters * Math::Pi / 2.0f;
+                        angle = angle + quarters * Math<float>::Pi / 2.0f;
 
                     for (unsigned int i = 0; i < quarters; i++) {
                         Model::EntityList::const_iterator entityIt, entityEnd;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
             
             if (angle != 0.0f) {
-                Quat rotation(angle, m_axis);
+                Quatf rotation(angle, m_axis);
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;

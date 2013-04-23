@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
             float minAngle = std::min(angle1, angle2);
             float maxAngle = std::max(angle1, angle2);
-            m_startAngle = (maxAngle - minAngle <= Math::Pi ? minAngle : maxAngle);
+            m_startAngle = (maxAngle - minAngle <= Math<float>::Pi ? minAngle : maxAngle);
         }
 
         CircleFigure::~CircleFigure() {

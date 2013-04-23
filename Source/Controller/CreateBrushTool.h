@@ -24,7 +24,7 @@
 #include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         protected:
             Model::VisibleFilter m_filter;
             Vec3f m_initialPoint;
-            BBox m_bounds;
+            BBoxf m_bounds;
             bool m_boundsChanged;
             Model::Brush* m_brush;
             Renderer::BrushFigure* m_brushFigure;
@@ -54,8 +54,8 @@ namespace TrenchBroom {
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             void handleModifierKeyChange(InputState& inputState);
-            bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint);
+            bool handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint);
+            void handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint);
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
         public:

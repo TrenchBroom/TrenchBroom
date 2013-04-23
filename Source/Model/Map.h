@@ -25,7 +25,7 @@
 
 #include <map>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         protected:
             typedef std::map<String, EntitySet> TargetnameEntityMap;
             
-            BBox m_worldBounds;
+            BBoxf m_worldBounds;
             bool m_forceIntegerFacePoints;
             EntityList m_entities;
             TargetnameEntityMap m_entitiesWithTargetname;
@@ -56,10 +56,10 @@ namespace TrenchBroom {
             void addEntityKillTargets(Entity& entity);
             void removeEntityKillTargets(Entity& entity);
         public:
-            Map(const BBox& worldBounds, bool forceIntegerFacePoints);
+            Map(const BBoxf& worldBounds, bool forceIntegerFacePoints);
             ~Map();
             
-            inline const BBox& worldBounds() const {
+            inline const BBoxf& worldBounds() const {
                 return m_worldBounds;
             }
             

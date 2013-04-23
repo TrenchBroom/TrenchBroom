@@ -71,7 +71,7 @@ namespace TrenchBroom {
              */
         }
         
-        inline void FindIntegerFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
+        inline void FindIntegerFacePoints::findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const {
             m_findPoints(plane, points, numPoints);
         }
 
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return 3;
         }
         
-        inline void FindFloatFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
+        inline void FindFloatFacePoints::findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const {
             m_findPoints(plane, points, numPoints);
         }
         
@@ -132,23 +132,23 @@ namespace TrenchBroom {
         }
         
         void Face::validateTexAxes(const Vec3f& faceNormal) const {
-            texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
-            rotateTexAxes(m_texAxisX, m_texAxisY, Math::radians(m_rotation), m_texPlaneNormIndex);
+            texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlanefNormIndex, m_texFaceNormIndex);
+            rotateTexAxes(m_texAxisX, m_texAxisY, Math<float>::radians(m_rotation), m_texPlanefNormIndex);
             m_scaledTexAxisX = m_texAxisX / (m_xScale == 0.0f ? 1.0f : m_xScale);
             m_scaledTexAxisY = m_texAxisY / (m_yScale == 0.0f ? 1.0f : m_yScale);
             
             m_texAxesValid = true;
         }
         
-        void Face::projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis) {
+        void Face::projectOntoTexturePlanef(Vec3f& xAxis, Vec3f& yAxis) {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
 
-            Plane plane(m_boundary.normal, 0.0f);
-            if (BaseAxes[m_texPlaneNormIndex]->x != 0.0f) {
+            Planef plane(m_boundary.normal, 0.0f);
+            if (BaseAxes[m_texPlanefNormIndex]->x != 0.0f) {
                 xAxis.x = plane.x(xAxis.y, xAxis.z);
                 yAxis.x = plane.x(yAxis.y, yAxis.z);
-            } else if (BaseAxes[m_texPlaneNormIndex]->y != 0.0f) {
+            } else if (BaseAxes[m_texPlanefNormIndex]->y != 0.0f) {
                 xAxis.y = plane.y(xAxis.x, xAxis.z);
                 yAxis.y = plane.y(yAxis.x, yAxis.z);
             } else {
@@ -198,9 +198,9 @@ namespace TrenchBroom {
             
             Vec3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
             Vec2f curCenterTexCoords, newCenterTexCoords;
-            Plane plane;
+            Planef plane;
             Vec3f curCenter;
-            unsigned int newPlaneNormIndex, newFaceNormIndex;
+            unsigned int newPlanefNormIndex, newFaceNormIndex;
             float radX, radY, rad;
             
             // calculate the current texture coordinates of the face's center
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             newTexAxisY = m_texAxisY * m_yScale;
             
             // project the inversely scaled texture axes onto the boundary plane
-            projectOntoTexturePlane(newTexAxisX, newTexAxisY);
+            projectOntoTexturePlanef(newTexAxisX, newTexAxisY);
             
             // apply the transformation
             newTexAxisX = transformation * newTexAxisX;
@@ -232,20 +232,20 @@ namespace TrenchBroom {
                 newFaceNorm = m_boundary.normal;
             
             // obtain the new texture plane norm and the new base texture axes
-            texAxesAndIndices(newFaceNorm, newBaseAxisX, newBaseAxisY, newPlaneNormIndex, newFaceNormIndex);
+            texAxesAndIndices(newFaceNorm, newBaseAxisX, newBaseAxisY, newPlanefNormIndex, newFaceNormIndex);
             
             /*
-             float tpnDot = dotV3f(texPlaneNorm, newTexPlaneNorm);
+             float tpnDot = dotV3f(texPlanefNorm, newTexPlanefNorm);
              if (tpnDot == 1 || tpnDot == -1) {
-             Vec3f transformedTexPlaneNorm;
-             transformM4fV3f(transformation, texPlaneNorm, &transformedTexPlaneNorm);
-             subV3f(&transformedTexPlaneNorm, &offset, &transformedTexPlaneNorm);
+             Vec3f transformedTexPlanefNorm;
+             transformM4fV3f(transformation, texPlanefNorm, &transformedTexPlanefNorm);
+             subV3f(&transformedTexPlanefNorm, &offset, &transformedTexPlanefNorm);
              
-             if (dotV3f(texPlaneNorm, &transformedTexPlaneNorm) == 0) {
-             crossV3f(texPlaneNorm, &transformedTexPlaneNorm, &temp);
+             if (dotV3f(texPlanefNorm, &transformedTexPlanefNorm) == 0) {
+             crossV3f(texPlanefNorm, &transformedTexPlanefNorm, &temp);
              const Vec3f* rotAxis = closestAxisV3f(&temp);
              
-             float angle = Math::Pi_2;
+             float angle = Math<float>::Pi_2;
              if (tpnDot == 1)
              angle *= -1;
              
@@ -259,10 +259,10 @@ namespace TrenchBroom {
              */
             
             // project the transformed texture axes onto the new texture plane
-            if (BaseAxes[newPlaneNormIndex]->x != 0.0f) {
+            if (BaseAxes[newPlanefNormIndex]->x != 0.0f) {
                 newTexAxisX.x = 0.0f;
                 newTexAxisY.x = 0.0f;
-            } else if (BaseAxes[newPlaneNormIndex]->y != 0.0f) {
+            } else if (BaseAxes[newPlanefNormIndex]->y != 0.0f) {
                 newTexAxisX.y = 0.0f;
                 newTexAxisY.y = 0.0f;
             } else {
@@ -283,24 +283,24 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
             radX = acosf(newBaseAxisX.dot(newTexAxisX));
             cross = newBaseAxisX.crossed(newTexAxisX);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+            if ((cross.dot(*BaseAxes[newPlanefNormIndex])) < 0.0f)
                 radX *= -1.0f;
             
             radY = acosf(newBaseAxisY.dot(newTexAxisY));
             cross = newBaseAxisY.crossed(newTexAxisY);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+            if ((cross.dot(*BaseAxes[newPlanefNormIndex])) < 0.0f)
                 radY *= -1.0f;
             
             rad = radX;
 
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            if (newPlaneNormIndex == 12)
+            if (newPlanefNormIndex == 12)
                 rad *= -1.0f;
 
-            m_rotation = Math::degrees(rad);
+            m_rotation = Math<float>::degrees(rad);
             
             // apply the rotation to the new base axes
-            rotateTexAxes(newBaseAxisX, newBaseAxisY, rad, newPlaneNormIndex);
+            rotateTexAxes(newBaseAxisX, newBaseAxisY, rad, newPlanefNormIndex);
             
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
             if (newBaseAxisX.dot(newTexAxisX) < 0.0f)
@@ -309,9 +309,9 @@ namespace TrenchBroom {
                 m_yScale *= -1.0f;
             
             // correct rounding errors
-            m_xScale = Math::correct(m_xScale);
-            m_yScale = Math::correct(m_yScale);
-            m_rotation = Math::correct(m_rotation);
+            m_xScale = Math<float>::correct(m_xScale);
+            m_yScale = Math<float>::correct(m_yScale);
+            m_rotation = Math<float>::correct(m_rotation);
             
             validateTexAxes(newFaceNorm);
             
@@ -325,16 +325,16 @@ namespace TrenchBroom {
             m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
             
             if (m_texture != NULL) {
-                m_xOffset -= static_cast<int>(Math::round(m_xOffset / static_cast<float>(m_texture->width()))) * static_cast<int>(m_texture->width());
-                m_yOffset -= static_cast<int>(Math::round(m_yOffset / static_cast<float>(m_texture->height()))) * static_cast<int>(m_texture->height());
+                m_xOffset -= static_cast<int>(Math<float>::round(m_xOffset / static_cast<float>(m_texture->width()))) * static_cast<int>(m_texture->width());
+                m_yOffset -= static_cast<int>(Math<float>::round(m_yOffset / static_cast<float>(m_texture->height()))) * static_cast<int>(m_texture->height());
             }
             
             // correct rounding errors
-            m_xOffset = Math::correct(m_xOffset);
-            m_yOffset = Math::correct(m_yOffset);
+            m_xOffset = Math<float>::correct(m_xOffset);
+            m_yOffset = Math<float>::correct(m_yOffset);
         }
         
-        Face::Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
+        Face::Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_worldBounds = worldBounds;
             m_points[0] = point1;
@@ -345,7 +345,7 @@ namespace TrenchBroom {
             setTextureName(textureName);
         }
         
-        Face::Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate) : m_worldBounds(worldBounds) {
+        Face::Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate) : m_worldBounds(worldBounds) {
             init();
             m_worldBounds = worldBounds;
             m_forceIntegerFacePoints = forceIntegerFacePoints;
@@ -374,7 +374,7 @@ namespace TrenchBroom {
         }
         
 		Face::~Face() {
-			m_texPlaneNormIndex = 0;
+			m_texPlanefNormIndex = 0;
 			m_texFaceNormIndex = 0;
 			m_texAxisX = Vec3f::NaN;
 			m_texAxisY = Vec3f::NaN;
@@ -503,14 +503,14 @@ namespace TrenchBroom {
         }
         
         void Face::moveTexture(const Vec3f& up, const Vec3f& right, Direction direction, float distance) {
-            assert(direction != Math::DForward && direction != Math::DBackward);
+            assert(direction != DForward && direction != DBackward);
             
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
 
             Vec3f texX = m_texAxisX;
             Vec3f texY = m_texAxisY;
-            projectOntoTexturePlane(texX, texY);
+            projectOntoTexturePlanef(texX, texY);
             texX.normalize();
             texY.normalize();
 
@@ -519,12 +519,12 @@ namespace TrenchBroom {
             float* yOffset = NULL;
             
             // we prefer to use the texture axis which is closer to the XY plane for horizontal movement
-            if (Math::lt(std::abs(texX.z), std::abs(texY.z))) {
+            if (Math<float>::lt(std::abs(texX.z), std::abs(texY.z))) {
                 hAxis = texX;
                 vAxis = texY;
                 xOffset = &m_xOffset;
                 yOffset = &m_yOffset;
-            } else if (Math::lt(std::abs(texY.z), std::abs(texX.z))) {
+            } else if (Math<float>::lt(std::abs(texY.z), std::abs(texX.z))) {
                 hAxis = texY;
                 vAxis = texX;
                 xOffset = &m_yOffset;
@@ -533,13 +533,13 @@ namespace TrenchBroom {
                 // both texture axes have the same absolute angle towards the XY plane, prefer the one that is closer
                 // to the right view axis for horizontal movement
 
-                if (Math::gt(std::abs(right.dot(texX)), std::abs(right.dot(texY)))) {
+                if (Math<float>::gt(std::abs(right.dot(texX)), std::abs(right.dot(texY)))) {
                     // the right view axis is closer to the X texture axis
                     hAxis = texX;
                     vAxis = texY;
                     xOffset = &m_xOffset;
                     yOffset = &m_yOffset;
-                } else if (Math::gt(std::abs(right.dot(texY)), std::abs(right.dot(texX)))) {
+                } else if (Math<float>::gt(std::abs(right.dot(texY)), std::abs(right.dot(texX)))) {
                     // the right view axis is closer to the Y texture axis
                     hAxis = texY;
                     vAxis = texX;
@@ -548,13 +548,13 @@ namespace TrenchBroom {
                 } else {
                     // the right axis is as close to the X texture axis as to the Y texture axis
                     // test the up axis
-                    if (Math::gt(std::abs(up.dot(texY)), std::abs(up.dot(texX)))) {
+                    if (Math<float>::gt(std::abs(up.dot(texY)), std::abs(up.dot(texX)))) {
                         // the up view axis is closer to the Y texture axis
                         hAxis = texX;
                         vAxis = texY;
                         xOffset = &m_xOffset;
                         yOffset = &m_yOffset;
-                    } else if (Math::gt(std::abs(up.dot(texX)), std::abs(up.dot(texY)))) {
+                    } else if (Math<float>::gt(std::abs(up.dot(texX)), std::abs(up.dot(texY)))) {
                         // the up view axis is closer to the X texture axis
                         hAxis = texY;
                         vAxis = texX;
@@ -607,7 +607,7 @@ namespace TrenchBroom {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
-            if (m_texPlaneNormIndex == m_texFaceNormIndex)
+            if (m_texPlanefNormIndex == m_texFaceNormIndex)
                 m_rotation += angle;
             else
                 m_rotation -= angle;
@@ -665,7 +665,7 @@ namespace TrenchBroom {
             m_vertexCacheValid = false;
         }
         
-        void Face::rotate(const Quat& rotation, const Vec3f& center, bool lockTexture) {
+        void Face::rotate(const Quatf& rotation, const Vec3f& center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = Mat4f::Identity.translated(center);
                 t.rotate(rotation);

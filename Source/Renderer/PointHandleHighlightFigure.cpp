@@ -54,7 +54,7 @@ namespace TrenchBroom {
             shader.currentShader().setUniformVariable("Color", m_color);
 
             Mat4f billboardMatrix = context.camera().billboardMatrix();
-            CircleFigure circle(Axis::AZ, 0.0f, 2.0f * Math::Pi, 2.0f * m_radius, 16, false);
+            CircleFigure circle(Axis::AZ, 0.0f, 2.0f * Math<float>::Pi, 2.0f * m_radius, 16, false);
 
             Vec3f::List::const_iterator it, end;
             for (it = m_positions.begin(), end = m_positions.end(); it != end; ++it) {

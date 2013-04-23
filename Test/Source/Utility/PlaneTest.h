@@ -24,7 +24,7 @@
 #include "Utility/VecMath.h"
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         class PlaneTest : public TestSuite<PlaneTest> {
         protected:
             void registerTestCases() {
@@ -35,10 +35,10 @@ namespace TrenchBroom {
                 Plane plane;
                 
                 plane = Plane(Vec3f(1.0, 0.0f, 1.0f).normalized(), 0.0f);
-                assert(Math::eq(plane.z(1.0f, 0.0f), -1.0f));
+                assert(Math<T>::eq(plane.z(1.0f, 0.0f), -1.0f));
 
                 plane = Plane(Vec3f(0.0, 0.0f, 1.0f).normalized(), 1.0f);
-                assert(Math::eq(plane.z(0.0f, 0.0f), 1.0f));
+                assert(Math<T>::eq(plane.z(0.0f, 0.0f), 1.0f));
             }
         };
     }

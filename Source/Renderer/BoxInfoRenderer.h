@@ -23,7 +23,7 @@
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,14 +37,14 @@ namespace TrenchBroom {
         
         class BoxInfoSizeTextAnchor : public Text::TextAnchor {
         private:
-            BBox m_bounds;
+            BBoxf m_bounds;
             Axis::Type m_axis;
             Renderer::Camera& m_camera;
         protected:
             const Vec3f basePosition() const;
             const Text::Alignment::Type alignment() const;
         public:
-            BoxInfoSizeTextAnchor(const BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
+            BoxInfoSizeTextAnchor(const BBoxf& bounds, Axis::Type axis, Renderer::Camera& camera);
         };
         
         class BoxInfoMinMaxTextAnchor : public Text::TextAnchor {
@@ -54,24 +54,24 @@ namespace TrenchBroom {
                 BoxMax
             } EMinMax;
         private:
-            BBox m_bounds;
+            BBoxf m_bounds;
             EMinMax m_minMax;
             Renderer::Camera& m_camera;
         protected:
             const Vec3f basePosition() const;
             const Text::Alignment::Type alignment() const;
         public:
-            BoxInfoMinMaxTextAnchor(const BBox& bounds, EMinMax minMax, Renderer::Camera& camera);
+            BoxInfoMinMaxTextAnchor(const BBoxf& bounds, EMinMax minMax, Renderer::Camera& camera);
         };
 
         class BoxInfoRenderer {
         private:
-            BBox m_bounds;
+            BBoxf m_bounds;
             Text::TextRenderer<unsigned int>* m_textRenderer;
             Text::TextRenderer<unsigned int>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
         public:
-            BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager);
+            BoxInfoRenderer(const BBoxf& bounds, Text::FontManager& fontManager);
             ~BoxInfoRenderer();
             
             void render(Vbo& vbo, RenderContext& context);

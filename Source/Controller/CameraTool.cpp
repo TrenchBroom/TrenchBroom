@@ -59,8 +59,8 @@ namespace TrenchBroom {
                 return;
             if (m_orbit) {
                 const Renderer::Camera& camera = inputState.camera();
-                Plane orbitPlane(camera.direction(), m_orbitCenter);
-                float maxForward = orbitPlane.intersectWithRay(Ray(camera.position(), camera.direction())) - 32.0f;
+                Planef orbitPlane(camera.direction(), m_orbitCenter);
+                float maxForward = orbitPlane.intersectWithRay(Rayf(camera.position(), camera.direction())) - 32.0f;
 
                 float forward = inputState.scrollY() * moveSpeed();
                 if (maxForward < 0.0f)

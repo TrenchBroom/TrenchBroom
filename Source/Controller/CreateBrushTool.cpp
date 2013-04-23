@@ -72,7 +72,7 @@ namespace TrenchBroom {
             resetPlane(inputState);
         }
 
-        bool CreateBrushTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        bool CreateBrushTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             assert(m_brush == NULL);
             
             Model::EditStateManager& editStateManager = document().editStateManager();
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 initialPoint = camera.defaultPoint(inputState.pickRay().direction);
             }
 
-            plane = Plane(Vec3f::PosZ, initialPoint);
+            plane = Planef(Vec3f::PosZ, initialPoint);
             m_initialPoint = initialPoint;
             updateBounds(m_initialPoint);
             
@@ -108,9 +108,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        void CreateBrushTool::handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        void CreateBrushTool::handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             float distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            if (Math<float>::isnan(distance))
                 return;
             initialPoint = inputState.pickRay().pointAtDistance(distance);
             
@@ -118,9 +118,9 @@ namespace TrenchBroom {
                 Vec3f planeNorm = inputState.pickRay().direction;
                 planeNorm.z = 0.0f;
                 planeNorm.normalize();
-                plane = Plane(planeNorm, initialPoint);
+                plane = Planef(planeNorm, initialPoint);
             } else {
-                plane = Plane::horizontalDragPlane(initialPoint);
+                plane = Planef::horizontalDragPlane(initialPoint);
             }
         }
 

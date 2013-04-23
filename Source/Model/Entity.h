@@ -30,7 +30,7 @@
 
 #include <cstdlib>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -83,9 +83,9 @@ namespace TrenchBroom {
             unsigned int m_selectedBrushCount;
             unsigned int m_hiddenBrushCount;
 
-            const BBox& m_worldBounds;
+            const BBoxf& m_worldBounds;
 
-            mutable BBox m_bounds;
+            mutable BBoxf m_bounds;
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
 
@@ -123,10 +123,10 @@ namespace TrenchBroom {
             };
 
             const RotationInfo rotationInfo() const;
-            void applyRotation(const Quat& rotation);
+            void applyRotation(const Quatf& rotation);
         public:
-            Entity(const BBox& worldBounds);
-            Entity(const BBox& worldBounds, const Entity& entityTemplate);
+            Entity(const BBoxf& worldBounds);
+            Entity(const BBoxf& worldBounds, const Entity& entityTemplate);
             ~Entity();
 
             inline MapObject::Type objectType() const {
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Quat rotation() const;
+            const Quatf rotation() const;
 
             inline const BrushList& brushes() const {
                 return m_brushes;
@@ -251,7 +251,7 @@ namespace TrenchBroom {
 
             virtual EditState::Type setEditState(EditState::Type editState);
 
-            inline const BBox& worldBounds() const {
+            inline const BBoxf& worldBounds() const {
                 return m_worldBounds;
             }
 
@@ -261,7 +261,7 @@ namespace TrenchBroom {
                 return m_center;
             }
 
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 if (!m_geometryValid)
                     validateGeometry();
                 return m_bounds;
@@ -273,9 +273,9 @@ namespace TrenchBroom {
 
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
-            void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
+            void rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
-            void pick(const Ray& ray, PickResult& pickResults);
+            void pick(const Rayf& ray, PickResult& pickResults);
         };
     }
 }

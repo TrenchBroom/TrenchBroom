@@ -25,7 +25,7 @@
 #include "Model/EntityDefinition.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                     Vec3f view = m_position - origin;
                     view.normalize();
                     
-                    if (eq(std::abs(view.z), 1.0f)) {
+                    if (Math<float>::eq(std::abs(view.z), 1.0f)) {
                         m_xAxis = Vec3f::PosX;
                         m_yAxis = Vec3f::PosY;
                     } else {

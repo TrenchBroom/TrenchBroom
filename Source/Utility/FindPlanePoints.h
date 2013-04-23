@@ -27,7 +27,7 @@
 #include <limits>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         typedef Vec3f PlanePoints[3];
 
         class SearchCursor {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             static const Vec2f MoveOffsets[9];
 
-            const Plane& m_plane;
+            const Planef& m_plane;
             const float m_frequency;
 
             Vec2f m_position;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             inline float error(const Vec2f& point) {
                 const float z = m_plane.z(point.x, point.y);
-                return std::abs(z - Math::round(z));
+                return std::abs(z - Math<float>::round(z));
             }
 
             inline void updateError(const Type point) {
@@ -271,26 +271,26 @@ namespace TrenchBroom {
 
                 return Vec3f(globalMinimumPosition.x,
                              globalMinimumPosition.y,
-                             Math::round(m_plane.z(globalMinimumPosition.x,
+                             Math<float>::round(m_plane.z(globalMinimumPosition.x,
                                                    globalMinimumPosition.y)));
             }
         public:
-            SearchCursor(const Plane& plane, const float frequency) :
+            SearchCursor(const Planef& plane, const float frequency) :
             m_plane(plane),
             m_frequency(frequency) {}
 
             inline const Vec3f findMinimum(const Vec3f& initialPosition) {
-                m_position.x = Math::round(initialPosition.x);
-                m_position.y = Math::round(initialPosition.y);
+                m_position.x = Math<float>::round(initialPosition.x);
+                m_position.y = Math<float>::round(initialPosition.y);
                 return doFindMinimum();
             }
         };
 
         class FindPlanePoints {
         protected:
-            virtual void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const = 0;
+            virtual void doFindPlanePoints(const Planef& plane, PlanePoints& points, size_t numPoints) const = 0;
         public:
-            inline void operator()(const Plane& plane, PlanePoints& points, size_t numPoints = 0) const {
+            inline void operator()(const Planef& plane, PlanePoints& points, size_t numPoints = 0) const {
                 assert(numPoints <= 3);
                 doFindPlanePoints(plane, points, numPoints);
             }
@@ -300,7 +300,7 @@ namespace TrenchBroom {
 
         class FindFloatPlanePoints : public FindPlanePoints {
         protected:
-            inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const {
+            inline void doFindPlanePoints(const Planef& plane, PlanePoints& points, size_t numPoints) const {
                 if (numPoints == 0) {
                     points[0] = plane.anchor();
                     numPoints++;
@@ -322,8 +322,8 @@ namespace TrenchBroom {
          */
         class FindIntegerPlanePoints : public FindPlanePoints {
         private:
-            inline float planeFrequency(const Plane& plane) const {
-                static const float c = 1.0f - std::sin(Math::Pi / 4.0f);
+            inline float planeFrequency(const Planef& plane) const {
+                static const float c = 1.0f - std::sin(Math<float>::Pi / 4.0f);
 
                 const Vec3f& axis = plane.normal.firstAxis();
                 const float d = plane.normal.dot(axis);
@@ -332,7 +332,7 @@ namespace TrenchBroom {
                 return (1.0f - d) / c;
             }
 
-            inline void setDefaultPlanePoints(const Plane& plane, PlanePoints& points) const {
+            inline void setDefaultPlanePoints(const Planef& plane, PlanePoints& points) const {
                 points[0] = plane.anchor().rounded();
                 const Axis::Type axis = plane.normal.firstComponent();
                 switch (axis) {
@@ -366,16 +366,16 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const {
+            inline void doFindPlanePoints(const Planef& plane, PlanePoints& points, size_t numPoints) const {
                 if (numPoints == 3 && points[0].isInteger() && points[1].isInteger() && points[2].isInteger())
                     return;
 
                 const float frequency = planeFrequency(plane);
-                if (Math::zero(frequency, 1.0f / 7084.0f)) {
+                if (Math<float>::zero(frequency, 1.0f / 7084.0f)) {
                     setDefaultPlanePoints(plane, points);
                 } else {
                     const CoordinatePlane& coordPlane = CoordinatePlane::plane(plane.normal);
-                    const Plane swizzledPlane(coordPlane.swizzle(plane.normal), plane.distance);
+                    const Planef swizzledPlane(coordPlane.swizzle(plane.normal), plane.distance);
                     const float waveLength = 1.0f / frequency;
                     const float pointDistance = std::max(64.0f, waveLength);
 
@@ -399,7 +399,7 @@ namespace TrenchBroom {
                         cos = v1.normalized().dot(v2.normalized());
                         multiplier *= 1.5f;
                         count++;
-                    } while (Math::isnan(cos) || std::abs(cos) > 0.9f);
+                    } while (Math<float>::isnan(cos) || std::abs(cos) > 0.9f);
 
                     v1.cross(v2);
                     if ((v1.z > 0.0f) != (swizzledPlane.normal.z > 0.0f))

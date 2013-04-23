@@ -31,7 +31,7 @@
 #include "Utility/VecMath.h"
 #include "View/ViewOptions.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {

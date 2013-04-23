@@ -35,7 +35,7 @@
 #include <cassert>
 #include <map>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -83,8 +83,8 @@ namespace TrenchBroom {
                     offset.y += factors.y * size.y;
                     offset.x -= halfSize.x;
                     offset.y -= halfSize.y;
-                    offset.x = Math::round(offset.x);
-                    offset.y = Math::round(offset.y);
+                    offset.x = Math<float>::round(offset.x);
+                    offset.y = Math<float>::round(offset.y);
                     return offset;
                 }
 

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Utility::deleteAll(m_pictures);
         }
 
-        AliasSingleFrame::AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBox& bounds) :
+        AliasSingleFrame::AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBoxf& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_center(center),
@@ -101,7 +101,7 @@ namespace TrenchBroom {
 
             Vec3f::List frameVertices(vertices.size());
             Vec3f center;
-            BBox bounds;
+            BBoxf bounds;
 
             frameVertices[0] = unpackFrameVertex(packedFrameVertices[0], origin, scale);
             center = frameVertices[0];

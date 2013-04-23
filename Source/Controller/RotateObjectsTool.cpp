@@ -37,7 +37,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                     delta *= -1;
             }
 
-            m_angle = static_cast<float>(delta) / 200.0f * Math::Pi;
+            m_angle = static_cast<float>(delta) / 200.0f * Math<float>::Pi;
 
             Utility::Grid& grid = document().grid();
             m_angle = grid.snapAngle(m_angle);

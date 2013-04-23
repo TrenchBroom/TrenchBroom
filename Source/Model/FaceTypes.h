@@ -22,12 +22,9 @@
 
 #include <set>
 #include <vector>
+#include "Utility/Vec3.h"
 
 namespace TrenchBroom {
-    namespace Math {
-        class Vec3f;
-    }
-    
     namespace Model {
         class Face;
         
@@ -36,7 +33,7 @@ namespace TrenchBroom {
         typedef std::set<Face*> FaceSet;
         static const FaceSet EmptyFaceSet;
         
-        typedef Math::Vec3f FacePoints[3];
+        typedef VecMath::Vec3f FacePoints[3];
     }
 }
 

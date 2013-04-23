@@ -38,7 +38,7 @@
 #include <map>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 using namespace TrenchBroom::Controller::ModifierKeys;
 using namespace TrenchBroom::Controller::MouseButtons;
 using namespace TrenchBroom::View::CommandIds;

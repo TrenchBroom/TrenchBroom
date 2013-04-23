@@ -30,7 +30,7 @@
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,14 +44,14 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        Model::RotateHandleHit* RotateHandle::pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateHandleHit::HitArea hitArea) {
+        Model::RotateHandleHit* RotateHandle::pickRing(const Rayf& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateHandleHit::HitArea hitArea) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
             float factor = (position() - ray.origin).length() * scalingFactor;
             
-            Plane plane(normal, position());
+            Planef plane(normal, position());
             float distance = plane.intersectWithRay(ray);
-            if (!isnan(distance)) {
+            if (!Math<float>::isnan(distance)) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
                 Vec3f hitVector = hitPoint - position();
                 float missDistance = hitVector.length() / factor;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateHandleHit::HAYAxis) {
                 rotation.rotateCCW(angle, Vec3f::PosY);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
                 rotation.rotateCCW(angle, Vec3f::PosZ);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AZ, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AZ, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             }
         }
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         RotateHandle::~RotateHandle() {
         }
 
-        Model::RotateHandleHit* RotateHandle::pick(const Ray& ray) {
+        Model::RotateHandleHit* RotateHandle::pick(const Rayf& ray) {
             Vec3f xAxis, yAxis, zAxis;
             axes(ray.origin, xAxis, yAxis, zAxis);
             Model::RotateHandleHit* closestHit = NULL;

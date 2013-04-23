@@ -36,7 +36,7 @@
 #include <wx/cmdproc.h>
 #include <wx/event.h>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -453,17 +453,17 @@ namespace TrenchBroom {
         
         class PlaneDragTool : public Tool {
         private:
-            Plane m_plane;
+            Planef m_plane;
             Vec3f m_lastPoint;
             Vec3f m_refPoint;
         protected:
-            inline const Plane& dragPlane() const {
+            inline const Planef& dragPlane() const {
                 assert(dragType() == DTDrag);
                 return m_plane;
             }
             
-            virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
-            virtual void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {}
+            virtual bool handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) = 0;
+            virtual void handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint) {}
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
             virtual void handleEndPlaneDrag(InputState& inputState) = 0;
             
@@ -482,7 +482,7 @@ namespace TrenchBroom {
             
             bool handleDrag(InputState& inputState) {
                 float distance = m_plane.intersectWithRay(inputState.pickRay());
-                if (Math::isnan(distance))
+                if (Math<float>::isnan(distance))
                     return true;
                 
                 Vec3f curPoint = inputState.pickRay().pointAtDistance(distance);

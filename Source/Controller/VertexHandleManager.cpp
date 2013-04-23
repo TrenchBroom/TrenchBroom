@@ -359,7 +359,7 @@ namespace TrenchBroom {
             deselectFaceHandles();
         }
 
-        void VertexHandleManager::pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const {
+        void VertexHandleManager::pick(const Rayf& ray, Model::PickResult& pickResult, bool splitMode) const {
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::VertexToEdgesMap::const_iterator eIt, eEnd;
             Model::VertexToFacesMap::const_iterator fIt, fEnd;

@@ -22,7 +22,7 @@
 
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -105,17 +105,17 @@ namespace TrenchBroom {
             Vec3f snapDown(const Vec3f& p, bool skip = false) const;
             Vec3f snapTowards(const Vec3f& p, const Vec3f& d, bool skip = false) const;
             Vec3f offset(const Vec3f& p) const;
-            Vec3f snap(const Vec3f& p, const Plane& onPlane) const;
+            Vec3f snap(const Vec3f& p, const Planef& onPlane) const;
             
-            float intersectWithRay(const Ray& ray, unsigned int skip) const;
+            float intersectWithRay(const Rayf& ray, unsigned int skip) const;
 
-            Vec3f moveDeltaForPoint(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const;
-            Vec3f moveDeltaForBounds(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const;
-            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) const;
-            Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDeltaForPoint(const Vec3f& point, const BBoxf& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDeltaForBounds(const Model::Face& face, const BBoxf& bounds, const BBoxf& worldBounds, const Rayf& ray, const Vec3f& position) const;
+            Vec3f moveDelta(const BBoxf& bounds, const BBoxf& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDelta(const Vec3f& point, const BBoxf& worldBounds, const Vec3f& delta) const;
             Vec3f moveDelta(const Vec3f& delta) const;
             Vec3f combineDeltas(const Vec3f& delta1, const Vec3f& delta2) const;
-            Vec3f referencePoint(const BBox& bounds);
+            Vec3f referencePoint(const BBoxf& bounds);
             // float moveDistance(const Model::Face& face, Vec3f& delta);
         };
     }

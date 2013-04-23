@@ -25,7 +25,7 @@
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         class BoxGuideRenderer {
             BoxInfoRenderer m_infoRenderer;
             Color m_color;
-            BBox m_bounds;
+            BBoxf m_bounds;
             Model::Picker& m_picker;
             Model::VisibleFilter m_filter;
             VertexArray* m_boxArray;
@@ -55,10 +55,10 @@ namespace TrenchBroom {
             
             void addSpike(const Vec3f& startPoint, const Vec3f& direction, Vec3f::List& hitPoints);
         public:
-            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager);
+            BoxGuideRenderer(const BBoxf& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager);
             ~BoxGuideRenderer();
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
             

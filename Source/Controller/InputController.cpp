@@ -549,7 +549,7 @@ namespace TrenchBroom {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 View::EditorView& view = m_documentViewHolder.view();
 
-                const BBox& worldBounds = document.map().worldBounds();
+                const BBoxf& worldBounds = document.map().worldBounds();
                 Model::Entity* entity = new Model::Entity(worldBounds);
                 entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 entity->setDefinition(&definition);
@@ -599,7 +599,7 @@ namespace TrenchBroom {
                         entityTemplate = NULL;
                 }
 
-                const BBox& worldBounds = document.map().worldBounds();
+                const BBoxf& worldBounds = document.map().worldBounds();
                 Model::Entity* entity = entityTemplate == NULL || entityTemplate->worldspawn() ? new Model::Entity(worldBounds) : new Model::Entity(worldBounds, *entityTemplate);
                 entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 entity->setDefinition(&definition);

@@ -192,8 +192,8 @@ namespace TrenchBroom {
             return color;
         }
 
-        BBox DefParser::parseBounds() {
-            BBox bounds;
+        BBoxf DefParser::parseBounds() {
+            BBoxf bounds;
             Token token;
             
             expect(OParenthesis, token = m_tokenizer.nextToken());

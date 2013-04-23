@@ -34,7 +34,7 @@ namespace TrenchBroom {
             float maxLength = 512.0f;
             const Vec3f endPoint = m_position + maxLength * direction;
             
-            Model::PickResult* result = m_picker.pick(Ray(m_position, direction));
+            Model::PickResult* result = m_picker.pick(Rayf(m_position, direction));
             Model::HitList hits = result->hits(Model::HitType::FaceHit, m_filter);
             Model::HitList::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {

@@ -115,7 +115,7 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
         
-        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
+        Model::Entity* MapParser::parseEntity(const BBoxf& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -209,12 +209,12 @@ namespace TrenchBroom {
                 indicator->update(static_cast<int>(m_size));
         }
         
-        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
+        Model::Entity* MapParser::parseEntity(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
             FacePointFormat format = forceIntegerFacePoints ? Integer : Float;
             return parseEntity(worldBounds, format, indicator);
         }
         
-        Model::Brush* MapParser::parseBrush(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
+        Model::Brush* MapParser::parseBrush(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Model::Face* MapParser::parseFace(const BBox& worldBounds, bool forceIntegerFacePoints) {
+        Model::Face* MapParser::parseFace(const BBoxf& worldBounds, bool forceIntegerFacePoints) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             Token token = m_tokenizer.nextToken();
@@ -351,7 +351,7 @@ namespace TrenchBroom {
             return face;
         }
         
-        bool MapParser::parseEntities(const BBox& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities) {
+        bool MapParser::parseEntities(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities) {
             size_t oldSize = entities.size();
             try {
                 Model::Entity* entity = NULL;
@@ -365,7 +365,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool MapParser::parseBrushes(const BBox& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes) {
+        bool MapParser::parseBrushes(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes) {
             size_t oldSize = brushes.size();
             try {
                 Model::Brush* brush = NULL;
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool MapParser::parseFaces(const BBox& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces) {
+        bool MapParser::parseFaces(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces) {
             size_t oldSize = faces.size();
             try {
                 Model::Face* face = NULL;

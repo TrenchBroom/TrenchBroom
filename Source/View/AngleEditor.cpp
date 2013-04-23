@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     linesArray.addAttribute(Vec3f(1.0f * size * s, 1.0f * size * c, 0.0f));
                     linesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
 
-                    a += Math::Pi / 12.0f;
+                    a += Math<float>::Pi / 12.0f;
                 }
                 
                 linesArray.addAttribute(Vec3f(0.0f, 0.0f, 0.0f));
@@ -114,7 +114,7 @@ namespace TrenchBroom {
 
                 AngleList::const_iterator angleIt, angleEnd;
                 for (angleIt = m_angles.begin(), angleEnd = m_angles.end(); angleIt != angleEnd; ++angleIt) {
-                    float angle = Math::radians(*angleIt);
+                    float angle = Math<float>::radians(*angleIt);
                     linesArray.addAttribute(Vec3f::Null);
                     linesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                     linesArray.addAttribute(Vec3f(size * std::cos(angle), size * std::sin(angle), 0.0f));
