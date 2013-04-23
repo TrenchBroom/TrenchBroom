@@ -309,13 +309,7 @@
     <ClCompile Include="..\..\Source\Utility\Grid.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp">
@@ -434,9 +428,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Model\PointFile.cpp">
       <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Mat3f.cpp">
-      <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveTool.cpp">
       <Filter>Source Files\Controller</Filter>

@@ -221,8 +221,8 @@ namespace TrenchBroom {
                 if (tN < 0.0)
                     return Math<T>::nan();
                 
-                const T sc = Math<T>::zero(sN) ? 0.0 : sN / sD;
-                const T tc = Math<T>::zero(tN) ? 0.0 : tN / tD;
+                const T sc = Math<T>::zero(sN) ? static_cast<T>(0.0) : sN / sD;
+                const T tc = Math<T>::zero(tN) ? static_cast<T>(0.0) : tN / tD;
 
                 distanceToClosestPoint = tc;
 

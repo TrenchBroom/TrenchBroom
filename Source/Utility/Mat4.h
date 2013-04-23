@@ -226,7 +226,7 @@ namespace TrenchBroom {
             inline Mat4<T>& setIdentity() {
                 for (size_t r = 0; r < 4; r++)
                     for (size_t c = 0; c < 4; c++)
-                        v[c * 4 + r] = r == c ? 1.0 : 0.0;
+                        v[c * 4 + r] = r == c ? static_cast<T>(1.0) : static_cast<T>(0.0);
                 return *this;
             }
             
@@ -427,7 +427,7 @@ namespace TrenchBroom {
                 // Laplace after first col
                 T det = 0.0;
                 for (size_t r = 0; r < 4; r++)
-                    det += (r % 2 == 0 ? 1.0 : -1.0) * v[r] * subMatrix(r, 0).determinant();
+                    det += (r % 2 == 0 ? static_cast<T>(1.0) : static_cast<T>(-1.0)) * v[r] * subMatrix(r, 0).determinant();
                 return det;
             }
             
