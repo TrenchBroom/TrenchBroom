@@ -52,7 +52,7 @@ namespace TrenchBroom {
                         const char* begin = c;
                         if (tokenizer.peekChar() == '/') {
                             tokenizer.nextChar();
-                            return Token(ODefinition, begin, c, tokenizer.offset(begin), line, column);
+                            return Token(CDefinition, begin, c, tokenizer.offset(begin), line, column);
                         }
                         error(line, column, *c);
                         break;
