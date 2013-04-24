@@ -53,7 +53,7 @@ namespace TrenchBroom {
         const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
 
         IMPLEMENT_DYNAMIC_CLASS(EditorFrame, wxFrame)
-        
+
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
@@ -152,7 +152,7 @@ namespace TrenchBroom {
         m_focusMapCanvasOnIdle(2) {
             Create(document, view);
         }
-        
+
         void EditorFrame::Create(Model::MapDocument& document, EditorView& view) {
 #ifdef _WIN32
             SetIcon(wxICON(APPICON));
@@ -257,9 +257,6 @@ namespace TrenchBroom {
             }
 #endif
 
-            // finally set the top window
-            if (IsActive() && wxTheApp->GetTopWindow() != this)
-                wxTheApp->SetTopWindow(this);
             event.Skip();
         }
 

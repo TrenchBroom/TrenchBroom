@@ -279,11 +279,13 @@ void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
 }
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
-    if (m_preferencesFrame != NULL)
-        return;
-    TrenchBroom::View::PreferencesFrame* frame = new TrenchBroom::View::PreferencesFrame();
-    frame->CenterOnScreen();
-    frame->Show();
+    if (m_preferencesFrame == NULL) {
+        TrenchBroom::View::PreferencesFrame* frame = new TrenchBroom::View::PreferencesFrame();
+        frame->CenterOnScreen();
+        frame->Show();
+    } else {
+        m_preferencesFrame->Raise();
+    }
 }
 
 void AbstractApp::OnFileNew(wxCommandEvent& event) {

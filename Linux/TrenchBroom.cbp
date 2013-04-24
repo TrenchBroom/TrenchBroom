@@ -154,6 +154,8 @@
 		<Unit filename="../Source/Controller/EntityPropertyCommand.h" />
 		<Unit filename="../Source/Controller/FlipObjectsCommand.cpp" />
 		<Unit filename="../Source/Controller/FlipObjectsCommand.h" />
+		<Unit filename="../Source/Controller/FlyTool.cpp" />
+		<Unit filename="../Source/Controller/FlyTool.h" />
 		<Unit filename="../Source/Controller/Input.h" />
 		<Unit filename="../Source/Controller/InputController.cpp" />
 		<Unit filename="../Source/Controller/InputController.h" />
@@ -412,6 +414,8 @@
 		<Unit filename="../Source/Utility/CoordinatePlane.h" />
 		<Unit filename="../Source/Utility/DocManager.cpp" />
 		<Unit filename="../Source/Utility/DocManager.h" />
+		<Unit filename="../Source/Utility/ExecutableEvent.cpp" />
+		<Unit filename="../Source/Utility/ExecutableEvent.h" />
 		<Unit filename="../Source/Utility/FindPlanePoints.cpp" />
 		<Unit filename="../Source/Utility/FindPlanePoints.h" />
 		<Unit filename="../Source/Utility/FreeType.h" />
@@ -419,11 +423,9 @@
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />
 		<Unit filename="../Source/Utility/List.h" />
-		<Unit filename="../Source/Utility/Mat2f.h" />
-		<Unit filename="../Source/Utility/Mat3f.cpp" />
-		<Unit filename="../Source/Utility/Mat3f.h" />
-		<Unit filename="../Source/Utility/Mat4f.cpp" />
-		<Unit filename="../Source/Utility/Mat4f.h" />
+		<Unit filename="../Source/Utility/Mat2.h" />
+		<Unit filename="../Source/Utility/Mat3.h" />
+		<Unit filename="../Source/Utility/Mat4.h" />
 		<Unit filename="../Source/Utility/Math.h" />
 		<Unit filename="../Source/Utility/MessageException.h" />
 		<Unit filename="../Source/Utility/Plane.h" />
@@ -434,11 +436,9 @@
 		<Unit filename="../Source/Utility/Ray.h" />
 		<Unit filename="../Source/Utility/SharedPointer.h" />
 		<Unit filename="../Source/Utility/String.h" />
-		<Unit filename="../Source/Utility/Vec2f.h" />
-		<Unit filename="../Source/Utility/Vec3f.cpp" />
-		<Unit filename="../Source/Utility/Vec3f.h" />
-		<Unit filename="../Source/Utility/Vec4f.cpp" />
-		<Unit filename="../Source/Utility/Vec4f.h" />
+		<Unit filename="../Source/Utility/Vec2.h" />
+		<Unit filename="../Source/Utility/Vec3.h" />
+		<Unit filename="../Source/Utility/Vec4.h" />
 		<Unit filename="../Source/Utility/VecMath.h" />
 		<Unit filename="../Source/View/AboutDialog.cpp" />
 		<Unit filename="../Source/View/AboutDialog.h" />

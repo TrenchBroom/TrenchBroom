@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,14 +31,17 @@ namespace TrenchBroom {
         void FlyTool::execute() {
             if (!holderValid())
                 return;
-            
+
+            if (!wxTheApp->IsActive() || !view().editorFrame().mapCanvas().HasFocus())
+                return;
+
             if (wxGetKeyState(WXK_SHIFT) || wxGetKeyState(WXK_CONTROL) || wxGetKeyState(WXK_ALT))
                 return;
-            
+
             Renderer::Camera& camera = view().camera();
-            
+
             const wxLongLong updateTime = wxGetLocalTimeMillis();
-            
+
             const float interval = static_cast<float>((updateTime - m_lastUpdateTime).ToDouble());
             const float distance = interval / 1000.0f * 320.0f;
             Vec3f direction;
@@ -50,10 +53,10 @@ namespace TrenchBroom {
                 direction -= camera.right();
             if (wxGetKeyState(wxKeyCode('D')))
                 direction += camera.right();
-            
+
             if (!direction.null()) {
                 direction.normalize();
-                
+
                 Controller::CameraSetEvent moveEvent;
                 moveEvent.set(camera.position() + distance * direction, camera.direction(), camera.up());
                 postEvent(moveEvent);
@@ -68,11 +71,11 @@ namespace TrenchBroom {
             m_lastUpdateTime = wxGetLocalTimeMillis();
             Start(1000 / 60);
         }
-        
+
         FlyTool::~FlyTool() {
             Stop();
         }
-        
+
         void FlyTool::Notify() {
             wxTheApp->QueueEvent(new ExecutableEvent(this));
         }

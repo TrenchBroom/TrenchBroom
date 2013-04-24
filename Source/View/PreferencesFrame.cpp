@@ -35,6 +35,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        IMPLEMENT_DYNAMIC_CLASS(PreferencesFrame, wxFrame)
+
         BEGIN_EVENT_TABLE(PreferencesFrame, wxFrame)
         EVT_TOOL_RANGE(PPGeneral, PPKeyboard, PreferencesFrame::OnToolClicked)
         EVT_BUTTON(wxID_OK, PreferencesFrame::OnOkClicked)
