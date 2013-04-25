@@ -202,7 +202,8 @@ namespace TrenchBroom {
             float y = std::sin(curAngle) * cornerRadius;
 
             // lower right corner
-            translation = Vec2f(width  / 2.0f - cornerRadius, -height / 2.0f - cornerRadius);
+            translation = Vec2f( (width  / 2.0f - cornerRadius),
+                                -(height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -214,7 +215,8 @@ namespace TrenchBroom {
             }
 
             // lower left corner
-            translation = Vec2f(-width  / 2.0f - cornerRadius, -height / 2.0f - cornerRadius);
+            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+                                -(height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -226,7 +228,8 @@ namespace TrenchBroom {
             }
             
             // upper left corner
-            translation = Vec2f(-width  / 2.0f - cornerRadius, height / 2.0f - cornerRadius);
+            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+                                 (height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -238,7 +241,8 @@ namespace TrenchBroom {
             }
 
             // upper right corner
-            translation = Vec2f(width  / 2.0f - cornerRadius, height / 2.0f - cornerRadius);
+            translation = Vec2f( (width  / 2.0f - cornerRadius),
+                                 (height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));

@@ -50,23 +50,23 @@ namespace TrenchBroom {
 
                     inline void append(Vec2f::List& vertices, int xOffset, int yOffset, int textureLength, bool clockwise) const {
                         if (clockwise) {
-                            vertices.push_back(Vec2f(xOffset, yOffset));
-                            vertices.push_back(Vec2f(x, y + h) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset, yOffset + h));
-                            vertices.push_back(Vec2f(x, y) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset + w, yOffset + h));
-                            vertices.push_back(Vec2f(x + w, y) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset + w, yOffset));
-                            vertices.push_back(Vec2f(x + w, y + h) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset), static_cast<float>(yOffset)));
+                            vertices.push_back(Vec2f(static_cast<float>(x), static_cast<float>(y + h)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset), static_cast<float>(yOffset + h)));
+                            vertices.push_back(Vec2f(static_cast<float>(x), static_cast<float>(y)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset + w), static_cast<float>(yOffset + h)));
+                            vertices.push_back(Vec2f(static_cast<float>(x + w), static_cast<float>(y)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset + w), static_cast<float>(yOffset)));
+                            vertices.push_back(Vec2f(static_cast<float>(x + w), static_cast<float>(y + h)) / static_cast<float>(textureLength));
                         } else {
-                            vertices.push_back(Vec2f(xOffset, yOffset));
-                            vertices.push_back(Vec2f(x, y + h) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset + w, yOffset));
-                            vertices.push_back(Vec2f(x + w, y + h) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset + w, yOffset + h));
-                            vertices.push_back(Vec2f(x + w, y) / static_cast<float>(textureLength));
-                            vertices.push_back(Vec2f(xOffset, yOffset + h));
-                            vertices.push_back(Vec2f(x, y) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset), static_cast<float>(yOffset)));
+                            vertices.push_back(Vec2f(static_cast<float>(x), static_cast<float>(y + h)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset + w), static_cast<float>(yOffset)));
+                            vertices.push_back(Vec2f(static_cast<float>(x + w), static_cast<float>(y + h)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset + w), static_cast<float>(yOffset + h)));
+                            vertices.push_back(Vec2f(static_cast<float>(x + w), static_cast<float>(y)) / static_cast<float>(textureLength));
+                            vertices.push_back(Vec2f(static_cast<float>(xOffset), static_cast<float>(yOffset + h)));
+                            vertices.push_back(Vec2f(static_cast<float>(x), static_cast<float>(y)) / static_cast<float>(textureLength));
                         }
                     }
 

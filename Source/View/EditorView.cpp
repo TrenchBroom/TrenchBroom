@@ -159,6 +159,8 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
         EVT_MENU(CommandIds::Menu::EditSnapVertices, EditorView::OnEditSnapVertices)
         EVT_MENU(CommandIds::Menu::EditCorrectVertices, EditorView::OnEditCorrectVertices)
+        
+        EVT_MENU(CommandIds::Menu::EditPrintFilePositions, EditorView::OnEditPrintFilePositions)
 
         EVT_MENU(CommandIds::Menu::EditMoveVerticesForward, EditorView::OnEditMoveVerticesForward)
         EVT_MENU(CommandIds::Menu::EditMoveVerticesBackward, EditorView::OnEditMoveVerticesBackward)
@@ -1446,6 +1448,50 @@ namespace TrenchBroom {
             submit(command);
         }
 
+        void EditorView::OnEditPrintFilePositions(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList entities = editStateManager.allSelectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            const Model::FaceList& faces = editStateManager.selectedFaces();
+            
+            StringStream buffer;
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
+                buffer << "Entity " << classname << ": ";
+                if (entity.fileLine() > 0)
+                    buffer << entity.fileLine();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                buffer.str("");
+                const Model::Brush& brush = **brushIt;
+                buffer << "Brush: ";
+                if (brush.fileLine() > 0)
+                    buffer << brush.fileLine();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+            
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                buffer.str("");
+                const Model::Face& face = **faceIt;
+                buffer << "Face: ";
+                if (face.filePosition() > 0)
+                    buffer << face.filePosition();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+        }
+
         void EditorView::OnEditMoveVerticesForward(wxCommandEvent& event) {
             moveVertices(DForward, true);
         }
@@ -1782,7 +1828,7 @@ namespace TrenchBroom {
                     event.Check(inputController().rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditActions:
-                    event.Enable(false);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone || inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditMoveTexturesUp:
                 case CommandIds::Menu::EditMoveTexturesRight:
@@ -1818,6 +1864,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSnapVertices:
                 case CommandIds::Menu::EditCorrectVertices:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                    break;
+                case CommandIds::Menu::EditPrintFilePositions:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case CommandIds::Menu::EditMoveVerticesForward:
                 case CommandIds::Menu::EditMoveVerticesBackward:

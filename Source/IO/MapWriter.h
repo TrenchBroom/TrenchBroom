@@ -48,11 +48,11 @@ namespace TrenchBroom {
             static const int FloatPrecision = 100;
             String FaceFormat;
         protected:
-            void writeFace(const Model::Face& face, FILE* stream);
-            void writeBrush(const Model::Brush& brush, FILE* stream);
-            void writeEntityHeader(const Model::Entity& entity, FILE* stream);
-            void writeEntityFooter(FILE* stream);
-            void writeEntity(const Model::Entity& entity, FILE* stream);
+            size_t writeFace(Model::Face& face, const size_t lineNumber, FILE* stream);
+            size_t writeBrush(Model::Brush& brush, const size_t lineNumber, FILE* stream);
+            size_t writeEntityHeader(Model::Entity& entity, FILE* stream);
+            size_t writeEntityFooter(FILE* stream);
+            size_t writeEntity(Model::Entity& entity, const size_t lineNumber, FILE* stream);
             
             void writeFace(const Model::Face& face, std::ostream& stream);
             void writeBrush(const Model::Brush& brush, std::ostream& stream);
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream);
             void writeFacesToStream(const Model::FaceList& faces, std::ostream& stream);
             void writeToStream(const Model::Map& map, std::ostream& stream);
-            void writeToFileAtPath(const Model::Map& map, const String& path, bool overwrite);
+            void writeToFileAtPath(Model::Map& map, const String& path, bool overwrite);
         };
     }
 }

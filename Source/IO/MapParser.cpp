@@ -279,13 +279,13 @@ namespace TrenchBroom {
                 return NULL;
             
             expect(TokenType::OParenthesis, token);
-            p1 = parseVector();
+            p1 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            p2 = parseVector();
+            p2 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            p3 = parseVector();
+            p3 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             
             expect(TokenType::String, token = m_tokenizer.nextToken());

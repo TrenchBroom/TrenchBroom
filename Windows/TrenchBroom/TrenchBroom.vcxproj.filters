@@ -896,15 +896,6 @@
     <ClInclude Include="..\..\Source\Utility\String.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec2f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec3f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec4f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Utility\VecMath.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -1206,6 +1197,9 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\ExecutableEvent.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\Vec.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>

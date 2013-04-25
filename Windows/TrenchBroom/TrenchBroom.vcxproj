@@ -558,9 +558,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Quat.h" />
     <ClInclude Include="..\..\Source\Utility\Ray.h" />
     <ClInclude Include="..\..\Source\Utility\String.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec2f.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec3f.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec4f.h" />
+    <ClInclude Include="..\..\Source\Utility\Vec.h" />
     <ClInclude Include="..\..\Source\Utility\VecMath.h" />
     <ClInclude Include="..\..\Source\View\AboutDialog.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
