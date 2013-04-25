@@ -39,16 +39,20 @@ namespace TrenchBroom {
         void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
+            const Vec3f p1 = face.point(0).corrected();
+            const Vec3f p2 = face.point(1).corrected();
+            const Vec3f p3 = face.point(2).corrected();
+            
             std::fprintf(stream, FaceFormat.c_str(),
-                    face.point(0).x,
-                    face.point(0).y,
-                    face.point(0).z,
-                    face.point(1).x,
-                    face.point(1).y,
-                    face.point(1).z,
-                    face.point(2).x,
-                    face.point(2).y,
-                    face.point(2).z,
+                    p1.x,
+                    p1.y,
+                    p1.z,
+                    p2.x,
+                    p2.y,
+                    p2.z,
+                    p3.x,
+                    p3.y,
+                    p3.z,
                     textureName.c_str(),
                     face.xOffset(),
                     face.yOffset(),
@@ -91,21 +95,25 @@ namespace TrenchBroom {
 
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
+            
+            const Vec3f p1 = face.point(0).corrected();
+            const Vec3f p2 = face.point(1).corrected();
+            const Vec3f p3 = face.point(2).corrected();
 
             stream.precision(FloatPrecision);
             stream <<
             "( " <<
-            face.point(0).x << " " <<
-            face.point(0).y << " " <<
-            face.point(0).z <<
+            p1.x << " " <<
+            p1.y << " " <<
+            p1.z <<
             " ) ( "         <<
-            face.point(1).x << " " <<
-            face.point(1).y << " " <<
-            face.point(1).z <<
+            p2.x << " " <<
+            p2.y << " " <<
+            p2.z <<
             " ) ( "         <<
-            face.point(2).x << " " <<
-            face.point(2).y << " " <<
-            face.point(2).z <<
+            p3.x << " " <<
+            p3.y << " " <<
+            p3.z <<
             " ) ";
 
             stream.precision(6);

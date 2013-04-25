@@ -292,6 +292,10 @@ namespace TrenchBroom {
             p3.z = token.toFloat();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             
+            p1.correct();
+            p2.correct();
+            p3.correct();
+            
             expect(TokenType::String, token = m_tokenizer.nextToken());
             String textureName = token.data();
             
