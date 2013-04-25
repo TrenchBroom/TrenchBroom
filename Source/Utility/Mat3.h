@@ -21,7 +21,7 @@
 #define TrenchBroom_Mat3_h
 
 #include "Utility/Mat2.h"
-#include "Utility/Vec3.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
     namespace VecMath {
@@ -79,9 +79,9 @@ namespace TrenchBroom {
             }
             
             inline const Vec3f operator* (const Vec3f& right) const {
-                return Vec3f(v[0] * right.x + v[3] * right.y + v[6] * right.z,
-                             v[1] * right.x + v[4] * right.y + v[7] * right.z,
-                             v[2] * right.x + v[5] * right.y + v[8] * right.z);
+                return Vec3f(v[0] * right[0] + v[3] * right[1] + v[6] * right[2],
+                             v[1] * right[0] + v[4] * right[1] + v[7] * right[2],
+                             v[2] * right[0] + v[5] * right[1] + v[8] * right[2]);
             }
             
             inline const Mat3<T> operator* (const Mat3<T>& right) const {
@@ -152,9 +152,9 @@ namespace TrenchBroom {
             }
             
             inline Mat3<T>& setColumn(const size_t col, const Vec3f& values) {
-                v[col + 0] = values.x;
-                v[col + 1] = values.y;
-                v[col + 2] = values.z;
+                v[col + 0] = values[0];
+                v[col + 1] = values[1];
+                v[col + 2] = values[2];
                 return *this;
             }
             

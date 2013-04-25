@@ -22,7 +22,7 @@
 
 #include <set>
 #include <vector>
-#include "Utility/Vec3.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
     namespace Model {

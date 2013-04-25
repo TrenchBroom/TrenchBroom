@@ -28,11 +28,11 @@
 namespace TrenchBroom {
     class Color : public VecMath::Vec4f {
     public:
-        Color() : Vec4() {}
-        Color(const std::string& str) : Vec4(str) {}
-        explicit Color(float x, float y, float z, float w = 1.0f) : Vec4(x, y, z, w) {}
-        explicit Color(int x, int y, int z, int w = 0xFF) : Vec4(static_cast<float>(x) / 255.0f, static_cast<float>(y) / 255.0f, static_cast<float>(z) / 255.0f, static_cast<float>(w) / 255.0f) {}
-        Color(const Color& color, float w) : Vec4(color, w) {}
+        Color() : VecMath::Vec4f() {}
+        Color(const std::string& str) : Vec4f(str) {}
+        explicit Color(float x, float y, float z, float w = 1.0f) : Vec4f(x, y, z, w) {}
+        explicit Color(int x, int y, int z, int w = 0xFF) : Vec4f(static_cast<float>(x) / 255.0f, static_cast<float>(y) / 255.0f, static_cast<float>(z) / 255.0f, static_cast<float>(w) / 255.0f) {}
+        Color(const Color& color, float w) : Vec4f(color, w) {}
         
         inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {
             assert(r >= 0.0f && r <= 1.0f);

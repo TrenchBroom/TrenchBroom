@@ -38,8 +38,8 @@
 #include "Utility/Plane.h"
 #include "Utility/Quat.h"
 #include "Utility/Ray.h"
-#include "Utility/Vec2.h"
-#include "Utility/Vec3.h"
-#include "Utility/Vec4.h"
+#include "Utility/Vec.h"
+#include "Utility/Vec.h"
+#include "Utility/Vec.h"
 
 #endif

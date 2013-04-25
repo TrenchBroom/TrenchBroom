@@ -24,9 +24,9 @@
 #include "Utility/Mat3.h"
 #include "Utility/Math.h"
 #include "Utility/Quat.h"
-#include "Utility/Vec2.h"
-#include "Utility/Vec3.h"
-#include "Utility/Vec4.h"
+#include "Utility/Vec.h"
+#include "Utility/Vec.h"
+#include "Utility/Vec.h"
 
 #include <cassert>
 #include <cmath>
@@ -104,46 +104,46 @@ namespace TrenchBroom {
                                v[ 3] * right, v[ 7] * right, v[11] * right, v[15] * right);
             }
             
-            inline const Vec3<T> operator* (const Vec2<T>& right) const {
-                const T w =     v[ 3] * right.x + v[ 7] * right.y + v[15];
-                return Vec3<T>((v[ 0] * right.x + v[ 4] * right.y + v[12]) / w,
-                               (v[ 1] * right.x + v[ 5] * right.y + v[13]) / w,
-                               (v[ 2] * right.x + v[ 6] * right.y + v[14]) / w);
+            inline const Vec<T,3> operator* (const Vec<T,2>& right) const {
+                const T w =     v[ 3] * right[0] + v[ 7] * right[1] + v[15];
+                return Vec<T,3>((v[ 0] * right[0] + v[ 4] * right[1] + v[12]) / w,
+                               (v[ 1] * right[0] + v[ 5] * right[1] + v[13]) / w,
+                               (v[ 2] * right[0] + v[ 6] * right[1] + v[14]) / w);
             }
             
-            inline const typename Vec3<T>::List operator* (const typename Vec2<T>::List& right) const {
-                typename Vec3<T>::List result;
-                typename Vec2<T>::List::const_iterator it, end;
+            inline const typename Vec<T,3>::List operator* (const typename Vec<T,2>::List& right) const {
+                typename Vec<T,3>::List result;
+                typename Vec<T,2>::List::const_iterator it, end;
                 for (it = right.begin(), end = right.end(); it != end; ++it)
                     result.push_back(*this * *it);
                     return result;
             }
             
-            inline const Vec3<T> operator* (const Vec3<T>& right) const {
-                const T w =     v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
-                return Vec3<T>((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,
-                               (v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13]) / w,
-                               (v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14]) / w);
+            inline const Vec<T,3> operator* (const Vec<T,3>& right) const {
+                const T w =     v[ 3] * right[0] + v[ 7] * right[1] + v[11] * right[2] + v[15];
+                return Vec<T,3>((v[ 0] * right[0] + v[ 4] * right[1] + v[ 8] * right[2] + v[12]) / w,
+                               (v[ 1] * right[0] + v[ 5] * right[1] + v[ 9] * right[2] + v[13]) / w,
+                               (v[ 2] * right[0] + v[ 6] * right[1] + v[10] * right[2] + v[14]) / w);
             }
             
-            inline const typename Vec3<T>::List operator* (const typename Vec3<T>::List& right) const {
-                typename Vec3<T>::List result;
-                typename Vec3<T>::List::const_iterator it, end;
+            inline const typename Vec<T,3>::List operator* (const typename Vec<T,3>::List& right) const {
+                typename Vec<T,3>::List result;
+                typename Vec<T,3>::List::const_iterator it, end;
                 for (it = right.begin(), end = right.end(); it != end; ++it)
                     result.push_back(*this * *it);
                     return result;
             }
             
-            inline const Vec4<T> operator* (const Vec4<T>& right) const {
-                return Vec4<T>(v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12] * right.w,
-                               v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13] * right.w,
-                               v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14] * right.w,
-                               v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15] * right.w);
+            inline const Vec<T,4> operator* (const Vec<T,4>& right) const {
+                return Vec<T,4>(v[ 0] * right[0] + v[ 4] * right[1] + v[ 8] * right[2] + v[12] * right.w,
+                               v[ 1] * right[0] + v[ 5] * right[1] + v[ 9] * right[2] + v[13] * right.w,
+                               v[ 2] * right[0] + v[ 6] * right[1] + v[10] * right[2] + v[14] * right.w,
+                               v[ 3] * right[0] + v[ 7] * right[1] + v[11] * right[2] + v[15] * right.w);
             }
             
-            inline const typename Vec4<T>::List operator* (const typename Vec4<T>::List& right) const {
-                typename Vec4<T>::List result;
-                typename Vec4<T>::List::const_iterator it, end;
+            inline const typename Vec<T,4>::List operator* (const typename Vec<T,4>::List& right) const {
+                typename Vec<T,4>::List result;
+                typename Vec<T,4>::List::const_iterator it, end;
                 for (it = right.begin(), end = right.end(); it != end; ++it)
                     result.push_back(*this * *it);
                     return result;
@@ -254,14 +254,14 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline Mat4<T>& setView(const Vec3<T>& direction, const Vec3<T>& up) {
-                const Vec3<T>& f = direction;
-                const Vec3<T> s = f.crossed(up);
-                const Vec3<T> u = s.crossed(f);
+            inline Mat4<T>& setView(const Vec<T,3>& direction, const Vec<T,3>& up) {
+                const Vec<T,3>& f = direction;
+                const Vec<T,3> s = f.crossed(up);
+                const Vec<T,3> u = s.crossed(f);
                 
-                set( s.x,  s.y,  s.z, 0.0,
-                     u.x,  u.y,  u.z, 0.0,
-                    -f.x, -f.y, -f.z, 0.0,
+                set( s[0],  s[1],  s[2], 0.0,
+                     u[0],  u[1],  u[2], 0.0,
+                    -f[0], -f[1], -f[2], 0.0,
                      0.0,  0.0,  0.0, 1.0);
                 return *this;
             }
@@ -284,20 +284,20 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline Mat4<T>& setColumn(size_t col, const Vec3<T>& values) {
+            inline Mat4<T>& setColumn(size_t col, const Vec<T,3>& values) {
                 assert(col >= 0 && col < 4);
-                v[col * 4 + 0] = values.x;
-                v[col * 4 + 1] = values.y;
-                v[col * 4 + 2] = values.z;
+                v[col * 4 + 0] = values[0];
+                v[col * 4 + 1] = values[1];
+                v[col * 4 + 2] = values[2];
                 v[col * 4 + 3] = 0.0;
                 return *this;
             }
             
-            inline Mat4<T>& setColumn(size_t col, const Vec4<T>& values) {
+            inline Mat4<T>& setColumn(size_t col, const Vec<T,4>& values) {
                 assert(col >= 0 && col < 4);
-                v[col * 4 + 0] = values.x;
-                v[col * 4 + 1] = values.y;
-                v[col * 4 + 2] = values.z;
+                v[col * 4 + 0] = values[0];
+                v[col * 4 + 1] = values[1];
+                v[col * 4 + 2] = values[2];
                 v[col * 4 + 3] = values.w;
                 return *this;
             }
@@ -441,29 +441,29 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline Mat4<T>& rotateCW(const T angle, const Vec3<T>& axis) {
+            inline Mat4<T>& rotateCW(const T angle, const Vec<T,3>& axis) {
                 return rotateCCW(-angle, axis);
             }
             
-            Mat4<T>& rotateCCW(const T angle, const Vec3<T>& axis) {
+            Mat4<T>& rotateCCW(const T angle, const Vec<T,3>& axis) {
                 const T s = sinf(angle);
                 const T c = cosf(angle);
                 const T i = static_cast<T>(1.0 - c);
                 
-                const T ix  = i  * axis.x;
-                const T ix2 = ix * axis.x;
-                const T ixy = ix * axis.y;
-                const T ixz = ix * axis.z;
+                const T ix  = i  * axis[0];
+                const T ix2 = ix * axis[0];
+                const T ixy = ix * axis[1];
+                const T ixz = ix * axis[2];
                 
-                const T iy  = i  * axis.y;
-                const T iy2 = iy * axis.y;
-                const T iyz = iy * axis.z;
+                const T iy  = i  * axis[1];
+                const T iy2 = iy * axis[1];
+                const T iyz = iy * axis[2];
                 
-                const T iz2 = i  * axis.z * axis.z;
+                const T iz2 = i  * axis[2] * axis[2];
                 
-                const T sx = s * axis.x;
-                const T sy = s * axis.y;
-                const T sz = s * axis.z;
+                const T sx = s * axis[0];
+                const T sy = s * axis[1];
+                const T sz = s * axis[2];
                 
                 Mat4<T> temp;
                 temp[ 0] = ix2 + c;
@@ -490,13 +490,13 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const Mat4<T> rotatedCW(const T angle, const Vec3<T>& axis) const {
+            const Mat4<T> rotatedCW(const T angle, const Vec<T,3>& axis) const {
                 Mat4<T> result = *this;
                 result.rotateCW(angle, axis);
                 return result;
             }
             
-            const Mat4<T> rotatedCCW(const T angle, const Vec3<T>& axis) const {
+            const Mat4<T> rotatedCCW(const T angle, const Vec<T,3>& axis) const {
                 Mat4<T> result = *this;
                 result.rotateCCW(angle, axis);
                 return result;
@@ -504,9 +504,9 @@ namespace TrenchBroom {
             
             Mat4<T>& rotate(const Quat<T>& rotation) {
                 const T a = rotation.s;
-                const T b = rotation.v.x;
-                const T c = rotation.v.y;
-                const T d = rotation.v.z;
+                const T b = rotation.v[0];
+                const T c = rotation.v[1];
+                const T d = rotation.v[2];
                 
                 const T a2 = a * a;
                 const T b2 = b * b;
@@ -559,12 +559,12 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline Mat4<T>& translate(const Vec3<T>& delta) {
-                return translate(delta.x, delta.y, delta.z);
+            inline Mat4<T>& translate(const Vec<T,3>& delta) {
+                return translate(delta[0], delta[1], delta[2]);
             }
             
-            inline const Mat4<T> translated(const Vec3<T>& delta) const {
-                return translated(delta.x, delta.y, delta.z);
+            inline const Mat4<T> translated(const Vec<T,3>& delta) const {
+                return translated(delta[0], delta[1], delta[2]);
             }
             
             Mat4<T>& scale(const T x, const T y, const T z) {
@@ -590,13 +590,13 @@ namespace TrenchBroom {
                 return scaled(f, f, f);
             }
             
-            inline Mat4<T>& scale(const Vec3<T>& factors) {
-                scale(factors.x, factors.y, factors.z);
+            inline Mat4<T>& scale(const Vec<T,3>& factors) {
+                scale(factors[0], factors[1], factors[2]);
                 return *this;
             }
             
-            inline const Mat4<T> scaled(const Vec3<T>& factors) const {
-                return scaled(factors.x, factors.y, factors.z);
+            inline const Mat4<T> scaled(const Vec<T,3>& factors) const {
+                return scaled(factors[0], factors[1], factors[2]);
             }
         };
         

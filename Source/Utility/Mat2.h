@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Mat2_h
 #define TrenchBroom_Mat2_h
 
-#include "Utility/Vec2.h"
+#include "Utility/Vec.h"
 
 #include <cassert>
 
@@ -69,8 +69,8 @@ namespace TrenchBroom {
             }
             
             inline const Vec2f operator* (const Vec2f& right) const {
-                return Vec2f(v[0] * right.x + v[2] * right.y,
-                             v[1] * right.x + v[3] * right.y);
+                return Vec2f(v[0] * right[0] + v[2] * right[1],
+                             v[1] * right[0] + v[3] * right[1]);
             }
             
             inline const Mat2<T> operator* (const Mat2<T>& right) const {
@@ -137,8 +137,8 @@ namespace TrenchBroom {
             
             inline Mat2<T>& setColumn(const size_t col, const Vec2f& values) {
                 assert(col >= 0 && col < 2);
-                v[col + 0] = values.x;
-                v[col + 1] = values.y;
+                v[col + 0] = values[0];
+                v[col + 1] = values[1];
                 return *this;
             }
             

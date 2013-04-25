@@ -64,8 +64,18 @@ namespace TrenchBroom {
         typedef std::vector<AliasSkinTriangle> AliasSkinTriangleList;
         
         class AliasPackedFrameVertex {
+        private:
+            unsigned char m_values[4];
         public:
-            unsigned char x, y, z, i;
+            inline const unsigned char& operator[](const size_t index) const {
+                assert(index < 4);
+                return m_values[index];
+            }
+            
+            inline unsigned char& operator[](const size_t index) {
+                assert(index < 4);
+                return m_values[index];
+            }
         };
         
         // publicly visible classes below

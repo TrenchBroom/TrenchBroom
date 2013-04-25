@@ -46,11 +46,9 @@ namespace TrenchBroom {
             Vec3f position;
             Mark mark;
 
-            Vertex(float x, float y, float z) : mark(New) {
-                position.x = x;
-                position.y = y;
-                position.z = z;
-            }
+            Vertex(float x, float y, float z) :
+            position(Vec3f(x,y,z))
+            mark(New) {}
 
             Vertex() : mark(New) {}
 

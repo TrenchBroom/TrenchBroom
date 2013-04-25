@@ -21,7 +21,7 @@
 #define TrenchBroom_CoordinatePlane_h
 
 #include "Utility/Math.h"
-#include "Utility/Vec3.h"
+#include "Utility/Vec.h"
 
 #include <algorithm>
 
@@ -70,11 +70,11 @@ namespace TrenchBroom {
             inline Vec3f project(const Vec3f& point) const {
                 switch (m_plane) {
                     case XY:
-                        return Vec3f(point.x, point.y, 0.0f);
+                        return Vec3f(point.x(), point.y(), 0.0f);
                     case YZ:
-                        return Vec3f(0.0f, point.y, point.z);
+                        return Vec3f(0.0f, point.y(), point.z());
                     default:
-                        return Vec3f(point.x, 0.0f, point.z);
+                        return Vec3f(point.x(), 0.0f, point.z());
                 }
             }
             
@@ -83,9 +83,9 @@ namespace TrenchBroom {
                     case XY:
                         return point;
                     case YZ:
-                        return Vec3f(point.y, point.z, point.x);
+                        return Vec3f(point.y(), point.z(), point.x());
                     default:
-                        return Vec3f(point.z, point.x, point.y);
+                        return Vec3f(point.z(), point.x(), point.y());
                 }
             }
 
@@ -95,9 +95,9 @@ namespace TrenchBroom {
                     case XY:
                         return point;
                     case YZ:
-                        return Vec3f(point.z, point.x, point.y);
+                        return Vec3f(point.z(), point.x(), point.y());
                     default:
-                        return Vec3f(point.y, point.z, point.x);
+                        return Vec3f(point.y(), point.z(), point.x());
                 }
             }
             

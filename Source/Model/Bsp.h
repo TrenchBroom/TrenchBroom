@@ -128,8 +128,8 @@ namespace TrenchBroom {
             BspFace(BspTextureInfo* textureInfo, const Vec3f::List& vertices);
 
             inline void textureCoordinates(const Vec3f& vertex, Vec2f& result) const {
-                result.x = (vertex.dot(m_textureInfo->sAxis) + m_textureInfo->sOffset) / m_textureInfo->texture->width();
-                result.y = (vertex.dot(m_textureInfo->tAxis) + m_textureInfo->tOffset) / m_textureInfo->texture->height();
+                result[0] = (vertex.dot(m_textureInfo->sAxis) + m_textureInfo->sOffset) / m_textureInfo->texture->width();
+                result[1] = (vertex.dot(m_textureInfo->tAxis) + m_textureInfo->tOffset) / m_textureInfo->texture->height();
             }
             
             inline const BspTexture& texture() const {

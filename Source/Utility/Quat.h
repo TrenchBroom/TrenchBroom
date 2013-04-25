@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Quat_h
 #define TrenchBroom_Quat_h
 
-#include "Utility/Vec3.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
     namespace VecMath {
@@ -28,15 +28,15 @@ namespace TrenchBroom {
         class Quat {
         public:
             T s;
-            Vec3<T> v;
+            Vec<T,3> v;
 
-            Quat() : s(0.0), v(Vec3<T>::Null) {}
+            Quat() : s(0.0), v(Vec<T,3>::Null) {}
             
             /**
              * Creates a new quaternion that represent a clounter-clockwise rotation by the given angle (in radians) about
              * the given axis.
              */
-            Quat(const T angle, const Vec3<T>& axis) {
+            Quat(const T angle, const Vec<T,3>& axis) {
                 setRotation(angle, axis);
             }
             
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 return result *= right;
             }
             
-            inline const Vec3<T> operator* (const Vec3<T>& right) const {
+            inline const Vec<T,3> operator* (const Vec<T,3>& right) const {
                 Quat<T> p;
                 p.s = 0.0;
                 p.v = right;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             
             inline Quat<T>& operator*= (const Quat<T>& right) {
                 const T& t = right.s;
-                const Vec3<T>& w = right.v;
+                const Vec<T,3>& w = right.v;
                 
                 const T nx = s * w.x + t * v.x + v.y * w.z - v.z * w.y;
                 const T ny = s * w.y + t * v.y + v.z * w.x - v.x * w.z;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 return *this;
             }
 
-            inline Vec3<T> axis() const {
+            inline Vec<T,3> axis() const {
                 return v.normalized();
             }
             

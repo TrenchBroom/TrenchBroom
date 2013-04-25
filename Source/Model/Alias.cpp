@@ -83,9 +83,8 @@ namespace TrenchBroom {
 
         Vec3f Alias::unpackFrameVertex(const AliasPackedFrameVertex& packedVertex, const Vec3f& origin, const Vec3f& size) {
             Vec3f vertex;
-            vertex.x = size.x * packedVertex.x + origin.x;
-            vertex.y = size.y * packedVertex.y + origin.y;
-            vertex.z = size.z * packedVertex.z + origin.z;
+            for (size_t i = 0; i < 3; i++)
+                vertex[i] = size[i] * packedVertex[i] + origin[i];
             return vertex;
         }
 
@@ -124,14 +123,14 @@ namespace TrenchBroom {
                     size_t index = triangles[i].vertices[j];
 
                     Vec2f texCoords;
-                    texCoords.x = static_cast<float>(vertices[index].s) / static_cast<float>(skinWidth);
-                    texCoords.y = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
+                    texCoords[0] = static_cast<float>(vertices[index].s) / static_cast<float>(skinWidth);
+                    texCoords[0] = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
 
                     if (vertices[index].onseam && !triangles[i].front)
-                        texCoords.x += 0.5f;
+                        texCoords[0] += 0.5f;
 
                     (*frameTriangle)[j].setPosition(frameVertices[index]);
-                    (*frameTriangle)[j].setNormal(AliasNormals[packedFrameVertices[index].i]);
+                    (*frameTriangle)[j].setNormal(AliasNormals[packedFrameVertices[index][3]]);
                     (*frameTriangle)[j].setTexCoords(texCoords);
                 }
 

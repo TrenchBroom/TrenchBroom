@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
 		namespace Axis {
-			typedef unsigned int Type;
+			typedef size_t Type;
 			static const Type AX = 0;
 			static const Type AY = 1;
 			static const Type AZ = 2;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
         } Direction;
 
 		namespace PointStatus {
-			typedef unsigned int Type;
+			typedef size_t Type;
 			static const Type PSAbove = 0;
 			static const Type PSBelow = 1;
 			static const Type PSInside = 2;
