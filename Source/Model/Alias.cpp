@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
                     Vec2f texCoords;
                     texCoords[0] = static_cast<float>(vertices[index].s) / static_cast<float>(skinWidth);
-                    texCoords[0] = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
+                    texCoords[1] = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
 
                     if (vertices[index].onseam && !triangles[i].front)
                         texCoords[0] += 0.5f;

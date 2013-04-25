@@ -100,8 +100,8 @@ namespace TrenchBroom {
             Vec2f::List TexturedFont::quads(const String& string, bool clockwise, const Vec2f& offset) {
                 Vec2f::List result;
 
-                int x = static_cast<int>(Math<float>::round(offset.x));
-                int y = static_cast<int>(Math<float>::round(offset.y));
+                int x = static_cast<int>(Math<float>::round(offset.x()));
+                int y = static_cast<int>(Math<float>::round(offset.y()));
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
                     if (c == '\n') {
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < string.length(); i++) {
                     char c = string[i];
                     if (c == '\n') {
-                        result.x = std::max(result.x, static_cast<float>(x));
+                        result[0] = std::max(result[0], static_cast<float>(x));
                         x = 0;
                         y += m_lineHeight;
                         continue;
@@ -144,8 +144,8 @@ namespace TrenchBroom {
                     x += glyph.a;
                 }
 
-                result.x = std::max(result.x, static_cast<float>(x));
-                result.y = static_cast<float>(y + m_lineHeight);
+                result[0] = std::max(result[0], static_cast<float>(x));
+                result[1] = static_cast<float>(y + m_lineHeight);
                 return result;
             }
 

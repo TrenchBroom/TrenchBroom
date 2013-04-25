@@ -631,9 +631,8 @@ namespace TrenchBroom {
 
                         if (worldspawn != NULL && !worldspawn->brushes().empty()) {
                             Vec3f newPosition = centerCameraOnObjectsPosition(Model::EmptyEntityList, worldspawn->brushes());
-                            newPosition.x = std::max(std::min(newPosition.x, 1024.0f), -1024.0f);
-                            newPosition.y = std::max(std::min(newPosition.y, 1024.0f), -1024.0f);
-                            newPosition.z = std::max(std::min(newPosition.z, 1024.0f), -1024.0f);
+                            for (size_t i = 0; i < 3; i++)
+                                newPosition[i] = std::max(std::min(newPosition[i], 1024.0f), -1024.0f);
                             m_camera->moveTo(newPosition);
                         } else {
                             m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));

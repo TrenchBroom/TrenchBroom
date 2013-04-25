@@ -39,15 +39,15 @@ namespace TrenchBroom {
         static const float EdgeOffset = 0.0001f;
         
         inline void glVertexV3f(const Vec3f& vertex) {
-            glVertex3f(vertex.x, vertex.y, vertex.z);
+            glVertex3f(vertex.x(), vertex.y(), vertex.z());
         }
         
         inline void glColorV4f(const Color& color) {
-            glColor4f(color.x, color.y, color.z, color.w);
+            glColor4f(color.r(), color.g(), color.b(), color.a());
         }
         
         inline void glColorV4f(const Color& color, float blendFactor) {
-            glColor4f(color.x, color.y, color.z, color.w * blendFactor);
+            glColor4f(color.r(), color.g(), color.b(), color.a() * blendFactor);
         }
         
         inline void glSetEdgeOffset(float f) {
@@ -202,8 +202,7 @@ namespace TrenchBroom {
             float y = std::sin(curAngle) * cornerRadius;
 
             // lower right corner
-            translation.x =  (width  / 2.0f - cornerRadius);
-            translation.y = -(height / 2.0f - cornerRadius);
+            translation = Vec2f(width  / 2.0f - cornerRadius, -height / 2.0f - cornerRadius);
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -215,8 +214,7 @@ namespace TrenchBroom {
             }
 
             // lower left corner
-            translation.x = -(width  / 2.0f - cornerRadius);
-            translation.y = -(height / 2.0f - cornerRadius);
+            translation = Vec2f(-width  / 2.0f - cornerRadius, -height / 2.0f - cornerRadius);
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -228,8 +226,7 @@ namespace TrenchBroom {
             }
             
             // upper left corner
-            translation.x = -(width  / 2.0f - cornerRadius);
-            translation.y =  (height / 2.0f - cornerRadius);
+            translation = Vec2f(-width  / 2.0f - cornerRadius, height / 2.0f - cornerRadius);
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -241,8 +238,7 @@ namespace TrenchBroom {
             }
 
             // upper right corner
-            translation.x =  (width  / 2.0f - cornerRadius);
-            translation.y =  (height / 2.0f - cornerRadius);
+            translation = Vec2f(width  / 2.0f - cornerRadius, height / 2.0f - cornerRadius);
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));

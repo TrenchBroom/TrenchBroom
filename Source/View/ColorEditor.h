@@ -41,11 +41,11 @@ using namespace TrenchBroom::VecMath;
 namespace TrenchBroom {
     namespace View {
         inline wxColour convertColor(Vec3f color) {
-            if (color.x <= 1.0f && color.y <= 1.0f && color.z <= 1.0f)
+            if (color.x() <= 1.0f && color.y() <= 1.0f && color.z() <= 1.0f)
                 color *= 255.0f;
-            return wxColour(static_cast<unsigned char>(color.x),
-                            static_cast<unsigned char>(color.y),
-                            static_cast<unsigned char>(color.z));
+            return wxColour(static_cast<unsigned char>(color.x()),
+                            static_cast<unsigned char>(color.y()),
+                            static_cast<unsigned char>(color.z()));
         }
         
         class ColorHistory : public wxPanel {
@@ -110,24 +110,15 @@ namespace TrenchBroom {
                         return false;
                     
                     Vec3f lyiq, ryiq;
-                    Color::rgbToYIQ(lhs.x, lhs.y, lhs.z, lyiq.x, lyiq.y, lyiq.z);
-                    Color::rgbToYIQ(rhs.x, rhs.y, rhs.z, ryiq.x, ryiq.y, ryiq.z);
+                    Color::rgbToYIQ(lhs[0], lhs[1], lhs[2], lyiq[0], lyiq[1], lyiq[2]);
+                    Color::rgbToYIQ(rhs[0], rhs[1], rhs[2], ryiq[0], ryiq[1], ryiq[2]);
                     
-                    if (lyiq.x < ryiq.x)
-                        return true;
-                    if (lyiq.x > ryiq.x)
-                        return false;
-                    
-                    if (lyiq.y < ryiq.y)
-                        return true;
-                    if (lyiq.y > ryiq.y)
-                        return false;
-                    
-                    if (lyiq.z < ryiq.z)
-                        return true;
-                    if (lyiq.z > ryiq.z)
-                        return false;
-                    
+                    for (size_t i = 0; i < 3; i++) {
+                        if (lyiq[i] < ryiq[i])
+                            return true;
+                        if (lyiq[i] > ryiq[i])
+                            return false;
+                    }
                     return false;
                 }
             };

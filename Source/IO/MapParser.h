@@ -149,6 +149,8 @@ namespace TrenchBroom {
                 if ((actualToken.type() & expectedType) == 0)
                     throw MapParserException(actualToken, expectedType);
             }
+            
+            Vec3f parseVector();
 
             Model::Entity* parseEntity(const BBoxf& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator);
         public:

@@ -83,7 +83,7 @@ namespace TrenchBroom {
             inline bool setPoints(const Vec<T,3>& point1, const Vec<T,3>& point2, const Vec<T,3>& point3) {
                 const Vec<T,3> v1 = point3 - point1;
                 const Vec<T,3> v2 = point2 - point1;
-                normal = v1.crossed(v2);
+                normal = crossed(v1, v2);
                 if (normal.equals(Vec<T,3>::Null, Math<T>::AlmostZero))
                     return false;
                 normal.normalize();
@@ -120,15 +120,15 @@ namespace TrenchBroom {
             }
             
             inline T x(const T y, const T z) const {
-                return (distance - normal.y * y - normal.z * z) / normal.x;
+                return (distance - normal.y() * y - normal.z() * z) / normal.x();
             }
             
             inline T y(const T x, const T z) const {
-                return (distance - normal.x * x - normal.z * z) / normal.y;
+                return (distance - normal.x() * x - normal.z() * z) / normal.y();
             }
             
             inline T z(const T x, const T y) const {
-                return (distance - normal.x * x - normal.y * y) / normal.z;
+                return (distance - normal.x() * x - normal.y() * y) / normal.z();
             }
                     
             inline T z(const Vec<T,2>& coords) const {
@@ -148,10 +148,10 @@ namespace TrenchBroom {
                 return Plane<T>(normal, (anchor() + delta).dot(normal));
             }
             
-            inline Plane<T>& rotate90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) {
+            inline Plane<T>& rotate90(const Axis::Type axis, const bool clockwise, const Vec<T,3>& center) {
                 const Vec<T,3> oldAnchor = anchor();
-                normal.rotate90(axis, clockwise);
-                distance = (oldAnchor.rotated90(axis, center, clockwise)).dot(normal);
+                VecMath::rotate90(normal, axis, clockwise);
+                distance = VecMath::rotated90(oldAnchor, axis, clockwise, center).dot(normal);
                 return *this;
             }
             
@@ -173,14 +173,14 @@ namespace TrenchBroom {
             
             inline Plane& flip(const Axis::Type axis, const Vec<T,3>& center) {
                 const Vec<T,3> oldAnchor = anchor();
-                normal.flip(axis);
-                distance = oldAnchor.flipped(axis, center).dot(normal);
+                VecMath::flip(normal, axis);
+                distance = VecMath::flipped(oldAnchor, axis, center).dot(normal);
                 return *this;
             }
             
             inline const Plane<T> flipped(const Axis::Type axis, const Vec<T,3>& center) const {
                 const Vec<T,3> oldAnchor = anchor();
-                return Plane(normal.flipped(axis), oldAnchor.flip(axis, center));
+                return Plane(VecMath::flipped(normal, axis), oldAnchor.flip(axis, center));
             }
             
             inline Vec<T,3> project(const Vec<T,3>& v) const {

@@ -74,27 +74,27 @@ namespace TrenchBroom {
 
             p1 = brushBounds.min;
             p2 = p1;
-            p2.z = brushBounds.max.z;
+            p2[2] = brushBounds.max[2];
             p3 = p1;
-            p3.x = brushBounds.max.x;
+            p3[0] = brushBounds.max[0];
             Face* front = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             front->setTexture(texture);
             front->setBrush(this);
             m_faces.push_back(front);
 
             p2 = p1;
-            p2.y = brushBounds.max.y;
+            p2[1] = brushBounds.max[1];
             p3 = p1;
-            p3.z = brushBounds.max.z;
+            p3[2] = brushBounds.max[2];
             Face* left = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             left->setTexture(texture);
             left->setBrush(this);
             m_faces.push_back(left);
 
             p2 = p1;
-            p2.x = brushBounds.max.x;
+            p2[0] = brushBounds.max[0];
             p3 = p1;
-            p3.y = brushBounds.max.y;
+            p3[1] = brushBounds.max[1];
             Face* bottom = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             bottom->setTexture(texture);
             bottom->setBrush(this);
@@ -102,27 +102,27 @@ namespace TrenchBroom {
 
             p1 = brushBounds.max;
             p2 = p1;
-            p2.x = brushBounds.min.x;
+            p2[0] = brushBounds.min[0];
             p3 = p1;
-            p3.z = brushBounds.min.z;
+            p3[2] = brushBounds.min[2];
             Face* back = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             back->setTexture(texture);
             back->setBrush(this);
             m_faces.push_back(back);
 
             p2 = p1;
-            p2.z = brushBounds.min.z;
+            p2[2] = brushBounds.min[2];
             p3 = p1;
-            p3.y = brushBounds.min.y;
+            p3[1] = brushBounds.min[1];
             Face* right = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             right->setTexture(texture);
             right->setBrush(this);
             m_faces.push_back(right);
 
             p2 = p1;
-            p2.y = brushBounds.min.y;
+            p2[1] = brushBounds.min[1];
             p3 = p1;
-            p3.x = brushBounds.min.x;
+            p3[0] = brushBounds.min[0];
             Face* top = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             top->setTexture(texture);
             top->setBrush(this);
@@ -176,6 +176,12 @@ namespace TrenchBroom {
                     m_entity->decSelectedBrushCount();
                 else if (hidden())
                     m_entity->decHiddenBrushCount();
+                if (entity == NULL && m_geometry != NULL) {
+                    delete m_geometry;
+                    m_geometry = NULL;
+                }
+            } else if (entity != NULL && m_geometry == NULL) {
+                rebuildGeometry();
             }
 
             m_entity = entity;
@@ -371,7 +377,7 @@ namespace TrenchBroom {
             // OTOH it's just fake, so let's not do it
             /*
             BBoxf maxBounds = m_geometry->bounds;
-            float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
+            float max = std::max(std::max(std::abs(delta[0]), std::abs(delta[1])), std::abs(delta[2]));
             maxBounds.expand(2.0f * max);
             */
 
@@ -610,7 +616,7 @@ namespace TrenchBroom {
                     const Vec3f myEdgeVec = myEdge.vector();
                     const Vec3f theirEdgeVec = theirEdge.vector();
                     const Vec3f& origin = myEdge.start->position;
-                    const Vec3f direction = myEdgeVec.crossed(theirEdgeVec);
+                    const Vec3f direction = crossed(myEdgeVec, theirEdgeVec);
 
                     PointStatus::Type myStatus = vertexStatusFromRay(origin, direction, myVertices);
                     if (myStatus != PointStatus::PSInside) {
@@ -649,25 +655,25 @@ namespace TrenchBroom {
             Vec3f point = theirBounds.min;
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (containsPoint(point))
                 return true;
-            point.y = theirBounds.max.y;
+            point[1] = theirBounds.max[1];
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (containsPoint(point))
                 return true;
             point = theirBounds.max;
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (containsPoint(point))
                 return true;
-            point.y = theirBounds.min.y;
+            point[1] = theirBounds.min[1];
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (containsPoint(point))
                 return true;
             return false;
@@ -681,25 +687,25 @@ namespace TrenchBroom {
             Vec3f point = theirBounds.min;
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (!containsPoint(point))
                 return false;
-            point.y = theirBounds.max.y;
+            point[1] = theirBounds.max[1];
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (!containsPoint(point))
                 return false;
             point = theirBounds.max;
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (!containsPoint(point))
                 return false;
-            point.y = theirBounds.min.y;
+            point[1] = theirBounds.min[1];
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (!containsPoint(point))
                 return false;
             return true;

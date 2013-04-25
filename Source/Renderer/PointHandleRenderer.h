@@ -82,7 +82,7 @@ namespace TrenchBroom {
             static PointHandleRenderer* create(float radius, unsigned int iterations, float scalingFactor, float maximumDistance);
             
             inline void add(const Vec3f& position) {
-                m_positions.push_back(Vec4f(position.x, position.y, position.z, 0.0f));
+                m_positions.push_back(Vec4f(position, 0.0f));
                 m_valid = false;
             }
             

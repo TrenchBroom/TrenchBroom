@@ -70,14 +70,14 @@ namespace TrenchBroom {
                 const T& t = right.s;
                 const Vec<T,3>& w = right.v;
                 
-                const T nx = s * w.x + t * v.x + v.y * w.z - v.z * w.y;
-                const T ny = s * w.y + t * v.y + v.z * w.x - v.x * w.z;
-                const T nz = s * w.z + t * v.z + v.x * w.y - v.y * w.x;
+                const T nx = s * w.x() + t * v.x() + v.y() * w.z() - v.z() * w.y();
+                const T ny = s * w.y() + t * v.y() + v.z() * w.x() - v.x() * w.z();
+                const T nz = s * w.z() + t * v.z() + v.x() * w.y() - v.y() * w.x();
                 
                 s = s * t - (v.dot(w));
-                v.x = nx;
-                v.y = ny;
-                v.z = nz;
+                v[0] = nx;
+                v[1] = ny;
+                v[2] = nz;
                 return *this;
             }
             

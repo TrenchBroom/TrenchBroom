@@ -38,10 +38,10 @@ namespace TrenchBroom {
         
         const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
             Vec3f position = m_entity->center();
-            position.z = m_entity->bounds().max.z;
+            position[2] = m_entity->bounds().max.z();
             if (m_renderer != NULL)
-                position.z = std::max(position.z, m_renderer->bounds().max.z + m_entity->origin().z);
-            position.z += 2.0f;
+                position[2] = std::max(position.z(), m_renderer->bounds().max.z() + m_entity->origin().z());
+            position[2] += 2.0f;
             return position;
         }
         
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 Color entityColor;
                 if (definition != NULL) {
                     entityColor = definition->color();
-                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
+                    entityColor[3] = prefs.getColor(Preferences::EntityBoundsColor).a();
                 } else {
                     entityColor = prefs.getColor(Preferences::EntityBoundsColor);
                 }

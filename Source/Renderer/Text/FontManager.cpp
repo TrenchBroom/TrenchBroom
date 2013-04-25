@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 FontDescriptor actualDescriptor = fontDescriptor;
                 TexturedFont* actualFont = font(actualDescriptor);
                 Vec2f actualBounds = actualFont->measure(string);
-                while (actualBounds.x > maxWidth && actualDescriptor.size() > minFontSize) {
+                while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
                     actualDescriptor = FontDescriptor(actualDescriptor.name(), actualDescriptor.size() - 1);
                     actualFont = font(actualDescriptor);
                     actualBounds = actualFont->measure(string);

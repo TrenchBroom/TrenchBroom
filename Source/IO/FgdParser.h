@@ -84,6 +84,7 @@ namespace TrenchBroom {
             Model::PropertyDefinition::Ptr parseFlagsProperty(const String& propertyKey);
             Model::PropertyDefinition::Map parseProperties();
             
+            Vec3f parseVector();
             BBoxf parseSize();
             Color parseColor();
             StringList parseBaseClasses();

@@ -154,7 +154,7 @@ namespace TrenchBroom {
                         
                         // if the origin of the definition's bounding box is not in its center, don't apply the rotation
                         const Vec3f offset = origin() - center();
-                        if (offset.x == 0.0f && offset.y == 0.0f) {
+                        if (offset.x() == 0.0f && offset.y() == 0.0f) {
                             if (propertyForKey(AnglesKey) != NULL) {
                                 type = RTEulerAngles;
                                 property = AnglesKey;
@@ -182,15 +182,15 @@ namespace TrenchBroom {
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     
                     Vec3f direction;
-                    direction.x = std::cos(Math<float>::radians(angle));
-                    direction.y = std::sin(Math<float>::radians(angle));
+                    direction[0] = std::cos(Math<float>::radians(angle));
+                    direction[1] = std::sin(Math<float>::radians(angle));
 
                     direction = rotation * direction;
-                    direction.z = 0.0f;
+                    direction[2] = 0.0f;
                     direction.normalize();
                     
-                    angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x)));
-                    if (direction.y < 0.0f)
+                    angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x())));
+                    if (direction.y() < 0.0f)
                         angle = 360.0f - angle;
                     setProperty(info.property, angle, true);
                     break;
@@ -208,20 +208,20 @@ namespace TrenchBroom {
                     } else if (angle == -2.0f) {
                         direction = Vec3f::NegZ;
                     } else {
-                        direction.x = std::cos(Math<float>::radians(angle));
-                        direction.y = std::sin(Math<float>::radians(angle));
+                        direction[0] = std::cos(Math<float>::radians(angle));
+                        direction[1] = std::sin(Math<float>::radians(angle));
                     }
 
-                    if (direction.z > 0.9f) {
+                    if (direction.z() > 0.9f) {
                         setProperty(info.property, -1.0f, true);
-                    } else if (direction.z < -0.9f) {
+                    } else if (direction.z() < -0.9f) {
                         setProperty(info.property, -2.0f, true);
                     } else {
-                        direction.z = 0.0f;
+                        direction[2] = 0.0f;
                         direction.normalize();
                         
-                        angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x)));
-                        if (direction.y < 0.0f)
+                        angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x())));
+                        if (direction.y() < 0.0f)
                             angle = 360.0f - angle;
                         while (angle < 0.0f)
                             angle += 360.0f;
@@ -234,8 +234,8 @@ namespace TrenchBroom {
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
                     Vec3f direction = Vec3f::PosX;
-                    Quatf zRotation(Math<float>::radians(angles.x), Vec3f::PosZ);
-                    Quatf yRotation(Math<float>::radians(-angles.y), Vec3f::PosY);
+                    Quatf zRotation(Math<float>::radians(angles.x()), Vec3f::PosZ);
+                    Quatf yRotation(Math<float>::radians(-angles.y()), Vec3f::PosY);
                     
                     direction = zRotation * yRotation * direction;
                     direction = rotation * direction;
@@ -244,24 +244,24 @@ namespace TrenchBroom {
                     
                     // FIXME: this is still buggy
                     Vec3f xyDirection = direction;
-                    if (std::abs(xyDirection.z) == 1.0f) {
+                    if (std::abs(xyDirection.z()) == 1.0f) {
                         zAngle = 0.0f;
                     } else {
-                        xyDirection.z = 0.0f;
+                        xyDirection[2] = 0.0f;
                         xyDirection.normalize();
-                        zAngle = Math<float>::round(Math<float>::degrees(std::acos(xyDirection.x)));
-                        if (xyDirection.y < 0.0f)
+                        zAngle = Math<float>::round(Math<float>::degrees(std::acos(xyDirection.x())));
+                        if (xyDirection.y() < 0.0f)
                             zAngle = 360.0f - zAngle;
                     }
                     
                     Vec3f xzDirection = direction;
-                    if (std::abs(xzDirection.y) == 1.0f) {
+                    if (std::abs(xzDirection.y()) == 1.0f) {
                         xAngle = 0.0f;
                     } else {
-                        xzDirection.y = 0.0f;
+                        xzDirection[1] = 0.0f;
                         xzDirection.normalize();
-                        xAngle = Math<float>::round(Math<float>::degrees(std::acos(xzDirection.x)));
-                        if (xzDirection.z < 0.0f)
+                        xAngle = Math<float>::round(Math<float>::degrees(std::acos(xzDirection.x())));
+                        if (xzDirection.z() < 0.0f)
                             xAngle = 360.0f - xAngle;
                     }
                     
@@ -501,12 +501,9 @@ namespace TrenchBroom {
         void Entity::setProperty(const PropertyKey& key, const Vec3f& value, bool round) {
             StringStream valueStr;
             if (round)
-                valueStr    << static_cast<int>(Math<float>::round(value.x)) <<
-                " "         << static_cast<int>(Math<float>::round(value.y)) <<
-                " "         << static_cast<int>(Math<float>::round(value.z));
+                setProperty(key, value.rounded().asString());
             else
-                valueStr << value.x << " " << value.y << " " << value.z;
-            setProperty(key, valueStr.str());
+                setProperty(key, value.asString());
         }
         
         void Entity::setProperty(const PropertyKey& key, int value) {
@@ -629,8 +626,8 @@ namespace TrenchBroom {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
-                    Quatf zRotation(Math<float>::radians(angles.x), Vec3f::PosZ);
-                    Quatf yRotation(Math<float>::radians(-angles.y), Vec3f::PosY);
+                    Quatf zRotation(Math<float>::radians( angles.x()), Vec3f::PosZ);
+                    Quatf yRotation(Math<float>::radians(-angles.y()), Vec3f::PosY);
                     return zRotation * yRotation;
                 }
                 default:
@@ -690,7 +687,7 @@ namespace TrenchBroom {
         void Entity::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise, bool lockTextures) {
             if (m_brushes.empty()) {
                 const Vec3f offset = origin() - center();
-                const Vec3f newCenter = center().rotated90(axis, rotationCenter, clockwise);
+                const Vec3f newCenter = rotated90(center(), axis, clockwise, rotationCenter);
                 setProperty(OriginKey, newCenter + offset, true);
             }
 
@@ -725,7 +722,7 @@ namespace TrenchBroom {
         void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
             if (m_brushes.empty()) {
                 const Vec3f offset = origin() - center();
-                const Vec3f newCenter = center().flipped(axis, flipCenter);
+                const Vec3f newCenter = flipped(center(), axis, flipCenter);
                 setProperty(OriginKey, newCenter + offset, true);
             }
             
@@ -774,13 +771,13 @@ namespace TrenchBroom {
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     switch (axis) {
                         case Axis::AX:
-                            angles.x = 180.0f - angles.x;
+                            angles[0] = 180.0f - angles[0];
                             break;
                         case Axis::AY:
-                            angles.x = 360.0f - angles.x;
+                            angles[0] = 360.0f - angles[0];
                             break;
                         default:
-                            angles.z = -angles.z;
+                            angles[2] = -angles[2];
                             break;
                     }
                     setProperty(info.property, angles, true);

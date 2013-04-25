@@ -118,9 +118,7 @@ namespace TrenchBroom {
             }
             
             inline const Vec<T,3> size() const {
-                return Vec<T,3>(max.x - min.x,
-                               max.y - min.y,
-                               max.z - min.z);
+                return max - min;
             }
             
             inline BBox<T>& translateToOrigin() {
@@ -131,8 +129,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> translatedToOrigin() const {
-                const Vec<T,3> c = center();
-                return BBox<T>(min - c, max - c);
+                return BBox<T>(*this).translateToOrigin();
             }
             
             inline BBox<T>& repair() {
@@ -143,9 +140,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> repaired() const {
-                BBox<T> result(min, max);
-                result.repair();
-                return result;
+                return BBox<T>(*this).repair();
             }
             
             inline const Vec<T,3> vertex(const bool x, const bool y, const bool z) const {
@@ -201,6 +196,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 3; i++)
                     if (bounds.min[i] < min[i] || bounds.max[i] > max[i])
                         return false;
+                return true;
             }
             
             inline bool intersects(const BBox<T>& bounds) const {
@@ -413,12 +409,8 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> expanded(const T f) const {
-                return BBox<T>(min.x - f,
-                               min.y - f,
-                               min.z - f,
-                               max.x + f,
-                               max.y + f,
-                               max.z + f);
+                const Vec<T,3> offset(f, f, f);
+                return BBox<T>(min - offset, max + offset);
             }
             
             inline const PointPosition pointPosition(const Vec<T,3>& point) const {

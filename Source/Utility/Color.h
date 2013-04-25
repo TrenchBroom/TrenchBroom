@@ -28,11 +28,36 @@
 namespace TrenchBroom {
     class Color : public VecMath::Vec4f {
     public:
-        Color() : VecMath::Vec4f() {}
-        Color(const std::string& str) : Vec4f(str) {}
-        explicit Color(float x, float y, float z, float w = 1.0f) : Vec4f(x, y, z, w) {}
-        explicit Color(int x, int y, int z, int w = 0xFF) : Vec4f(static_cast<float>(x) / 255.0f, static_cast<float>(y) / 255.0f, static_cast<float>(z) / 255.0f, static_cast<float>(w) / 255.0f) {}
-        Color(const Color& color, float w) : Vec4f(color.x(), color.y(), color.z(), w) {}
+        Color() :
+        VecMath::Vec4f() {}
+        
+        Color(const std::string& str) :
+        VecMath::Vec4f(str) {}
+        
+        explicit Color(float r, float g, float b, float a = 1.0f) :
+        VecMath::Vec4f(r, g, b, a) {}
+        
+        explicit Color(int r, int g, int b, int a = 0xFF) :
+        VecMath::Vec4f(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, static_cast<float>(a) / 255.0f) {}
+        
+        Color(const Color& color, float w) :
+        VecMath::Vec4f(color.r(), color.g(), color.b(), w) {}
+        
+        inline float r() const {
+            return x();
+        }
+        
+        inline float g() const {
+            return y();
+        }
+        
+        inline float b() const {
+            return z();
+        }
+        
+        inline float a() const {
+            return w();
+        }
         
         inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {
             assert(r >= 0.0f && r <= 1.0f);

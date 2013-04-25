@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 }
 
                 Vec3f size = rotatedBounds.size();
-                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds), size.y, size.z, actualSize.x, font.size() + 2.0f);
+                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds), size.y(), size.z(), actualSize.x(), font.size() + 2.0f);
             }
         }
 
@@ -75,9 +75,9 @@ namespace TrenchBroom {
             const BBoxf& bounds = definition.bounds();
 
             Mat4f itemMatrix;
-            itemMatrix.translate(offset.x, offset.y, offset.z);
+            itemMatrix.translate(offset);
             itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
+            itemMatrix.translate(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             itemMatrix.translate(bounds.center());
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * bounds.center());
@@ -98,9 +98,9 @@ namespace TrenchBroom {
             const Vec3f& rotationCenter = renderer.center();
 
             Mat4f itemMatrix;
-            itemMatrix.translate(offset.x, offset.y, offset.z);
+            itemMatrix.translate(offset);
             itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
+            itemMatrix.translate(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             itemMatrix.translate(rotationCenter);
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * rotationCenter);

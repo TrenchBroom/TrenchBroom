@@ -37,9 +37,7 @@ namespace TrenchBroom {
             Ray(const Vec<T,3>& i_origin, const Vec<T,3>& i_direction) : origin(i_origin), direction(i_direction) {}
 
             inline const Vec<T,3> pointAtDistance(const T distance) const {
-                return Vec<T,3>(origin.x + direction.x * distance,
-                               origin.y + direction.y * distance,
-                               origin.z + direction.z * distance);
+                return origin + direction * distance;
             }
 
             inline PointStatus::Type pointStatus(const Vec<T,3>& point) const {

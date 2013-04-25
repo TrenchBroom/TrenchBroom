@@ -88,13 +88,13 @@ namespace TrenchBroom {
         
         const FindFloatFacePoints FindFloatFacePoints::Instance = FindFloatFacePoints();
 
-        const Vec3f* Face::BaseAxes[18] = {
-            &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
-            &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,
-            &Vec3f::PosX, &Vec3f::PosY, &Vec3f::NegZ,
-            &Vec3f::NegX, &Vec3f::PosY, &Vec3f::NegZ,
-            &Vec3f::PosY, &Vec3f::PosX, &Vec3f::NegZ,
-            &Vec3f::NegY, &Vec3f::PosX, &Vec3f::NegZ
+        const Vec3f Face::BaseAxes[18] = {
+            Vec3f::PosZ, Vec3f::PosX, Vec3f::NegY,
+            Vec3f::NegZ, Vec3f::PosX, Vec3f::NegY,
+            Vec3f::PosX, Vec3f::PosY, Vec3f::NegZ,
+            Vec3f::NegX, Vec3f::PosY, Vec3f::NegZ,
+            Vec3f::PosY, Vec3f::PosX, Vec3f::NegZ,
+            Vec3f::NegY, Vec3f::PosX, Vec3f::NegZ
         };
         
         void Face::init() {
@@ -117,15 +117,15 @@ namespace TrenchBroom {
             unsigned int bestIndex = 0;
             float bestDot = 0.0f;
             for (unsigned int i = 0; i < 6; i++) {
-                float dot = faceNormal.dot(*BaseAxes[i * 3]);
+                const float dot = faceNormal.dot(BaseAxes[i * 3]);
                 if (dot > bestDot) { // no need to use -altaxis for qbsp
                     bestDot = dot;
                     bestIndex = i;
                 }
             }
             
-            xAxis = *BaseAxes[bestIndex * 3 + 1];
-            yAxis = *BaseAxes[bestIndex * 3 + 2];
+            xAxis = BaseAxes[bestIndex * 3 + 1];
+            yAxis = BaseAxes[bestIndex * 3 + 2];
             planeNormIndex = (bestIndex / 2) * 6;
             faceNormIndex = bestIndex * 3;
             planeNormIndex = planeNormIndex;
@@ -145,15 +145,15 @@ namespace TrenchBroom {
                 validateTexAxes(m_boundary.normal);
 
             Planef plane(m_boundary.normal, 0.0f);
-            if (BaseAxes[m_texPlanefNormIndex]->x != 0.0f) {
-                xAxis.x = plane.x(xAxis.y, xAxis.z);
-                yAxis.x = plane.x(yAxis.y, yAxis.z);
-            } else if (BaseAxes[m_texPlanefNormIndex]->y != 0.0f) {
-                xAxis.y = plane.y(xAxis.x, xAxis.z);
-                yAxis.y = plane.y(yAxis.x, yAxis.z);
+            if (BaseAxes[m_texPlanefNormIndex].x() != 0.0f) {
+                xAxis[0] = plane.x(xAxis.y(), xAxis.z());
+                yAxis[0] = plane.x(yAxis.y(), yAxis.z());
+            } else if (BaseAxes[m_texPlanefNormIndex].y() != 0.0f) {
+                xAxis[1] = plane.y(xAxis.x(), xAxis.z());
+                yAxis[1] = plane.y(yAxis.x(), yAxis.z());
             } else {
-                xAxis.z = plane.z(xAxis.x, xAxis.y);
-                yAxis.z = plane.z(yAxis.x, yAxis.y);
+                xAxis[2] = plane.z(xAxis.x(), xAxis.y());
+                yAxis[2] = plane.z(yAxis.x(), yAxis.y());
             }
         }
 
@@ -205,8 +205,8 @@ namespace TrenchBroom {
             
             // calculate the current texture coordinates of the face's center
             curCenter = centerOfVertices(m_side->vertices);
-            curCenterTexCoords.x = (curCenter.dot(m_scaledTexAxisX)) + m_xOffset;
-            curCenterTexCoords.y = (curCenter.dot(m_scaledTexAxisY)) + m_yOffset;
+            curCenterTexCoords[0] = (curCenter.dot(m_scaledTexAxisX)) + m_xOffset;
+            curCenterTexCoords[1] = (curCenter.dot(m_scaledTexAxisY)) + m_yOffset;
             
             // invert the scale of the current texture axes
             newTexAxisX = m_texAxisX * m_xScale;
@@ -259,15 +259,15 @@ namespace TrenchBroom {
              */
             
             // project the transformed texture axes onto the new texture plane
-            if (BaseAxes[newPlanefNormIndex]->x != 0.0f) {
-                newTexAxisX.x = 0.0f;
-                newTexAxisY.x = 0.0f;
-            } else if (BaseAxes[newPlanefNormIndex]->y != 0.0f) {
-                newTexAxisX.y = 0.0f;
-                newTexAxisY.y = 0.0f;
+            if (BaseAxes[newPlanefNormIndex].x() != 0.0f) {
+                newTexAxisX[0] = 0.0f;
+                newTexAxisY[0] = 0.0f;
+            } else if (BaseAxes[newPlanefNormIndex].y() != 0.0f) {
+                newTexAxisX[1] = 0.0f;
+                newTexAxisY[1] = 0.0f;
             } else {
-                newTexAxisX.z = 0.0f;
-                newTexAxisY.z = 0.0f;
+                newTexAxisX[2] = 0.0f;
+                newTexAxisY[2] = 0.0f;
             }
             
             // the new scaling factors are the lengths of the transformed texture axes
@@ -282,13 +282,13 @@ namespace TrenchBroom {
             
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
             radX = acosf(newBaseAxisX.dot(newTexAxisX));
-            cross = newBaseAxisX.crossed(newTexAxisX);
-            if ((cross.dot(*BaseAxes[newPlanefNormIndex])) < 0.0f)
+            cross = crossed(newBaseAxisX, newTexAxisX);
+            if ((cross.dot(BaseAxes[newPlanefNormIndex])) < 0.0f)
                 radX *= -1.0f;
             
             radY = acosf(newBaseAxisY.dot(newTexAxisY));
-            cross = newBaseAxisY.crossed(newTexAxisY);
-            if ((cross.dot(*BaseAxes[newPlanefNormIndex])) < 0.0f)
+            cross = crossed(newBaseAxisY, newTexAxisY);
+            if ((cross.dot(BaseAxes[newPlanefNormIndex])) < 0.0f)
                 radY *= -1.0f;
             
             rad = radX;
@@ -316,13 +316,13 @@ namespace TrenchBroom {
             validateTexAxes(newFaceNorm);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            newCenterTexCoords.x = newCenter.dot(m_scaledTexAxisX);
-            newCenterTexCoords.y = newCenter.dot(m_scaledTexAxisY);
+            newCenterTexCoords[0] = newCenter.dot(m_scaledTexAxisX);
+            newCenterTexCoords[1] = newCenter.dot(m_scaledTexAxisY);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            m_xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
-            m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+            m_xOffset = curCenterTexCoords.x() - newCenterTexCoords.x();
+            m_yOffset = curCenterTexCoords.y() - newCenterTexCoords.y();
             
             if (m_texture != NULL) {
                 m_xOffset -= static_cast<int>(Math<float>::round(m_xOffset / static_cast<float>(m_texture->width()))) * static_cast<int>(m_texture->width());
@@ -458,9 +458,9 @@ namespace TrenchBroom {
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
                 msg << "Invalid face m_points "
-                << m_points[0].x << " " << m_points[0].y << " " << m_points[0].z << "; "
-                << m_points[1].x << " " << m_points[1].y << " " << m_points[1].z << "; "
-                << m_points[2].x << " " << m_points[2].y << " " << m_points[2].z
+                << m_points[0].asString() << "; "
+                << m_points[1].asString() << "; "
+                << m_points[2].asString()
                 << " for face with ID " << m_faceId;
                 throw GeometryException(msg);
             }
@@ -473,9 +473,9 @@ namespace TrenchBroom {
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
                 msg << "Invalid face m_points "
-                << m_points[0].x << " " << m_points[0].y << " " << m_points[0].z << "; "
-                << m_points[1].x << " " << m_points[1].y << " " << m_points[1].z << "; "
-                << m_points[2].x << " " << m_points[2].y << " " << m_points[2].z
+                << m_points[0].asString() << "; "
+                << m_points[1].asString() << "; "
+                << m_points[2].asString()
                 << " for face with ID " << m_faceId;
                 throw GeometryException(msg);
             }
@@ -519,12 +519,12 @@ namespace TrenchBroom {
             float* yOffset = NULL;
             
             // we prefer to use the texture axis which is closer to the XY plane for horizontal movement
-            if (Math<float>::lt(std::abs(texX.z), std::abs(texY.z))) {
+            if (Math<float>::lt(std::abs(texX.z()), std::abs(texY.z()))) {
                 hAxis = texX;
                 vAxis = texY;
                 xOffset = &m_xOffset;
                 yOffset = &m_yOffset;
-            } else if (Math<float>::lt(std::abs(texY.z), std::abs(texX.z))) {
+            } else if (Math<float>::lt(std::abs(texY.z()), std::abs(texX.z()))) {
                 hAxis = texY;
                 vAxis = texX;
                 xOffset = &m_yOffset;
@@ -655,9 +655,9 @@ namespace TrenchBroom {
                 compensateTransformation(t);
             }
             
-            m_boundary.rotate90(axis, center, clockwise);
+            m_boundary.rotate90(axis, clockwise, center);
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i].rotate90(axis, center, clockwise);
+                VecMath::rotate90(m_points[i], axis, clockwise, center);
             if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();
             
@@ -688,19 +688,19 @@ namespace TrenchBroom {
                 Vec3f d;
                 switch (axis) {
                     case Axis::AX:
-                        d = Vec3f(center.x, 0.0f, 0.0f);
+                        d = Vec3f(center.x(), 0.0f, 0.0f);
                         t.setIdentity();
                         t *= Mat4f::MirX;
                         t.translate(-1.0f * d);
                         break;
                     case Axis::AY:
-                        d = Vec3f(0.0f, center.y, 0.0f);
+                        d = Vec3f(0.0f, center.y(), 0.0f);
                         t.setIdentity();
                         t *= Mat4f::MirY;
                         t.translate(-1.0f * d);
                         break;
                     case Axis::AZ:
-                        d = Vec3f(0.0f, 0.0f, center.z);
+                        d = Vec3f(0.0f, 0.0f, center.z());
                         t.setIdentity();
                         t *= Mat4f::MirZ;
                         t.translate(-1.0f * d);
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             
             m_boundary.flip(axis, center);
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i].flip(axis, center);
+                VecMath::flip(m_points[i], axis, center);
             std::swap(m_points[1], m_points[2]);
             if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();

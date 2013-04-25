@@ -256,8 +256,8 @@ namespace TrenchBroom {
             
             inline Mat4<T>& setView(const Vec<T,3>& direction, const Vec<T,3>& up) {
                 const Vec<T,3>& f = direction;
-                const Vec<T,3> s = f.crossed(up);
-                const Vec<T,3> u = s.crossed(f);
+                const Vec<T,3> s = crossed(f, up);
+                const Vec<T,3> u = crossed(s, f);
                 
                 set( s[0],  s[1],  s[2], 0.0,
                      u[0],  u[1],  u[2], 0.0,

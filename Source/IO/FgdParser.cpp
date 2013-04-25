@@ -371,25 +371,26 @@ namespace TrenchBroom {
             return properties;
         }
 
-        BBoxf FgdParser::parseSize() {
-            BBoxf size;
+        Vec3f FgdParser::parseVector() {
             Token token;
-            expect(OParenthesis, token = m_tokenizer.nextToken());
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.x = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.y = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.z = token.toFloat();
+            Vec3f vec;
             
+            for (size_t i = 0; i < 3; i++) {
+                expect(Integer | Decimal, token = m_tokenizer.nextToken());
+                vec[i] = token.toFloat();
+            }
+            return vec;
+        }
+
+        BBoxf FgdParser::parseSize() {
+            Token token;
+            BBoxf size;
+
+            expect(OParenthesis, token = m_tokenizer.nextToken());
+            size.min = parseVector();
             expect(CParenthesis | Comma, token = m_tokenizer.nextToken());
             if (token.type() == Comma) {
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.x = token.toFloat();
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.y = token.toFloat();
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.z = token.toFloat();
+                size.max = parseVector();
                 expect(CParenthesis, token = m_tokenizer.nextToken());
             } else {
                 const Vec3f halfSize = size.min / 2.0f;

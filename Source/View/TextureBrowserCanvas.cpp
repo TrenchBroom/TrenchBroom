@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), scaledTextureWidth, scaledTextureHeight, actualSize.x, font.size() + 2.0f);
+                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), scaledTextureWidth, scaledTextureHeight, actualSize.x(), font.size() + 2.0f);
             }
         }
         

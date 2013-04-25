@@ -52,9 +52,9 @@ namespace TrenchBroom {
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
                 Vec3f mapCamDir = m_mapCamera.direction();
-                mapCamDir.z = 0.0f;
+                mapCamDir[2] = 0.0f;
                 mapCamDir.normalize();
-                const float camAngle = mapCamDir.angleFrom(Vec3f::PosX, Vec3f::PosZ);
+                const float camAngle = angleFrom(mapCamDir, Vec3f::PosX, Vec3f::PosZ);
                 const float size = 48.0f;
 
                 Vec3f dir(1.0f, 0.0f, -1.0f);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-                glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
+                glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
                 camera.update(0, 0, GetClientSize().x, GetClientSize().y);

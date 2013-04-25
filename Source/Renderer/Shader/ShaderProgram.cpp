@@ -147,7 +147,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniform2f(location, value.x, value.y);
+            glUniform2f(location, value.x(), value.y());
             return true;
         }
 
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniform3f(location, value.x, value.y, value.z);
+            glUniform3f(location, value.x(), value.y(), value.z());
             return true;
         }
 
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniform4f(location, value.x, value.y, value.z, value.w);
+            glUniform4f(location, value.x(), value.y(), value.z(), value.w());
             return true;
         }
 

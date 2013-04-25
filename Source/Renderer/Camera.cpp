@@ -57,9 +57,9 @@ namespace TrenchBroom {
                 m_right = Vec3f::NegY;
                 m_up = Vec3f::PosX;
             } else {
-                m_right = m_direction.crossed(Vec3f::PosZ);
+                m_right = crossed(m_direction, Vec3f::PosZ);
                 m_right.normalize();
-                m_up = m_right.crossed(m_direction);
+                m_up = crossed(m_right, m_direction);
                 m_up.normalize();
             }
         }
@@ -95,9 +95,9 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f win = m_matrix * point;
-            win.x = m_viewport.x + m_viewport.width  * (win.x + 1.0f) / 2.0f;
-            win.y = m_viewport.y + m_viewport.height * (win.y + 1.0f) / 2.0f;
-            win.z = (win.z + 1.0f) / 2.0f;
+            win[0] = m_viewport.x + m_viewport.width  * (win.x() + 1.0f) / 2.0f;
+            win[1] = m_viewport.y + m_viewport.height * (win.y() + 1.0f) / 2.0f;
+            win[2] = (win.z() + 1.0f) / 2.0f;
             return win;
         }
 
@@ -106,9 +106,9 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f normalized;
-            normalized.x = 2.0f * (x - m_viewport.x) / m_viewport.width  - 1.0f;
-            normalized.y = 2.0f * (m_viewport.height - y - m_viewport.y) / m_viewport.height - 1.0f;
-            normalized.z = 2.0f * depth - 1.0f;
+            normalized[0] = 2.0f * (x - m_viewport.x) / m_viewport.width  - 1.0f;
+            normalized[1] = 2.0f * (m_viewport.height - y - m_viewport.y) / m_viewport.height - 1.0f;
+            normalized[2] = 2.0f * depth - 1.0f;
             
             return m_invertedMatrix * normalized;
         }
@@ -118,9 +118,9 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f result = m_matrix * point;
-            result.x = m_viewport.width  * result.x / 2.0f;
-            result.y = m_viewport.height * result.y / 2.0f;
-            result.z = m_nearPlane + (m_farPlane - m_nearPlane) * (1.0f - result.z);
+            result[0] = m_viewport.width  * result.x() / 2.0f;
+            result[1] = m_viewport.height * result.y() / 2.0f;
+            result[2] = m_nearPlane + (m_farPlane - m_nearPlane) * (1.0f - result.z());
             
             return result;
         }
@@ -134,21 +134,21 @@ namespace TrenchBroom {
             Vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             if (fixUp) {
-                bbLook.z = 0.0f;
+                bbLook[2] = 0.0f;
                 if (bbLook.null()) {
                     bbLook = -m_up;
-                    bbLook.z = 0.0f;
+                    bbLook[2] = 0.0f;
                 }
                 bbLook.normalize();
                 bbUp = Vec3f::PosZ;
             } else {
                 bbUp = m_up;
             }
-            bbRight = bbUp.crossed(bbLook);
+            bbRight = crossed(bbUp, bbLook);
 
-            return Mat4f(bbRight.x,  bbUp.x,     bbLook.x,   0.0f,
-                         bbRight.y,  bbUp.y,     bbLook.y,   0.0f,
-                         bbRight.z,  bbUp.z,     bbLook.z,   0.0f,
+            return Mat4f(bbRight.x(),  bbUp.x(),     bbLook.x(),   0.0f,
+                         bbRight.y(),  bbUp.y(),     bbLook.y(),   0.0f,
+                         bbRight.z(),  bbUp.z(),     bbLook.z(),   0.0f,
                          0.0f,       0.0f,       0.0f,       1.0f);
         }
 
@@ -159,19 +159,19 @@ namespace TrenchBroom {
 
             Vec3f d = center + m_up * vFrustum - m_position;
             d.normalize();
-            top = Planef(m_right.crossed(d), m_position);
+            top = Planef(crossed(m_right, d), m_position);
             
             d = center + m_right * hFrustum - m_position;
             d.normalize();
-            right = Planef(d.crossed(m_up), m_position);
+            right = Planef(crossed(d, m_up), m_position);
             
             d = center - m_up * vFrustum - m_position;
             d.normalize();
-            bottom = Planef(d.crossed(m_right), m_position);
+            bottom = Planef(crossed(d, m_right), m_position);
             
             d = center - m_right * hFrustum - m_position;
             d.normalize();
-            left = Planef(m_up.crossed(d), m_position);
+            left = Planef(crossed(m_up, d), m_position);
         }
 
         float Camera::distanceTo(const Vec3f& point) const {
@@ -198,8 +198,8 @@ namespace TrenchBroom {
         
         void Camera::setDirection(Vec3f direction, Vec3f up) {
             m_direction = direction;
-            m_right = (m_direction.crossed(up)).normalized();
-            m_up = m_right.crossed(m_direction);
+            m_right = crossed(m_direction, up).normalized();
+            m_up = crossed(m_right, m_direction);
         }
         
         void Camera::rotate(float yawAngle, float pitchAngle) {
@@ -209,10 +209,10 @@ namespace TrenchBroom {
             Vec3f newDirection = rotation * m_direction;
             Vec3f newUp = rotation * m_up;
 
-            if (newUp.z < 0.0f) {
-                newUp.z = 0.0f;
-                newDirection.x = 0.0f;
-                newDirection.y = 0.0f;
+            if (newUp[2] < 0.0f) {
+                newUp[2] = 0.0f;
+                newDirection[0] = 0.0f;
+                newDirection[1] = 0.0f;
                 
                 newUp.normalize();
                 newDirection.normalize();
@@ -229,10 +229,10 @@ namespace TrenchBroom {
             Vec3f newUp = rotation * m_up;
             Vec3f offset = m_position - center;
             
-            if (newUp.z < 0.0f) {
-                newUp.z = 0.0f;
-                newDirection.x = 0.0f;
-                newDirection.y = 0.0f;
+            if (newUp[2] < 0.0f) {
+                newUp[2] = 0.0f;
+                newDirection[0] = 0.0f;
+                newDirection[1] = 0.0f;
                 
                 newUp.normalize();
                 newDirection.normalize();
@@ -241,7 +241,7 @@ namespace TrenchBroom {
                 float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction.dot(newDirection)));
                 float angle = acosf(cos);
                 if (!Math<float>::zero(angle)) {
-                    Vec3f axis = (m_direction.crossed(newDirection)).normalized();
+                    Vec3f axis = crossed(m_direction, newDirection).normalized();
                     rotation = Quatf(angle, axis);
                     offset = rotation * offset;
                     newUp = rotation * newUp;

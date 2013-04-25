@@ -181,36 +181,35 @@ namespace TrenchBroom {
             Token token;
             
             expect(OParenthesis, token = m_tokenizer.nextToken());
-            expect(Decimal | Integer, token = m_tokenizer.nextToken());
-            color.x = token.toFloat();
-            expect(Decimal | Integer, token = m_tokenizer.nextToken());
-            color.y = token.toFloat();
-            expect(Decimal | Integer, token = m_tokenizer.nextToken());
-            color.z = token.toFloat();
+            for (size_t i = 0; i < 3; i++) {
+                expect(Decimal | Integer, token = m_tokenizer.nextToken());
+                color[i] = token.toFloat();
+            }
             expect(CParenthesis, token = m_tokenizer.nextToken());
-            color.w = 1.0f;
+            color[4] = 1.0f;
             return color;
         }
 
+        Vec3f DefParser::parseVector() {
+            Vec3f vec;
+            Token token;
+
+            for (size_t i = 0; i < 3; i++) {
+                expect(Integer | Decimal, token = m_tokenizer.nextToken());
+                vec[i] = token.toFloat();
+            }
+            return vec;
+        }
+        
         BBoxf DefParser::parseBounds() {
             BBoxf bounds;
             Token token;
             
             expect(OParenthesis, token = m_tokenizer.nextToken());
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.min.x = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.min.y = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.min.z = token.toFloat();
+            bounds.min = parseVector();
             expect(CParenthesis, token = m_tokenizer.nextToken());
             expect(OParenthesis, token = m_tokenizer.nextToken());
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.max.x = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.max.y = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            bounds.max.z = token.toFloat();
+            bounds.max = parseVector();
             expect(CParenthesis, token = m_tokenizer.nextToken());
             return bounds;
         }

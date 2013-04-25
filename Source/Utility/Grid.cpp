@@ -77,34 +77,34 @@ namespace TrenchBroom {
         Vec3f Grid::snap(const Vec3f& p) const {
             if (!snap())
                 return p;
-            return Vec3f(snap(p.x), snap(p.y), snap(p.z));
+            return Vec3f(snap(p.x()), snap(p.y()), snap(p.z()));
         }
         
         Vec3f Grid::snapUp(const Vec3f& p, bool skip) const {
             if (!snap())
                 return p;
-            return Vec3f(snapUp(p.x, skip), snapUp(p.y, skip), snapUp(p.z, skip));
+            return Vec3f(snapUp(p.x(), skip), snapUp(p.y(), skip), snapUp(p.z(), skip));
         }
         
         Vec3f Grid::snapDown(const Vec3f& p, bool skip) const {
             if (!snap())
                 return p;
-            return Vec3f(snapDown(p.x, skip), snapDown(p.y, skip), snapDown(p.z, skip));
+            return Vec3f(snapDown(p.x(), skip), snapDown(p.y(), skip), snapDown(p.z(), skip));
         }
         
         Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d, bool skip) const {
             if (!snap())
                 return p;
             Vec3f result;
-            if (Math<float>::pos(d.x))      result.x = snapUp(p.x, skip);
-            else if(Math<float>::neg(d.x))  result.x = snapDown(p.x, skip);
-            else                            result.x = snap(p.x);
-            if (Math<float>::pos(d.y))      result.y = snapUp(p.y, skip);
-            else if(Math<float>::neg(d.y))  result.y = snapDown(p.y, skip);
-            else                            result.y = snap(p.y);
-            if (Math<float>::pos(d.z))      result.z = snapUp(p.z, skip);
-            else if(Math<float>::neg(d.z))  result.z = snapDown(p.z, skip);
-            else                            result.z = snap(p.z);
+            if (Math<float>::pos(d.x()))        result[0] = snapUp(p.x(), skip);
+            else if(Math<float>::neg(d.x()))    result[0] = snapDown(p.x(), skip);
+            else                                result[0] = snap(p.x());
+            if (Math<float>::pos(d.y()))        result[1] = snapUp(p.y(), skip);
+            else if(Math<float>::neg(d.y()))    result[1] = snapDown(p.y(), skip);
+            else                                result[1] = snap(p.y());
+            if (Math<float>::pos(d.z()))        result[2] = snapUp(p.z(), skip);
+            else if(Math<float>::neg(d.z()))    result[2] = snapDown(p.z(), skip);
+            else                                result[2] = snap(p.z());
             return result;
         }
 
@@ -118,19 +118,19 @@ namespace TrenchBroom {
             Vec3f result;
             switch(onPlane.normal.firstComponent()) {
                 case Axis::AX:
-                    result.y = snap(p.y);
-                    result.z = snap(p.z);
-                    result.x = onPlane.x(result.y, result.z);
+                    result[1] = snap(p.y());
+                    result[2] = snap(p.z());
+                    result[0] = onPlane.x(result.y(), result.z());
                     break;
                 case Axis::AY:
-                    result.x = snap(p.x);
-                    result.z = snap(p.z);
-                    result.y = onPlane.y(result.x, result.z);
+                    result[0] = snap(p.x());
+                    result[2] = snap(p.z());
+                    result[1] = onPlane.y(result.x(), result.z());
                     break;
                 case Axis::AZ:
-                    result.x = snap(p.x);
-                    result.y = snap(p.y);
-                    result.z = onPlane.z(result.x, result.y);
+                    result[0] = snap(p.x());
+                    result[1] = snap(p.y());
+                    result[2] = onPlane.z(result.x(), result.y());
                     break;
             }
             return result;
@@ -139,9 +139,8 @@ namespace TrenchBroom {
         float Grid::intersectWithRay(const Rayf& ray, unsigned int skip) const {
             Vec3f planeAnchor;
             
-            planeAnchor.x = ray.direction.x > 0 ? snapUp(ray.origin.x, true) + skip * actualSize() : snapDown(ray.origin.x, true) - skip * actualSize();
-            planeAnchor.y = ray.direction.y > 0 ? snapUp(ray.origin.y, true) + skip * actualSize() : snapDown(ray.origin.y, true) - skip * actualSize();
-            planeAnchor.z = ray.direction.z > 0 ? snapUp(ray.origin.z, true) + skip * actualSize() : snapDown(ray.origin.z, true) - skip * actualSize();
+            for (size_t i = 0; i < 3; i++)
+                planeAnchor[i] = ray.direction[i] > 0.0f ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
 
             Planef plane(Vec3f::PosX, planeAnchor);
             float distX = plane.intersectWithRay(ray);

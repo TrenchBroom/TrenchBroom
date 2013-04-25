@@ -183,9 +183,15 @@ namespace TrenchBroom {
                 v[0] = i_x;
                 v[1] = i_y;
                 v[2] = i_z;
-                v[3] = i_z;
+                v[3] = i_w;
                 for (size_t i = 4; i < S; i++)
                     v[i] = static_cast<T>(0.0);
+            }
+                    
+            Vec(const Vec<T,S-1>& vec, const T last) {
+                for (size_t i = 0; i < S-1; i++)
+                    v[i] = vec[i];
+                v[S-1] = last;
             }
                     
             Vec(const Vec<T,S>& right) {
@@ -498,17 +504,14 @@ namespace TrenchBroom {
 
         template <typename T>
         inline Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
-            const T xt = left[1] * right[2] - left[2] * right[1];
-            const T yt = left[2] * right[0] - left[0] * right[2];
-            left[2] = left[0] * right[1] - left[1] * right[0];
-            left[0] = xt;
-            left[1] = yt;
-            return left;
+            return left = crossed(left, right);
         }
         
         template <typename T>
         inline const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
-            return cross(Vec<T,3>(left), right);
+            return Vec<T,3>(left[1] * right[2] - left[2] * right[1],
+                            left[2] * right[0] - left[0] * right[2],
+                            left[0] * right[1] - left[1] * right[0]);
         }
         
         template <typename T>
@@ -519,98 +522,68 @@ namespace TrenchBroom {
                 return static_cast<T>(0.0);
             if (Math<T>::eq(cos, static_cast<T>(-1.0)))
                 return Math<T>::Pi;
-            const Vec<T,3> cross = vec.crossed(axis);
+            const Vec<T,3> cross = crossed(vec, axis);
             if (cross.dot(up) >= static_cast<T>(0.0))
                 return std::acos(cos);
             return static_cast<T>(2.0) * Math<T>::Pi - std::acos(cos);
         }
         
         template <typename T>
-        inline Vec<T,3>& rotate90(Vec<T,3>& vec, const Axis::Type axis, const bool clockwise) {
+        inline Vec<T,3>& rotate90(Vec<T,3>& vec, const Axis::Type axis, const bool clockwise, const Vec<T,3>& center = Vec<T,3>::Null) {
+            return vec = rotated90(vec, axis, clockwise, center);
+        }
+        
+        template <typename T>
+        inline const Vec<T,3> rotated90(const Vec<T,3>& vec, const Axis::Type axis, const bool clockwise, const Vec<T,3>& center = Vec<T,3>::Null) {
+            Vec<T,3> result = vec - center;
             switch (axis) {
                 case Axis::AX:
                     if (clockwise) {
-                        const T t = vec[1];
-                        vec[1] = vec[2];
-                        vec[2] = -t;
+                        const T t = result[1];
+                        result[1] = result[2];
+                        result[2] = -t;
                     } else {
-                        const T t = vec[1];
-                        vec[1] = -vec[2];
-                        vec[2] = t;
+                        const T t = result[1];
+                        result[1] = -result[2];
+                        result[2] = t;
                     }
                     break;
                 case Axis::AY:
                     if (clockwise) {
-                        const T t = vec[0];
-                        vec[0] = -vec[2];
-                        vec[2] = t;
+                        const T t = result[0];
+                        result[0] = -result[2];
+                        result[2] = t;
                     } else {
-                        const T t = vec[0];
-                        vec[0] = vec[2];
-                        vec[2] = -t;
+                        const T t = result[0];
+                        result[0] = result[2];
+                        result[2] = -t;
                     }
                     break;
                 default:
                     if (clockwise) {
-                        const T t = vec[0];
-                        vec[0] = vec[1];
-                        vec[1] = -t;
+                        const T t = result[0];
+                        result[0] = result[1];
+                        result[1] = -t;
                     } else {
-                        const T t = vec[0];
-                        vec[0] = -vec[1];
-                        vec[1] = t;
+                        const T t = result[0];
+                        result[0] = -result[1];
+                        result[1] = t;
                     }
                     break;
             }
-            return vec;
+            return result + center;
         }
         
         template <typename T>
-        inline Vec<T,3>& rotate90(Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) {
-            vec -= center;
-            rotate90(vec, axis, clockwise);
-            vec += center;
-            return vec;
+        inline Vec<T,3>& flip(Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center = Vec<T,3>::Null) {
+            return vec = flipped(vec, axis, center);
         }
         
         template <typename T>
-        inline const Vec<T,3> rotated90(const Vec<T,3>& vec, const Axis::Type axis, const bool clockwise) {
-            return rotate90(Vec<T,3>(vec), axis, clockwise);
-        }
-        
-        template <typename T>
-        inline const Vec<T,3> rotated90(const Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) {
+        inline const Vec<T,3> flipped(const Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center = Vec<T,3>::Null) {
             Vec<T,3> result = vec - center;
-            rotate90(result, axis, clockwise);
-            result += center;
-            return result;
-        }
-        
-        template <typename T>
-        inline Vec<T,3>& flip(Vec<T,3>& vec, const Axis::Type axis) {
-            vec[axis] = -vec[axis];
-            return vec;
-        }
-        
-        template <typename T>
-        inline Vec<T,3>& flip(Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center) {
-            vec -= center;
-            flip(vec, axis);
-            vec += center;
-            return vec;
-        }
-        
-        template <typename T>
-        inline const Vec<T,3> flipped(const Vec<T,3>& vec, const Axis::Type axis) {
-            return flip(Vec<T,3>(vec));
-        }
-        
-        template <typename T>
-        inline const Vec<T,3> flipped(const Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center) {
-            Vec<T,3> result = vec - center;
-            flip(result, axis);
-            result += center;
-            return result;
+            result[axis] = -result[axis];
+            return result + center;
         }
     }
 }

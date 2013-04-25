@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Mark mark;
 
             Vertex(float x, float y, float z) :
-            position(Vec3f(x,y,z))
+            position(Vec3f(x, y, z)),
             mark(New) {}
 
             Vertex() : mark(New) {}

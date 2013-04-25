@@ -224,11 +224,11 @@ namespace TrenchBroom {
             Model::Face& dragFace = hit->dragFace();
 
             const Vec3f& dragNormal = dragFace.boundary().normal;
-            Vec3f planeNormal = dragNormal.crossed(inputState.pickRay().direction);
+            Vec3f planeNormal = crossed(dragNormal, inputState.pickRay().direction);
             if (planeNormal.null())
                 return false;
 
-            planeNormal = dragNormal.crossed(planeNormal);
+            planeNormal = crossed(dragNormal, planeNormal);
             planeNormal.normalize();
             plane = Planef(planeNormal, hit->hitPoint());
 

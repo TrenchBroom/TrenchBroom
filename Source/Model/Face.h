@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 }
             };
         protected:
-            static const Vec3f* BaseAxes[18];
+            static const Vec3f BaseAxes[18];
 
             Brush* m_brush;
             Side* m_side;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
             inline void rotateTexAxes(Vec3f& xAxis, Vec3f& yAxis, const float angle, const unsigned int planeNormIndex) const {
                 // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-                Quatf rot(planeNormIndex == 12 ? -angle : angle, *BaseAxes[planeNormIndex]);
+                const Quatf rot(planeNormIndex == 12 ? -angle : angle, BaseAxes[planeNormIndex]);
                 xAxis = rot * xAxis;
                 yAxis = rot * yAxis;
             }

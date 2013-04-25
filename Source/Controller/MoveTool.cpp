@@ -78,7 +78,7 @@ namespace TrenchBroom {
             
             if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0) {
                 Vec3f planeNorm = inputState.pickRay().direction;
-                planeNorm.z = 0.0f;
+                planeNorm[2] = 0.0f;
                 planeNorm.normalize();
                 
                 if (planeNorm.null())
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             
             if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                 Vec3f planeNorm = inputState.pickRay().direction;
-                planeNorm.z = 0.0f;
+                planeNorm[2] = 0.0f;
                 planeNorm.normalize();
                 
                 plane = Planef(planeNorm, initialPoint);

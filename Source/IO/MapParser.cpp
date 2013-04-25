@@ -115,6 +115,17 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
         
+        Vec3f MapParser::parseVector() {
+            Token token;
+            Vec3f vec;
+            
+            for (size_t i = 0; i < 3; i++) {
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+                vec[i] = token.toFloat();
+            }
+            return vec;
+        }
+
         Model::Entity* MapParser::parseEntity(const BBoxf& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
@@ -268,28 +279,13 @@ namespace TrenchBroom {
                 return NULL;
             
             expect(TokenType::OParenthesis, token);
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.z = token.toFloat();
+            p1 = parseVector();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.z = token.toFloat();
+            p2 = parseVector();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.z = token.toFloat();
+            p3 = parseVector();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             
             expect(TokenType::String, token = m_tokenizer.nextToken());
@@ -332,7 +328,7 @@ namespace TrenchBroom {
             expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat();
             
-            if (((p3 - p1).crossed(p2 - p1)).null()) {
+            if (crossed(p3 - p1, p2 - 1).null()) {
                 m_console.warn("Skipping face with colinear points in line %i", token.line());
                 return NULL;
             }

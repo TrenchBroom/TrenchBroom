@@ -73,15 +73,15 @@ namespace TrenchBroom {
                     Vec3f view = m_position - origin;
                     view.normalize();
                     
-                    if (Math<float>::eq(std::abs(view.z), 1.0f)) {
+                    if (Math<float>::eq(std::abs(view.z()), 1.0f)) {
                         m_xAxis = Vec3f::PosX;
                         m_yAxis = Vec3f::PosY;
                     } else {
-                        m_xAxis = view.x > 0.0f ? Vec3f::NegX : Vec3f::PosX;
-                        m_yAxis = view.y > 0.0f ? Vec3f::NegY : Vec3f::PosY;
+                        m_xAxis = view.x() > 0.0f ? Vec3f::NegX : Vec3f::PosX;
+                        m_yAxis = view.y() > 0.0f ? Vec3f::NegY : Vec3f::PosY;
                     }
                     
-                    if (view.z >= 0.0f)
+                    if (view.z() >= 0.0f)
                         m_zAxis = Vec3f::NegZ;
                     else
                         m_zAxis = Vec3f::PosZ;

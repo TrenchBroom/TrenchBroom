@@ -176,6 +176,7 @@ namespace TrenchBroom {
             } else {
                 Center();
             }
+            Raise();
         }
 
         void EditorFrame::update(const Controller::Command& command) {
@@ -257,6 +258,8 @@ namespace TrenchBroom {
             }
 #endif
 
+            if (IsActive() && wxTheApp->GetTopWindow() != this)
+                wxTheApp->SetTopWindow(this);
             event.Skip();
         }
 

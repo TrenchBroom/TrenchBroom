@@ -39,14 +39,14 @@ namespace TrenchBroom {
             float ts, tt;
             
             FaceVertex(const Vec3f& position, const Vec3f& normal, const Vec2f& texCoord) :
-            px(position.x),
-            py(position.y),
-            pz(position.z),
-            nx(normal.x),
-            ny(normal.y),
-            nz(normal.z),
-            ts(texCoord.x),
-            tt(texCoord.y) {}
+            px(position.x()),
+            py(position.y()),
+            pz(position.z()),
+            nx(normal.x()),
+            ny(normal.y()),
+            nz(normal.z()),
+            ts(texCoord.x()),
+            tt(texCoord.y()) {}
             
             FaceVertex() {}
             

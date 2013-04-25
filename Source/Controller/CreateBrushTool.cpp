@@ -57,12 +57,9 @@ namespace TrenchBroom {
             m_bounds.min = grid.snapDown(m_bounds.min);
             m_bounds.max = grid.snapUp(m_bounds.max);
             
-            if (m_bounds.max.x <= m_bounds.min.x)
-                m_bounds.max.x = m_bounds.min.x + grid.actualSize();
-            if (m_bounds.max.y <= m_bounds.min.y)
-                m_bounds.max.y = m_bounds.min.y + grid.actualSize();
-            if (m_bounds.max.z <= m_bounds.min.z)
-                m_bounds.max.z = m_bounds.min.z + grid.actualSize();
+            for (size_t i = 0; i < 3; i++)
+                if (m_bounds.max[i] <= m_bounds.min[i])
+                    m_bounds.max[i] = m_bounds.min[i] + grid.actualSize();
         }
 
         void CreateBrushTool::handleModifierKeyChange(InputState& inputState) {
@@ -116,7 +113,7 @@ namespace TrenchBroom {
             
             if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                 Vec3f planeNorm = inputState.pickRay().direction;
-                planeNorm.z = 0.0f;
+                planeNorm[2] = 0.0f;
                 planeNorm.normalize();
                 plane = Planef(planeNorm, initialPoint);
             } else {

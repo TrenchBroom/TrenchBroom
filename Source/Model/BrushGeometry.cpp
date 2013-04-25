@@ -161,7 +161,7 @@ namespace TrenchBroom {
             if (Math<float>::isnan(dist))
                 return Math<float>::nan();
 
-            CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
+            const CoordinatePlane& cPlane = CoordinatePlane::plane(boundary.normal);
 
             const Vec3f hit = ray.pointAtDistance(dist);
             const Vec3f projectedHit = cPlane.swizzle(hit);
@@ -174,7 +174,8 @@ namespace TrenchBroom {
                 vertex = vertices[i];
                 Vec3f v1 = cPlane.swizzle(vertex->position) - projectedHit;
 
-                if ((Math<float>::zero(v0.x) && Math<float>::zero(v0.y)) || (Math<float>::zero(v1.x) && Math<float>::zero(v1.y))) {
+                if ((Math<float>::zero(v0.x()) && Math<float>::zero(v0.y())) ||
+                    (Math<float>::zero(v1.x()) && Math<float>::zero(v1.y()))) {
                     // the point is identical to a polygon vertex, cancel search
                     c = 1;
                     break;
@@ -195,15 +196,15 @@ namespace TrenchBroom {
                  */
 
                 // do the Y coordinates have different signs?
-                if ((v0.y > 0 && v1.y <= 0) || (v0.y <= 0 && v1.y > 0)) {
+                if ((v0.y() > 0.0f && v1.y() <= 0.0f) || (v0.y() <= 0.0f && v1.y() > 0.0f)) {
                     // Is segment entirely on the positive side of the X axis?
-                    if (v0.x > 0 && v1.x > 0) {
+                    if (v0.x() > 0.0f && v1.x() > 0.0f) {
                         c += 1; // edge intersects with the X axis
                         // if not, do the X coordinates have different signs?
-                    } else if ((v0.x > 0 && v1.x <= 0) || (v0.x <= 0 && v1.x > 0)) {
+                    } else if ((v0.x() > 0.0f && v1.x() <= 0.0f) || (v0.x() <= 0.0f && v1.x() > 0.0f)) {
                         // calculate the point of intersection between the edge
                         // and the X axis
-                        float x = -v0.y * (v1.x - v0.x) / (v1.y - v0.y) + v0.x;
+                        const float x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
                         if (x >= 0)
                             c += 1; // edge intersects with the X axis
                     }
@@ -387,7 +388,7 @@ namespace TrenchBroom {
 
                 edgeVector = edge->vector(this);
                 nextVector = next->vector(this);
-                cross = nextVector.crossed(edgeVector);
+                cross = crossed(nextVector, edgeVector);
                 if (!Math<float>::pos(cross.dot(face->boundary().normal)))
                     return true;
             }
@@ -1181,14 +1182,14 @@ namespace TrenchBroom {
         }
 
         BrushGeometry::BrushGeometry(const BBoxf& i_bounds) {
-            Vertex* lfd = new Vertex(i_bounds.min.x, i_bounds.min.y, i_bounds.min.z);
-            Vertex* lfu = new Vertex(i_bounds.min.x, i_bounds.min.y, i_bounds.max.z);
-            Vertex* lbd = new Vertex(i_bounds.min.x, i_bounds.max.y, i_bounds.min.z);
-            Vertex* lbu = new Vertex(i_bounds.min.x, i_bounds.max.y, i_bounds.max.z);
-            Vertex* rfd = new Vertex(i_bounds.max.x, i_bounds.min.y, i_bounds.min.z);
-            Vertex* rfu = new Vertex(i_bounds.max.x, i_bounds.min.y, i_bounds.max.z);
-            Vertex* rbd = new Vertex(i_bounds.max.x, i_bounds.max.y, i_bounds.min.z);
-            Vertex* rbu = new Vertex(i_bounds.max.x, i_bounds.max.y, i_bounds.max.z);
+            Vertex* lfd = new Vertex(i_bounds.min.x(), i_bounds.min.y(), i_bounds.min.z());
+            Vertex* lfu = new Vertex(i_bounds.min.x(), i_bounds.min.y(), i_bounds.max.z());
+            Vertex* lbd = new Vertex(i_bounds.min.x(), i_bounds.max.y(), i_bounds.min.z());
+            Vertex* lbu = new Vertex(i_bounds.min.x(), i_bounds.max.y(), i_bounds.max.z());
+            Vertex* rfd = new Vertex(i_bounds.max.x(), i_bounds.min.y(), i_bounds.min.z());
+            Vertex* rfu = new Vertex(i_bounds.max.x(), i_bounds.min.y(), i_bounds.max.z());
+            Vertex* rbd = new Vertex(i_bounds.max.x(), i_bounds.max.y(), i_bounds.min.z());
+            Vertex* rbu = new Vertex(i_bounds.max.x(), i_bounds.max.y(), i_bounds.max.z());
 
             Edge* lfdlbd = new Edge(lfd, lbd);
             Edge* lbdlbu = new Edge(lbd, lbu);
@@ -1504,10 +1505,10 @@ namespace TrenchBroom {
             VertexList::const_iterator vertexIt, vertexEnd;
             for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vertex& vertex = **vertexIt;
-                Vec3f start = vertex.position;
-                Vec3f end = Vec3f(snapTo * Math<float>::round(start.x / snapTo),
-                                  snapTo * Math<float>::round(start.y / snapTo),
-                                  snapTo * Math<float>::round(start.z / snapTo));
+                const Vec3f start = vertex.position;
+                Vec3f end;
+                for (size_t i = 0; i < 3; i++)
+                    end[i] = snapTo * Math<float>::round(start[i] / snapTo);
 
                 if (!start.equals(end, 0.0f))
                     positions[start] = end;

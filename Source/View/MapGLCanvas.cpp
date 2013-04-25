@@ -176,7 +176,7 @@ namespace TrenchBroom {
 
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
+				glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				glDisableClientState(GL_VERTEX_ARRAY);

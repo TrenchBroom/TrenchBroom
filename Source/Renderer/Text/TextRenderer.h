@@ -62,13 +62,13 @@ namespace TrenchBroom {
                     const Alignment::Type a = alignment();
                     Vec2f factors;
                     if ((a & Alignment::Left))
-                        factors.x = +0.5f;
+                        factors[0] = +0.5f;
                     else if ((a & Alignment::Right))
-                        factors.x = -0.5f;
+                        factors[0] = -0.5f;
                     if ((a & Alignment::Top))
-                        factors.y = -0.5f;
+                        factors[1] = -0.5f;
                     else if ((a & Alignment::Bottom))
-                        factors.y = +0.5f;
+                        factors[1] = +0.5f;
                     return factors;
                 }
             public:
@@ -78,13 +78,11 @@ namespace TrenchBroom {
                     const Vec2f halfSize = size / 2.0f;
                     const Vec2f factors = alignmentFactors();
                     Vec3f offset = camera.project(basePosition());
-
-                    offset.x += factors.x * size.x;
-                    offset.y += factors.y * size.y;
-                    offset.x -= halfSize.x;
-                    offset.y -= halfSize.y;
-                    offset.x = Math<float>::round(offset.x);
-                    offset.y = Math<float>::round(offset.y);
+                    for (size_t i = 0; i < 2; i++) {
+                        offset[i] += factors[i] * size[i];
+                        offset[i] -= halfSize[i];
+                        offset[i] = Math<float>::round(offset[i]);
+                    }
                     return offset;
                 }
 
@@ -296,16 +294,16 @@ namespace TrenchBroom {
                             const Vec2f& vertex = textVertices[2 * j];
                             const Vec2f& texCoords = textVertices[2 * j + 1];
 
-                            textArray.addAttribute(Vec3f(vertex.x + offset.x, vertex.y + offset.y, -offset.z));
+                            textArray.addAttribute(Vec3f(vertex.x() + offset.x(), vertex.y() + offset.y(), -offset.z()));
                             textArray.addAttribute(texCoords);
                         }
 
                         Vec2f::List rectVertices;
                         rectVertices.reserve(3 * 16);
-                        roundedRect(size.x + 2.0f * m_hInset, size.y + 2.0f * m_vInset, 3.0f, 3, rectVertices);
+                        roundedRect(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3, rectVertices);
                         for (size_t j = 0; j < rectVertices.size(); j++) {
                             const Vec2f& vertex = rectVertices[j];
-                            rectArray.addAttribute(Vec3f(vertex.x + offset.x + size.x / 2.0f, vertex.y + offset.y + size.y / 2.0f, -offset.z));
+                            rectArray.addAttribute(Vec3f(vertex.x() + offset.x() + size.x() / 2.0f, vertex.y() + offset.y() + size.y() / 2.0f, -offset.z()));
                         }
                     }
 

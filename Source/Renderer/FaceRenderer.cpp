@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
-            if (m_vertexArrays.empty())
+            if (m_vertexArrays.empty() && m_transparentVertexArrays.empty())
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -113,6 +113,7 @@ namespace TrenchBroom {
                         textureVertexArray.texture->deactivate();
                 }
 
+                glDepthMask(GL_FALSE);
                 faceProgram.setUniformVariable("Alpha", 0.4f);
                 for (size_t i = 0; i < m_transparentVertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_transparentVertexArrays[i];
@@ -131,6 +132,7 @@ namespace TrenchBroom {
                     if (textureVertexArray.texture != NULL)
                         textureVertexArray.texture->deactivate();
                 }
+                glDepthMask(GL_TRUE);
                 faceProgram.deactivate();
             }
         }

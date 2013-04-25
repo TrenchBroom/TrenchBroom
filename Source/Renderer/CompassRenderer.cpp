@@ -65,26 +65,27 @@ namespace TrenchBroom {
                 Vec3f::List shaftVertices, shaftNormals;
                 Vec3f::List topCapVertices, topCapNormals;
                 Vec3f::List bottomCapVertices, bottomCapNormals;
+                const Vec3f offset(0.0f, 0.0f, m_shaftLength / 2.0f);
 
                 cylinder(m_shaftLength, m_shaftRadius, m_segments, shaftVertices, shaftNormals);
                 for (size_t i = 0; i < shaftVertices.size(); i++)
-                    shaftVertices[i].z -= m_shaftLength / 2.0f;
+                    shaftVertices[i] -= offset;
 
                 cone(m_headLength, m_headRadius, m_segments, headVertices, headNormals);
                 for (size_t i = 0; i < headVertices.size(); i++)
-                    headVertices[i].z += m_shaftLength / 2.0f;
+                    headVertices[i] += offset;
 
                 circle(m_headRadius, m_segments, topCapVertices, topCapNormals);
                 topCapVertices = Mat4f::Rot180X * topCapVertices;
                 topCapNormals = Mat4f::Rot180X * topCapNormals;
                 for (size_t i = 0; i < topCapVertices.size(); i++)
-                    topCapVertices[i].z += m_shaftLength / 2.0f;
+                    topCapVertices[i] += offset;
 
                 circle(m_shaftRadius, m_segments, bottomCapVertices, bottomCapNormals);
                 bottomCapVertices = Mat4f::Rot180X * bottomCapVertices;
                 bottomCapNormals = Mat4f::Rot180X * bottomCapNormals;
                 for (size_t i = 0; i < bottomCapVertices.size(); i++)
-                    bottomCapVertices[i].z -= m_shaftLength / 2.0f;
+                    bottomCapVertices[i] -= offset;
 
                 m_strip = new VertexArray(vbo, GL_TRIANGLE_STRIP, static_cast<unsigned int>(shaftVertices.size()),
                                           Attribute::position3f(),

@@ -52,7 +52,7 @@ namespace TrenchBroom {
             float m_errors[9];
 
             inline float error(const Vec2f& point) {
-                const float z = m_plane.z(point.x, point.y);
+                const float z = m_plane.z(point.x(), point.y());
                 return std::abs(z - Math<float>::round(z));
             }
 
@@ -269,10 +269,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                return Vec3f(globalMinimumPosition.x,
-                             globalMinimumPosition.y,
-                             Math<float>::round(m_plane.z(globalMinimumPosition.x,
-                                                   globalMinimumPosition.y)));
+                return Vec3f(globalMinimumPosition.x(),
+                             globalMinimumPosition.y(),
+                             Math<float>::round(m_plane.z(globalMinimumPosition.x(),
+                                                   globalMinimumPosition.y())));
             }
         public:
             SearchCursor(const Planef& plane, const float frequency) :
@@ -280,8 +280,8 @@ namespace TrenchBroom {
             m_frequency(frequency) {}
 
             inline const Vec3f findMinimum(const Vec3f& initialPosition) {
-                m_position.x = Math<float>::round(initialPosition.x);
-                m_position.y = Math<float>::round(initialPosition.y);
+                m_position[0] = Math<float>::round(initialPosition.x());
+                m_position[1] = Math<float>::round(initialPosition.y());
                 return doFindMinimum();
             }
         };
@@ -311,7 +311,7 @@ namespace TrenchBroom {
                     numPoints++;
                 }
                 if (numPoints == 2) {
-                    const Vec3f dir = (points[1] - points[0]).crossed(plane.normal);
+                    const Vec3f dir = crossed(points[1] - points[0], plane.normal);
                     points[3] = dir * 128.0f * 128.0f / dir.lengthSquared();
                 }
             }
@@ -337,7 +337,7 @@ namespace TrenchBroom {
                 const Axis::Type axis = plane.normal.firstComponent();
                 switch (axis) {
                     case Axis::AX:
-                        if (plane.normal.x > 0.0f) {
+                        if (plane.normal.x() > 0.0f) {
                             points[1] = points[0] + 64.0f * Vec3f::PosZ;
                             points[2] = points[0] + 64.0f * Vec3f::PosY;
                         } else {
@@ -346,7 +346,7 @@ namespace TrenchBroom {
                         }
                         break;
                     case Axis::AY:
-                        if (plane.normal.y > 0.0f) {
+                        if (plane.normal.y() > 0.0f) {
                             points[1] = points[0] + 64.0f * Vec3f::PosX;
                             points[2] = points[0] + 64.0f * Vec3f::PosZ;
                         } else {
@@ -355,7 +355,7 @@ namespace TrenchBroom {
                         }
                         break;
                     default:
-                        if  (plane.normal.z > 0.0f) {
+                        if  (plane.normal.z() > 0.0f) {
                             points[1] = points[0] + 64.0f * Vec3f::PosY;
                             points[2] = points[0] + 64.0f * Vec3f::PosX;
                         } else {
@@ -401,8 +401,8 @@ namespace TrenchBroom {
                         count++;
                     } while (Math<float>::isnan(cos) || std::abs(cos) > 0.9f);
 
-                    v1.cross(v2);
-                    if ((v1.z > 0.0f) != (swizzledPlane.normal.z > 0.0f))
+                    cross(v1, v2);
+                    if ((v1.z() > 0.0f) != (swizzledPlane.normal.z() > 0.0f))
                         std::swap(points[0], points[2]);
 
                     for (unsigned int i = 0; i < 3; i++)
