@@ -32,7 +32,7 @@ namespace TrenchBroom {
         Color(const std::string& str) : Vec4f(str) {}
         explicit Color(float x, float y, float z, float w = 1.0f) : Vec4f(x, y, z, w) {}
         explicit Color(int x, int y, int z, int w = 0xFF) : Vec4f(static_cast<float>(x) / 255.0f, static_cast<float>(y) / 255.0f, static_cast<float>(z) / 255.0f, static_cast<float>(w) / 255.0f) {}
-        Color(const Color& color, float w) : Vec4f(color, w) {}
+        Color(const Color& color, float w) : Vec4f(color.x(), color.y(), color.z(), w) {}
         
         inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {
             assert(r >= 0.0f && r <= 1.0f);
@@ -135,25 +135,21 @@ namespace TrenchBroom {
             VecMath::Vec3f rgb(r, g, b);
             VecMath::Vec3f yiq = VecMath::Mat3f::RGBToYIQ * rgb;
             
-            y = yiq.x;
-            i = yiq.y;
-            q = yiq.z;
+            y = yiq.x();
+            i = yiq.y();
+            q = yiq.z();
         }
         
-        inline Color& mix(const Color& other, float f) {
+        inline Color& mix(const Color& other, const float f) {
             const float c = std::max(0.0f, std::min(1.0f, f));
             const float d = 1.0f - c;
-            x = d * x + c * other.x;
-            y = d * y + c * other.x;
-            z = d * z + c * other.x;
-            w = d * w + c * other.x;
+            for (size_t i = 0; i < 4; i++)
+                v[i] = d*v[i] + c*other[i];
             return *this;
         }
     
-        inline const Color mixed(const Color& other, float f) const {
-            Color result = *this;
-            result.mix(other, f);
-            return result;
+        inline const Color mixed(const Color& other, const float f) const {
+            return Color(*this).mix(other, f);
         }
     };
 }

@@ -114,9 +114,7 @@ namespace TrenchBroom {
             }
             
             inline  const Vec<T,3> center() const {
-                return Vec<T,3>((max.x + min.x) / static_cast<T>(2.0),
-                               (max.y + min.y) / static_cast<T>(2.0),
-                               (max.z + min.z) / static_cast<T>(2.0));
+                return (min + max) / static_cast<T>(2.0);
             }
             
             inline const Vec<T,3> size() const {
@@ -207,78 +205,88 @@ namespace TrenchBroom {
             
             inline bool intersects(const BBox<T>& bounds) const {
                 for (size_t i = 0; i < 3; i++)
-                    if (bounds.min[i] < min[i] || bounds.)
-                
-                return ((((bounds.min.x >= min.x && bounds.min.x <= max.x) || (bounds.max.x >= min.x && bounds.max.x <= max.x)) || (bounds.min.x <= min.x && bounds.max.x >= max.x)) &&
-                        (((bounds.min.y >= min.y && bounds.min.y <= max.y) || (bounds.max.y >= min.y && bounds.max.y <= max.y)) || (bounds.min.y <= min.y && bounds.max.y >= max.y)) &&
-                        (((bounds.min.z >= min.z && bounds.min.z <= max.z) || (bounds.max.z >= min.z && bounds.max.z <= max.z)) || (bounds.min.z <= min.z && bounds.max.z >= max.z)));
+                    if (bounds.max[i] < min[i] || bounds.min[i] > max[i])
+                        return false;
+                return true;
                 
             }
             
             T intersectWithRay(const Ray<T>& ray, Vec<T,3>* sideNormal) const {
                 const bool inside = contains(ray.origin);
                 
-                if (ray.direction.x < 0) {
+                if (ray.direction.x() < 0) {
                     const Plane<T> plane(Vec<T,3>::PosX, inside ? min : max);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::NegX : Vec<T,3>::PosX;
+                        if (Math<T>::between(point.y(), min.y(), max.y()) &&
+                            Math<T>::between(point.z(), min.z(), max.z())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::NegX : Vec<T,3>::PosX;
                             return distance;
                         }
                     }
-                } else if (ray.direction.x > 0) {
+                } else if (ray.direction.x() > 0) {
                     const Plane<T> plane(Vec<T,3>::NegX, inside ? max : min);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::PosX : Vec<T,3>::NegX;
+                        if (Math<T>::between(point.y(), min.y(), max.y()) &&
+                            Math<T>::between(point.z(), min.z(), max.z())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::PosX : Vec<T,3>::NegX;
                             return distance;
                         }
                     }
                 }
                 
-                if (ray.direction.y < 0) {
+                if (ray.direction.y() < 0) {
                     const Plane<T> plane(Vec<T,3>::PosY, inside ? min : max);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::NegY : Vec<T,3>::PosY;
+                        if (Math<T>::between(point.x(), min.x(), max.x()) &&
+                            Math<T>::between(point.z(), min.z(), max.z())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::NegY : Vec<T,3>::PosY;
                             return distance;
                         }
                     }
-                } else if (ray.direction.y > 0) {
+                } else if (ray.direction.y() > 0) {
                     const Plane<T> plane(Vec<T,3>::NegY, inside ? max : min);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::PosY : Vec<T,3>::NegY;
+                        if (Math<T>::between(point.x(), min.x(), max.x()) &&
+                            Math<T>::between(point.z(), min.z(), max.z())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::PosY : Vec<T,3>::NegY;
                             return distance;
                         }
                     }
                 }
                 
-                if (ray.direction.z < 0) {
+                if (ray.direction.z() < 0) {
                     const Plane<T> plane(Vec<T,3>::PosZ, inside ? min : max);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
+                        if (Math<T>::between(point.x(), min.x(), max.x()) &&
+                            Math<T>::between(point.y(), min.y(), max.y())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
                             return distance;
                         }
                     }
-                } else if (ray.direction.z > 0) {
+                } else if (ray.direction.z() > 0) {
                     const Plane<T> plane(Vec<T,3>::NegZ, inside ? max : min);
                     const T distance = plane.intersectWithRay(ray);
                     if (!Math<T>::isnan(distance)) {
                         const Vec<T,3> point = ray.pointAtDistance(distance);
-                        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                            if (sideNormal != NULL) *sideNormal = inside ? Vec<T,3>::PosZ : Vec<T,3>::NegZ;
+                        if (Math<T>::between(point.x(), min.x(), max.x()) &&
+                            Math<T>::between(point.y(), min.y(), max.y())) {
+                            if (sideNormal != NULL)
+                                *sideNormal = inside ? Vec<T,3>::PosZ : Vec<T,3>::NegZ;
                             return distance;
                         }
                     }
@@ -298,12 +306,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> translated(const Vec<T,3>& delta) const {
-                return BBox<T>(min.x + delta.x,
-                               min.y + delta.y,
-                               min.z + delta.z,
-                               max.x + delta.x,
-                               max.y + delta.y,
-                               max.z + delta.z);
+                return BBox<T>(*this).translate(delta);
             }
             
             inline BBox<T>& rotate90(const Axis::Type axis, const bool clockwise) {
@@ -314,9 +317,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> rotated90(const Axis::Type axis, const bool clockwise) const {
-                BBox<T> result = *this;
-                result.rotate90(axis, clockwise);
-                return result;
+                return BBox<T>(*this).rotate90(axis, clockwise);
             }
             
             inline BBox<T>& rotate90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) {
@@ -327,14 +328,11 @@ namespace TrenchBroom {
             }
             
             inline  const BBox<T> rotated90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) const {
-                BBox<T> result = *this;
-                result.rotate90(axis, center, clockwise);
-                return result;
+                return BBox<T>(*this).rotate90(axis, center, clockwise);
             }
             
             inline BBox<T>& rotate(const Quat<T>& rotation) {
-                *this = rotated(rotation);
-                return *this;
+                return *this = rotated(rotation);
             }
             
             inline const BBox<T> rotated(const Quat<T>& rotation) const {
@@ -351,8 +349,7 @@ namespace TrenchBroom {
             }
             
             inline BBox<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
-                *this = rotated(rotation, center);
-                return *this;
+                return *this = rotated(rotation, center);
             }
             
             inline const BBox<T> rotated(const Quat<T>& rotation, const Vec<T,3>& center) const {
@@ -369,7 +366,12 @@ namespace TrenchBroom {
             }
             
             BBox<T>& transform(const Mat4f& transformation) {
-                min = max = transformation * vertex(false, false, false);
+                return *this = transformed(transformation);
+            }
+            
+            const BBox<T> transformed(const Mat4f& transformation) const {
+                BBox<T> result;
+                result.min = result.max = transformation * vertex(false, false, false);
                 mergeWith(transformation * vertex(false, false, true ));
                 mergeWith(transformation * vertex(false, true , false));
                 mergeWith(transformation * vertex(false, true , true ));
@@ -377,12 +379,7 @@ namespace TrenchBroom {
                 mergeWith(transformation * vertex(true , false, true ));
                 mergeWith(transformation * vertex(true , true , false));
                 mergeWith(transformation * vertex(true , true , true ));
-                return *this;
-            }
-            
-            const BBox<T> transformed(const Mat4f& transformation) const {
-                BBox<T> result = *this;
-                return result.transform(transformation);
+                return result;
             }
             
             inline BBox<T>& flip(const Axis::Type axis) {
@@ -393,9 +390,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> flipped(const Axis::Type axis) const {
-                BBox<T> result = *this;
-                result.flip(axis);
-                return result;
+                return BBox<T>(*this).flip(axis);
             }
             
             inline BBox<T>& flip(const Axis::Type axis, const Vec<T,3>& center) {
@@ -406,9 +401,7 @@ namespace TrenchBroom {
             }
             
             inline const BBox<T> flipped(const Axis::Type axis, const Vec<T,3>& center) const {
-                BBox<T> result = *this;
-                result.flip(axis, center);
-                return result;
+                return BBox<T>(*this).flip(axis, center);
             }
             
             inline BBox<T>& expand(const T f) {
@@ -430,7 +423,7 @@ namespace TrenchBroom {
             
             inline const PointPosition pointPosition(const Vec<T,3>& point) const {
                 typename PointPosition::Position p[3];
-                for (unsigned int i = 0; i < 3; i++) {
+                for (size_t i = 0; i < 3; i++) {
                     if (point[i] < min[i])
                         p[i] = PointPosition::Less;
                     else if (point[i] > max[i])
