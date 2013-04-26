@@ -150,8 +150,7 @@ namespace TrenchBroom {
             void validateTexAxes(const Vec3f& faceNormal) const;
             void validateVertexCache() const;
 
-            void projectOntoTexturePlanef(Vec3f& xAxis, Vec3f& yAxis);
-
+            void projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis);
             void compensateTransformation(const Mat4f& transformation);
         public:
             Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
@@ -253,12 +252,14 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            void correctFacePoints();
+            
             inline bool forceIntegerFacePoints() const {
                 return m_forceIntegerFacePoints;
             }
 
             void setForceIntegerFacePoints(bool forceIntegerFacePoints);
-
+            
             /**
              * Returns the vertices of this face in clockwise order.
              */
