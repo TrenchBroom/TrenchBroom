@@ -22,10 +22,10 @@
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/Command.h"
 #include "Controller/CreateEntityFromMenuHelper.h"
-#include "Controller/MoveObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Controller/CameraTool.h"
 #include "Controller/ClipTool.h"
 #include "Controller/CreateBrushTool.h"
@@ -424,9 +424,7 @@ namespace TrenchBroom {
                 case Controller::Command::SetEntityPropertyValue:
                 case Controller::Command::RemoveEntityProperty:
                 case Controller::Command::SnapVertices:
-                case Controller::Command::MoveObjects:
-                case Controller::Command::RotateObjects:
-                case Controller::Command::FlipObjects:
+                case Controller::Command::TransformObjects:
                 case Controller::Command::ResizeBrushes:
                 case Controller::Command::ReparentBrushes:
                 case Controller::Command::SetMod:
@@ -574,7 +572,7 @@ namespace TrenchBroom {
                 ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
                 AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
                 ChangeEditStateCommand* selectEntity = ChangeEditStateCommand::select(document, *entity);
-                MoveObjectsCommand* moveEntity = MoveObjectsCommand::moveEntity(document, *entity, delta, document.textureLock());
+                TransformObjectsCommand* moveEntity = TransformObjectsCommand::translateEntity(document, *entity, delta);
 
                 CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
                 document.GetCommandProcessor()->Submit(deselectAll);

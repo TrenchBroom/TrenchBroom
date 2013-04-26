@@ -163,9 +163,7 @@ namespace TrenchBroom {
                 case Controller::Command::SetEntityPropertyKey:
                 case Controller::Command::SetEntityPropertyValue:
                 case Controller::Command::RemoveEntityProperty:
-                case Controller::Command::MoveObjects:
-                case Controller::Command::RotateObjects:
-                case Controller::Command::FlipObjects:
+                case Controller::Command::TransformObjects:
                 case Controller::Command::ReparentBrushes:
                     updateProperties();
                     updateSmartEditor();

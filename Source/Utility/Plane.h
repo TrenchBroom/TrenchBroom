@@ -138,25 +138,17 @@ namespace TrenchBroom {
             inline bool equals(const Plane<T>& other, const T epsilon = Math<T>::AlmostZero) const {
                 return normal.equals(other.normal, epsilon) && std::abs(distance - other.distance) < epsilon;
             }
-            
-            inline Plane<T>& translate(const Vec<T,3>& delta) {
-                distance = (anchor() + delta).dot(normal);
-                return *this;
-            }
-            
-            inline const Plane<T> translated(const Vec<T,3>& delta) const {
-                return Plane<T>(normal, (anchor() + delta).dot(normal));
-            }
-            
-            inline Plane<T>& rotate90(const Axis::Type axis, const bool clockwise, const Vec<T,3>& center) {
+                    
+            inline Plane<T>& transform(const Mat4f& pointTransform, const Mat4f& vectorTransform) {
                 const Vec<T,3> oldAnchor = anchor();
-                VecMath::rotate90(normal, axis, clockwise);
-                distance = VecMath::rotated90(oldAnchor, axis, clockwise, center).dot(normal);
+                normal = vectorTransform * normal;
+                normal.normalize();
+                distance = (pointTransform * oldAnchor).dot(normal);
                 return *this;
             }
-            
-            inline const Plane<T> rotated90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) const {
-                return Plane<T>(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
+                    
+            inline Plane<T> transformed(const Mat4f& pointTransform, const Mat4f& vectorTransform) const {
+                return Plane<T>(*this).transform(pointTransform, vectorTransform);
             }
             
             inline Plane<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
@@ -169,18 +161,6 @@ namespace TrenchBroom {
             inline const Plane<T> rotated(const Quat<T>& rotation, const Vec<T,3>& center) const {
                 const Vec<T,3> oldAnchor = anchor();
                 return Plane(rotation * normal, rotation * (oldAnchor - center) + center);
-            }
-            
-            inline Plane& flip(const Axis::Type axis, const Vec<T,3>& center) {
-                const Vec<T,3> oldAnchor = anchor();
-                VecMath::flip(normal, axis);
-                distance = VecMath::flipped(oldAnchor, axis, center).dot(normal);
-                return *this;
-            }
-            
-            inline const Plane<T> flipped(const Axis::Type axis, const Vec<T,3>& center) const {
-                const Vec<T,3> oldAnchor = anchor();
-                return Plane(VecMath::flipped(normal, axis), oldAnchor.flip(axis, center));
             }
             
             inline Vec<T,3> project(const Vec<T,3>& v) const {

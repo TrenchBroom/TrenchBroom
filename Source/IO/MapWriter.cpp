@@ -39,15 +39,15 @@ namespace TrenchBroom {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
             std::fprintf(stream, FaceFormat.c_str(),
-                    face.point(0).x,
-                    face.point(0).y,
-                    face.point(0).z,
-                    face.point(1).x,
-                    face.point(1).y,
-                    face.point(1).z,
-                    face.point(2).x,
-                    face.point(2).y,
-                    face.point(2).z,
+                    face.point(0).x(),
+                    face.point(0).y(),
+                    face.point(0).z(),
+                    face.point(1).x(),
+                    face.point(1).y(),
+                    face.point(1).z(),
+                    face.point(2).x(),
+                    face.point(2).y(),
+                    face.point(2).z(),
                     textureName.c_str(),
                     face.xOffset(),
                     face.yOffset(),
@@ -105,17 +105,17 @@ namespace TrenchBroom {
             stream.precision(FloatPrecision);
             stream <<
             "( " <<
-            face.point(0).x << " " <<
-            face.point(0).y << " " <<
-            face.point(0).z <<
-            " ) ( "         <<
-            face.point(1).x << " " <<
-            face.point(1).y << " " <<
-            face.point(1).z <<
-            " ) ( "         <<
-            face.point(2).x << " " <<
-            face.point(2).y << " " <<
-            face.point(2).z <<
+            face.point(0).x() << " " <<
+            face.point(0).y() << " " <<
+            face.point(0).z() <<
+            " ) ( "           <<
+            face.point(1).x() << " " <<
+            face.point(1).y() << " " <<
+            face.point(1).z() <<
+            " ) ( "           <<
+            face.point(2).x() << " " <<
+            face.point(2).y() << " " <<
+            face.point(2).z() <<
             " ) ";
 
             stream.precision(6);

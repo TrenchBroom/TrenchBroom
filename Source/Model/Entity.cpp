@@ -170,14 +170,11 @@ namespace TrenchBroom {
             return RotationInfo(type, property);
         }
 
-        void Entity::applyRotation(const Quatf& rotation) {
+        void Entity::applyRotation(const Mat4f& rotation) {
             const RotationInfo info = rotationInfo();
             
             switch (info.type) {
                 case RTZAngle: {
-                    if (rotation.v.firstComponent() != Axis::AZ)
-                        return;
-                    
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     
@@ -196,9 +193,6 @@ namespace TrenchBroom {
                     break;
                 }
                 case RTZAngleWithUpDown: {
-                    if (rotation.v.firstComponent() != Axis::AZ)
-                        return;
-
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
 
@@ -211,6 +205,9 @@ namespace TrenchBroom {
                         direction[0] = std::cos(Math<float>::radians(angle));
                         direction[1] = std::sin(Math<float>::radians(angle));
                     }
+
+                    direction = rotation * direction;
+                    direction.normalize();
 
                     if (direction.z() > 0.9f) {
                         setProperty(info.property, -1.0f, true);
@@ -239,6 +236,7 @@ namespace TrenchBroom {
                     
                     direction = zRotation * yRotation * direction;
                     direction = rotation * direction;
+                    direction.normalize();
                     
                     float zAngle, xAngle;
                     
@@ -675,118 +673,12 @@ namespace TrenchBroom {
             return MapObject::setEditState(editState);
         }
 
-        void Entity::translate(const Vec3f& delta, bool lockTextures) {
-            if (delta.null())
-                return;
-            
-            Vec3f newOrigin = origin() + delta;
+        void Entity::transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation) {
+            Vec3f newOrigin = pointTransform * origin();
             setProperty(OriginKey, newOrigin, true);
+            applyRotation(vectorTransform);
             invalidateGeometry();
-        }
-
-        void Entity::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = rotated90(center(), axis, clockwise, rotationCenter);
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-
-            Quatf rotation;
-            switch (axis) {
-                case Axis::AX:
-                    rotation = clockwise ? Quatf(-Math<float>::Pi / 2.0f, Vec3f::PosX) : Quatf(Math<float>::Pi / 2.0f, Vec3f::PosX);
-                    break;
-                case Axis::AY:
-                    rotation = clockwise ? Quatf(-Math<float>::Pi / 2.0f, Vec3f::PosY) : Quatf(Math<float>::Pi / 2.0f, Vec3f::PosY);
-                    break;
-                default:
-                    rotation = clockwise ? Quatf(-Math<float>::Pi / 2.0f, Vec3f::PosZ) : Quatf(Math<float>::Pi / 2.0f, Vec3f::PosZ);
-                    break;
-            }
             
-            applyRotation(rotation);
-            invalidateGeometry();
-        }
-
-        void Entity::rotate(const Quatf& rotation, const Vec3f& rotationCenter, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-            
-            applyRotation(rotation);
-            invalidateGeometry();
-        }
-
-        void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = flipped(center(), axis, flipCenter);
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-            
-            RotationInfo info = rotationInfo();
-            switch (info.type) {
-                case RTZAngle: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
-                    switch (axis) {
-                        case Axis::AX:
-                            angle = 180.0f - angle;
-                            break;
-                        case Axis::AY:
-                            angle = 360.0f - angle;
-                            break;
-                        default:
-                            break;
-                    }
-                    setProperty(info.property, angle, true);
-                    break;
-                }
-                case RTZAngleWithUpDown: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
-                    switch (axis) {
-                        case Axis::AX:
-                            if (angle != -1.0f && angle != -2.0f)
-                                angle = 180.0f - angle;
-                            break;
-                        case Axis::AY:
-                            if (angle != -1.0f && angle != -2.0f)
-                                angle = 360.0f - angle;
-                            break;
-                        default:
-                            if (angle == -1.0f)
-                                angle = -2.0f;
-                            else if (angle == -2.0f)
-                                angle = -1.0f;
-                            break;
-                    }
-                    setProperty(info.property, angle, true);
-                    break;
-                }
-                case RTEulerAngles: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
-                    switch (axis) {
-                        case Axis::AX:
-                            angles[0] = 180.0f - angles[0];
-                            break;
-                        case Axis::AY:
-                            angles[0] = 360.0f - angles[0];
-                            break;
-                        default:
-                            angles[2] = -angles[2];
-                            break;
-                    }
-                    setProperty(info.property, angles, true);
-                    break;
-                }
-                default:
-                    break;
-            }
-            invalidateGeometry();
         }
 
         void Entity::pick(const Rayf& ray, PickResult& pickResults) {

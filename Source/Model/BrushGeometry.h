@@ -125,7 +125,7 @@ namespace TrenchBroom {
             }
 
             inline Vec3f vector() const {
-                return start->position - end->position;
+                return end->position - start->position;
             }
 
             inline Vec3f vector(const Side* side) const {

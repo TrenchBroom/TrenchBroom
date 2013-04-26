@@ -20,7 +20,7 @@
 #include "RotateObjectsTool.h"
 
 #include "Controller/Command.h"
-#include "Controller/RotateObjectsCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
@@ -84,9 +84,7 @@ namespace TrenchBroom {
                 switch (command.type()) {
                     case Controller::Command::LoadMap:
                     case Controller::Command::ClearMap:
-                    case Controller::Command::MoveObjects:
-                    case Controller::Command::RotateObjects:
-                    case Controller::Command::FlipObjects:
+                    case Controller::Command::TransformObjects:
                     case Controller::Command::ResizeBrushes:
                     case Controller::Command::MoveVertices:
                     case Controller::Command::SnapVertices:
@@ -164,7 +162,7 @@ namespace TrenchBroom {
                 Model::EditStateManager& editStateManager = document().editStateManager();
                 const Model::EntityList& entities = editStateManager.selectedEntities();
                 const Model::BrushList& brushes = editStateManager.selectedBrushes();
-                RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
+                TransformObjectsCommand* command = TransformObjectsCommand::rotateObjects(document(), entities, brushes, m_axis, m_angle, false, m_center);
                 submitCommand(command);
             }
 

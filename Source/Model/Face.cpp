@@ -142,7 +142,7 @@ namespace TrenchBroom {
             m_texAxesValid = true;
         }
         
-        void Face::projectOntoTexturePlanef(Vec3f& xAxis, Vec3f& yAxis) {
+        void Face::projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis) {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
 
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             newTexAxisY = m_texAxisY * m_yScale;
             
             // project the inversely scaled texture axes onto the boundary plane
-            projectOntoTexturePlanef(newTexAxisX, newTexAxisY);
+            projectOntoTexturePlane(newTexAxisX, newTexAxisY);
             
             // apply the transformation
             newTexAxisX = transformation * newTexAxisX;
@@ -461,7 +461,7 @@ namespace TrenchBroom {
             
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
-                msg << "Invalid face m_points "
+                msg << "Invalid face points "
                 << m_points[0].asString() << "; "
                 << m_points[1].asString() << "; "
                 << m_points[2].asString()
@@ -477,7 +477,7 @@ namespace TrenchBroom {
             
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
-                msg << "Invalid face m_points "
+                msg << "Invalid face points "
                 << m_points[0].asString() << "; "
                 << m_points[1].asString() << "; "
                 << m_points[2].asString()
@@ -520,7 +520,7 @@ namespace TrenchBroom {
 
             Vec3f texX = m_texAxisX;
             Vec3f texY = m_texAxisY;
-            projectOntoTexturePlanef(texX, texY);
+            projectOntoTexturePlane(texX, texY);
             texX.normalize();
             texY.normalize();
 
@@ -638,100 +638,20 @@ namespace TrenchBroom {
             }
         }
         
-        void Face::translate(const Vec3f& delta, bool lockTexture) {
+        void Face::transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTexture, const bool invertOrientation) {
             if (lockTexture)
-                compensateTransformation(Mat4f::Identity.translated(delta));
+                compensateTransformation(pointTransform);
             
-            m_boundary.translate(delta);
-            for (unsigned int i = 0; i < 3; i++)
-                m_points[i] += delta;
-            if (m_forceIntegerFacePoints && !delta.isInteger())
+            m_boundary.transform(pointTransform, vectorTransform);
+            for (size_t i = 0; i < 3; i++)
+                m_points[i] = pointTransform * m_points[i];
+            if (m_forceIntegerFacePoints) {
                 updatePointsFromBoundary();
-            else
-                void correctFacePoints();
-            
-            
-            m_texAxesValid = false;
-            m_vertexCacheValid = false;
-        }
-        
-        void Face::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture) {
-            if (lockTexture) {
-                Mat4f t = Mat4f::Identity.translated(center);
-                if (axis == Axis::AX)
-                    t *= clockwise ? Mat4f::Rot90XCW : Mat4f::Rot90XCCW;
-                else if (axis == Axis::AY)
-                    t *= clockwise ? Mat4f::Rot90YCW : Mat4f::Rot90YCCW;
-                else
-                    t *= clockwise ? Mat4f::Rot90ZCW : Mat4f::Rot90ZCCW;
-                t.translate(-center);
-                compensateTransformation(t);
+            } else {
+                correctFacePoints();
+                if (invertOrientation)
+                    std::swap(m_points[1], m_points[2]);
             }
-            
-            m_boundary.rotate90(axis, clockwise, center);
-            for (unsigned int i = 0; i < 3; i++)
-                VecMath::rotate90(m_points[i], axis, clockwise, center);
-            if (m_forceIntegerFacePoints && !center.isInteger())
-                updatePointsFromBoundary();
-            else
-                void correctFacePoints();
-            
-            m_texAxesValid = false;
-            m_vertexCacheValid = false;
-        }
-        
-        void Face::rotate(const Quatf& rotation, const Vec3f& center, bool lockTexture) {
-            if (lockTexture) {
-                Mat4f t = Mat4f::Identity.translated(center);
-                t.rotate(rotation);
-                t.translate(-center);
-                compensateTransformation(t);
-            }
-            
-            m_boundary = m_boundary.rotate(rotation, center);
-            for (unsigned int i = 0; i < 3; i++)
-                m_points[i] = rotation * (m_points[i] - center) + center;
-            updatePointsFromBoundary();
-            
-            m_texAxesValid = false;
-            m_vertexCacheValid = false;
-        }
-        
-        void Face::flip(Axis::Type axis, const Vec3f& center, bool lockTexture) {
-            if (lockTexture) {
-                Mat4f t;
-                Vec3f d;
-                switch (axis) {
-                    case Axis::AX:
-                        d = Vec3f(center.x(), 0.0f, 0.0f);
-                        t.setIdentity();
-                        t *= Mat4f::MirX;
-                        t.translate(-1.0f * d);
-                        break;
-                    case Axis::AY:
-                        d = Vec3f(0.0f, center.y(), 0.0f);
-                        t.setIdentity();
-                        t *= Mat4f::MirY;
-                        t.translate(-1.0f * d);
-                        break;
-                    case Axis::AZ:
-                        d = Vec3f(0.0f, 0.0f, center.z());
-                        t.setIdentity();
-                        t *= Mat4f::MirZ;
-                        t.translate(-1.0f * d);
-                        break;
-                }
-                compensateTransformation(t);
-            }
-            
-            m_boundary.flip(axis, center);
-            for (unsigned int i = 0; i < 3; i++)
-                VecMath::flip(m_points[i], axis, center);
-            std::swap(m_points[1], m_points[2]);
-            if (m_forceIntegerFacePoints && !center.isInteger())
-                updatePointsFromBoundary();
-            else
-                void correctFacePoints();
 
             m_texAxesValid = false;
             m_vertexCacheValid = false;

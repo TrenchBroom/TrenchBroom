@@ -17,10 +17,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjects90Command__
-#define __TrenchBroom__RotateObjects90Command__
+#ifndef __TrenchBroom__TransformObjectsCommand__
+#define __TrenchBroom__TransformObjectsCommand__
 
-#include "Controller/Command.h"
+#include "Controller/SnapshotCommand.h"
 #include "Controller/ObjectsCommand.h"
 
 #include "Model/BrushTypes.h"
@@ -31,30 +31,25 @@ using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
-        class RotateObjects90Command : public DocumentCommand, ObjectsCommand {
+        class TransformObjectsCommand : public SnapshotCommand, ObjectsCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
             
-            Axis::Type m_axis;
-            Vec3f m_center;
-            bool m_clockwise;
+            const Mat4f m_pointTransform;
+            const Mat4f m_vectorTransform;
             bool m_lockTextures;
+            bool m_invertOrientation;
             
             bool performDo();
             bool performUndo();
-            
-            RotateObjects90Command(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) :
-            DocumentCommand(RotateObjects, document, true, name, true),
-            m_entities(entities),
-            m_brushes(brushes),
-            m_axis(axis),
-            m_center(center),
-            m_clockwise(clockwise),
-            m_lockTextures(lockTextures) {}
+
+            TransformObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Mat4f& pointTransform, const Mat4f& vectorTransform, bool invertOrientation);
         public:
-            static RotateObjects90Command* rotateClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures);
-            static RotateObjects90Command* rotateCounterClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures);
+            static TransformObjectsCommand* translateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta);
+            static TransformObjectsCommand* translateEntity(Model::MapDocument& document, Model::Entity& entity, const Vec3f& delta);
+            static TransformObjectsCommand* rotateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center);
+            static TransformObjectsCommand* flipObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Axis::Type& axis, const Vec3f& center);
             
             const Model::EntityList& entities() const {
                 return m_entities;
@@ -67,4 +62,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateObjectsCommand__) */
+#endif /* defined(__TrenchBroom__TransformObjectsCommand__) */

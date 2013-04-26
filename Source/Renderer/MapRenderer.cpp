@@ -557,9 +557,7 @@ namespace TrenchBroom {
                 case Controller::Command::RebuildBrushGeometry:
                 case Controller::Command::MoveVertices:
                 case Controller::Command::SnapVertices:
-                case Controller::Command::MoveObjects:
-                case Controller::Command::RotateObjects:
-                case Controller::Command::FlipObjects:
+                case Controller::Command::TransformObjects:
                 case Controller::Command::ResizeBrushes: {
                     invalidateSelectedBrushes();
                     invalidateSelectedEntities();

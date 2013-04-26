@@ -135,16 +135,13 @@ namespace TrenchBroom {
 
             void rebuildGeometry();
 
-            void translate(const Vec3f& delta, bool lockTextures);
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
-            void rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures);
-            void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
-
-            void correct(float epsilon);
-            void snap(unsigned int snapTo);
+            void transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation);
 
             bool clip(Face& face);
             
+            void correct(float epsilon);
+            void snap(unsigned int snapTo);
+
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
 

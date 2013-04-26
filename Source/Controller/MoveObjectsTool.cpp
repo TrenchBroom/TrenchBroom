@@ -21,7 +21,7 @@
 
 #include "Controller/Command.h"
 #include "Controller/ControllerUtils.h"
-#include "Controller/MoveObjectsCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             if (!document().map().worldBounds().contains(bounds))
                 return Deny;
             
-            MoveObjectsCommand* command = MoveObjectsCommand::moveObjects(document(), entities, brushes, delta, document().textureLock());
+            TransformObjectsCommand* command = TransformObjectsCommand::translateObjects(document(), entities, brushes, delta);
             submitCommand(command);
             
             return Continue;

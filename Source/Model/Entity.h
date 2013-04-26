@@ -123,7 +123,7 @@ namespace TrenchBroom {
             };
 
             const RotationInfo rotationInfo() const;
-            void applyRotation(const Quatf& rotation);
+            void applyRotation(const Mat4f& rotation);
         public:
             Entity(const BBoxf& worldBounds);
             Entity(const BBoxf& worldBounds, const Entity& entityTemplate);
@@ -271,10 +271,7 @@ namespace TrenchBroom {
                 m_geometryValid = false;
             }
 
-            void translate(const Vec3f& delta, bool lockTextures);
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
-            void rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures);
-            void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
+            void transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation);
             void pick(const Rayf& ray, PickResult& pickResults);
         };
     }

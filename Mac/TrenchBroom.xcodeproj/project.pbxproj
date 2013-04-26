@@ -34,8 +34,7 @@
 		482976D71681E77A0057E4D4 /* MoveFacesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482976D61681E77A0057E4D4 /* MoveFacesCommand.cpp */; };
 		482976DB1681EEEC0057E4D4 /* SplitFacesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */; };
 		482A0876164305450000799C /* RingFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0874164305450000799C /* RingFigure.cpp */; };
-		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
-		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
+		482A087D16446B470000799C /* TransformObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* TransformObjectsCommand.cpp */; };
 		482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */; };
 		482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */; };
 		4830050E16EA745900C05645 /* GeneralPreferencePane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4830050C16EA745900C05645 /* GeneralPreferencePane.cpp */; };
@@ -112,7 +111,6 @@
 		488611CF17132A4B0001C423 /* Compass.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 488611CD17132A4A0001C423 /* Compass.fragsh */; };
 		488611D017132A4B0001C423 /* Compass.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 488611CE17132A4A0001C423 /* Compass.vertsh */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
-		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
 		4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */; };
 		489221AA170A125000444EA0 /* Flip_Texture_Horizontally.png in Resources */ = {isa = PBXBuildFile; fileRef = 489221A7170A125000444EA0 /* Flip_Texture_Horizontally.png */; };
 		489221AB170A125000444EA0 /* Flip_Texture_Vertically.png in Resources */ = {isa = PBXBuildFile; fileRef = 489221A8170A125000444EA0 /* Flip_Texture_Vertically.png */; };
@@ -128,7 +126,6 @@
 		48A5B4911725835C0023B59F /* FlyTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A5B48F1725835C0023B59F /* FlyTool.cpp */; };
 		48A5B4941725C6810023B59F /* ExecutableEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A5B4931725C6800023B59F /* ExecutableEvent.cpp */; };
 		48A6E45F16D3EB2000CC328C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 48A6E45E16D3EB2000CC328C /* Icon.png */; };
-		48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
 		48AD1B2C1646BFAE009F839B /* ColoredEdge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48AD1B2B1646BFAE009F839B /* ColoredEdge.vertsh */; };
 		48AD1B311646C03D009F839B /* Edge.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48AD1B2F1646C03D009F839B /* Edge.fragsh */; };
@@ -300,10 +297,8 @@
 		48297ED71683091C00E6A288 /* IOUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOUtils.h; sourceTree = "<group>"; };
 		482A0874164305450000799C /* RingFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingFigure.cpp; sourceTree = "<group>"; };
 		482A0875164305450000799C /* RingFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingFigure.h; sourceTree = "<group>"; };
-		482A087B16446B470000799C /* RotateObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsCommand.cpp; sourceTree = "<group>"; };
-		482A087C16446B470000799C /* RotateObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsCommand.h; sourceTree = "<group>"; };
-		482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsCommand.cpp; sourceTree = "<group>"; };
-		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
+		482A087B16446B470000799C /* TransformObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformObjectsCommand.cpp; sourceTree = "<group>"; };
+		482A087C16446B470000799C /* TransformObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformObjectsCommand.h; sourceTree = "<group>"; };
 		482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinesRenderer.cpp; sourceTree = "<group>"; };
 		482C644B16BAFFD9009C75CB /* LinesRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinesRenderer.h; sourceTree = "<group>"; };
 		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
@@ -480,8 +475,6 @@
 		488611CE17132A4A0001C423 /* Compass.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Compass.vertsh; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
-		488865491634211C0071F9C6 /* RotateObjects90Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjects90Command.cpp; sourceTree = "<group>"; };
-		4888654A1634211C0071F9C6 /* RotateObjects90Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjects90Command.h; sourceTree = "<group>"; };
 		4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RebuildBrushGeometryCommand.cpp; sourceTree = "<group>"; };
 		4889B3141703A5FC004B1BC0 /* RebuildBrushGeometryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RebuildBrushGeometryCommand.h; sourceTree = "<group>"; };
 		488C7A9A16E2628900718B0E /* IOTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOTypes.h; sourceTree = "<group>"; };
@@ -507,8 +500,6 @@
 		48A5B4921725C5710023B59F /* ExecutableEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExecutableEvent.h; sourceTree = "<group>"; };
 		48A5B4931725C6800023B59F /* ExecutableEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExecutableEvent.cpp; sourceTree = "<group>"; };
 		48A6E45E16D3EB2000CC328C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Resources/Graphics/Icon.png; sourceTree = "<group>"; };
-		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
-		48A8391416356CFC00175857 /* FlipObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipObjectsCommand.h; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
 		48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressIndicatorDialog.cpp; sourceTree = "<group>"; };
 		48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressIndicatorDialog.h; sourceTree = "<group>"; };
@@ -1202,14 +1193,10 @@
 				4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */,
 				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
 				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
-				48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */,
-				48A8391416356CFC00175857 /* FlipObjectsCommand.h */,
 				482976D21681DAB70057E4D4 /* MoveEdgesCommand.cpp */,
 				482976D31681DAB70057E4D4 /* MoveEdgesCommand.h */,
 				482976D61681E77A0057E4D4 /* MoveFacesCommand.cpp */,
 				482976D81681E7860057E4D4 /* MoveFacesCommand.h */,
-				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
-				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
 				48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */,
 				48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */,
 				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
@@ -1223,10 +1210,8 @@
 				48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */,
 				48BB02C11687AEE300E6E948 /* ResizeBrushesCommand.cpp */,
 				48BB02C21687AEE300E6E948 /* ResizeBrushesCommand.h */,
-				488865491634211C0071F9C6 /* RotateObjects90Command.cpp */,
-				4888654A1634211C0071F9C6 /* RotateObjects90Command.h */,
-				482A087B16446B470000799C /* RotateObjectsCommand.cpp */,
-				482A087C16446B470000799C /* RotateObjectsCommand.h */,
+				482A087B16446B470000799C /* TransformObjectsCommand.cpp */,
+				482A087C16446B470000799C /* TransformObjectsCommand.h */,
 				4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */,
 				4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */,
@@ -1535,15 +1520,12 @@
 				48FBD147162601900059953D /* CommandProcessor.cpp in Sources */,
 				48FBD14E1626AD5C0059953D /* RemoveObjectsCommand.cpp in Sources */,
 				48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */,
-				482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */,
 				48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */,
 				4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */,
 				4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */,
-				4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */,
-				48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */,
 				48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */,
 				482A0876164305450000799C /* RingFigure.cpp in Sources */,
-				482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */,
+				482A087D16446B470000799C /* TransformObjectsCommand.cpp in Sources */,
 				4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */,
 				48AD1B3B1646C151009F839B /* AxisFigure.cpp in Sources */,
 				4842C34B164BCB7800E41B95 /* InputController.cpp in Sources */,

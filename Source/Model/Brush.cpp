@@ -250,45 +250,27 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
-        void Brush::translate(const Vec3f& delta, bool lockTextures) {
-            if (delta.null())
-                return;
-
+        void Brush::transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation) {
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Face& face = **faceIt;
-                face.translate(delta, lockTextures);
+                face.transform(pointTransform, vectorTransform, lockTextures, invertOrientation);
             }
+            
             rebuildGeometry();
         }
 
-        void Brush::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.rotate90(axis, center, clockwise, lockTextures);
+        bool Brush::clip(Face& face) {
+            try {
+                face.setBrush(this);
+                m_faces.push_back(&face);
+                rebuildGeometry();
+                return !m_faces.empty() && closed();
+            } catch (GeometryException e) {
+                return false;
             }
-            rebuildGeometry();
         }
-
-        void Brush::rotate(const Quatf& rotation, const Vec3f& center, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.rotate(rotation, center, lockTextures);
-            }
-            rebuildGeometry();
-        }
-
-        void Brush::flip(Axis::Type axis, const Vec3f& center, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.flip(axis, center, lockTextures);
-            }
-            rebuildGeometry();
-        }
-
+        
         void Brush::correct(float epsilon) {
             FaceSet newFaces;
             FaceSet droppedFaces;
@@ -333,25 +315,13 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
 
-        bool Brush::clip(Face& face) {
-            try {
-                face.setBrush(this);
-                m_faces.push_back(&face);
-                rebuildGeometry();
-                return !m_faces.empty() && closed();
-            } catch (GeometryException e) {
-                return false;
-            }
-        }
-
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
 
-            // using worldbounds here can lead to invalid brushes due to precision errors
-            // so we use a smaller bounding box that's still big enough to fit the brush
+            const Mat4f pointTransform = Mat4f::Identity.translated(delta);
             BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
-            testFace.translate(delta, false);
+            testFace.transform(pointTransform, Mat4f::Identity, false, false);
 
             FaceSet droppedFaces;
             FaceList::const_iterator it, end;
@@ -372,16 +342,8 @@ namespace TrenchBroom {
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
             assert(canMoveBoundary(face, delta));
 
-            // using worldbounds here can lead to invalid brushes due to precision errors
-            // so we use a smaller bounding box that's still big enough to fit the brush
-            // OTOH it's just fake, so let's not do it
-            /*
-            BBoxf maxBounds = m_geometry->bounds;
-            float max = std::max(std::max(std::abs(delta[0]), std::abs(delta[1])), std::abs(delta[2]));
-            maxBounds.expand(2.0f * max);
-            */
-
-            face.translate(delta, lockTexture);
+            const Mat4f pointTransform = Mat4f::Identity.translated(delta);
+            face.transform(pointTransform, Mat4f::Identity, false, false);
             rebuildGeometry();
         }
 

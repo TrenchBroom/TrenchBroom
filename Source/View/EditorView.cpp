@@ -25,18 +25,16 @@
 #include "Controller/Command.h"
 #include "Controller/ControllerUtils.h"
 #include "Controller/EntityPropertyCommand.h"
-#include "Controller/FlipObjectsCommand.h"
 #include "Controller/InputController.h"
-#include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ObjectsCommand.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
-#include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/SnapVerticesCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "IO/ByteBuffer.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
@@ -238,7 +236,7 @@ namespace TrenchBroom {
 
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-            Controller::MoveObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::TransformObjectsCommand::translateObjects(mapDocument(), selectEntities, selectBrushes, delta);
 
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
@@ -317,21 +315,21 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
-            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), entities, brushes, delta, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::translateObjects(mapDocument(), entities, brushes, delta);
             submit(command);
         }
 
         void EditorView::rotateObjects(RotationAxis rotationAxis, bool clockwise) {
-            Axis::Type absoluteAxis;
+            Vec3f absoluteAxis;
             switch (rotationAxis) {
                 case ARoll:
-                    absoluteAxis = m_camera->direction().firstComponent();
+                    absoluteAxis = -m_camera->direction().firstAxis();
                     break;
                 case APitch:
-                    absoluteAxis = m_camera->right().firstComponent();
+                    absoluteAxis = m_camera->right().firstAxis();
                     break;
                 default:
-                    absoluteAxis = Axis::AZ;
+                    absoluteAxis = Vec3f::PosZ;
                     break;
             }
 
@@ -341,11 +339,7 @@ namespace TrenchBroom {
             assert(entities.size() + brushes.size() > 0);
 
             Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
-            Controller::RotateObjects90Command* command = NULL;
-            if (clockwise)
-                command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
-            else
-                command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::rotateObjects(mapDocument(), entities, brushes, absoluteAxis, -Math<float>::Pi / 2.0f, clockwise, center);
             submit(command);
         }
 
@@ -358,7 +352,7 @@ namespace TrenchBroom {
             assert(entities.size() + brushes.size() > 0);
 
             Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
-            Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::flipObjects(mapDocument(), entities, brushes, axis, center);
             submit(command);
         }
 

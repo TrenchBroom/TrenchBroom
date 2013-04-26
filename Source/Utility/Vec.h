@@ -51,8 +51,8 @@ namespace TrenchBroom {
                     assert(lhs < S);
                     assert(rhs < S);
                     if (m_abs)
-                        return std::abs(m_vec.v[lhs]) > std::abs(m_vec.v[rhs]);
-                    return m_vec.v[lhs] > m_vec.v[rhs];
+                        return std::abs(m_vec.v[lhs]) < std::abs(m_vec.v[rhs]);
+                    return m_vec.v[lhs] < m_vec.v[rhs];
                 }
             };
             
@@ -382,22 +382,16 @@ namespace TrenchBroom {
                 }
                 
                 // simple selection algorithm
-                // we store the indices of the k largest values
+                // we store the indices of the values in heap
                 SelectionHeapCmp cmp(*this, true);
                 std::vector<size_t> heap;
                 for (size_t i = 0; i < S; i++) {
-                    if (heap.size() < k) {
-                        heap.push_back(i);
-                        std::push_heap(heap.begin(), heap.end(), cmp);
-                    } else if (v[i] > v[heap.front()]) {
-                        std::pop_heap(heap.begin(), heap.end(), cmp);
-                        heap.back() = i;
-                        std::push_heap(heap.begin(), heap.end(), cmp);
-                    }
+                    heap.push_back(i);
+                    std::push_heap(heap.begin(), heap.end(), cmp);
                 }
                 
-                assert(heap.size() == k);
-                return heap[k];
+                std::sort_heap(heap.begin(), heap.end(), cmp);
+                return heap[S - k - 1];
             }
 
             inline const Vec<T,S> majorAxis(const bool abs, const size_t k) const {
@@ -444,6 +438,16 @@ namespace TrenchBroom {
                 StringStream result;
                 write(result);
                 return result.str();
+            }
+                    
+            inline Vec<T,S>& makeAbsolute() {
+                for (size_t i = 0; i < S; i++)
+                    v[i] = std::abs(v[i]);
+                return *this;
+            }
+                    
+            inline Vec<T,S> absolute() const {
+                return Vec<T,S>(*this).makeAbsolute();
             }
             
             inline Vec<T,S>& round() {
@@ -526,64 +530,6 @@ namespace TrenchBroom {
             if (cross.dot(up) >= static_cast<T>(0.0))
                 return std::acos(cos);
             return static_cast<T>(2.0) * Math<T>::Pi - std::acos(cos);
-        }
-        
-        template <typename T>
-        inline Vec<T,3>& rotate90(Vec<T,3>& vec, const Axis::Type axis, const bool clockwise, const Vec<T,3>& center = Vec<T,3>::Null) {
-            return vec = rotated90(vec, axis, clockwise, center);
-        }
-        
-        template <typename T>
-        inline const Vec<T,3> rotated90(const Vec<T,3>& vec, const Axis::Type axis, const bool clockwise, const Vec<T,3>& center = Vec<T,3>::Null) {
-            Vec<T,3> result = vec - center;
-            switch (axis) {
-                case Axis::AX:
-                    if (clockwise) {
-                        const T t = result[1];
-                        result[1] = result[2];
-                        result[2] = -t;
-                    } else {
-                        const T t = result[1];
-                        result[1] = -result[2];
-                        result[2] = t;
-                    }
-                    break;
-                case Axis::AY:
-                    if (clockwise) {
-                        const T t = result[0];
-                        result[0] = -result[2];
-                        result[2] = t;
-                    } else {
-                        const T t = result[0];
-                        result[0] = result[2];
-                        result[2] = -t;
-                    }
-                    break;
-                default:
-                    if (clockwise) {
-                        const T t = result[0];
-                        result[0] = result[1];
-                        result[1] = -t;
-                    } else {
-                        const T t = result[0];
-                        result[0] = -result[1];
-                        result[1] = t;
-                    }
-                    break;
-            }
-            return result + center;
-        }
-        
-        template <typename T>
-        inline Vec<T,3>& flip(Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center = Vec<T,3>::Null) {
-            return vec = flipped(vec, axis, center);
-        }
-        
-        template <typename T>
-        inline const Vec<T,3> flipped(const Vec<T,3>& vec, const Axis::Type axis, const Vec<T,3>& center = Vec<T,3>::Null) {
-            Vec<T,3> result = vec - center;
-            result[axis] = -result[axis];
-            return result + center;
         }
     }
 }
