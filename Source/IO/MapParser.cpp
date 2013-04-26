@@ -291,10 +291,12 @@ namespace TrenchBroom {
             expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
             p3.z = token.toFloat();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
-            
+
+            /* // we're now doing this in the face itself
             p1.correct();
             p2.correct();
             p3.correct();
+            */
             
             expect(TokenType::String, token = m_tokenizer.nextToken());
             String textureName = token.data();

@@ -100,6 +100,8 @@ namespace TrenchBroom {
         void Face::init() {
             static unsigned int currentId = 1;
             m_faceId = currentId++;
+            for (size_t i = 0; i < 3; i++)
+                m_points[i] = Vec3f::Null;
             m_xOffset = 0.0f;
             m_yOffset = 0.0f;
             m_rotation = 0.0f;
@@ -340,6 +342,7 @@ namespace TrenchBroom {
             m_points[0] = point1;
             m_points[1] = point2;
             m_points[2] = point3;
+            correctFacePoints();
             m_boundary.setPoints(m_points[0], m_points[1], m_points[2]);
             updatePointsFromBoundary();
             setTextureName(textureName);
@@ -454,6 +457,7 @@ namespace TrenchBroom {
             m_points[2] = m_side->vertices[pred(best, vertexCount)]->position;
             m_points[0] = m_side->vertices[best]->position;
             m_points[1] = m_side->vertices[succ(best, vertexCount)]->position;
+            correctFacePoints();
             
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
@@ -469,6 +473,7 @@ namespace TrenchBroom {
         void Face::updatePointsFromBoundary() {
             const FindFacePoints& findPoints = FindFacePoints::instance(m_forceIntegerFacePoints);
             findPoints(*this, m_points);
+            correctFacePoints();
             
             if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
                 std::stringstream msg;
@@ -481,6 +486,11 @@ namespace TrenchBroom {
             }
         }
 
+        void Face::correctFacePoints() {
+            for (size_t i = 0; i < 3; i++)
+                m_points[i].correct();
+        }
+        
         void Face::setForceIntegerFacePoints(bool forceIntegerFacePoints) {
             m_forceIntegerFacePoints = forceIntegerFacePoints;
             updatePointsFromBoundary();
@@ -637,6 +647,9 @@ namespace TrenchBroom {
                 m_points[i] += delta;
             if (m_forceIntegerFacePoints && !delta.isInteger())
                 updatePointsFromBoundary();
+            else
+                void correctFacePoints();
+            
             
             m_texAxesValid = false;
             m_vertexCacheValid = false;
@@ -660,6 +673,8 @@ namespace TrenchBroom {
                 m_points[i].rotate90(axis, center, clockwise);
             if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();
+            else
+                void correctFacePoints();
             
             m_texAxesValid = false;
             m_vertexCacheValid = false;
@@ -715,6 +730,8 @@ namespace TrenchBroom {
             std::swap(m_points[1], m_points[2]);
             if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();
+            else
+                void correctFacePoints();
 
             m_texAxesValid = false;
             m_vertexCacheValid = false;
