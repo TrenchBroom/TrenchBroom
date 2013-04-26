@@ -198,9 +198,10 @@ namespace TrenchBroom {
         
         VboBlock* Vbo::packBlock(VboBlock& block) {
             VboBlock* first = block.m_next;
-            if (first == NULL) return NULL;
+            if (first == NULL)
+                return NULL;
             
-            VboBlock* previous = block.m_previous;
+            VboBlock* previous = NULL;
             VboBlock* last = first;
             unsigned int size = 0;
             unsigned int address = first->address();

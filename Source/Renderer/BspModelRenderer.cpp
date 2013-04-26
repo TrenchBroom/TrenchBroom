@@ -49,8 +49,6 @@ namespace TrenchBroom {
                 if (textureIt == m_textures.end()) {
                     textureRenderer = new TextureRenderer(texture, m_palette);
                     m_textures[&texture] = textureRenderer;
-                } else {
-                    textureRenderer = textureIt->second;
                 }
                 
                 faceSorter.addPolygon(&texture, face, face->vertices().size());

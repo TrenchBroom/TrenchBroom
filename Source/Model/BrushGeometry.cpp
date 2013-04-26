@@ -32,11 +32,13 @@ namespace TrenchBroom {
 
             // find any edge that is incident to vertex
             Edge* edge = NULL;
-            for (unsigned int i = 0; i < edges.size() && edge == NULL; i++) {
+            for (size_t i = 0; i < edges.size() && edge == NULL; i++) {
                 Edge* candidate = edges[i];
                 if (candidate->start == this || candidate->end == this)
                     edge = candidate;
             }
+            
+            assert(edge != NULL);
 
             // iterate over the incident sides in clockwise order
             Side* side = edge->start == this ? edge->right : edge->left;

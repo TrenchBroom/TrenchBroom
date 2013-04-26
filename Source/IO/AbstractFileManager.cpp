@@ -306,12 +306,9 @@ namespace TrenchBroom {
                 size = static_cast<size_t>(lseek(filedesc, 0, SEEK_END));
                 lseek(filedesc, 0, SEEK_SET);
                 address = static_cast<char*>(mmap(NULL, size, prot, MAP_FILE | MAP_PRIVATE, filedesc, 0));
-                if (address == NULL) {
-                    close(filedesc);
-                    filedesc = -1;
-                } else {
+                if (address != NULL)
                     return MappedFile::Ptr(new PosixMappedFile(filedesc, address, size));
-                }
+                close(filedesc);
             }
             
             return MappedFile::Ptr();

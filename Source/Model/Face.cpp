@@ -198,21 +198,14 @@ namespace TrenchBroom {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
-            Vec3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
-            Vec2f curCenterTexCoords, newCenterTexCoords;
-            Planef plane;
-            Vec3f curCenter;
-            unsigned int newPlanefNormIndex, newFaceNormIndex;
-            float radX, radY, rad;
-            
             // calculate the current texture coordinates of the face's center
-            curCenter = centerOfVertices(m_side->vertices);
-            curCenterTexCoords[0] = (curCenter.dot(m_scaledTexAxisX)) + m_xOffset;
-            curCenterTexCoords[1] = (curCenter.dot(m_scaledTexAxisY)) + m_yOffset;
+            const Vec3f curCenter = centerOfVertices(m_side->vertices);
+            const Vec2f curCenterTexCoords(curCenter.dot(m_scaledTexAxisX) + m_xOffset,
+                                           curCenter.dot(m_scaledTexAxisY) + m_yOffset);
             
             // invert the scale of the current texture axes
-            newTexAxisX = m_texAxisX * m_xScale;
-            newTexAxisY = m_texAxisY * m_yScale;
+            Vec3f newTexAxisX = m_texAxisX * m_xScale;
+            Vec3f newTexAxisY = m_texAxisY * m_yScale;
             
             // project the inversely scaled texture axes onto the boundary plane
             projectOntoTexturePlane(newTexAxisX, newTexAxisY);
@@ -220,9 +213,10 @@ namespace TrenchBroom {
             // apply the transformation
             newTexAxisX = transformation * newTexAxisX;
             newTexAxisY = transformation * newTexAxisY;
-            newFaceNorm = transformation * m_boundary.normal;
-            offset = transformation * Vec3f::Null;
-            newCenter = transformation * curCenter;
+            
+            Vec3f newFaceNorm = transformation * m_boundary.normal;
+            const Vec3f offset = transformation * Vec3f::Null;
+            const Vec3f newCenter = transformation * curCenter;
             
             // correct the directional vectors by the translational part of the transformation
             newTexAxisX -= offset;
@@ -234,6 +228,8 @@ namespace TrenchBroom {
                 newFaceNorm = m_boundary.normal;
             
             // obtain the new texture plane norm and the new base texture axes
+            Vec3f newBaseAxisX, newBaseAxisY;
+            unsigned int newPlanefNormIndex, newFaceNormIndex;
             texAxesAndIndices(newFaceNorm, newBaseAxisX, newBaseAxisY, newPlanefNormIndex, newFaceNormIndex);
             
             /*
@@ -283,19 +279,18 @@ namespace TrenchBroom {
             // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
             
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
-            radX = acosf(newBaseAxisX.dot(newTexAxisX));
-            cross = crossed(newBaseAxisX, newTexAxisX);
-            if ((cross.dot(BaseAxes[newPlanefNormIndex])) < 0.0f)
+            float radX = acosf(newBaseAxisX.dot(newTexAxisX));
+            if (crossed(newBaseAxisX, newTexAxisX).dot(BaseAxes[newPlanefNormIndex]) < 0.0f)
                 radX *= -1.0f;
             
-            radY = acosf(newBaseAxisY.dot(newTexAxisY));
-            cross = crossed(newBaseAxisY, newTexAxisY);
-            if ((cross.dot(BaseAxes[newPlanefNormIndex])) < 0.0f)
+            /*
+            float radY = acosf(newBaseAxisY.dot(newTexAxisY));
+            if (crossed(newBaseAxisY, newTexAxisY).dot(BaseAxes[newPlanefNormIndex]) < 0.0f)
                 radY *= -1.0f;
+             */
             
-            rad = radX;
-
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
+            float rad = radX;
             if (newPlanefNormIndex == 12)
                 rad *= -1.0f;
 
@@ -318,8 +313,8 @@ namespace TrenchBroom {
             validateTexAxes(newFaceNorm);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            newCenterTexCoords[0] = newCenter.dot(m_scaledTexAxisX);
-            newCenterTexCoords[1] = newCenter.dot(m_scaledTexAxisY);
+            const Vec2f newCenterTexCoords(newCenter.dot(m_scaledTexAxisX),
+                                           newCenter.dot(m_scaledTexAxisY));
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center

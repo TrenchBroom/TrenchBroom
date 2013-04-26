@@ -249,8 +249,10 @@ namespace TrenchBroom {
                 const T e = lineDir.dot(w0);
                 
                 const T f = a * c - b * b;
-                if (Math<T>::zero(f))
+                if (Math<T>::zero(f)) {
+                    distanceToClosestPoint = Math<T>::nan();
                     return Math<T>::nan();
+                }
                 
                 T sc = (b * e - c * d) / f;
                 const T tc = (a * e - b * d) / f;

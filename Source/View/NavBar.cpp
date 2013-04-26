@@ -159,11 +159,11 @@ namespace TrenchBroom {
                         entityEnd = entities.end();
                         
                         const Model::Entity* entity = *entityIt++;
-                        const String& firstClassname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                        const String& firstClassname = entity->safeClassname();
                         bool sameClassname = true;
                         while (entityIt != entityEnd && sameClassname) {
                             entity = *entityIt++;
-                            const String& classname = entity->classname() != NULL ? *entity->classname() : Model::Entity::NoClassnameValue;
+                            const String& classname = entity->safeClassname();
                             sameClassname = (classname == firstClassname);
                         }
                         

@@ -29,14 +29,13 @@ namespace TrenchBroom {
             m_oldEntityDefinitionFile = "";
 
             Model::Entity* worldspawn = document().worldspawn(false);
-            if (worldspawn == NULL) {
-                m_createdWorldspawn = true;
-                worldspawn = document().worldspawn(true);
-            } else {
+            if (worldspawn != NULL) {
                 m_createdWorldspawn = false;
                 const Model::PropertyValue* defProperty = worldspawn->propertyForKey(Model::Entity::DefKey);
                 if (defProperty != NULL)
                     m_oldEntityDefinitionFile = *defProperty;
+            } else {
+                m_createdWorldspawn = true;
             }
             
             if (m_newEntityDefinitionFile == m_oldEntityDefinitionFile)

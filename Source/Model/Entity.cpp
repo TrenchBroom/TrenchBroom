@@ -121,8 +121,9 @@ namespace TrenchBroom {
             PropertyKey property;
             
             // determine the type of rotation to apply to this entity
-            if (classname() != NULL) {
-                if (Utility::startsWith(*classname(), "light")) {
+            const String* classn = classname();
+            if (classn != NULL) {
+                if (Utility::startsWith(*classn, "light")) {
                     if (propertyForKey(MangleKey) != NULL) {
                         // spotlight without a target, update mangle
                         type = RTEulerAngles;

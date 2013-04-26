@@ -180,6 +180,13 @@ namespace TrenchBroom {
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
             }
+            
+            inline const PropertyValue& safeClassname() const {
+                const PropertyValue* classn = classname();
+                if (classn != NULL)
+                    return *classn;
+                return NoClassnameValue;
+            }
 
             inline bool worldspawn() const {
                 return m_worldspawn;

@@ -513,15 +513,16 @@ namespace TrenchBroom {
                 return;
 
             dist = Math<float>::nan();
-            Side* side;
+            Side* side = NULL;
             for (unsigned int i = 0; i < m_geometry->sides.size() && Math<float>::isnan(dist); i++) {
                 side = m_geometry->sides[i];
                 dist = side->intersectWithRay(ray);
             }
 
             if (!Math<float>::isnan(dist)) {
+                assert(side != NULL);
                 Vec3f hitPoint = ray.pointAtDistance(dist);
-                FaceHit* hit = new FaceHit(*side->face, hitPoint, dist);
+                FaceHit* hit = new FaceHit(*(side->face), hitPoint, dist);
                 pickResults.add(hit);
             }
         }
