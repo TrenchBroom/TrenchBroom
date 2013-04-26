@@ -301,32 +301,6 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline const BBox<T> translated(const Vec<T,3>& delta) const {
-                return BBox<T>(*this).translate(delta);
-            }
-            
-            inline BBox<T>& rotate90(const Axis::Type axis, const bool clockwise) {
-                min.rotate90(axis, clockwise);
-                max.rotate90(axis, clockwise);
-                repair();
-                return *this;
-            }
-            
-            inline const BBox<T> rotated90(const Axis::Type axis, const bool clockwise) const {
-                return BBox<T>(*this).rotate90(axis, clockwise);
-            }
-            
-            inline BBox<T>& rotate90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) {
-                min.rotate90(axis, center, clockwise);
-                max.rotate90(axis, center, clockwise);
-                repair();
-                return *this;
-            }
-            
-            inline  const BBox<T> rotated90(const Axis::Type axis, const Vec<T,3>& center, const bool clockwise) const {
-                return BBox<T>(*this).rotate90(axis, center, clockwise);
-            }
-            
             inline BBox<T>& rotate(const Quat<T>& rotation) {
                 return *this = rotated(rotation);
             }
