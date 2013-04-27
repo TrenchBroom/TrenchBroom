@@ -96,9 +96,6 @@
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\InputController.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -106,9 +103,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp">
@@ -124,12 +118,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp">
@@ -525,6 +513,9 @@
     <ClCompile Include="..\..\Source\Utility\ExecutableEvent.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\TransformObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -575,9 +566,6 @@
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Input.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -588,9 +576,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h">
@@ -612,12 +597,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h">
@@ -1201,6 +1180,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\Vec.h">
       <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\TransformObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

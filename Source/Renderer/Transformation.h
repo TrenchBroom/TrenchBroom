@@ -38,12 +38,12 @@ namespace TrenchBroom {
             
             inline void loadProjectionMatrix(const Mat4f& matrix) {
                 glMatrixMode(GL_PROJECTION);
-                glLoadMatrixf(matrix.v);
+                glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
             }
 
             inline void loadModelViewMatrix(const Mat4f& matrix) {
                 glMatrixMode(GL_MODELVIEW);
-                glLoadMatrixf(matrix.v);
+                glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
             }
         public:
             Transformation(const Mat4f& projection, const Mat4f& view, const Mat4f& model = Mat4f::Identity) {

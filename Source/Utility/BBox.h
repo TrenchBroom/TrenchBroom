@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
-#include "Utility/Mat4.h"
+#include "Utility/Mat.h"
 #include "Utility/Plane.h"
 #include "Utility/Quat.h"
 #include "Utility/Ray.h"

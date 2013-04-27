@@ -561,6 +561,7 @@
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
 		48B75F78160CF79E009D4E99 /* TextureBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureBrowser.h; sourceTree = "<group>"; };
 		48B75F7B160DAE61009D4E99 /* CachedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CachedPtr.h; sourceTree = "<group>"; };
+		48BAC8C3172B069900BBD498 /* Mat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat.h; sourceTree = "<group>"; };
 		48BB02BD16870CF300E6E948 /* ResizeBrushesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResizeBrushesTool.cpp; sourceTree = "<group>"; };
 		48BB02BE16870CF300E6E948 /* ResizeBrushesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResizeBrushesTool.h; sourceTree = "<group>"; };
 		48BB02C11687AEE300E6E948 /* ResizeBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResizeBrushesCommand.cpp; sourceTree = "<group>"; };
@@ -592,9 +593,6 @@
 		48CDA82116A424E70050E152 /* MovementIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementIndicator.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
-		48D1BE9F15E2EDAE0073C030 /* Mat2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat2.h; sourceTree = "<group>"; };
-		48D1BEA015E2EE920073C030 /* Mat3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat3.h; sourceTree = "<group>"; };
-		48D1BEA115E2F3200073C030 /* Mat4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mat4.h; sourceTree = "<group>"; };
 		48D1BEA415E2F4F80073C030 /* Quat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Quat.h; sourceTree = "<group>"; };
 		48D1BEA515E2F8CC0073C030 /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
 		48D1BEA815E2FBAC0073C030 /* Line.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Line.h; sourceTree = "<group>"; };
@@ -1075,9 +1073,7 @@
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
 				4850D25115F39974005B162D /* List.h */,
 				481CC98C16DD407A00537742 /* Map.h */,
-				48D1BE9F15E2EDAE0073C030 /* Mat2.h */,
-				48D1BEA015E2EE920073C030 /* Mat3.h */,
-				48D1BEA115E2F3200073C030 /* Mat4.h */,
+				48BAC8C3172B069900BBD498 /* Mat.h */,
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,

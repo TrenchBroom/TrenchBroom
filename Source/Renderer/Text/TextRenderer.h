@@ -310,14 +310,14 @@ namespace TrenchBroom {
                     const Camera::Viewport& viewport = context.camera().viewport();
 
                     Mat4f projection;
-                    projection.setOrtho(0.0f, 1.0f,
-                                        static_cast<float>(viewport.x),
-                                        static_cast<float>(viewport.height),
-                                        static_cast<float>(viewport.width),
-                                        static_cast<float>(viewport.y));
+                    setOrtho(projection, 0.0f, 1.0f,
+                             static_cast<float>(viewport.x),
+                             static_cast<float>(viewport.height),
+                             static_cast<float>(viewport.width),
+                             static_cast<float>(viewport.y));
 
                     Mat4f view;
-                    view.setView(Vec3f::NegZ, Vec3f::PosY);
+                    setView(view, Vec3f::NegZ, Vec3f::PosY);
 
                     ApplyTransformation ortho(context.transformation(), projection, view);
 

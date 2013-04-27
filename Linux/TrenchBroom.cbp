@@ -436,9 +436,7 @@
 		<Unit filename="../Source/Utility/Ray.h" />
 		<Unit filename="../Source/Utility/SharedPointer.h" />
 		<Unit filename="../Source/Utility/String.h" />
-		<Unit filename="../Source/Utility/Vec2.h" />
-		<Unit filename="../Source/Utility/Vec3.h" />
-		<Unit filename="../Source/Utility/Vec4.h" />
+		<Unit filename="../Source/Utility/Vec.h" />
 		<Unit filename="../Source/Utility/VecMath.h" />
 		<Unit filename="../Source/View/AboutDialog.cpp" />
 		<Unit filename="../Source/View/AboutDialog.h" />

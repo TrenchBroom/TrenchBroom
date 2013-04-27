@@ -25,20 +25,20 @@ namespace TrenchBroom {
     namespace Renderer {
         void Camera::validate() const {
             if (m_ortho)
-                m_projectionMatrix.setOrtho(m_nearPlane, m_farPlane,
-                                  static_cast<float>(m_viewport.x - m_viewport.width / 2),
-                                  static_cast<float>(m_viewport.y + m_viewport.height / 2),
-                                  static_cast<float>(m_viewport.x + m_viewport.width / 2),
-                                  static_cast<float>(m_viewport.y - m_viewport.height / 2));
+                VecMath::setOrtho(m_projectionMatrix, m_nearPlane, m_farPlane,
+                                    static_cast<float>(m_viewport.x - m_viewport.width / 2),
+                                    static_cast<float>(m_viewport.y + m_viewport.height / 2),
+                                    static_cast<float>(m_viewport.x + m_viewport.width / 2),
+                                    static_cast<float>(m_viewport.y - m_viewport.height / 2));
             else
-                m_projectionMatrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
+                VecMath::setPerspective(m_projectionMatrix, m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             
-            m_viewMatrix.setView(m_direction, m_up);
-            m_viewMatrix.translate(-1.0f * m_position);
+            setView(m_viewMatrix, m_direction, m_up);
+            translate(m_viewMatrix, -m_position);
             m_matrix = m_projectionMatrix * m_viewMatrix;
             
             bool invertible;
-            m_invertedMatrix = m_matrix.inverted(invertible);
+            m_invertedMatrix = inverted(m_matrix, invertible);
             assert(invertible);
         }
         
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             
             glViewport(m_viewport.x, m_viewport.y, m_viewport.width, m_viewport.height);
             glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(m_matrix.v);
+            glLoadMatrixf(reinterpret_cast<const float*>(m_matrix.v));
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
         }

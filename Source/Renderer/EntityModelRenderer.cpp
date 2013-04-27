@@ -36,8 +36,8 @@ namespace TrenchBroom {
 
         void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quatf& rotation) {
             Mat4f matrix;
-            matrix.translate(position);
-            matrix.rotate(rotation);
+            translate(matrix, position);
+            rotate(matrix, rotation);
 
             ApplyModelMatrix applyMatrix(transformation, matrix);
             render(shaderProgram);

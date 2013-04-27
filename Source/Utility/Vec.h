@@ -188,12 +188,29 @@ namespace TrenchBroom {
                     v[i] = static_cast<T>(0.0);
             }
                     
+            Vec(const Vec<T,S+1>& vec) {
+                for (size_t i = 0; i < S; i++)
+                    v[i] = vec[i];
+            }
+
+            Vec(const Vec<T,S+2>& vec) {
+                for (size_t i = 0; i < S; i++)
+                    v[i] = vec[i];
+            }
+
             Vec(const Vec<T,S-1>& vec, const T last) {
                 for (size_t i = 0; i < S-1; i++)
                     v[i] = vec[i];
                 v[S-1] = last;
             }
                     
+            Vec(const Vec<T,S-2>& vec, const T oneButLast, const T last) {
+                for (size_t i = 0; i < S-2; i++)
+                    v[i] = vec[i];
+                v[S-2] = oneButLast;
+                v[S-1] = last;
+            }
+            
             Vec(const Vec<T,S>& right) {
                 for (size_t i = 0; i < S; i++)
                     v[i] = right[i];
