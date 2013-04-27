@@ -519,6 +519,9 @@ namespace TrenchBroom {
         typedef Vec<float,2> Vec2f;
         typedef Vec<float,3> Vec3f;
         typedef Vec<float,4> Vec4f;
+        typedef Vec<double,2> Vec2d;
+        typedef Vec<double,3> Vec3d;
+        typedef Vec<double,4> Vec4d;
                     
         template <typename T, size_t S>
         inline Vec<T,S> operator*(const T left, const Vec<T,S>& right) {

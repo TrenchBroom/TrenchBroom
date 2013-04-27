@@ -646,6 +646,9 @@ namespace TrenchBroom {
         typedef Mat<float,2,2> Mat2f;
         typedef Mat<float,3,3> Mat3f;
         typedef Mat<float,4,4> Mat4f;
+        typedef Mat<double,2,2> Mat2d;
+        typedef Mat<double,3,3> Mat3d;
+        typedef Mat<double,4,4> Mat4d;
     }
 }
 

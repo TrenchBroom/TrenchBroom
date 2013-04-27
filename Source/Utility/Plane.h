@@ -169,6 +169,7 @@ namespace TrenchBroom {
         };
                     
         typedef Plane<float> Planef;
+        typedef Plane<double> Planed;
     }
 }
 

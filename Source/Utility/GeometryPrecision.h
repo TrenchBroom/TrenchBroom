@@ -17,25 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
+#ifndef TrenchBroom_GeometryPrecision_h
+#define TrenchBroom_GeometryPrecision_h
 
-#include "Utility/GeometryPrecision.h"
-#include "Utility/Vec.h"
-
-#include <set>
-#include <vector>
+#include "Utility/VecMath.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Face;
+    namespace VecMath {
+        // use this type for all geometry computations
+        typedef double GeomPrec;
         
-        typedef std::vector<Face*> FaceList;
-        static const FaceList EmptyFaceList;
-        typedef std::set<Face*> FaceSet;
-        static const FaceSet EmptyFaceSet;
-        
-        typedef VecMath::Vec3f FacePoints[3];
+        typedef Vec<GeomPrec,2> Vec2g;
+        typedef Vec<GeomPrec,3> Vec3g;
+        typedef Vec<GeomPrec,4> Vec4g;
+        typedef BBox<GeomPrec> BBoxg;
+        typedef Ray<GeomPrec> Rayg;
+        typedef Line<GeomPrec> Lineg;
+        typedef Plane<GeomPrec> Planeg;
+        typedef Quat<GeomPrec> Quatg;
+        typedef Mat<GeomPrec,2,2> Mat2g;
+        typedef Mat<GeomPrec,3,3> Mat3g;
+        typedef Mat<GeomPrec,4,4> Mat4g;
     }
 }
 

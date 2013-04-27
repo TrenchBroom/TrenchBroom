@@ -105,6 +105,7 @@ namespace TrenchBroom {
         };
 
         typedef Quat<float> Quatf;
+        typedef Quat<double> Quatd;
         
         template <typename T>
         inline Quat<T> operator*(const T left, const Quat<T>& right) {

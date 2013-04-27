@@ -275,6 +275,7 @@ namespace TrenchBroom {
         };
         
         typedef Ray<float> Rayf;
+        typedef Ray<double> Rayd;
     }
 }
 

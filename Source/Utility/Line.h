@@ -42,6 +42,7 @@ namespace TrenchBroom {
         };
         
         typedef Line<float> Linef;
+        typedef Line<double> Lined;
     }
 }
 
