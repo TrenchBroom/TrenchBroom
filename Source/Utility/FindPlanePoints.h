@@ -374,7 +374,7 @@ namespace TrenchBroom {
                 if (Math<float>::zero(frequency, 1.0f / 7084.0f)) {
                     setDefaultPlanePoints(plane, points);
                 } else {
-                    const CoordinatePlane& coordPlane = CoordinatePlane::plane(plane.normal);
+                    const CoordinatePlanef& coordPlane = CoordinatePlanef::plane(plane.normal);
                     const Planef swizzledPlane(coordPlane.swizzle(plane.normal), plane.distance);
                     const float waveLength = 1.0f / frequency;
                     const float pointDistance = std::max(64.0f, waveLength);

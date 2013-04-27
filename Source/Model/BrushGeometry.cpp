@@ -163,7 +163,7 @@ namespace TrenchBroom {
             if (Math<float>::isnan(dist))
                 return Math<float>::nan();
 
-            const CoordinatePlane& cPlane = CoordinatePlane::plane(boundary.normal);
+            const CoordinatePlanef& cPlane = CoordinatePlanef::plane(boundary.normal);
 
             const Vec3f hit = ray.pointAtDistance(dist);
             const Vec3f projectedHit = cPlane.swizzle(hit);
