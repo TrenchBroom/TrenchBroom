@@ -196,7 +196,7 @@ namespace TrenchBroom {
                 // render input controller
                 if (m_vbo == NULL)
                     m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-                // m_inputController->render(*m_vbo, renderContext);
+                m_inputController->render(*m_vbo, renderContext);
 
                 // render overlays
                 if (m_overlayRenderer == NULL)
