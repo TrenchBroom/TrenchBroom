@@ -21,20 +21,26 @@
 
 #include "TestSuite.h"
 #include "Utility/FindIntegerPlanePointsTest.h"
+#include "Utility/MatTest.h"
 #include "Utility/PlaneTest.h"
 #include "Utility/Vec3fTest.h"
 
 int main(int argc, const char * argv[]) {
     using namespace TrenchBroom;
     
-    Math<T>::Vec3fTest vec3fTest;
+    VecMath::Vec3fTest vec3fTest;
     vec3fTest.run();
     
-    Math<T>::PlaneTest planeTest;
+    VecMath::MatTest matTest;
+    matTest.run();
+
+    VecMath::PlaneTest planeTest;
     planeTest.run();
 
-    Math<T>::FindIntegerPlanePointsTest planePointsTest;
+    /*
+    VecMath::FindIntegerPlanePointsTest planePointsTest;
     planePointsTest.run();
+    */
     
     return 0;
 }

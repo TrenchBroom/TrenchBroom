@@ -184,19 +184,19 @@ namespace TrenchBroom {
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
-
 				view.camera().update(0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
 
-                // render the scene
                 Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
                 Utility::Grid& grid = m_documentViewHolder.document().grid();
 				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), view.console());
+
+                // render the scene
 				view.renderer().render(renderContext);
 
                 // render input controller
                 if (m_vbo == NULL)
                     m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-                m_inputController->render(*m_vbo, renderContext);
+                // m_inputController->render(*m_vbo, renderContext);
 
                 // render overlays
                 if (m_overlayRenderer == NULL)
@@ -205,21 +205,20 @@ namespace TrenchBroom {
 
                 // render focus rectangle
                 if (m_hasFocus) {
-                    Mat4f projection;
-                    setOrtho(projection, -1.0f, 1.0f, 0.0f, 0.0f,
-                             static_cast<float>(GetClientSize().x),
-                             static_cast<float>(GetClientSize().y));
+                    const Mat4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f,
+                                                         static_cast<float>(GetClientSize().x),
+                                                         static_cast<float>(GetClientSize().y));
                     Renderer::ApplyTransformation ortho(renderContext.transformation(), projection, Mat4f::Identity);
 
-                    wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-                    float r = static_cast<float>(color.Red()) / 0xFF;
-                    float g = static_cast<float>(color.Green()) / 0xFF;
-                    float b = static_cast<float>(color.Blue()) / 0xFF;
-                    float a = 1.0f;
+                    const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+                    const float r = static_cast<float>(color.Red()) / 0xFF;
+                    const float g = static_cast<float>(color.Green()) / 0xFF;
+                    const float b = static_cast<float>(color.Blue()) / 0xFF;
+                    const float a = 1.0f;
 
-                    float w = GetSize().x;
-                    float h = GetSize().y;
-                    float t = 2.0f;
+                    const float w = GetSize().x;
+                    const float h = GetSize().y;
+                    const float t = 2.0f;
 
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glDisable(GL_CULL_FACE);

@@ -79,7 +79,7 @@ namespace TrenchBroom {
         TransformObjectsCommand* TransformObjectsCommand::translateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
             const wxString commandName = Command::makeObjectActionName(wxT("Move"), entities, brushes);
             const Mat4f& vectorTransform = Mat4f::Identity;
-            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
+            const Mat4f pointTransform = translationMatrix(delta);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, false);
         }
 
@@ -91,8 +91,8 @@ namespace TrenchBroom {
 
         TransformObjectsCommand* TransformObjectsCommand::rotateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center) {
             const wxString commandName = Command::makeObjectActionName(wxT("Rotate"), entities, brushes);
-            const Mat4f vectorTransform = clockwise ? rotatedCW(Mat4f::Identity, angle, axis) : rotatedCCW(Mat4f::Identity, angle, axis);
-            const Mat4f pointTransform = translated(Mat4f::Identity, center) * vectorTransform * translated(Mat4f::Identity, -center);
+            const Mat4f vectorTransform = clockwise ? rotationMatrix(-angle, axis) : rotationMatrix(angle, axis);
+            const Mat4f pointTransform = translationMatrix(center) * vectorTransform * translationMatrix(-center);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, false);
         }
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                     vectorTransform = Mat4f::MirZ;
                     break;
             }
-            const Mat4f pointTransform = translated(Mat4f::Identity, center) * vectorTransform * translated(Mat4f::Identity, -center);
+            const Mat4f pointTransform = translationMatrix(center) * vectorTransform * translationMatrix(-center);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, true);
         }
     }

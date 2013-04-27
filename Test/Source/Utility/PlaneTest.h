@@ -32,13 +32,13 @@ namespace TrenchBroom {
             }
         public:
             void testZ() {
-                Plane plane;
+                Planef plane;
                 
-                plane = Plane(Vec3f(1.0, 0.0f, 1.0f).normalized(), 0.0f);
-                assert(Math<T>::eq(plane.z(1.0f, 0.0f), -1.0f));
+                plane = Planef(Vec3f(1.0, 0.0f, 1.0f).normalized(), 0.0f);
+                assert(Math<float>::eq(plane.z(1.0f, 0.0f), -1.0f));
 
-                plane = Plane(Vec3f(0.0, 0.0f, 1.0f).normalized(), 1.0f);
-                assert(Math<T>::eq(plane.z(0.0f, 0.0f), 1.0f));
+                plane = Planef(Vec3f(0.0, 0.0f, 1.0f).normalized(), 1.0f);
+                assert(Math<float>::eq(plane.z(0.0f, 0.0f), 1.0f));
             }
         };
     }

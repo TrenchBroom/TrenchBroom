@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
             Mat4f rotation;
             if (hit->hitArea() == Model::RotateHandleHit::HAXAxis) {
-                rotateCCW(rotation, angle, Vec3f::PosX);
+                rotation = rotationMatrix(angle, Vec3f::PosX);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
@@ -100,7 +100,7 @@ namespace TrenchBroom {
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateHandleHit::HAYAxis) {
-                rotateCCW(rotation, angle, Vec3f::PosY);
+                rotation = rotationMatrix(angle, Vec3f::PosY);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
-                rotateCCW(rotation, angle, Vec3f::PosZ);
+                rotation = rotationMatrix(angle, Vec3f::PosZ);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
@@ -149,9 +149,8 @@ namespace TrenchBroom {
             const float distance = renderContext.camera().distanceTo(position());
             const float factor = prefs.getFloat(Preferences::HandleScalingFactor) * distance;
 
-            Mat4f translation = translated(Mat4f::Identity, position());
-            scale(translation, factor);
-            Renderer::ApplyModelMatrix applyTranslation(renderContext.transformation(), translation);
+            const Mat4f matrix = translationMatrix(position()) * scalingMatrix(factor);
+            Renderer::ApplyModelMatrix applyTranslation(renderContext.transformation(), matrix);
 
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);

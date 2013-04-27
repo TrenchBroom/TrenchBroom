@@ -190,12 +190,7 @@ namespace TrenchBroom {
                     
             Vec(const Vec<T,S+1>& vec) {
                 for (size_t i = 0; i < S; i++)
-                    v[i] = vec[i];
-            }
-
-            Vec(const Vec<T,S+2>& vec) {
-                for (size_t i = 0; i < S; i++)
-                    v[i] = vec[i];
+                    v[i] = vec[i] / vec[S];
             }
 
             Vec(const Vec<T,S-1>& vec, const T last) {
@@ -231,6 +226,13 @@ namespace TrenchBroom {
                 if (this != &right)
                     for (size_t i = 0; i < S; i++)
                         v[i] = right[i];
+                return *this;
+            }
+            
+            inline Vec<T,S>& operator= (const Vec<T,S-1>& right) {
+                for (size_t i = 0; i < S-1; i++)
+                    v[i] = right[i];
+                v[S-1] = static_cast<T>(0.0);
                 return *this;
             }
             

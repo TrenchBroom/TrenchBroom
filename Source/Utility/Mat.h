@@ -47,47 +47,63 @@ namespace TrenchBroom {
 
             typedef std::vector<Mat<T,R,C> > List;
 
-            // we store in row-major format
-            Vec<T,C> v[R];
+            // we store in column-major format
+            // every vector is one column
+            Vec<T,R> v[C];
 
-            Mat<T,R,C>() {}
+            Mat<T,R,C>() {
+                setIdentity();
+            }
 
             Mat<T,R,C>(const T v11, const T v12, const T v13,
                        const T v21, const T v22, const T v23,
                        const T v31, const T v32, const T v33) {
-                v[0][0] = v11; v[0][1] = v12; v[0][2] = v13;
-                v[1][0] = v21; v[1][1] = v22; v[1][2] = v23;
-                v[2][0] = v31; v[2][1] = v32; v[2][2] = v33;
-                for (size_t r = 3; r < R; r++)
-                    for (size_t c = 3; c < C; c++)
-                        v[r][c] = static_cast<T>(0.0);
+                v[0][0] = v11; v[1][0] = v12; v[2][0] = v13;
+                v[0][1] = v21; v[1][1] = v22; v[2][1] = v23;
+                v[0][2] = v31; v[1][2] = v32; v[2][2] = v33;
+                for (size_t c = 3; c < C; c++)
+                    for (size_t r = 3; r < R; r++)
+                        v[c][r] = static_cast<T>(0.0);
             }
 
             Mat<T,R,C>(const T v11, const T v12, const T v13, const T v14,
                        const T v21, const T v22, const T v23, const T v24,
                        const T v31, const T v32, const T v33, const T v34,
                        const T v41, const T v42, const T v43, const T v44) {
-                v[0][0] = v11; v[0][1] = v12; v[0][2] = v13; v[0][3] = v14;
-                v[1][0] = v21; v[1][1] = v22; v[1][2] = v23; v[1][3] = v24;
-                v[2][0] = v31; v[2][1] = v32; v[2][2] = v33; v[2][3] = v34;
-                v[3][0] = v41; v[3][1] = v42; v[3][2] = v43; v[3][3] = v44;
-                for (size_t r = 4; r < R; r++)
-                    for (size_t c = 4; c < C; c++)
-                        v[r][c] = static_cast<T>(0.0);
+                v[0][0] = v11; v[1][0] = v12; v[2][0] = v13; v[3][0] = v14;
+                v[0][1] = v21; v[1][1] = v22; v[2][1] = v23; v[3][1] = v24;
+                v[0][2] = v31; v[1][2] = v32; v[2][2] = v33; v[3][2] = v34;
+                v[0][3] = v41; v[1][3] = v42; v[2][3] = v43; v[3][3] = v44;
+                for (size_t c = 4; c < C; c++)
+                    for (size_t r = 4; r < R; r++)
+                        v[c][r] = static_cast<T>(0.0);
+            }
+            
+            Mat<T,R,C>(const Mat<T,R,C>& other) {
+                for (size_t c = 0; c < C; c++)
+                    v[c] = other[c];
             }
 
             inline Mat<T,R,C>& operator= (const Mat<T,R,C>& right) {
-                for (size_t r = 0; r < R; r++)
-                    for (size_t c = 0; c < C; c++)
-                        v[r][c] = right[r][c];
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        v[c][r] = right[c][r];
                 return *this;
             }
 
             inline const Mat<T,R,C> operator- () const {
                 Mat<T,R,C> result;
-                for (size_t r = 0; r < R; r++)
-                    result[r] = -v[r];
+                for (size_t c = 0; c < C; c++)
+                    result[c] = -v[c];
                 return result;
+            }
+            
+            inline bool operator== (const Mat<T,R,C>& right) const {
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        if (v[c][r] != right[c][r])
+                            return false;
+                return true;
             }
 
             // Matrix addition and subtraction
@@ -97,8 +113,8 @@ namespace TrenchBroom {
             }
 
             inline Mat<T,R,C>& operator+= (const Mat<T,R,C>& right) {
-                for (size_t r = 0; r < R; r++)
-                    v[r] += right[r];
+                for (size_t c = 0; c < C; c++)
+                    v[c] += right[c];
                 return *this;
             }
 
@@ -108,17 +124,18 @@ namespace TrenchBroom {
             }
 
             inline Mat<T,R,C>& operator-= (const Mat<T,R,C>& right) {
-                for (size_t r = 0; r < R; r++)
-                    v[r] -= right[r];
+                for (size_t c = 0; c < C; c++)
+                    v[c] -= right[c];
                 return *this;
             }
 
             // Matrix multiplication
             inline const Mat<T,R,C> operator* (const Mat<T,C,R>& right) const {
-                Mat<T,R,C> result;
-                for (size_t r = 0; r < R; r++)
-                    for (size_t c = 0; c < C; c++)
-                        result[r][c] += v[r][c] * right[c][r];
+                Mat<T,R,C> result(Mat<T,R,C>::Null);
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        for (size_t i = 0; i < C; i++)
+                            result[c][r] += v[i][r] * right[c][i];
                 return result;
             }
 
@@ -133,8 +150,9 @@ namespace TrenchBroom {
             }
 
             inline Mat<T,R,C>& operator*= (const T right) {
-                for (size_t r = 0; r < R; r++)
-                    v[r] *= right;
+                for (size_t c = 0; c < C; c++)
+                    v[c] *= right;
+                return *this;
             }
 
             inline const Mat<T,R,C> operator/ (const T right) const {
@@ -143,25 +161,22 @@ namespace TrenchBroom {
             }
 
             inline Mat<T,R,C>& operator/= (const T right) {
-                for (size_t r = 0; r < R; r++)
-                    v[r] /= right;
+                for (size_t c = 0; c < C; c++)
+                    v[c] /= right;
                 return *this;
             }
 
-            // Vector multiplication
+            // Vector left multiplication
             inline const Vec<T,C> operator* (const Vec<T,C>& right) const {
                 Vec<T,C> result;
                 for (size_t r = 0; r < R; r++)
-                    result[r] = v[r].dot(right);
+                    for (size_t i = 0; i < C; i++)
+                        result[r] += v[i][r] * right[i];
                 return result;
             }
 
             inline const Vec<T,C-1> operator* (const Vec<T,C-1>& right) const {
-                return Vec<T,C-1>(*this *Vec<T,C>(right, static_cast<T>(1.0)));
-            }
-
-            inline const Vec<T,C-2> operator* (const Vec<T,C-2>& right) const {
-                return Vec<T,C-2>(*this *Vec<T,C>(right, static_cast<T>(1.0)));
+                return Vec<T,C-1>(*this * Vec<T,C>(right, static_cast<T>(1.0)));
             }
 
             inline const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
@@ -184,29 +199,20 @@ namespace TrenchBroom {
                     return result;
             }
 
-            inline const typename Vec<T,C-2>::List operator* (const typename Vec<T,C-2>::List& right) const {
-                typename Vec<T,C-2>::List result;
-                result.reserve(right.size());
-
-                typename Vec<T,C-2>::List::const_iteartor it, end;
-                for (it = right.begin(), end = right.end(); it != end; ++it)
-                    result.push_back(*this * *it);
-                    return result;
-            }
-
-            inline Vec<T,C>& operator[] (const size_t index) {
-                assert(index < R);
+            // indexed access, returns one column
+            inline Vec<T,R>& operator[] (const size_t index) {
+                assert(index < C);
                 return v[index];
             }
 
-            inline const Vec<T,C>& operator[] (const size_t index) const {
-                assert(index < R);
+            inline const Vec<T,R>& operator[] (const size_t index) const {
+                assert(index < C);
                 return v[index];
             }
 
             inline bool equals(const Mat<T,R,C>& other, const T epsilon = Math<T>::AlmostZero) const {
-                for (size_t r = 0; r < R; r++)
-                    if (!v[r].equals(other[r], epsilon))
+                for (size_t c = 0; c < C; c++)
+                    if (!v[c].equals(other[c], epsilon))
                         return false;
                 return true;
             }
@@ -216,112 +222,203 @@ namespace TrenchBroom {
             }
 
             inline Mat<T,R,C>& setIdentity() {
-                for (size_t r = 0; r < R; r++)
-                    for (size_t c = 0; c < C; c++)
-                        v[r][c] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
                 return *this;
             }
 
-            inline Mat<T,R,C>& setColumn(size_t c, const Vec<T,R>& values) {
-                for (size_t r = 0; r < R; r++)
-                    v[r][c] = values[r];
+            inline Mat<T,R,C>& setNull() {
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        v[c][r] = static_cast<T>(0.0);
                 return *this;
             }
-
-            inline Mat<T,R,C>& setColumn(size_t c, const Vec<T,R-1>& values) {
-                for (size_t r = 0; r < R-1; r++)
-                    v[r][c] = values[r];
-                v[R-1][c] = static_cast<T>(0.0);
-                return *this;
-            }
-
-            inline Mat<T,C,R>& transpose() {
-                *this = transposed();
-                return *this;
-            }
-
+            
             inline const Mat<T,C,R> transposed() const {
                 Mat<T,C,R> result;
-                for (size_t r = 0; r < R; r++)
-                    for (size_t c = 0; c < C; c++)
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
                         result[c][r] = v[r][c];
                 return result;
+            }
+            
+            inline void write(float* buffer) const {
+                for (size_t c = 0; c < C; c++)
+                    for (size_t r = 0; r < R; r++)
+                        buffer[(c*C + r)] = v[c][r];
             }
         };
 
         template <typename T, size_t R, size_t C>
-        inline Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
+        inline Mat<T,R,C> operator* (const T left, const Mat<T,R,C>& right) {
             return right * left;
         }
-
-        template <typename T, size_t S>
-        inline Mat<T,S,S>& invert(Mat<T,S,S>& mat, bool& invertible) {
-            mat = inverted(mat, invertible);
-            return mat;
+        
+        /*
+        // Vector left multiplication with vector of dimension R
+        template <typename T, size_t R, size_t C>
+        inline const Vec<T,R> operator* (const Vec<T,R> left, const Mat<T,R,C>& right) {
+            Vec<T,R> result;
+            for (size_t c = 0; c < C; c++)
+                result[c] = left.dot(right[c]);
+            return result;
+        }
+    
+        template <typename T, size_t R, size_t C>
+        inline Vec<T,R>& operator*= (Vec<T,R> left, const Mat<T,R,C>& right) {
+            return left = left * right;
+        }
+    
+        // Vector left multiplication with list of vectors of dimension R
+        template <typename T, size_t R, size_t C>
+        inline const typename Vec<T,R>::List operator* (const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
+            typename Vec<T,R>::List result;
+            result.reserve(left.size());
+            
+            typename Vec<T,R>::List::const_iterator it, end;
+            for (it = left.begin(), end = left.end(); it != end; ++it)
+                result.push_back(*it * right);
+            return result;
+        }
+        
+        template <typename T, size_t R, size_t C>
+        inline const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
+            typename Vec<T,R>::List::iterator it, end;
+            for (it = left.begin(), end = left.end(); it != end; ++it)
+                *it *= right;
+            return left;
         }
 
-        template <typename T, size_t S>
-        inline const Mat<T,S,S> inverted(const Mat<T,S,S>& mat, bool& invertible) {
-            const T det = determinant(mat);
-            invertible = det != 0.0;
-            if (!invertible)
-                return mat;
-
-            return adjoint(mat) / det;
+        // Vector left multiplication with vector of dimension R-1
+        template <typename T, size_t R, size_t C>
+        inline const Vec<T,R-1> operator* (const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
+            return Vec<T,C-1>(Vec<T,C>(left, static_cast<T>(1.0)) * right);
+        }
+        
+        template <typename T, size_t R, size_t C>
+        inline Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
+            return left = left * right;
+        }
+        
+        // Vector left multiplication with list of vectors of dimension R-1
+        template <typename T, size_t R, size_t C>
+        inline const typename Vec<T,R-1>::List operator* (const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+            typename Vec<T,R-1>::List result;
+            result.reserve(right.size());
+            
+            typename Vec<T,R-1>::List::const_iterator it, end;
+            for (it = left.begin(), end = left.end(); it != end; ++it)
+                result.push_back(*it * right);
+            return result;
         }
 
+        template <typename T, size_t R, size_t C>
+        inline typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+            typename Vec<T,R-1>::List::iterator it, end;
+            for (it = left.begin(), end = left.end(); it != end; ++it)
+                *it *= right;
+            return left;
+        }
+         */
+    
         template <typename T, size_t S>
-        inline Mat<T,S,S>& adjoin(Mat<T,S,S>& mat) {
+        const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
+            Mat<T,S-1,S-1> min;
+            size_t minC, minR;
+            minC = 0;
+            for (size_t c = 0; c < S; c++) {
+                if (c != col) {
+                    minR = 0;
+                    for (size_t r = 0; r < S; r++)
+                        if (r != row)
+                            min[minC][minR++] = mat[c][r];
+                    minC++;
+                }
+            }
+            return min;
+        }
+        
+        template <typename T, size_t S>
+        struct MatrixDeterminant {
+            inline T operator() (const Mat<T,S,S>& mat) const {
+                // Laplace after first col
+                T det = static_cast<T>(0.0);
+                for (size_t r = 0; r < S; r++) {
+                    const T f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
+                    det += f * mat[0][r] * MatrixDeterminant<T,S-1>()(minorMatrix(mat, r, 0));
+                }
+                return det;
+            }
+        };
+        
+        template <typename T>
+        struct MatrixDeterminant<T,3> {
+            inline T operator() (const Mat<T,3,3>& mat) const {
+                return (  mat[0][0]*mat[1][1]*mat[2][2]
+                        + mat[1][0]*mat[2][1]*mat[0][2]
+                        + mat[2][0]*mat[0][1]*mat[1][2]
+                        - mat[2][0]*mat[1][1]*mat[0][2]
+                        - mat[1][0]*mat[0][1]*mat[2][2]
+                        - mat[0][0]*mat[2][1]*mat[1][2]);
+            }
+        };
+        
+        template <typename T>
+        struct MatrixDeterminant<T,2> {
+            inline T operator() (const Mat<T,2,2>& mat) const {
+                return mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1];
+            }
+        };
+        
+        template <typename T>
+        struct MatrixDeterminant<T,1> {
+            inline T operator() (const Mat<T,1,1>& mat) const {
+                return mat[0][0];
+            }
+        };
+        
+        template <typename T, size_t S>
+        inline T matrixDeterminant(const Mat<T,S,S>& mat) {
+            return MatrixDeterminant<T,S>()(mat);
+        }
+        
+        template <typename T, size_t S>
+        inline Mat<T,S,S>& adjoinMatrix(Mat<T,S,S>& mat) {
             mat = adjoint(mat);
             return mat;
         }
-
+        
         template <typename T, size_t S>
-        const Mat<T,S,S> adjoint(const Mat<T,S,S>& mat) {
+        const Mat<T,S,S> adjointMatrix(const Mat<T,S,S>& mat) {
             Mat<T,S,S> result;
-            for (size_t r = 0; r < S; r++) {
-                for (size_t c = 0; c < S; c++) {
+            for (size_t c = 0; c < S; c++) {
+                for (size_t r = 0; r < S; r++) {
                     const T f = static_cast<T>((c + r) % 2 == 0 ? 1.0 : -1.0);
-                    result[c][r] = f * determinant(minorMatrix(mat, r, c));
+                    result[r][c] = f * matrixDeterminant(minorMatrix(mat, r, c)); // transpose the matrix on the fly
                 }
             }
             return result;
         }
-
+        
         template <typename T, size_t S>
-        const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
-            Mat<T,S-1,S-1> min;
-            size_t minR, minC;
-            minR = 0;
-            for (size_t r = 0; r < S; r++) {
-                minC = 0;
-                for (size_t c = 0; c < S; c++) {
-                    if (c != col && r != row)
-                        min[minR][minC++] = mat[r][c];
-                }
-                minR++;
-            }
-            return min;
+        inline Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat, bool& invertible) {
+            mat = invertedMatrix(mat, invertible);
+            return mat;
         }
 
         template <typename T, size_t S>
-        inline T determinant(const Mat<T,S,S>& mat) {
-            // Laplace after first col
-            T det = 0.0;
-            for (size_t r = 0; r < S; r++) {
-                const T f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
-                det += f * mat[r][0] * determinant(minorMatrix(mat, r, 0));
-            }
-            return det;
+        inline const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
+            const T det = matrixDeterminant(mat);
+            invertible = det != 0.0;
+            if (!invertible)
+                return mat;
+
+            return adjointMatrix(mat) / det;
         }
 
         template <typename T>
-        inline T determinant(const Mat<T,1,1>& mat) {
-            return mat[0][0];
-        }
-
-        template <typename T>
-        inline Mat<T,4,4>& setPerspective(Mat<T,4,4>& mat, const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
+        inline const Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
             const T vFrustum = std::tan(Math<T>::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
             const T hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
             const T depth = farPlane - nearPlane;
@@ -330,16 +427,14 @@ namespace TrenchBroom {
             static const T one  = static_cast<T>(1.0);
             static const T two  = static_cast<T>(2.0);
 
-            mat[0] = Vec<T,4>(nearPlane / hFrustum, zero,                    zero,                               zero);
-            mat[1] = Vec<T,4>(zero,                 nearPlane / vFrustum,    zero,                               zero);
-            mat[2] = Vec<T,4>(zero,                 zero,                   -(farPlane / nearPlane) / depth,    -two * (farPlane * nearPlane) / depth);
-            mat[3] = Vec<T,4>(zero,                 zero,                   -one,                                zero);
-
-            return mat;
+            return Mat<T,4,4>(nearPlane / hFrustum, zero,                    zero,                               zero,
+                              zero,                 nearPlane / vFrustum,    zero,                               zero,
+                              zero,                 zero,                   -(farPlane + nearPlane) / depth,    -two * farPlane * nearPlane / depth,
+                              zero,                 zero,                   -one,                                zero);
         }
 
         template <typename T>
-        inline Mat<T,4,4>& setOrtho(Mat<T,4,4>& mat, const T nearPlane, const T farPlane, const T left, const T top, const T right, const T bottom) {
+        inline const Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const T top, const T right, const T bottom) {
             const T width = right - left;
             const T height = top - bottom;
             const T depth = farPlane - nearPlane;
@@ -348,16 +443,14 @@ namespace TrenchBroom {
             static const T one  = static_cast<T>(1.0);
             static const T two  = static_cast<T>(2.0);
 
-            mat[0] = Vec<T,4>(two / width,  zero,            zero,          -(left + right) / width);
-            mat[1] = Vec<T,4>(zero,         two / height,    zero,          -(top + bottom) / height);
-            mat[2] = Vec<T,4>(zero,         zero,           -two / depth,   -(farPlane + nearPlane) / depth);
-            mat[3] = Vec<T,4>(zero,         zero,            zero,           one);
-
-            return mat;
+            return Mat<T,4,4>(two / width,  zero,            zero,          -(left + right) / width,
+                              zero,         two / height,    zero,          -(top + bottom) / height,
+                              zero,         zero,           -two / depth,   -(farPlane + nearPlane) / depth,
+                              zero,         zero,            zero,           one);
         }
 
         template <typename T>
-        inline Mat<T,4,4>& setView(Mat<T,4,4>&mat, const Vec<T,3>& direction, const Vec<T,3>& up) {
+        inline const Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
             const Vec<T,3>& f = direction;
             const Vec<T,3> s = crossed(f, up);
             const Vec<T,3> u = crossed(s, f);
@@ -365,149 +458,112 @@ namespace TrenchBroom {
             static const T zero = static_cast<T>(0.0);
             static const T one  = static_cast<T>(1.0);
 
-            mat[0] = Vec<T,4>( s, zero);
-            mat[1] = Vec<T,4>( u, zero);
-            mat[2] = Vec<T,4>(-f, zero);
-            mat[3] = Vec<T,4>(zero, zero, zero, one);
-
-            return mat;
+            return Mat<T,4,4>( s[0],  s[1],  s[2], zero,
+                               u[0],  u[1],  u[2], zero,
+                              -f[0], -f[1], -f[2], zero,
+                               zero,  zero,  zero, one);
         }
 
+        // The returned matrix will rotate any point counter-clockwise about the given axis by the given angle.
         template <typename T>
-        inline Mat<T,4,4>& rotateCW(Mat<T,4,4>&mat, const T angle, const Vec<T,3>& axis) {
-            return rotateCCW(mat, -angle, axis);
-        }
-
-        template <typename T>
-        const Mat<T,4,4> rotatedCW(const Mat<T,4,4>& mat, const T angle, const Vec<T,3>& axis) {
-            return rotatedCCW(mat, -angle, axis);
-        }
-
-        template <typename T>
-        inline Mat<T,4,4>& rotateCCW(Mat<T,4,4>& mat, const T angle, const Vec<T,3>& axis) {
-            return mat = rotatedCCW(mat, angle, axis);
-        }
-
-        template <typename T>
-        const Mat<T,4,4> rotatedCCW(const Mat<T,4,4>& mat, const T angle, const Vec<T,3>& axis) {
+        inline const Mat<T,4,4> rotationMatrix(const T angle, const Vec<T,3>& axis) {
             const T s = sinf(angle);
             const T c = cosf(angle);
             const T i = static_cast<T>(1.0 - c);
-
+            
             const T ix  = i  * axis[0];
             const T ix2 = ix * axis[0];
             const T ixy = ix * axis[1];
             const T ixz = ix * axis[2];
-
+            
             const T iy  = i  * axis[1];
             const T iy2 = iy * axis[1];
             const T iyz = iy * axis[2];
-
+            
             const T iz2 = i  * axis[2] * axis[2];
-
+            
             const T sx = s * axis[0];
             const T sy = s * axis[1];
             const T sz = s * axis[2];
-
-            Mat<T,4,4> temp;
-            temp[0][0] = ix2 + c;
-            temp[0][1] = ixy - sz;
-            temp[0][2] = ixz + sy;
-            temp[0][3] = 0.0;
-
-            temp[1][0] = ixy + sz;
-            temp[1][1] = iy2 + c;
-            temp[1][2] = iyz - sx;
-            temp[1][3] = 0.0;
-
-            temp[2][0] = ixz - sy;
-            temp[2][1] = iyz + sx;
-            temp[2][2] = iz2 + c;
-            temp[2][3] = 0.0;
-
-            temp[3][0] = 0.0;
-            temp[3][1] = 0.0;
-            temp[3][2] = 0.0;
-            temp[3][3] = 1.0;
-
-            return mat * temp;
+            
+            Mat<T,4,4> rotation;
+            rotation[0][0] = ix2 + c;
+            rotation[0][1] = ixy - sz;
+            rotation[0][2] = ixz + sy;
+            rotation[0][3] = 0.0;
+            
+            rotation[1][0] = ixy + sz;
+            rotation[1][1] = iy2 + c;
+            rotation[1][2] = iyz - sx;
+            rotation[1][3] = 0.0;
+            
+            rotation[2][0] = ixz - sy;
+            rotation[2][1] = iyz + sx;
+            rotation[2][2] = iz2 + c;
+            rotation[2][3] = 0.0;
+            
+            rotation[3][0] = 0.0;
+            rotation[3][1] = 0.0;
+            rotation[3][2] = 0.0;
+            rotation[3][3] = 1.0;
+            
+            return rotation;
         }
 
         template <typename T>
-        inline Mat<T,4,4>& rotate(Mat<T,4,4>& mat, const Quat<T>& rotation) {
-            return mat = rotated(mat, rotation);
-        }
-
-        template <typename T>
-        inline const Mat<T,4,4> rotated(const Mat<T,4,4>& mat, const Quat<T>& rotation) {
-            const T a = rotation.s;
-            const T b = rotation.v[0];
-            const T c = rotation.v[1];
-            const T d = rotation.v[2];
+        inline const Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
+            const T a = quat.s;
+            const T b = quat.v[0];
+            const T c = quat.v[1];
+            const T d = quat.v[2];
 
             const T a2 = a * a;
             const T b2 = b * b;
             const T c2 = c * c;
             const T d2 = d * d;
 
-            Mat<T,4,4> temp;
-            temp[0][0] = a2 + b2 - c2 - d2;
-            temp[0][1] = static_cast<T>(2.0 * b * c + 2.0 * a * d);
-            temp[0][2] = static_cast<T>(2.0 * b * d - 2.0 * a * c);
-            temp[0][3] = static_cast<T>(0.0);
+            Mat<T,4,4> rotation;
+            rotation[0][0] = a2 + b2 - c2 - d2;
+            rotation[0][1] = static_cast<T>(2.0 * b * c + 2.0 * a * d);
+            rotation[0][2] = static_cast<T>(2.0 * b * d - 2.0 * a * c);
+            rotation[0][3] = static_cast<T>(0.0);
 
-            temp[1][0] = static_cast<T>(2.0 * b * c - 2.0 * a * d);
-            temp[1][1] = a2 - b2 + c2 - d2;
-            temp[1][2] = static_cast<T>(2.0 * c * d + 2.0 * a * b);
-            temp[1][3] = static_cast<T>(0.0);
+            rotation[1][0] = static_cast<T>(2.0 * b * c - 2.0 * a * d);
+            rotation[1][1] = a2 - b2 + c2 - d2;
+            rotation[1][2] = static_cast<T>(2.0 * c * d + 2.0 * a * b);
+            rotation[1][3] = static_cast<T>(0.0);
 
-            temp[2][0] = static_cast<T>(2.0 * b * d + 2.0 * a * c);
-            temp[2][1] = static_cast<T>(2.0 * c * d - 2.0 * a * b);
-            temp[2][2] = a2 - b2 - c2 + d2;
-            temp[2][3] = static_cast<T>(0.0);
+            rotation[2][0] = static_cast<T>(2.0 * b * d + 2.0 * a * c);
+            rotation[2][1] = static_cast<T>(2.0 * c * d - 2.0 * a * b);
+            rotation[2][2] = a2 - b2 - c2 + d2;
+            rotation[2][3] = static_cast<T>(0.0);
 
-            temp[3][0] = static_cast<T>(0.0);
-            temp[3][1] = static_cast<T>(0.0);
-            temp[3][2] = static_cast<T>(0.0);
-            temp[3][3] = static_cast<T>(1.0);
-
-            return mat * temp;
+            rotation[3][0] = static_cast<T>(0.0);
+            rotation[3][1] = static_cast<T>(0.0);
+            rotation[3][2] = static_cast<T>(0.0);
+            rotation[3][3] = static_cast<T>(1.0);
+            return rotation;
         }
 
         template <typename T>
-        inline Mat<T,4,4>& translate(Mat<T,4,4>& mat, const Vec<T,3>& delta) {
-            return mat = translated(mat, delta);
-        }
-
-        template <typename T>
-        inline const Mat<T,4,4> translated(const Mat<T,4,4>& mat, const Vec<T,3>& delta) {
+        inline const Mat<T,4,4> translationMatrix(const Vec<T,3>& delta) {
             Mat<T,4,4> translation;
             for (size_t i = 0; i < 3; i++)
                 translation[3][i] = delta[i];
-            return mat * translation;
+            return translation;
         }
 
         template <typename T>
-        inline Mat<T,4,4>& scale(Mat<T,4,4>& mat, const Vec<T,3>& factors) {
-            return mat = scaled(mat, factors);
-        }
-
-        template <typename T>
-        inline const Mat<T,4,4> scaled(const Mat<T,4,4>& mat, const Vec<T,3>& factors) {
+        inline const Mat<T,4,4> scalingMatrix(const Vec<T,3>& factors) {
             Mat<T,4,4> scaling;
             for (size_t i = 0; i < 3; i++)
                 scaling[i][i] = factors[i];
-            return mat * scaling;
+            return scaling;
         }
 
         template <typename T>
-        inline Mat<T,4,4>& scale(Mat<T,4,4>& mat, const T f) {
-            return mat = scaled(mat, f);
-        }
-
-        template <typename T>
-        inline const Mat<T,4,4> scaled(const Mat<T,4,4>& mat, const T f) {
-            return scaled(mat, Vec<T,3>(f, f, f));
+        inline const Mat<T,4,4> scalingMatrix(const T f) {
+            return scalingMatrix(Vec<T,3>(f, f, f));
         }
 
         template <typename T, size_t R, size_t C>
@@ -585,7 +641,7 @@ namespace TrenchBroom {
 
 
         template <typename T, size_t R, size_t C>
-        const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>();
+        const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
 
         typedef Mat<float,2,2> Mat2f;
         typedef Mat<float,3,3> Mat3f;

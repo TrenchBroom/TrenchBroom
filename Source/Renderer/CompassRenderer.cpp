@@ -115,12 +115,13 @@ namespace TrenchBroom {
             glFrontFace(GL_CCW);
 
             Mat4f rotation = Mat4f::Identity;
-            rotation.setColumn(0, context.camera().right());
-            rotation.setColumn(1, context.camera().direction());
-            rotation.setColumn(2, context.camera().up());
+            rotation[0] = context.camera().right();
+            rotation[1] = context.camera().direction();
+            rotation[2] = context.camera().up();
 
             bool invertible;
-            invert(rotation, invertible);
+            invertMatrix(rotation, invertible);
+            assert(invertible);
 
             ApplyModelMatrix applyRotation(context.transformation(), rotation);
 

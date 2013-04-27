@@ -494,6 +494,7 @@
 		4898742E17189EB000029097 /* EntityLinkDecorator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityLinkDecorator.h; sourceTree = "<group>"; };
 		489874301718C05300029097 /* EntityLink.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.fragsh; sourceTree = "<group>"; };
 		489874311718C05400029097 /* EntityLink.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityLink.vertsh; sourceTree = "<group>"; };
+		489D3041172BEEF700FCCC9C /* MatTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatTest.h; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
 		48A5B48F1725835C0023B59F /* FlyTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlyTool.cpp; sourceTree = "<group>"; };
 		48A5B4901725835C0023B59F /* FlyTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlyTool.h; sourceTree = "<group>"; };
@@ -816,6 +817,7 @@
 			isa = PBXGroup;
 			children = (
 				483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */,
+				489D3041172BEEF700FCCC9C /* MatTest.h */,
 				483AE27916F915D40073686A /* PlaneTest.h */,
 				483AE27716F8FE890073686A /* Vec3fTest.h */,
 			);

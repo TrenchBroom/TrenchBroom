@@ -317,7 +317,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
 
-            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
+            const Mat4f pointTransform = translationMatrix(delta);
             BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
@@ -342,7 +342,7 @@ namespace TrenchBroom {
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
             assert(canMoveBoundary(face, delta));
 
-            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
+            const Mat4f pointTransform = translationMatrix(delta);
             face.transform(pointTransform, Mat4f::Identity, false, false);
             rebuildGeometry();
         }

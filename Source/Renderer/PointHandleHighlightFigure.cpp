@@ -59,12 +59,8 @@ namespace TrenchBroom {
             Vec3f::List::const_iterator it, end;
             for (it = m_positions.begin(), end = m_positions.end(); it != end; ++it) {
                 const Vec3f& position = *it;
-
-                float factor = context.camera().distanceTo(position) * m_scalingFactor;
-
-                Mat4f matrix = translated(Mat4f::Identity, position);
-                matrix *= billboardMatrix;
-                scale(matrix, Vec3f(factor, factor, 0.0f));
+                const float factor = context.camera().distanceTo(position) * m_scalingFactor;
+                const Mat4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
                 ApplyModelMatrix applyBillboard(context.transformation(), matrix);
 
                 circle.render(vbo, context);

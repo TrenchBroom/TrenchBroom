@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 m_entity = new Model::Entity(m_document.map().worldBounds());
                 m_entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 m_entity->setDefinition(&definition);
-                m_entity->transform(translated(Mat4f::Identity, origin), Mat4f::Identity, false, false);
+                m_entity->transform(translationMatrix(origin), Mat4f::Identity, false, false);
             }
         }
 

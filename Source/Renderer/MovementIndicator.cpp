@@ -132,7 +132,7 @@ namespace TrenchBroom {
             glDisable(GL_CULL_FACE);
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
 
-            Mat4f matrix = translated(Mat4f::Identity, m_position);
+            Mat4f matrix = translationMatrix(m_position);
             if (m_direction != Horizontal)
                 matrix *= context.camera().billboardMatrix(true);
 

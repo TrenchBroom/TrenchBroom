@@ -25,20 +25,19 @@ namespace TrenchBroom {
     namespace Renderer {
         void Camera::validate() const {
             if (m_ortho)
-                VecMath::setOrtho(m_projectionMatrix, m_nearPlane, m_farPlane,
-                                    static_cast<float>(m_viewport.x - m_viewport.width / 2),
-                                    static_cast<float>(m_viewport.y + m_viewport.height / 2),
-                                    static_cast<float>(m_viewport.x + m_viewport.width / 2),
-                                    static_cast<float>(m_viewport.y - m_viewport.height / 2));
+                m_projectionMatrix = orthoMatrix(m_nearPlane, m_farPlane,
+                                                 static_cast<float>(m_viewport.x - m_viewport.width / 2),
+                                                 static_cast<float>(m_viewport.y + m_viewport.height / 2),
+                                                 static_cast<float>(m_viewport.x + m_viewport.width / 2),
+                                                 static_cast<float>(m_viewport.y - m_viewport.height / 2));
             else
-                VecMath::setPerspective(m_projectionMatrix, m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
+                m_projectionMatrix = perspectiveMatrix(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             
-            setView(m_viewMatrix, m_direction, m_up);
-            translate(m_viewMatrix, -m_position);
+            m_viewMatrix = VecMath::viewMatrix(m_direction, m_up) * translationMatrix(-m_position);
             m_matrix = m_projectionMatrix * m_viewMatrix;
             
             bool invertible;
-            m_invertedMatrix = inverted(m_matrix, invertible);
+            m_invertedMatrix = invertedMatrix(m_matrix, invertible);
             assert(invertible);
         }
         
@@ -71,10 +70,12 @@ namespace TrenchBroom {
                 validate();
             
             glViewport(m_viewport.x, m_viewport.y, m_viewport.width, m_viewport.height);
+            /*
             glMatrixMode(GL_PROJECTION);
             glLoadMatrixf(reinterpret_cast<const float*>(m_matrix.v));
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
+             */
         }
 
         const Vec3f Camera::defaultPoint() const {
@@ -82,7 +83,7 @@ namespace TrenchBroom {
         }
         
         const Vec3f Camera::defaultPoint(const Vec3f& direction) const {
-            return m_position + direction * 256.0f;
+            return m_position + direction*256.0f;
         }
 
         const Vec3f Camera::defaultPoint(float x, float y) const {
@@ -95,9 +96,9 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f win = m_matrix * point;
-            win[0] = m_viewport.x + m_viewport.width  * (win.x() + 1.0f) / 2.0f;
-            win[1] = m_viewport.y + m_viewport.height * (win.y() + 1.0f) / 2.0f;
-            win[2] = (win.z() + 1.0f) / 2.0f;
+            win[0] = m_viewport.x + m_viewport.width *(win.x() + 1.0f)/2.0f;
+            win[1] = m_viewport.y + m_viewport.height*(win.y() + 1.0f)/2.0f;
+            win[2] = (win.z() + 1.0f)/2.0f;
             return win;
         }
 
@@ -106,9 +107,9 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f normalized;
-            normalized[0] = 2.0f * (x - m_viewport.x) / m_viewport.width  - 1.0f;
-            normalized[1] = 2.0f * (m_viewport.height - y - m_viewport.y) / m_viewport.height - 1.0f;
-            normalized[2] = 2.0f * depth - 1.0f;
+            normalized[0] = 2.0f*(x - m_viewport.x)/m_viewport.width  - 1.0f;
+            normalized[1] = 2.0f*(m_viewport.height - y - m_viewport.y)/m_viewport.height - 1.0f;
+            normalized[2] = 2.0f*depth - 1.0f;
             
             return m_invertedMatrix * normalized;
         }
@@ -118,8 +119,8 @@ namespace TrenchBroom {
                 validate();
             
             Vec3f result = m_matrix * point;
-            result[0] = m_viewport.width  * result.x() / 2.0f;
-            result[1] = m_viewport.height * result.y() / 2.0f;
+            result[0] = m_viewport.width *result.x()/2.0f;
+            result[1] = m_viewport.height*result.y()/2.0f;
             result[2] = m_nearPlane + (m_farPlane - m_nearPlane) * (1.0f - result.z());
             
             return result;

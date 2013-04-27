@@ -54,10 +54,7 @@ namespace TrenchBroom {
                 BBoxf rotatedBounds;
                 if (modelRenderer != NULL) {
                     const Vec3f& center = modelRenderer->center();
-                    Mat4f transformation;
-                    translate(transformation, center);
-                    rotate(transformation, m_rotation);
-                    translate(transformation, -1.0f * center);
+                    const Mat4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = modelRenderer->boundsAfterTransformation(transformation);
                 } else {
                     rotatedBounds = definition->bounds();
@@ -72,18 +69,18 @@ namespace TrenchBroom {
 
         void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling) {
             const BBoxf& bounds = definition.bounds();
-
-            Mat4f itemMatrix;
-            translate(itemMatrix, offset);
-            scale(itemMatrix, scaling);
-            translate(itemMatrix, Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()));
-            translate(itemMatrix, bounds.center());
-            rotate(itemMatrix, m_rotation);
-            translate(itemMatrix, -bounds.center());
+            const Vec3f rotationOffset = Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
+            const Mat4f itemMatrix = (translationMatrix(offset) *
+                                      scalingMatrix(scaling) *
+                                      translationMatrix(rotationOffset) *
+                                      translationMatrix(bounds.center()) *
+                                      rotationMatrix(m_rotation) *
+                                      translationMatrix(-bounds.center()));
+           
             Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
-
             boundsProgram.setUniformVariable("Color", definition.color());
 
+            // TODO: use a vertex buffer here!
             Vec3f::List vertices;
             bounds.vertices(vertices);
 
@@ -95,16 +92,15 @@ namespace TrenchBroom {
 
         void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling) {
             const Vec3f& rotationCenter = renderer.center();
+            const Vec3f rotationOffset = Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
+            const Mat4f itemMatrix = (translationMatrix(offset) *
+                                      scalingMatrix(scaling) *
+                                      translationMatrix(rotationOffset) *
+                                      translationMatrix(rotationCenter) *
+                                      rotationMatrix(m_rotation) *
+                                      translationMatrix(-rotationCenter));
 
-            Mat4f itemMatrix;
-            translate(itemMatrix, offset);
-            scale(itemMatrix, scaling);
-            translate(itemMatrix, Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()));
-            translate(itemMatrix, rotationCenter);
-            rotate(itemMatrix, m_rotation);
-            translate(itemMatrix, -rotationCenter);
             Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
-
             renderer.render(entityModelProgram);
         }
 
@@ -172,18 +168,13 @@ namespace TrenchBroom {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glEnable(GL_DEPTH_TEST);
 
-            float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-            float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-            float viewRight     = static_cast<float>(GetClientRect().GetRight());
-            float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+            const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
+            const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
+            const float viewRight     = static_cast<float>(GetClientRect().GetRight());
+            const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
 
-            Mat4f projection;
-            setOrtho(projection, -1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-
-            Mat4f view;
-            setView(view, Vec3f::NegX, Vec3f::PosZ);
-            translate(view, Vec3f(256.0f, 0.0f, 0.0f));
-            Renderer::Transformation transformation(projection, view);
+            const Mat4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f)));
 
             size_t visibleGroupCount = 0;
             size_t visibleItemCount = 0;
@@ -284,9 +275,7 @@ namespace TrenchBroom {
             }
 
             glDisable(GL_DEPTH_TEST);
-            setView(view, Vec3f::NegZ, Vec3f::PosY);
-            translate(view, Vec3f(0.0f, 0.0f, -1.0f));
-            transformation = Renderer::Transformation(projection, view);
+            transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
 
             if (visibleGroupCount > 0) { // render group title background
                 unsigned int vertexCount = static_cast<unsigned int>(4 * visibleGroupCount);
@@ -366,12 +355,8 @@ namespace TrenchBroom {
             const float viewRight     = bounds.width();
             const float viewBottom    = bounds.height();
 
-            Mat4f projection;
-            setOrtho(projection, -1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-
-            Mat4f view;
-            setView(view, Vec3f::NegX, Vec3f::PosZ);
-            translate(view, Vec3f(256.0f, 0.0f, 0.0f));
+            const Mat4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const Mat4f view = viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
 
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));

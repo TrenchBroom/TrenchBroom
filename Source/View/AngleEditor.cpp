@@ -124,8 +124,7 @@ namespace TrenchBroom {
                 Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
 
                 Renderer::Transformation transformation(camera.projectionMatrix(), camera.viewMatrix());
-                Mat4f matrix;
-                rotateCCW(matrix, camAngle, Vec3f::PosZ);
+                const Mat4f matrix = rotationMatrix(camAngle, Vec3f::PosZ);
                 Renderer::ApplyModelMatrix apply(transformation, matrix);
 
                 Renderer::ActivateShader handleShader(m_sharedResources.shaderManager(), Renderer::Shaders::HandleShader);

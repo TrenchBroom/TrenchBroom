@@ -157,9 +157,7 @@ namespace TrenchBroom {
             assert(g >= 0.0f && g <= 1.0f);
             assert(b >= 0.0f && b <= 1.0f);
             
-            VecMath::Vec3f rgb(r, g, b);
-            VecMath::Vec3f yiq = VecMath::Mat3f::RGBToYIQ * rgb;
-            
+            VecMath::Vec3f yiq = VecMath::Mat3f::RGBToYIQ * VecMath::Vec3f(r, g, b);
             y = yiq.x();
             i = yiq.y();
             q = yiq.z();

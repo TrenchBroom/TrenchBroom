@@ -48,15 +48,11 @@ namespace TrenchBroom {
 
             glClear(GL_DEPTH_BUFFER_BIT);
 
-            Mat4f projection, view;
-            setOrtho(projection, 0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
-            setView(view, Vec3f::PosY, Vec3f::PosZ);
-            translate(view, 500.0f * Vec3f::PosY);
+            const Mat4f projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
+            const Mat4f view = viewMatrix(Vec3f::PosY, Vec3f::PosZ) * translationMatrix(500.0f * Vec3f::PosY);
             Renderer::ApplyTransformation ortho(context.transformation(), projection, view);
 
-            Mat4f compassTransformation = Mat4f::Identity;
-            translate(compassTransformation, Vec3f(-viewWidth / 2.0f + 50.0f, 0.0f, -viewHeight / 2.0f + 50.0f));
-            scale(compassTransformation, 2.0f);
+            const Mat4f compassTransformation = translationMatrix(Vec3f(-viewWidth / 2.0f + 50.0f, 0.0f, -viewHeight / 2.0f + 50.0f)) * scalingMatrix(2.0f);
             Renderer::ApplyModelMatrix applyCompassTranslate(context.transformation(), compassTransformation);
 
             m_compass->render(*m_vbo, context);
