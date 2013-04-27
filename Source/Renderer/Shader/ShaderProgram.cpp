@@ -175,7 +175,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniformMatrix2fv(location, 1, false, value.v);
+            glUniformMatrix2fv(location, 1, false, reinterpret_cast<const float*>(value.v));
             return true;
         }
 
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniformMatrix3fv(location, 1, false, value.v);
+            glUniformMatrix3fv(location, 1, false, reinterpret_cast<const float*>(value.v));
             return true;
         }
 
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
-            glUniformMatrix4fv(location, 1, false, value.v);
+            glUniformMatrix4fv(location, 1, false, reinterpret_cast<const float*>(value.v));
             return true;
         }
     }

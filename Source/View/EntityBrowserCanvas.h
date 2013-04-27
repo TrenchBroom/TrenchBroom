@@ -72,8 +72,8 @@ namespace TrenchBroom {
             String m_filterText;
 
             void addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font);
-            void renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scale);
-            void renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scale);
+            void renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling);
+            void renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling);
 
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);

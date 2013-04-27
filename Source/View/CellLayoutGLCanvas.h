@@ -127,6 +127,9 @@ namespace TrenchBroom {
             }
 
             void OnPaint(wxPaintEvent& event) {
+                if (!IsShownOnScreen())
+                    return;
+
                 if (!m_layoutInitialized)
                     initLayout();
 

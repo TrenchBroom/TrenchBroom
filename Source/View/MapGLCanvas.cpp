@@ -160,12 +160,12 @@ namespace TrenchBroom {
             if (dontIgnoreNextClick)
                 m_ignoreNextClick = false;
             Refresh();
-            
+
             return true;
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
-            if (!m_documentViewHolder.valid())
+            if (!m_documentViewHolder.valid() || !IsShownOnScreen())
                 return;
 
             EditorView& view = m_documentViewHolder.view();
@@ -206,7 +206,9 @@ namespace TrenchBroom {
                 // render focus rectangle
                 if (m_hasFocus) {
                     Mat4f projection;
-                    projection.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
+                    setOrtho(projection, -1.0f, 1.0f, 0.0f, 0.0f,
+                             static_cast<float>(GetClientSize().x),
+                             static_cast<float>(GetClientSize().y));
                     Renderer::ApplyTransformation ortho(renderContext.transformation(), projection, Mat4f::Identity);
 
                     wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         m_mapCamera(mapCamera),
         m_glContext(new wxGLContext(this, sharedResources.sharedContext())) {
         }
-        
+
         void AngleEditorCanvas::OnPaint(wxPaintEvent& event) {
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
@@ -60,17 +60,17 @@ namespace TrenchBroom {
                 Vec3f dir(1.0f, 0.0f, -1.0f);
                 dir.normalize();
                 Vec3f pos = -50.0f * dir;
-                
+
                 Renderer::Camera camera(75.0f, 1.0f, 128.0f, pos, dir);
                 camera.setOrtho(true);
-                
+
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
                 glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                
+
                 camera.update(0, 0, GetClientSize().x, GetClientSize().y);
-                
+
                 Renderer::Vbo vbo(GL_ARRAY_BUFFER, 0xFFF);
                 Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
 
@@ -79,16 +79,16 @@ namespace TrenchBroom {
 
                 Renderer::VertexArray circleArray(vbo, GL_LINE_LOOP, CircleSegments, Renderer::Attribute::position2f(), 0);
                 circleArray.addAttributes(vertices);
-                
+
                 Renderer::VertexArray linesArray(vbo, GL_LINES, 48 + 4 + 2 * static_cast<unsigned int>(m_angles.size()),
                                                  Renderer::Attribute::position3f(),
                                                  Renderer::Attribute::color4f());
-                
+
                 float a = 0.0f;
                 for (unsigned int i = 0; i < 24; i++) {
                     float s = std::sin(a);
                     float c = std::cos(a);
-                    
+
                     linesArray.addAttribute(Vec3f(0.85f * size * s, 0.85f * size * c, 0.0f));
                     linesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                     linesArray.addAttribute(Vec3f(1.0f * size * s, 1.0f * size * c, 0.0f));
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
                     a += Math<float>::Pi / 12.0f;
                 }
-                
+
                 linesArray.addAttribute(Vec3f(0.0f, 0.0f, 0.0f));
                 linesArray.addAttribute(Color(1.0f, 0.0f, 0.0f, 1.0f));
                 linesArray.addAttribute(Vec3f(size, 0.0f, 0.0f));
@@ -120,22 +120,21 @@ namespace TrenchBroom {
                     linesArray.addAttribute(Vec3f(size * std::cos(angle), size * std::sin(angle), 0.0f));
                     linesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                 }
-                
+
                 Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
 
                 Renderer::Transformation transformation(camera.projectionMatrix(), camera.viewMatrix());
                 Mat4f matrix;
-                matrix.rotateCCW(camAngle, Vec3f::PosZ);
-                matrix.translate(Vec3f(0.0f, 0.0f, 0.0f));
+                rotateCCW(matrix, camAngle, Vec3f::PosZ);
                 Renderer::ApplyModelMatrix apply(transformation, matrix);
-                
+
                 Renderer::ActivateShader handleShader(m_sharedResources.shaderManager(), Renderer::Shaders::HandleShader);
                 handleShader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 circleArray.render();
-                
+
                 Renderer::ActivateShader coloredShader(m_sharedResources.shaderManager(), Renderer::Shaders::ColoredHandleShader);
                 linesArray.render();
-                
+
                 SwapBuffers();
             }
         }
@@ -143,7 +142,7 @@ namespace TrenchBroom {
         wxWindow* AngleEditor::createVisual(wxWindow* parent) {
             assert(m_panel == NULL);
             assert(m_canvas == NULL);
-            
+
             wxSize size = wxSize(parent->GetClientSize().y, parent->GetClientSize().y);
             m_panel = new wxPanel(parent, wxID_ANY, wxDefaultPosition, size, wxBORDER_SUNKEN);
             m_canvas = new AngleEditorCanvas(m_panel, document().sharedResources(), view().camera());
@@ -151,29 +150,29 @@ namespace TrenchBroom {
             wxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(m_canvas, 1, wxEXPAND);
             m_panel->SetSizer(innerSizer);
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->AddStretchSpacer();
             outerSizer->Add(m_panel, 0, wxALIGN_CENTER_VERTICAL);
             outerSizer->AddStretchSpacer();
             parent->SetSizer(outerSizer);
-            
+
             return m_panel;
         }
-        
+
         void AngleEditor::destroyVisual() {
             assert(m_panel != NULL);
-            
+
             m_panel->Destroy();
             m_panel = NULL;
             m_canvas = NULL;
         }
-        
+
         void AngleEditor::updateVisual() {
             assert(m_panel != NULL);
-            
+
             AngleEditorCanvas::AngleList angles;
-            
+
             const Model::EntityList& entities = document().editStateManager().allSelectedEntities();
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -182,11 +181,11 @@ namespace TrenchBroom {
                 if (angleValue != NULL)
                     angles.push_back(static_cast<float>(std::atof(angleValue->c_str())));
             }
-            
+
             m_canvas->setAngles(angles);
             m_canvas->Refresh();
         }
-        
+
         AngleEditor::AngleEditor(SmartPropertyEditorManager& manager) :
         SmartPropertyEditor(manager),
         m_panel(NULL),

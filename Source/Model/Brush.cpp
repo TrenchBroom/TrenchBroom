@@ -256,7 +256,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.transform(pointTransform, vectorTransform, lockTextures, invertOrientation);
             }
-            
+
             rebuildGeometry();
         }
 
@@ -270,7 +270,7 @@ namespace TrenchBroom {
                 return false;
             }
         }
-        
+
         void Brush::correct(float epsilon) {
             FaceSet newFaces;
             FaceSet droppedFaces;
@@ -317,7 +317,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
 
-            const Mat4f pointTransform = Mat4f::Identity.translated(delta);
+            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
             BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
@@ -342,7 +342,7 @@ namespace TrenchBroom {
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
             assert(canMoveBoundary(face, delta));
 
-            const Mat4f pointTransform = Mat4f::Identity.translated(delta);
+            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
             face.transform(pointTransform, Mat4f::Identity, false, false);
             rebuildGeometry();
         }
@@ -369,7 +369,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -401,7 +401,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -433,7 +433,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -465,7 +465,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -497,7 +497,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* newFace = *it;
                 newFace->setBrush(this);

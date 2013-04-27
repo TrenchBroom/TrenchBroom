@@ -55,10 +55,9 @@ namespace TrenchBroom {
                 if (modelRenderer != NULL) {
                     const Vec3f& center = modelRenderer->center();
                     Mat4f transformation;
-                    transformation.setIdentity();
-                    transformation.translate(center);
-                    transformation.rotate(m_rotation);
-                    transformation.translate(-1.0f * center);
+                    translate(transformation, center);
+                    rotate(transformation, m_rotation);
+                    translate(transformation, -1.0f * center);
                     rotatedBounds = modelRenderer->boundsAfterTransformation(transformation);
                 } else {
                     rotatedBounds = definition->bounds();
@@ -71,16 +70,16 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling) {
             const BBoxf& bounds = definition.bounds();
 
             Mat4f itemMatrix;
-            itemMatrix.translate(offset);
-            itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            itemMatrix.translate(bounds.center());
-            itemMatrix.rotate(m_rotation);
-            itemMatrix.translate(-1.0f * bounds.center());
+            translate(itemMatrix, offset);
+            scale(itemMatrix, scaling);
+            translate(itemMatrix, Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()));
+            translate(itemMatrix, bounds.center());
+            rotate(itemMatrix, m_rotation);
+            translate(itemMatrix, -bounds.center());
             Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
 
             boundsProgram.setUniformVariable("Color", definition.color());
@@ -94,16 +93,16 @@ namespace TrenchBroom {
             glEnd();
         }
 
-        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling) {
             const Vec3f& rotationCenter = renderer.center();
 
             Mat4f itemMatrix;
-            itemMatrix.translate(offset);
-            itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            itemMatrix.translate(rotationCenter);
-            itemMatrix.rotate(m_rotation);
-            itemMatrix.translate(-1.0f * rotationCenter);
+            translate(itemMatrix, offset);
+            scale(itemMatrix, scaling);
+            translate(itemMatrix, Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()));
+            translate(itemMatrix, rotationCenter);
+            rotate(itemMatrix, m_rotation);
+            translate(itemMatrix, -rotationCenter);
             Renderer::ApplyModelMatrix applyItemMatrix(transformation, itemMatrix);
 
             renderer.render(entityModelProgram);
@@ -179,11 +178,11 @@ namespace TrenchBroom {
             float viewBottom    = static_cast<float>(GetClientRect().GetTop());
 
             Mat4f projection;
-            projection.setOrtho(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            setOrtho(projection, -1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
 
             Mat4f view;
-            view.setView(Vec3f::NegX, Vec3f::PosZ);
-            view.translate(Vec3f(256.0f, 0.0f, 0.0f));
+            setView(view, Vec3f::NegX, Vec3f::PosZ);
+            translate(view, Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
 
             size_t visibleGroupCount = 0;
@@ -285,8 +284,8 @@ namespace TrenchBroom {
             }
 
             glDisable(GL_DEPTH_TEST);
-            view.setView(Vec3f::NegZ, Vec3f::PosY);
-            view.translate(Vec3f(0.0f, 0.0f, -1.0f));
+            setView(view, Vec3f::NegZ, Vec3f::PosY);
+            translate(view, Vec3f(0.0f, 0.0f, -1.0f));
             transformation = Renderer::Transformation(projection, view);
 
             if (visibleGroupCount > 0) { // render group title background
@@ -362,17 +361,17 @@ namespace TrenchBroom {
             m_offscreenRenderer.setDimensions(width, height);
             m_offscreenRenderer.preRender(); // Scampie's Vista machine crashes here
 
-            float viewLeft      = 0.0f;
-            float viewTop       = 0.0f;
-            float viewRight     = bounds.width();
-            float viewBottom    = bounds.height();
+            const float viewLeft      = 0.0f;
+            const float viewTop       = 0.0f;
+            const float viewRight     = bounds.width();
+            const float viewBottom    = bounds.height();
 
             Mat4f projection;
-            projection.setOrtho(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            setOrtho(projection, -1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
 
             Mat4f view;
-            view.setView(Vec3f::NegX, Vec3f::PosZ);
-            view.translate(Vec3f(256.0f, 0.0f, 0.0f));
+            setView(view, Vec3f::NegX, Vec3f::PosZ);
+            translate(view, Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
 
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));

@@ -120,7 +120,7 @@ namespace TrenchBroom {
             rotation.setColumn(2, context.camera().up());
 
             bool invertible;
-            rotation.invert(invertible);
+            invert(rotation, invertible);
 
             ApplyModelMatrix applyRotation(context.transformation(), rotation);
 

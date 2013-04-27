@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,28 +31,28 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::performDo() {
             makeSnapshots(m_entities);
             makeSnapshots(m_brushes);
-            
+
             document().entitiesWillChange(m_entities);
             document().brushesWillChange(m_brushes);
-            
+
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
                 entity.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
             }
-            
+
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
                 brush.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
             }
-            
+
             document().entitiesDidChange(m_entities);
             document().brushesDidChange(m_brushes);
 
             return true;
         }
-        
+
         bool TransformObjectsCommand::performUndo() {
             document().entitiesWillChange(m_entities);
             document().brushesWillChange(m_brushes);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             return true;
         }
-        
+
         TransformObjectsCommand::TransformObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Mat4f& pointTransform, const Mat4f& vectorTransform, bool invertOrientation) :
         SnapshotCommand(TransformObjects, document, name),
         m_entities(entities),
@@ -79,10 +79,10 @@ namespace TrenchBroom {
         TransformObjectsCommand* TransformObjectsCommand::translateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
             const wxString commandName = Command::makeObjectActionName(wxT("Move"), entities, brushes);
             const Mat4f& vectorTransform = Mat4f::Identity;
-            const Mat4f pointTransform = Mat4f::Identity.translated(delta);
+            const Mat4f pointTransform = translated(Mat4f::Identity, delta);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, false);
         }
-        
+
         TransformObjectsCommand* TransformObjectsCommand::translateEntity(Model::MapDocument& document, Model::Entity& entity, const Vec3f& delta) {
             Model::EntityList entities;
             entities.push_back(&entity);
@@ -91,8 +91,8 @@ namespace TrenchBroom {
 
         TransformObjectsCommand* TransformObjectsCommand::rotateObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center) {
             const wxString commandName = Command::makeObjectActionName(wxT("Rotate"), entities, brushes);
-            const Mat4f vectorTransform = clockwise ? Mat4f::Identity.rotatedCW(angle, axis) : Mat4f::Identity.rotatedCCW(angle, axis);
-            const Mat4f pointTransform = Mat4f::Identity.translated(center) * vectorTransform * Mat4f::Identity.translated(-center);
+            const Mat4f vectorTransform = clockwise ? rotatedCW(Mat4f::Identity, angle, axis) : rotatedCCW(Mat4f::Identity, angle, axis);
+            const Mat4f pointTransform = translated(Mat4f::Identity, center) * vectorTransform * translated(Mat4f::Identity, -center);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, false);
         }
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                     vectorTransform = Mat4f::MirZ;
                     break;
             }
-            const Mat4f pointTransform = Mat4f::Identity.translated(center) * vectorTransform * Mat4f::Identity.translated(-center);
+            const Mat4f pointTransform = translated(Mat4f::Identity, center) * vectorTransform * translated(Mat4f::Identity, -center);
             return new TransformObjectsCommand(document, entities, brushes, commandName, pointTransform, vectorTransform, true);
         }
     }

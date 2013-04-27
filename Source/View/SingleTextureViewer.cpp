@@ -75,16 +75,16 @@ namespace TrenchBroom {
                     float viewHeight = viewBottom - viewTop;
 
                     Mat4f projection;
-                    projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+                    setOrtho(projection, -1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
 
                     Mat4f view;
-                    view.setView(Vec3f::NegZ, Vec3f::PosY);
-                    view.translate(Vec3f(0.0f, 0.0f, 0.1f));
+                    setView(view, Vec3f::NegZ, Vec3f::PosY);
+                    translate(view, Vec3f(0.0f, 0.0f, 0.1f));
 
                     glMatrixMode(GL_PROJECTION);
-                    glLoadMatrixf(projection.v);
+                    glLoadMatrixf(reinterpret_cast<const float*>(projection.v));
                     glMatrixMode(GL_MODELVIEW);
-                    glLoadMatrixf(view.v);
+                    glLoadMatrixf(reinterpret_cast<const float*>(view.v));
 
                     float texLeft, texTop, texRight, texBottom;
                     float scale;
