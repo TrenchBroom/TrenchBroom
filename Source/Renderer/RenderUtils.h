@@ -46,11 +46,11 @@ namespace TrenchBroom {
             glColor4f(color.r(), color.g(), color.b(), color.a());
         }
         
-        inline void glColorV4f(const Color& color, float blendFactor) {
+        inline void glColorV4f(const Color& color, const float blendFactor) {
             glColor4f(color.r(), color.g(), color.b(), color.a() * blendFactor);
         }
         
-        inline void glSetEdgeOffset(float f) {
+        inline void glSetEdgeOffset(const float f) {
             glDepthRange(0.0f, 1.0f - EdgeOffset * f);
         }
         
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
-        inline void arrow(float shaftLength, float shaftWidth, float headLength, float headWidth, Vec2f::List& outline, Vec2f::List& triangles) {
+        inline void arrow(const float shaftLength, const float shaftWidth, const float headLength, const float headWidth, Vec2f::List& outline, Vec2f::List& triangles) {
             assert(shaftLength > 0.0f);
             assert(shaftWidth > 0.0f);
             assert(headLength > 0.0f);
@@ -88,7 +88,15 @@ namespace TrenchBroom {
             triangles.push_back(Vec2f(shaftLength, -headWidth / 2.0f));
         }
         
-        inline void circle(float radius, unsigned int segments, Vec2f::List& vertices) {
+        inline void arrowHead(const float headLength, const float headWidth, Vec2f& v1, Vec2f& v2, Vec2f& v3) {
+            assert(headLength > 0.0f);
+            assert(headWidth > 0.0f);
+            v1 = Vec2f(0.0f, headWidth / 2.0f);
+            v2 = Vec2f(headLength, 0.0f);
+            v3 = Vec2f(0.0f, -headWidth / 2.0f);
+        }
+        
+        inline void circle(const float radius, const unsigned int segments, Vec2f::List& vertices) {
             assert(radius > 0.0f);
             assert(segments > 2);
             
@@ -105,7 +113,7 @@ namespace TrenchBroom {
             }
         }
         
-        inline void circle(float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
+        inline void circle(const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(radius > 0.0f);
             assert(segments > 2);
             
@@ -125,7 +133,7 @@ namespace TrenchBroom {
             }
         }
         
-        inline void cylinder(float length, float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
+        inline void cylinder(const float length, const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
@@ -150,7 +158,7 @@ namespace TrenchBroom {
             }
         }
         
-        inline void cone(float length, float radius, unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
+        inline void cone(const float length, const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
@@ -188,7 +196,7 @@ namespace TrenchBroom {
             }
         }
         
-        inline void roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments, Vec2f::List& vertices) {
+        inline void roundedRect(const float width, const float height, const float cornerRadius, const unsigned int cornerSegments, Vec2f::List& vertices) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
@@ -311,7 +319,7 @@ namespace TrenchBroom {
 
             typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
 
-            inline size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2) {
+            inline size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
                 if (it == cache.end()) {
                     const Vec3f& vertex1 = vertices[index1];
@@ -327,14 +335,14 @@ namespace TrenchBroom {
             }
         }
         
-        inline Vec3f::List sphere(float radius, unsigned int iterations) {
+        inline Vec3f::List sphere(const float radius, const unsigned int iterations) {
             typedef std::vector<SphereBuilder::Triangle> TriangleList;
 
             Vec3f::List vertices;
             TriangleList triangles;
 
             // build initial icosahedron
-            float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
+            const float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
             vertices.push_back(Vec3f(-1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f( 1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f(-1.0f,    -t,  0.0f).normalize());

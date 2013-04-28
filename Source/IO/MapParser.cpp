@@ -287,12 +287,6 @@ namespace TrenchBroom {
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
             p3 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
-
-            /* // we're now doing this in the face itself
-            p1.correct();
-            p2.correct();
-            p3.correct();
-            */
             
             expect(TokenType::String, token = m_tokenizer.nextToken());
             String textureName = token.data();
@@ -334,7 +328,7 @@ namespace TrenchBroom {
             expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat();
             
-            if (crossed(p3 - p1, p2 - 1).null()) {
+            if (crossed(p3 - p1, p2 - p1).null()) {
                 m_console.warn("Skipping face with colinear points in line %i", token.line());
                 return NULL;
             }

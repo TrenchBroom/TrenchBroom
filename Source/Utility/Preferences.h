@@ -255,7 +255,8 @@ namespace TrenchBroom {
         extern const Preference<float>  GridAlpha;
         extern const Preference<bool>   GridCheckerboard;
 
-        extern const Preference<Color>  EntityRotationDecoratorColor;
+        extern const Preference<Color>  EntityRotationDecoratorFillColor;
+        extern const Preference<Color>  EntityRotationDecoratorOutlineColor;
 
         extern const Preference<Color>  XColor;
         extern const Preference<Color>  YColor;

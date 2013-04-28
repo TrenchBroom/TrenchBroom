@@ -34,16 +34,12 @@ namespace TrenchBroom {
         
         class EntityRotationDecorator : public EntityDecorator {
         private:
-            Color m_color;
-            VertexArray* m_vertexArray;
-            bool m_valid;
+            Color m_fillColor;
+            Color m_outlineColor;
         public:
-            EntityRotationDecorator(const Model::MapDocument& document, const Color& color);
-            ~EntityRotationDecorator();
+            EntityRotationDecorator(const Model::MapDocument& document, const Color& fillColor, const Color& outlineColor);
             
-            inline void invalidate() {
-                m_valid = false;
-            }
+            inline void invalidate() {}
             
             void render(Vbo& vbo, RenderContext& context);
         };

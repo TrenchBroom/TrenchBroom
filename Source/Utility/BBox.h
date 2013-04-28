@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 
             }
             
-            T intersectWithRay(const Ray<T>& ray, Vec<T,3>* sideNormal) const {
+            T intersectWithRay(const Ray<T>& ray, Vec<T,3>* sideNormal = NULL) const {
                 const bool inside = contains(ray.origin);
                 
                 if (ray.direction.x() < 0) {
@@ -289,10 +289,6 @@ namespace TrenchBroom {
                 }
                 
                 return std::numeric_limits<T>::quiet_NaN();
-            }
-            
-            inline T intersectWithRay(const Ray<T>& ray) const {
-                return intersectWithRay(ray, NULL);
             }
             
             inline BBox<T>& translate(const Vec<T,3>& delta) {

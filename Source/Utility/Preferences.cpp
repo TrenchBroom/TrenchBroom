@@ -45,7 +45,8 @@ namespace TrenchBroom {
         const Preference<float> GridAlpha = Preference<float>(                                  "Renderer/Grid Alpha",                                          0.25f);
         const Preference<bool>  GridCheckerboard = Preference<bool>(                            "Renderer/Grid Checkerboard",                                   false);
 
-        const Preference<Color> EntityRotationDecoratorColor = Preference<Color>(               "Renderer/Colors/Decorators/Entity rotation",                   Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        const Preference<Color> EntityRotationDecoratorFillColor = Preference<Color>(           "Renderer/Colors/Decorators/Entity rotation fill color",        Color(1.0f,  0.0f,  0.0f,  0.3f ));
+        const Preference<Color> EntityRotationDecoratorOutlineColor = Preference<Color>(        "Renderer/Colors/Decorators/Entity rotation outline color",     Color(1.0f,  1.0f,  1.0f,  0.7f ));
 
         const Preference<Color> XColor = Preference<Color>(                                     "Renderer/Colors/X",                                            Color(0xFF, 0x3D, 0x00));
         const Preference<Color> YColor = Preference<Color>(                                     "Renderer/Colors/Y",                                            Color(0x4B, 0x95, 0x00));

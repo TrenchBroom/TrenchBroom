@@ -35,6 +35,11 @@ namespace TrenchBroom {
             static const T CorrectEpsilon;
             static const T ColinearEpsilon;
             static const T Pi;
+            static const T TwoPi;
+            static const T PiOverTwo;
+            static const T PiOverFour;
+            static const T PiOverStraightAngle;
+            static const T StraightAngleOverPi;
             static const T E;
 
             inline static bool isnan(const T f) {
@@ -50,11 +55,11 @@ namespace TrenchBroom {
             }
             
             inline static T radians(const T d) {
-                return Pi * d / static_cast<T>(180.0);
+                return d * PiOverStraightAngle;
             }
 
             inline static T degrees(const T r) {
-                return static_cast<T>(180.0) * r / Pi;
+                return r * StraightAngleOverPi;
             }
             
             inline static T round(const T v) {
@@ -144,7 +149,17 @@ namespace TrenchBroom {
         template <typename T>
         const T Math<T>::Pi                   = static_cast<T>(3.141592653589793);
         template <typename T>
-        const T Math<T>:: E                    = static_cast<T>(2.718281828459045);
+        const T Math<T>::TwoPi                = static_cast<T>(2.0) * Pi;
+        template <typename T>
+        const T Math<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
+        template <typename T>
+        const T Math<T>::PiOverFour           = Pi / static_cast<T>(4.0);
+        template <typename T>
+        const T Math<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
+        template <typename T>
+        const T Math<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
+        template <typename T>
+        const T Math<T>:: E                   = static_cast<T>(2.718281828459045);
 
         inline size_t succ(size_t index, size_t count, size_t offset = 1) {
             return (index + offset) % count;

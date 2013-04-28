@@ -147,10 +147,10 @@ namespace TrenchBroom {
             }
             bbRight = crossed(bbUp, bbLook);
 
-            return Mat4f(bbRight.x(),  bbUp.x(),     bbLook.x(),   0.0f,
-                         bbRight.y(),  bbUp.y(),     bbLook.y(),   0.0f,
-                         bbRight.z(),  bbUp.z(),     bbLook.z(),   0.0f,
-                         0.0f,       0.0f,       0.0f,       1.0f);
+            return Mat4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
+                         bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
+                         bbRight.z(),   bbUp.z(),   bbLook.z(), 0.0f,
+                         0.0f,          0.0f,       0.0f,       1.0f);
         }
 
         void Camera::frustumPlanes(Planef& top, Planef& right, Planef& bottom, Planef& left) const {
@@ -173,6 +173,10 @@ namespace TrenchBroom {
             d = center - m_right * hFrustum - m_position;
             d.normalize();
             left = Planef(crossed(m_up, d), m_position);
+        }
+
+        Vec3f Camera::vectorTo(const Vec3f& point) const {
+            return (point - m_position).normalized();
         }
 
         float Camera::distanceTo(const Vec3f& point) const {

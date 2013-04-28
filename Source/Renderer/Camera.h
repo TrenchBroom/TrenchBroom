@@ -157,6 +157,7 @@ namespace TrenchBroom {
             const Mat4f billboardMatrix(bool fixUp = false) const;
             void frustumPlanes(Planef& top, Planef& right, Planef& bottom, Planef& left) const;
 
+            Vec3f vectorTo(const Vec3f& point) const;
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
 

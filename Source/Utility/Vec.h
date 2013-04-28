@@ -551,7 +551,7 @@ namespace TrenchBroom {
             const Vec<T,3> cross = crossed(vec, axis);
             if (cross.dot(up) >= static_cast<T>(0.0))
                 return std::acos(cos);
-            return static_cast<T>(2.0) * Math<T>::Pi - std::acos(cos);
+            return Math<T>::TwoPi - std::acos(cos);
         }
     }
 }

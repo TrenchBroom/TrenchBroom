@@ -457,9 +457,9 @@ namespace TrenchBroom {
             m_lockedEntityRenderer->setTintColor(prefs.getColor(Preferences::LockedEntityColor));
             m_lockedEntityRenderer->setGrayscale(true);
             
-            m_entityDecorators.push_back(new EntityRotationDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorColor)));
+            m_entityDecorators.push_back(new EntityRotationDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorFillColor), prefs.getColor(Preferences::EntityRotationDecoratorOutlineColor)));
 				// TODO : give own color preferences
-            m_entityDecorators.push_back(new EntityLinkDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorColor)));
+            m_entityDecorators.push_back(new EntityLinkDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorFillColor)));
         }
         
         MapRenderer::~MapRenderer() {

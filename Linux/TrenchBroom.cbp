@@ -152,8 +152,6 @@
 		<Unit filename="../Source/Controller/EntityDefinitionCommand.h" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.cpp" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.h" />
-		<Unit filename="../Source/Controller/FlipObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/FlipObjectsCommand.h" />
 		<Unit filename="../Source/Controller/FlyTool.cpp" />
 		<Unit filename="../Source/Controller/FlyTool.h" />
 		<Unit filename="../Source/Controller/Input.h" />
@@ -163,8 +161,6 @@
 		<Unit filename="../Source/Controller/MoveEdgesCommand.h" />
 		<Unit filename="../Source/Controller/MoveFacesCommand.cpp" />
 		<Unit filename="../Source/Controller/MoveFacesCommand.h" />
-		<Unit filename="../Source/Controller/MoveObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/MoveObjectsCommand.h" />
 		<Unit filename="../Source/Controller/MoveObjectsTool.cpp" />
 		<Unit filename="../Source/Controller/MoveObjectsTool.h" />
 		<Unit filename="../Source/Controller/MoveTexturesCommand.cpp" />
@@ -189,10 +185,6 @@
 		<Unit filename="../Source/Controller/ResizeBrushesTool.h" />
 		<Unit filename="../Source/Controller/RotateHandle.cpp" />
 		<Unit filename="../Source/Controller/RotateHandle.h" />
-		<Unit filename="../Source/Controller/RotateObjects90Command.cpp" />
-		<Unit filename="../Source/Controller/RotateObjects90Command.h" />
-		<Unit filename="../Source/Controller/RotateObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/RotateObjectsCommand.h" />
 		<Unit filename="../Source/Controller/RotateObjectsTool.cpp" />
 		<Unit filename="../Source/Controller/RotateObjectsTool.h" />
 		<Unit filename="../Source/Controller/RotateTexturesCommand.cpp" />
@@ -216,6 +208,8 @@
 		<Unit filename="../Source/Controller/TextureCollectionCommand.cpp" />
 		<Unit filename="../Source/Controller/TextureCollectionCommand.h" />
 		<Unit filename="../Source/Controller/Tool.h" />
+		<Unit filename="../Source/Controller/TransformObjectsCommand.cpp" />
+		<Unit filename="../Source/Controller/TransformObjectsCommand.h" />
 		<Unit filename="../Source/Controller/VertexHandleManager.cpp" />
 		<Unit filename="../Source/Controller/VertexHandleManager.h" />
 		<Unit filename="../Source/GL/glew.c">
@@ -423,9 +417,7 @@
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />
 		<Unit filename="../Source/Utility/List.h" />
-		<Unit filename="../Source/Utility/Mat2.h" />
-		<Unit filename="../Source/Utility/Mat3.h" />
-		<Unit filename="../Source/Utility/Mat4.h" />
+		<Unit filename="../Source/Utility/Mat.h" />
 		<Unit filename="../Source/Utility/Math.h" />
 		<Unit filename="../Source/Utility/MessageException.h" />
 		<Unit filename="../Source/Utility/Plane.h" />

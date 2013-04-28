@@ -164,7 +164,7 @@ namespace TrenchBroom {
             }
             
             inline Vec<T,3> project(const Vec<T,3>& v) const {
-                return v - v.dot(normal) * v.normalized();
+                return v - v.dot(normal) * normal;
             }
         };
                     
