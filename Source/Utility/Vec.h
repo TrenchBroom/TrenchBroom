@@ -381,7 +381,7 @@ namespace TrenchBroom {
             }
             
             inline bool parallelTo(const Vec<T,S>& other, const T epsilon = Math<T>::ColinearEpsilon) const {
-                return std::abs(dot(other)) <= epsilon;
+                return std::abs(dot(other) - other.length()) <= epsilon;
             }
             
             inline int weight() const {

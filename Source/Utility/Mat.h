@@ -255,7 +255,6 @@ namespace TrenchBroom {
             return right * left;
         }
         
-        /*
         // Vector left multiplication with vector of dimension R
         template <typename T, size_t R, size_t C>
         inline const Vec<T,R> operator* (const Vec<T,R> left, const Mat<T,R,C>& right) {
@@ -320,10 +319,17 @@ namespace TrenchBroom {
                 *it *= right;
             return left;
         }
-         */
     
         template <typename T, size_t S>
-        const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
+        inline Mat<T,S,S>& transposeMatrix(Mat<T,S,S>& mat) {
+            for (size_t c = 0; c < S; c++)
+                for (size_t r = c + 1; r < S; r++)
+                    std::swap(mat[c][r], mat[r][c]);
+            return mat;
+        }
+        
+        template <typename T, size_t S>
+        inline const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
             Mat<T,S-1,S-1> min;
             size_t minC, minR;
             minC = 0;
@@ -351,6 +357,8 @@ namespace TrenchBroom {
                 return det;
             }
         };
+
+        // TODO: implement faster block-matrix based method for NxN matrices where N = 2^n
         
         template <typename T>
         struct MatrixDeterminant<T,3> {
@@ -490,22 +498,14 @@ namespace TrenchBroom {
             rotation[0][0] = ix2 + c;
             rotation[0][1] = ixy - sz;
             rotation[0][2] = ixz + sy;
-            rotation[0][3] = 0.0;
             
             rotation[1][0] = ixy + sz;
             rotation[1][1] = iy2 + c;
             rotation[1][2] = iyz - sx;
-            rotation[1][3] = 0.0;
             
             rotation[2][0] = ixz - sy;
             rotation[2][1] = iyz + sx;
             rotation[2][2] = iz2 + c;
-            rotation[2][3] = 0.0;
-            
-            rotation[3][0] = 0.0;
-            rotation[3][1] = 0.0;
-            rotation[3][2] = 0.0;
-            rotation[3][3] = 1.0;
             
             return rotation;
         }
@@ -526,22 +526,15 @@ namespace TrenchBroom {
             rotation[0][0] = a2 + b2 - c2 - d2;
             rotation[0][1] = static_cast<T>(2.0 * b * c + 2.0 * a * d);
             rotation[0][2] = static_cast<T>(2.0 * b * d - 2.0 * a * c);
-            rotation[0][3] = static_cast<T>(0.0);
 
             rotation[1][0] = static_cast<T>(2.0 * b * c - 2.0 * a * d);
             rotation[1][1] = a2 - b2 + c2 - d2;
             rotation[1][2] = static_cast<T>(2.0 * c * d + 2.0 * a * b);
-            rotation[1][3] = static_cast<T>(0.0);
 
             rotation[2][0] = static_cast<T>(2.0 * b * d + 2.0 * a * c);
             rotation[2][1] = static_cast<T>(2.0 * c * d - 2.0 * a * b);
             rotation[2][2] = a2 - b2 - c2 + d2;
-            rotation[2][3] = static_cast<T>(0.0);
 
-            rotation[3][0] = static_cast<T>(0.0);
-            rotation[3][1] = static_cast<T>(0.0);
-            rotation[3][2] = static_cast<T>(0.0);
-            rotation[3][3] = static_cast<T>(1.0);
             return rotation;
         }
 
@@ -569,6 +562,9 @@ namespace TrenchBroom {
         template <typename T, size_t R, size_t C>
         const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
 
+        template <typename T, size_t R, size_t C>
+        const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
+        
         template <typename T, size_t R, size_t C>
         const Mat<T,R,C> Mat<T,R,C>::Rot90XCW    = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                                static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
@@ -639,9 +635,6 @@ namespace TrenchBroom {
                                                                 static_cast<T>(0.595716), static_cast<T>(-0.274453), static_cast<T>(-0.321263),
                                                                 static_cast<T>(0.211456), static_cast<T>(-0.522591), static_cast<T>( 0.311135));
 
-
-        template <typename T, size_t R, size_t C>
-        const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
 
         typedef Mat<float,2,2> Mat2f;
         typedef Mat<float,3,3> Mat3f;
