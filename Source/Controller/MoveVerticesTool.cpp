@@ -459,6 +459,7 @@ namespace TrenchBroom {
                     case Controller::Command::ClearMap:
                     case Controller::Command::TransformObjects:
                     case Controller::Command::ResizeBrushes:
+                    case Controller::Command::SnapVertices:
                         m_handleManager.clear();
                         m_handleManager.add(document().editStateManager().selectedBrushes());
                         break;
