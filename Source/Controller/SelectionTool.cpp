@@ -42,34 +42,59 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
             
-            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0)
-                return false;
-            
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
-            if (hit == NULL)
-                return false;
-            
             Command* command = NULL;
-            bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
+            const bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
 
-            Model::Face& face = hit->face();
-            Model::Brush& brush = *face.brush();
-            Model::FaceList selectFaces;
-            
-            const Model::FaceList& brushFaces = brush.faces();
-            Model::FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = brushFaces.begin(), faceEnd = brushFaces.end(); faceIt != faceEnd; ++faceIt) {
-                Model::Face& brushFace = **faceIt;
-                if (!brushFace.selected())
-                    selectFaces.push_back(&brushFace);
+            if ((inputState.modifierKeys() & ModifierKeys::MKShift) != 0) {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit == NULL)
+                    return false;
+                
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush();
+                const Model::FaceList& brushFaces = brush.faces();
+                
+                if (multi) {
+                    Model::FaceList selectFaces;
+                    Model::FaceList::const_iterator faceIt, faceEnd;
+                    for (faceIt = brushFaces.begin(), faceEnd = brushFaces.end(); faceIt != faceEnd; ++faceIt) {
+                        Model::Face& brushFace = **faceIt;
+                        if (!brushFace.selected())
+                            selectFaces.push_back(&brushFace);
+                    }
+                    if (!selectFaces.empty())
+                        command = ChangeEditStateCommand::select(document(), selectFaces);
+                } else {
+                    command = ChangeEditStateCommand::replace(document(), brushFaces);
+                }
+            } else {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit == NULL)
+                    return false;
+                
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush();
+                Model::Entity& entity = *brush.entity();
+                const Model::BrushList& entityBrushes = entity.brushes();
+
+                if (multi) {
+                    Model::BrushList selectBrushes;
+                    Model::BrushList::const_iterator brushIt, brushEnd;
+                    for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                        Model::Brush& entityBrush = **brushIt;
+                        if (!entityBrush.selected())
+                            selectBrushes.push_back(&entityBrush);
+                    }
+
+                    if (!selectBrushes.empty())
+                        command = ChangeEditStateCommand::select(document(), selectBrushes);
+                } else {
+                    command = ChangeEditStateCommand::replace(document(), entityBrushes);
+                }
             }
-            
-            if (multi)
-                command = ChangeEditStateCommand::select(document(), brush.faces());
-            else
-                command = ChangeEditStateCommand::replace(document(), brush.faces());
 
-            submitCommand(command);
+            if (command != NULL)
+                submitCommand(command);
             return true;
         }
 
