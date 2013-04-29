@@ -520,6 +520,11 @@ namespace TrenchBroom {
             updateViews();
         }
 
+        void InputController::toggleAxisRestriction() {
+            m_inputState.axisRestriction().toggleHorizontalRestriction(m_documentViewHolder.view().camera());
+            updateViews();
+        }
+
         void InputController::toggleMoveVerticesTool(size_t changeCount) {
             toggleTool(m_moveVerticesTool);
             if (m_moveVerticesTool->active())

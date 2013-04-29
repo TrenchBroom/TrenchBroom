@@ -68,29 +68,31 @@ namespace TrenchBroom {
                 Vec2f::List triangles;
                 Vec2f::List outline;
 
-                triangles.push_back(Vec2f(-width2, offset));
-                triangles.push_back(Vec2f(0.0f, offset + height));
-                triangles.push_back(Vec2f(width2, offset));
+                if (m_direction == Vertical || m_direction != HorizontalY) {
+                    triangles.push_back(Vec2f(-width2, offset));
+                    triangles.push_back(Vec2f(0.0f, offset + height));
+                    triangles.push_back(Vec2f(width2, offset));
+                    
+                    outline.push_back(Vec2f(-width2, offset));
+                    outline.push_back(Vec2f(0.0f, offset + height));
+                    outline.push_back(Vec2f(0.0f, offset + height));
+                    outline.push_back(Vec2f(width2, offset));
+                    outline.push_back(Vec2f(width2, offset));
+                    outline.push_back(Vec2f(-width2, offset));
+                    
+                    triangles.push_back(Vec2f(width2, -offset));
+                    triangles.push_back(Vec2f(0.0f, -offset - height));
+                    triangles.push_back(Vec2f(-width2, -offset));
+                    
+                    outline.push_back(Vec2f(width2, -offset));
+                    outline.push_back(Vec2f(0.0f, -offset - height));
+                    outline.push_back(Vec2f(0.0f, -offset - height));
+                    outline.push_back(Vec2f(-width2, -offset));
+                    outline.push_back(Vec2f(-width2, -offset));
+                    outline.push_back(Vec2f(width2, -offset));
+                }
 
-                outline.push_back(Vec2f(-width2, offset));
-                outline.push_back(Vec2f(0.0f, offset + height));
-                outline.push_back(Vec2f(0.0f, offset + height));
-                outline.push_back(Vec2f(width2, offset));
-                outline.push_back(Vec2f(width2, offset));
-                outline.push_back(Vec2f(-width2, offset));
-
-                triangles.push_back(Vec2f(width2, -offset));
-                triangles.push_back(Vec2f(0.0f, -offset - height));
-                triangles.push_back(Vec2f(-width2, -offset));
-
-                outline.push_back(Vec2f(width2, -offset));
-                outline.push_back(Vec2f(0.0f, -offset - height));
-                outline.push_back(Vec2f(0.0f, -offset - height));
-                outline.push_back(Vec2f(-width2, -offset));
-                outline.push_back(Vec2f(-width2, -offset));
-                outline.push_back(Vec2f(width2, -offset));
-
-                if (m_direction != Vertical) {
+                if (m_direction != Vertical && m_direction != HorizontalX) {
                     triangles.push_back(Vec2f(offset, width2));
                     triangles.push_back(Vec2f(offset + height, 0.0f));
                     triangles.push_back(Vec2f(offset, -width2));
@@ -133,7 +135,7 @@ namespace TrenchBroom {
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
 
             Mat4f matrix = translationMatrix(m_position);
-            if (m_direction != Horizontal)
+            if (m_direction == Vertical)
                 matrix *= context.camera().billboardMatrix(true);
 
             ApplyModelMatrix applyMatrix(context.transformation(), matrix);

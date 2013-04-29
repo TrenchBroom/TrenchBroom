@@ -40,11 +40,6 @@ namespace TrenchBroom {
                 Continue
             } MoveResult;
         protected:
-            typedef enum {
-                Horizontal,
-                Vertical
-            } MoveDirection;
-
             virtual bool isApplicable(InputState& inputState, Vec3f& hitPoint) = 0;
             virtual wxString actionName(InputState& inputState) = 0;
             virtual void startDrag(InputState& inputState) {}
@@ -62,7 +57,6 @@ namespace TrenchBroom {
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             virtual void handleEndPlaneDrag(InputState& inputState);
         private:
-            MoveDirection m_direction;
             Renderer::MovementIndicator* m_indicator;
         public:
             MoveTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, bool activatable);

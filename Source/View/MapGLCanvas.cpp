@@ -188,7 +188,7 @@ namespace TrenchBroom {
 
                 Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
                 Utility::Grid& grid = m_documentViewHolder.document().grid();
-				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), view.console());
+				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), inputController().inputState(), view.console());
 
                 // render the scene
 				view.renderer().render(renderContext);

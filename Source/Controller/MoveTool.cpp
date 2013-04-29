@@ -40,17 +40,14 @@ namespace TrenchBroom {
             if (m_indicator == NULL)
                 m_indicator = new Renderer::MovementIndicator();
             
-            if (dragType() == DTDrag) {
-                if (m_direction == Horizontal)
-                    m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
-                else
-                    m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
-            } else {
-                if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0)
-                    m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
-                else
-                    m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
-            }
+            if (inputState.axisRestriction().restricted(Axis::AZ))
+                m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
+            else if (inputState.axisRestriction().restricted(Axis::AX))
+                m_indicator->setDirection(Renderer::MovementIndicator::HorizontalX);
+            else if (inputState.axisRestriction().restricted(Axis::AY))
+                m_indicator->setDirection(Renderer::MovementIndicator::HorizontalY);
+            else
+                m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
             
             Vec3f position = renderContext.camera().defaultPoint(inputState.x() + 20.0f, inputState.y() + 20.0f);
             m_indicator->setPosition(position);
@@ -63,6 +60,8 @@ namespace TrenchBroom {
         }
         
         void MoveTool::handleModifierKeyChange(InputState& inputState) {
+            inputState.axisRestriction().setVerticalRestriction(inputState.modifierKeys() == ModifierKeys::MKAlt);
+            
             if (dragType() != DTDrag)
                 return;
             
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             if (!isApplicable(inputState, initialPoint))
                 return false;
             
-            if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0) {
+            if (inputState.axisRestriction().restricted(Axis::AZ)) {
                 Vec3f planeNorm = inputState.pickRay().direction;
                 planeNorm[2] = 0.0f;
                 planeNorm.normalize();
@@ -85,10 +84,8 @@ namespace TrenchBroom {
                     return false;
                 
                 plane = Planef(planeNorm, initialPoint);
-                m_direction = Vertical;
             } else {
                 plane = Planef::horizontalDragPlane(initialPoint);
-                m_direction = Horizontal;
             }
             
             startDrag(inputState);
@@ -103,23 +100,19 @@ namespace TrenchBroom {
                 return;
             initialPoint = inputState.pickRay().pointAtDistance(distance);
             
-            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+            if (inputState.axisRestriction().restricted(Axis::AZ)) {
                 Vec3f planeNorm = inputState.pickRay().direction;
                 planeNorm[2] = 0.0f;
                 planeNorm.normalize();
                 
                 plane = Planef(planeNorm, initialPoint);
-                m_direction = Vertical;
             } else {
                 plane = Planef::horizontalDragPlane(initialPoint);
-                m_direction = Horizontal;
             }
         }
         
         bool MoveTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
-            Vec3f delta = curPoint - refPoint;
-            if (m_direction == Vertical)
-                delta = Vec3f::PosZ * delta.dot(Vec3f::PosZ);
+            Vec3f delta = inputState.axisRestriction().apply(curPoint - refPoint);
 
             snapDragDelta(inputState, delta);
             if (delta.null())

@@ -51,6 +51,7 @@ namespace TrenchBroom {
         const Preference<Color> XColor = Preference<Color>(                                     "Renderer/Colors/X",                                            Color(0xFF, 0x3D, 0x00));
         const Preference<Color> YColor = Preference<Color>(                                     "Renderer/Colors/Y",                                            Color(0x4B, 0x95, 0x00));
         const Preference<Color> ZColor = Preference<Color>(                                     "Renderer/Colors/Z",                                            Color(0x10, 0x9C, 0xFF));
+        const Preference<Color> DisabledColor = Preference<Color>(                              "Renderer/Colors/Disabled",                                     Color(0xAA, 0xAA, 0xAA));
         const Preference<Color> BackgroundColor = Preference<Color>(                            "Renderer/Colors/Background",                                   Color(0.0f,  0.0f,  0.0f,  1.0f ));
 
         const Preference<Color> GuideColor = Preference<Color>(                                 "Renderer/Colors/Guide",                                        Color(1.0f,  0.0f,  0.0f,  0.3f ));

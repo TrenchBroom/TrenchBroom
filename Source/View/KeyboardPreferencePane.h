@@ -85,6 +85,8 @@ namespace TrenchBroom {
                 }
 
                 inline bool isDuplicateOf(const Entry& entry) const {
+                    if (&item() == &entry.item())
+                        return false;
                     if (shortcut().modifierKey1() != entry.shortcut().modifierKey1())
                         return false;
                     if (shortcut().modifierKey2() != entry.shortcut().modifierKey2())

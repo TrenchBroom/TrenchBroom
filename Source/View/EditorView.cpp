@@ -155,8 +155,11 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsHorizontally, EditorView::OnEditFlipObjectsH)
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
+        
         EVT_MENU(CommandIds::Menu::EditSnapVertices, EditorView::OnEditSnapVertices)
         EVT_MENU(CommandIds::Menu::EditCorrectVertices, EditorView::OnEditCorrectVertices)
+        
+        EVT_MENU(CommandIds::Menu::EditToggleAxisRestriction, EditorView::OnEditToggleAxisRestriction)
         
         EVT_MENU(CommandIds::Menu::EditPrintFilePositions, EditorView::OnEditPrintFilePositions)
 
@@ -1442,6 +1445,10 @@ namespace TrenchBroom {
             submit(command);
         }
 
+        void EditorView::OnEditToggleAxisRestriction(wxCommandEvent& event) {
+            inputController().toggleAxisRestriction();
+        }
+
         void EditorView::OnEditPrintFilePositions(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList entities = editStateManager.allSelectedEntities();
@@ -1858,6 +1865,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSnapVertices:
                 case CommandIds::Menu::EditCorrectVertices:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                    break;
+                case CommandIds::Menu::EditToggleAxisRestriction:
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::EditPrintFilePositions:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);

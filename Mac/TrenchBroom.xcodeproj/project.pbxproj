@@ -77,6 +77,7 @@
 		4850D27F15F4CA62005B162D /* AliasModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */; };
 		4850D28015F4CA62005B162D /* BspModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
+		48558EAB172EC39F00FEE2AB /* CompassOutline.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48558EAA172EC39F00FEE2AB /* CompassOutline.vertsh */; };
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
 		48688C9516E354EC0080F70F /* NSLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48688C9316E354EC0080F70F /* NSLog.mm */; };
 		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
@@ -407,6 +408,7 @@
 		4850D2B015F76EC0005B162D /* TextRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextRenderer.h; sourceTree = "<group>"; };
 		48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReparentBrushesCommand.cpp; sourceTree = "<group>"; };
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
+		48558EAA172EC39F00FEE2AB /* CompassOutline.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = CompassOutline.vertsh; sourceTree = "<group>"; };
 		485B70D416AC3240002E95B6 /* RotateHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateHandle.cpp; sourceTree = "<group>"; };
 		485B70D516AC3240002E95B6 /* RotateHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateHandle.h; sourceTree = "<group>"; };
 		48688C9316E354EC0080F70F /* NSLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSLog.mm; sourceTree = "<group>"; };
@@ -1253,6 +1255,7 @@
 				48AD1B371646C10C009F839B /* ColoredHandle.vertsh */,
 				488611CD17132A4A0001C423 /* Compass.fragsh */,
 				488611CE17132A4A0001C423 /* Compass.vertsh */,
+				48558EAA172EC39F00FEE2AB /* CompassOutline.vertsh */,
 				48AD1B2F1646C03D009F839B /* Edge.fragsh */,
 				48AD1B301646C03D009F839B /* Edge.vertsh */,
 				489874301718C05300029097 /* EntityLink.fragsh */,
@@ -1416,6 +1419,7 @@
 				488611D017132A4B0001C423 /* Compass.vertsh in Resources */,
 				489874321718C05400029097 /* EntityLink.fragsh in Resources */,
 				489874331718C05400029097 /* EntityLink.vertsh in Resources */,
+				48558EAB172EC39F00FEE2AB /* CompassOutline.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

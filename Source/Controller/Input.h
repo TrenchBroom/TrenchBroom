@@ -22,6 +22,7 @@
 
 #include "Model/Picker.h"
 #include "Renderer/Camera.h"
+#include "Utility/VecMath.h"
 
 #include <wx/utils.h>
 
@@ -45,10 +46,72 @@ namespace TrenchBroom {
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
 
-
-        class InputState {
-        public:
+        class AxisRestriction {
         private:
+            Vec3f m_xAxis;
+            Vec3f m_yAxis;
+            size_t m_index;
+            bool m_verticalRestriction;
+        public:
+            AxisRestriction() :
+            m_xAxis(Vec3f::PosX),
+            m_yAxis(Vec3f::PosY),
+            m_index(0),
+            m_verticalRestriction(false) {}
+            
+            inline void toggleHorizontalRestriction(const Renderer::Camera& camera) {
+                switch (m_index) {
+                    case 0:
+                        if (camera.right().firstComponent() == Axis::AX)
+                            m_yAxis = Vec3f::Null;
+                        else
+                            m_xAxis = Vec3f::Null;
+                        m_index++;
+                        break;
+                    case 1:
+                        if (m_xAxis == Vec3f::Null) {
+                            m_xAxis = Vec3f::PosX;
+                            m_yAxis = Vec3f::Null;
+                        } else {
+                            m_xAxis = Vec3f::Null;
+                            m_yAxis = Vec3f::PosY;
+                        }
+                        m_index++;
+                        break;
+                    default:
+                        m_xAxis = Vec3f::PosX;
+                        m_yAxis = Vec3f::PosY;
+                        m_index = 0;
+                        break;
+                }
+            }
+            
+            inline void setVerticalRestriction(bool verticalRestriction) {
+                m_verticalRestriction = verticalRestriction;
+            }
+
+            inline bool restricted(const Axis::Type axis) const {
+                switch (axis) {
+                    case Axis::AX:
+                        return m_xAxis.null();
+                    case Axis::AY:
+                        return m_yAxis.null();
+                    default:
+                        return m_verticalRestriction;
+                }
+            }
+            
+            inline Vec3f apply(const Vec3f& vector) const {
+                if (m_verticalRestriction)
+                    return vector.dot(Vec3f::PosZ) * Vec3f::PosZ;
+                return vector.dot(m_xAxis) * Vec3f::PosX + vector.dot(m_yAxis) * Vec3f::PosY;
+            }
+        };
+        
+        class InputState {
+        private:
+            AxisRestriction m_axisRestriction;
+            
             MouseButtonState m_mouseButtons;
             int m_mouseX;
             int m_mouseY;
@@ -87,6 +150,14 @@ namespace TrenchBroom {
                     delete m_pickResult;
                     m_pickResult = NULL;
                 }
+            }
+            
+            inline const AxisRestriction& axisRestriction() const {
+                return m_axisRestriction;
+            }
+            
+            inline AxisRestriction& axisRestriction() {
+                return m_axisRestriction;
             }
             
             inline ModifierKeyState modifierKeys() const {

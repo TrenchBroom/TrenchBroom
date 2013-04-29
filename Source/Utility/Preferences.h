@@ -261,6 +261,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  XColor;
         extern const Preference<Color>  YColor;
         extern const Preference<Color>  ZColor;
+        extern const Preference<Color>  DisabledColor;
         extern const Preference<Color>  BackgroundColor;
 
         extern const Preference<Color>  GuideColor;
@@ -484,15 +485,21 @@ namespace TrenchBroom {
             inline const List& items() const {
                 return m_items;
             }
-
-            inline void addActionItem(const KeyboardShortcut& shortcut) {
-                MenuItem* item = new ShortcutMenuItem(MenuItem::MITAction, shortcut, this);
-                m_items.push_back(MenuItem::Ptr(item));
+            
+            inline void addItem(MenuItem::Ptr item) {
+                m_items.push_back(item);
             }
 
-            inline void addCheckItem(const KeyboardShortcut& shortcut) {
-                MenuItem* item = new ShortcutMenuItem(MenuItem::MITCheck, shortcut, this);
-                m_items.push_back(MenuItem::Ptr(item));
+            inline MenuItem::Ptr addActionItem(const KeyboardShortcut& shortcut) {
+                MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::MITAction, shortcut, this));
+                addItem(item);
+                return item;
+            }
+
+            inline MenuItem::Ptr addCheckItem(const KeyboardShortcut& shortcut) {
+                MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::MITCheck, shortcut, this));
+                addItem(item);
+                return item;
             }
 
             inline void addSeparator() {
@@ -742,6 +749,7 @@ namespace TrenchBroom {
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCObjects, "Duplicate & Move Right"));
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsUp, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Duplicate & Move Up"));
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsDown, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Down"));
+                objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
                 objectActionMenu.addSeparator();
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRollObjectsCW, WXK_ALT, WXK_UP, KeyboardShortcut::SCObjects, "Rotate Clockwise by 90"));
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRollObjectsCCW, WXK_ALT, WXK_DOWN, KeyboardShortcut::SCObjects, "Rotate Counter-clockwise by 90"));
@@ -753,9 +761,11 @@ namespace TrenchBroom {
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
                 objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
                 objectActionMenu.addSeparator();
-                objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
+                MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices"));
                 objectActionMenu.addSeparator();
-                objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
+                MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleAxisRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+                objectActionMenu.addSeparator();
+                objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures, "Print Line Numbers"));
 
                 Menu& vertexActionMenu = actionMenu.addMenu("Vertices", View::CommandIds::Menu::EditVertexActions);
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
@@ -764,8 +774,10 @@ namespace TrenchBroom {
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesRight, WXK_RIGHT, KeyboardShortcut::SCVertexTool, "Move Right"));
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::SCVertexTool, "Move Up"));
                 vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::SCVertexTool, "Move Down"));
-                vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditCorrectVertices, KeyboardShortcut::SCVertexTool, "Correct Vertices"));
-                vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCVertexTool, "Snap Vertices"));
+                vertexActionMenu.addSeparator();
+                vertexActionMenu.addItem(snapVerticesItem);
+                vertexActionMenu.addSeparator();
+                vertexActionMenu.addItem(toggleAxisItem);
 
                 Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", View::CommandIds::Menu::EditClipActions);
                 clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipSide, WXK_TAB, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));

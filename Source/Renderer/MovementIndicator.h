@@ -36,6 +36,8 @@ namespace TrenchBroom {
         public:
             typedef enum {
                 Horizontal,
+                HorizontalX,
+                HorizontalY,
                 Vertical
             } Direction;
         private:

@@ -33,7 +33,7 @@ namespace TrenchBroom {
             } catch (IO::IOException e) {
                 if (mip != NULL)
                     delete mip;
-                throw e;
+                return NULL;
             }
 
             assert(mip != NULL);

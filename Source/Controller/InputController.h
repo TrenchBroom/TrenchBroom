@@ -132,6 +132,7 @@ namespace TrenchBroom {
             void deleteClipPoint();
             bool canPerformClip();
             void performClip();
+            void toggleAxisRestriction();
 
             inline MoveVerticesTool& moveVerticesTool() const {
                 return *m_moveVerticesTool;
