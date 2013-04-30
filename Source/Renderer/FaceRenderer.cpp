@@ -47,14 +47,14 @@ namespace TrenchBroom {
                 TextureRenderer* textureRenderer = texture != NULL ? &textureRendererManager.renderer(texture) : NULL;
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
-                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 6 * faces.size());
+                const size_t vertexCount = 3 * faceCollection.vertexCount() - 6 * faces.size();
                 VertexArray* vertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
                                                            Attribute::position3f(),
                                                            Attribute::normal3f(),
                                                            Attribute::texCoord02f(),
                                                            0);
                 
-                for (unsigned int i = 0; i < faces.size(); i++) {
+                for (size_t i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     vertexArray->addAttributes(face->cachedVertices());
                 }
@@ -95,45 +95,40 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("ShadeFaces", context.viewOptions().shadeFaces() );
                 faceProgram.setUniformVariable("UseFog", context.viewOptions().useFog() );
                 
-                for (size_t i = 0; i < m_vertexArrays.size(); i++) {
-                    TextureVertexArray& textureVertexArray = m_vertexArrays[i];
-                    if (textureVertexArray.texture != NULL) {
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        faceProgram.setUniformVariable("Color", textureVertexArray.texture->averageColor());
-                    } else {
-                        faceProgram.setUniformVariable("ApplyTexture", false);
-                        faceProgram.setUniformVariable("Color", m_faceColor);
-                    }
-                    
-                    textureVertexArray.vertexArray->render();
-                    
-                    if (textureVertexArray.texture != NULL)
-                        textureVertexArray.texture->deactivate();
-                }
-
+                renderOpaqueFaces(faceProgram, applyTexture);
                 glDepthMask(GL_FALSE);
-                faceProgram.setUniformVariable("Alpha", 0.4f);
-                for (size_t i = 0; i < m_transparentVertexArrays.size(); i++) {
-                    TextureVertexArray& textureVertexArray = m_transparentVertexArrays[i];
-                    if (textureVertexArray.texture != NULL) {
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        faceProgram.setUniformVariable("Color", textureVertexArray.texture->averageColor());
-                    } else {
-                        faceProgram.setUniformVariable("ApplyTexture", false);
-                        faceProgram.setUniformVariable("Color", m_faceColor);
-                    }
-                    
-                    textureVertexArray.vertexArray->render();
-                    
-                    if (textureVertexArray.texture != NULL)
-                        textureVertexArray.texture->deactivate();
-                }
+                renderTransparentFaces(faceProgram, applyTexture);
                 glDepthMask(GL_TRUE);
+
                 faceProgram.deactivate();
+            }
+        }
+
+        void FaceRenderer::renderOpaqueFaces(ShaderProgram& shader, const bool applyTexture) {
+            renderFaces(m_vertexArrays, shader, applyTexture);
+        }
+        
+        void FaceRenderer::renderTransparentFaces(ShaderProgram& shader, const bool applyTexture) {
+            renderFaces(m_transparentVertexArrays, shader, applyTexture);
+        }
+
+        void FaceRenderer::renderFaces(const TextureVertexArrayList& vertexArrays, ShaderProgram& shader, const bool applyTexture) {
+            for (size_t i = 0; i < vertexArrays.size(); i++) {
+                const TextureVertexArray& textureVertexArray = vertexArrays[i];
+                if (textureVertexArray.texture != NULL) {
+                    textureVertexArray.texture->activate();
+                    shader.setUniformVariable("ApplyTexture", applyTexture);
+                    shader.setUniformVariable("FaceTexture", 0);
+                    shader.setUniformVariable("Color", textureVertexArray.texture->averageColor());
+                } else {
+                    shader.setUniformVariable("ApplyTexture", false);
+                    shader.setUniformVariable("Color", m_faceColor);
+                }
+                
+                textureVertexArray.vertexArray->render();
+                
+                if (textureVertexArray.texture != NULL)
+                    textureVertexArray.texture->deactivate();
             }
         }
 

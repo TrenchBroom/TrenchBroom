@@ -35,25 +35,25 @@ namespace TrenchBroom {
         class VertexArray : public RenderArray {
         protected:
         public:
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
+            VertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute::List& attributes, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attributes, padTo) {}
             
-            inline void renderPrimitives(unsigned int index, unsigned int vertexCount) {
+            inline void renderPrimitives(size_t index, size_t vertexCount) {
                 glDrawArrays(m_primType, static_cast<GLint>(index), static_cast<GLsizei>(vertexCount));
             }
 

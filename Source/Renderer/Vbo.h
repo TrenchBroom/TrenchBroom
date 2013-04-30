@@ -49,10 +49,10 @@ namespace TrenchBroom {
             struct MemBlock {
                 typedef std::vector<MemBlock> List;
                 
-                unsigned int start;
-                unsigned int length;
+                size_t start;
+                size_t length;
                 
-                MemBlock(unsigned int i_start, unsigned int i_length) :
+                MemBlock(size_t i_start, size_t i_length) :
                 start(i_start),
                 length(i_length) {}
                 
@@ -60,26 +60,26 @@ namespace TrenchBroom {
             };
 
             GLenum m_type;
-            unsigned int m_totalCapacity;
-            unsigned int m_freeCapacity;
+            size_t m_totalCapacity;
+            size_t m_freeCapacity;
             std::vector<VboBlock*> m_freeBlocks;
             VboBlock* m_first;
             VboBlock* m_last;
             unsigned char* m_buffer;
             GLuint m_vboId;
             VboState m_state;
-            unsigned int findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length);
-            unsigned int findFreeBlock(unsigned int address, unsigned int capacity);
+            size_t findFreeBlockInRange(size_t address, size_t capacity, size_t start, size_t length);
+            size_t findFreeBlock(size_t address, size_t capacity);
             void insertFreeBlock(VboBlock& block);
             void removeFreeBlock(VboBlock& block);
-            void resizeVbo(unsigned int newCapacity);
-            void resizeBlock(VboBlock& block, unsigned int newCapacity);
+            void resizeVbo(size_t newCapacity);
+            void resizeBlock(VboBlock& block, size_t newCapacity);
             VboBlock* packBlock(VboBlock& block);
             void checkBlockChain();
             void checkFreeBlocks();
             friend class VboBlock;
         public:
-            Vbo(GLenum type, unsigned int capacity);
+            Vbo(GLenum type, size_t capacity);
             ~Vbo();
             void activate();
             void deactivate();
@@ -90,8 +90,8 @@ namespace TrenchBroom {
                 return m_state;
             }
             
-            void ensureFreeCapacity(unsigned int capacity);
-            VboBlock* allocBlock(unsigned int capacity);
+            void ensureFreeCapacity(size_t capacity);
+            VboBlock* allocBlock(size_t capacity);
             VboBlock* freeBlock(VboBlock& block);
             void freeAllBlocks();
             void pack();
@@ -158,13 +158,13 @@ namespace TrenchBroom {
             void insertBetween(VboBlock* previousBlock, VboBlock* nextBlock);
             friend class Vbo;
 
-            unsigned int m_address;
-            unsigned int m_capacity;
+            size_t m_address;
+            size_t m_capacity;
             bool m_free;
             VboBlock* m_previous;
             VboBlock* m_next;
         public:
-            inline VboBlock(Vbo& vbo, unsigned int address, unsigned int capacity) :
+            inline VboBlock(Vbo& vbo, size_t address, size_t capacity) :
             m_vbo(vbo),
             m_address(address),
             m_capacity(capacity),
@@ -172,11 +172,11 @@ namespace TrenchBroom {
             m_previous(NULL),
             m_next(NULL) {}
 
-            inline unsigned int address() const {
+            inline size_t address() const {
                 return m_address;
             }
 
-            inline unsigned int capacity() const {
+            inline size_t capacity() const {
                 return m_capacity;
             }
 
@@ -184,31 +184,31 @@ namespace TrenchBroom {
                 return m_free;
             }
 
-            inline unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
+            inline size_t writeBuffer(const unsigned char* buffer, size_t offset, size_t length) {
                 assert(offset >= 0 && offset + length <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, buffer, length);
                 return offset + length;
             }
 
-            inline unsigned int writeByte(unsigned char b, unsigned int offset) {
+            inline size_t writeByte(unsigned char b, size_t offset) {
                 assert(offset >= 0 && offset < m_capacity);
                 m_vbo.m_buffer[m_address + offset] = b;
                 return offset + 1;
             }
 
-            inline unsigned int writeFloat(float f, unsigned int offset) {
+            inline size_t writeFloat(float f, size_t offset) {
                 assert(offset >= 0 && offset + sizeof(float) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &f, sizeof(float));
                 return offset + sizeof(float);
             }
 
-            inline unsigned int writeUInt32(unsigned int i, unsigned int offset) {
-                assert(offset >= 0 && offset + sizeof(unsigned int) <= m_capacity);
-                memcpy(m_vbo.m_buffer + m_address + offset, &i, sizeof(unsigned int));
-                return offset + sizeof(unsigned int);
+            inline size_t writeUInt32(size_t i, size_t offset) {
+                assert(offset >= 0 && offset + sizeof(size_t) <= m_capacity);
+                memcpy(m_vbo.m_buffer + m_address + offset, &i, sizeof(size_t));
+                return offset + sizeof(size_t);
             }
 
-            inline unsigned int writeColor(const Color& color, unsigned int offset) {
+            inline size_t writeColor(const Color& color, size_t offset) {
                 assert(offset >= 0 && offset + 4 <= m_capacity);
                 m_vbo.m_buffer[m_address + offset + 0] = static_cast<unsigned char>(color.r() * 0xFF);
                 m_vbo.m_buffer[m_address + offset + 1] = static_cast<unsigned char>(color.g() * 0xFF);
@@ -218,15 +218,15 @@ namespace TrenchBroom {
             }
 
             template<class T>
-            inline unsigned int writeVec(const T& vec, unsigned int offset) {
+            inline size_t writeVec(const T& vec, size_t offset) {
                 assert(offset >= 0 && offset + sizeof(T) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &vec, sizeof(T));
                 return offset + sizeof(T);
             }
 
             template<class T>
-            inline unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
-                unsigned int size = static_cast<unsigned int>(vecs.size() * sizeof(T));
+            inline size_t writeVecs(const std::vector<T>& vecs, size_t offset) {
+                size_t size = static_cast<size_t>(vecs.size() * sizeof(T));
                 assert(offset >= 0 && offset + size <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &(vecs[0]), size);
                 return offset + size;
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
             void freeBlock();
 
-            inline int compare(unsigned int address, unsigned int capacity) {
+            inline int compare(size_t address, size_t capacity) {
                 if (m_capacity < capacity) return -1;
                 if (m_capacity > capacity) return 1;
                 if (m_address < address) return -1;

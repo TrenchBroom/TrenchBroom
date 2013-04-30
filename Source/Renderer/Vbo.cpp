@@ -33,10 +33,10 @@ namespace TrenchBroom {
             m_vbo.freeBlock(*this);
         }
         
-        unsigned int Vbo::findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length) {
+        size_t Vbo::findFreeBlockInRange(size_t address, size_t capacity, size_t start, size_t length) {
             assert(length > 0);
             
-            unsigned int pivot = start + length / 2;
+            size_t pivot = start + length / 2;
             VboBlock* block = m_freeBlocks[pivot];
 
             int order = block->compare(address, capacity);
@@ -53,9 +53,9 @@ namespace TrenchBroom {
             return findFreeBlockInRange(address, capacity, pivot, (length + 1) / 2);
         }
         
-        unsigned int Vbo::findFreeBlock(unsigned int address, unsigned int capacity) {
+        size_t Vbo::findFreeBlock(size_t address, size_t capacity) {
             if (m_freeBlocks.empty()) return 0;
-            unsigned int index = findFreeBlockInRange(address, capacity, 0, static_cast<unsigned int>(m_freeBlocks.size()));
+            size_t index = findFreeBlockInRange(address, capacity, 0, static_cast<size_t>(m_freeBlocks.size()));
             assert(index == m_freeBlocks.size() ||
                    capacity < m_freeBlocks[index]->capacity() ||
                    (capacity == m_freeBlocks[index]->capacity() && address <= m_freeBlocks[index]->address()));
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         void Vbo::insertFreeBlock(VboBlock& block) {
             assert(block.free());
-            unsigned int index = findFreeBlock(block.address(), block.capacity());
+            size_t index = findFreeBlock(block.address(), block.capacity());
             assert(index >= 0 && index <= m_freeBlocks.size());
             if (index < m_freeBlocks.size()) {
                 std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         
         void Vbo::removeFreeBlock(VboBlock& block) {
             assert(block.free());
-            unsigned int index = findFreeBlock(block.address(), block.capacity());
+            size_t index = findFreeBlock(block.address(), block.capacity());
             assert(index < m_freeBlocks.size());
             assert(m_freeBlocks[index] == &block);
             std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
@@ -91,21 +91,21 @@ namespace TrenchBroom {
 #endif
         }
         
-        void Vbo::resizeVbo(unsigned int newCapacity) {
+        void Vbo::resizeVbo(size_t newCapacity) {
             VboState oldState = m_state;
             
             unsigned char* temp = NULL;
             MemBlock::List memBlocks;
             if (m_vboId != 0 && m_freeCapacity < m_totalCapacity) {
                 VboBlock* currentBlock = m_first;
-                unsigned int totalLength = 0;
+                size_t totalLength = 0;
                 
                 while (currentBlock != NULL) {
                     while (currentBlock != NULL && currentBlock->free())
                         currentBlock = currentBlock->m_next;
                     if (currentBlock != NULL) {
-                        unsigned int start = currentBlock->address();
-                        unsigned int length = 0;
+                        size_t start = currentBlock->address();
+                        size_t length = 0;
                         while (currentBlock != NULL && !currentBlock->free()) {
                             length += currentBlock->capacity();
                             currentBlock = currentBlock->m_next;
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 }
             }
             
-            unsigned int addedCapacity = newCapacity - m_totalCapacity;
+            size_t addedCapacity = newCapacity - m_totalCapacity;
             m_freeCapacity = newCapacity - (m_totalCapacity - m_freeCapacity);
             m_totalCapacity = newCapacity;
             
@@ -187,7 +187,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        void Vbo::resizeBlock(VboBlock& block, unsigned int newCapacity) {
+        void Vbo::resizeBlock(VboBlock& block, size_t newCapacity) {
             if (block.capacity() == newCapacity) return;
             if (block.free()) {
                 removeFreeBlock(block);
@@ -203,8 +203,8 @@ namespace TrenchBroom {
             
             VboBlock* previous = NULL;
             VboBlock* last = first;
-            unsigned int size = 0;
-            unsigned int address = first->address();
+            size_t size = 0;
+            size_t address = first->address();
             
             do {
                 last->m_address -= block.capacity();
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             return last;
         }
         
-        Vbo::Vbo(GLenum type, unsigned int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_state(VboInactive) {
+        Vbo::Vbo(GLenum type, size_t capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_state(VboInactive) {
             m_first = new VboBlock(*this, 0, m_totalCapacity);
             m_last = m_first;
             m_freeBlocks.push_back(m_first);
@@ -314,13 +314,13 @@ namespace TrenchBroom {
             m_state = VboActive;
         }
         
-        void Vbo::ensureFreeCapacity(unsigned int capacity) {
+        void Vbo::ensureFreeCapacity(size_t capacity) {
             pack();
             if (m_freeCapacity < capacity)
                 resizeVbo(m_totalCapacity + (capacity - m_freeCapacity));
         }
 
-        VboBlock* Vbo::allocBlock(unsigned int capacity) {
+        VboBlock* Vbo::allocBlock(size_t capacity) {
             assert(capacity > 0);
             
 #ifdef _DEBUG_VBO
@@ -328,15 +328,15 @@ namespace TrenchBroom {
             checkFreeBlocks();
 #endif
 
-            unsigned int index = findFreeBlock(0, capacity);
+            size_t index = findFreeBlock(0, capacity);
             if (index >= m_freeBlocks.size()) {
                 SetVboState mapVbo(*this, VboMapped);
                 pack();
 
                 if (capacity > m_freeCapacity) {
-                    const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
-                    unsigned int newCapacity = m_totalCapacity;
-                    unsigned int newFreeCapacity = m_freeCapacity;
+                    const size_t usedCapacity = m_totalCapacity - m_freeCapacity;
+                    size_t newCapacity = m_totalCapacity;
+                    size_t newFreeCapacity = m_freeCapacity;
                     while (capacity > newFreeCapacity) {
                         newCapacity *= 2;
                         newFreeCapacity = newCapacity - usedCapacity;
@@ -476,7 +476,7 @@ namespace TrenchBroom {
         }
         
         void Vbo::checkFreeBlocks() {
-            for (unsigned int i = 0; i < m_freeBlocks.size(); i++) {
+            for (size_t i = 0; i < m_freeBlocks.size(); i++) {
                 VboBlock* block = m_freeBlocks[i];
                 assert(block->free());
                 if (i < m_freeBlocks.size() - 1)

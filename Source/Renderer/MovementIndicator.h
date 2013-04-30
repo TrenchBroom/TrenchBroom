@@ -41,6 +41,9 @@ namespace TrenchBroom {
                 Vertical
             } Direction;
         private:
+            static const float Width2;
+            static const float Height;
+            
             Direction m_direction;
             Vec3f m_position;
             Color m_outlineColor;
@@ -49,6 +52,9 @@ namespace TrenchBroom {
             VertexArray* m_triangles;
             bool m_valid;
             
+            void validate(Vbo& vbo);
+            void buildXArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
+            void buildYArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
             void renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const;
         public:
             MovementIndicator();

@@ -32,6 +32,80 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        const float MovementIndicator::Width2 = 1.5f;
+        const float MovementIndicator::Height = 5.0f;
+        
+        void MovementIndicator::validate(Vbo& vbo) {
+            delete m_outline;
+            delete m_triangles;
+            
+            const float offset = m_direction == Horizontal ? Width2 + 1.0f : 1.0f;
+            
+            Vec2f::List triangles;
+            Vec2f::List outline;
+            
+            if (m_direction == Vertical || m_direction != HorizontalY)
+                buildYArrows(offset, triangles, outline);
+            
+            if (m_direction != Vertical && m_direction != HorizontalX)
+                buildXArrows(offset, triangles, outline);
+            
+            m_triangles = new VertexArray(vbo, GL_TRIANGLES, triangles.size(), Attribute::position2f(), 0);
+            m_outline = new VertexArray(vbo, GL_LINES, outline.size(), Attribute::position2f(), 0);
+            
+            SetVboState mapVbo(vbo, Vbo::VboMapped);
+            m_triangles->addAttributes(triangles);
+            m_outline->addAttributes(outline);
+        }
+        
+        void MovementIndicator::buildXArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const {
+            triangles.push_back(Vec2f(offset, Width2));
+            triangles.push_back(Vec2f(offset + Height, 0.0f));
+            triangles.push_back(Vec2f(offset, -Width2));
+
+            outline.push_back(Vec2f(offset, Width2));
+            outline.push_back(Vec2f(offset + Height, 0.0f));
+            outline.push_back(Vec2f(offset + Height, 0.0f));
+            outline.push_back(Vec2f(offset, -Width2));
+            outline.push_back(Vec2f(offset, -Width2));
+            outline.push_back(Vec2f(offset, Width2));
+            
+            triangles.push_back(Vec2f(-offset, -Width2));
+            triangles.push_back(Vec2f(-offset - Height, 0.0f));
+            triangles.push_back(Vec2f(-offset, Width2));
+            
+            outline.push_back(Vec2f(-offset, -Width2));
+            outline.push_back(Vec2f(-offset - Height, 0.0f));
+            outline.push_back(Vec2f(-offset - Height, 0.0f));
+            outline.push_back(Vec2f(-offset, Width2));
+            outline.push_back(Vec2f(-offset, Width2));
+            outline.push_back(Vec2f(-offset, -Width2));
+        }
+        
+        void MovementIndicator::buildYArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const {
+            triangles.push_back(Vec2f(-Width2, offset));
+            triangles.push_back(Vec2f(0.0f, offset + Height));
+            triangles.push_back(Vec2f(Width2, offset));
+            
+            outline.push_back(Vec2f(-Width2, offset));
+            outline.push_back(Vec2f(0.0f, offset + Height));
+            outline.push_back(Vec2f(0.0f, offset + Height));
+            outline.push_back(Vec2f(Width2, offset));
+            outline.push_back(Vec2f(Width2, offset));
+            outline.push_back(Vec2f(-Width2, offset));
+            
+            triangles.push_back(Vec2f(Width2, -offset));
+            triangles.push_back(Vec2f(0.0f, -offset - Height));
+            triangles.push_back(Vec2f(-Width2, -offset));
+            
+            outline.push_back(Vec2f(Width2, -offset));
+            outline.push_back(Vec2f(0.0f, -offset - Height));
+            outline.push_back(Vec2f(0.0f, -offset - Height));
+            outline.push_back(Vec2f(-Width2, -offset));
+            outline.push_back(Vec2f(-Width2, -offset));
+            outline.push_back(Vec2f(Width2, -offset));
+        }
+        
         void MovementIndicator::renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const {
             ApplyModelMatrix applyMatrix(context.transformation(), matrix);
             shader.setUniformVariable("Color", m_outlineColor);
@@ -57,75 +131,9 @@ namespace TrenchBroom {
 
         void MovementIndicator::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
-            if (!m_valid) {
-                delete m_outline;
-                delete m_triangles;
-
-                const float width2 = 1.5f;
-                const float height = 5.0f;
-                const float offset = m_direction == Horizontal ? width2 + 1.0f : 1.0f;
-
-                Vec2f::List triangles;
-                Vec2f::List outline;
-
-                if (m_direction == Vertical || m_direction != HorizontalY) {
-                    triangles.push_back(Vec2f(-width2, offset));
-                    triangles.push_back(Vec2f(0.0f, offset + height));
-                    triangles.push_back(Vec2f(width2, offset));
-                    
-                    outline.push_back(Vec2f(-width2, offset));
-                    outline.push_back(Vec2f(0.0f, offset + height));
-                    outline.push_back(Vec2f(0.0f, offset + height));
-                    outline.push_back(Vec2f(width2, offset));
-                    outline.push_back(Vec2f(width2, offset));
-                    outline.push_back(Vec2f(-width2, offset));
-                    
-                    triangles.push_back(Vec2f(width2, -offset));
-                    triangles.push_back(Vec2f(0.0f, -offset - height));
-                    triangles.push_back(Vec2f(-width2, -offset));
-                    
-                    outline.push_back(Vec2f(width2, -offset));
-                    outline.push_back(Vec2f(0.0f, -offset - height));
-                    outline.push_back(Vec2f(0.0f, -offset - height));
-                    outline.push_back(Vec2f(-width2, -offset));
-                    outline.push_back(Vec2f(-width2, -offset));
-                    outline.push_back(Vec2f(width2, -offset));
-                }
-
-                if (m_direction != Vertical && m_direction != HorizontalX) {
-                    triangles.push_back(Vec2f(offset, width2));
-                    triangles.push_back(Vec2f(offset + height, 0.0f));
-                    triangles.push_back(Vec2f(offset, -width2));
-
-                    outline.push_back(Vec2f(offset, width2));
-                    outline.push_back(Vec2f(offset + height, 0.0f));
-                    outline.push_back(Vec2f(offset + height, 0.0f));
-                    outline.push_back(Vec2f(offset, -width2));
-                    outline.push_back(Vec2f(offset, -width2));
-                    outline.push_back(Vec2f(offset, width2));
-
-                    triangles.push_back(Vec2f(-offset, -width2));
-                    triangles.push_back(Vec2f(-offset - height, 0.0f));
-                    triangles.push_back(Vec2f(-offset, width2));
-
-                    outline.push_back(Vec2f(-offset, -width2));
-                    outline.push_back(Vec2f(-offset - height, 0.0f));
-                    outline.push_back(Vec2f(-offset - height, 0.0f));
-                    outline.push_back(Vec2f(-offset, width2));
-                    outline.push_back(Vec2f(-offset, width2));
-                    outline.push_back(Vec2f(-offset, -width2));
-                }
-
-                unsigned int triangleVertexCount = static_cast<unsigned int>(triangles.size());
-                unsigned int outlineVertexCount = static_cast<unsigned int>(outline.size());
-
-                m_triangles = new VertexArray(vbo, GL_TRIANGLES, triangleVertexCount, Attribute::position2f(), 0);
-                m_outline = new VertexArray(vbo, GL_LINES, outlineVertexCount, Attribute::position2f(), 0);
-
-                SetVboState mapVbo(vbo, Vbo::VboMapped);
-                m_triangles->addAttributes(triangles);
-                m_outline->addAttributes(outline);
-            }
+            
+            if (!m_valid)
+                validate(vbo);
 
             assert(m_outline != NULL);
             assert(m_triangles != NULL);

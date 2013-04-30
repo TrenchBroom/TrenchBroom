@@ -61,6 +61,9 @@ namespace TrenchBroom {
             
             void writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter);
             void render(RenderContext& context, bool grayScale, const Color* tintColor);
+            void renderOpaqueFaces(ShaderProgram& shader, const bool applyTexture);
+            void renderTransparentFaces(ShaderProgram& shader, const bool applyTexture);
+            void renderFaces(const TextureVertexArrayList& vertexArrays, ShaderProgram& shader, const bool applyTexture);
         public:
             FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter, const Color& faceColor);
             
