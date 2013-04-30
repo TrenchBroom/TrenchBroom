@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
         void PointHandleHighlightFigure::render(Vbo& vbo, RenderContext& context) {
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
-            shader.currentShader().setUniformVariable("Color", m_color);
+            shader.setUniformVariable("Color", m_color);
 
             Mat4f billboardMatrix = context.camera().billboardMatrix();
             CircleFigure circle(Axis::AZ, 0.0f, 2.0f * Math<float>::Pi, 2.0f * m_radius, 16, false);

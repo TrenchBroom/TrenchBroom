@@ -60,11 +60,11 @@ namespace TrenchBroom {
                 Renderer::ActivateShader handleShader(context.shaderManager(), Renderer::Shaders::HandleShader);
                 
                 glDisable(GL_DEPTH_TEST);
-                handleShader.currentShader().setUniformVariable("Color", m_occludedColor);
+                handleShader.setUniformVariable("Color", m_occludedColor);
                 m_vertexArray->render();
                 glEnable(GL_DEPTH_TEST);
                 
-                handleShader.currentShader().setUniformVariable("Color", m_color);
+                handleShader.setUniformVariable("Color", m_color);
                 m_vertexArray->render();
                 
                 Renderer::glResetEdgeOffset();

@@ -95,25 +95,25 @@ namespace TrenchBroom {
                 rotation = rotationMatrix(angle, Vec3f::PosX);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateHandleHit::HAYAxis) {
                 rotation = rotationMatrix(angle, Vec3f::PosY);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
                 rotation = rotationMatrix(angle, Vec3f::PosZ);
                 Renderer::ApplyModelMatrix applyRotation(context.transformation(), rotation);
 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AZ, 0.0f, 2.0f * Math<float>::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             }
         }
@@ -174,7 +174,7 @@ namespace TrenchBroom {
                 axisFigure.render(vbo, renderContext);
 
                 Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                shader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
 
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, renderContext);
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, renderContext);

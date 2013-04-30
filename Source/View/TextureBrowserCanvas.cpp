@@ -221,8 +221,8 @@ namespace TrenchBroom {
 
             { // render textures
                 Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextureBrowserShader);
-                shader.currentShader().setUniformVariable("ApplyTinting", false);
-                shader.currentShader().setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                shader.setUniformVariable("ApplyTinting", false);
+                shader.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 for (unsigned int i = 0; i < layout.size(); i++) {
                     const Layout::Group& group = layout[i];
                     if (group.intersectsY(y, height)) {
@@ -231,8 +231,8 @@ namespace TrenchBroom {
                             if (row.intersectsY(y, height)) {
                                 for (unsigned int k = 0; k < row.size(); k++) {
                                     const Layout::Group::Row::Cell& cell = row[k];
-                                    shader.currentShader().setUniformVariable("GrayScale", cell.item().texture->overridden());
-                                    shader.currentShader().setUniformVariable("Texture", 0);
+                                    shader.setUniformVariable("GrayScale", cell.item().texture->overridden());
+                                    shader.setUniformVariable("Texture", 0);
                                     cell.item().textureRenderer->activate();
                                     glBegin(GL_QUADS);
                                     glTexCoord2f(0.0f, 0.0f);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
 
                 Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
                 Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::BrowserGroupShader);
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
                 vertexArray.render();
             }
 
@@ -294,8 +294,8 @@ namespace TrenchBroom {
 
                     Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
                     Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextShader);
-                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
-                    shader.currentShader().setUniformVariable("Texture", 0);
+                    shader.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
+                    shader.setUniformVariable("Texture", 0);
 
                     font->activate();
                     vertexArray.render();

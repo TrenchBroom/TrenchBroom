@@ -102,10 +102,10 @@ namespace TrenchBroom {
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
             glPolygonMode(GL_FRONT, GL_LINE);
-            shader.currentShader().setUniformVariable("Color", Color(m_outlineColor));
+            shader.setUniformVariable("Color", Color(m_outlineColor));
             vertexArray.render();
             glPolygonMode(GL_FRONT, GL_FILL);
-            shader.currentShader().setUniformVariable("Color", Color(m_fillColor));
+            shader.setUniformVariable("Color", Color(m_fillColor));
             vertexArray.render();
             glDepthMask(GL_TRUE);
         }

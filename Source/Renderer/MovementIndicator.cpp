@@ -147,9 +147,9 @@ namespace TrenchBroom {
                 matrix *= context.camera().billboardMatrix(true);
 
             ApplyModelMatrix applyMatrix(context.transformation(), matrix);
-            shader.currentShader().setUniformVariable("Color", m_fillColor);
+            shader.setUniformVariable("Color", m_fillColor);
             m_triangles->render();
-            shader.currentShader().setUniformVariable("Color", m_outlineColor);
+            shader.setUniformVariable("Color", m_outlineColor);
             m_outline->render();
 
             glEnable(GL_DEPTH_TEST);

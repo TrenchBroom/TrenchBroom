@@ -108,7 +108,7 @@ namespace TrenchBroom {
             
             if (m_pointArray != NULL) {
                 ActivateShader pointShader(context.shaderManager(), Shaders::EdgeShader);
-                pointShader.currentShader().setUniformVariable("Color", Color(m_color, 1.0f));
+                pointShader.setUniformVariable("Color", Color(m_color, 1.0f));
                 glEnable(GL_POINT_SMOOTH);
                 glPointSize(3.0f);
                 m_pointArray->render();

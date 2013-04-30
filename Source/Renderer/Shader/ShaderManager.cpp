@@ -21,7 +21,6 @@
 
 #include "IO/FileManager.h"
 #include "Renderer/Shader/Shader.h"
-#include "Renderer/Shader/ShaderProgram.h"
 #include "Utility/Console.h"
 
 namespace TrenchBroom {

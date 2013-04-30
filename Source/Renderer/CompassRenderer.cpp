@@ -40,59 +40,6 @@ namespace TrenchBroom {
         const float CompassRenderer::m_headLength = 7.0f;
         const float CompassRenderer::m_headRadius = 3.5f;
         
-        void CompassRenderer::validate(Vbo& vbo, RenderContext& context) {
-            Vec3f::List headVertices, headNormals;
-            Vec3f::List shaftVertices, shaftNormals;
-            Vec3f::List topCapVertices, topCapNormals;
-            Vec3f::List bottomCapVertices, bottomCapNormals;
-            const Vec3f offset(0.0f, 0.0f, m_shaftLength / 2.0f);
-            
-            cylinder(m_shaftLength, m_shaftRadius, m_segments, shaftVertices, shaftNormals);
-            for (size_t i = 0; i < shaftVertices.size(); i++)
-                shaftVertices[i] -= offset;
-            
-            cone(m_headLength, m_headRadius, m_segments, headVertices, headNormals);
-            for (size_t i = 0; i < headVertices.size(); i++)
-                headVertices[i] += offset;
-            
-            circle(m_headRadius, m_segments, topCapVertices, topCapNormals);
-            topCapVertices = Mat4f::Rot180X * topCapVertices;
-            topCapNormals = Mat4f::Rot180X * topCapNormals;
-            for (size_t i = 0; i < topCapVertices.size(); i++)
-                topCapVertices[i] += offset;
-            
-            circle(m_shaftRadius, m_segments, bottomCapVertices, bottomCapNormals);
-            bottomCapVertices = Mat4f::Rot180X * bottomCapVertices;
-            bottomCapNormals = Mat4f::Rot180X * bottomCapNormals;
-            for (size_t i = 0; i < bottomCapVertices.size(); i++)
-                bottomCapVertices[i] -= offset;
-            
-            m_strip = new VertexArray(vbo, GL_TRIANGLE_STRIP, shaftVertices.size(),
-                                      Attribute::position3f(),
-                                      Attribute::normal3f(),
-                                      0);
-            
-            m_set = new VertexArray(vbo, GL_TRIANGLES, headVertices.size(),
-                                    Attribute::position3f(),
-                                    Attribute::normal3f(),
-                                    0);
-            
-            m_fans = new IndexedVertexArray(vbo, GL_TRIANGLE_FAN, topCapVertices.size() + bottomCapVertices.size(),
-                                            Attribute::position3f(),
-                                            Attribute::normal3f(),
-                                            0);
-            
-            SetVboState mapVbo(vbo, Vbo::VboMapped);
-            m_strip->addAttributes(shaftVertices, shaftNormals);
-            m_set->addAttributes(headVertices, headNormals);
-            m_fans->addAttributes(topCapVertices, topCapNormals);
-            m_fans->endPrimitive();
-            m_fans->addAttributes(bottomCapVertices, bottomCapNormals);
-            m_fans->endPrimitive();
-            
-            m_valid = true;
-        }
-
         const Mat4f CompassRenderer::cameraRotationMatrix(const Camera& camera) const {
             Mat4f rotation;
             rotation[0] = camera.right();
@@ -105,63 +52,99 @@ namespace TrenchBroom {
             return rotation;
         }
 
-        void CompassRenderer::renderAxis(ShaderProgram& shader, const Color& color) {
-            shader.setUniformVariable("MaterialDiffuse", color);
-            shader.setUniformVariable("MaterialAmbient", color);
-            shader.setUniformVariable("MaterialSpecular", color);
-            m_strip->render();
-            m_set->render();
-            m_fans->render();
+        void CompassRenderer::renderAxis(Vbo& vbo, const Mat4f& rotation) {
+            VertexArray strip(vbo, GL_TRIANGLE_STRIP, m_shaftVertices.size(),
+                              Attribute::position3f(),
+                              Attribute::normal3f(),
+                              0);
+            VertexArray set(vbo, GL_TRIANGLES, m_headVertices.size(),
+                            Attribute::position3f(),
+                            Attribute::normal3f(),
+                            0);
+            IndexedVertexArray fans(vbo, GL_TRIANGLE_FAN, m_headCapVertices.size() + m_shaftCapVertices.size(),
+                                    Attribute::position3f(),
+                                    Attribute::normal3f(),
+                                    0);
+
+            SetVboState mapVbo(vbo, Vbo::VboMapped);
+            strip.addAttributes(rotation * m_shaftVertices, rotation * m_shaftNormals);
+            set.addAttributes(rotation * m_headVertices, rotation * m_headNormals);
+            fans.addAttributes(rotation * m_headCapVertices, rotation * m_headCapNormals);
+            fans.endPrimitive();
+            fans.addAttributes(rotation * m_shaftCapVertices, rotation * m_shaftCapNormals);
+            fans.endPrimitive();
+            
+            SetVboState activateVbo(vbo, Vbo::VboActive);
+            strip.render();
+            set.render();
+            fans.render();
         }
         
-        CompassRenderer::CompassRenderer() :
-        m_strip(NULL),
-        m_set(NULL),
-        m_fans(NULL),
-        m_valid(false) {}
-        
-        CompassRenderer::~CompassRenderer() {
-            delete m_fans;
-            m_fans = NULL;
-            delete m_set;
-            m_set = NULL;
-            delete m_strip;
-            m_strip = NULL;
+        CompassRenderer::CompassRenderer() {
+            const Vec3f offset(0.0f, 0.0f, m_shaftLength / 2.0f);
+            
+            cylinder(m_shaftLength, m_shaftRadius, m_segments, m_shaftVertices, m_shaftNormals);
+            for (size_t i = 0; i < m_shaftVertices.size(); i++)
+                m_shaftVertices[i] -= offset;
+            
+            cone(m_headLength, m_headRadius, m_segments, m_headVertices, m_headNormals);
+            for (size_t i = 0; i < m_headVertices.size(); i++)
+                m_headVertices[i] += offset;
+            
+            circle(m_headRadius, m_segments, m_headCapVertices, m_headCapNormals);
+            m_headCapVertices = Mat4f::Rot180X * m_headCapVertices;
+            m_headCapNormals = Mat4f::Rot180X * m_headCapNormals;
+            for (size_t i = 0; i < m_headCapVertices.size(); i++)
+                m_headCapVertices[i] += offset;
+            
+            circle(m_shaftRadius, m_segments, m_shaftCapVertices, m_shaftCapNormals);
+            m_shaftCapVertices = Mat4f::Rot180X * m_shaftCapVertices;
+            m_shaftCapNormals = Mat4f::Rot180X * m_shaftCapNormals;
+            for (size_t i = 0; i < m_shaftCapVertices.size(); i++)
+                m_shaftCapVertices[i] -= offset;
         }
         
         void CompassRenderer::render(Vbo& vbo, RenderContext& context) {
-            SetVboState activateVbo(vbo, Vbo::VboActive);
-            
-            if (!m_valid)
-                validate(vbo, context);
-
             glFrontFace(GL_CCW);
-            ApplyModelMatrix applyRotation(context.transformation(), cameraRotationMatrix(context.camera()));
-            
-            ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
-            compassShader.currentShader().setUniformVariable("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
-            compassShader.currentShader().setUniformVariable("LightDirection", Vec3f(0.0f, 0.5f, 1.0f).normalized());
-            compassShader.currentShader().setUniformVariable("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
-            compassShader.currentShader().setUniformVariable("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
-            compassShader.currentShader().setUniformVariable("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));
-            compassShader.currentShader().setUniformVariable("MaterialShininess", 32.0f);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             const Controller::AxisRestriction restriction = context.inputState().axisRestriction();
             
-            renderAxis(compassShader.currentShader(), prefs.getColor(Preferences::ZColor));
+            const Mat4f cameraRotation = cameraRotationMatrix(context.camera());
             
-            {
-                ApplyModelMatrix xRotation(context.transformation(), Mat4f::Rot90YCCW);
-                const Color& color = restriction.restricted(Axis::AX) || restriction.restricted(Axis::AZ) ? prefs.getColor(Preferences::DisabledColor) : prefs.getColor(Preferences::XColor);
-                renderAxis(compassShader.currentShader(), color);
-            }
+            ActivateShader compassOutlineShader(context.shaderManager(), Shaders::CompassOutlineShader);
+            compassOutlineShader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+
+            glLineWidth(2.0f);
+            glDepthMask(GL_FALSE);
+            glPolygonMode(GL_FRONT, GL_LINE);
+            renderAxis(vbo, cameraRotation);
+            glPolygonMode(GL_FRONT, GL_FILL);
+            glDepthMask(GL_TRUE);
+            glLineWidth(1.0f);
+
+            ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
+            compassShader.setUniformVariable("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
+            compassShader.setUniformVariable("LightDirection", Vec3f(0.0f, 0.5f, 1.0f).normalized());
+            compassShader.setUniformVariable("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            compassShader.setUniformVariable("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
+            compassShader.setUniformVariable("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));
+            compassShader.setUniformVariable("MaterialShininess", 32.0f);
             
-            {
-                ApplyModelMatrix yRotation(context.transformation(), Mat4f::Rot90XCW);
-                const Color& color = restriction.restricted(Axis::AY) || restriction.restricted(Axis::AZ) ? prefs.getColor(Preferences::DisabledColor) : prefs.getColor(Preferences::YColor);
-                renderAxis(compassShader.currentShader(), color);
-            }
+            compassShader.setUniformVariable("MaterialDiffuse", prefs.getColor(Preferences::ZColor));
+            compassShader.setUniformVariable("MaterialAmbient", prefs.getColor(Preferences::ZColor));
+            compassShader.setUniformVariable("MaterialSpecular", prefs.getColor(Preferences::ZColor));
+            renderAxis(vbo, cameraRotation);
+            
+            compassShader.setUniformVariable("MaterialDiffuse", prefs.getColor(Preferences::XColor));
+            compassShader.setUniformVariable("MaterialAmbient", prefs.getColor(Preferences::XColor));
+            compassShader.setUniformVariable("MaterialSpecular", prefs.getColor(Preferences::XColor));
+            renderAxis(vbo, cameraRotation * Mat4f::Rot90YCCW);
+
+            compassShader.setUniformVariable("MaterialDiffuse", prefs.getColor(Preferences::YColor));
+            compassShader.setUniformVariable("MaterialAmbient", prefs.getColor(Preferences::YColor));
+            compassShader.setUniformVariable("MaterialSpecular", prefs.getColor(Preferences::YColor));
+            renderAxis(vbo, cameraRotation * Mat4f::Rot90XCW);
         }
     }
 }

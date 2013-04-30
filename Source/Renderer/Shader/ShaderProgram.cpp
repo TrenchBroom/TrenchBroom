@@ -121,11 +121,11 @@ namespace TrenchBroom {
             glUseProgram(0);
         }
 
-        bool ShaderProgram::setUniformVariable(const String& name, bool value) {
+        bool ShaderProgram::setUniformVariable(const String& name, const bool value) {
             return setUniformVariable(name, static_cast<int>(value));
         }
 
-        bool ShaderProgram::setUniformVariable(const String& name, int value) {
+        bool ShaderProgram::setUniformVariable(const String& name, const int value) {
             assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ShaderProgram::setUniformVariable(const String& name, float value) {
+        bool ShaderProgram::setUniformVariable(const String& name, const float value) {
             assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)

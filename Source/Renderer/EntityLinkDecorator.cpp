@@ -164,8 +164,8 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             ActivateShader shader(context.shaderManager(), Shaders::EntityLinkShader);
-            shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
-            shader.currentShader().setUniformVariable("MaxDistance", 512.0f);
+            shader.setUniformVariable("CameraPosition", context.camera().position());
+            shader.setUniformVariable("MaxDistance", 512.0f);
 
             // render the "occluded" portion without depth-test
             glLineWidth(2.0f);
@@ -173,44 +173,44 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
 
             if (m_unselectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityLinkColor));
                 m_unselectedLinkArray->render();
             }
             
             if (m_selectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityLinkColor));
                 m_selectedLinkArray->render();
             }
             
             if (m_unselectedKillLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityKillLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedEntityKillLinkColor));
                 m_unselectedKillLinkArray->render();
             }
             
             if (m_selectedKillLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityKillLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEntityKillLinkColor));
                 m_selectedKillLinkArray->render();
             }
             
             glEnable(GL_DEPTH_TEST);
 
             if (m_unselectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::EntityLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::EntityLinkColor));
                 m_unselectedLinkArray->render();
             }
 
             if (m_selectedLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityLinkColor));
                 m_selectedLinkArray->render();
             }
             
             if (m_unselectedKillLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::EntityKillLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::EntityKillLinkColor));
                 m_unselectedKillLinkArray->render();
             }
             
             if (m_selectedKillLinkArray != NULL) {
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityKillLinkColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEntityKillLinkColor));
                 m_selectedKillLinkArray->render();
             }
 

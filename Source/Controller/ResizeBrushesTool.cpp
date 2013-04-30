@@ -203,7 +203,7 @@ namespace TrenchBroom {
             Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
 
             glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
+            shader.setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
             edgeArray.render();
             glEnable(GL_DEPTH_TEST);
 

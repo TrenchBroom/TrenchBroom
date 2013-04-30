@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 Renderer::ApplyModelMatrix apply(transformation, matrix);
 
                 Renderer::ActivateShader handleShader(m_sharedResources.shaderManager(), Renderer::Shaders::HandleShader);
-                handleShader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+                handleShader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 circleArray.render();
 
                 Renderer::ActivateShader coloredShader(m_sharedResources.shaderManager(), Renderer::Shaders::ColoredHandleShader);

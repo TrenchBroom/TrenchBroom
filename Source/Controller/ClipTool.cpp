@@ -334,18 +334,18 @@ namespace TrenchBroom {
             if (m_numPoints > 0 || m_hitIndex > -1) {
                 
                 Renderer::ActivateShader pointHandleShader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
-                pointHandleShader.currentShader().setUniformVariable("CameraPosition", renderContext.camera().position());
-                pointHandleShader.currentShader().setUniformVariable("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
-                pointHandleShader.currentShader().setUniformVariable("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+                pointHandleShader.setUniformVariable("CameraPosition", renderContext.camera().position());
+                pointHandleShader.setUniformVariable("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
+                pointHandleShader.setUniformVariable("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
 
                 Renderer::SphereFigure sphereFigure(prefs.getFloat(Preferences::HandleRadius), 1);
                 for (unsigned int i = 0; i < m_numPoints; i++) {
-                    pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
+                    pointHandleShader.setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
                     glDisable(GL_DEPTH_TEST);
-                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                     sphereFigure.render(vbo, renderContext);
                     glEnable(GL_DEPTH_TEST);
-                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                     sphereFigure.render(vbo, renderContext);
                 }
                 
@@ -363,12 +363,12 @@ namespace TrenchBroom {
                             glEnable(GL_DEPTH_TEST);
                         }
                     } else {
-                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
+                        pointHandleShader.setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
                         glDisable(GL_DEPTH_TEST);
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                        pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                         glEnable(GL_DEPTH_TEST);
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                        pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                     }
                 }
@@ -394,16 +394,16 @@ namespace TrenchBroom {
                     
                     Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
                     glDisable(GL_DEPTH_TEST);
-                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    planeShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                     linesArray->render();
                     glEnable(GL_DEPTH_TEST);
-                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    planeShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                     linesArray->render();
                     
                     if (m_numPoints == 3) {
                         glDisable(GL_DEPTH_TEST);
                         glDisable(GL_CULL_FACE);
-                        planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
+                        planeShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
                         triangleArray->render();
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
