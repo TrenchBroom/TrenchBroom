@@ -50,8 +50,10 @@ namespace TrenchBroom {
         }
 
         void CreateBrushTool::updateBounds(const Vec3f& currentPoint) {
-            m_bounds.min = m_bounds.max = m_initialPoint;
-            m_bounds.mergeWith(currentPoint);
+            for (size_t i = 0; i < 3; i++) {
+                m_bounds.min[i] = std::min(m_initialPoint[i], currentPoint[i]);
+                m_bounds.max[i] = std::max(m_initialPoint[i], currentPoint[i]);
+            }
             
             Utility::Grid& grid = document().grid();
             m_bounds.min = grid.snapDown(m_bounds.min);
