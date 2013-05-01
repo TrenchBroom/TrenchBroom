@@ -112,17 +112,6 @@ namespace TrenchBroom {
             
             const Mat4f cameraRotation = cameraRotationMatrix(context.camera());
             
-            ActivateShader compassOutlineShader(context.shaderManager(), Shaders::CompassOutlineShader);
-            compassOutlineShader.setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-
-            glLineWidth(2.0f);
-            glDepthMask(GL_FALSE);
-            glPolygonMode(GL_FRONT, GL_LINE);
-            renderAxis(vbo, cameraRotation);
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glDepthMask(GL_TRUE);
-            glLineWidth(1.0f);
-
             ActivateShader compassShader(context.shaderManager(), Shaders::CompassShader);
             compassShader.setUniformVariable("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
             compassShader.setUniformVariable("LightDirection", Vec3f(0.0f, 0.5f, 1.0f).normalized());

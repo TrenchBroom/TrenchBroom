@@ -53,7 +53,6 @@ namespace TrenchBroom {
             
             const Mat4f cameraRotationMatrix(const Camera& camera) const;
             void renderAxis(Vbo& vbo, const Mat4f& rotation);
-            void renderOutline(Vbo& vbo, const Camera& camera, const Mat4f& rotation, const Color& color);
         public:
             CompassRenderer();
             
