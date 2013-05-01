@@ -67,6 +67,11 @@ namespace TrenchBroom {
         private:
             unsigned char m_values[4];
         public:
+            AliasPackedFrameVertex() {
+                for (size_t i = 0; i < 4; i++)
+                    m_values[i] = 0;
+            }
+            
             inline const unsigned char& operator[](const size_t index) const {
                 assert(index < 4);
                 return m_values[index];
@@ -116,12 +121,12 @@ namespace TrenchBroom {
             AliasFrameVertex m_vertices[3];
         public:
             inline AliasFrameVertex& operator[] (const size_t index) {
-                assert(index >= 0 && index < 3);
+                assert(index < 3);
                 return m_vertices[index];
             }
             
             inline const AliasFrameVertex& operator[] (const size_t index) const {
-                assert(index >= 0 && index < 3);
+                assert(index < 3);
                 return m_vertices[index];
             }
         };

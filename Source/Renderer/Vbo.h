@@ -56,7 +56,9 @@ namespace TrenchBroom {
                 start(i_start),
                 length(i_length) {}
                 
-                MemBlock() {}
+                MemBlock() :
+                start(0),
+                length(0) {}
             };
 
             GLenum m_type;
@@ -75,9 +77,15 @@ namespace TrenchBroom {
             void resizeVbo(size_t newCapacity);
             void resizeBlock(VboBlock& block, size_t newCapacity);
             VboBlock* packBlock(VboBlock& block);
+#ifdef _DEBUG_VBO
             void checkBlockChain();
             void checkFreeBlocks();
+#endif
             friend class VboBlock;
+
+            // prevent copying
+            Vbo(const Vbo& other);
+            void operator= (const Vbo& other);
         public:
             Vbo(GLenum type, size_t capacity);
             ~Vbo();
@@ -185,31 +193,31 @@ namespace TrenchBroom {
             }
 
             inline size_t writeBuffer(const unsigned char* buffer, size_t offset, size_t length) {
-                assert(offset >= 0 && offset + length <= m_capacity);
+                assert(offset + length <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, buffer, length);
                 return offset + length;
             }
 
             inline size_t writeByte(unsigned char b, size_t offset) {
-                assert(offset >= 0 && offset < m_capacity);
+                assert(offset < m_capacity);
                 m_vbo.m_buffer[m_address + offset] = b;
                 return offset + 1;
             }
 
             inline size_t writeFloat(float f, size_t offset) {
-                assert(offset >= 0 && offset + sizeof(float) <= m_capacity);
+                assert(offset + sizeof(float) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &f, sizeof(float));
                 return offset + sizeof(float);
             }
 
             inline size_t writeUInt32(size_t i, size_t offset) {
-                assert(offset >= 0 && offset + sizeof(size_t) <= m_capacity);
+                assert(offset + sizeof(size_t) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &i, sizeof(size_t));
                 return offset + sizeof(size_t);
             }
 
             inline size_t writeColor(const Color& color, size_t offset) {
-                assert(offset >= 0 && offset + 4 <= m_capacity);
+                assert(offset + 4 <= m_capacity);
                 m_vbo.m_buffer[m_address + offset + 0] = static_cast<unsigned char>(color.r() * 0xFF);
                 m_vbo.m_buffer[m_address + offset + 1] = static_cast<unsigned char>(color.g() * 0xFF);
                 m_vbo.m_buffer[m_address + offset + 2] = static_cast<unsigned char>(color.b() * 0xFF);
@@ -219,7 +227,7 @@ namespace TrenchBroom {
 
             template<class T>
             inline size_t writeVec(const T& vec, size_t offset) {
-                assert(offset >= 0 && offset + sizeof(T) <= m_capacity);
+                assert(offset + sizeof(T) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &vec, sizeof(T));
                 return offset + sizeof(T);
             }
@@ -227,7 +235,7 @@ namespace TrenchBroom {
             template<class T>
             inline size_t writeVecs(const std::vector<T>& vecs, size_t offset) {
                 size_t size = static_cast<size_t>(vecs.size() * sizeof(T));
-                assert(offset >= 0 && offset + size <= m_capacity);
+                assert(offset + size <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &(vecs[0]), size);
                 return offset + size;
             }
@@ -246,16 +254,21 @@ namespace TrenchBroom {
 		class VboException : public std::exception {
 		protected:
 			Vbo& m_vbo;
-			std::string m_msg;
 			GLenum m_glError;
+			std::string m_msg;
 		public:
-			VboException(Vbo& vbo, const std::string& msg, GLenum glError) throw() : m_vbo(vbo), m_msg(msg), m_glError(glError) {}
+			VboException(Vbo& vbo, const std::string& format, GLenum glError) throw() :
+            m_vbo(vbo),
+            m_glError(glError) {
+                std::stringstream msg;
+                msg << m_msg << " (OpenGL error " << m_glError << ")";
+                m_msg = msg.str();
+            }
+            
             ~VboException() throw() {}
 
 			virtual const char* what() const throw() {
-                std::stringstream msg;
-                msg << m_msg << " (OpenGL error " << m_glError << ")";
-			    return msg.str().c_str();
+                return m_msg.c_str();
 			}
  		};
     }

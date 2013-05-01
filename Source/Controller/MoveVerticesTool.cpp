@@ -180,95 +180,135 @@ namespace TrenchBroom {
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             MoveTool::handleRender(inputState, vbo, renderContext);
             
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            if (m_textRenderer == NULL)
+                initTextRenderer();
+            m_textRenderer->clear();
+            
             if (dragType() == DTDrag) {
-                Renderer::PointGuideRenderer guideRenderer(m_dragHandlePosition, document().picker(), view().filter());
-                guideRenderer.setColor(prefs.getColor(Preferences::GuideColor));
-                guideRenderer.render(vbo, renderContext);
+                renderGuide(vbo, renderContext, m_dragHandlePosition);
+                renderHighlight(vbo, renderContext, m_dragHandlePosition);
+                addVertexPositionText(m_dragHandlePosition);
             }
             
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
-            
-            if (m_textRenderer == NULL) {
-                const String fontName = prefs.getString(Preferences::RendererFontName);
-                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
-                assert(fontSize >= 0);
-                const Renderer::Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
-                
-                Renderer::Text::TexturedFont* font = document().sharedResources().fontManager().font(fontDescriptor);
-                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(*font);
-                m_textRenderer->setFadeDistance(10000.0f);
-            }
-            m_textRenderer->clear();
             
             HandleHitList hits = firstHits(inputState.pickResult());
             if (!hits.empty()) {
                 const Model::VertexHandleHit* firstHit = hits.front();
                 const Model::HitType::Type hitType = firstHit->type();
-                
-                const Color& color = firstHit->type() == Model::HitType::VertexHandleHit ? prefs.getColor(Preferences::VertexHandleColor) : (firstHit->type() == Model::HitType::EdgeHandleHit ? prefs.getColor(Preferences::EdgeHandleColor) : prefs.getColor(Preferences::FaceHandleColor));
-                const float radius = prefs.getFloat(Preferences::HandleRadius);
-                const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
-                
+                renderHighlight(vbo, renderContext, firstHit->vertex());
 
                 if (hitType == Model::HitType::VertexHandleHit) {
-                    glDisable(GL_DEPTH_TEST);
-                    Renderer::PointHandleHighlightFigure highlightFigure(firstHit->vertex(), color, radius, scalingFactor);
-                    highlightFigure.render(vbo, renderContext);
-                    glEnable(GL_DEPTH_TEST);
-                    
-                    if (!m_handleManager.vertexHandleSelected(firstHit->vertex())) {
-                        Renderer::Text::TextAnchor::Ptr anchor(new Renderer::Text::SimpleTextAnchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom));
-                        m_textRenderer->addString(firstHit->vertex(), firstHit->vertex().asString(), anchor);
-                    }
+                    if (dragType() == DTNone)
+                        addVertexPositionText(firstHit->vertex());
                 } else {
-                    Renderer::LinesRenderer linesRenderer;
-                    linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
-
-                    if (hitType == Model::HitType::EdgeHandleHit) {
-                        HandleHitList::const_iterator it, end;
-                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                            const Model::VertexHandleHit* hit = *it;
-                            const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
-                            
-                            Model::EdgeList::const_iterator edgeIt, edgeEnd;
-                            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                                const Model::Edge& edge = **edgeIt;
-                                linesRenderer.add(edge.start->position, edge.end->position);
-                            }
-                        }
-                    } else {
-                        HandleHitList::const_iterator it, end;
-                        for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                            const Model::VertexHandleHit* hit = *it;
-                            const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
-                            
-                            Model::FaceList::const_iterator faceIt, faceEnd;
-                            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                                const Model::Face& face = **faceIt;
-                                const Model::EdgeList& edges = face.edges();
-                                
-                                Model::EdgeList::const_iterator edgeIt, edgeEnd;
-                                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                                    const Model::Edge& edge = **edgeIt;
-                                    linesRenderer.add(edge.start->position, edge.end->position);
-                                }
-                            }
-                        }
-                    }
-                    
-                    linesRenderer.render(vbo, renderContext);
+                    renderHighlightEdges(vbo, renderContext, hitType, hits);
                 }
-                
-                const Color& textColor = prefs.getColor(Preferences::InfoOverlayTextColor);
-                const Color& backgroundColor = prefs.getColor(Preferences::InfoOverlayBackgroundColor);
-                Renderer::ShaderProgram& textShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextShader);
-                Renderer::ShaderProgram& backgroundShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextBackgroundShader);
-                
-                glDisable(GL_DEPTH_TEST);
-                m_textRenderer->render(renderContext, m_textFilter, textShader, textColor, backgroundShader, backgroundColor);
-                glEnable(GL_DEPTH_TEST);
+ 
             }
+            renderText(renderContext);
+        }
+
+        void MoveVerticesTool::initTextRenderer() {
+            assert(m_textRenderer == NULL);
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const String fontName = prefs.getString(Preferences::RendererFontName);
+            const int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            assert(fontSize >= 0);
+            const Renderer::Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
+            
+            Renderer::Text::TexturedFont* font = document().sharedResources().fontManager().font(fontDescriptor);
+            m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(*font);
+            m_textRenderer->setFadeDistance(10000.0f);
+        }
+
+        void MoveVerticesTool::renderGuide(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Vec3f& position) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& color = prefs.getColor(Preferences::GuideColor);
+
+            Renderer::PointGuideRenderer guideRenderer(m_dragHandlePosition, document().picker(), view().filter());
+            guideRenderer.setColor(color);
+            guideRenderer.render(vbo, renderContext);
+        }
+
+        void MoveVerticesTool::renderHighlight(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Vec3f& position) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& color = prefs.getColor(Preferences::HandleHighlightColor);
+            const float radius = prefs.getFloat(Preferences::HandleRadius);
+            const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+            
+            glDisable(GL_DEPTH_TEST);
+            Renderer::PointHandleHighlightFigure highlightFigure(position, color, radius, scalingFactor);
+            highlightFigure.render(vbo, renderContext);
+            glEnable(GL_DEPTH_TEST);
+        }
+        
+        void MoveVerticesTool::addVertexPositionText(const Vec3f& position) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const float radius = prefs.getFloat(Preferences::HandleRadius);
+            
+            Renderer::Text::TextAnchor::Ptr anchor(new Renderer::Text::SimpleTextAnchor(position + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom));
+            m_textRenderer->addString(position, position.asString(), anchor);
+        }
+        
+        void MoveVerticesTool::renderHighlightEdges(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Model::HitType::Type firstHitType, HandleHitList& hits) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::LinesRenderer linesRenderer;
+            linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
+            
+            if (firstHitType == Model::HitType::EdgeHandleHit)
+                gatherEdgeVertices(linesRenderer, hits);
+            else
+                gatherFaceEdgeVertices(linesRenderer, hits);
+            
+            linesRenderer.render(vbo, renderContext);
+        }
+        
+        void MoveVerticesTool::gatherEdgeVertices(Renderer::LinesRenderer& linesRenderer, HandleHitList& hits) {
+            HandleHitList::const_iterator it, end;
+            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                const Model::VertexHandleHit* hit = *it;
+                const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
+                
+                Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                    const Model::Edge& edge = **edgeIt;
+                    linesRenderer.add(edge.start->position, edge.end->position);
+                }
+            }
+        }
+        
+        void MoveVerticesTool::gatherFaceEdgeVertices(Renderer::LinesRenderer& linesRenderer, HandleHitList& hits) {
+            HandleHitList::const_iterator it, end;
+            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                const Model::VertexHandleHit* hit = *it;
+                const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
+                
+                Model::FaceList::const_iterator faceIt, faceEnd;
+                for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                    const Model::Face& face = **faceIt;
+                    const Model::EdgeList& edges = face.edges();
+                    
+                    Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                    for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                        const Model::Edge& edge = **edgeIt;
+                        linesRenderer.add(edge.start->position, edge.end->position);
+                    }
+                }
+            }
+        }
+        
+        void MoveVerticesTool::renderText(Renderer::RenderContext& renderContext) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& textColor = prefs.getColor(Preferences::InfoOverlayTextColor);
+            const Color& backgroundColor = prefs.getColor(Preferences::InfoOverlayBackgroundColor);
+            Renderer::ShaderProgram& textShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextShader);
+            Renderer::ShaderProgram& backgroundShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextBackgroundShader);
+            
+            glDisable(GL_DEPTH_TEST);
+            m_textRenderer->render(renderContext, m_textFilter, textShader, textColor, backgroundShader, backgroundColor);
+            glEnable(GL_DEPTH_TEST);
         }
 
         void MoveVerticesTool::handleFreeRenderResources() {
@@ -482,6 +522,7 @@ namespace TrenchBroom {
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize) :
         MoveTool(documentViewHolder, inputController, true),
         m_mode(VMMove),
+        m_changeCount(0),
         m_textRenderer(NULL) {}
 
         MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {

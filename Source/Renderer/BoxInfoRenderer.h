@@ -70,6 +70,10 @@ namespace TrenchBroom {
             Text::TextRenderer<unsigned int>* m_textRenderer;
             Text::TextRenderer<unsigned int>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
+            
+            // prevent copying
+            BoxInfoRenderer(const BoxInfoRenderer& other);
+            void operator= (const BoxInfoRenderer& other);
         public:
             BoxInfoRenderer(const BBoxf& bounds, Text::FontManager& fontManager);
             ~BoxInfoRenderer();

@@ -156,7 +156,7 @@ namespace TrenchBroom {
             using namespace IO;
             
             char* cursor = begin;
-            int version = readInt<int32_t>(cursor); version = version; // prevent warning
+            readInt<int32_t>(cursor); // version
             cursor = begin + BspLayout::DirTexturesAddress;
             int textureAddr = readInt<int32_t>(cursor);
             cursor = begin + textureAddr;

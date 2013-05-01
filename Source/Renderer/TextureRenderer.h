@@ -46,6 +46,10 @@ namespace TrenchBroom {
             
             void init(unsigned int width, unsigned int height);
             void init(unsigned char* rgbImage, unsigned int width, unsigned int height);
+
+            // prevent copying
+            TextureRenderer(const TextureRenderer& other);
+            void operator= (const TextureRenderer& other);
         public:
             TextureRenderer(unsigned char* rgbImage, const Color& averageColor, unsigned int width, unsigned int height);
             TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette);

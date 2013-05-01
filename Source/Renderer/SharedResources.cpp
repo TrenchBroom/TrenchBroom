@@ -44,6 +44,7 @@ namespace TrenchBroom {
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
         m_palette(NULL),
         m_modelRendererManager(NULL),
+        m_shaderManager(NULL),
         m_textureRendererManager(NULL),
         m_fontManager(NULL),
         m_attribs(NULL),
@@ -51,12 +52,14 @@ namespace TrenchBroom {
         m_samples(0),
         m_depthbits(0),
         m_sharedContext(NULL),
-        m_glCanvas(NULL) {}
+        m_glCanvas(NULL),
+        m_retainCount(0) {}
 
         SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
         m_palette(NULL),
         m_modelRendererManager(NULL),
+        m_shaderManager(NULL),
         m_textureRendererManager(NULL),
         m_fontManager(NULL),
         m_attribs(NULL),
@@ -64,7 +67,8 @@ namespace TrenchBroom {
         m_samples(0),
         m_depthbits(0),
         m_sharedContext(NULL),
-        m_glCanvas(NULL) {
+        m_glCanvas(NULL),
+        m_retainCount(0) {
             Create(textureManager, console);
         }
         

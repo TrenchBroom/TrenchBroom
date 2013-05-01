@@ -130,7 +130,6 @@ namespace TrenchBroom {
             yAxis = BaseAxes[bestIndex * 3 + 2];
             planeNormIndex = (bestIndex / 2) * 6;
             faceNormIndex = bestIndex * 3;
-            planeNormIndex = planeNormIndex;
         }
         
         void Face::validateTexAxes(const Vec3f& faceNormal) const {

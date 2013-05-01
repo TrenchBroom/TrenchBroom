@@ -106,14 +106,6 @@ namespace TrenchBroom {
             outline.push_back(Vec2f(Width2, -offset));
         }
         
-        void MovementIndicator::renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const {
-            ApplyModelMatrix applyMatrix(context.transformation(), matrix);
-            shader.setUniformVariable("Color", m_outlineColor);
-            m_outline->render();
-            shader.setUniformVariable("Color", m_fillColor);
-            m_triangles->render();
-        }
-
         MovementIndicator::MovementIndicator() :
         m_direction(Horizontal),
         m_outlineColor(Color(1.0f, 1.0f, 1.0f, 1.0f)),
@@ -138,22 +130,24 @@ namespace TrenchBroom {
             assert(m_outline != NULL);
             assert(m_triangles != NULL);
 
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
-
             Mat4f matrix = translationMatrix(m_position);
             if (m_direction == Vertical)
                 matrix *= context.camera().billboardMatrix(true);
 
-            ApplyModelMatrix applyMatrix(context.transformation(), matrix);
-            shader.setUniformVariable("Color", m_fillColor);
-            m_triangles->render();
-            shader.setUniformVariable("Color", m_outlineColor);
-            m_outline->render();
-
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
+            renderArrow(matrix, shader, context);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
+        }
+
+        void MovementIndicator::renderArrow(const Mat4f& matrix, ActivateShader& shader, RenderContext& context) const {
+            ApplyModelMatrix applyMatrix(context.transformation(), matrix);
+            shader.setUniformVariable("Color", m_outlineColor);
+            m_outline->render();
+            shader.setUniformVariable("Color", m_fillColor);
+            m_triangles->render();
         }
     }
 }

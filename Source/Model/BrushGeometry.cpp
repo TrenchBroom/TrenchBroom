@@ -1039,7 +1039,6 @@ namespace TrenchBroom {
         void BrushGeometry::copy(const BrushGeometry& original) {
             std::map<Vertex*, Vertex*> vertexMap;
             std::map<Edge*, Edge*> edgeMap;
-            std::map<Side*, Side*> sideMap;
 
             Utility::deleteAll(vertices);
             Utility::deleteAll(edges);
@@ -1049,14 +1048,14 @@ namespace TrenchBroom {
             edges.reserve(original.edges.size());
             sides.reserve(original.sides.size());
 
-            for (unsigned int i = 0; i < original.vertices.size(); i++) {
+            for (size_t i = 0; i < original.vertices.size(); i++) {
                 Vertex* originalVertex = original.vertices[i];
                 Vertex* copyVertex = new Vertex(*originalVertex);
                 vertexMap[originalVertex] = copyVertex;
                 vertices.push_back(copyVertex);
             }
 
-            for (unsigned int i = 0; i < original.edges.size(); i++) {
+            for (size_t i = 0; i < original.edges.size(); i++) {
                 Edge* originalEdge = original.edges[i];
                 Edge* copyEdge = new Edge(*originalEdge);
                 copyEdge->start = vertexMap[originalEdge->start];
@@ -1065,18 +1064,20 @@ namespace TrenchBroom {
                 edges.push_back(copyEdge);
             }
 
-            for (unsigned int i = 0; i < original.sides.size(); i++) {
+            for (size_t i = 0; i < original.sides.size(); i++) {
                 Side* originalSide = original.sides[i];
                 Side* copySide = new Side(*originalSide);
                 copySide->vertices.clear();
                 copySide->edges.clear();
 
-                for (unsigned int j = 0; j < originalSide->edges.size(); j++) {
+                for (size_t j = 0; j < originalSide->edges.size(); j++) {
                     Edge* originalEdge = originalSide->edges[j];
                     Edge* copyEdge = edgeMap[originalEdge];
 
-                    if (originalEdge->left == originalSide) copyEdge->left = copySide;
-                    else copyEdge->right = copySide;
+                    if (originalEdge->left == originalSide)
+                        copyEdge->left = copySide;
+                    else
+                        copyEdge->right = copySide;
                     copySide->edges.push_back(copyEdge);
                     copySide->vertices.push_back(copyEdge->startVertex(copySide));
                 }
@@ -1114,26 +1115,26 @@ namespace TrenchBroom {
                 for (unsigned int j = 0; j < side->edges.size(); j++) {
                     Edge* edge = side->edges[j];
                     if (edge->left != side && edge->right != side) {
-                        fprintf(stdout, "edge with index %i of side with index %i does not actually belong to it\n", j, i);
+                        fprintf(stdout, "edge with index %u of side with index %u does not actually belong to it\n", j, i);
                         return false;
                     }
 
                     size_t index = findElement(edges, edge);
                     if (index == edges.size()) {
-                        fprintf(stdout, "edge with index %i of side with index %i is missing from vertex data\n", j, i);
+                        fprintf(stdout, "edge with index %u of side with index %u is missing from vertex data\n", j, i);
                         return false;
                     }
                     eVisits[index]++;
 
                     Vertex* vertex = edge->startVertex(side);
                     if (side->vertices[j] != vertex) {
-                        fprintf(stdout, "start vertex of edge with index %i of side with index %i is not at position %i in the side's vertex list\n", j, i, j);
+                        fprintf(stdout, "start vertex of edge with index %u of side with index %u is not at position %u in the side's vertex list\n", j, i, j);
                         return false;
                     }
 
                     index = findElement(vertices, vertex);
                     if (index == vertices.size()) {
-                        fprintf(stdout, "start vertex of edge with index %i of side with index %i is missing from vertex data\n", j, i);
+                        fprintf(stdout, "start vertex of edge with index %u of side with index %u is missing from vertex data\n", j, i);
                         return false;
                     }
                     vVisits[index]++;
@@ -1142,30 +1143,30 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 if (vVisits[i] == 0) {
-                    fprintf(stdout, "vertex with index %i does not belong to any side\n", i);
+                    fprintf(stdout, "vertex with index %u does not belong to any side\n", i);
                     return false;
                 }
 
                 for (unsigned int j = i + 1; j < vertices.size(); j++)
                     if (vertices[i]->position.equals(vertices[j]->position)) {
-                        fprintf(stdout, "vertex with index %i is identical to vertex with index %i\n", i, j);
+                        fprintf(stdout, "vertex with index %u is identical to vertex with index %u\n", i, j);
                         return false;
                     }
             }
 
             for (unsigned int i = 0; i < edges.size(); i++) {
                 if (eVisits[i] != 2) {
-                    fprintf(stdout, "edge with index %i was visited %i times, should have been 2\n", i, eVisits[i]);
+                    fprintf(stdout, "edge with index %u was visited %u times, should have been 2\n", i, eVisits[i]);
                     return false;
                 }
 
                 if (edges[i]->start->position.equals(edges[i]->end->position)) {
-                    fprintf(stdout, "edge with index %i has almost identical vertices", i);
+                    fprintf(stdout, "edge with index %u has almost identical vertices", i);
                     return false;
                 }
                 
                 if (edges[i]->left == edges[i]->right) {
-                    fprintf(stdout, "edge with index %i has identical sides", i);
+                    fprintf(stdout, "edge with index %u has identical sides", i);
                     return false;
                 }
 
@@ -1174,7 +1175,7 @@ namespace TrenchBroom {
                     Edge* edge2 = edges[j];
                     if ((edge1->start == edge2->start && edge1->end == edge2->end) ||
                         (edge1->start == edge2->end && edge1->end == edge2->start)) {
-                        fprintf(stdout, "edge with index %i is identical to edge with index %i\n", i, j);
+                        fprintf(stdout, "edge with index %u is identical to edge with index %u\n", i, j);
                         return false;
                     }
                 }

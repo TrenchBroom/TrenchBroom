@@ -30,7 +30,8 @@ namespace TrenchBroom {
         m_screenDC(NULL),
         m_feedbackImage(wxBitmap(64, 64)),
         m_imageOffset(imageOffset),
-        m_showFeedback(true) {
+        m_showFeedback(true),
+        m_dragStarted(false) {
             if (image != NULL)
                 m_feedbackImage = wxBitmap(*image);
             CurrentDropSource = this;

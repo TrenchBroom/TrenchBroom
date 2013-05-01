@@ -194,11 +194,28 @@ namespace TrenchBroom {
         }
 
         MapPropertiesDialog::MapPropertiesDialog() :
-        wxDialog() {}
+        wxDialog(),
+        m_document(NULL),
+        m_modChoice(NULL),
+        m_defChoice(NULL),
+        m_intFacePointsCheckBox(NULL),
+        m_wadList(NULL),
+        m_addWadButton(NULL),
+        m_removeWadsButton(NULL),
+        m_moveWadUpButton(NULL),
+        m_moveWadDownButton(NULL) {}
 
         MapPropertiesDialog::MapPropertiesDialog(wxWindow* parent, Model::MapDocument& document) :
         wxDialog(),
-        m_document(NULL) {
+        m_document(NULL),
+        m_modChoice(NULL),
+        m_defChoice(NULL),
+        m_intFacePointsCheckBox(NULL),
+        m_wadList(NULL),
+        m_addWadButton(NULL),
+        m_removeWadsButton(NULL),
+        m_moveWadUpButton(NULL),
+        m_moveWadDownButton(NULL) {
             Create(parent, document);
         }
 

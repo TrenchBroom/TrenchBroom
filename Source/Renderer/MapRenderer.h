@@ -120,6 +120,10 @@ namespace TrenchBroom {
             void invalidateSelectedEntityModelRendererCache();
             void invalidateDecorators();
             void clear();
+
+            // prevent copying
+            MapRenderer(const MapRenderer& other);
+            void operator= (const MapRenderer& other);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();

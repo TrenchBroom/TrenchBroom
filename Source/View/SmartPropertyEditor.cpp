@@ -112,6 +112,11 @@ namespace TrenchBroom {
         SmartPropertyEditor(manager),
         m_text(NULL) {}
 
+        DefaultPropertyEditor::~DefaultPropertyEditor() {
+            if (m_text != NULL)
+                destroyVisual();
+        }
+
         void SmartPropertyEditorManager::activateEditor(SmartPropertyEditor* editor, const Model::PropertyKey& property) {
             if (m_activeEditor != editor) {
                 deactivateEditor();

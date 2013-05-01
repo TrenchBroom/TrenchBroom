@@ -456,7 +456,7 @@ namespace TrenchBroom {
                     
                     unsigned int skinIndex = 0;
                     unsigned int frameIndex = 0;
-                    if (indices.size() > 0) {
+                    if (!indices.empty() > 0) {
                         skinIndex = static_cast<unsigned int>(indices[0]);
                         if (indices.size() > 1)
                             frameIndex = static_cast<unsigned int>(indices[1]);

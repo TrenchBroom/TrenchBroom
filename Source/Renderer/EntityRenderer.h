@@ -108,6 +108,10 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             void renderFigures(RenderContext& context);
+
+            // prevent copying
+            EntityRenderer(const EntityRenderer& other);
+            void operator= (const EntityRenderer& other);
         public:
             EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document);
             ~EntityRenderer();

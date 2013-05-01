@@ -420,7 +420,7 @@ namespace TrenchBroom {
             } else if (isNumberedProperty(KillTargetKey, key)) {
                 // sever link to old killtarget
                 if (oldValue != NULL && !oldValue->empty()) {
-                    EntityList::iterator it = m_linkTargets.begin();
+                    EntityList::iterator it = m_killTargets.begin();
                     while (it != m_killTargets.end()) {
                         Entity& target = **it;
                         const PropertyValue* targetname = target.propertyForKey(TargetnameKey);

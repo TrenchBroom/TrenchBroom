@@ -24,6 +24,9 @@ DEFINE_EVENT_TYPE(EVT_EXECUTABLE_EVENT)
 namespace TrenchBroom {
     IMPLEMENT_DYNAMIC_CLASS(ExecutableEvent, wxEvent)
 
+    ExecutableEvent::ExecutableEvent() :
+    m_executable(NULL) {}
+
     ExecutableEvent::ExecutableEvent(Executable* executable) :
     wxEvent(wxID_ANY, EVT_EXECUTABLE_EVENT),
     m_executable(executable) {}

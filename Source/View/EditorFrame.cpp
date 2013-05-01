@@ -144,11 +144,21 @@ namespace TrenchBroom {
 
         EditorFrame::EditorFrame() :
         wxFrame(NULL, wxID_ANY, wxT("")),
+        m_inspector(NULL),
+        m_mapCanvasContainerPanel(NULL),
+        m_navBar(NULL),
+        m_mapCanvas(NULL),
+        m_logView(NULL),
         m_focusMapCanvasOnIdle(2) {}
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
+        m_inspector(NULL),
+        m_mapCanvasContainerPanel(NULL),
+        m_navBar(NULL),
+        m_mapCanvas(NULL),
+        m_logView(NULL),
         m_focusMapCanvasOnIdle(2) {
             Create(document, view);
         }

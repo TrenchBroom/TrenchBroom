@@ -130,8 +130,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            m_startX = inputState.x();
-            m_startY = inputState.y();
+            m_startPoint = wxPoint(inputState.x(), inputState.y());
             m_angle = 0.0f;
             m_center = m_rotateHandle.position();
             m_rotateHandle.lock();
@@ -143,9 +142,9 @@ namespace TrenchBroom {
         bool RotateObjectsTool::handleDrag(InputState& inputState) {
             int delta = 0;
             if (m_axis == Vec3f::PosZ) {
-                delta = -(inputState.x() - m_startX);
+                delta = -(inputState.x() - m_startPoint.x);
             } else {
-                delta = inputState.y() - m_startY;
+                delta = inputState.y() - m_startPoint.y;
                 if (m_invert)
                     delta *= -1;
             }
@@ -178,6 +177,7 @@ namespace TrenchBroom {
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness) :
         Tool(documentViewHolder, inputController, true),
+        m_invert(false),
         m_angle(0.0f),
         m_ignoreObjectsChange(false),
         m_rotateHandle(RotateHandle(axisLength, ringRadius, ringThickness)){}

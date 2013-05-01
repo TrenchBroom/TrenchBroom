@@ -27,8 +27,8 @@ using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ActivateShader;
         class RenderContext;
-        class ShaderProgram;
         class VertexArray;
         class Vbo;
         
@@ -55,7 +55,6 @@ namespace TrenchBroom {
             void validate(Vbo& vbo);
             void buildXArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
             void buildYArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
-            void renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const;
         public:
             MovementIndicator();
             ~MovementIndicator();
@@ -77,6 +76,9 @@ namespace TrenchBroom {
             }
             
             void render(Vbo& vbo, RenderContext& context);
+
+        private:
+            void renderArrow(const Mat4f& matrix, ActivateShader& shader, RenderContext& context) const;
         };
     }
 }

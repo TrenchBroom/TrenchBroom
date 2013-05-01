@@ -19,6 +19,7 @@
 
 #include "Palette.h"
 
+#include <algorithm>
 #include <fstream>
 
 namespace TrenchBroom {
@@ -34,6 +35,18 @@ namespace TrenchBroom {
             
             stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
             stream.close();
+        }
+        
+        Palette::Palette(const Palette& other) :
+        m_data(NULL),
+        m_size(other.m_size) {
+            m_data = new unsigned char[m_size];
+            memcpy(m_data, other.m_data, m_size);
+        }
+        
+        void Palette::operator= (Palette other) {
+            std::swap(m_data, other.m_data);
+            std::swap(m_size, other.m_size);
         }
         
         Palette::~Palette() {

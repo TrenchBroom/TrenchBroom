@@ -104,6 +104,7 @@ namespace TrenchBroom {
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         MoveTool(documentViewHolder, inputController, true),
-        m_filter(Model::SelectedFilter(view().filter())) {}
+        m_filter(Model::SelectedFilter(view().filter())),
+        m_mode(MMMove) {}
     }
 }

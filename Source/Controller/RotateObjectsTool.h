@@ -35,8 +35,7 @@ namespace TrenchBroom {
         class RotateObjectsTool : public Tool {
         protected:
             Vec3f m_axis;
-            int m_startX;
-            int m_startY;
+            wxPoint m_startPoint;
             bool m_invert;
             float m_angle;
             Vec3f m_center;

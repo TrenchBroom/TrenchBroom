@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
         
         BoxGuideRenderer::BoxGuideRenderer(const BBoxf& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
-        m_infoRenderer(BoxInfoRenderer(bounds, fontManager)),
+        m_infoRenderer(bounds, fontManager),
         m_color(Color(1.0f, 1.0f, 0.0f, 1.0f)),
         m_bounds(bounds),
         m_picker(picker),

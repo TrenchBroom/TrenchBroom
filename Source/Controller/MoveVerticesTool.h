@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class Command;
         
         class MoveVerticesTool : public MoveTool {
-        protected:
+        private:
             static const float MaxVertexDistance;
             
             typedef enum {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Vec3f m_dragHandlePosition;
             
             HandleHitList firstHits(Model::PickResult& pickResult) const;
-            
+        protected:
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
             wxString actionName(InputState& inputState);
             void startDrag(InputState& inputState);
@@ -72,6 +72,16 @@ namespace TrenchBroom {
 
             void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+        private:
+            void initTextRenderer();
+            void renderGuide(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Vec3f& position);
+            void renderHighlight(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Vec3f& position);
+            void addVertexPositionText(const Vec3f& position);
+            void renderHighlightEdges(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, const Model::HitType::Type firstHitType, HandleHitList& hits);
+            void gatherEdgeVertices(Renderer::LinesRenderer& linesRenderer, HandleHitList& hits);
+            void gatherFaceEdgeVertices(Renderer::LinesRenderer& linesRenderer, HandleHitList& hits);
+            void renderText(Renderer::RenderContext& renderContext);
+        protected:
             void handleFreeRenderResources();
             
             bool handleMouseDown(InputState& inputState);

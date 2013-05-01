@@ -95,6 +95,10 @@ namespace TrenchBroom {
             Model::SelectedFilter m_selectedFilter;
 
             void toggleTool(Tool* tool);
+            
+            // prevent copying
+            InputController(const InputController& other);
+            void operator= (const InputController& other);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();

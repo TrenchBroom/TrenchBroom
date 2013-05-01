@@ -311,6 +311,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  LockedInfoOverlayTextColor;
         extern const Preference<Color>  LockedInfoOverlayBackgroundColor;
 
+        extern const Preference<Color>  HandleHighlightColor;
         extern const Preference<Color>  VertexHandleColor;
         extern const Preference<Color>  OccludedVertexHandleColor;
         extern const Preference<Color>  SelectedVertexHandleColor;

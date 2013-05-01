@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
                 console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
                 return true;
-            } catch (IO::IOException e) {
+            } catch (IO::IOException& e) {
                 console().error(e.what());
                 return false;
             }
@@ -163,6 +163,7 @@ namespace TrenchBroom {
         
         MapDocument::MapDocument() :
         m_autosaver(NULL),
+        m_autosaveTimer(NULL),
         m_console(NULL),
         m_sharedResources(NULL),
         m_map(NULL),
@@ -565,7 +566,7 @@ namespace TrenchBroom {
                     collection = new Model::TextureCollection(path, wadPath);
                     m_textureManager->addCollection(collection, index);
                     console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
-                } catch (IO::IOException e) {
+                } catch (IO::IOException& e) {
                     delete collection;
                     collection = NULL;
                     console().error("Could not open texture wad %s: %s", wadPath.c_str(), e.what());

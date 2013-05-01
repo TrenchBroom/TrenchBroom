@@ -34,10 +34,14 @@
 namespace TrenchBroom {
     namespace View {
         KeyboardGridCellEditor::KeyboardGridCellEditor() :
-        wxGridCellEditor() {}
+        wxGridCellEditor(),
+        m_editor(NULL),
+        m_evtHandler(NULL) {}
 
         KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int modifierKey1, int modifierKey2, int modifierKey3, int key) :
-        wxGridCellEditor() {
+        wxGridCellEditor(),
+        m_editor(NULL),
+        m_evtHandler(NULL) {
             Create(parent, windowId, evtHandler);
             m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
         }

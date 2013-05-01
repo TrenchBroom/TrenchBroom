@@ -44,7 +44,7 @@ namespace TrenchBroom {
         Executable* m_executable;
         DECLARE_DYNAMIC_CLASS(ExecutableEvent);
     public:
-        ExecutableEvent() {}
+        ExecutableEvent();
         ExecutableEvent(Executable* executable);
         ExecutableEvent(Executable::Ptr executable);
         

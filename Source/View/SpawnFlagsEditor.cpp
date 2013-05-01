@@ -151,7 +151,10 @@ namespace TrenchBroom {
         SpawnFlagsEditor::SpawnFlagsEditor(SmartPropertyEditorManager& manager) :
         SmartPropertyEditor(manager),
         m_scrolledWindow(NULL),
-        m_lastScrollPos(wxPoint(0,0)) {}
+        m_lastScrollPos(wxPoint(0,0)) {
+            for (size_t i = 0; i < 24; i++)
+                m_flags[i] = NULL;
+        }
 
         void SpawnFlagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
             const Model::EntityList entities = selectedEntities();

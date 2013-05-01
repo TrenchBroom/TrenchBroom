@@ -33,7 +33,10 @@ namespace TrenchBroom {
             size_t m_size;
         public:
             Palette(const String& path);
+            Palette(const Palette& other);
             ~Palette();
+            
+            void operator= (Palette other);
             
             inline void indexedToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, size_t pixelCount, Color& averageColor) const {
                 double avg[3];

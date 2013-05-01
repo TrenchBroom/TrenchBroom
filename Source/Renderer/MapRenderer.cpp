@@ -93,44 +93,37 @@ namespace TrenchBroom {
             Model::BrushList selectedBrushes;
             Model::BrushList lockedBrushes;
             Model::FaceList partiallySelectedBrushFaces;
-            unsigned int totalUnselectedEdgeVertexCount = 0;
-            unsigned int totalSelectedEdgeVertexCount = 0;
-            unsigned int totalLockedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
             const Model::EntityList& entities = m_document.map().entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
+            for (size_t i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::BrushList& brushes = entity->brushes();
-                for (unsigned int j = 0; j < brushes.size(); j++) {
+                for (size_t j = 0; j < brushes.size(); j++) {
                     Model::Brush* brush = brushes[j];
                     if (context.filter().brushVisible(*brush)) {
                         if (entity->selected() || brush->selected()) {
                             selectedBrushes.push_back(brush);
-                            totalSelectedEdgeVertexCount += (2 * brush->edges().size());
                         } else if (entity->locked() || brush->locked()) {
                             lockedBrushes.push_back(brush);
-                            totalLockedEdgeVertexCount+= (2 * brush->edges().size());
                         } else {
                             if (entity->worldspawn())
                                 unselectedWorldBrushes.push_back(brush);
                             else
                                 unselectedEntityBrushes.push_back(brush);
-                            totalUnselectedEdgeVertexCount += (2 * brush->edges().size());
                             if (brush->partiallySelected()) {
                                 const Model::FaceList& faces = brush->faces();
-                                for (unsigned int k = 0; k < faces.size(); k++) {
+                                for (size_t k = 0; k < faces.size(); k++) {
                                     Model::Face* face = faces[k];
                                     if (face->selected()) {
                                         partiallySelectedBrushFaces.push_back(face);
-                                        totalSelectedEdgeVertexCount += (2 * face->edges().size());
                                     }
                                 }
                             }
                         }
                         
                         const Model::FaceList& faces = brush->faces();
-                        for (unsigned int k = 0; k < faces.size(); k++) {
+                        for (size_t k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
                             Model::Texture* texture = face->texture();
                             if (entity->selected() || brush->selected() || face->selected())
@@ -183,7 +176,6 @@ namespace TrenchBroom {
             // write edges
             m_edgeVbo->activate();
             m_edgeVbo->map();
-//            m_edgeVbo->ensureFreeCapacity(totalUnselectedEdgeVertexCount * EdgeVertexSize + (totalSelectedEdgeVertexCount + totalLockedEdgeVertexCount) * VertexSize);
             
             const Color& edgeColor = prefs.getColor(Preferences::EdgeColor);
 

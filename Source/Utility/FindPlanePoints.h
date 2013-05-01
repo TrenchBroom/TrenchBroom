@@ -277,7 +277,10 @@ namespace TrenchBroom {
         public:
             SearchCursor(const Planef& plane, const float frequency) :
             m_plane(plane),
-            m_frequency(frequency) {}
+            m_frequency(frequency) {
+                for (size_t i = 0; i < 9; i++)
+                    m_errors[i] = 0.0f;
+            }
 
             inline const Vec3f findMinimum(const Vec3f& initialPosition) {
                 m_position[0] = Math<float>::round(initialPosition.x());

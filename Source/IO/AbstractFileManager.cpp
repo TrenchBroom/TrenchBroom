@@ -283,8 +283,6 @@ namespace TrenchBroom {
 #ifndef _WIN32
         MappedFile::Ptr AbstractFileManager::mapFile(const String& path, std::ios_base::openmode mode) {
             int filedesc = -1;
-            char* address = NULL;
-            size_t size = 0;
             
             int flags = 0;
             int prot = 0;
@@ -303,9 +301,9 @@ namespace TrenchBroom {
             
             filedesc = open(path.c_str(), flags);
             if (filedesc >= 0) {
-                size = static_cast<size_t>(lseek(filedesc, 0, SEEK_END));
+                const size_t size = static_cast<size_t>(lseek(filedesc, 0, SEEK_END));
                 lseek(filedesc, 0, SEEK_SET);
-                address = static_cast<char*>(mmap(NULL, size, prot, MAP_FILE | MAP_PRIVATE, filedesc, 0));
+                char* address = static_cast<char*>(mmap(NULL, size, prot, MAP_FILE | MAP_PRIVATE, filedesc, 0));
                 if (address != NULL)
                     return MappedFile::Ptr(new PosixMappedFile(filedesc, address, size));
                 close(filedesc);

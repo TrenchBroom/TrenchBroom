@@ -64,10 +64,10 @@ namespace TrenchBroom {
         m_frames(frames) {
             assert(m_times.size() == m_frames.size());
 
-            if (m_frames.size() > 0) {
+            if (!m_frames.empty()) {
                 m_bounds = m_frames[0]->bounds();
-                for (unsigned int i = 1; i < m_frames.size(); i++)
-                    m_bounds.mergeWith(m_frames[0]->bounds());
+                for (size_t i = 1; i < m_frames.size(); i++)
+                    m_bounds.mergeWith(m_frames[i]->bounds());
             } else {
                 m_bounds.min = m_bounds.max = Vec3f::Null;
             }

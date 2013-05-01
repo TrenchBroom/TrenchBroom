@@ -65,7 +65,7 @@ namespace TrenchBroom {
         void Vbo::insertFreeBlock(VboBlock& block) {
             assert(block.free());
             size_t index = findFreeBlock(block.address(), block.capacity());
-            assert(index >= 0 && index <= m_freeBlocks.size());
+            assert(index <= m_freeBlocks.size());
             if (index < m_freeBlocks.size()) {
                 std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
                 std::advance(it, index);
@@ -460,10 +460,11 @@ namespace TrenchBroom {
 #endif
         }
 
+#ifdef _DEBUG_VBO
         void Vbo::checkBlockChain() {
             VboBlock* block = m_first;
             VboBlock* previous = NULL;
-            assert(block->m_previous == NULL);
+            assert(block != NULL && block->m_previous == NULL);
             
             while (block != NULL) {
                 assert(&block->m_vbo == this);
@@ -484,6 +485,7 @@ namespace TrenchBroom {
                            (block->capacity() == m_freeBlocks[i + 1]->capacity() && block->address() < m_freeBlocks[i + 1]->address()));
             }
         }
+#endif
         
         bool Vbo::ownsBlock(VboBlock& block) {
             return &block.m_vbo == this;

@@ -80,6 +80,7 @@ namespace TrenchBroom {
             virtual void updateVisual();
         public:
             DefaultPropertyEditor(SmartPropertyEditorManager& manager);
+            virtual ~DefaultPropertyEditor();
         };
 
         class SmartPropertyEditorManager {
