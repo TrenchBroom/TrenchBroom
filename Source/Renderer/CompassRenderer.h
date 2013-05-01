@@ -41,20 +41,20 @@ namespace TrenchBroom {
             static const float m_shaftRadius;
             static const float m_headLength;
             static const float m_headRadius;
+
+            VertexArray* m_strip;
+            VertexArray* m_set;
+            IndexedVertexArray* m_fans;
+            bool m_valid;
             
-            Vec3f::List m_shaftVertices;
-            Vec3f::List m_shaftNormals;
-            Vec3f::List m_shaftCapVertices;
-            Vec3f::List m_shaftCapNormals;
-            Vec3f::List m_headVertices;
-            Vec3f::List m_headNormals;
-            Vec3f::List m_headCapVertices;
-            Vec3f::List m_headCapNormals;
-            
+            void validate(Vbo& vbo);
             const Mat4f cameraRotationMatrix(const Camera& camera) const;
-            void renderAxis(Vbo& vbo, const Mat4f& rotation);
+            void renderColoredAxis(RenderContext& context, const Mat4f& rotation, const Color& color);
+            void renderOutlinedAxis(RenderContext& context, const Mat4f& rotation, const Color& color);
+            void renderAxis(RenderContext& context, const Mat4f& rotation);
         public:
             CompassRenderer();
+            ~CompassRenderer();
             
             void render(Vbo& vbo, RenderContext& context);
         };
