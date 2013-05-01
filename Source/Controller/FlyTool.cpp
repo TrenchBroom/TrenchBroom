@@ -39,19 +39,20 @@ namespace TrenchBroom {
                 return;
 
             Renderer::Camera& camera = view().camera();
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             const wxLongLong updateTime = wxGetLocalTimeMillis();
 
             const float interval = static_cast<float>((updateTime - m_lastUpdateTime).ToDouble());
             const float distance = interval / 1000.0f * 320.0f;
             Vec3f direction;
-            if (wxGetKeyState(wxKeyCode('W')))
+            if (wxGetKeyState(wxKeyCode(prefs.getKeyboardShortcut(Preferences::CameraMoveForward).key())))
                 direction += camera.direction();
-            if (wxGetKeyState(wxKeyCode('S')))
+            if (wxGetKeyState(wxKeyCode(prefs.getKeyboardShortcut(Preferences::CameraMoveBackward).key())))
                 direction -= camera.direction();
-            if (wxGetKeyState(wxKeyCode('A')))
+            if (wxGetKeyState(wxKeyCode(prefs.getKeyboardShortcut(Preferences::CameraMoveLeft).key())))
                 direction -= camera.right();
-            if (wxGetKeyState(wxKeyCode('D')))
+            if (wxGetKeyState(wxKeyCode(prefs.getKeyboardShortcut(Preferences::CameraMoveRight).key())))
                 direction += camera.right();
 
             if (!direction.null()) {

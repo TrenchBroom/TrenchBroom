@@ -21,6 +21,7 @@
 #define __TrenchBroom__KeyboardPreferencePane__
 
 #include "Utility/Preferences.h"
+#include "Utility/SharedPointer.h"
 #include "View/KeyboardShortcut.h"
 #include "View/PreferencePane.h"
 
@@ -29,6 +30,8 @@
 
 #include <set>
 #include <vector>
+
+class wxStaticBox;
 
 namespace TrenchBroom {
     namespace View {
@@ -56,53 +59,55 @@ namespace TrenchBroom {
             wxString GetValue() const;
         };
 
+        class KeyboardShortcutEntry {
+        public:
+            typedef std::tr1::shared_ptr<KeyboardShortcutEntry> Ptr;
+        private:
+            bool m_duplicate;
+        public:
+            KeyboardShortcutEntry();
+            
+            virtual ~KeyboardShortcutEntry() {}
+            
+            virtual const String caption() const = 0;
+            virtual const KeyboardShortcut& shortcut() const = 0;
+            virtual void saveShortcut(const KeyboardShortcut& shortcut) const = 0;
+            bool isDuplicateOf(const KeyboardShortcutEntry& entry) const;
+            
+            inline bool duplicate() const {
+                return m_duplicate;
+            }
+            
+            inline void setDuplicate(bool duplicate) {
+                m_duplicate = duplicate;
+            }
+        };
+        
+        class MenuKeyboardShortcutEntry : public KeyboardShortcutEntry {
+        private:
+            const Preferences::ShortcutMenuItem& m_item;
+        public:
+            MenuKeyboardShortcutEntry(const Preferences::ShortcutMenuItem& item);
+            
+            const String caption() const;
+            const KeyboardShortcut& shortcut() const;
+            void saveShortcut(const KeyboardShortcut& shortcut) const;
+        };
+        
+        class SimpleKeyboardShortcutEntry : public KeyboardShortcutEntry {
+        private:
+            const Preferences::Preference<KeyboardShortcut>& m_preference;
+        public:
+            SimpleKeyboardShortcutEntry(const Preferences::Preference<KeyboardShortcut>& preference);
+            
+            const String caption() const;
+            inline const KeyboardShortcut& shortcut() const;
+            inline void saveShortcut(const KeyboardShortcut& shortcut) const;
+        };
+
         class KeyboardGridTable : public wxGridTableBase {
         private:
-            class Entry {
-            private:
-                const Preferences::ShortcutMenuItem* m_item;
-                bool m_duplicate;
-
-            public:
-                Entry(const Preferences::ShortcutMenuItem& item) :
-                m_item(&item),
-                m_duplicate(false) {}
-
-                inline const Preferences::ShortcutMenuItem& item() const {
-                    return *m_item;
-                }
-
-                inline const KeyboardShortcut& shortcut() const {
-                    return m_item->shortcut();
-                }
-
-                inline bool duplicate() const {
-                    return m_duplicate;
-                }
-
-                inline void setDuplicate(bool duplicate) {
-                    m_duplicate = duplicate;
-                }
-
-                inline bool isDuplicateOf(const Entry& entry) const {
-                    if (&item() == &entry.item())
-                        return false;
-                    if (shortcut().modifierKey1() != entry.shortcut().modifierKey1())
-                        return false;
-                    if (shortcut().modifierKey2() != entry.shortcut().modifierKey2())
-                        return false;
-                    if (shortcut().modifierKey3() != entry.shortcut().modifierKey3())
-                        return false;
-                    if (shortcut().key() != entry.shortcut().key())
-                        return false;
-
-                    if ((shortcut().context() & entry.shortcut().context()) == 0)
-                        return false;
-                    return true;
-                }
-            };
-
-            typedef std::vector<Entry> EntryList;
+            typedef std::vector<KeyboardShortcutEntry::Ptr> EntryList;
 
             EntryList m_entries;
             KeyboardGridCellEditor* m_cellEditor;
@@ -113,7 +118,8 @@ namespace TrenchBroom {
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
 
             bool markDuplicates(EntryList& entries);
-            void addMenu(const Preferences::Menu& menu, EntryList& entries);
+            void addMenu(const Preferences::Menu& menu, EntryList& entries) const;
+            void addShortcut(const Preferences::Preference<KeyboardShortcut>& shortcut, EntryList& entries) const;
         public:
             KeyboardGridTable();
             ~KeyboardGridTable();
@@ -142,6 +148,8 @@ namespace TrenchBroom {
         private:
             wxGrid* m_grid;
             KeyboardGridTable* m_table;
+            
+            wxStaticBox* createMenuShortcutBox();
         public:
             KeyboardPreferencePane(wxWindow* parent);
 

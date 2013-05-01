@@ -158,6 +158,11 @@ namespace TrenchBroom {
         const int               RendererInstancingModeForceOn       = 1;
         const int               RendererInstancingModeForceOff      = 2;
 
+        const Preference<KeyboardShortcut>  CameraMoveForward = Preference<KeyboardShortcut>(   "Controls/Camera/Move Forward",     KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraForward, 'W', KeyboardShortcut::SCAny, "Move Camera Forward"));
+        const Preference<KeyboardShortcut>  CameraMoveBackward = Preference<KeyboardShortcut>(  "Controls/Camera/Move Backward",    KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraForward, 'S', KeyboardShortcut::SCAny, "Move Camera Backward"));
+        const Preference<KeyboardShortcut>  CameraMoveLeft = Preference<KeyboardShortcut>(      "Controls/Camera/Move Left",        KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraForward, 'A', KeyboardShortcut::SCAny, "Move Camera Left"));
+        const Preference<KeyboardShortcut>  CameraMoveRight = Preference<KeyboardShortcut>(     "Controls/Camera/Move Right",       KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraForward, 'D', KeyboardShortcut::SCAny, "Move Camera Right"));
+
         const String FileMenu = "File";
         const String EditMenu = "Edit";
         const String ViewMenu = "View";
@@ -225,6 +230,291 @@ namespace TrenchBroom {
             Menu* menu = new Menu(text, this, menuId);
             m_items.push_back(MenuItem::Ptr(menu));
             return *menu;
+        }
+
+        PreferenceManager::PreferenceManager() {
+#if defined __APPLE__
+            m_saveInstantly = true;
+#else
+            m_saveInstantly = false;
+#endif
+        }
+
+        void PreferenceManager::markAsUnsaved(const PreferenceBase* preference, ValueHolderBase* valueHolder) {
+            UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
+            if (it == m_unsavedPreferences.end())
+                m_unsavedPreferences[preference] = valueHolder;
+            else
+                delete valueHolder;
+        }
+
+        const Menu::MenuMap PreferenceManager::buildMenus() const {
+            Menu::MenuMap menus;
+            
+            Menu* fileMenu = new Menu("File");
+            menus[FileMenu] = Menu::Ptr(fileMenu);
+            
+            fileMenu->addActionItem(KeyboardShortcut(wxID_NEW, WXK_CONTROL, 'N', KeyboardShortcut::SCAny, "New"));
+            fileMenu->addSeparator();
+            fileMenu->addActionItem(KeyboardShortcut(wxID_OPEN, WXK_CONTROL, 'O', KeyboardShortcut::SCAny, "Open..."));
+            fileMenu->addMenu("Open Recent", View::CommandIds::Menu::FileOpenRecent);
+            fileMenu->addSeparator();
+            fileMenu->addActionItem(KeyboardShortcut(wxID_SAVE, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save"));
+            fileMenu->addActionItem(KeyboardShortcut(wxID_SAVEAS, WXK_SHIFT, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save as..."));
+            fileMenu->addSeparator();
+            fileMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::FileLoadPointFile, KeyboardShortcut::SCAny, "Load Point File..."));
+            fileMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::FileUnloadPointFile, KeyboardShortcut::SCAny, "Unload Point File"));
+            fileMenu->addSeparator();
+            fileMenu->addActionItem(KeyboardShortcut(wxID_CLOSE, WXK_CONTROL, 'W', KeyboardShortcut::SCAny, "Close"));
+            
+            Menu* editMenu = new Menu("Edit");
+            menus[EditMenu] = Menu::Ptr(editMenu);
+            
+            editMenu->addActionItem(KeyboardShortcut(wxID_UNDO, WXK_CONTROL, 'Z', KeyboardShortcut::SCAny, "Undo"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_REDO, WXK_CONTROL, WXK_SHIFT, 'Z', KeyboardShortcut::SCAny, "Redo"));
+            editMenu->addSeparator();
+            editMenu->addActionItem(KeyboardShortcut(wxID_CUT, WXK_CONTROL, 'X', KeyboardShortcut::SCAny, "Cut"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_COPY, WXK_CONTROL, 'C', KeyboardShortcut::SCAny, "Copy"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_PASTE, WXK_CONTROL, 'V', KeyboardShortcut::SCAny, "Paste"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPasteAtOriginalPosition, WXK_CONTROL, WXK_SHIFT, 'V', KeyboardShortcut::SCAny, "Paste at Original Position"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::SCAny, "Delete"));
+            editMenu->addSeparator();
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::SCAny, "Select All"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectSiblings, WXK_CONTROL, WXK_ALT, 'A', KeyboardShortcut::SCAny, "Select Siblings"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectTouching, WXK_CONTROL, 'T', KeyboardShortcut::SCAny, "Select Touching"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectByFilePosition, KeyboardShortcut::SCAny, "Select by Line Number"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectNone, WXK_CONTROL, WXK_SHIFT, 'A', KeyboardShortcut::SCAny, "Select None"));
+            editMenu->addSeparator();
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditHideSelected, WXK_CONTROL, 'H', KeyboardShortcut::SCAny, "Hide Selected"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditHideUnselected, WXK_CONTROL, WXK_ALT, 'H', KeyboardShortcut::SCAny, "Hide Unselected"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditUnhideAll, WXK_CONTROL, WXK_SHIFT, 'H', KeyboardShortcut::SCAny, "Unhide All"));
+            editMenu->addSeparator();
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditLockSelected, WXK_CONTROL, 'L', KeyboardShortcut::SCAny, "Lock Selected"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditLockUnselected, WXK_CONTROL, WXK_ALT, 'L', KeyboardShortcut::SCAny, "Lock Unselected"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditUnlockAll, WXK_CONTROL, WXK_SHIFT, 'L', KeyboardShortcut::SCAny, "Unlock All"));
+            editMenu->addSeparator();
+            
+            Menu& toolMenu = editMenu->addMenu("Tools");
+            toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipTool, 'C', KeyboardShortcut::SCAny, "Clip Tool"));
+            toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleVertexTool, 'V', KeyboardShortcut::SCAny, "Vertex Tool"));
+            toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::SCAny, "Rotate Tool"));
+            
+            MultiMenu& actionMenu = editMenu->addMultiMenu("Actions", View::CommandIds::Menu::EditActions);
+            
+            Menu& faceActionMenu = actionMenu.addMenu("Faces", View::CommandIds::Menu::EditFaceActions);
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_UP, KeyboardShortcut::SCTextures, "Move Up"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 15"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
+            faceActionMenu.addSeparator();
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
+            faceActionMenu.addSeparator();
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
+            
+            Menu& objectActionMenu = actionMenu.addMenu("Objects", View::CommandIds::Menu::EditObjectActions);
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsForward, WXK_UP, KeyboardShortcut::SCObjects, "Move Forward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsBackward, WXK_DOWN, KeyboardShortcut::SCObjects, "Move Backward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsLeft, WXK_LEFT, KeyboardShortcut::SCObjects, "Move Left"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsRight, WXK_RIGHT, KeyboardShortcut::SCObjects, "Move Right"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsUp, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Move Up"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsDown, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Move Down"));
+            objectActionMenu.addSeparator();
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsForward, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCObjects, "Duplicate & Move Forward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsBackward, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Backward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCObjects, "Duplicate & Move Left"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCObjects, "Duplicate & Move Right"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsUp, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Duplicate & Move Up"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsDown, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Down"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
+            objectActionMenu.addSeparator();
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRollObjectsCW, WXK_ALT, WXK_UP, KeyboardShortcut::SCObjects, "Rotate Clockwise by 90"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRollObjectsCCW, WXK_ALT, WXK_DOWN, KeyboardShortcut::SCObjects, "Rotate Counter-clockwise by 90"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditYawObjectsCW, WXK_ALT, WXK_LEFT, KeyboardShortcut::SCObjects, "Rotate Left by 90"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditYawObjectsCCW, WXK_ALT, WXK_RIGHT, KeyboardShortcut::SCObjects, "Rotate Right by 90"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPitchObjectsCW, WXK_ALT, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Rotate Up by 90"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPitchObjectsCCW, WXK_ALT, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Rotate Down by 90"));
+            objectActionMenu.addSeparator();
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
+            objectActionMenu.addSeparator();
+            MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices"));
+            objectActionMenu.addSeparator();
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleAxisRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+            objectActionMenu.addSeparator();
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures, "Print Line Numbers"));
+            
+            Menu& vertexActionMenu = actionMenu.addMenu("Vertices", View::CommandIds::Menu::EditVertexActions);
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesBackward, WXK_DOWN, KeyboardShortcut::SCVertexTool, "Move Backward"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesLeft, WXK_LEFT, KeyboardShortcut::SCVertexTool, "Move Left"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesRight, WXK_RIGHT, KeyboardShortcut::SCVertexTool, "Move Right"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::SCVertexTool, "Move Up"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::SCVertexTool, "Move Down"));
+            vertexActionMenu.addSeparator();
+            vertexActionMenu.addItem(snapVerticesItem);
+            vertexActionMenu.addSeparator();
+            vertexActionMenu.addItem(toggleAxisItem);
+            
+            Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", View::CommandIds::Menu::EditClipActions);
+            clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipSide, WXK_TAB, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));
+            clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCClipTool, "Perform Clip"));
+            
+            editMenu->addSeparator();
+            editMenu->addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "Texture Lock"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditNavigateUp, WXK_ESCAPE, KeyboardShortcut::SCAny, "Navigate Up"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditShowMapProperties, KeyboardShortcut::SCAny, "Map Properties"));
+            
+            Menu* viewMenu = new Menu("View");
+            menus[ViewMenu] = Menu::Ptr(viewMenu);
+            
+            Menu& gridMenu = viewMenu->addMenu("Grid");
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewToggleShowGrid, WXK_CONTROL, 'G', KeyboardShortcut::SCAny, "Show Grid"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewToggleSnapToGrid, WXK_CONTROL, WXK_SHIFT, 'G', KeyboardShortcut::SCAny, "Snap to Grid"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewIncGridSize, WXK_CONTROL, '+', KeyboardShortcut::SCAny, "Increase Grid Size"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewDecGridSize, WXK_CONTROL, '-', KeyboardShortcut::SCAny, "Decrease Grid Size"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize1, WXK_CONTROL, '1', KeyboardShortcut::SCAny, "Set Grid Size 1"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize2, WXK_CONTROL, '2', KeyboardShortcut::SCAny, "Set Grid Size 2"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize4, WXK_CONTROL, '3', KeyboardShortcut::SCAny, "Set Grid Size 4"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize8, WXK_CONTROL, '4', KeyboardShortcut::SCAny, "Set Grid Size 8"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize16, WXK_CONTROL, '5', KeyboardShortcut::SCAny, "Set Grid Size 16"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize32, WXK_CONTROL, '6', KeyboardShortcut::SCAny, "Set Grid Size 32"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize64, WXK_CONTROL, '7', KeyboardShortcut::SCAny, "Set Grid Size 64"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize128, WXK_CONTROL, '8', KeyboardShortcut::SCAny, "Set Grid Size 128"));
+            gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize256, WXK_CONTROL, '9', KeyboardShortcut::SCAny, "Set Grid Size 256"));
+            
+            Menu& cameraMenu = viewMenu->addMenu("Camera");
+            cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
+            cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
+            cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
+            
+            viewMenu->addSeparator();
+            viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToEntityTab, '1', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
+            viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
+            viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
+            return menus;
+        }
+        
+        void PreferenceManager::save() {
+            UnsavedPreferences::iterator it, end;
+            for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+                it->first->save(wxConfig::Get());
+                delete it->second;
+            }
+            
+            m_unsavedPreferences.clear();
+        }
+        
+        void PreferenceManager::discardChanges() {
+            UnsavedPreferences::iterator it, end;
+            for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+                it->first->setValue(it->second);
+                delete it->second;
+            }
+            
+            m_unsavedPreferences.clear();
+        }
+        
+        bool PreferenceManager::getBool(const Preference<bool>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setBool(const Preference<bool>& preference, bool value) {
+            bool previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<bool>(previousValue));
+        }
+        
+        int PreferenceManager::getInt(const Preference<int>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setInt(const Preference<int>& preference, int value) {
+            int previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<int>(previousValue));
+        }
+        
+        float PreferenceManager::getFloat(const Preference<float>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setFloat(const Preference<float>& preference, float value) {
+            float previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<float>(previousValue));
+        }
+        
+        const String& PreferenceManager::getString(const Preference<String>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setString(const Preference<String>& preference, const String& value) {
+            String previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<String>(previousValue));
+        }
+        
+        const Color& PreferenceManager::getColor(const Preference<Color>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setColor(const Preference<Color>& preference, const Color& value) {
+            Color previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
+        }
+        
+        const KeyboardShortcut& PreferenceManager::getKeyboardShortcut(const Preference<KeyboardShortcut>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
+        
+        void PreferenceManager::setKeyboardShortcut(const Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value) {
+            KeyboardShortcut previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly)
+                preference.save(wxConfig::Get());
+            else
+                markAsUnsaved(&preference, new ValueHolder<KeyboardShortcut>(previousValue));
         }
     }
 }

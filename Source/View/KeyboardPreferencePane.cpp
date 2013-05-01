@@ -145,14 +145,14 @@ namespace TrenchBroom {
 
         bool KeyboardGridTable::markDuplicates(EntryList& entries) {
             for (size_t i = 0; i < entries.size(); i++)
-                entries[i].setDuplicate(false);
+                entries[i]->setDuplicate(false);
 
             bool hasDuplicates = false;
             for (size_t i = 0; i < entries.size(); i++) {
-                Entry& first = entries[i];
+                KeyboardShortcutEntry& first = *entries[i];
                 if (first.shortcut().key() != WXK_NONE) {
                     for (size_t j = i + 1; j < entries.size(); j++) {
-                        Entry& second = entries[j];
+                        KeyboardShortcutEntry& second = *entries[j];
                         if (first.isDuplicateOf(second)) {
                             first.setDuplicate(true);
                             second.setDuplicate(true);
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             return hasDuplicates;
         }
 
-        void KeyboardGridTable::addMenu(const Preferences::Menu& menu, EntryList& entries) {
+        void KeyboardGridTable::addMenu(const Preferences::Menu& menu, EntryList& entries) const {
             using namespace TrenchBroom::Preferences;
 
             const MenuItem::List& items = menu.items();
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                     case MenuItem::MITAction:
                     case MenuItem::MITCheck: {
                         const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
-                        entries.push_back(Entry(shortcutItem));
+                        entries.push_back(KeyboardShortcutEntry::Ptr(new MenuKeyboardShortcutEntry(shortcutItem)));
                         break;
                     }
                     case MenuItem::MITMenu: {
@@ -197,6 +197,63 @@ namespace TrenchBroom {
                         break;
                 }
             }
+        }
+
+        void KeyboardGridTable::addShortcut(const Preferences::Preference<KeyboardShortcut>& shortcut, EntryList& entries) const {
+            entries.push_back(KeyboardShortcutEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
+        }
+
+        KeyboardShortcutEntry::KeyboardShortcutEntry() :
+        m_duplicate(false) {}
+
+        bool KeyboardShortcutEntry::isDuplicateOf(const KeyboardShortcutEntry& entry) const {
+            if (shortcut().commandId() == entry.shortcut().commandId())
+                return false;
+            if (shortcut().modifierKey1() != entry.shortcut().modifierKey1())
+                return false;
+            if (shortcut().modifierKey2() != entry.shortcut().modifierKey2())
+                return false;
+            if (shortcut().modifierKey3() != entry.shortcut().modifierKey3())
+                return false;
+            if (shortcut().key() != entry.shortcut().key())
+                return false;
+            if ((shortcut().context() & entry.shortcut().context()) == 0)
+                return false;
+            return true;
+        }
+
+        MenuKeyboardShortcutEntry::MenuKeyboardShortcutEntry(const Preferences::ShortcutMenuItem& item) :
+        KeyboardShortcutEntry(),
+        m_item(item) {}
+
+        const String MenuKeyboardShortcutEntry::caption() const {
+            return m_item.longText();
+        }
+
+        const KeyboardShortcut& MenuKeyboardShortcutEntry::shortcut() const {
+            return m_item.shortcut();
+        }
+        
+        void MenuKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
+            m_item.setShortcut(shortcut);
+        }
+
+        SimpleKeyboardShortcutEntry::SimpleKeyboardShortcutEntry(const Preferences::Preference<KeyboardShortcut>& preference) :
+        KeyboardShortcutEntry(),
+        m_preference(preference) {}
+
+        const String SimpleKeyboardShortcutEntry::caption() const {
+            return shortcut().text();
+        }
+        
+        const KeyboardShortcut& SimpleKeyboardShortcutEntry::shortcut() const {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            return prefs.getKeyboardShortcut(m_preference);
+        }
+        
+        void SimpleKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setKeyboardShortcut(m_preference, shortcut);
         }
 
         KeyboardGridTable::KeyboardGridTable() :
@@ -224,11 +281,11 @@ namespace TrenchBroom {
 
             switch (col) {
                 case 0:
-                    return m_entries[rowIndex].item().longText();
+                    return m_entries[rowIndex]->caption();
                 case 1:
-                    return KeyboardShortcut::contextName(m_entries[rowIndex].shortcut().context());
+                    return KeyboardShortcut::contextName(m_entries[rowIndex]->shortcut().context());
                 case 2:
-                    return m_entries[rowIndex].shortcut().shortcutDisplayText();
+                    return m_entries[rowIndex]->shortcut().shortcutDisplayText();
                 default:
                     assert(false);
                     break;
@@ -246,14 +303,13 @@ namespace TrenchBroom {
             assert(success);
 
             size_t rowIndex = static_cast<size_t>(row);
-            const KeyboardShortcut& oldShortcut = m_entries[rowIndex].shortcut();
+            const KeyboardShortcut& oldShortcut = m_entries[rowIndex]->shortcut();
             KeyboardShortcut newShortcut = KeyboardShortcut(oldShortcut.commandId(),
                                                             modifierKey1, modifierKey2, modifierKey3, key,
                                                             oldShortcut.context(),
                                                             oldShortcut.text());
 
-            const Preferences::ShortcutMenuItem& item = m_entries[rowIndex].item();
-            item.setShortcut(newShortcut);
+            m_entries[rowIndex]->saveShortcut(newShortcut);
 
             if (markDuplicates(m_entries))
                 notifyRowsUpdated(m_entries.size());
@@ -300,7 +356,7 @@ namespace TrenchBroom {
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
-                const Entry& entry = m_entries[static_cast<size_t>(row)];
+                const KeyboardShortcutEntry& entry = *m_entries[static_cast<size_t>(row)];
                 if (entry.duplicate()) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
@@ -322,7 +378,7 @@ namespace TrenchBroom {
 
         bool KeyboardGridTable::hasDuplicates() const {
             for (size_t i = 0; i < m_entries.size(); i++)
-                if (m_entries[i].duplicate())
+                if (m_entries[i]->duplicate())
                     return true;
             return false;
         }
@@ -336,7 +392,11 @@ namespace TrenchBroom {
             addMenu(prefs.getMenu(FileMenu), newEntries);
             addMenu(prefs.getMenu(EditMenu), newEntries);
             addMenu(prefs.getMenu(ViewMenu), newEntries);
-
+            addShortcut(Preferences::CameraMoveForward, newEntries);
+            addShortcut(Preferences::CameraMoveBackward, newEntries);
+            addShortcut(Preferences::CameraMoveLeft, newEntries);
+            addShortcut(Preferences::CameraMoveRight, newEntries);
+            
             bool hasDuplicates = markDuplicates(newEntries);
 
             size_t oldSize = m_entries.size();
@@ -351,20 +411,17 @@ namespace TrenchBroom {
             return hasDuplicates;
         }
 
-        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
-        PreferencePane(parent),
-        m_grid(NULL),
-        m_table(NULL) {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Keyboard Shortcuts"));
+        wxStaticBox* KeyboardPreferencePane::createMenuShortcutBox() {
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Menu Shortcuts"));
             wxStaticText* infoText = new wxStaticText(box, wxID_ANY, wxT("Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut."));
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-
+            
             m_table = new KeyboardGridTable();
             m_grid = new wxGrid(box, CommandIds::KeyboardPreferencePane::ShortcutEditorId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
-
+            
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetUseNativeColLabels();
             m_grid->UseNativeColHeader();
@@ -372,8 +429,8 @@ namespace TrenchBroom {
             m_grid->HideRowLabels();
             m_grid->SetCellHighlightPenWidth(0);
             m_grid->SetCellHighlightROPenWidth(0);
-//            m_grid->EnableEditing(false);
-
+            //            m_grid->EnableEditing(false);
+            
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
             m_grid->DisableColResize(2);
@@ -382,9 +439,9 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-
+            
             m_table->update();
-
+            
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
@@ -392,10 +449,19 @@ namespace TrenchBroom {
             innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             box->SetSizer(innerSizer);
+            
+            return box;
+        }
 
+        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
+        PreferencePane(parent),
+        m_grid(NULL),
+        m_table(NULL) {
+            wxStaticBox* menuShortcutBox = createMenuShortcutBox();
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(box, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(box, 650, 550);
+            outerSizer->Add(menuShortcutBox, 1, wxEXPAND);
+            outerSizer->SetItemMinSize(menuShortcutBox, 650, 550);
             SetSizerAndFit(outerSizer);
         }
 
