@@ -233,7 +233,7 @@ namespace TrenchBroom {
         const KeyboardShortcut& MenuKeyboardShortcutEntry::shortcut() const {
             return m_item.shortcut();
         }
-        
+
         void MenuKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
             m_item.setShortcut(shortcut);
         }
@@ -245,12 +245,12 @@ namespace TrenchBroom {
         const String SimpleKeyboardShortcutEntry::caption() const {
             return shortcut().text();
         }
-        
+
         const KeyboardShortcut& SimpleKeyboardShortcutEntry::shortcut() const {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             return prefs.getKeyboardShortcut(m_preference);
         }
-        
+
         void SimpleKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setKeyboardShortcut(m_preference, shortcut);
@@ -396,7 +396,7 @@ namespace TrenchBroom {
             addShortcut(Preferences::CameraMoveBackward, newEntries);
             addShortcut(Preferences::CameraMoveLeft, newEntries);
             addShortcut(Preferences::CameraMoveRight, newEntries);
-            
+
             bool hasDuplicates = markDuplicates(newEntries);
 
             size_t oldSize = m_entries.size();
@@ -417,11 +417,11 @@ namespace TrenchBroom {
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-            
+
             m_table = new KeyboardGridTable();
             m_grid = new wxGrid(box, CommandIds::KeyboardPreferencePane::ShortcutEditorId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
-            
+
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetUseNativeColLabels();
             m_grid->UseNativeColHeader();
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             m_grid->SetCellHighlightPenWidth(0);
             m_grid->SetCellHighlightROPenWidth(0);
             //            m_grid->EnableEditing(false);
-            
+
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
             m_grid->DisableColResize(2);
@@ -439,9 +439,9 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-            
+
             m_table->update();
-            
+
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
@@ -449,7 +449,7 @@ namespace TrenchBroom {
             innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             box->SetSizer(innerSizer);
-            
+
             return box;
         }
 
@@ -458,10 +458,10 @@ namespace TrenchBroom {
         m_grid(NULL),
         m_table(NULL) {
             wxStaticBox* menuShortcutBox = createMenuShortcutBox();
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutBox, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(menuShortcutBox, 650, 550);
+            outerSizer->SetItemMinSize(menuShortcutBox, 700, 550);
             SetSizerAndFit(outerSizer);
         }
 

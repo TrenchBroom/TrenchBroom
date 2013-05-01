@@ -216,9 +216,27 @@ namespace TrenchBroom {
             m_shortcut = preference.value();
         }
 
-        const Menu* MultiMenu::menuById(const int menuId) const {
+        const KeyboardShortcut* ShortcutMenuItem::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
+            if (m_shortcut.matches(key, modifierKey1, modifierKey2, modifierKey3))
+                return &m_shortcut;
+            return NULL;
+        }
+
+        const KeyboardShortcut* MenuItemParent::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
             List::const_iterator it, end;
             for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
+                const MenuItem& item = **it;
+                const KeyboardShortcut* shortcut = item.shortcutByKeys(key, modifierKey1, modifierKey2, modifierKey3);
+                if (shortcut != NULL)
+                    return shortcut;
+            }
+            return NULL;
+        }
+
+        const Menu* MultiMenu::menuById(const int menuId) const {
+            const MenuItem::List& myItems = items();
+            List::const_iterator it, end;
+            for (it = myItems.begin(), end = myItems.end(); it != end; ++it) {
                 const Menu* menu = static_cast<Menu*>(it->get());
                 if (menu->menuId() == menuId)
                     return menu;
@@ -228,7 +246,7 @@ namespace TrenchBroom {
 
         Menu& MultiMenu::addMenu(const String& text, const int menuId) {
             Menu* menu = new Menu(text, this, menuId);
-            m_items.push_back(MenuItem::Ptr(menu));
+            addItem(MenuItem::Ptr(menu));
             return *menu;
         }
 
@@ -250,10 +268,10 @@ namespace TrenchBroom {
 
         const Menu::MenuMap PreferenceManager::buildMenus() const {
             Menu::MenuMap menus;
-            
+
             Menu* fileMenu = new Menu("File");
             menus[FileMenu] = Menu::Ptr(fileMenu);
-            
+
             fileMenu->addActionItem(KeyboardShortcut(wxID_NEW, WXK_CONTROL, 'N', KeyboardShortcut::SCAny, "New"));
             fileMenu->addSeparator();
             fileMenu->addActionItem(KeyboardShortcut(wxID_OPEN, WXK_CONTROL, 'O', KeyboardShortcut::SCAny, "Open..."));
@@ -266,10 +284,10 @@ namespace TrenchBroom {
             fileMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::FileUnloadPointFile, KeyboardShortcut::SCAny, "Unload Point File"));
             fileMenu->addSeparator();
             fileMenu->addActionItem(KeyboardShortcut(wxID_CLOSE, WXK_CONTROL, 'W', KeyboardShortcut::SCAny, "Close"));
-            
+
             Menu* editMenu = new Menu("Edit");
             menus[EditMenu] = Menu::Ptr(editMenu);
-            
+
             editMenu->addActionItem(KeyboardShortcut(wxID_UNDO, WXK_CONTROL, 'Z', KeyboardShortcut::SCAny, "Undo"));
             editMenu->addActionItem(KeyboardShortcut(wxID_REDO, WXK_CONTROL, WXK_SHIFT, 'Z', KeyboardShortcut::SCAny, "Redo"));
             editMenu->addSeparator();
@@ -293,21 +311,30 @@ namespace TrenchBroom {
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditLockUnselected, WXK_CONTROL, WXK_ALT, 'L', KeyboardShortcut::SCAny, "Lock Unselected"));
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditUnlockAll, WXK_CONTROL, WXK_SHIFT, 'L', KeyboardShortcut::SCAny, "Unlock All"));
             editMenu->addSeparator();
-            
+
             Menu& toolMenu = editMenu->addMenu("Tools");
             toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipTool, 'C', KeyboardShortcut::SCAny, "Clip Tool"));
             toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleVertexTool, 'V', KeyboardShortcut::SCAny, "Vertex Tool"));
             toolMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::SCAny, "Rotate Tool"));
-            
+
             MultiMenu& actionMenu = editMenu->addMultiMenu("Actions", View::CommandIds::Menu::EditActions);
-            
+
             Menu& faceActionMenu = actionMenu.addMenu("Faces", View::CommandIds::Menu::EditFaceActions);
+#ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_SHIFT, WXK_UP, KeyboardShortcut::SCTextures, "Move Up"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_SHIFT, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_SHIFT, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_SHIFT, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_SHIFT, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 15"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_SHIFT, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
+#else
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_UP, KeyboardShortcut::SCTextures, "Move Up"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 15"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
+#endif
             faceActionMenu.addSeparator();
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
@@ -317,14 +344,23 @@ namespace TrenchBroom {
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
             faceActionMenu.addSeparator();
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
-            
+
             Menu& objectActionMenu = actionMenu.addMenu("Objects", View::CommandIds::Menu::EditObjectActions);
+#ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsForward, WXK_SHIFT, WXK_UP, KeyboardShortcut::SCObjects, "Move Forward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsBackward, WXK_SHIFT, WXK_DOWN, KeyboardShortcut::SCObjects, "Move Backward"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsLeft, WXK_SHIFT, WXK_LEFT, KeyboardShortcut::SCObjects, "Move Left"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsRight, WXK_SHIFT, WXK_RIGHT, KeyboardShortcut::SCObjects, "Move Right"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsUp, WXK_SHIFT, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Move Up"));
+            objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsDown, WXK_SHIFT, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Move Down"));
+#else
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsForward, WXK_UP, KeyboardShortcut::SCObjects, "Move Forward"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsBackward, WXK_DOWN, KeyboardShortcut::SCObjects, "Move Backward"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsLeft, WXK_LEFT, KeyboardShortcut::SCObjects, "Move Left"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsRight, WXK_RIGHT, KeyboardShortcut::SCObjects, "Move Right"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsUp, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Move Up"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveObjectsDown, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Move Down"));
+#endif
             objectActionMenu.addSeparator();
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsForward, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCObjects, "Duplicate & Move Forward"));
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditDuplicateObjectsBackward, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Backward"));
@@ -346,10 +382,14 @@ namespace TrenchBroom {
             objectActionMenu.addSeparator();
             MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices"));
             objectActionMenu.addSeparator();
+#ifdef __linux__ // tab is not allowed as a menu accelerator on GTK
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleAxisRestriction, 'X', KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+#else
             MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleAxisRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+#endif
             objectActionMenu.addSeparator();
             objectActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures, "Print Line Numbers"));
-            
+
             Menu& vertexActionMenu = actionMenu.addMenu("Vertices", View::CommandIds::Menu::EditVertexActions);
             vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
             vertexActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveVerticesBackward, WXK_DOWN, KeyboardShortcut::SCVertexTool, "Move Backward"));
@@ -361,19 +401,23 @@ namespace TrenchBroom {
             vertexActionMenu.addItem(snapVerticesItem);
             vertexActionMenu.addSeparator();
             vertexActionMenu.addItem(toggleAxisItem);
-            
+
             Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", View::CommandIds::Menu::EditClipActions);
-            clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipSide, WXK_TAB, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));
+            clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleClipSide, WXK_CONTROL, WXK_RETURN, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));
             clipActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCClipTool, "Perform Clip"));
-            
+
             editMenu->addSeparator();
             editMenu->addCheckItem(KeyboardShortcut(View::CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "Texture Lock"));
+#ifdef __linux__ // escape key is not allowed as a menu accelerator on GTK
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditNavigateUp, KeyboardShortcut::SCAny, "Navigate Up"));
+#else
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditNavigateUp, WXK_ESCAPE, KeyboardShortcut::SCAny, "Navigate Up"));
+#endif
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditShowMapProperties, KeyboardShortcut::SCAny, "Map Properties"));
-            
+
             Menu* viewMenu = new Menu("View");
             menus[ViewMenu] = Menu::Ptr(viewMenu);
-            
+
             Menu& gridMenu = viewMenu->addMenu("Grid");
             gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewToggleShowGrid, WXK_CONTROL, 'G', KeyboardShortcut::SCAny, "Show Grid"));
             gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewToggleSnapToGrid, WXK_CONTROL, WXK_SHIFT, 'G', KeyboardShortcut::SCAny, "Snap to Grid"));
@@ -388,46 +432,46 @@ namespace TrenchBroom {
             gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize64, WXK_CONTROL, '7', KeyboardShortcut::SCAny, "Set Grid Size 64"));
             gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize128, WXK_CONTROL, '8', KeyboardShortcut::SCAny, "Set Grid Size 128"));
             gridMenu.addCheckItem(KeyboardShortcut(View::CommandIds::Menu::ViewSetGridSize256, WXK_CONTROL, '9', KeyboardShortcut::SCAny, "Set Grid Size 256"));
-            
+
             Menu& cameraMenu = viewMenu->addMenu("Camera");
             cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
             cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
             cameraMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
-            
+
             viewMenu->addSeparator();
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToEntityTab, '1', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
             return menus;
         }
-        
+
         void PreferenceManager::save() {
             UnsavedPreferences::iterator it, end;
             for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
                 it->first->save(wxConfig::Get());
                 delete it->second;
             }
-            
+
             m_unsavedPreferences.clear();
         }
-        
+
         void PreferenceManager::discardChanges() {
             UnsavedPreferences::iterator it, end;
             for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
                 it->first->setValue(it->second);
                 delete it->second;
             }
-            
+
             m_unsavedPreferences.clear();
         }
-        
+
         bool PreferenceManager::getBool(const Preference<bool>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setBool(const Preference<bool>& preference, bool value) {
             bool previousValue = preference.value();
             preference.setValue(value);
@@ -436,14 +480,14 @@ namespace TrenchBroom {
             else
                 markAsUnsaved(&preference, new ValueHolder<bool>(previousValue));
         }
-        
+
         int PreferenceManager::getInt(const Preference<int>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setInt(const Preference<int>& preference, int value) {
             int previousValue = preference.value();
             preference.setValue(value);
@@ -452,14 +496,14 @@ namespace TrenchBroom {
             else
                 markAsUnsaved(&preference, new ValueHolder<int>(previousValue));
         }
-        
+
         float PreferenceManager::getFloat(const Preference<float>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setFloat(const Preference<float>& preference, float value) {
             float previousValue = preference.value();
             preference.setValue(value);
@@ -468,14 +512,14 @@ namespace TrenchBroom {
             else
                 markAsUnsaved(&preference, new ValueHolder<float>(previousValue));
         }
-        
+
         const String& PreferenceManager::getString(const Preference<String>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setString(const Preference<String>& preference, const String& value) {
             String previousValue = preference.value();
             preference.setValue(value);
@@ -484,14 +528,14 @@ namespace TrenchBroom {
             else
                 markAsUnsaved(&preference, new ValueHolder<String>(previousValue));
         }
-        
+
         const Color& PreferenceManager::getColor(const Preference<Color>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setColor(const Preference<Color>& preference, const Color& value) {
             Color previousValue = preference.value();
             preference.setValue(value);
@@ -500,14 +544,14 @@ namespace TrenchBroom {
             else
                 markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
         }
-        
+
         const KeyboardShortcut& PreferenceManager::getKeyboardShortcut(const Preference<KeyboardShortcut>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
-            
+
             return preference.value();
         }
-        
+
         void PreferenceManager::setKeyboardShortcut(const Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value) {
             KeyboardShortcut previousValue = preference.value();
             preference.setValue(value);

@@ -348,7 +348,7 @@ namespace TrenchBroom {
             CutResult addFace(Face& face, FaceSet& droppedFaces);
             bool addFaces(const FaceList& faces, FaceSet& droppedFaces);
 
-            void updateFacePoints();
+            void updateFacePoints(FaceManager& faceManager);
 
             void correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon);
             void snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo);

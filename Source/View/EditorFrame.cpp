@@ -259,6 +259,7 @@ namespace TrenchBroom {
 
             // FIXME: Workaround for a bug in Ubuntu GTK where menus are not updated
             // This will be fixed in wxWidgets 2.9.5: http://trac.wxwidgets.org/ticket/14302
+            // Unfortunately right now this leads to a crash after the "Navigate Up" item is invoked.
 #ifdef __linux__
             wxMenuBar* menuBar = GetMenuBar();
             size_t menuCount = menuBar->GetMenuCount();

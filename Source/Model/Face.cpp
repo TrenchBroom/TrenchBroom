@@ -446,8 +446,6 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(best < vertexCount);
-            
             m_points[2] = m_side->vertices[pred(best, vertexCount)]->position;
             m_points[0] = m_side->vertices[best]->position;
             m_points[1] = m_side->vertices[succ(best, vertexCount)]->position;

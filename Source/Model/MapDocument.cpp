@@ -473,7 +473,6 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unloadPointFile() {
-            assert(m_pointFile == NULL);
             delete m_pointFile;
             m_pointFile = NULL;
         }

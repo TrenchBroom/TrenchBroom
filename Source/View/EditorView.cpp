@@ -155,12 +155,12 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsHorizontally, EditorView::OnEditFlipObjectsH)
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
-        
+
         EVT_MENU(CommandIds::Menu::EditSnapVertices, EditorView::OnEditSnapVertices)
         EVT_MENU(CommandIds::Menu::EditCorrectVertices, EditorView::OnEditCorrectVertices)
-        
+
         EVT_MENU(CommandIds::Menu::EditToggleAxisRestriction, EditorView::OnEditToggleAxisRestriction)
-        
+
         EVT_MENU(CommandIds::Menu::EditPrintFilePositions, EditorView::OnEditPrintFilePositions)
 
         EVT_MENU(CommandIds::Menu::EditMoveVerticesForward, EditorView::OnEditMoveVerticesForward)
@@ -1454,7 +1454,7 @@ namespace TrenchBroom {
             const Model::EntityList entities = editStateManager.allSelectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             const Model::FaceList& faces = editStateManager.selectedFaces();
-            
+
             StringStream buffer;
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -1479,7 +1479,7 @@ namespace TrenchBroom {
                     buffer << "unsaved";
                 console().info(buffer.str());
             }
-            
+
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 buffer.str("");

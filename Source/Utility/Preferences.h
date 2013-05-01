@@ -396,13 +396,16 @@ namespace TrenchBroom {
             inline const MenuItemParent* parent() const {
                 return m_parent;
             }
+
+            virtual const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
+                return NULL;
+            }
         };
 
         class TextMenuItem : public MenuItem {
         public:
             TextMenuItem(MenuItemType type, MenuItemParent* parent) :
             MenuItem(type, parent) {}
-
             virtual ~TextMenuItem() {}
 
             virtual const String& text() const = 0;
@@ -424,6 +427,7 @@ namespace TrenchBroom {
             const String longText() const;
             const KeyboardShortcut& shortcut() const;
             void setShortcut(const KeyboardShortcut& shortcut) const;
+            const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
         };
 
         class Menu;
@@ -432,12 +436,23 @@ namespace TrenchBroom {
         private:
             String m_text;
             int m_menuId;
+            List m_items;
         protected:
             MenuItemParent(MenuItemType type, const String& text, MenuItemParent* parent, int menuId) :
             TextMenuItem(type, parent),
             m_text(text),
             m_menuId(menuId) {}
+            
+            virtual ~MenuItemParent() {}
         public:
+            inline const List& items() const {
+                return m_items;
+            }
+            
+            inline void addItem(MenuItem::Ptr item) {
+                m_items.push_back(item);
+            }
+            
             inline const String& text() const {
                 return m_text;
             }
@@ -445,6 +460,8 @@ namespace TrenchBroom {
             inline int menuId() const {
                 return m_menuId;
             }
+
+            const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
         };
 
         class MultiMenu;
@@ -456,16 +473,10 @@ namespace TrenchBroom {
         };
 
         class MultiMenu : public MenuItemParent {
-        private:
-            List m_items;
         public:
             MultiMenu(const String& text, MenuItemParent* parent, int menuId) :
             MenuItemParent(MITMultiMenu, text, parent, menuId) {
                 assert(parent != NULL);
-            }
-
-            inline const List& items() const {
-                return m_items;
             }
 
             Menu& addMenu(const String& text, const int menuId);
@@ -480,21 +491,11 @@ namespace TrenchBroom {
         class Menu : public MenuItemParent {
         public:
             typedef std::map<String, Ptr> MenuMap;
-        private:
-            List m_items;
         public:
             Menu(const String& text, MenuItemParent* parent = NULL, int menuId = wxID_ANY) :
             MenuItemParent(MITMenu, text, parent, menuId) {}
 
             virtual ~Menu() {}
-
-            inline const List& items() const {
-                return m_items;
-            }
-            
-            inline void addItem(MenuItem::Ptr item) {
-                m_items.push_back(item);
-            }
 
             inline MenuItem::Ptr addActionItem(const KeyboardShortcut& shortcut) {
                 MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::MITAction, shortcut, this));
@@ -510,18 +511,18 @@ namespace TrenchBroom {
 
             inline void addSeparator() {
                 MenuItem* item = new MenuItem(MenuItem::MITSeparator, this);
-                m_items.push_back(MenuItem::Ptr(item));
+                addItem(MenuItem::Ptr(item));
             }
 
             inline Menu& addMenu(const String& text, int menuId = wxID_ANY) {
                 Menu* menu = new Menu(text, this, menuId);
-                m_items.push_back(Menu::Ptr(menu));
+                addItem(Menu::Ptr(menu));
                 return *menu;
             }
 
             inline MultiMenu& addMultiMenu(const String& text, int menuId) {
                 MultiMenu* menu = new MultiMenu(text, this, menuId);
-                m_items.push_back(MultiMenu::Ptr(menu));
+                addItem(MultiMenu::Ptr(menu));
                 return *menu;
             }
         };

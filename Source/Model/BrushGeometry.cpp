@@ -1460,10 +1460,16 @@ namespace TrenchBroom {
             return true;
         }
 
-        void BrushGeometry::updateFacePoints() {
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                sides[i]->face->updatePointsFromVertices();
-                sides[i]->face->updatePointsFromBoundary();
+        void BrushGeometry::updateFacePoints(FaceManager& faceManager) {
+            for (size_t i = 0; i < sides.size(); i++) {
+                try {
+                    sides[i]->face->updatePointsFromVertices();
+                    sides[i]->face->updatePointsFromBoundary();
+                } catch (GeometryException& e) {
+                    // This method must ONLY be called at the end of a vertex operation, just before
+                    // the geometry is rebuilt anyway
+                    faceManager.dropFace(sides[i]);
+                }
             }
         }
 
@@ -1494,7 +1500,7 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
-                updateFacePoints();
+                updateFacePoints(faceManager);
             }
 
             faceManager.getFaces(newFaces, droppedFaces);
@@ -1528,7 +1534,7 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
-                updateFacePoints();
+                updateFacePoints(faceManager);
             }
 
             faceManager.getFaces(newFaces, droppedFaces);
@@ -1588,7 +1594,7 @@ namespace TrenchBroom {
                 MoveVertexResult result = moveVertex(vertex, true, start, end, faceManager);
                 if (result.type == MoveVertexResult::VertexMoved)
                     movedVertices.push_back(result.vertex);
-                updateFacePoints();
+                updateFacePoints(faceManager);
             }
 
             Vec3f::List newVertexPositions;
@@ -1671,7 +1677,7 @@ namespace TrenchBroom {
 
                 MoveVertexResult result = moveVertex(vertex, false, start, end, faceManager);
                 assert(result.type == MoveVertexResult::VertexMoved);
-                updateFacePoints();
+                updateFacePoints(faceManager);
             }
 
             faceManager.getFaces(newFaces, droppedFaces);
@@ -1763,7 +1769,7 @@ namespace TrenchBroom {
                 assert(result.type == MoveVertexResult::VertexMoved);
             }
 
-            updateFacePoints();
+            updateFacePoints(faceManager);
             faceManager.getFaces(newFaces, droppedFaces);
 
             FaceInfoList result;
@@ -1826,7 +1832,7 @@ namespace TrenchBroom {
             MoveVertexResult result = moveVertex(newVertex, false, start, end, faceManager);
             assert(result.type == MoveVertexResult::VertexMoved);
 
-            updateFacePoints();
+            updateFacePoints(faceManager);
             faceManager.getFaces(newFaces, droppedFaces);
             return result.vertex->position;
         }
@@ -1877,7 +1883,7 @@ namespace TrenchBroom {
             MoveVertexResult result = moveVertex(newVertex, false, start, end, faceManager);
             assert(result.type == MoveVertexResult::VertexMoved);
 
-            updateFacePoints();
+            updateFacePoints(faceManager);
             faceManager.getFaces(newFaces, droppedFaces);
             return result.vertex->position;
         }

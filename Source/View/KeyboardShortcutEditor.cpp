@@ -39,6 +39,13 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
         
         void KeyboardShortcutEditor::update() {
+            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifierKey1, m_modifierKey2, m_modifierKey3)) {
+                m_key = WXK_NONE;
+                m_modifierKey1 = WXK_NONE;
+                m_modifierKey2 = WXK_NONE;
+                m_modifierKey3 = WXK_NONE;
+            }
+            
             KeyboardShortcut::sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
             wxString label = KeyboardShortcut::shortcutDisplayText(m_modifierKey1, m_modifierKey2, m_modifierKey3, m_key);
             m_label->SetLabel(label);
