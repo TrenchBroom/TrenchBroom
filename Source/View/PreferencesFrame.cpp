@@ -154,7 +154,10 @@ namespace TrenchBroom {
 
 		void PreferencesFrame::OnCancelClicked(wxCommandEvent& event) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.discardChanges();
+            const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+            
+            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
@@ -168,7 +171,10 @@ namespace TrenchBroom {
 
 #ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.discardChanges();
+            const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+            
+            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 #endif
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
@@ -180,6 +186,14 @@ namespace TrenchBroom {
                 event.Skip();
                 return;
             }
+
+#ifndef __APPLE__
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+            
+            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();

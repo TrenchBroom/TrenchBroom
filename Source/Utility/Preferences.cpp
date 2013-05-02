@@ -457,14 +457,17 @@ namespace TrenchBroom {
             return changedPreferences;
         }
 
-        void PreferenceManager::discardChanges() {
+        PreferenceBase::Set PreferenceManager::discardChanges() {
+            PreferenceBase::Set changedPreferences;
             UnsavedPreferences::iterator it, end;
             for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
                 it->first->setValue(it->second);
+                changedPreferences.insert(it->first);
                 delete it->second;
             }
 
             m_unsavedPreferences.clear();
+            return changedPreferences;
         }
 
         bool PreferenceManager::getBool(const Preference<bool>& preference) const {

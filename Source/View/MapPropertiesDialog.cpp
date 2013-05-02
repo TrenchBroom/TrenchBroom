@@ -26,6 +26,7 @@
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
 #include "Utility/CommandProcessor.h"
+#include "Utility/List.h"
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
@@ -93,21 +94,21 @@ namespace TrenchBroom {
             SetItemCount(m_wadFiles.size());
             Refresh();
         }
-        
+
         void WadListBox::moveWadUp(size_t index) {
             assert(index > 0 && index < m_wadFiles.size());
             std::swap(m_wadFiles[index - 1], m_wadFiles[index]);
             SetItemCount(m_wadFiles.size());
             Refresh();
         }
-        
+
         void WadListBox::moveWadDown(size_t index) {
             assert(index < m_wadFiles.size() - 1);
             std::swap(m_wadFiles[index + 1], m_wadFiles[index]);
             SetItemCount(m_wadFiles.size());
             Refresh();
         }
-        
+
         void WadListBox::removeWad(size_t index) {
             assert(index < m_wadFiles.size());
             Utility::erase(m_wadFiles, index);
@@ -137,7 +138,7 @@ namespace TrenchBroom {
             SetItemCount(m_wadFiles.size());
             Refresh();
         }
-        
+
         String WadListBox::wadString() const {
             return Utility::join(m_wadFiles, ";");
         }
@@ -237,7 +238,7 @@ namespace TrenchBroom {
             const Model::PropertyValue* wadValue = m_document->worldspawn().propertyForKey(Model::Entity::WadKey);
             if (wadValue != NULL)
                 wad = *wadValue;
-            
+
             m_wadList->setWadString(wad);
         }
 

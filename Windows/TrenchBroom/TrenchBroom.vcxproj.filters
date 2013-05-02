@@ -141,9 +141,6 @@
     <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\TextureCollectionCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\AddObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -426,12 +423,6 @@
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\EntityDefinitionCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SetModCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\View\PathDialog.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
@@ -621,9 +612,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Tool.h">
@@ -1072,12 +1060,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h">
       <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\EntityDefinitionCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SetModCommand.h">
-      <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\PathDialog.h">
       <Filter>Header Files\View</Filter>

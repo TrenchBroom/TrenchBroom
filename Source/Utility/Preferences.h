@@ -560,7 +560,7 @@ namespace TrenchBroom {
             }
 
             PreferenceBase::Set saveChanges();
-            void discardChanges();
+            PreferenceBase::Set discardChanges();
 
             bool getBool(const Preference<bool>& preference) const;
             void setBool(const Preference<bool>& preference, bool value);
