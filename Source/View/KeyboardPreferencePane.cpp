@@ -19,6 +19,8 @@
 
 #include "KeyboardPreferencePane.h"
 
+#include "TrenchBroomApp.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "View/CommandIds.h"
 #include "View/KeyboardShortcutEditor.h"
 #include "View/KeyboardShortcutEvent.h"
@@ -310,6 +312,13 @@ namespace TrenchBroom {
                                                             oldShortcut.text());
 
             m_entries[rowIndex]->saveShortcut(newShortcut);
+
+            
+#ifdef __APPLE__
+            Controller::PreferenceChangeEvent preferenceChangeEvent;
+            preferenceChangeEvent.setMenuChanged(true);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
 
             if (markDuplicates(m_entries))
                 notifyRowsUpdated(m_entries.size());

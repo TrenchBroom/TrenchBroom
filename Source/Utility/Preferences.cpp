@@ -182,14 +182,14 @@ namespace TrenchBroom {
 
         ShortcutMenuItem::ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent) :
         TextMenuItem(type, parent),
-        m_shortcut(shortcut) {
+        m_shortcut(shortcut),
+        m_preference(path(), m_shortcut) {
             assert(type == MITAction || type == MITCheck);
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
             Preference<KeyboardShortcut> preference(p, m_shortcut);
             prefs.getKeyboardShortcut(preference);
         }
-
 
         const String ShortcutMenuItem::longText() const {
             StringList components;
@@ -211,9 +211,8 @@ namespace TrenchBroom {
         void ShortcutMenuItem::setShortcut(const KeyboardShortcut& shortcut) const {
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
-            Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.setKeyboardShortcut(preference, shortcut);
-            m_shortcut = preference.value();
+            prefs.setKeyboardShortcut(m_preference, shortcut);
+            m_shortcut = m_preference.value();
         }
 
         const KeyboardShortcut* ShortcutMenuItem::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
@@ -445,14 +444,17 @@ namespace TrenchBroom {
             return menus;
         }
 
-        void PreferenceManager::save() {
+        PreferenceBase::Set PreferenceManager::saveChanges() {
+            PreferenceBase::Set changedPreferences;
             UnsavedPreferences::iterator it, end;
             for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
                 it->first->save(wxConfig::Get());
+                changedPreferences.insert(it->first);
                 delete it->second;
             }
 
             m_unsavedPreferences.clear();
+            return changedPreferences;
         }
 
         void PreferenceManager::discardChanges() {

@@ -29,6 +29,7 @@
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ObjectsCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/RotateTexturesCommand.h"
@@ -638,12 +639,12 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    case Controller::Command::InvalidateEntityModelRendererCache:
-                        mapDocument().invalidateSearchPaths();
+                    case Controller::Command::PreferenceChange: {
+                        const Controller::PreferenceChangeEvent& preferenceChangeEvent = *static_cast<const Controller::PreferenceChangeEvent*>(command);
+                        if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                            mapDocument().invalidateSearchPaths();
                         break;
-                    case Controller::Command::InvalidateInstancedRenderers:
-                        inputController().moveVerticesTool().resetInstancedRenderers();
-                        break;
+                    }
                     case Controller::Command::RemoveTextureCollection:
                     case Controller::Command::MoveTextureCollectionUp:
                     case Controller::Command::MoveTextureCollectionDown:
@@ -683,8 +684,7 @@ namespace TrenchBroom {
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            if (frame != NULL)
-                frame->mapCanvas().Refresh();
+            frame->mapCanvas().Refresh();
         }
 
         void EditorView::OnChangeFilename() {

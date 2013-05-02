@@ -138,8 +138,6 @@ namespace TrenchBroom {
             }
 
             MoveResult moveVertices(const Vec3f& delta);
-            
-            void resetInstancedRenderers();
         };
     }
 }

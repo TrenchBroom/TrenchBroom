@@ -37,11 +37,6 @@ namespace TrenchBroom {
                 ChangeEditState,
                 SetMod,
                 SetEntityDefinitionFile,
-                InvalidateRendererEntityState,
-                InvalidateRendererBrushState,
-                InvalidateRendererState,
-                InvalidateEntityModelRendererCache,
-                InvalidateInstancedRenderers,
                 SetFaceAttributes,
                 MoveTextures,
                 RotateTextures,
@@ -61,9 +56,10 @@ namespace TrenchBroom {
                 RebuildBrushGeometry,
                 ResizeBrushes,
                 ReparentBrushes,
-                UpdateFigures,
                 ClipToolChange,
-                MoveVerticesToolChange
+                MoveVerticesToolChange,
+                ViewFilterChange,
+                PreferenceChange
             } Type;
             
             typedef enum {

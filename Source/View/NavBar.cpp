@@ -96,7 +96,7 @@ namespace TrenchBroom {
             
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
-            Controller::Command command(Controller::Command::InvalidateRendererState);
+            Controller::Command command(Controller::Command::ViewFilterChange);
             editorView.OnUpdate(NULL, &command);
         }
         

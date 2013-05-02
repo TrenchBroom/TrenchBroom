@@ -22,6 +22,7 @@
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
@@ -503,16 +504,15 @@ namespace TrenchBroom {
                     invalidateDecorators();
                     break;
                 }
-                case Controller::Command::InvalidateRendererEntityState: {
+                case Controller::Command::ViewFilterChange: {
                     invalidateEntities();
-                    break;
-                }
-                case Controller::Command::InvalidateRendererBrushState: {
                     invalidateBrushes();
                     break;
                 }
-                case Controller::Command::InvalidateEntityModelRendererCache: {
-                    invalidateEntityModelRendererCache();
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                        invalidateEntityModelRendererCache();
                     break;
                 }
                 case Controller::Command::SetFaceAttributes:
@@ -521,7 +521,6 @@ namespace TrenchBroom {
                     invalidateSelectedBrushes();
                     break;
                 }
-                case Controller::Command::InvalidateRendererState:
                 case Controller::Command::RemoveTextureCollection:
                 case Controller::Command::MoveTextureCollectionUp:
                 case Controller::Command::MoveTextureCollectionDown:

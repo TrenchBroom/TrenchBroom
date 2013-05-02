@@ -24,6 +24,7 @@
 #include "Controller/MoveEdgesCommand.h"
 #include "Controller/MoveFacesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/SplitEdgesCommand.h"
 #include "Controller/SplitFacesCommand.h"
@@ -513,6 +514,12 @@ namespace TrenchBroom {
                             m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
                         }
                         break;
+                    case Controller::Command::PreferenceChange: {
+                        const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                        if (preferenceChangeEvent.isPreferenceChanged(Preferences::RendererInstancingMode))
+                            m_handleManager.recreateRenderers();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -585,10 +592,6 @@ namespace TrenchBroom {
                 }
             }
             return Continue;
-        }
-
-        void MoveVerticesTool::resetInstancedRenderers() {
-            m_handleManager.recreateRenderers();
         }
     }
 }

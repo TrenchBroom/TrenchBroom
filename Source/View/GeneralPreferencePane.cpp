@@ -29,7 +29,7 @@
 #include <wx/stattext.h>
 
 #include "TrenchBroomApp.h"
-#include "Controller/Command.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
 #include "View/CommandIds.h"
@@ -287,8 +287,8 @@ namespace TrenchBroom {
                 updateControls();
 
 #ifdef __APPLE__
-                Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
-                static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+                Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::QuakePath);
+                static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 #endif
             }
         }
@@ -300,13 +300,22 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             switch (event.GetId()) {
-                case CommandIds::GeneralPreferencePane::BrightnessSliderId:
+                case CommandIds::GeneralPreferencePane::BrightnessSliderId: {
                     prefs.setFloat(Preferences::RendererBrightness, value / 40.0f);
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::RendererBrightness);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
+                }
                 case CommandIds::GeneralPreferencePane::GridAlphaSliderId: {
                     int max = sender->GetMax();
                     float floatValue = static_cast<float>(value) / static_cast<float>(max);
                     prefs.setFloat(Preferences::GridAlpha, floatValue);
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::GridAlpha);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
                 }
                 default:
@@ -321,7 +330,11 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setBool(Preferences::GridCheckerboard, checkerboard);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
+
+#ifdef __APPLE__
+            Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::GridCheckerboard);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
         }
 
         void GeneralPreferencePane::OnInstancingModeChoice(wxCommandEvent& event) {
@@ -332,8 +345,8 @@ namespace TrenchBroom {
             prefs.setInt(Preferences::RendererInstancingMode, mode);
 
 #ifdef __APPLE__
-            Controller::Command command(Controller::Command::InvalidateInstancedRenderers);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+            Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::RendererInstancingMode);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 #endif
         }
 
@@ -366,8 +379,8 @@ namespace TrenchBroom {
             }
 
 #ifdef __APPLE__
-            Controller::Command command(Controller::Command::RefreshTextureBrowser);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+            Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::TextureBrowserIconSize);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 #endif
         }
 
@@ -378,15 +391,33 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             switch (event.GetId()) {
-                case CommandIds::GeneralPreferencePane::LookSpeedSliderId:
+                case CommandIds::GeneralPreferencePane::LookSpeedSliderId: {
                     prefs.setFloat(Preferences::CameraLookSpeed, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraLookSpeed);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
-                case CommandIds::GeneralPreferencePane::PanSpeedSliderId:
+                }
+                case CommandIds::GeneralPreferencePane::PanSpeedSliderId: {
                     prefs.setFloat(Preferences::CameraPanSpeed, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraPanSpeed);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
-                case CommandIds::GeneralPreferencePane::MoveSpeedSliderId:
+                }
+                case CommandIds::GeneralPreferencePane::MoveSpeedSliderId: {
                     prefs.setFloat(Preferences::CameraMoveSpeed, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraMoveSpeed);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
+                }
                 default:
                     break;
             }
@@ -398,18 +429,42 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             switch (event.GetId()) {
-                case CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId:
+                case CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId: {
                     prefs.setBool(Preferences::CameraLookInvertX, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraLookInvertX);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
-                case CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId:
+                }
+                case CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId: {
                     prefs.setBool(Preferences::CameraLookInvertY, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraLookInvertY);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
-                case CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId:
+                }
+                case CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId: {
                     prefs.setBool(Preferences::CameraPanInvertX, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraPanInvertX);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
-                case CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId:
+                }
+                case CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId: {
                     prefs.setBool(Preferences::CameraPanInvertY, value);
+                    
+#ifdef __APPLE__
+                    Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraPanInvertY);
+                    static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
                     break;
+                }
                 default:
                     break;
             }
@@ -420,6 +475,11 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setBool(Preferences::CameraEnableAltMove, value);
+            
+#ifdef __APPLE__
+            Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraEnableAltMove);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
         }
 
         void GeneralPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
@@ -427,6 +487,11 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setBool(Preferences::CameraMoveInCursorDir, value);
+            
+#ifdef __APPLE__
+            Controller::PreferenceChangeEvent preferenceChangeEvent(Preferences::CameraMoveInCursorDir);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+#endif
         }
 	}
 }

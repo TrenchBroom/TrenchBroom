@@ -20,6 +20,7 @@
 #include "EntityInspector.h"
 
 #include "Controller/Command.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "View/CommandIds.h"
@@ -168,9 +169,12 @@ namespace TrenchBroom {
                     updateProperties();
                     updateSmartEditor();
                     break;
-                case Controller::Command::InvalidateEntityModelRendererCache:
-                    updateEntityBrowser();
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                        updateEntityBrowser();
                     break;
+                }
                 default:
                     break;
             }

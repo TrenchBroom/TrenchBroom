@@ -166,12 +166,19 @@ namespace TrenchBroom {
 
         class PreferenceBase {
         public:
+            typedef std::set<const PreferenceBase*> Set;
+
             virtual ~PreferenceBase() {}
 
             virtual void load(wxConfigBase* config) const = 0;
             virtual void save(wxConfigBase* config) const = 0;
             virtual void setValue(const ValueHolderBase* valueHolder) const = 0;
+            
+            inline const bool operator== (const PreferenceBase& other) const {
+                return this == &other;
+            }
         };
+        
 
         template <typename T>
         class Preference : public PreferenceBase {
@@ -414,6 +421,7 @@ namespace TrenchBroom {
         class ShortcutMenuItem : public TextMenuItem {
         private:
             mutable KeyboardShortcut m_shortcut;
+            mutable Preference<KeyboardShortcut> m_preference;
 
             String path() const;
         public:
@@ -551,7 +559,7 @@ namespace TrenchBroom {
                 return static_cast<const Menu&>(*(it->second.get()));
             }
 
-            void save();
+            PreferenceBase::Set saveChanges();
             void discardChanges();
 
             bool getBool(const Preference<bool>& preference) const;

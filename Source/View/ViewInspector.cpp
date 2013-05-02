@@ -187,45 +187,32 @@ namespace TrenchBroom {
             switch (event.GetId()) {
                 case CommandIds::ViewInspector::ShowEntitiesCheckBoxId:
                     editorView.viewOptions().setShowEntities(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityModelsCheckBoxId:
                     editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId:
                     editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId:
                     editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case CommandIds::ViewInspector::ShowBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowBrushesCheckBoxId:
                     editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
-                case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId:
                     editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
-                case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId:
                     editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
-                case CommandIds::ViewInspector::ShowHintBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowHintBrushesCheckBoxId:
                     editorView.viewOptions().setShowHintBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
             }
+            
+            Controller::Command command(Controller::Command::ViewFilterChange);
+            editorView.OnUpdate(NULL, &command);
             updateControls();
         }
 
@@ -281,11 +268,7 @@ namespace TrenchBroom {
 
             EditorView& editorView = m_documentViewHolder.view();
             ViewOptions::LinkDisplayMode mode = static_cast<ViewOptions::LinkDisplayMode>(event.GetSelection());
-
             editorView.viewOptions().setLinkDisplayMode(mode);
-            Controller::Command command(Controller::Command::InvalidateRendererEntityState);
-            editorView.OnUpdate(NULL, &command); // invalidate entities to invalidate decorators
-            updateControls(); // if something went wrong, set the choice selection to the default value ("Textured")
         }
     }
 }

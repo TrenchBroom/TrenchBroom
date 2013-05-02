@@ -20,6 +20,7 @@
 #include "EditorFrame.h"
 
 #include "Controller/Command.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/InputController.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -203,6 +204,12 @@ namespace TrenchBroom {
                 case Controller::Command::SetEntityDefinitionFile:
                     updateNavBar();
                     break;
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.menuHasChanged())
+                        updateMenuBar();
+                    break;
+                }
                 default:
                     break;
             }

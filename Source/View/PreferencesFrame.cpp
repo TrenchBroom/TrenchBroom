@@ -24,7 +24,7 @@
 #include <wx/toolbar.h>
 
 #include "TrenchBroomApp.h"
-#include "Controller/Command.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "IO/FileManager.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
@@ -143,16 +143,10 @@ namespace TrenchBroom {
             }
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.save();
-
-			Controller::Command invalidateCacheCommand(Controller::Command::InvalidateEntityModelRendererCache);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateCacheCommand);
-
-            Controller::Command invalidateInstancedRenderersCommand(Controller::Command::InvalidateInstancedRenderers);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateInstancedRenderersCommand);
-
-            Controller::Command command(Controller::Command::RefreshTextureBrowser);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+            const Preferences::PreferenceBase::Set changedPreferences = prefs.saveChanges();
+            
+            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
@@ -176,6 +170,7 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
 #endif
+
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             event.Skip();
 		}
