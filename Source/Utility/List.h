@@ -64,6 +64,13 @@ namespace TrenchBroom {
         }
         
         template <typename T>
+        inline void erase(std::vector<T>& list, size_t index) {
+            typename std::vector<T>::iterator it = list.begin();
+            std::advance(it, index);
+            list.erase(it);
+        }
+        
+        template <typename T>
         inline std::vector<T> concatenate(const std::vector<T>& prefix, const std::vector<T>& suffix) {
             if (prefix.empty())
                 return suffix;

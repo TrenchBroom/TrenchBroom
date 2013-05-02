@@ -71,9 +71,9 @@ namespace TrenchBroom {
         }
         
         TextureCollection::~TextureCollection() {
-            while (!m_textures.empty()) delete m_textures.back(), m_textures.pop_back();
             m_texturesByName.clear();
             m_texturesByUsage.clear();
+            Utility::deleteAll(m_textures);
         }
 
         TextureCollection::LoaderPtr TextureCollection::loader() const {
@@ -89,17 +89,18 @@ namespace TrenchBroom {
             
             typedef std::pair<TextureMap::iterator, bool> InsertResult;
             
-            for (unsigned int i = 0; i < m_collections.size(); i++) {
+            for (size_t i = 0; i < m_collections.size(); i++) {
                 TextureCollection* collection = m_collections[i];
                 const TextureList textures = collection->textures();
-                for (unsigned int j = 0; j < textures.size(); j++) {
+                for (size_t j = 0; j < textures.size(); j++) {
                     Texture* texture = textures[j];
                     m_collectionMap[texture] = collection;
                     
                     InsertResult result = m_texturesCaseSensitive.insert(TextureMapEntry(texture->name(), texture));
                     if (!result.second) { // texture with this name already existed
                         result.first->second->setOverridden(true);
-                        result.first->second = texture;
+                        m_texturesCaseSensitive.erase(result.first);
+                        m_texturesCaseSensitive.insert(TextureMapEntry(texture->name(), texture));
                     }
                     m_texturesCaseInsensitive[Utility::toLower(texture->name())] = texture;
                     texture->setOverridden(false);
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             m_texturesByName.clear();
             m_texturesByUsage.clear();
             m_collectionMap.clear();
-            while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
+            Utility::deleteAll(m_collections);
         }
     }
 }

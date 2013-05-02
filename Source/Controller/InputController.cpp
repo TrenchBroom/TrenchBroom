@@ -427,8 +427,6 @@ namespace TrenchBroom {
                 case Controller::Command::TransformObjects:
                 case Controller::Command::ResizeBrushes:
                 case Controller::Command::ReparentBrushes:
-                case Controller::Command::SetMod:
-                case Controller::Command::SetEntityDefinitionFile:
                     delete m_selectionGuideRenderer;
                     m_selectionGuideRenderer = NULL;
                     break;

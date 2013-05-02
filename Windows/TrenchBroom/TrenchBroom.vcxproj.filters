@@ -516,6 +516,9 @@
     <ClCompile Include="..\..\Source\Controller\TransformObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\PreferenceChangeEvent.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1182,6 +1185,9 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\TransformObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\PreferenceChangeEvent.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,6 +20,7 @@
 #include "EditorFrame.h"
 
 #include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/PreferenceChangeEvent.h"
 #include "Controller/InputController.h"
 #include "Model/Brush.h"
@@ -200,10 +201,17 @@ namespace TrenchBroom {
                 case Controller::Command::ReparentBrushes:
                 case Controller::Command::ClipToolChange:
                 case Controller::Command::MoveVerticesToolChange:
-                case Controller::Command::SetMod:
                 case Controller::Command::SetEntityDefinitionFile:
                     updateNavBar();
                     break;
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey))
+                        updateNavBar();
+                    break;
+                }
                 case Controller::Command::PreferenceChange: {
                     const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
                     if (preferenceChangeEvent.menuHasChanged())

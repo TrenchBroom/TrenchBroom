@@ -22,6 +22,7 @@
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/PreferenceChangeEvent.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "IO/FileManager.h"
@@ -521,16 +522,13 @@ namespace TrenchBroom {
                     invalidateSelectedBrushes();
                     break;
                 }
-                case Controller::Command::RemoveTextureCollection:
-                case Controller::Command::MoveTextureCollectionUp:
-                case Controller::Command::MoveTextureCollectionDown:
-                case Controller::Command::AddTextureCollection: {
-                    invalidateAll();
-                    break;
-                }
                 case Controller::Command::SetEntityPropertyKey:
                 case Controller::Command::SetEntityPropertyValue:
                 case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isEntityAffected(m_document.worldspawn()) &&
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey))
+                            invalidateBrushes();
                     invalidateEntities();
                     invalidateSelectedEntityModelRendererCache();
                     break;
@@ -569,11 +567,6 @@ namespace TrenchBroom {
                     invalidateEntities();
                     invalidateSelectedEntities();
                     break;
-                }
-                case Controller::Command::SetMod:
-                case Controller::Command::SetEntityDefinitionFile: {
-                    invalidateEntityModelRendererCache();
-                    invalidateAll();
                 }
                 default:
                     break;

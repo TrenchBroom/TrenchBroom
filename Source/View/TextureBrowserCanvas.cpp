@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
             if (m_group) {
                 const Model::TextureCollectionList& collections = textureManager.collections();
-                for (unsigned int i = 0; i < collections.size(); i++) {
+                for (size_t i = 0; i < collections.size(); i++) {
                     Model::TextureCollection* collection = collections[i];
                     if (m_group) {
                         String name = fileManager.pathComponents(collection->name()).back();
@@ -97,13 +97,13 @@ namespace TrenchBroom {
                     }
 
                     Model::TextureList textures = collection->textures(m_sortOrder);
-                    for (unsigned int j = 0; j < textures.size(); j++)
+                    for (size_t j = 0; j < textures.size(); j++)
                         addTextureToLayout(layout, textures[j], font);
                 }
             } else {
                 layout.addGroup(NULL, 0.0f);
                 Model::TextureList textures = textureManager.textures(m_sortOrder);
-                for (unsigned int i = 0; i < textures.size(); i++)
+                for (size_t i = 0; i < textures.size(); i++)
                     addTextureToLayout(layout, textures[i], font);
             }
         }

@@ -102,6 +102,21 @@ namespace TrenchBroom {
             void removeKillTarget(Entity& entity);
             void addKillSource(Entity& entity);
             void removeKillSource(Entity& entity);
+            
+            void addLinkTarget(const PropertyValue& targetname);
+            void removeLinkTarget(const PropertyValue& targetname);
+            void addKillTarget(const PropertyValue& targetname);
+            void removeKillTarget(const PropertyValue& targetname);
+            
+            void addAllLinkTargets();
+            void addAllKillTargets();
+            void removeAllLinkTargets();
+            void removeAllKillTargets();
+            
+            void addAllLinkSources(const PropertyValue& targetname);
+            void addAllKillSources(const PropertyValue& targetname);
+            void removeAllLinkSources();
+            void removeAllKillSources();
 
             void init();
             void validateGeometry() const;
@@ -147,16 +162,18 @@ namespace TrenchBroom {
                 return m_propertyStore.propertyValue(key);
             }
 
-            void setProperty(const PropertyKey& key, const PropertyValue& value);
-            void setProperty(const PropertyKey& key, const PropertyValue* value);
+            static bool propertyIsMutable(const PropertyKey& key);
+            static bool propertyKeyIsMutable(const PropertyKey& key);
+
+            void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
+            void removeProperty(const PropertyKey& key);
+
+            void setProperties(const PropertyList& properties, bool replace);
             void setProperty(const PropertyKey& key, const Vec3f& value, bool round);
             void setProperty(const PropertyKey& key, int value);
             void setProperty(const PropertyKey& key, float value, bool round);
-            void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
-            void setProperties(const PropertyList& properties, bool replace);
-            static bool propertyIsMutable(const PropertyKey& key);
-            static bool propertyKeyIsMutable(const PropertyKey& key);
-            void removeProperty(const PropertyKey& key);
+            void setProperty(const PropertyKey& key, const PropertyValue& value);
+            void setProperty(const PropertyKey& key, const PropertyValue* value);
 
             StringList linkTargetnames() const;
             StringList killTargetnames() const;

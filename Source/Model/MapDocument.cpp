@@ -77,18 +77,8 @@ namespace TrenchBroom {
                 
                 View::ProgressIndicatorDialog progressIndicator;
                 loadMap(mappedFile->begin(), mappedFile->end(), progressIndicator);
-                loadTextures(progressIndicator);
-                updateAfterTextureManagerChanged();
-                
-                String definitionFile = "";
-                Entity* worldspawnEntity = worldspawn(false);
-                if (worldspawnEntity != NULL) {
-                    const PropertyValue* defValue = worldspawnEntity->propertyForKey(Entity::DefKey);
-                    if (defValue != NULL)
-                        definitionFile = *defValue;
-                }
-                
-                setEntityDefinitionFile(definitionFile);
+                loadTextures();
+                loadEntityDefinitionFile();
 
                 String title = fileManager.pathComponents(path).back();
                 SetTitle(title);
@@ -148,16 +138,68 @@ namespace TrenchBroom {
             console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
         }
 
-        void MapDocument::loadTextures(Utility::ProgressIndicator& progressIndicator) {
-            progressIndicator.setText("Loading textures...");
-
-            const String* wads = worldspawn(true)->propertyForKey(Entity::WadKey);
-            if (wads != NULL) {
-                StringList wadPaths = Utility::split(*wads, ';');
-                for (unsigned int i = 0; i < wadPaths.size(); i++) {
-                    String wadPath = Utility::trim(wadPaths[i]);
-                    loadTextureWad(wadPath);
+        void MapDocument::setAllTexturesToNull() {
+            const Model::EntityList& entities = m_map->entities();
+            for (size_t i = 0; i < entities.size(); i++) {
+                const Model::BrushList& brushes = entities[i]->brushes();
+                for (size_t j = 0; j < brushes.size(); j++) {
+                    const Model::FaceList& faces = brushes[j]->faces();
+                    for (size_t k = 0; k < faces.size(); k++) {
+                        faces[k]->setTexture(NULL);
+                    }
                 }
+            }
+        }
+
+        void MapDocument::refreshAllTextures() {
+            const Model::EntityList& entities = m_map->entities();
+            for (size_t i = 0; i < entities.size(); i++) {
+                const Model::BrushList& brushes = entities[i]->brushes();
+                for (size_t j = 0; j < brushes.size(); j++) {
+                    const Model::FaceList& faces = brushes[j]->faces();
+                    for (size_t k = 0; k < faces.size(); k++) {
+                        const String& textureName = faces[k]->textureName();
+                        Model::Texture* newTexture = m_textureManager->texture(textureName);
+                        faces[k]->setTexture(newTexture);
+                    }
+                }
+            }
+            
+            if (m_mruTexture != NULL && m_mruTexture != m_textureManager->texture(m_mruTextureName))
+                setMruTexture(NULL);
+        }
+        
+        void MapDocument::loadTextureWad(const String& path) {
+            const size_t index = m_textureManager->collections().size();
+            IO::FileManager fileManager;
+            
+            String wadPath = path;
+            if (!fileManager.isAbsolutePath(wadPath)) {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                
+                StringList rootPaths;
+                rootPaths.push_back(GetFilename().ToStdString());
+                rootPaths.push_back(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+                rootPaths.push_back(prefs.getString(Preferences::QuakePath));
+                
+                if (!fileManager.resolveRelativePath(path, rootPaths, wadPath)) {
+                    console().error("Could not open texture wad %s (tried relative to current map file, TrenchBroom executable, and Quake path)", path.c_str());
+                    return;
+                }
+            }
+            
+            if (fileManager.exists(wadPath)) {
+                Model::TextureCollection* collection = NULL;
+                try {
+                    collection = new Model::TextureCollection(path, wadPath);
+                    m_textureManager->addCollection(collection, index);
+                } catch (IO::IOException& e) {
+                    delete collection;
+                    collection = NULL;
+                    console().error("Could not open texture wad %s: %s", wadPath.c_str(), e.what());
+                }
+            } else {
+                console().error("Could not open texture wad %s", wadPath.c_str());
             }
         }
         
@@ -219,9 +261,9 @@ namespace TrenchBroom {
             return stream;
         }
 
-        Entity* MapDocument::worldspawn(bool create) {
+        Entity& MapDocument::worldspawn() {
             Entity* worldspawn = m_map->worldspawn();
-            if (worldspawn == NULL && create) {
+            if (worldspawn == NULL) {
                 worldspawn = new Entity(m_map->worldBounds());
                 worldspawn->setProperty(Entity::ClassnameKey, Entity::WorldspawnClassname);
                 EntityDefinition* definition = m_definitionManager->definition(Entity::WorldspawnClassname);
@@ -229,7 +271,7 @@ namespace TrenchBroom {
                 m_map->addEntity(*worldspawn);
             }
 
-            return worldspawn;
+            return *worldspawn;
         }
 
         void MapDocument::Modify(bool modify) {
@@ -375,7 +417,7 @@ namespace TrenchBroom {
             GetCommandProcessor()->ClearCommands();
             
             m_map->setForceIntegerFacePoints(forceIntegerCoordinates);
-            worldspawn(true)->setProperty(Entity::FacePointFormatKey, forceIntegerCoordinates);
+            worldspawn().setProperty(Entity::FacePointFormatKey, forceIntegerCoordinates);
             incModificationCount();
 
             Controller::Command loadCommand(Controller::Command::LoadMap);
@@ -506,76 +548,13 @@ namespace TrenchBroom {
             m_textureLock = textureLock;
         }
 
-        void MapDocument::updateAfterTextureManagerChanged() {
-            Model::FaceList changedFaces;
-            Model::TextureList newTextures;
+        void MapDocument::loadEntityDefinitionFile() {
+            String definitionFile = "";
+            Entity& worldspawnEntity = worldspawn();
+            const PropertyValue* defValue = worldspawnEntity.propertyForKey(Entity::DefKey);
+            if (defValue != NULL)
+                definitionFile = *defValue;
 
-            const Model::EntityList& entities = m_map->entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                const Model::BrushList& brushes = entities[i]->brushes();
-                for (unsigned int j = 0; j < brushes.size(); j++) {
-                    const Model::FaceList& faces = brushes[j]->faces();
-                    for (unsigned int k = 0; k < faces.size(); k++) {
-                        const String& textureName = faces[k]->textureName();
-                        Model::Texture* oldTexture = faces[k]->texture();
-                        Model::Texture* newTexture = m_textureManager->texture(textureName);
-                        if (oldTexture != newTexture) {
-                            changedFaces.push_back(faces[k]);
-                            newTextures.push_back(newTexture);
-                        }
-                    }
-                }
-            }
-
-            if (!changedFaces.empty()) {
-                for (unsigned int i = 0; i < changedFaces.size(); i++)
-                    changedFaces[i]->setTexture(newTextures[i]);
-            }
-
-            if (m_mruTexture != NULL && m_mruTexture != m_textureManager->texture(m_mruTextureName))
-                setMruTexture(NULL);
-        }
-
-        void MapDocument::loadTextureWad(const String& path) {
-            loadTextureWad(path, m_textureManager->collections().size());
-        }
-
-        void MapDocument::loadTextureWad(const String& path, size_t index) {
-            IO::FileManager fileManager;
-
-            String wadPath = path;
-            if (!fileManager.isAbsolutePath(wadPath)) {
-                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-                StringList rootPaths;
-                rootPaths.push_back(GetFilename().ToStdString());
-                rootPaths.push_back(wxStandardPaths::Get().GetExecutablePath().ToStdString());
-                rootPaths.push_back(prefs.getString(Preferences::QuakePath));
-                
-                if (!fileManager.resolveRelativePath(path, rootPaths, wadPath)) {
-                    console().error("Could not open texture wad %s (tried relative to current map file, TrenchBroom executable, and Quake path)", path.c_str());
-                    return;
-                }
-            }
-
-            if (fileManager.exists(wadPath)) {
-                Model::TextureCollection* collection = NULL;
-                wxStopWatch watch;
-                try {
-                    collection = new Model::TextureCollection(path, wadPath);
-                    m_textureManager->addCollection(collection, index);
-                    console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
-                } catch (IO::IOException& e) {
-                    delete collection;
-                    collection = NULL;
-                    console().error("Could not open texture wad %s: %s", wadPath.c_str(), e.what());
-                }
-            } else {
-                console().error("Could not open texture wad %s", wadPath.c_str());
-            }
-        }
-
-        void MapDocument::setEntityDefinitionFile(const String& definitionFile) {
             IO::FileManager fileManager;
             const String resourcePath = fileManager.resourceDirectory();
             const String defsPath = fileManager.appendPathComponent(resourcePath, "Defs");
@@ -600,10 +579,6 @@ namespace TrenchBroom {
 
             m_octree->clear();
             
-            Entity* worldspawnEntity = worldspawn(true);
-            worldspawnEntity->setProperty(Entity::DefKey, definitionFile);
-
-            console().info("Loading entity definition file %s", definitionPath.c_str());
             m_definitionManager->clear();
             m_definitionManager->load(definitionPath);
 
@@ -617,6 +592,23 @@ namespace TrenchBroom {
             }
             
             m_octree->loadMap();
+        }
+
+        void MapDocument::loadTextures() {
+            setAllTexturesToNull();
+            m_textureManager->clear();
+            
+            const String* wads = worldspawn().propertyForKey(Entity::WadKey);
+            if (wads != NULL) {
+                StringList wadPaths = Utility::split(*wads, ';');
+                for (size_t i = 0; i < wadPaths.size(); i++) {
+                    const String wadPath = Utility::trim(wadPaths[i]);
+                    if (!wadPath.empty())
+                        loadTextureWad(wadPath);
+                }
+            }
+            
+            refreshAllTextures();
         }
 
         void MapDocument::incModificationCount() {
@@ -654,12 +646,12 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
                 clear();
-                setEntityDefinitionFile("");
+                loadEntityDefinitionFile();
 
                 // place 1 new brush at origin
                 BBoxf brushBounds(Vec3f(0.0f, 0.0f, -16.0f), Vec3f(64.0f, 64.0f, 0.0f));
                 Model::Brush* brush = new Model::Brush(m_map->worldBounds(), m_map->forceIntegerFacePoints(), brushBounds, NULL);
-                addBrush(*worldspawn(true), *brush);
+                addBrush(worldspawn(), *brush);
                 
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);

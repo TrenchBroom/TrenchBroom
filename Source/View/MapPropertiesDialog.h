@@ -38,15 +38,24 @@ namespace TrenchBroom {
     namespace View {
         class WadListBox : public wxVListBox {
         private:
-            Model::TextureManager& m_textureManager;
+            StringList m_wadFiles;
         public:
-            WadListBox(wxWindow* parent, wxWindowID windowId, Model::TextureManager& textureManager);
+            WadListBox(wxWindow* parent, wxWindowID windowId);
 
             void OnDrawItem (wxDC &dc, const wxRect &rect, size_t n) const;
             void OnDrawBackground (wxDC &dc, const wxRect &rect, size_t n) const;
             wxCoord OnMeasureItem (size_t n) const;
 
             void GetSelections(wxArrayInt& selection) const;
+
+            void addWad(const String path);
+            void moveWadUp(size_t index);
+            void moveWadDown(size_t index);
+            void removeWad(size_t index);
+            void removeWads(const wxArrayInt& indices);
+            
+            void setWadString(const String& wadString);
+            String wadString() const;
         };
 
         class MapPropertiesDialog : public wxDialog {
@@ -69,6 +78,7 @@ namespace TrenchBroom {
             void populateWadList();
 
             void init();
+            void updateWadProperty();
         public:
             MapPropertiesDialog();
             MapPropertiesDialog(wxWindow* parent, Model::MapDocument& document);

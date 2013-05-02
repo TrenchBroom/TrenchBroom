@@ -19,9 +19,7 @@
 
 #include "MapPropertiesDialog.h"
 
-#include "Controller/EntityDefinitionCommand.h"
-#include "Controller/SetModCommand.h"
-#include "Controller/TextureCollectionCommand.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinitionManager.h"
@@ -46,20 +44,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        WadListBox::WadListBox(wxWindow* parent, wxWindowID windowId, Model::TextureManager& textureManager) :
-        wxVListBox(parent, windowId, wxDefaultPosition, wxDefaultSize, wxLB_MULTIPLE | wxBORDER_SUNKEN),
-        m_textureManager(textureManager) {
-            SetItemCount(m_textureManager.collections().size());
+        WadListBox::WadListBox(wxWindow* parent, wxWindowID windowId) :
+        wxVListBox(parent, windowId, wxDefaultPosition, wxDefaultSize, wxLB_MULTIPLE | wxBORDER_SUNKEN) {
+            SetItemCount(m_wadFiles.size());
         }
 
-
         void WadListBox::OnDrawItem (wxDC &dc, const wxRect &rect, size_t n) const {
-            const Model::TextureCollectionList& collections = m_textureManager.collections();
-            assert(n < collections.size());
+            assert(n < m_wadFiles.size());
 
             int width = std::min(rect.width, GetClientSize().x);
 
-            const String name = collections[n]->name();
+            const String name = m_wadFiles[n];
             const wxString shortString = wxControl::Ellipsize(name, dc, wxELLIPSIZE_MIDDLE, width);
 
             if (IsSelected(n))
@@ -78,8 +73,7 @@ namespace TrenchBroom {
         }
 
         wxCoord WadListBox::OnMeasureItem (size_t n) const {
-            const Model::TextureCollectionList& collections = m_textureManager.collections();
-            assert(n < collections.size());
+            assert(n < m_wadFiles.size());
             return GetFont().GetPixelSize().y;
         }
 
@@ -92,6 +86,60 @@ namespace TrenchBroom {
                 selection.push_back(index);
                 index = GetNextSelected(cookie);
             }
+        }
+
+        void WadListBox::addWad(const String path) {
+            m_wadFiles.push_back(path);
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+        
+        void WadListBox::moveWadUp(size_t index) {
+            assert(index > 0 && index < m_wadFiles.size());
+            std::swap(m_wadFiles[index - 1], m_wadFiles[index]);
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+        
+        void WadListBox::moveWadDown(size_t index) {
+            assert(index < m_wadFiles.size() - 1);
+            std::swap(m_wadFiles[index + 1], m_wadFiles[index]);
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+        
+        void WadListBox::removeWad(size_t index) {
+            assert(index < m_wadFiles.size());
+            Utility::erase(m_wadFiles, index);
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+
+        void WadListBox::removeWads(const wxArrayInt& indices) {
+            StringList newList;
+            for (size_t i = 0; i < m_wadFiles.size(); i++) {
+                if (std::find(indices.begin(), indices.end(), i) == indices.end())
+                    newList.push_back(m_wadFiles[i]);
+            }
+            m_wadFiles = newList;
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+
+        void WadListBox::setWadString(const String& wadString) {
+            m_wadFiles.clear();
+            const StringList wadPaths = Utility::split(wadString, ';');
+            for (size_t i = 0; i < wadPaths.size(); i++) {
+                const String wadPath = Utility::trim(wadPaths[i]);
+                if (!wadPath.empty())
+                    m_wadFiles.push_back(wadPath);
+            }
+            SetItemCount(m_wadFiles.size());
+            Refresh();
+        }
+        
+        String WadListBox::wadString() const {
+            return Utility::join(m_wadFiles, ";");
         }
 
         IMPLEMENT_DYNAMIC_CLASS(MapPropertiesDialog, wxDialog)
@@ -168,29 +216,34 @@ namespace TrenchBroom {
             String def = "";
             String mod = "id1";
 
-            Model::Entity* worldspawn = m_document->worldspawn(false);
-            if (worldspawn != NULL) {
-                const Model::PropertyValue* defValue = worldspawn->propertyForKey(Model::Entity::DefKey);
-                if (defValue != NULL)
-                    def = *defValue;
-                const Model::PropertyValue* modValue = worldspawn->propertyForKey(Model::Entity::ModKey);
-                if (modValue != NULL)
-                    mod = *modValue;
-            }
+            Model::Entity& worldspawn = m_document->worldspawn();
+            const Model::PropertyValue* defValue = worldspawn.propertyForKey(Model::Entity::DefKey);
+            if (defValue != NULL)
+                def = *defValue;
+            const Model::PropertyValue* modValue = worldspawn.propertyForKey(Model::Entity::ModKey);
+            if (modValue != NULL)
+                mod = *modValue;
 
             populateDefChoice(def);
             populateModChoice(mod);
 
             bool forceIntegerCoordinates = false;
-            if (worldspawn != NULL) {
-                const Model::PropertyValue* value = worldspawn->propertyForKey(Model::Entity::FacePointFormatKey);
-                if (value != NULL && *value == "1")
-                    forceIntegerCoordinates = true;
-            }
+            const Model::PropertyValue* value = worldspawn.propertyForKey(Model::Entity::FacePointFormatKey);
+            if (value != NULL && *value == "1")
+                forceIntegerCoordinates = true;
             m_intFacePointsCheckBox->SetValue(forceIntegerCoordinates);
 
-            m_wadList->SetItemCount(m_document->textureManager().collections().size());
-            m_wadList->Refresh();
+            String wad = "";
+            const Model::PropertyValue* wadValue = m_document->worldspawn().propertyForKey(Model::Entity::WadKey);
+            if (wadValue != NULL)
+                wad = *wadValue;
+            
+            m_wadList->setWadString(wad);
+        }
+
+        void MapPropertiesDialog::updateWadProperty() {
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::WadKey, m_wadList->wadString());
+            m_document->GetCommandProcessor()->Submit(command);
         }
 
         MapPropertiesDialog::MapPropertiesDialog() :
@@ -267,7 +320,7 @@ namespace TrenchBroom {
 #endif
             wadText->Wrap(width);
 
-            m_wadList = new WadListBox(wadBox, CommandIds::MapPropertiesDialog::WadListId, m_document->textureManager());
+            m_wadList = new WadListBox(wadBox, CommandIds::MapPropertiesDialog::WadListId);
             m_wadList->SetMinSize(wxSize(wxDefaultSize.x, 120));
             m_addWadButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::AddWadButtonId, add, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_addWadButton->SetMinSize(wxSize(20, 20));
@@ -356,14 +409,15 @@ namespace TrenchBroom {
             if (index < static_cast<int>(builtinDefs.size())) {
                 const String defPath = "builtin:" + builtinDefs[static_cast<size_t>(index)];
 
-                Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(*m_document, defPath);
+                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath);
                 m_document->GetCommandProcessor()->Submit(command);
             } else if (index == static_cast<int>(builtinDefs.size())) {
                 wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("DEF files (*.def)|*.def|FGD files (*.fgd)|*.fgd"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                 if (openDefinitionDialog.ShowModal() == wxID_OK) {
-                    PathDialog pathDialog(this, openDefinitionDialog.GetPath().ToStdString());
+                    PathDialog pathDialog(this, openDefinitionDialog.GetPath().ToStdString(), m_document->GetFilename().ToStdString());
                     if (pathDialog.ShowModal() == wxID_OK) {
-                        Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(*m_document, "external:" + pathDialog.path());
+                        const String defPath = "external:" + pathDialog.path();
+                        Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath);
                         m_document->GetCommandProcessor()->Submit(command);
                         init();
                     }
@@ -379,8 +433,7 @@ namespace TrenchBroom {
                 return;
 
             const String mod = m_modChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
-
-            Controller::SetModCommand* command = Controller::SetModCommand::setMod(*m_document, mod);
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::ModKey, mod);
             m_document->GetCommandProcessor()->Submit(command);
             init();
         }
@@ -396,11 +449,10 @@ namespace TrenchBroom {
         void MapPropertiesDialog::OnAddWadClicked(wxCommandEvent& event) {
             wxFileDialog openFileDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (openFileDialog.ShowModal() == wxID_OK) {
-                PathDialog pathDialog(this, openFileDialog.GetPath().ToStdString());
+                PathDialog pathDialog(this, openFileDialog.GetPath().ToStdString(), m_document->GetFilename().ToStdString());
                 if (pathDialog.ShowModal() == wxID_OK) {
-                    Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(*m_document, pathDialog.path());
-                    m_document->GetCommandProcessor()->Submit(command);
-                    init();
+                    m_wadList->addWad(pathDialog.path());
+                    updateWadProperty();
                 }
             }
         }
@@ -408,26 +460,16 @@ namespace TrenchBroom {
         void MapPropertiesDialog::OnRemoveWadsClicked(wxCommandEvent& event) {
             wxArrayInt selection;
             m_wadList->GetSelections(selection);
-
-            Controller::TextureCollectionCommand::IndexList indices;
-            for (size_t i = 0; i < selection.size(); i++)
-                indices.push_back(static_cast<size_t>(selection[i]));
-
-            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::removeTextureCollections(*m_document, indices);
-            m_document->GetCommandProcessor()->Submit(command);
-
-            init();
+            m_wadList->removeWads(selection);
+            updateWadProperty();
         }
 
         void MapPropertiesDialog::OnMoveWadUpClicked(wxCommandEvent& event) {
             wxArrayInt selection;
             m_wadList->GetSelections(selection);
-            size_t index = static_cast<size_t>(selection.front());
-
-            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::moveTextureCollectionUp(*m_document, index);
-            m_document->GetCommandProcessor()->Submit(command);
-
-            init();
+            const size_t index = static_cast<size_t>(selection.front());
+            m_wadList->moveWadUp(index);
+            updateWadProperty();
             m_wadList->DeselectAll();
             m_wadList->SetSelection(static_cast<int>(index - 1));
         }
@@ -435,12 +477,9 @@ namespace TrenchBroom {
         void MapPropertiesDialog::OnMoveWadDownClicked(wxCommandEvent& event) {
             wxArrayInt selection;
             m_wadList->GetSelections(selection);
-            size_t index = static_cast<size_t>(selection.front());
-
-            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::moveTextureCollectionDown(*m_document, index);
-            m_document->GetCommandProcessor()->Submit(command);
-
-            init();
+            const size_t index = static_cast<size_t>(selection.front());
+            m_wadList->moveWadDown(index);
+            updateWadProperty();
             m_wadList->DeselectAll();
             m_wadList->SetSelection(static_cast<int>(index + 1));
         }

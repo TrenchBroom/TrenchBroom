@@ -87,7 +87,10 @@ namespace TrenchBroom {
 
             void loadPalette();
             void loadMap(char* begin, char* end, Utility::ProgressIndicator& progressIndicator);
-            void loadTextures(Utility::ProgressIndicator& progressIndicator);
+
+            void setAllTexturesToNull();
+            void refreshAllTextures();
+            void loadTextureWad(const String& path);
         public:
             MapDocument();
             virtual ~MapDocument();
@@ -97,7 +100,7 @@ namespace TrenchBroom {
             
             void Modify(bool modify);
             
-            Entity* worldspawn(bool create);
+            Entity& worldspawn();
             void addEntity(Entity& entity);
             void removeEntity(Entity& entity);
             void entityWillChange(Entity& entity);
@@ -136,11 +139,8 @@ namespace TrenchBroom {
             bool textureLock() const;
             void setTextureLock(bool textureLock);
 
-            void updateAfterTextureManagerChanged();
-            void loadTextureWad(const String& path);
-            void loadTextureWad(const String& path, size_t index);
-
-            void setEntityDefinitionFile(const String& definitionFile);
+            void loadEntityDefinitionFile();
+            void loadTextures();
             
             void incModificationCount();
             void decModificationCount();

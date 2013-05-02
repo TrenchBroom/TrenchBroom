@@ -20,6 +20,7 @@
 #include "EntityInspector.h"
 
 #include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/PreferenceChangeEvent.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
@@ -150,20 +151,22 @@ namespace TrenchBroom {
             switch (command.type()) {
                 case Controller::Command::LoadMap:
                 case Controller::Command::ClearMap:
-                case Controller::Command::SetMod:
-                case Controller::Command::SetEntityDefinitionFile:
                     updateProperties();
                     updateSmartEditor();
                     updateEntityBrowser();
                     break;
-                case Controller::Command::ChangeEditState:
-                case Controller::Command::AddTextureCollection:
-                case Controller::Command::RemoveTextureCollection:
-                case Controller::Command::MoveTextureCollectionUp:
-                case Controller::Command::MoveTextureCollectionDown:
                 case Controller::Command::SetEntityPropertyKey:
                 case Controller::Command::SetEntityPropertyValue:
-                case Controller::Command::RemoveEntityProperty:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey) ||
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::DefKey))
+                        updateEntityBrowser();
+                    updateProperties();
+                    updateSmartEditor();
+                    break;
+                }
+                case Controller::Command::ChangeEditState:
                 case Controller::Command::TransformObjects:
                 case Controller::Command::ReparentBrushes:
                     updateProperties();

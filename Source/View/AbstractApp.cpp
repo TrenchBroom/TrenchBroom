@@ -245,7 +245,8 @@ bool AbstractApp::OnInit() {
     String helpPath = fileManager.appendPath(fileManager.resourceDirectory(), "Documentation");
 
     m_helpController = new wxExtHelpController();
-    m_helpController->Initialize(helpPath);
+    // m_helpController->Initialize(helpPath);
+    bool fixthis = true;
 
     return true;
 }

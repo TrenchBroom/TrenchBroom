@@ -27,6 +27,7 @@
 
 #include <wx/wx.h>
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
@@ -87,10 +88,17 @@ namespace TrenchBroom {
             static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key);
             static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys);
             
-            inline bool definitionChanged() const {
+            inline bool hasDefinitionChanged() const {
                 return m_definitionChanged;
             }
             
+            inline bool isPropertyAffected(const Model::PropertyKey& key) const {
+                return m_newKey == key || std::find(m_keys.begin(), m_keys.end(), key) != m_keys.end();
+            }
+            
+            inline bool isEntityAffected(const Model::Entity& entity) const {
+                return std::find(m_entities.begin(), m_entities.end(), &entity) != m_entities.end();
+            }
             
             const Model::EntityList& entities() const {
                 return m_entities;

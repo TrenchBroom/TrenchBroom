@@ -30,8 +30,8 @@
 #include <wx/stattext.h>
 
 #include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
-#include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -319,10 +319,6 @@ namespace TrenchBroom {
             switch (command.type()) {
                 case Controller::Command::LoadMap:
                 case Controller::Command::ClearMap:
-                case Controller::Command::RemoveTextureCollection:
-                case Controller::Command::MoveTextureCollectionUp:
-                case Controller::Command::MoveTextureCollectionDown:
-                case Controller::Command::AddTextureCollection:
                     updateFaceAttributes();
                     updateSelectedTexture();
                     updateTextureBrowser(true);
@@ -341,6 +337,19 @@ namespace TrenchBroom {
                 case Controller::Command::AddObjects:
                 case Controller::Command::RemoveObjects:
                     updateTextureBrowser(false);
+                    break;
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isEntityAffected(m_documentViewHolder.document().worldspawn()) &&
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey)) {
+                        updateFaceAttributes();
+                        updateSelectedTexture();
+                        updateTextureBrowser(true);
+                    }
+                    break;
+                }
                 default:
                     break;
             }

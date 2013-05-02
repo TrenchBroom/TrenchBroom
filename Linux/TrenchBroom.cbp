@@ -173,6 +173,8 @@
 		<Unit filename="../Source/Controller/MoveVerticesTool.h" />
 		<Unit filename="../Source/Controller/ObjectsCommand.h" />
 		<Unit filename="../Source/Controller/ObjectsHandle.h" />
+		<Unit filename="../Source/Controller/PreferenceChangeEvent.cpp" />
+		<Unit filename="../Source/Controller/PreferenceChangeEvent.h" />
 		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.cpp" />
 		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.h" />
 		<Unit filename="../Source/Controller/RemoveObjectsCommand.cpp" />

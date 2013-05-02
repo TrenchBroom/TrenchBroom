@@ -104,8 +104,6 @@
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
-		4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */; };
-		4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375E16C43ED200493DA2 /* SetModCommand.cpp */; };
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		488611C0171039850001C423 /* NavBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488611BE171039850001C423 /* NavBar.cpp */; };
 		488611C91710BEA70001C423 /* CompassRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488611C71710BEA70001C423 /* CompassRenderer.cpp */; };
@@ -187,7 +185,6 @@
 		48D937F816C2ABFE005A4684 /* Remove.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F316C2ABFE005A4684 /* Remove.png */; };
 		48D937F916C2ABFE005A4684 /* Up.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F416C2ABFE005A4684 /* Up.png */; };
 		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
 		48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC515FFC31600B8D476 /* Face.fragsh */; };
 		48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECBE15FFC14400B8D476 /* Face.vertsh */; };
@@ -464,10 +461,6 @@
 		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
 		48820108167F244300C2C799 /* FaceVertex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceVertex.h; sourceTree = "<group>"; };
-		4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinitionCommand.cpp; sourceTree = "<group>"; };
-		4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionCommand.h; sourceTree = "<group>"; };
-		4883375E16C43ED200493DA2 /* SetModCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetModCommand.cpp; sourceTree = "<group>"; };
-		4883375F16C43ED200493DA2 /* SetModCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetModCommand.h; sourceTree = "<group>"; };
 		488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffscreenRenderer.cpp; sourceTree = "<group>"; };
 		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		488611BE171039850001C423 /* NavBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavBar.cpp; sourceTree = "<group>"; };
@@ -630,8 +623,6 @@
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
 		48DFD4B716061AAE00E554E1 /* wglew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wglew.h; path = ../Source/GL/wglew.h; sourceTree = "<group>"; };
 		48DFD4BD160656F500E554E1 /* Capabilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Capabilities.h; path = ../Source/GL/Capabilities.h; sourceTree = "<group>"; };
-		48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureCollectionCommand.cpp; sourceTree = "<group>"; };
-		48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollectionCommand.h; sourceTree = "<group>"; };
 		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
 		48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grid.cpp; sourceTree = "<group>"; };
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
@@ -1194,8 +1185,6 @@
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
-				4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */,
-				4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */,
 				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
 				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				482976D21681DAB70057E4D4 /* MoveEdgesCommand.cpp */,
@@ -1223,8 +1212,6 @@
 				4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */,
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */,
-				4883375E16C43ED200493DA2 /* SetModCommand.cpp */,
-				4883375F16C43ED200493DA2 /* SetModCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				48B64C3E16CD301200ECA6C5 /* SnapVerticesCommand.cpp */,
@@ -1233,8 +1220,6 @@
 				484EA61D1679226700EBFAC7 /* SplitEdgesCommand.h */,
 				482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */,
 				482976D91681EEBF0057E4D4 /* SplitFacesCommand.h */,
-				48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */,
-				48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */,
 			);
 			name = Command;
 			sourceTree = "<group>";
@@ -1510,7 +1495,6 @@
 				4817C7EE1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp in Sources */,
 				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
 				4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */,
-				48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */,
 				48B059A81615EF3800E6B0AD /* EntityPropertyCommand.cpp in Sources */,
 				48B059C3161785D300E6B0AD /* TextureRenderer.cpp in Sources */,
 				48B059C71617866100E6B0AD /* Palette.cpp in Sources */,
@@ -1583,8 +1567,6 @@
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
 				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,
 				48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */,
-				4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */,
-				4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */,
 				48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */,
 				48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */,
 				48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */,

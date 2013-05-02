@@ -627,10 +627,10 @@ namespace TrenchBroom {
                 switch (command->type()) {
                     case Controller::Command::LoadMap: {
                         m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
-                        Model::Entity* worldspawn = mapDocument().worldspawn(false);
+                        Model::Entity& worldspawn = mapDocument().worldspawn();
 
-                        if (worldspawn != NULL && !worldspawn->brushes().empty()) {
-                            Vec3f newPosition = centerCameraOnObjectsPosition(Model::EmptyEntityList, worldspawn->brushes());
+                        if (!worldspawn.brushes().empty()) {
+                            Vec3f newPosition = centerCameraOnObjectsPosition(Model::EmptyEntityList, worldspawn.brushes());
                             for (size_t i = 0; i < 3; i++)
                                 newPosition[i] = std::max(std::min(newPosition[i], 1024.0f), -1024.0f);
                             m_camera->moveTo(newPosition);
@@ -645,11 +645,6 @@ namespace TrenchBroom {
                             mapDocument().invalidateSearchPaths();
                         break;
                     }
-                    case Controller::Command::RemoveTextureCollection:
-                    case Controller::Command::MoveTextureCollectionUp:
-                    case Controller::Command::MoveTextureCollectionDown:
-                        mapDocument().sharedResources().textureRendererManager().invalidate();
-                        break;
                     case Controller::Command::RebuildBrushGeometry:
                     case Controller::Command::MoveVertices: {
                         if (command->type() == Controller::Command::RebuildBrushGeometry) {
@@ -667,20 +662,35 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    case Controller::Command::SetMod:
-                    case Controller::Command::SetEntityDefinitionFile: {
-                        mapDocument().sharedResources().modelRendererManager().clearMismatches();
+                    case Controller::Command::SetEntityPropertyKey:
+                    case Controller::Command::SetEntityPropertyValue:
+                    case Controller::Command::RemoveEntityProperty: {
+                        const Controller::EntityPropertyCommand& entityPropertyCommand = *static_cast<const Controller::EntityPropertyCommand*>(command);
+                        if (entityPropertyCommand.isEntityAffected(mapDocument().worldspawn())) {
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey)) {
+                                mapDocument().invalidateSearchPaths();
+                                mapDocument().sharedResources().modelRendererManager().clearMismatches();
+                            }
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::DefKey)) {
+                                mapDocument().loadEntityDefinitionFile();
+                                mapDocument().sharedResources().modelRendererManager().clearMismatches();
+                            }
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey)) {
+                                mapDocument().loadTextures();
+                                mapDocument().sharedResources().textureRendererManager().invalidate();
+                            }
+                        }
                         break;
                     }
                     default:
                         break;
                 }
+                
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                frame->update(*command);
                 inputController().update(*command);
                 inspector().update(*command);
                 renderer().update(*command);
-
-                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                frame->update(*command);
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
@@ -2002,7 +2012,7 @@ namespace TrenchBroom {
 
         void EditorView::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            inputController().reparentBrushes(editStateManager.selectedBrushes(), mapDocument().worldspawn(true));
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), &mapDocument().worldspawn());
         }
 
         void EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) {
@@ -2012,7 +2022,7 @@ namespace TrenchBroom {
             StringStream commandName;
             commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to World";
             event.SetText(commandName.str());
-            event.Enable(inputController().canReparentBrushes(brushes, mapDocument().worldspawn(true)) != NULL);
+            event.Enable(inputController().canReparentBrushes(brushes, &mapDocument().worldspawn()) != NULL);
         }
 
         void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {

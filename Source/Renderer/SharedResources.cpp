@@ -144,9 +144,10 @@ namespace TrenchBroom {
                 size_t count = 0;
                 for (; attribs[index + count] != 0; count++);
                 if (wxGLCanvas::IsDisplaySupported(&attribs[index])) {
-                    m_attribs = new int[count];
+                    m_attribs = new int[count + 1];
                     for (size_t i = 0; i < count; i++)
                         m_attribs[i] = attribs[index + i];
+                    m_attribs[count] = 0;
                     m_depthbits = m_attribs[2];
                     if (m_attribs[4] > 0) {
                         m_multisample = true;
