@@ -393,7 +393,7 @@ namespace TrenchBroom {
         
         template <typename T, size_t S>
         inline Mat<T,S,S>& adjoinMatrix(Mat<T,S,S>& mat) {
-            mat = adjoint(mat);
+            mat = adjointMatrix(mat);
             return mat;
         }
         

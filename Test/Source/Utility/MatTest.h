@@ -43,8 +43,8 @@ namespace TrenchBroom {
                 registerTestCase(&MatTest::testScalarMultiplyAndAssign);
                 registerTestCase(&MatTest::testScalarDivide);
                 registerTestCase(&MatTest::testScalarDivideAndAssign);
-//                registerTestCase(&MatTest::testVectorLeftMultiplyWithSameDimension);
-//                registerTestCase(&MatTest::testVectorLeftMultiplyWithOneLessDimension);
+                registerTestCase(&MatTest::testVectorLeftMultiplyWithSameDimension);
+                registerTestCase(&MatTest::testVectorLeftMultiplyWithOneLessDimension);
                 registerTestCase(&MatTest::testVectorRightMultiplyWithSameDimension);
                 registerTestCase(&MatTest::testVectorRightMultiplyWithOneLessDimension);
                 registerTestCase(&MatTest::testSetIdentity);
@@ -226,7 +226,6 @@ namespace TrenchBroom {
                 assert(m1 == m2);
             }
             
-            /*
             void testVectorLeftMultiplyWithSameDimension() {
                 const Mat4f m1(2.0f,  4.0f, 6.0f, 8.0f,
                                6.0f, 10.0f, 2.0f, 2.0f,
@@ -240,7 +239,7 @@ namespace TrenchBroom {
                 assert(v1 * m1 == v2);
             }
             
-            void testVectorLeftMultiplWithOneLessDimension() {
+            void testVectorLeftMultiplyWithOneLessDimension() {
                 const Mat4f m1(2.0f,  4.0f, 6.0f, 8.0f,
                                6.0f, 10.0f, 2.0f, 2.0f,
                                2.0f, 10.0f, 6.0f, 6.0f,
@@ -255,7 +254,6 @@ namespace TrenchBroom {
                                v24.z() / v24.w());
                 assert(v1 * m1 == v2);
             }
-             */
 
             void testVectorRightMultiplyWithSameDimension() {
                 const Mat4f m1(2.0f,  4.0f, 6.0f, 8.0f,
@@ -359,14 +357,14 @@ namespace TrenchBroom {
                                6.0f, 10.0f,  2.0f, 2.0f,
                                2.0f, 10.0f,  6.0f, 6.0f,
                                4.0f,  4.0f,  6.0f, 6.0f);
-                assert(determinant(m1) == -544.0f);
+                assert(matrixDeterminant(m1) == -544.0f);
             }
             
             void testDeterminant2() {
                 const Mat3f m1(2.0f,  4.0f,  6.0f,
                                2.0f, 10.0f,  6.0f,
                                4.0f,  4.0f,  6.0f);
-                assert(determinant(m1) == -72);
+                assert(matrixDeterminant(m1) == -72);
             }
             
             void testAdjoin() {
@@ -378,7 +376,7 @@ namespace TrenchBroom {
                                   0.0f,  -24.0f,  -56.0f,   64.0f,
                                 272.0f,  136.0f, -136.0f, -272.0f,
                                -272.0f,  -72.0f,  104.0f,  192.0f);
-                adjoin(m1);
+                adjoinMatrix(m1);
                 assert(m1 == m2);
             }
             
@@ -391,7 +389,7 @@ namespace TrenchBroom {
                                   0.0f,  -24.0f,  -56.0f,   64.0f,
                                 272.0f,  136.0f, -136.0f, -272.0f,
                                -272.0f,  -72.0f,  104.0f,  192.0f);
-                assert(adjoint(m1) == m2);
+                assert(adjointMatrix(m1) == m2);
             }
         };
     }
