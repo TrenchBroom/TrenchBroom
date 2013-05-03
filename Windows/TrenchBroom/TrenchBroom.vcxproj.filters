@@ -393,9 +393,6 @@
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateHandle.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -1027,9 +1024,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h">
-      <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateHandle.h">
       <Filter>Header Files\Controller</Filter>

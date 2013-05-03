@@ -148,8 +148,6 @@
 		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.h" />
 		<Unit filename="../Source/Controller/CreateEntityTool.cpp" />
 		<Unit filename="../Source/Controller/CreateEntityTool.h" />
-		<Unit filename="../Source/Controller/EntityDefinitionCommand.cpp" />
-		<Unit filename="../Source/Controller/EntityDefinitionCommand.h" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.cpp" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.h" />
 		<Unit filename="../Source/Controller/FlyTool.cpp" />
@@ -197,8 +195,6 @@
 		<Unit filename="../Source/Controller/SetFaceAttributesCommand.h" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.cpp" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.h" />
-		<Unit filename="../Source/Controller/SetModCommand.cpp" />
-		<Unit filename="../Source/Controller/SetModCommand.h" />
 		<Unit filename="../Source/Controller/SnapVerticesCommand.cpp" />
 		<Unit filename="../Source/Controller/SnapVerticesCommand.h" />
 		<Unit filename="../Source/Controller/SnapshotCommand.cpp" />
@@ -207,8 +203,6 @@
 		<Unit filename="../Source/Controller/SplitEdgesCommand.h" />
 		<Unit filename="../Source/Controller/SplitFacesCommand.cpp" />
 		<Unit filename="../Source/Controller/SplitFacesCommand.h" />
-		<Unit filename="../Source/Controller/TextureCollectionCommand.cpp" />
-		<Unit filename="../Source/Controller/TextureCollectionCommand.h" />
 		<Unit filename="../Source/Controller/Tool.h" />
 		<Unit filename="../Source/Controller/TransformObjectsCommand.cpp" />
 		<Unit filename="../Source/Controller/TransformObjectsCommand.h" />

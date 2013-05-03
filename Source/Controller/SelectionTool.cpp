@@ -75,21 +75,22 @@ namespace TrenchBroom {
                 Model::Face& face = hit->face();
                 Model::Brush& brush = *face.brush();
                 Model::Entity& entity = *brush.entity();
-                const Model::BrushList& entityBrushes = entity.brushes();
-
-                if (multi) {
-                    Model::BrushList selectBrushes;
-                    Model::BrushList::const_iterator brushIt, brushEnd;
-                    for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                        Model::Brush& entityBrush = **brushIt;
-                        if (!entityBrush.selected())
-                            selectBrushes.push_back(&entityBrush);
+                if (!entity.worldspawn()) {
+                    const Model::BrushList& entityBrushes = entity.brushes();
+                    if (multi) {
+                        Model::BrushList selectBrushes;
+                        Model::BrushList::const_iterator brushIt, brushEnd;
+                        for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                            Model::Brush& entityBrush = **brushIt;
+                            if (!entityBrush.selected())
+                                selectBrushes.push_back(&entityBrush);
+                        }
+                        
+                        if (!selectBrushes.empty())
+                            command = ChangeEditStateCommand::select(document(), selectBrushes);
+                    } else {
+                        command = ChangeEditStateCommand::replace(document(), entityBrushes);
                     }
-
-                    if (!selectBrushes.empty())
-                        command = ChangeEditStateCommand::select(document(), selectBrushes);
-                } else {
-                    command = ChangeEditStateCommand::replace(document(), entityBrushes);
                 }
             }
 
