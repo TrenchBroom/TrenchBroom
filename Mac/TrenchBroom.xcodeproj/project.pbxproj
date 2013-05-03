@@ -335,7 +335,7 @@
 		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
 		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		483AE27416F8FE450073686A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		483AE27716F8FE890073686A /* Vec3fTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3fTest.h; sourceTree = "<group>"; };
+		483AE27716F8FE890073686A /* VecTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecTest.h; sourceTree = "<group>"; };
 		483AE27816F8FEB90073686A /* TestSuite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSuite.h; sourceTree = "<group>"; };
 		483AE27916F915D40073686A /* PlaneTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaneTest.h; sourceTree = "<group>"; };
 		483AE27E16F918600073686A /* FindPlanePoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindPlanePoints.h; sourceTree = "<group>"; };
@@ -619,7 +619,6 @@
 		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
 		48DFD4B716061AAE00E554E1 /* wglew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wglew.h; path = ../Source/GL/wglew.h; sourceTree = "<group>"; };
-		48DFD4BD160656F500E554E1 /* Capabilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Capabilities.h; path = ../Source/GL/Capabilities.h; sourceTree = "<group>"; };
 		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
 		48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grid.cpp; sourceTree = "<group>"; };
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
@@ -813,7 +812,7 @@
 				483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */,
 				489D3041172BEEF700FCCC9C /* MatTest.h */,
 				483AE27916F915D40073686A /* PlaneTest.h */,
-				483AE27716F8FE890073686A /* Vec3fTest.h */,
+				483AE27716F8FE890073686A /* VecTest.h */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -1222,7 +1221,6 @@
 		48DFD4B316061A9C00E554E1 /* GL */ = {
 			isa = PBXGroup;
 			children = (
-				48DFD4BD160656F500E554E1 /* Capabilities.h */,
 				48DFD4B416061AAE00E554E1 /* glew.c */,
 				48DFD4B516061AAE00E554E1 /* glew.h */,
 				48DFD4B616061AAE00E554E1 /* glxew.h */,

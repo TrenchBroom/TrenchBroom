@@ -248,10 +248,8 @@ namespace TrenchBroom {
                                2.0f);
                 const Vec4f v14(v1, 1.0f);
                 const Vec4f v24 = v14 * m1;
-                const Vec3f v2(v24.x() / v24.w(),
-                               v24.y() / v24.w(),
-                               v24.z() / v24.w());
-                assert(v1 * m1 == v2);
+                const Vec3f v3 = v1 * m1;
+                assert(v3.equals(v24.overLast()));
             }
 
             void testVectorRightMultiplyWithSameDimension() {

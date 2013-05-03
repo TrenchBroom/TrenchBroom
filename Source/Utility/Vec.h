@@ -157,60 +157,72 @@ namespace TrenchBroom {
             }
             
             Vec(const T i_x) {
-                for (size_t i = 0; i < S; i++)
-                    v[i] = i_x;
+                if (S > 0)
+                    v[0] = i_x;
+                for (size_t i = 1; i < S; i++)
+                    v[i] = static_cast<T>(0.0);
             }
                     
             Vec(const T i_x, const T i_y) {
-                assert(S > 1);
-                v[0] = i_x;
-                v[1] = i_y;
+                if (S > 0)
+                    v[0] = i_x;
+                if (S > 1)
+                    v[1] = i_y;
                 for (size_t i = 2; i < S; i++)
                     v[i] = static_cast<T>(0.0);
             }
             
             Vec(const T i_x, const T i_y, const T i_z) {
-                assert(S > 2);
-                v[0] = i_x;
-                v[1] = i_y;
-                v[2] = i_z;
+                if (S > 0)
+                    v[0] = i_x;
+                if (S > 1)
+                    v[1] = i_y;
+                if (S > 2)
+                    v[2] = i_z;
                 for (size_t i = 3; i < S; i++)
                     v[i] = static_cast<T>(0.0);
             }
             
             Vec(const T i_x, const T i_y, const T i_z, const T i_w) {
-                assert(S > 3);
-                v[0] = i_x;
-                v[1] = i_y;
-                v[2] = i_z;
-                v[3] = i_w;
+                if (S > 0)
+                    v[0] = i_x;
+                if (S > 1)
+                    v[1] = i_y;
+                if (S > 2)
+                    v[2] = i_z;
+                if (S > 3)
+                    v[3] = i_w;
                 for (size_t i = 4; i < S; i++)
                     v[i] = static_cast<T>(0.0);
             }
-                    
-            Vec(const Vec<T,S+1>& vec) {
-                for (size_t i = 0; i < S; i++)
-                    v[i] = vec[i] / vec[S];
+        
+            template <size_t O>
+            Vec(const Vec<T,O>& vec) {
+                for (size_t i = 0; i < std::min(S,O); i++)
+                    v[i] = vec[i];
+                for (size_t i = std::min(S,O); i < S; i++)
+                    v[i] = static_cast<T>(0.0);
             }
 
-            Vec(const Vec<T,S-1>& vec, const T last) {
-                for (size_t i = 0; i < S-1; i++)
+            template <size_t O>
+            Vec(const Vec<T,O>& vec, const T last) {
+                for (size_t i = 0; i < std::min(S-1,O); i++)
                     v[i] = vec[i];
+                for (size_t i = std::min(S-1, O); i < S-1; i++)
+                    v[i] = static_cast<T>(0.0);
                 v[S-1] = last;
             }
-                    
-            Vec(const Vec<T,S-2>& vec, const T oneButLast, const T last) {
-                for (size_t i = 0; i < S-2; i++)
+            
+            template <size_t O>
+            Vec(const Vec<T,O>& vec, const T oneButLast, const T last) {
+                for (size_t i = 0; i < std::min(S-2,O); i++)
                     v[i] = vec[i];
+                for (size_t i = std::min(S-2, O); i < S-2; i++)
+                    v[i] = static_cast<T>(0.0);
                 v[S-2] = oneButLast;
                 v[S-1] = last;
             }
             
-            Vec(const Vec<T,S>& right) {
-                for (size_t i = 0; i < S; i++)
-                    v[i] = right[i];
-            }
-                    
             inline bool operator== (const Vec<T,S>& right) const {
                 for (size_t i = 0; i < S; i++)
                     if (v[i] != right[i])
@@ -222,17 +234,12 @@ namespace TrenchBroom {
                 return !(*this == right);
             }
             
-            inline Vec<T,S>& operator= (const Vec<T,S>& right) {
-                if (this != &right)
-                    for (size_t i = 0; i < S; i++)
-                        v[i] = right[i];
-                return *this;
-            }
-            
-            inline Vec<T,S>& operator= (const Vec<T,S-1>& right) {
-                for (size_t i = 0; i < S-1; i++)
+            template <size_t O>
+            inline Vec<T,S>& operator= (const Vec<T,O>& right) {
+                for (size_t i = 0; i < std::min(S,O); i++)
                     v[i] = right[i];
-                v[S-1] = static_cast<T>(0.0);
+                for (size_t i = std::min(S,O); i < S; i++)
+                    v[i] = static_cast<T>(0.0);
                 return *this;
             }
             
@@ -323,6 +330,25 @@ namespace TrenchBroom {
             inline T w() const {
                 assert(S > 3);
                 return v[3];
+            }
+                    
+            inline Vec<T,2> xy() const {
+                return Vec<T,2>(*this);
+            }
+
+            inline Vec<T,3> xyz() const {
+                return Vec<T,3>(*this);
+            }
+                    
+            inline Vec<T,4> xyzw() const {
+                return Vec<T,4>(*this);
+            }
+                    
+            inline Vec<T,S-1> overLast() const {
+                Vec<T,S-1> result;
+                for (size_t i = 0; i < S-1; i++)
+                    result[i] = v[i] / v[S-1];
+                return result;
             }
 
             inline const T dot(const Vec<T,S>& right) const {

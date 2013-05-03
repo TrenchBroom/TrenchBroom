@@ -166,7 +166,7 @@ namespace TrenchBroom {
                 return *this;
             }
 
-            // Vector left multiplication
+            // Vector right multiplication
             inline const Vec<T,C> operator* (const Vec<T,C>& right) const {
                 Vec<T,C> result;
                 for (size_t r = 0; r < R; r++)
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             }
 
             inline const Vec<T,C-1> operator* (const Vec<T,C-1>& right) const {
-                return Vec<T,C-1>(*this * Vec<T,C>(right, static_cast<T>(1.0)));
+                return (*this * Vec<T,C>(right, static_cast<T>(1.0))).overLast();
             }
 
             inline const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
@@ -292,7 +292,7 @@ namespace TrenchBroom {
         // Vector left multiplication with vector of dimension R-1
         template <typename T, size_t R, size_t C>
         inline const Vec<T,R-1> operator* (const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
-            return Vec<T,C-1>(Vec<T,C>(left, static_cast<T>(1.0)) * right);
+            return (Vec<T,R>(left, static_cast<T>(1.0)) * right).overLast();
         }
         
         template <typename T, size_t R, size_t C>
