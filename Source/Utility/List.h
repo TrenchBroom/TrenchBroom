@@ -113,6 +113,17 @@ namespace TrenchBroom {
             std::copy(set.begin(), set.end(), std::back_inserter(list));
             return list;
         }
+        
+        template <typename T>
+        inline std::vector<T> listUnion(std::vector<T> left, std::vector<T> right) {
+            std::sort(left.begin(), left.end());
+            std::sort(right.begin(), right.end());
+            
+            std::vector<T> result;
+            result.reserve(left.size() + right.size());
+            std::set_union(left.begin(), left.end(), right.begin(), right.end(), result.begin());
+            return result;
+        }
     }
 }
 

@@ -48,7 +48,6 @@ namespace TrenchBroom {
         class ClipTool;
         class Command;
         class CreateBrushTool;
-        class CreateEntityFromMenuHelper;
         class CreateEntityTool;
         class FlyTool;
         class MoveObjectsTool;
@@ -90,7 +89,6 @@ namespace TrenchBroom {
             void updateHits();
             void updateViews();
 
-            CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
             Model::SelectedFilter m_selectedFilter;
 

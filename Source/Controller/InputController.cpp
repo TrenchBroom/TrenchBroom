@@ -21,7 +21,6 @@
 
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/Command.h"
-#include "Controller/CreateEntityFromMenuHelper.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
@@ -124,7 +123,6 @@ namespace TrenchBroom {
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
         m_modifierKeys(ModifierKeys::MKNone),
-        m_createEntityHelper(NULL),
         m_selectionGuideRenderer(NULL),
         m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
@@ -161,8 +159,6 @@ namespace TrenchBroom {
             m_toolChain->freeRenderResources();
             delete m_selectionGuideRenderer;
             m_selectionGuideRenderer = NULL;
-            delete m_createEntityHelper;
-            m_createEntityHelper = NULL;
 
             m_toolChain = NULL;
             m_dragTool = NULL;
@@ -478,9 +474,6 @@ namespace TrenchBroom {
             }
 
             m_toolChain->renderOverlay(m_inputState, vbo, context);
-
-            if (m_createEntityHelper != NULL)
-                m_createEntityHelper->render(vbo, context);
         }
 
         void InputController::toggleClipTool() {

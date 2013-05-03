@@ -23,6 +23,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/MapDocument.h"
+#include "Utility/List.h"
 
 #include <cassert>
 
@@ -31,71 +32,85 @@ namespace TrenchBroom {
         bool RemoveObjectsCommand::performDo() {
             assert(!m_entities.empty() || !m_brushes.empty());
 
-            m_removedEntities = m_entities;
-            m_removedBrushes.clear();
-            m_removedBrushParents.clear();
+            clearUndoInformation();
+            removeBrushes();
+            removeEntities();
             
-            Model::BrushList::iterator brushIt, brushEnd;
+            return true;
+        }
+        
+        void RemoveObjectsCommand::removeBrushes() {
+            Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush* brush = *brushIt;
                 Model::Entity* entity = brush->entity();
-
+                
                 document().removeBrush(*brush);
                 
                 if (entity != NULL &&
                     !entity->worldspawn() &&
                     entity->brushes().empty() &&
-                    std::find(m_removedEntities.begin(), m_removedEntities.end(), entity) == m_removedEntities.end()) {
+                    std::find(m_entities.begin(), m_entities.end(), entity) == m_entities.end()) {
+                    document().removeEntity(*entity);
                     m_removedEntities.push_back(entity);
                 }
+                
                 m_removedBrushes.push_back(brush);
                 m_removedBrushParents.insert(Model::BrushParentMapEntry(brush, entity));
             }
-            
-            Model::EntityList::iterator entityIt, entityEnd;
-            for (entityIt = m_removedEntities.begin(), entityEnd = m_removedEntities.end(); entityIt != entityEnd; ++entityIt) {
+        }
+
+        void RemoveObjectsCommand::removeEntities() {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
                 document().removeEntity(*entity);
+                m_removedEntities.push_back(entity);
             }
-            
+        }
+
+        bool RemoveObjectsCommand::performUndo() {
+            assert(!m_removedEntities.empty() || !m_removedBrushes.empty());
+
+            restoreEntities();
+            restoreBrushes();
+            clearUndoInformation();
+
             return true;
         }
         
-        bool RemoveObjectsCommand::performUndo() {
-            assert(!m_removedEntities.empty() || !m_removedBrushes.empty());
-            
+        void RemoveObjectsCommand::restoreEntities() {
             Model::EntityList::iterator entityIt, entityEnd;
             for (entityIt = m_removedEntities.begin(), entityEnd = m_removedEntities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
                 document().addEntity(*entity);
             }
-            
+        }
+        
+        void RemoveObjectsCommand::restoreBrushes() {
             Model::BrushParentMap::iterator brushIt, brushEnd;
             for (brushIt = m_removedBrushParents.begin(), brushEnd = m_removedBrushParents.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush* brush = brushIt->first;
                 Model::Entity* entity = brushIt->second;
                 document().addBrush(*entity, *brush);
             }
-
-            return true;
         }
-        
+
+        void RemoveObjectsCommand::clearUndoInformation() {
+            m_removedEntities.clear();
+            m_removedBrushes.clear();
+            m_removedBrushParents.clear();
+        }
+
         RemoveObjectsCommand::RemoveObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes) :
         DocumentCommand(type, document, true, name, true),
         m_entities(entities),
         m_brushes(brushes) {}
         
         RemoveObjectsCommand::~RemoveObjectsCommand() {
-            if (state() == Done) {
-                while (!m_removedEntities.empty()) delete m_removedEntities.back(), m_removedEntities.pop_back();
-                while (!m_removedBrushes.empty()) delete m_removedBrushes.back(), m_removedBrushes.pop_back();
-            } else {
-                m_removedEntities.clear();
-                m_removedBrushes.clear();
-            }
-            m_removedBrushParents.clear();
-            m_entities.clear();
-            m_brushes.clear();
+            clearUndoInformation();
+            Utility::deleteAll(m_removedEntities);
+            Utility::deleteAll(m_removedBrushes);
         }
 
         RemoveObjectsCommand* RemoveObjectsCommand::removeObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {

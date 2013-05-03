@@ -29,15 +29,22 @@ namespace TrenchBroom {
     namespace Controller {
         class RemoveObjectsCommand : public DocumentCommand, ObjectsCommand {
         protected:
-            Model::EntityList m_entities;
-            Model::BrushList m_brushes;
+            const Model::EntityList m_entities;
+            const Model::BrushList m_brushes;
             
             Model::EntityList m_removedEntities;
             Model::BrushList m_removedBrushes;
             Model::BrushParentMap m_removedBrushParents;
             
             bool performDo();
+            void removeBrushes();
+            void removeEntities();
+
             bool performUndo();
+            void restoreEntities();
+            void restoreBrushes();
+            
+            void clearUndoInformation();
             
             RemoveObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
         public:

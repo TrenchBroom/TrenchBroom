@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace Controller {
         class EntityPropertyCommand : public SnapshotCommand, ObjectsCommand {
         protected:
-            Model::EntityList m_entities;
+            const Model::EntityList m_entities;
             Model::PropertyKeyList m_keys;
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
@@ -77,10 +77,18 @@ namespace TrenchBroom {
                 m_newValue = newValue;
             }
             
-            EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
-            
             bool performDo();
+            bool affectsImmutableProperty() const;
+            bool canSetKey() const;
+            bool anyEntityHasProperty(const Model::PropertyKey& key) const;
+            void setKey();
+            void setValue();
+            void remove();
+
             bool performUndo();
+            void restoreEntityDefinitions();
+
+            EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
         public:
             static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
             static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue);

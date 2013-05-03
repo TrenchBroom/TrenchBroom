@@ -292,9 +292,7 @@ namespace TrenchBroom {
 
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::FaceList& faces = editStateManager.selectedFaces();
-            wxString actionName = faces.size() == 1 ? wxT("Move Texture") : wxT("Move Textures");
-
-            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), actionName, camera().up(), camera().right(), direction, distance);
+            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), faces, camera().up(), camera().right(), direction, distance);
             submit(command);
         }
 

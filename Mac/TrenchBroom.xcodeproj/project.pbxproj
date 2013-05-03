@@ -52,7 +52,6 @@
 		483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */; };
 		483AE27616F8FE450073686A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483AE27416F8FE450073686A /* main.cpp */; };
 		483E203C16DCB33B00B087BB /* Defs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 483E203B16DCB33B00B087BB /* Defs */; };
-		483F970716A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */; };
 		4842AF67162176100042AD66 /* GenericDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* GenericDropSource.cpp */; };
 		4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF7216220D7A0042AD66 /* MacScreenDC.mm */; };
 		4842C34B164BCB7800E41B95 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842C349164BCB7800E41B95 /* InputController.cpp */; };
@@ -343,8 +342,6 @@
 		483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindIntegerPlanePointsTest.h; sourceTree = "<group>"; };
 		483D0C3716C050DE0050710B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		483E203B16DCB33B00B087BB /* Defs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Defs; path = ../Resources/Defs; sourceTree = "<group>"; };
-		483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityFromMenuHelper.cpp; sourceTree = "<group>"; };
-		483F970616A5AB4B009716B1 /* CreateEntityFromMenuHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityFromMenuHelper.h; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
 		4842AF66162176100042AD66 /* GenericDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenericDropSource.cpp; sourceTree = "<group>"; };
 		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
@@ -1130,8 +1127,6 @@
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
 				489221B0170A267E00444EA0 /* ControllerUtils.h */,
-				483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */,
-				483F970616A5AB4B009716B1 /* CreateEntityFromMenuHelper.h */,
 				48EE7A14164FF0A3003F5BBE /* Input.h */,
 				4842C349164BCB7800E41B95 /* InputController.cpp */,
 				4842C34A164BCB7800E41B95 /* InputController.h */,
@@ -1555,7 +1550,6 @@
 				487567B316A09D57008F316F /* EntityRotationDecorator.cpp in Sources */,
 				487567B616A180FF008F316F /* BoxInfoRenderer.cpp in Sources */,
 				48CDA82216A424E70050E152 /* MovementIndicator.cpp in Sources */,
-				483F970716A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp in Sources */,
 				485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */,
 				48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */,
 				483323ED16AF250700FC9721 /* SmartPropertyEditor.cpp in Sources */,
