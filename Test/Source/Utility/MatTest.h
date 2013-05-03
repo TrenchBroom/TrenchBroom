@@ -17,7 +17,6 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef TrenchBroom_MatTest_h
 #define TrenchBroom_MatTest_h
 

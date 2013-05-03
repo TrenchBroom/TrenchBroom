@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "TestSuite.h"
+#include "Controller/AddObjectsCommandTest.h"
 #include "Utility/FindIntegerPlanePointsTest.h"
 #include "Utility/MatTest.h"
 #include "Utility/PlaneTest.h"
@@ -27,6 +28,9 @@
 
 int main(int argc, const char * argv[]) {
     using namespace TrenchBroom;
+    
+    Controller::AddObjectsCommandTest addObjectsCommandTest;
+    addObjectsCommandTest.run();
     
     VecMath::Vec3fTest vec3fTest;
     vec3fTest.run();
@@ -36,7 +40,7 @@ int main(int argc, const char * argv[]) {
 
     VecMath::PlaneTest planeTest;
     planeTest.run();
-
+    
     /*
     VecMath::FindIntegerPlanePointsTest planePointsTest;
     planePointsTest.run();
