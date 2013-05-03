@@ -178,7 +178,7 @@ wxMenuBar* AbstractApp::CreateMenuBar(const TrenchBroom::Preferences::MultiMenuS
     menuBar->Append(CreateFileMenu(selector, eventHandler, mapViewFocused), wxT("File"));
     menuBar->Append(CreateEditMenu(selector, eventHandler, mapViewFocused), wxT("Edit"));
     menuBar->Append(CreateViewMenu(selector, eventHandler, mapViewFocused), wxT("View"));
-    menuBar->Append(CreateHelpMenu(selector, eventHandler, mapViewFocused), wxT("Help"));
+    menuBar->Append(CreateHelpMenu(selector, this, mapViewFocused), wxT("Help"));
 
     return menuBar;
 }

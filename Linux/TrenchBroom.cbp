@@ -144,8 +144,6 @@
 		<Unit filename="../Source/Controller/ControllerUtils.h" />
 		<Unit filename="../Source/Controller/CreateBrushTool.cpp" />
 		<Unit filename="../Source/Controller/CreateBrushTool.h" />
-		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.cpp" />
-		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.h" />
 		<Unit filename="../Source/Controller/CreateEntityTool.cpp" />
 		<Unit filename="../Source/Controller/CreateEntityTool.h" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.cpp" />
