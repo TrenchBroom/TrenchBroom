@@ -1,0 +1,909 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
+		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
+		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
+		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
+		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
+		48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954AF173BBBE800E293E5 /* MapFrame.cpp */; };
+		48B954B8173BBE0A00E293E5 /* MapDocumentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */; };
+		48B954B9173BBE0A00E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
+		48B954BA173BBE0A00E293E5 /* MapFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954AF173BBBE800E293E5 /* MapFrame.cpp */; };
+		48B954BD173BBF8600E293E5 /* libgtest_main.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B954BB173BBF8600E293E5 /* libgtest_main.a */; };
+		48B954BE173BBF8600E293E5 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B954BC173BBF8600E293E5 /* libgtest.a */; };
+		48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954BF173BC02000E293E5 /* RunAllTests.cpp */; };
+		48B954C2173BC84500E293E5 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
+		48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954C4173BCE5D00E293E5 /* Face.cpp */; };
+		48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954CA173BCFDC00E293E5 /* VecTest.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		483AE26616F8FDF00073686A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		48B64C5716CEC30D00ECA6C5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
+		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		484763D815E2BC5000095BC0 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		484763D915E2BC5000095BC0 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		484763DA15E2BC5000095BC0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
+		484763DF15E2BC5000095BC0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TrenchBroom-Prefix.pch"; sourceTree = "<group>"; };
+		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
+		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
+		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
+		48B954A7173BBB3000E293E5 /* MapDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocument.cpp; sourceTree = "<group>"; };
+		48B954A8173BBB3000E293E5 /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
+		48B954AF173BBBE800E293E5 /* MapFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapFrame.cpp; sourceTree = "<group>"; };
+		48B954B0173BBBE800E293E5 /* MapFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapFrame.h; sourceTree = "<group>"; };
+		48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocumentTest.cpp; sourceTree = "<group>"; };
+		48B954BB173BBF8600E293E5 /* libgtest_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest_main.a; path = ../lib/bin/osx/libgtest_main.a; sourceTree = "<group>"; };
+		48B954BC173BBF8600E293E5 /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = ../lib/bin/osx/libgtest.a; sourceTree = "<group>"; };
+		48B954BF173BC02000E293E5 /* RunAllTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RunAllTests.cpp; sourceTree = "<group>"; };
+		48B954C3173BCD7E00E293E5 /* StringUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
+		48B954C4173BCE5D00E293E5 /* Face.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Face.cpp; sourceTree = "<group>"; };
+		48B954C5173BCE5D00E293E5 /* Face.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Face.h; sourceTree = "<group>"; };
+		48B954C7173BCE9700E293E5 /* Vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec.h; sourceTree = "<group>"; };
+		48B954C8173BCEC200E293E5 /* MathUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
+		48B954C9173BCFA000E293E5 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
+		48B954CA173BCFDC00E293E5 /* VecTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTest.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		483AE26516F8FDF00073686A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				48B954BD173BBF8600E293E5 /* libgtest_main.a in Frameworks */,
+				48B954BE173BBF8600E293E5 /* libgtest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		484763CE15E2BC5000095BC0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		484763C615E2BC5000095BC0 = {
+			isa = PBXGroup;
+			children = (
+				48B954BB173BBF8600E293E5 /* libgtest_main.a */,
+				48B954BC173BBF8600E293E5 /* libgtest.a */,
+				48312B2715EABBD600607868 /* Icon.icns */,
+				484763DB15E2BC5000095BC0 /* Mac */,
+				484763D415E2BC5000095BC0 /* Frameworks */,
+				484763D215E2BC5000095BC0 /* Products */,
+				48B954B2173BBCAB00E293E5 /* Test */,
+				48B3D0B3173B0E330069E3CA /* Source */,
+			);
+			sourceTree = "<group>";
+		};
+		484763D215E2BC5000095BC0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				484763D115E2BC5000095BC0 /* TrenchBroom.app */,
+				483AE26816F8FDF00073686A /* TrenchBroom-Test */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		484763D415E2BC5000095BC0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				484763D515E2BC5000095BC0 /* Cocoa.framework */,
+				484763D715E2BC5000095BC0 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		484763D715E2BC5000095BC0 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				484763D815E2BC5000095BC0 /* AppKit.framework */,
+				484763D915E2BC5000095BC0 /* CoreData.framework */,
+				484763DA15E2BC5000095BC0 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		484763DB15E2BC5000095BC0 /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				484763DC15E2BC5000095BC0 /* Supporting Files */,
+			);
+			name = Mac;
+			path = TrenchBroom;
+			sourceTree = "<group>";
+		};
+		484763DC15E2BC5000095BC0 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				48819C4515EC108400BEA604 /* QuakePalette.lmp */,
+				484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */,
+				484763DE15E2BC5000095BC0 /* InfoPlist.strings */,
+				484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		48B3D0B3173B0E330069E3CA /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				48B954A6173BBB2400E293E5 /* Model */,
+				48B954AE173BBBD600E293E5 /* View */,
+				48B954C8173BCEC200E293E5 /* MathUtilities.h */,
+				48B954C3173BCD7E00E293E5 /* StringUtilities.h */,
+				48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */,
+				48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */,
+				48B954C7173BCE9700E293E5 /* Vec.h */,
+				48B954C9173BCFA000E293E5 /* VecMath.h */,
+			);
+			name = Source;
+			path = ../src;
+			sourceTree = "<group>";
+		};
+		48B954A6173BBB2400E293E5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				48B954C4173BCE5D00E293E5 /* Face.cpp */,
+				48B954C5173BCE5D00E293E5 /* Face.h */,
+				48B954A7173BBB3000E293E5 /* MapDocument.cpp */,
+				48B954A8173BBB3000E293E5 /* MapDocument.h */,
+			);
+			name = Model;
+			path = model;
+			sourceTree = "<group>";
+		};
+		48B954AE173BBBD600E293E5 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				48B954AF173BBBE800E293E5 /* MapFrame.cpp */,
+				48B954B0173BBBE800E293E5 /* MapFrame.h */,
+			);
+			name = View;
+			path = view;
+			sourceTree = "<group>";
+		};
+		48B954B2173BBCAB00E293E5 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				48B954B3173BBCAB00E293E5 /* Source */,
+			);
+			name = Test;
+			path = ../test;
+			sourceTree = "<group>";
+		};
+		48B954B3173BBCAB00E293E5 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				48B954B4173BBCC600E293E5 /* Model */,
+				48B954BF173BC02000E293E5 /* RunAllTests.cpp */,
+				48B954CA173BCFDC00E293E5 /* VecTest.cpp */,
+			);
+			name = Source;
+			path = src;
+			sourceTree = "<group>";
+		};
+		48B954B4173BBCC600E293E5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */,
+			);
+			name = Model;
+			path = model;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		483AE26716F8FDF00073686A /* TrenchBroom-Test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 483AE27116F8FDF00073686A /* Build configuration list for PBXNativeTarget "TrenchBroom-Test" */;
+			buildPhases = (
+				483AE26416F8FDF00073686A /* Sources */,
+				483AE26516F8FDF00073686A /* Frameworks */,
+				483AE26616F8FDF00073686A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "TrenchBroom-Test";
+			productName = "TrenchBroom-Test";
+			productReference = 483AE26816F8FDF00073686A /* TrenchBroom-Test */;
+			productType = "com.apple.product-type.tool";
+		};
+		484763D015E2BC5000095BC0 /* TrenchBroom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 484763EF15E2BC5000095BC0 /* Build configuration list for PBXNativeTarget "TrenchBroom" */;
+			buildPhases = (
+				4858930216D78EA30079E897 /* ShellScript */,
+				484763CD15E2BC5000095BC0 /* Sources */,
+				484763CE15E2BC5000095BC0 /* Frameworks */,
+				484763CF15E2BC5000095BC0 /* Resources */,
+				48B64C5716CEC30D00ECA6C5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TrenchBroom;
+			productName = TrenchBroom;
+			productReference = 484763D115E2BC5000095BC0 /* TrenchBroom.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		484763C815E2BC5000095BC0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Kristian Duske";
+			};
+			buildConfigurationList = 484763CB15E2BC5000095BC0 /* Build configuration list for PBXProject "TrenchBroom" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 484763C615E2BC5000095BC0;
+			productRefGroup = 484763D215E2BC5000095BC0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				484763D015E2BC5000095BC0 /* TrenchBroom */,
+				483AE26716F8FDF00073686A /* TrenchBroom-Test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		484763CF15E2BC5000095BC0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */,
+				48312B2815EABBD600607868 /* Icon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4858930216D78EA30079E897 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "version=$(<\"${PROJECT_DIR}/../src/version\")\nbuildPlist=\"${INFOPLIST_FILE}\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $version\" $buildPlist\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" $buildPlist\necho \"#define VERSIONSTR\" \"\\\"$version Build $buildNumber\\0\\\"\" > \"${PROJECT_DIR}/TrenchBroom/Version.h\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		483AE26416F8FDF00073686A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				48B954C2173BC84500E293E5 /* TrenchBroomApp.cpp in Sources */,
+				48B954B8173BBE0A00E293E5 /* MapDocumentTest.cpp in Sources */,
+				48B954B9173BBE0A00E293E5 /* MapDocument.cpp in Sources */,
+				48B954BA173BBE0A00E293E5 /* MapFrame.cpp in Sources */,
+				48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */,
+				48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */,
+				48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		484763CD15E2BC5000095BC0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */,
+				48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */,
+				48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		484763DE15E2BC5000095BC0 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				484763DF15E2BC5000095BC0 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		483AE26E16F8FDF00073686A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TESTING=1",
+					"DEBUG=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-DWXUSINGDLL",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-debug/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"-lwx_osx_cocoau_gl-2.9",
+					"-lwx_osx_cocoau_adv-2.9",
+					"-lwx_osx_cocoau_core-2.9",
+					"-lwx_baseu-2.9",
+					"-lz",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		483AE26F16F8FDF00073686A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-release/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		483AE27016F8FDF00073686A /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-release/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+			};
+			name = Profile;
+		};
+		484763ED15E2BC5000095BC0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		484763EE15E2BC5000095BC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		484763F015E2BC5000095BC0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-DWXUSINGDLL",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-debug/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"-lwx_osx_cocoau_gl-2.9",
+					"-lwx_osx_cocoau_adv-2.9",
+					"-lwx_osx_cocoau_core-2.9",
+					"-lwx_baseu-2.9",
+					"-lz",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		484763F115E2BC5000095BC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				LLVM_LTO = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-release/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		4883375616C1951400493DA2 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx10.6;
+			};
+			name = Profile;
+		};
+		4883375716C1951400493DA2 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../lib/include\"",
+				);
+				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../lib/bin/osx\"",
+				);
+				LLVM_LTO = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXMAC__",
+					"-D__WXOSX__",
+					"-D__WXOSX_COCOA__",
+				);
+				OTHER_LDFLAGS = (
+					"-L\"$(SRCROOT)/../lib/bin/osx\"",
+					"-L\"$(SRCROOT)/wxWidgets/build-release/lib\"",
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.6;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Profile;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		483AE27116F8FDF00073686A /* Build configuration list for PBXNativeTarget "TrenchBroom-Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				483AE26E16F8FDF00073686A /* Debug */,
+				483AE26F16F8FDF00073686A /* Release */,
+				483AE27016F8FDF00073686A /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		484763CB15E2BC5000095BC0 /* Build configuration list for PBXProject "TrenchBroom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				484763ED15E2BC5000095BC0 /* Debug */,
+				484763EE15E2BC5000095BC0 /* Release */,
+				4883375616C1951400493DA2 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		484763EF15E2BC5000095BC0 /* Build configuration list for PBXNativeTarget "TrenchBroom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				484763F015E2BC5000095BC0 /* Debug */,
+				484763F115E2BC5000095BC0 /* Release */,
+				4883375716C1951400493DA2 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 484763C815E2BC5000095BC0 /* Project object */;
+}
