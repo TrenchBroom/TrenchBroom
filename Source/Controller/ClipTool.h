@@ -112,6 +112,7 @@ namespace TrenchBroom {
             Vec3f selectNormal(const Vec3f::List& normals1, const Vec3f::List& normals2) const;
             void updateBrushes();
             Vec3f::List getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const;
+            bool isPointIdenticalWithExistingPoint(const Vec3f& point) const;
         protected:
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);

@@ -60,12 +60,12 @@ namespace TrenchBroom {
             assert(!normals1.empty());
             
             Vec3f sum;
-            // first, try to find two normals with the same first component
+            // first, try to find two normals with the same first axis
             for (size_t i = 0; i < normals1.size(); i++) {
                 const Vec3f& normal1 = normals1[i];
                 for (size_t j =  0; j < normals2.size(); j++) {
                     const Vec3f& normal2 = normals2[j];
-                    if (normal1.firstComponent() == normal2.firstComponent())
+                    if (normal1.firstAxis() == normal2.firstAxis())
                         return normal1;
                 }
                 sum += normal1;
@@ -212,6 +212,13 @@ namespace TrenchBroom {
                 normals.push_back(hitFace.boundary().normal);
             
             return normals;
+        }
+
+        bool ClipTool::isPointIdenticalWithExistingPoint(const Vec3f& point) const {
+            for (size_t i = 0; i < m_numPoints; i++)
+                if (m_points[i] == point)
+                    return true;
+            return false;
         }
 
         bool ClipTool::handleActivate(InputState& inputState) {
@@ -465,17 +472,20 @@ namespace TrenchBroom {
                 const Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
                 
                 Utility::Grid& grid = document().grid();
-                Vec3f point = grid.snap(hitPoint, plane);
-                m_points[m_hitIndex] = point;
+                const Vec3f point = grid.snap(hitPoint, plane);
+                if (!isPointIdenticalWithExistingPoint(point))
+                    m_points[m_hitIndex] = point;
             } else {
                 const Planef& plane = faceHit->face().boundary();
                 const Vec3f& hitPoint = faceHit->hitPoint();
                 
                 Utility::Grid& grid = document().grid();
-                Vec3f point = grid.snap(hitPoint, plane);
+                const Vec3f point = grid.snap(hitPoint, plane);
 
-                m_points[m_hitIndex] = point;
-                m_normals[m_hitIndex] = getNormals(point, faceHit->face());
+                if (!isPointIdenticalWithExistingPoint(point)) {
+                    m_points[m_hitIndex] = point;
+                    m_normals[m_hitIndex] = getNormals(point, faceHit->face());
+                }
             }
             
             updateBrushes();
