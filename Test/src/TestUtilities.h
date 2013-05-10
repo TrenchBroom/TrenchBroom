@@ -17,27 +17,11 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Face__
-#define __TrenchBroom__Face__
+#ifndef TrenchBroom_TestUtilities_h
+#define TrenchBroom_TestUtilities_h
 
-#include "VecMath.h"
+#include <gtest/gtest.h>
 
-#include <vector>
+#define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
 
-namespace TrenchBroom {
-    namespace Model {
-        class Face {
-        public:
-            typedef Vec3f FacePoints[3];
-            typedef std::vector<Face*> FaceList;
-        private:
-            FacePoints m_points;
-        public:
-            Face(const FacePoints& points);
-            
-            const FacePoints& facePoints();
-        };
-    }
-}
-
-#endif /* defined(__TrenchBroom__Face__) */
+#endif

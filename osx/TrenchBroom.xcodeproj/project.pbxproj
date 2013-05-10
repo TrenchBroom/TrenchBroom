@@ -22,6 +22,8 @@
 		48B954C2173BC84500E293E5 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954C4173BCE5D00E293E5 /* Face.cpp */; };
 		48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954CA173BCFDC00E293E5 /* VecTest.cpp */; };
+		48BA22CA173C325400B6DA64 /* FaceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22C8173C325400B6DA64 /* FaceTest.cpp */; };
+		48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,6 +76,10 @@
 		48B954C8173BCEC200E293E5 /* MathUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
 		48B954C9173BCFA000E293E5 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
 		48B954CA173BCFDC00E293E5 /* VecTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTest.cpp; sourceTree = "<group>"; };
+		48B9BC77173CF19F001F8E68 /* TestUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtilities.h; sourceTree = "<group>"; };
+		48BA22C8173C325400B6DA64 /* FaceTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceTest.cpp; sourceTree = "<group>"; };
+		48BA22CB173C454500B6DA64 /* Plane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
+		48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaneTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +171,7 @@
 				48B954A6173BBB2400E293E5 /* Model */,
 				48B954AE173BBBD600E293E5 /* View */,
 				48B954C8173BCEC200E293E5 /* MathUtilities.h */,
+				48BA22CB173C454500B6DA64 /* Plane.h */,
 				48B954C3173BCD7E00E293E5 /* StringUtilities.h */,
 				48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */,
 				48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */,
@@ -210,7 +217,9 @@
 			isa = PBXGroup;
 			children = (
 				48B954B4173BBCC600E293E5 /* Model */,
+				48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */,
 				48B954BF173BC02000E293E5 /* RunAllTests.cpp */,
+				48B9BC77173CF19F001F8E68 /* TestUtilities.h */,
 				48B954CA173BCFDC00E293E5 /* VecTest.cpp */,
 			);
 			name = Source;
@@ -220,6 +229,7 @@
 		48B954B4173BBCC600E293E5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48BA22C8173C325400B6DA64 /* FaceTest.cpp */,
 				48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */,
 			);
 			name = Model;
@@ -332,6 +342,8 @@
 				48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */,
 				48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */,
 				48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */,
+				48BA22CA173C325400B6DA64 /* FaceTest.cpp in Sources */,
+				48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

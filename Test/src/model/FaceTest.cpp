@@ -17,27 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Face__
-#define __TrenchBroom__Face__
-
-#include "VecMath.h"
-
-#include <vector>
+#include "Model/Face.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Face {
-        public:
-            typedef Vec3f FacePoints[3];
-            typedef std::vector<Face*> FaceList;
-        private:
-            FacePoints m_points;
-        public:
-            Face(const FacePoints& points);
-            
-            const FacePoints& facePoints();
-        };
     }
 }
-
-#endif /* defined(__TrenchBroom__Face__) */

@@ -436,14 +436,19 @@ public:
         return heap[S - k - 1];
     }
 
-    inline const Vec<T,S> majorAxis(const bool abs, const size_t k) const {
+    inline const Vec<T,S> majorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         Vec<T,S> a = axis(c);
-        if (!abs && v[c] < static_cast<T>(0.0))
+        if (v[c] < static_cast<T>(0.0))
             return -a;
         return a;
     }
 
+    inline const Vec<T,S> absMajorAxis(const size_t k) const {
+        const size_t c = majorComponent(k);
+        return axis(c);
+    }
+    
     inline size_t firstComponent() const {
         return majorComponent(0);
     }
@@ -456,16 +461,28 @@ public:
         return majorComponent(2);
     }
     
-    inline const Vec<T,3> firstAxis(const bool abs = false) const {
-        return majorAxis(abs, 0);
+    inline const Vec<T,3> firstAxis() const {
+        return majorAxis(0);
+    }
+            
+    inline const Vec<T,3> absFirstAxis() const {
+        return absMajorAxis(0);
     }
     
-    inline const Vec<T,3> secondAxis(const bool abs = false) const {
-        return majorAxis(abs, 1);
+    inline const Vec<T,3> secondAxis() const {
+        return majorAxis(1);
     }
     
-    inline const Vec<T,3> thirdAxis(const bool abs = false) const {
-        return majorAxis(abs, 2);
+    inline const Vec<T,3> absSecondAxis() const {
+        return absMajorAxis(1);
+    }
+    
+    inline const Vec<T,3> thirdAxis() const {
+        return majorAxis(2);
+    }
+    
+    inline const Vec<T,3> absThirdAxis() const {
+        return absMajorAxis(2);
     }
     
     void write(std::ostream& str) const {
@@ -564,7 +581,8 @@ inline const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
 }
 
 template <typename T>
-inline T angleFrom(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
+inline T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
+    // computes the CCW angle between axis and vector in relation to the given up vector
     // all vectors are expected to be normalized
     const T cos = vec.dot(axis);
     if (Math<T>::eq(cos, static_cast<T>(1.0)))

@@ -20,6 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "Vec.h"
+#include "MathUtilities.h"
+#include "TestUtilities.h"
 
 TEST(VecTest, ConstructVec3fFromValidString) {
     ASSERT_EQ(Vec3f(1.0f, 3.0f, 3.5f), Vec3f("1.0 3 3.5"));
@@ -191,19 +193,19 @@ TEST(VecTest, Vec3fDotNull) {
     ASSERT_FLOAT_EQ(0.0f, Vec3f(2.3f, 8.7878f, -2323.0f).dot(Vec3f::Null));
 }
 
-TEST(VecTest, Length) {
+TEST(VecTest, Vec3fLength) {
     ASSERT_FLOAT_EQ(0.0f, Vec3f::Null.length());
     ASSERT_FLOAT_EQ(1.0f, Vec3f::PosX.length());
     ASSERT_FLOAT_EQ(std::sqrt(5396411.51542884f), Vec3f(2.3f, 8.7878f, -2323.0f).length());
 }
 
-TEST(VecTest, LengthSquared) {
+TEST(VecTest, Vec3fLengthSquared) {
     ASSERT_FLOAT_EQ(0.0f, Vec3f::Null.squaredLength());
     ASSERT_FLOAT_EQ(1.0f, Vec3f::PosX.squaredLength());
     ASSERT_FLOAT_EQ(5396411.51542884f, Vec3f(2.3f, 8.7878f, -2323.0f).squaredLength());
 }
 
-TEST(VecTest, DistanceTo) {
+TEST(VecTest, Vec3fDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
     ASSERT_FLOAT_EQ(0.0f, v1.distanceTo(v1));
@@ -211,7 +213,7 @@ TEST(VecTest, DistanceTo) {
     ASSERT_FLOAT_EQ((v1 - v2).length(), v1.distanceTo(v2));
 }
 
-TEST(VecTest, SquaredDistanceTo) {
+TEST(VecTest, Vec3fSquaredDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
     ASSERT_FLOAT_EQ(0.0f, v1.squaredDistanceTo(v1));
@@ -219,23 +221,77 @@ TEST(VecTest, SquaredDistanceTo) {
     ASSERT_FLOAT_EQ((v1 - v2).squaredLength(), v1.squaredDistanceTo(v2));
 }
 
-TEST(VecTest, Normalize) {
+TEST(VecTest, Vec3fNormalize) {
     ASSERT_EQ(Vec3f::PosX, Vec3f::PosX.normalized());
     ASSERT_EQ(Vec3f::NegX, Vec3f::NegX.normalized());
     
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
-    ASSERT_TRUE((v1 / v1.length()).equals(v1.normalized()));
-    ASSERT_TRUE((v2 / v2.length()).equals(v2.normalized()));
+    ASSERT_VEC_EQ((v1 / v1.length()), v1.normalized());
+    ASSERT_VEC_EQ((v2 / v2.length()), v2.normalized());
 }
 
-TEST(VecTest, Null) {
+TEST(VecTest, Vec3fNull) {
     ASSERT_TRUE(Vec3f::Null.null());
     ASSERT_FALSE(Vec3f::PosX.null());
 }
 
-TEST(VecTest, ParallelTo) {
+TEST(VecTest, Vec3fParallelTo) {
     ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::PosX));
     ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::NegX));
     ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::PosY));
+    ASSERT_TRUE(Vec3f::PosZ.parallelTo(Vec3f(0.1f, -0.02f, 100.0f)));
 }
+
+TEST(VecTest, Vec3fMajorComponent) {
+    ASSERT_EQ(Axis::AX, Vec3f::PosX.majorComponent(0));
+    ASSERT_EQ(Axis::AX, Vec3f::NegX.majorComponent(0));
+    ASSERT_EQ(Axis::AY, Vec3f::PosY.majorComponent(0));
+    ASSERT_EQ(Axis::AY, Vec3f::NegY.majorComponent(0));
+    ASSERT_EQ(Axis::AZ, Vec3f::PosZ.majorComponent(0));
+    ASSERT_EQ(Axis::AZ, Vec3f::NegZ.majorComponent(0));
+    
+    ASSERT_EQ(Axis::AX, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(0));
+    ASSERT_EQ(Axis::AZ, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(1));
+    ASSERT_EQ(Axis::AY, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(2));
+}
+
+TEST(VecTest, Vec3fMajorAxis) {
+    ASSERT_EQ(Vec3f::PosX, Vec3f::PosX.majorAxis(0));
+    ASSERT_EQ(Vec3f::NegX, Vec3f::NegX.majorAxis(0));
+    ASSERT_EQ(Vec3f::PosY, Vec3f::PosY.majorAxis(0));
+    ASSERT_EQ(Vec3f::NegY, Vec3f::NegY.majorAxis(0));
+    ASSERT_EQ(Vec3f::PosZ, Vec3f::PosZ.majorAxis(0));
+    ASSERT_EQ(Vec3f::NegZ, Vec3f::NegZ.majorAxis(0));
+
+    ASSERT_EQ(Vec3f::PosX, Vec3f(3.0f, -1.0f, 2.0f).majorAxis(0));
+    ASSERT_EQ(Vec3f::PosZ, Vec3f(3.0f, -1.0f, 2.0f).majorAxis(1));
+    ASSERT_EQ(Vec3f::NegY, Vec3f(3.0f, -1.0f, 2.0f).majorAxis(2));
+}
+
+TEST(VecTest, Vec3fAbsMajorAxis) {
+    ASSERT_EQ(Vec3f::PosX, Vec3f::PosX.absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosX, Vec3f::NegX.absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosY, Vec3f::PosY.absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosY, Vec3f::NegY.absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosZ, Vec3f::PosZ.absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosZ, Vec3f::NegZ.absMajorAxis(0));
+    
+    ASSERT_EQ(Vec3f::PosX, Vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(0));
+    ASSERT_EQ(Vec3f::PosZ, Vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(1));
+    ASSERT_EQ(Vec3f::PosY, Vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(2));
+}
+
+TEST(VecTest, MultiplyScalarWithVec3f) {
+    ASSERT_EQ(       Vec3f(6.0f, 9.0f, 3.0f),
+              3.0f * Vec3f(2.0f, 3.0f, 1.0f));
+}
+
+TEST(VecTest, Vec3fCrossProduct) {
+    ASSERT_EQ(Vec3f::Null, crossed(Vec3f::Null, Vec3f::Null));
+    ASSERT_EQ(Vec3f::Null, crossed(Vec3f::Null, Vec3f(2.0f, 34.233f, -10003.0002f)));
+    ASSERT_EQ(Vec3f::PosZ, crossed(Vec3f::PosX, Vec3f::PosY));
+    ASSERT_VEC_EQ(Vec3f(-2735141.499f, 282853.508f, 421.138f), crossed(Vec3f(12.302f, -0.0017f, 79898.3f),
+                                                                       Vec3f(2.0f, 34.233f, -10003.0002f)));
+}
+
