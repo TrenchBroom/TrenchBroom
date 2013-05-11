@@ -17,13 +17,30 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_StringUtilities_h
-#define TrenchBroom_StringUtilities_h
+#ifndef TrenchBroom_FaceTypes_h
+#define TrenchBroom_FaceTypes_h
 
-#include <string>
-#include <sstream>
+#include "VecMath.h"
+#include "TrenchBroom.h"
+#include <vector>
 
-typedef std::string String;
-typedef std::stringstream StringStream;
+namespace TrenchBroom {
+    namespace Model {
+        class Face;
+        
+        /*
+         * The order of points, when looking from outside the face:
+         *
+         * 0-----------1
+         * |
+         * |
+         * |
+         * |
+         * 2
+         */
+        typedef Vec3 FacePoints[3];
+        typedef std::vector<Face*> FaceList;
+    }
+}
 
 #endif

@@ -20,8 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "Vec.h"
-#include "MathUtilities.h"
-#include "TestUtilities.h"
+#include "MathUtils.h"
+#include "TestUtils.h"
 
 TEST(VecTest, ConstructVec3fFromValidString) {
     ASSERT_EQ(Vec3f(1.0f, 3.0f, 3.5f), Vec3f("1.0 3 3.5"));

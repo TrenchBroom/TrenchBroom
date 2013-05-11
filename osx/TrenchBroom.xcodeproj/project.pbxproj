@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
+		48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
+		48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
+		48625D6A173ECDEA0059BE1F /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D68173ECDEA0059BE1F /* Object.cpp */; };
+		48625D6B173ECDEA0059BE1F /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D68173ECDEA0059BE1F /* Object.cpp */; };
+		48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */; };
+		48625D74173EE3F80059BE1F /* BrushTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D72173EE3F70059BE1F /* BrushTest.cpp */; };
 		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
 		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
@@ -58,6 +64,17 @@
 		484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		484763DF15E2BC5000095BC0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TrenchBroom-Prefix.pch"; sourceTree = "<group>"; };
+		48625D62173E67F30059BE1F /* TrenchBroom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrenchBroom.h; sourceTree = "<group>"; };
+		48625D63173E6A450059BE1F /* Exceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Exceptions.h; sourceTree = "<group>"; };
+		48625D64173ECDBD0059BE1F /* Brush.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Brush.cpp; sourceTree = "<group>"; };
+		48625D65173ECDBD0059BE1F /* Brush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Brush.h; sourceTree = "<group>"; };
+		48625D68173ECDEA0059BE1F /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
+		48625D69173ECDEA0059BE1F /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
+		48625D6C173ECEBD0059BE1F /* FaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceTypes.h; sourceTree = "<group>"; };
+		48625D6D173ECF4A0059BE1F /* CollectionUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectionUtils.h; sourceTree = "<group>"; };
+		48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollectionUtilsTest.cpp; sourceTree = "<group>"; };
+		48625D71173ED7E30059BE1F /* TemplateUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TemplateUtils.h; sourceTree = "<group>"; };
+		48625D72173EE3F70059BE1F /* BrushTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushTest.cpp; sourceTree = "<group>"; };
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
@@ -69,14 +86,14 @@
 		48B954BB173BBF8600E293E5 /* libgtest_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest_main.a; path = ../lib/bin/osx/libgtest_main.a; sourceTree = "<group>"; };
 		48B954BC173BBF8600E293E5 /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = ../lib/bin/osx/libgtest.a; sourceTree = "<group>"; };
 		48B954BF173BC02000E293E5 /* RunAllTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RunAllTests.cpp; sourceTree = "<group>"; };
-		48B954C3173BCD7E00E293E5 /* StringUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
+		48B954C3173BCD7E00E293E5 /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
 		48B954C4173BCE5D00E293E5 /* Face.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Face.cpp; sourceTree = "<group>"; };
 		48B954C5173BCE5D00E293E5 /* Face.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Face.h; sourceTree = "<group>"; };
 		48B954C7173BCE9700E293E5 /* Vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec.h; sourceTree = "<group>"; };
-		48B954C8173BCEC200E293E5 /* MathUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
+		48B954C8173BCEC200E293E5 /* MathUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MathUtils.h; sourceTree = "<group>"; };
 		48B954C9173BCFA000E293E5 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
 		48B954CA173BCFDC00E293E5 /* VecTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTest.cpp; sourceTree = "<group>"; };
-		48B9BC77173CF19F001F8E68 /* TestUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtilities.h; sourceTree = "<group>"; };
+		48B9BC77173CF19F001F8E68 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
 		48BA22C8173C325400B6DA64 /* FaceTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceTest.cpp; sourceTree = "<group>"; };
 		48BA22CB173C454500B6DA64 /* Plane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaneTest.cpp; sourceTree = "<group>"; };
@@ -170,9 +187,13 @@
 			children = (
 				48B954A6173BBB2400E293E5 /* Model */,
 				48B954AE173BBBD600E293E5 /* View */,
-				48B954C8173BCEC200E293E5 /* MathUtilities.h */,
+				48625D6D173ECF4A0059BE1F /* CollectionUtils.h */,
+				48625D63173E6A450059BE1F /* Exceptions.h */,
+				48B954C8173BCEC200E293E5 /* MathUtils.h */,
 				48BA22CB173C454500B6DA64 /* Plane.h */,
-				48B954C3173BCD7E00E293E5 /* StringUtilities.h */,
+				48B954C3173BCD7E00E293E5 /* StringUtils.h */,
+				48625D71173ED7E30059BE1F /* TemplateUtils.h */,
+				48625D62173E67F30059BE1F /* TrenchBroom.h */,
 				48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */,
 				48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */,
 				48B954C7173BCE9700E293E5 /* Vec.h */,
@@ -185,10 +206,15 @@
 		48B954A6173BBB2400E293E5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48625D64173ECDBD0059BE1F /* Brush.cpp */,
+				48625D65173ECDBD0059BE1F /* Brush.h */,
 				48B954C4173BCE5D00E293E5 /* Face.cpp */,
 				48B954C5173BCE5D00E293E5 /* Face.h */,
+				48625D6C173ECEBD0059BE1F /* FaceTypes.h */,
 				48B954A7173BBB3000E293E5 /* MapDocument.cpp */,
 				48B954A8173BBB3000E293E5 /* MapDocument.h */,
+				48625D68173ECDEA0059BE1F /* Object.cpp */,
+				48625D69173ECDEA0059BE1F /* Object.h */,
 			);
 			name = Model;
 			path = model;
@@ -217,9 +243,10 @@
 			isa = PBXGroup;
 			children = (
 				48B954B4173BBCC600E293E5 /* Model */,
+				48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */,
 				48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */,
 				48B954BF173BC02000E293E5 /* RunAllTests.cpp */,
-				48B9BC77173CF19F001F8E68 /* TestUtilities.h */,
+				48B9BC77173CF19F001F8E68 /* TestUtils.h */,
 				48B954CA173BCFDC00E293E5 /* VecTest.cpp */,
 			);
 			name = Source;
@@ -229,6 +256,7 @@
 		48B954B4173BBCC600E293E5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48625D72173EE3F70059BE1F /* BrushTest.cpp */,
 				48BA22C8173C325400B6DA64 /* FaceTest.cpp */,
 				48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */,
 			);
@@ -340,10 +368,14 @@
 				48B954B9173BBE0A00E293E5 /* MapDocument.cpp in Sources */,
 				48B954BA173BBE0A00E293E5 /* MapFrame.cpp in Sources */,
 				48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */,
-				48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */,
 				48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */,
 				48BA22CA173C325400B6DA64 /* FaceTest.cpp in Sources */,
 				48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */,
+				48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */,
+				48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */,
+				48625D6B173ECDEA0059BE1F /* Object.cpp in Sources */,
+				48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */,
+				48625D74173EE3F80059BE1F /* BrushTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +386,8 @@
 				48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */,
 				48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */,
 				48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */,
+				48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */,
+				48625D6A173ECDEA0059BE1F /* Object.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

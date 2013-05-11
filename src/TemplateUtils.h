@@ -17,33 +17,19 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef TrenchBroom_TemplateUtils_h
+#define TrenchBroom_TemplateUtils_h
 
-#include "StringUtils.h"
-
-namespace TrenchBroom {
-    namespace View {
-        class MapFrame;
-    }
+namespace TemplateUtils {
+    template <typename T>
+    struct IsPointer {
+        static const bool value = false;
+    };
     
-    namespace Model {
-        class MapDocument {
-        private:
-            View::MapFrame* m_frame;
-        public:
-            MapDocument();
-            ~MapDocument();
-            
-            void newDocument();
-            void openDocument(const String& path);
-            
-            View::MapFrame* getFrame() const;
-        private:
-            void createOrRaiseFrame();
-            void destroyFrame();
-        };
-    }
+    template <typename T>
+    struct IsPointer<T*> {
+        static const bool value = true;
+    };
 }
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif

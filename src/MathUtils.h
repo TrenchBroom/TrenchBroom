@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_Math_h
-#define TrenchBroom_Math_h
+#ifndef TrenchBroom_MathUtils_h
+#define TrenchBroom_MathUtils_h
 
 #include <algorithm>
 #include <cmath>

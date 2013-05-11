@@ -17,33 +17,13 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef TrenchBroom_StringUtils_h
+#define TrenchBroom_StringUtils_h
 
-#include "StringUtils.h"
+#include <string>
+#include <sstream>
 
-namespace TrenchBroom {
-    namespace View {
-        class MapFrame;
-    }
-    
-    namespace Model {
-        class MapDocument {
-        private:
-            View::MapFrame* m_frame;
-        public:
-            MapDocument();
-            ~MapDocument();
-            
-            void newDocument();
-            void openDocument(const String& path);
-            
-            View::MapFrame* getFrame() const;
-        private:
-            void createOrRaiseFrame();
-            void destroyFrame();
-        };
-    }
-}
+typedef std::string String;
+typedef std::stringstream StringStream;
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif

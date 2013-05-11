@@ -20,22 +20,41 @@
 #ifndef __TrenchBroom__Face__
 #define __TrenchBroom__Face__
 
+#include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/FaceTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Face {
-        public:
-            typedef Vec3f FacePoints[3];
-            typedef std::vector<Face*> FaceList;
         private:
             FacePoints m_points;
+            Plane3 m_boundary;
+            float m_xOffset;
+            float m_yOffset;
+            float m_rotation;
+            float m_xScale;
+            float m_yScale;
         public:
-            Face(const FacePoints& points);
+            Face(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             
-            const FacePoints& facePoints();
+            const FacePoints& points() const;
+            const Plane3& boundary() const;
+            
+            const float xOffset() const;
+            const float yOffset() const;
+            const float rotation() const;
+            const float xScale() const;
+            const float yScale() const;
+            void setXOffset(const float xOffset);
+            void setYOffset(const float yOffset);
+            void setRotation(const float rotation);
+            void setXScale(const float xScale);
+            void setYScale(const float yScale);
+        private:
+            void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };
     }
 }

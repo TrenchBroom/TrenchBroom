@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TestUtilities_h
-#define TrenchBroom_TestUtilities_h
+#ifndef TrenchBroom_TestUtils_h
+#define TrenchBroom_TestUtils_h
 
 #include <gtest/gtest.h>
 

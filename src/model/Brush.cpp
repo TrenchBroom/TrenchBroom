@@ -17,33 +17,22 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#include "Brush.h"
 
-#include "StringUtils.h"
+#include "CollectionUtils.h"
+#include "Model/Face.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MapFrame;
-    }
-    
     namespace Model {
-        class MapDocument {
-        private:
-            View::MapFrame* m_frame;
-        public:
-            MapDocument();
-            ~MapDocument();
-            
-            void newDocument();
-            void openDocument(const String& path);
-            
-            View::MapFrame* getFrame() const;
-        private:
-            void createOrRaiseFrame();
-            void destroyFrame();
-        };
+        Brush::Brush(const FaceList& faces) :
+        m_faces(faces) {}
+        
+        Brush::~Brush() {
+            VectorUtils::deleteAndClear(m_faces);
+        }
+
+        const FaceList& Brush::faces() const {
+            return m_faces;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__MapDocument__) */

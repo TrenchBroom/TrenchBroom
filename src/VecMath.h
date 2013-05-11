@@ -28,6 +28,7 @@
 #undef min
 #endif
 
+#include "Plane.h"
 #include "Vec.h"
 
 #endif

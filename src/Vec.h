@@ -20,8 +20,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_Vec_h
 #define TrenchBroom_Vec_h
 
-#include "MathUtilities.h"
-#include "StringUtilities.h"
+#include "MathUtils.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <cassert>

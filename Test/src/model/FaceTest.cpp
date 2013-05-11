@@ -17,9 +17,36 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gtest/gtest.h>
+
 #include "Model/Face.h"
+#include "Model/FaceTypes.h"
+#include "TrenchBroom.h"
+#include "Exceptions.h"
+#include "VecMath.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
+        TEST(FaceTest, ConstructWithValidPoints) {
+            const Vec3 point0(0.0,  0.0, 4.0);
+            const Vec3 point1(1.f,  0.0, 4.0);
+            const Vec3 point2(0.0, -1.0, 4.0);
+            
+            Face face(point0, point1, point2);
+            ASSERT_VEC_EQ(point0, face.points()[0]);
+            ASSERT_VEC_EQ(point1, face.points()[1]);
+            ASSERT_VEC_EQ(point2, face.points()[2]);
+            ASSERT_VEC_EQ(Vec3::PosZ, face.boundary().normal);
+            ASSERT_EQ(4.0, face.boundary().distance);
+        }
+        
+        TEST(FaceTest, ConstructWithColinearPoints) {
+            const Vec3 point0(0.0, 0.0, 4.0);
+            const Vec3 point1(1.f, 0.0, 4.0);
+            const Vec3 point2(2.0, 0.0, 4.0);
+            
+            ASSERT_THROW(Face face(point0, point1, point2), GeometryException);
+        }
     }
 }

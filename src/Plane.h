@@ -21,7 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #define TrenchBroom_Plane_h
 
 #include "Vec.h"
-#include "MathUtilities.h"
+#include "MathUtils.h"
 
 template <typename T, size_t S>
 class Plane {
@@ -152,6 +152,18 @@ public:
     }
 };
 
+template <typename T>
+inline bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3> (&points)[3]) {
+    const Vec<T,3> v1 = points[2] - points[0];
+    const Vec<T,3> v2 = points[1] - points[0];
+    const Vec<T,3> normal = crossed(v1, v2);
+    if (normal.equals(Vec<T,3>::Null, Math<T>::AlmostZero))
+        return false;
+    plane.normal = normal.normalized();
+    plane.distance = points[0].dot(plane.normal);
+    return true;
+}
+            
 template <typename T>
 inline const Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
     return Plane<T,3>(position, Vec<T,3>::PosZ);

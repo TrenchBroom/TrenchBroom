@@ -21,8 +21,8 @@
 
 #include "Vec.h"
 #include "Plane.h"
-#include "MathUtilities.h"
-#include "TestUtilities.h"
+#include "MathUtils.h"
+#include "TestUtils.h"
 
 TEST(PlaneTest, ConstructDefault) {
     const Plane3f p;
@@ -135,6 +135,23 @@ TEST(PlaneTest, Rotated) {
 
 TEST(PlaneTest, Project) {
     ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 0.0f), Plane3f(0.0f, Vec3f::PosZ).project(Vec3f(1.0f, 2.0f, 3.0f)));
+}
+
+TEST(PlaneTest, SetPlanePoints) {
+    Plane3f plane;
+    Vec3f points[3];
+
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[2] = Vec3f(0.0f, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, 1.0f, 0.0f);
+    points[2] = Vec3f(1.0f, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
 }
 
 TEST(PlaneTest, HorizontalDragPlane) {

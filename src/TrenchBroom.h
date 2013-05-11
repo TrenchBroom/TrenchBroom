@@ -17,33 +17,13 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef TrenchBroom_TrenchBroom_h
+#define TrenchBroom_TrenchBroom_h
 
-#include "StringUtils.h"
+#include "VecMath.h"
 
-namespace TrenchBroom {
-    namespace View {
-        class MapFrame;
-    }
-    
-    namespace Model {
-        class MapDocument {
-        private:
-            View::MapFrame* m_frame;
-        public:
-            MapDocument();
-            ~MapDocument();
-            
-            void newDocument();
-            void openDocument(const String& path);
-            
-            View::MapFrame* getFrame() const;
-        private:
-            void createOrRaiseFrame();
-            void destroyFrame();
-        };
-    }
-}
+typedef double FloatPrecision;
+typedef Vec<FloatPrecision, 3> Vec3;
+typedef Plane<FloatPrecision, 3> Plane3;
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif
