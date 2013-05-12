@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class MapFrame : public wxFrame {
         public:
             MapFrame();
+            ~MapFrame();
             
             DECLARE_DYNAMIC_CLASS(MapFrame)
         };

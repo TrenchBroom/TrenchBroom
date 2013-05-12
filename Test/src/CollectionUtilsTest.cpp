@@ -38,7 +38,7 @@ public:
     }
 };
 
-TEST(CollectionUtilsTest, VecDeleteandErase1InRange) {
+TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {
     typedef std::vector<TestObject*> TestVec;
 
     static const size_t count = 3;
@@ -47,15 +47,15 @@ TEST(CollectionUtilsTest, VecDeleteandErase1InRange) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::deleteAndErase(vec, vec.begin() + 1, vec.end() - 1);
+    VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
     ASSERT_EQ(2, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
     ASSERT_FALSE(deleted[2]);
-    VectorUtils::deleteAndClear(vec);
+    VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecDeleteAndErase2InRange) {
+TEST(CollectionUtilsTest, VecEraseAndDelete2InRange) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -64,16 +64,16 @@ TEST(CollectionUtilsTest, VecDeleteAndErase2InRange) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::deleteAndErase(vec, vec.begin() + 1, vec.end() - 1);
+    VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
     ASSERT_EQ(2, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
     ASSERT_TRUE(deleted[2]);
     ASSERT_FALSE(deleted[3]);
-    VectorUtils::deleteAndClear(vec);
+    VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecDeleteAndEraseAllFrom) {
+TEST(CollectionUtilsTest, VecEraseAndDeleteAllFrom) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -82,16 +82,16 @@ TEST(CollectionUtilsTest, VecDeleteAndEraseAllFrom) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::deleteAndErase(vec, vec.begin() + 2);
+    VectorUtils::eraseAndDelete(vec, vec.begin() + 2);
     ASSERT_EQ(2, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_FALSE(deleted[1]);
     ASSERT_TRUE(deleted[2]);
     ASSERT_TRUE(deleted[3]);
-    VectorUtils::deleteAndClear(vec);
+    VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecDeleteAndClear) {
+TEST(CollectionUtilsTest, VecClearAndDelete) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -100,10 +100,40 @@ TEST(CollectionUtilsTest, VecDeleteAndClear) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::deleteAndClear(vec);
+    VectorUtils::clearAndDelete(vec);
     ASSERT_TRUE(vec.empty());
     for (size_t i = 0; i < count; i++)
         ASSERT_TRUE(deleted[i]);
+}
+
+TEST(CollectionUtilsTest, VecRemove) {
+    typedef std::vector<TestObject*> TestVec;
+    
+    static const size_t count = 4;
+    TestVec vec;
+    bool deleted[count];
+    for (size_t i = 0; i < count; i++)
+        vec.push_back(new TestObject(deleted[i]));
+    
+    VectorUtils::remove(vec, vec[2]);
+    ASSERT_EQ(count - 1, vec.size());
+    ASSERT_FALSE(deleted[2]);
+    VectorUtils::clearAndDelete(vec);
+}
+
+TEST(CollectionUtilsTest, VecRemoveAndDelete) {
+    typedef std::vector<TestObject*> TestVec;
+    
+    static const size_t count = 4;
+    TestVec vec;
+    bool deleted[count];
+    for (size_t i = 0; i < count; i++)
+        vec.push_back(new TestObject(deleted[i]));
+    
+    VectorUtils::removeAndDelete(vec, vec[2]);
+    ASSERT_EQ(count - 1, vec.size());
+    ASSERT_TRUE(deleted[2]);
+    VectorUtils::clearAndDelete(vec);
 }
 
 TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
@@ -143,10 +173,10 @@ TEST(CollectionUtilsTest, MapInsertOrReplacePointer) {
     ASSERT_EQ(value2, testMap[key]);
     ASSERT_TRUE(deleted1);
     
-    MapUtils::deleteAndClear(testMap);
+    MapUtils::clearAndDelete(testMap);
 }
 
-TEST(CollectionUtilsTest, MapDeleteAndClear) {
+TEST(CollectionUtilsTest, MapClearAndDelete) {
     typedef std::map<std::string, TestObject*> TestMap;
     
     TestMap testMap;
@@ -155,7 +185,7 @@ TEST(CollectionUtilsTest, MapDeleteAndClear) {
     testMap["k1"] = new TestObject(deleted1);
     testMap["k2"] = new TestObject(deleted2);
     
-    MapUtils::deleteAndClear(testMap);
+    MapUtils::clearAndDelete(testMap);
     ASSERT_TRUE(deleted1);
     ASSERT_TRUE(deleted2);
 }

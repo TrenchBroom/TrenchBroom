@@ -17,15 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFrame.h"
+#ifndef __TrenchBroom__Map__
+#define __TrenchBroom__Map__
+
+#include "Model/EntityTypes.h"
 
 namespace TrenchBroom {
-    namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
-
-        MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")) {}
-
-        MapFrame::~MapFrame() {}
+    namespace Model {
+        class Map {
+        private:
+            EntityList m_entities;
+            Entity* m_worldspawn;
+        public:
+            Map();
+            ~Map();
+            
+            const EntityList& entities() const;
+            void addEntity(Entity& entity);
+            
+            Entity& createOrGetWorldspawn();
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__Map__) */

@@ -40,6 +40,7 @@ namespace TrenchBroom {
          */
         typedef Vec3 FacePoints[3];
         typedef std::vector<Face*> FaceList;
+        static const FaceList EmptyFaceList;
     }
 }
 

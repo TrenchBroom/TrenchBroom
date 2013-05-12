@@ -50,6 +50,12 @@ namespace TrenchBroom {
         GeometryException() throw() {}
         ~GeometryException() throw() {}
     };
+            
+    class EntityPropertyException : public Exception {
+    public:
+        EntityPropertyException() throw() {}
+        ~EntityPropertyException() throw() {}
+    };
 }
 
 #endif

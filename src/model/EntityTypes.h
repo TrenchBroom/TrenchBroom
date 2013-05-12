@@ -17,15 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFrame.h"
+#ifndef TrenchBroom_EntityTypes_h
+#define TrenchBroom_EntityTypes_h
+
+#include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
-
-        MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")) {}
-
-        MapFrame::~MapFrame() {}
+    namespace Model {
+        class Entity;
+        
+        typedef std::vector<Entity*> EntityList;
+        static const EntityList EmptyEntityList;
     }
 }
+
+#endif

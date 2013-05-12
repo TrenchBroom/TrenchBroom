@@ -34,20 +34,31 @@ namespace VectorUtils {
     };
 
     template <typename T>
-    inline void deleteAndErase(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
+    inline void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
         std::for_each(first, last, Deleter<T>());
         vec.erase(first, last);
     }
     
     template <typename T>
-    inline void deleteAndErase(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
-        deleteAndErase(vec, first, vec.end());
+    inline void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
+        eraseAndDelete(vec, first, vec.end());
     }
     
     template <typename T>
-    inline void deleteAndClear(std::vector<T*>& vec) {
+    inline void clearAndDelete(std::vector<T*>& vec) {
         std::for_each(vec.begin(), vec.end(), Deleter<T>());
         vec.clear();
+    }
+    
+    template <typename T>
+    inline void remove(std::vector<T*>& vec, const T* item) {
+        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+    }
+
+    template <typename T>
+    inline void removeAndDelete(std::vector<T*>& vec, const T* item) {
+        remove(vec, item);
+        delete item;
     }
 }
 
@@ -92,7 +103,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    inline void deleteAndClear(std::map<K, V*>& map) {
+    inline void clearAndDelete(std::map<K, V*>& map) {
         std::for_each(map.begin(), map.end(), Deleter<K,V>());
         map.clear();
     }

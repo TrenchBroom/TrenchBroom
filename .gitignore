@@ -1,42 +1,16 @@
-Thumbs.db
-*.suo
+/eclipse/Debug
 
-/Windows/TrenchBroom/bin
-/Windows/TrenchBroom/obj
-/Windows/TrenchBroom/wx_pch.h.gch
+/linux/bin
+/linux/obj
+/linux/TrenchBroom.depend
+/linux/TrenchBroom.layout
 
-/Windows/Debug
-/Windows/Release
-/Windows/TrenchBroom/Debug
-/Windows/TrenchBroom/Release
-/Windows/TrenchBroom.sdf
-/Windows/TrenchBroom.opensdf
-/Windows/TrenchBroom/TrenchBroom.aps
-/Windows/ipch
-
-/Windows/x64
-/Windows/TrenchBroom/x64
-
-
-/Linux/bin/*
-/Linux/bin/**/*
-/Linux/obj/*
-/Linux/obj/**/*
-/Linux/TrenchBroom.depend
-/Linux/TrenchBroom.layout
-/Linux/TrenchBroom.layout.cbTemp
-/Linux/Version.h
-
-.DS_Store
 xcuserdata
 
-/Mac/build/
-/Mac/wxWidgets
+/windows/Debug
+/windows/Release
+/windows/TrenchBroom/Debug
+/windows/TrenchBroom/Release
+*.suo
 
-/Windows/enc_temp_folder/
-/Mac/TrenchBroom/Version.h
-/Windows/TrenchBroom/Version.h
-
-Resources/Help/Documentation/images/dev
-
-/Release/
+Version.h

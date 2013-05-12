@@ -17,15 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFrame.h"
+#ifndef TrenchBroom_BrushTypes_h
+#define TrenchBroom_BrushTypes_h
+
+#include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
-
-        MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")) {}
-
-        MapFrame::~MapFrame() {}
+    namespace Model {
+        class Brush;
+        
+        typedef std::vector<Brush*> BrushList;
+        static const BrushList EmptyBrushList;
     }
 }
+
+#endif

@@ -28,7 +28,7 @@ namespace TrenchBroom {
         m_faces(faces) {}
         
         Brush::~Brush() {
-            VectorUtils::deleteAndClear(m_faces);
+            VectorUtils::clearAndDelete(m_faces);
         }
 
         const FaceList& Brush::faces() const {

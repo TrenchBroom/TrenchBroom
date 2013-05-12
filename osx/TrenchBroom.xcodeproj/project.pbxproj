@@ -16,6 +16,17 @@
 		48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */; };
 		48625D74173EE3F80059BE1F /* BrushTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D72173EE3F70059BE1F /* BrushTest.cpp */; };
 		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
+		487B46BD173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
+		487B46BE173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
+		487B46C2173FCA87005E51F4 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46C0173FCA87005E51F4 /* EntityTest.cpp */; };
+		487B46C91740058C005E51F4 /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46C71740058C005E51F4 /* Map.cpp */; };
+		487B46CA1740058C005E51F4 /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46C71740058C005E51F4 /* Map.cpp */; };
+		487B46CD174005FE005E51F4 /* MapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46CB174005FE005E51F4 /* MapTest.cpp */; };
+		487B46D01740079D005E51F4 /* EntityProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46CE1740079D005E51F4 /* EntityProperties.cpp */; };
+		487B46D11740079D005E51F4 /* EntityProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46CE1740079D005E51F4 /* EntityProperties.cpp */; };
+		487B46D51740084A005E51F4 /* EntityPropertiesTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */; };
+		487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
+		487B46D817402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
 		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
 		48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954AF173BBBE800E293E5 /* MapFrame.cpp */; };
@@ -75,6 +86,19 @@
 		48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollectionUtilsTest.cpp; sourceTree = "<group>"; };
 		48625D71173ED7E30059BE1F /* TemplateUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TemplateUtils.h; sourceTree = "<group>"; };
 		48625D72173EE3F70059BE1F /* BrushTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushTest.cpp; sourceTree = "<group>"; };
+		487B46BB173FC995005E51F4 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
+		487B46BC173FC995005E51F4 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
+		487B46BF173FC9A9005E51F4 /* BrushTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushTypes.h; sourceTree = "<group>"; };
+		487B46C0173FCA87005E51F4 /* EntityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityTest.cpp; sourceTree = "<group>"; };
+		487B46C617400554005E51F4 /* EntityTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityTypes.h; sourceTree = "<group>"; };
+		487B46C71740058C005E51F4 /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
+		487B46C81740058C005E51F4 /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		487B46CB174005FE005E51F4 /* MapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapTest.cpp; sourceTree = "<group>"; };
+		487B46CE1740079D005E51F4 /* EntityProperties.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityProperties.cpp; sourceTree = "<group>"; };
+		487B46CF1740079D005E51F4 /* EntityProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityProperties.h; sourceTree = "<group>"; };
+		487B46D2174007B4005E51F4 /* EntityPropertyTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTypes.h; sourceTree = "<group>"; };
+		487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertiesTest.cpp; sourceTree = "<group>"; };
+		487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTypes.cpp; sourceTree = "<group>"; };
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
@@ -208,9 +232,19 @@
 			children = (
 				48625D64173ECDBD0059BE1F /* Brush.cpp */,
 				48625D65173ECDBD0059BE1F /* Brush.h */,
+				487B46BF173FC9A9005E51F4 /* BrushTypes.h */,
+				487B46BB173FC995005E51F4 /* Entity.cpp */,
+				487B46BC173FC995005E51F4 /* Entity.h */,
+				487B46CE1740079D005E51F4 /* EntityProperties.cpp */,
+				487B46CF1740079D005E51F4 /* EntityProperties.h */,
+				487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */,
+				487B46D2174007B4005E51F4 /* EntityPropertyTypes.h */,
+				487B46C617400554005E51F4 /* EntityTypes.h */,
 				48B954C4173BCE5D00E293E5 /* Face.cpp */,
 				48B954C5173BCE5D00E293E5 /* Face.h */,
 				48625D6C173ECEBD0059BE1F /* FaceTypes.h */,
+				487B46C71740058C005E51F4 /* Map.cpp */,
+				487B46C81740058C005E51F4 /* Map.h */,
 				48B954A7173BBB3000E293E5 /* MapDocument.cpp */,
 				48B954A8173BBB3000E293E5 /* MapDocument.h */,
 				48625D68173ECDEA0059BE1F /* Object.cpp */,
@@ -257,8 +291,11 @@
 			isa = PBXGroup;
 			children = (
 				48625D72173EE3F70059BE1F /* BrushTest.cpp */,
+				487B46C0173FCA87005E51F4 /* EntityTest.cpp */,
+				487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */,
 				48BA22C8173C325400B6DA64 /* FaceTest.cpp */,
 				48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */,
+				487B46CB174005FE005E51F4 /* MapTest.cpp */,
 			);
 			name = Model;
 			path = model;
@@ -376,6 +413,13 @@
 				48625D6B173ECDEA0059BE1F /* Object.cpp in Sources */,
 				48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */,
 				48625D74173EE3F80059BE1F /* BrushTest.cpp in Sources */,
+				487B46BE173FC995005E51F4 /* Entity.cpp in Sources */,
+				487B46C2173FCA87005E51F4 /* EntityTest.cpp in Sources */,
+				487B46CA1740058C005E51F4 /* Map.cpp in Sources */,
+				487B46CD174005FE005E51F4 /* MapTest.cpp in Sources */,
+				487B46D11740079D005E51F4 /* EntityProperties.cpp in Sources */,
+				487B46D51740084A005E51F4 /* EntityPropertiesTest.cpp in Sources */,
+				487B46D817402848005E51F4 /* EntityPropertyTypes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,6 +432,10 @@
 				48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */,
 				48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */,
 				48625D6A173ECDEA0059BE1F /* Object.cpp in Sources */,
+				487B46BD173FC995005E51F4 /* Entity.cpp in Sources */,
+				487B46C91740058C005E51F4 /* Map.cpp in Sources */,
+				487B46D01740079D005E51F4 /* EntityProperties.cpp in Sources */,
+				487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
