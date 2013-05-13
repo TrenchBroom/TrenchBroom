@@ -17,65 +17,69 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Face.h"
+#include "BrushFace.h"
 
 #include "Exceptions.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Face::Face(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             setPoints(point0, point1, point2);
         }
         
-        const FacePoints& Face::points() const {
+        const BrushFacePoints& BrushFace::points() const {
             return m_points;
         }
         
-        const Plane3& Face::boundary() const {
+        const Plane3& BrushFace::boundary() const {
             return m_boundary;
         }
 
-        const float Face::xOffset() const {
+        const float BrushFace::xOffset() const {
             return m_xOffset;
         }
         
-        const float Face::yOffset() const {
+        const float BrushFace::yOffset() const {
             return m_yOffset;
         }
         
-        const float Face::rotation() const {
+        const float BrushFace::rotation() const {
             return m_rotation;
         }
         
-        const float Face::xScale() const {
+        const float BrushFace::xScale() const {
             return m_xScale;
         }
         
-        const float Face::yScale() const {
+        const float BrushFace::yScale() const {
             return m_yScale;
         }
         
-        void Face::setXOffset(const float xOffset) {
+        void BrushFace::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
         }
         
-        void Face::setYOffset(const float yOffset) {
+        void BrushFace::setYOffset(const float yOffset) {
             m_yOffset = yOffset;
         }
         
-        void Face::setRotation(const float rotation) {
+        void BrushFace::setRotation(const float rotation) {
             m_rotation = rotation;
         }
         
-        void Face::setXScale(const float xScale) {
+        void BrushFace::setXScale(const float xScale) {
             m_xScale = xScale;
         }
         
-        void Face::setYScale(const float yScale) {
+        void BrushFace::setYScale(const float yScale) {
             m_yScale = yScale;
         }
 
-        void Face::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+        void BrushFace::setEdges(const BrushEdgeList& edges) {
+            m_edges = edges;
+        }
+
+        void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;

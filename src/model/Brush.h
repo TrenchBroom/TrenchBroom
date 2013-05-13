@@ -20,7 +20,10 @@
 #ifndef __TrenchBroom__Brush__
 #define __TrenchBroom__Brush__
 
-#include "Model/FaceTypes.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushTypes.h"
+#include "Model/BrushFaceTypes.h"
 #include "Model/Object.h"
 
 #include <vector>
@@ -29,12 +32,17 @@ namespace TrenchBroom {
     namespace Model {
         class Brush : public Object {
         private:
-            FaceList m_faces;
+            BrushFaceList m_faces;
+            BrushVertexList m_vertices;
+            BrushEdgeList m_edges;
         public:
-            Brush(const FaceList& faces);
+            Brush(const BrushFaceList& faces);
             ~Brush();
             
-            const FaceList& faces() const;
+            const BrushFaceList& faces() const;
+        private:
+            void buildGeometry(const BBox3& bounds);
+            void clearAndDeleteGeometry();
         };
     }
 }

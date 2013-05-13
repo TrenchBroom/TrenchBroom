@@ -17,29 +17,19 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
+#include <gtest/gtest.h>
 
-#include "Model/EntityTypes.h"
+#include "Model/BrushVertex.h"
+#include "VecMath.h"
+
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Map {
-        private:
-            EntityList m_entities;
-            Entity* m_worldspawn;
-        public:
-            Map();
-            ~Map();
-            
-            const EntityList& entities() const;
-            void addEntity(Entity& entity);
-            
-            Entity* worldspawn();
-        private:
-            Entity* findWorldspawn() const;
-        };
+        TEST(BrushVertexTest, ConstructWithPosition) {
+            Vec3 position(1.0f, 2.0f, 3.0f);
+            BrushVertex vertex(position);
+            ASSERT_EQ(position, vertex.position());
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__Map__) */

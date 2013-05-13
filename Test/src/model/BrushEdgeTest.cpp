@@ -17,29 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
+#include <gtest/gtest.h>
 
-#include "Model/EntityTypes.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushEdge.h"
+#include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Map {
-        private:
-            EntityList m_entities;
-            Entity* m_worldspawn;
-        public:
-            Map();
-            ~Map();
+        TEST(BrushEdgeTest, ConstructWithStartAndEnd) {
+            BrushVertex* start = new BrushVertex(Vec3::Null);
+            BrushVertex* end = new BrushVertex(Vec3::Null);
+            BrushEdge edge(start, end);
             
-            const EntityList& entities() const;
-            void addEntity(Entity& entity);
+            ASSERT_EQ(start, edge.start());
+            ASSERT_EQ(end, edge.end());
             
-            Entity* worldspawn();
-        private:
-            Entity* findWorldspawn() const;
-        };
+            delete start;
+            delete end;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__Map__) */

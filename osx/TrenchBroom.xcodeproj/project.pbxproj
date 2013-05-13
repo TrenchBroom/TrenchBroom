@@ -37,9 +37,16 @@
 		48B954BE173BBF8600E293E5 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B954BC173BBF8600E293E5 /* libgtest.a */; };
 		48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954BF173BC02000E293E5 /* RunAllTests.cpp */; };
 		48B954C2173BC84500E293E5 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
-		48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954C4173BCE5D00E293E5 /* Face.cpp */; };
+		48B954C6173BCE5D00E293E5 /* BrushFace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954C4173BCE5D00E293E5 /* BrushFace.cpp */; };
 		48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954CA173BCFDC00E293E5 /* VecTest.cpp */; };
-		48BA22CA173C325400B6DA64 /* FaceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22C8173C325400B6DA64 /* FaceTest.cpp */; };
+		48B9DAB81741768C009B952A /* BrushVertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DAB61741768C009B952A /* BrushVertex.cpp */; };
+		48B9DAB91741768C009B952A /* BrushVertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DAB61741768C009B952A /* BrushVertex.cpp */; };
+		48B9DABC17417785009B952A /* BrushVertexTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DABA17417785009B952A /* BrushVertexTest.cpp */; };
+		48B9DABF174177FB009B952A /* BrushEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DABD174177FB009B952A /* BrushEdge.cpp */; };
+		48B9DAC0174177FB009B952A /* BrushEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DABD174177FB009B952A /* BrushEdge.cpp */; };
+		48B9DAC3174178F3009B952A /* BrushEdgeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DAC1174178F3009B952A /* BrushEdgeTest.cpp */; };
+		48B9DACF1741841C009B952A /* BBoxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DACD1741841C009B952A /* BBoxTest.cpp */; };
+		48BA22CA173C325400B6DA64 /* BrushFaceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */; };
 		48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */; };
 /* End PBXBuildFile section */
 
@@ -81,7 +88,7 @@
 		48625D65173ECDBD0059BE1F /* Brush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Brush.h; sourceTree = "<group>"; };
 		48625D68173ECDEA0059BE1F /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		48625D69173ECDEA0059BE1F /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
-		48625D6C173ECEBD0059BE1F /* FaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceTypes.h; sourceTree = "<group>"; };
+		48625D6C173ECEBD0059BE1F /* BrushFaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushFaceTypes.h; sourceTree = "<group>"; };
 		48625D6D173ECF4A0059BE1F /* CollectionUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectionUtils.h; sourceTree = "<group>"; };
 		48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollectionUtilsTest.cpp; sourceTree = "<group>"; };
 		48625D71173ED7E30059BE1F /* TemplateUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TemplateUtils.h; sourceTree = "<group>"; };
@@ -111,14 +118,22 @@
 		48B954BC173BBF8600E293E5 /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = ../lib/bin/osx/libgtest.a; sourceTree = "<group>"; };
 		48B954BF173BC02000E293E5 /* RunAllTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RunAllTests.cpp; sourceTree = "<group>"; };
 		48B954C3173BCD7E00E293E5 /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
-		48B954C4173BCE5D00E293E5 /* Face.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Face.cpp; sourceTree = "<group>"; };
-		48B954C5173BCE5D00E293E5 /* Face.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Face.h; sourceTree = "<group>"; };
+		48B954C4173BCE5D00E293E5 /* BrushFace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFace.cpp; sourceTree = "<group>"; };
+		48B954C5173BCE5D00E293E5 /* BrushFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFace.h; sourceTree = "<group>"; };
 		48B954C7173BCE9700E293E5 /* Vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec.h; sourceTree = "<group>"; };
 		48B954C8173BCEC200E293E5 /* MathUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MathUtils.h; sourceTree = "<group>"; };
 		48B954C9173BCFA000E293E5 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
 		48B954CA173BCFDC00E293E5 /* VecTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTest.cpp; sourceTree = "<group>"; };
 		48B9BC77173CF19F001F8E68 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
-		48BA22C8173C325400B6DA64 /* FaceTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceTest.cpp; sourceTree = "<group>"; };
+		48B9DAB61741768C009B952A /* BrushVertex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushVertex.cpp; sourceTree = "<group>"; };
+		48B9DAB71741768C009B952A /* BrushVertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushVertex.h; sourceTree = "<group>"; };
+		48B9DABA17417785009B952A /* BrushVertexTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushVertexTest.cpp; sourceTree = "<group>"; };
+		48B9DABD174177FB009B952A /* BrushEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushEdge.cpp; sourceTree = "<group>"; };
+		48B9DABE174177FB009B952A /* BrushEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushEdge.h; sourceTree = "<group>"; };
+		48B9DAC1174178F3009B952A /* BrushEdgeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushEdgeTest.cpp; sourceTree = "<group>"; };
+		48B9DACC17418071009B952A /* BBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBox.h; sourceTree = "<group>"; };
+		48B9DACD1741841C009B952A /* BBoxTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BBoxTest.cpp; sourceTree = "<group>"; };
+		48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceTest.cpp; sourceTree = "<group>"; };
 		48BA22CB173C454500B6DA64 /* Plane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaneTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -211,6 +226,7 @@
 			children = (
 				48B954A6173BBB2400E293E5 /* Model */,
 				48B954AE173BBBD600E293E5 /* View */,
+				48B9DACC17418071009B952A /* BBox.h */,
 				48625D6D173ECF4A0059BE1F /* CollectionUtils.h */,
 				48625D63173E6A450059BE1F /* Exceptions.h */,
 				48B954C8173BCEC200E293E5 /* MathUtils.h */,
@@ -233,6 +249,13 @@
 				48625D64173ECDBD0059BE1F /* Brush.cpp */,
 				48625D65173ECDBD0059BE1F /* Brush.h */,
 				487B46BF173FC9A9005E51F4 /* BrushTypes.h */,
+				48B9DABD174177FB009B952A /* BrushEdge.cpp */,
+				48B9DABE174177FB009B952A /* BrushEdge.h */,
+				48B954C4173BCE5D00E293E5 /* BrushFace.cpp */,
+				48B954C5173BCE5D00E293E5 /* BrushFace.h */,
+				48625D6C173ECEBD0059BE1F /* BrushFaceTypes.h */,
+				48B9DAB61741768C009B952A /* BrushVertex.cpp */,
+				48B9DAB71741768C009B952A /* BrushVertex.h */,
 				487B46BB173FC995005E51F4 /* Entity.cpp */,
 				487B46BC173FC995005E51F4 /* Entity.h */,
 				487B46CE1740079D005E51F4 /* EntityProperties.cpp */,
@@ -240,9 +263,6 @@
 				487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */,
 				487B46D2174007B4005E51F4 /* EntityPropertyTypes.h */,
 				487B46C617400554005E51F4 /* EntityTypes.h */,
-				48B954C4173BCE5D00E293E5 /* Face.cpp */,
-				48B954C5173BCE5D00E293E5 /* Face.h */,
-				48625D6C173ECEBD0059BE1F /* FaceTypes.h */,
 				487B46C71740058C005E51F4 /* Map.cpp */,
 				487B46C81740058C005E51F4 /* Map.h */,
 				48B954A7173BBB3000E293E5 /* MapDocument.cpp */,
@@ -277,6 +297,7 @@
 			isa = PBXGroup;
 			children = (
 				48B954B4173BBCC600E293E5 /* Model */,
+				48B9DACD1741841C009B952A /* BBoxTest.cpp */,
 				48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */,
 				48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */,
 				48B954BF173BC02000E293E5 /* RunAllTests.cpp */,
@@ -291,9 +312,11 @@
 			isa = PBXGroup;
 			children = (
 				48625D72173EE3F70059BE1F /* BrushTest.cpp */,
+				48B9DAC1174178F3009B952A /* BrushEdgeTest.cpp */,
+				48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */,
+				48B9DABA17417785009B952A /* BrushVertexTest.cpp */,
 				487B46C0173FCA87005E51F4 /* EntityTest.cpp */,
 				487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */,
-				48BA22C8173C325400B6DA64 /* FaceTest.cpp */,
 				48B954B5173BBCD500E293E5 /* MapDocumentTest.cpp */,
 				487B46CB174005FE005E51F4 /* MapTest.cpp */,
 			);
@@ -406,9 +429,9 @@
 				48B954BA173BBE0A00E293E5 /* MapFrame.cpp in Sources */,
 				48B954C1173BC02000E293E5 /* RunAllTests.cpp in Sources */,
 				48B954CC173BCFDC00E293E5 /* VecTest.cpp in Sources */,
-				48BA22CA173C325400B6DA64 /* FaceTest.cpp in Sources */,
+				48BA22CA173C325400B6DA64 /* BrushFaceTest.cpp in Sources */,
 				48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */,
-				48B954C6173BCE5D00E293E5 /* Face.cpp in Sources */,
+				48B954C6173BCE5D00E293E5 /* BrushFace.cpp in Sources */,
 				48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */,
 				48625D6B173ECDEA0059BE1F /* Object.cpp in Sources */,
 				48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */,
@@ -420,6 +443,11 @@
 				487B46D11740079D005E51F4 /* EntityProperties.cpp in Sources */,
 				487B46D51740084A005E51F4 /* EntityPropertiesTest.cpp in Sources */,
 				487B46D817402848005E51F4 /* EntityPropertyTypes.cpp in Sources */,
+				48B9DAB91741768C009B952A /* BrushVertex.cpp in Sources */,
+				48B9DABC17417785009B952A /* BrushVertexTest.cpp in Sources */,
+				48B9DAC0174177FB009B952A /* BrushEdge.cpp in Sources */,
+				48B9DAC3174178F3009B952A /* BrushEdgeTest.cpp in Sources */,
+				48B9DACF1741841C009B952A /* BBoxTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,6 +464,8 @@
 				487B46C91740058C005E51F4 /* Map.cpp in Sources */,
 				487B46D01740079D005E51F4 /* EntityProperties.cpp in Sources */,
 				487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */,
+				48B9DAB81741768C009B952A /* BrushVertex.cpp in Sources */,
+				48B9DABF174177FB009B952A /* BrushEdge.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -17,29 +17,31 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
+#ifndef TrenchBroom_BrushFaceTypes_h
+#define TrenchBroom_BrushFaceTypes_h
 
-#include "Model/EntityTypes.h"
+#include "VecMath.h"
+#include "TrenchBroom.h"
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Map {
-        private:
-            EntityList m_entities;
-            Entity* m_worldspawn;
-        public:
-            Map();
-            ~Map();
-            
-            const EntityList& entities() const;
-            void addEntity(Entity& entity);
-            
-            Entity* worldspawn();
-        private:
-            Entity* findWorldspawn() const;
-        };
+        class BrushFace;
+        
+        /*
+         * The order of points, when looking from outside the face:
+         *
+         * 0-----------1
+         * |
+         * |
+         * |
+         * |
+         * 2
+         */
+        typedef Vec3 BrushFacePoints[3];
+        typedef std::vector<BrushFace*> BrushFaceList;
+        static const BrushFaceList EmptyBrushFaceList;
     }
 }
 
-#endif /* defined(__TrenchBroom__Map__) */
+#endif

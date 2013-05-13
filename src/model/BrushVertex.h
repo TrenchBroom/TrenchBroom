@@ -17,31 +17,23 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
+#ifndef __TrenchBroom__BrushVertex__
+#define __TrenchBroom__BrushVertex__
 
 #include "VecMath.h"
 #include "TrenchBroom.h"
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Face;
-        
-        /*
-         * The order of points, when looking from outside the face:
-         *
-         * 0-----------1
-         * |
-         * |
-         * |
-         * |
-         * 2
-         */
-        typedef Vec3 FacePoints[3];
-        typedef std::vector<Face*> FaceList;
-        static const FaceList EmptyFaceList;
+        class BrushVertex {
+        private:
+            Vec3 m_position;
+        public:
+            BrushVertex(const Vec3& position);
+            
+            const Vec3& position() const;
+        };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__BrushVertex__) */

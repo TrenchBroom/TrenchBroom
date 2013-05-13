@@ -40,24 +40,20 @@ namespace TrenchBroom {
             m_entities.push_back(&entity);
         }
 
-        Entity& Map::createOrGetWorldspawn() {
-            if (m_worldspawn != NULL)
-                return *m_worldspawn;
-            
+        Entity* Map::worldspawn() {
+            if (m_worldspawn == NULL)
+                m_worldspawn = findWorldspawn();
+            return m_worldspawn;
+        }
+        
+        Entity* Map::findWorldspawn() const {
             EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 Entity& entity = **it;
-                if (entity.classname() == PropertyValues::WorldspawnClassname) {
-                    m_worldspawn = &entity;
-                    return entity;
-                }
+                if (entity.classname() == PropertyValues::WorldspawnClassname)
+                    return &entity;
             }
-            
-            m_worldspawn = new Entity();
-            m_worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
-            addEntity(*m_worldspawn);
-            
-            return *m_worldspawn;
+            return NULL;
         }
     }
 }

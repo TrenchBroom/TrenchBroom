@@ -28,6 +28,7 @@
 #undef min
 #endif
 
+#include "BBox.h"
 #include "Plane.h"
 #include "Vec.h"
 

@@ -22,25 +22,27 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/FaceTypes.h"
+#include "Model/BrushTypes.h"
+#include "Model/BrushFaceTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Face {
+        class BrushFace {
         private:
-            FacePoints m_points;
+            BrushFacePoints m_points;
             Plane3 m_boundary;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
             float m_xScale;
             float m_yScale;
+            BrushEdgeList m_edges;
         public:
-            Face(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             
-            const FacePoints& points() const;
+            const BrushFacePoints& points() const;
             const Plane3& boundary() const;
             
             const float xOffset() const;
@@ -53,6 +55,8 @@ namespace TrenchBroom {
             void setRotation(const float rotation);
             void setXScale(const float xScale);
             void setYScale(const float yScale);
+            
+            void setEdges(const BrushEdgeList& edges);
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };

@@ -19,8 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "Model/Face.h"
-#include "Model/FaceTypes.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceTypes.h"
 #include "TrenchBroom.h"
 #include "Exceptions.h"
 #include "VecMath.h"
@@ -28,12 +28,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(FaceTest, ConstructWithValidPoints) {
+        TEST(BrushFaceTest, ConstructWithValidPoints) {
             const Vec3 point0(0.0,  0.0, 4.0);
             const Vec3 point1(1.f,  0.0, 4.0);
             const Vec3 point2(0.0, -1.0, 4.0);
             
-            Face face(point0, point1, point2);
+            BrushFace face(point0, point1, point2);
             ASSERT_VEC_EQ(point0, face.points()[0]);
             ASSERT_VEC_EQ(point1, face.points()[1]);
             ASSERT_VEC_EQ(point2, face.points()[2]);
@@ -41,12 +41,12 @@ namespace TrenchBroom {
             ASSERT_EQ(4.0, face.boundary().distance);
         }
         
-        TEST(FaceTest, ConstructWithColinearPoints) {
+        TEST(BrushFaceTest, ConstructWithColinearPoints) {
             const Vec3 point0(0.0, 0.0, 4.0);
             const Vec3 point1(1.f, 0.0, 4.0);
             const Vec3 point2(2.0, 0.0, 4.0);
             
-            ASSERT_THROW(Face face(point0, point1, point2), GeometryException);
+            ASSERT_THROW(BrushFace face(point0, point1, point2), GeometryException);
         }
     }
 }

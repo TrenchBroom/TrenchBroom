@@ -21,7 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
-#include "Model/Face.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         TEST(EntityTest, AddBrush) {
             Entity entity;
-            Brush* brush = new Brush(EmptyFaceList);
+            Brush* brush = new Brush(EmptyBrushFaceList);
             
             entity.addBrush(*brush);
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         
         TEST(EntityTest, RemoveBrush) {
             Entity entity;
-            Brush* brush = new Brush(EmptyFaceList);
+            Brush* brush = new Brush(EmptyBrushFaceList);
             entity.addBrush(*brush);
 
             entity.removeBrush(*brush);
