@@ -136,6 +136,59 @@ TEST(CollectionUtilsTest, VecRemoveAndDelete) {
     VectorUtils::clearAndDelete(vec);
 }
 
+TEST(CollectionUtilsTest, VecContains) {
+    typedef std::vector<int> TestVec;
+    TestVec vec;
+    
+    vec.push_back(10);
+    vec.push_back(4);
+    vec.push_back(-232);
+    vec.push_back(11111);
+    
+    ASSERT_TRUE(VectorUtils::contains(vec, 10));
+    ASSERT_TRUE(VectorUtils::contains(vec, 4));
+    ASSERT_TRUE(VectorUtils::contains(vec, -232));
+    ASSERT_TRUE(VectorUtils::contains(vec, 11111));
+    ASSERT_FALSE(VectorUtils::contains(vec, 11));
+    ASSERT_FALSE(VectorUtils::contains(vec, 0));
+    ASSERT_FALSE(VectorUtils::contains(vec, 110));
+}
+
+TEST(CollectionUtilsTest, VecContainsPtr) {
+    typedef std::vector<int*> TestVec;
+    TestVec vec;
+    
+    vec.push_back(new int(10));
+    vec.push_back(new int(4));
+    vec.push_back(new int(-232));
+    vec.push_back(new int(11111));
+    
+    const int* i10 = new int(10);
+    const int* i4 = new int(4);
+    const int* i232 = new int(-232);
+    const int* i11111 = new int(11111);
+    const int* i11 = new int(11);
+    const int* i0 = new int(0);
+    const int* i110 = new int(110);
+    
+    ASSERT_TRUE(VectorUtils::contains(vec, i10));
+    ASSERT_TRUE(VectorUtils::contains(vec, i4));
+    ASSERT_TRUE(VectorUtils::contains(vec, i232));
+    ASSERT_TRUE(VectorUtils::contains(vec, i11111));
+    ASSERT_FALSE(VectorUtils::contains(vec, i11));
+    ASSERT_FALSE(VectorUtils::contains(vec, i0));
+    ASSERT_FALSE(VectorUtils::contains(vec, i110));
+    
+    VectorUtils::clearAndDelete(vec);
+    delete i10;
+    delete i4;
+    delete i232;
+    delete i11111;
+    delete i11;
+    delete i0;
+    delete i110;
+}
+
 TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
     typedef std::map<std::string, std::string> TestMap;
 

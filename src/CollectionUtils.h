@@ -60,6 +60,24 @@ namespace VectorUtils {
         remove(vec, item);
         delete item;
     }
+    
+    template <typename T>
+    inline bool contains(std::vector<T>& vec, const T& item) {
+        return std::find(vec.begin(), vec.end(), item) != vec.end();
+    }
+    
+    template <typename T>
+    inline bool contains(std::vector<T*>& vec, const T* item) {
+        typedef std::vector<T*> VecType;
+        typedef typename VecType::const_iterator VecIter;
+        
+        VecIter first = vec.begin();
+        const VecIter last = vec.end();
+        while (first != last)
+            if (**(first++) == *item)
+                return true;
+        return false;
+    }
 }
 
 namespace MapUtils {

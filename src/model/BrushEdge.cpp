@@ -31,5 +31,12 @@ namespace TrenchBroom {
             m_start = NULL;
             m_end = NULL;
         }
+
+        bool BrushEdge::hasPositions(const Vec3& position1, const Vec3& position2) const {
+            if (m_start == NULL || m_end == NULL)
+                return false;
+            return (m_start->position() == position1 && m_end->position() == position2) || (m_start->position() == position2 && m_end->position() == position1);
+                    
+        }
     }
 }

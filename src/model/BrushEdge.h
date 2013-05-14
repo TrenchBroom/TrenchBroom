@@ -20,6 +20,10 @@
 #ifndef __TrenchBroom__BrushEdge__
 #define __TrenchBroom__BrushEdge__
 
+#include "VecMath.h"
+#include "TrenchBroom.h"
+#include "Model/BrushGeometryTypes.h"
+
 namespace TrenchBroom {
     namespace Model {
         class BrushVertex;
@@ -39,7 +43,33 @@ namespace TrenchBroom {
             inline const BrushVertex* end() const {
                 return m_end;
             }
+            
+            bool hasPositions(const Vec3& position1, const Vec3& position2) const;
         };
+
+        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& vertices, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::iterator it = vertices.begin();
+            const BrushEdgeList::iterator end = vertices.end();
+            while (it != end) {
+                const BrushEdge& edge = **it;
+                if (edge.hasPositions(position1, position2))
+                    return it;
+                ++it;
+            }
+            return end;
+        }
+        
+        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& vertices, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::const_iterator it = vertices.begin();
+            const BrushEdgeList::const_iterator end = vertices.end();
+            while (it != end) {
+                const BrushEdge& edge = **it;
+                if (edge.hasPositions(position1, position2))
+                    return it;
+                ++it;
+            }
+            return end;
+        }
     }
 }
 

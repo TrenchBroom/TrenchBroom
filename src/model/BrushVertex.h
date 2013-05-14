@@ -22,6 +22,7 @@
 
 #include "VecMath.h"
 #include "TrenchBroom.h"
+#include "Model/BrushGeometryTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,6 +36,30 @@ namespace TrenchBroom {
                 return m_position;
             }
         };
+        
+        inline BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::iterator it = vertices.begin();
+            const BrushVertexList::iterator end = vertices.end();
+            while (it != end) {
+                const BrushVertex& vertex = **it;
+                if (vertex.position() == position)
+                    return it;
+                ++it;
+            }
+            return end;
+        }
+
+        inline BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::const_iterator it = vertices.begin();
+            const BrushVertexList::const_iterator end = vertices.end();
+            while (it != end) {
+                const BrushVertex& vertex = **it;
+                if (vertex.position() == position)
+                    return it;
+                ++it;
+            }
+            return end;
+        }
     }
 }
 
