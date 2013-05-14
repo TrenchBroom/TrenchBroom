@@ -17,31 +17,40 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Brush__
-#define __TrenchBroom__Brush__
+#ifndef __TrenchBroom__BrushGeometry__
+#define __TrenchBroom__BrushGeometry__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushTypes.h"
+#include "Model/BrushGeometryTypes.h"
 #include "Model/BrushFaceTypes.h"
-#include "Model/Object.h"
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush : public Object {
+        class BrushGeometry {
         private:
-            BrushFaceList m_faces;
+            BrushVertexList m_vertices;
+            BrushEdgeList m_edges;
+            BrushFaceGeometryList m_sides;
         public:
-            Brush(const BrushFaceList& faces);
-            ~Brush();
+            BrushGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
+            ~BrushGeometry();
             
-            inline const BrushFaceList& faces() const {
-                return m_faces;
+            inline const BrushVertexList& vertices() const {
+                return m_vertices;
             }
+            
+            inline const BrushEdgeList& edges() const {
+                return m_edges;
+            }
+            
+            inline const BrushFaceGeometryList& sides() const {
+                return m_sides;
+            }
+        private:
+            void initializeWithBounds(const BBox3& bounds);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Brush__) */
+#endif /* defined(__TrenchBroom__BrushGeometry__) */

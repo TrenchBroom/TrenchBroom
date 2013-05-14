@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
+		483499741742D1CD0051EA5C /* BrushFaceGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */; };
+		483499771742D1E50051EA5C /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499751742D1E50051EA5C /* BrushGeometry.cpp */; };
+		483499781742D1E50051EA5C /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499751742D1E50051EA5C /* BrushGeometry.cpp */; };
+		4834997C1742D2770051EA5C /* BrushGeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4834997A1742D2770051EA5C /* BrushGeometryTest.cpp */; };
+		4834997F1742D56A0051EA5C /* BrushFaceGeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4834997D1742D56A0051EA5C /* BrushFaceGeometryTest.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
 		48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
@@ -73,6 +78,13 @@
 
 /* Begin PBXFileReference section */
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceGeometry.cpp; sourceTree = "<group>"; };
+		483499731742D1CD0051EA5C /* BrushFaceGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFaceGeometry.h; sourceTree = "<group>"; };
+		483499751742D1E50051EA5C /* BrushGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometry.cpp; sourceTree = "<group>"; };
+		483499761742D1E50051EA5C /* BrushGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGeometry.h; sourceTree = "<group>"; };
+		483499791742D20C0051EA5C /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
+		4834997A1742D2770051EA5C /* BrushGeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometryTest.cpp; sourceTree = "<group>"; };
+		4834997D1742D56A0051EA5C /* BrushFaceGeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceGeometryTest.cpp; sourceTree = "<group>"; };
 		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -249,11 +261,16 @@
 				48625D64173ECDBD0059BE1F /* Brush.cpp */,
 				48625D65173ECDBD0059BE1F /* Brush.h */,
 				487B46BF173FC9A9005E51F4 /* BrushTypes.h */,
+				483499751742D1E50051EA5C /* BrushGeometry.cpp */,
+				483499761742D1E50051EA5C /* BrushGeometry.h */,
+				483499791742D20C0051EA5C /* BrushGeometryTypes.h */,
 				48B9DABD174177FB009B952A /* BrushEdge.cpp */,
 				48B9DABE174177FB009B952A /* BrushEdge.h */,
 				48B954C4173BCE5D00E293E5 /* BrushFace.cpp */,
 				48B954C5173BCE5D00E293E5 /* BrushFace.h */,
 				48625D6C173ECEBD0059BE1F /* BrushFaceTypes.h */,
+				483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */,
+				483499731742D1CD0051EA5C /* BrushFaceGeometry.h */,
 				48B9DAB61741768C009B952A /* BrushVertex.cpp */,
 				48B9DAB71741768C009B952A /* BrushVertex.h */,
 				487B46BB173FC995005E51F4 /* Entity.cpp */,
@@ -312,8 +329,10 @@
 			isa = PBXGroup;
 			children = (
 				48625D72173EE3F70059BE1F /* BrushTest.cpp */,
+				4834997A1742D2770051EA5C /* BrushGeometryTest.cpp */,
 				48B9DAC1174178F3009B952A /* BrushEdgeTest.cpp */,
 				48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */,
+				4834997D1742D56A0051EA5C /* BrushFaceGeometryTest.cpp */,
 				48B9DABA17417785009B952A /* BrushVertexTest.cpp */,
 				487B46C0173FCA87005E51F4 /* EntityTest.cpp */,
 				487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */,
@@ -448,6 +467,9 @@
 				48B9DAC0174177FB009B952A /* BrushEdge.cpp in Sources */,
 				48B9DAC3174178F3009B952A /* BrushEdgeTest.cpp in Sources */,
 				48B9DACF1741841C009B952A /* BBoxTest.cpp in Sources */,
+				483499781742D1E50051EA5C /* BrushGeometry.cpp in Sources */,
+				4834997C1742D2770051EA5C /* BrushGeometryTest.cpp in Sources */,
+				4834997F1742D56A0051EA5C /* BrushFaceGeometryTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +488,8 @@
 				487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */,
 				48B9DAB81741768C009B952A /* BrushVertex.cpp in Sources */,
 				48B9DABF174177FB009B952A /* BrushEdge.cpp in Sources */,
+				483499741742D1CD0051EA5C /* BrushFaceGeometry.cpp in Sources */,
+				483499771742D1E50051EA5C /* BrushGeometry.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

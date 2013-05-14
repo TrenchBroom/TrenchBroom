@@ -17,11 +17,11 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrushVertex.h"
+#include <gtest/gtest.h>
+
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {
-        BrushVertex::BrushVertex(const Vec3& position) :
-        m_position(position) {}
     }
 }

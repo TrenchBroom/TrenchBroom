@@ -28,30 +28,10 @@ namespace TrenchBroom {
     namespace Model {
         Brush::Brush(const BrushFaceList& faces) :
         m_faces(faces) {
-            buildGeometry();
         }
         
         Brush::~Brush() {
             VectorUtils::clearAndDelete(m_faces);
-            clearAndDeleteGeometry();
-        }
-
-        const BrushFaceList& Brush::faces() const {
-            return m_faces;
-        }
-
-        void Brush::buildGeometry(const BBox3& bounds) {
-            
-        }
-
-        void Brush::clearAndDeleteGeometry() {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace& face = **it;
-                face.setEdges(EmptyBrushEdgeList);
-            }
-            VectorUtils::clearAndDelete(m_edges);
-            VectorUtils::clearAndDelete(m_vertices);
         }
     }
 }

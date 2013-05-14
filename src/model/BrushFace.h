@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushTypes.h"
 #include "Model/BrushFaceTypes.h"
 
 #include <vector>
@@ -38,25 +37,56 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
-            BrushEdgeList m_edges;
         public:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             
-            const BrushFacePoints& points() const;
-            const Plane3& boundary() const;
+            inline const BrushFacePoints& points() const {
+                return m_points;
+            }
             
-            const float xOffset() const;
-            const float yOffset() const;
-            const float rotation() const;
-            const float xScale() const;
-            const float yScale() const;
-            void setXOffset(const float xOffset);
-            void setYOffset(const float yOffset);
-            void setRotation(const float rotation);
-            void setXScale(const float xScale);
-            void setYScale(const float yScale);
+            inline const Plane3& boundary() const {
+                return m_boundary;
+            }
             
-            void setEdges(const BrushEdgeList& edges);
+            inline const float xOffset() const {
+                return m_xOffset;
+            }
+            
+            inline const float yOffset() const {
+                return m_yOffset;
+            }
+            
+            inline const float rotation() const {
+                return m_rotation;
+            }
+            
+            inline const float xScale() const {
+                return m_xScale;
+            }
+            
+            inline const float yScale() const {
+                return m_yScale;
+            }
+            
+            inline void setXOffset(const float xOffset) {
+                m_xOffset = xOffset;
+            }
+            
+            inline void setYOffset(const float yOffset) {
+                m_yOffset = yOffset;
+            }
+            
+            inline void setRotation(const float rotation) {
+                m_rotation = rotation;
+            }
+            
+            inline void setXScale(const float xScale) {
+                m_xScale = xScale;
+            }
+            
+            inline void setYScale(const float yScale) {
+                m_yScale = yScale;
+            }
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };

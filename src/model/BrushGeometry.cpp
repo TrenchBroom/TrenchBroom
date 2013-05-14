@@ -17,11 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrushVertex.h"
+#include "BrushGeometry.h"
+
+#include "CollectionUtils.h"
+#include "Model/BrushEdge.h"
+#include "Model/BrushFaceGeometry.h"
+#include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
     namespace Model {
-        BrushVertex::BrushVertex(const Vec3& position) :
-        m_position(position) {}
+        BrushGeometry::BrushGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
+            initializeWithBounds(worldBounds);
+        }
+
+        BrushGeometry::~BrushGeometry() {
+            VectorUtils::clearAndDelete(m_sides);
+            VectorUtils::clearAndDelete(m_edges);
+            VectorUtils::clearAndDelete(m_vertices);
+        }
+
+        void BrushGeometry::initializeWithBounds(const BBox3& bounds) {
+            
+        }
     }
 }

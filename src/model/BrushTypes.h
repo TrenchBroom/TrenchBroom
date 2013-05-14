@@ -25,17 +25,9 @@
 namespace TrenchBroom {
     namespace Model {
         class Brush;
-        class BrushVertex;
-        class BrushEdge;
         
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList;
-        
-        typedef std::vector<BrushVertex*> BrushVertexList;
-        static const BrushVertexList EmptyBrushVertexList;
-        
-        typedef std::vector<BrushEdge*> BrushEdgeList;
-        static const BrushEdgeList EmptyBrushEdgeList;
     }
 }
 

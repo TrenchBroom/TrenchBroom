@@ -31,7 +31,9 @@ namespace TrenchBroom {
         public:
             BrushVertex(const Vec3& position);
             
-            const Vec3& position() const;
+            inline const Vec3& position() const {
+                return m_position;
+            }
         };
     }
 }

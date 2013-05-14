@@ -39,7 +39,10 @@ namespace TrenchBroom {
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             
-            const BrushList& brushes() const;
+            inline const BrushList& brushes() const {
+                return m_brushes;
+            }
+            
             void addBrush(Brush& brush);
             void removeBrush(Brush& brush);
         };

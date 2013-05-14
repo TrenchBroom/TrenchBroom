@@ -32,8 +32,13 @@ namespace TrenchBroom {
             BrushEdge(BrushVertex* start, BrushVertex* end);
             ~BrushEdge();
             
-            const BrushVertex* start() const;
-            const BrushVertex* end() const;
+            inline const BrushVertex* start() const {
+                return m_start;
+            }
+            
+            inline const BrushVertex* end() const {
+                return m_end;
+            }
         };
     }
 }

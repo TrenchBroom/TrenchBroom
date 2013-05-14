@@ -32,7 +32,10 @@ namespace TrenchBroom {
             Map();
             ~Map();
             
-            const EntityList& entities() const;
+            inline const EntityList& entities() const {
+                return m_entities;
+            }
+            
             void addEntity(Entity& entity);
             
             Entity* worldspawn();

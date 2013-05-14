@@ -27,58 +27,6 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
         
-        const BrushFacePoints& BrushFace::points() const {
-            return m_points;
-        }
-        
-        const Plane3& BrushFace::boundary() const {
-            return m_boundary;
-        }
-
-        const float BrushFace::xOffset() const {
-            return m_xOffset;
-        }
-        
-        const float BrushFace::yOffset() const {
-            return m_yOffset;
-        }
-        
-        const float BrushFace::rotation() const {
-            return m_rotation;
-        }
-        
-        const float BrushFace::xScale() const {
-            return m_xScale;
-        }
-        
-        const float BrushFace::yScale() const {
-            return m_yScale;
-        }
-        
-        void BrushFace::setXOffset(const float xOffset) {
-            m_xOffset = xOffset;
-        }
-        
-        void BrushFace::setYOffset(const float yOffset) {
-            m_yOffset = yOffset;
-        }
-        
-        void BrushFace::setRotation(const float rotation) {
-            m_rotation = rotation;
-        }
-        
-        void BrushFace::setXScale(const float xScale) {
-            m_xScale = xScale;
-        }
-        
-        void BrushFace::setYScale(const float yScale) {
-            m_yScale = yScale;
-        }
-
-        void BrushFace::setEdges(const BrushEdgeList& edges) {
-            m_edges = edges;
-        }
-
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;

@@ -17,11 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrushVertex.h"
+#ifndef TrenchBroom_BrushGeometryTypes_h
+#define TrenchBroom_BrushGeometryTypes_h
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushVertex::BrushVertex(const Vec3& position) :
-        m_position(position) {}
+        class BrushVertex;
+        class BrushEdge;
+        class BrushFaceGeometry;
+        
+        typedef std::vector<BrushVertex*> BrushVertexList;
+        static const BrushVertexList EmptyBrushVertexList;
+        
+        typedef std::vector<BrushEdge*> BrushEdgeList;
+        static const BrushEdgeList EmptyBrushEdgeList;
+        
+        typedef std::vector<BrushFaceGeometry*> BrushFaceGeometryList;
+        static const BrushFaceGeometryList EmptyBrushFaceGeometryList;
     }
 }
+
+#endif

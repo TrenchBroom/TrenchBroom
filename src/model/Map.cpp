@@ -32,10 +32,6 @@ namespace TrenchBroom {
             m_worldspawn = NULL;
         }
 
-        const EntityList& Map::entities() const {
-            return m_entities;
-        }
-        
         void Map::addEntity(Entity& entity) {
             m_entities.push_back(&entity);
         }

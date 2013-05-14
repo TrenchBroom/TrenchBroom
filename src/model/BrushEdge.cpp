@@ -31,13 +31,5 @@ namespace TrenchBroom {
             m_start = NULL;
             m_end = NULL;
         }
-
-        const BrushVertex* BrushEdge::start() const {
-            return m_start;
-        }
-        
-        const BrushVertex* BrushEdge::end() const {
-            return m_end;
-        }
     }
 }
