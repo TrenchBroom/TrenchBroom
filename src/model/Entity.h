@@ -22,6 +22,7 @@
 
 #include "Model/BrushTypes.h"
 #include "Model/EntityProperties.h"
+#include "Model/EntityTypes.h"
 #include "Model/Object.h"
 
 namespace TrenchBroom {
@@ -30,8 +31,10 @@ namespace TrenchBroom {
         private:
             EntityProperties m_properties;
             BrushList m_brushes;
+            
+            Entity();
         public:
-            ~Entity();
+            static EntityPtr newEntity();
             
             const EntityPropertyList& properties() const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue) const;
@@ -43,8 +46,8 @@ namespace TrenchBroom {
                 return m_brushes;
             }
             
-            void addBrush(Brush& brush);
-            void removeBrush(Brush& brush);
+            void addBrush(BrushPtr brush);
+            void removeBrush(BrushPtr brush);
         };
     }
 }

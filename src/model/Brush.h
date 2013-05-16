@@ -33,9 +33,10 @@ namespace TrenchBroom {
         class Brush : public Object {
         private:
             BrushFaceList m_faces;
-        public:
+
             Brush(const BrushFaceList& faces);
-            ~Brush();
+        public:
+            static BrushPtr newBrush(const BrushFaceList& faces);
             
             inline const BrushFaceList& faces() const {
                 return m_faces;

@@ -24,8 +24,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Entity::~Entity() {
-            VectorUtils::clearAndDelete(m_brushes);
+        Entity::Entity() {}
+
+        EntityPtr Entity::newEntity() {
+            return EntityPtr(new Entity());
         }
 
         const EntityPropertyList& Entity::properties() const {
@@ -47,12 +49,12 @@ namespace TrenchBroom {
             return property(PropertyKeys::Classname, defaultClassname);
         }
 
-        void Entity::addBrush(Brush& brush) {
-            m_brushes.push_back(&brush);
+        void Entity::addBrush(BrushPtr brush) {
+            m_brushes.push_back(brush);
         }
 
-        void Entity::removeBrush(Brush& brush) {
-            VectorUtils::remove(m_brushes, &brush);
+        void Entity::removeBrush(BrushPtr brush) {
+            VectorUtils::remove(m_brushes, brush);
         }
     }
 }

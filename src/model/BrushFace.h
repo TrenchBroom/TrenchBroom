@@ -37,8 +37,10 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
-        public:
+        private:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+        public:
+            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             
             inline const BrushFacePoints& points() const {
                 return m_points;

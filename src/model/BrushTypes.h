@@ -20,13 +20,16 @@
 #ifndef TrenchBroom_BrushTypes_h
 #define TrenchBroom_BrushTypes_h
 
+#include "SharedPointer.h"
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Brush;
         
-        typedef std::vector<Brush*> BrushList;
+        typedef std::tr1::shared_ptr<Brush> BrushPtr;
+        typedef std::vector<BrushPtr> BrushList;
         static const BrushList EmptyBrushList;
     }
 }

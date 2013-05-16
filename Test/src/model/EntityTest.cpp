@@ -26,79 +26,78 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(EntityTest, GetProperty) {
-            Entity entity;
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
             const PropertyValue value("value");
             const PropertyValue defaultValue("default");
-            entity.addOrUpdateProperty(key, value);
+            entity->addOrUpdateProperty(key, value);
             
-            ASSERT_EQ(value, entity.property(key, defaultValue));
-            ASSERT_EQ(defaultValue, entity.property(key2, defaultValue));
+            ASSERT_EQ(value, entity->property(key, defaultValue));
+            ASSERT_EQ(defaultValue, entity->property(key2, defaultValue));
         }
         
         TEST(EntityTest, AddProperty) {
-            Entity entity;
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             
-            entity.addOrUpdateProperty(key, value);
+            entity->addOrUpdateProperty(key, value);
 
-            const EntityPropertyList& properties = entity.properties();
+            const EntityPropertyList& properties = entity->properties();
             ASSERT_EQ(1, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(value, properties[0].value);
         }
         
         TEST(EntityTest, UpdateProperty) {
-            Entity entity;
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             const PropertyValue newValue("value");
-            entity.addOrUpdateProperty(key, value);
+            entity->addOrUpdateProperty(key, value);
             
-            entity.addOrUpdateProperty(key, newValue);
+            entity->addOrUpdateProperty(key, newValue);
             
-            const EntityPropertyList& properties = entity.properties();
+            const EntityPropertyList& properties = entity->properties();
             ASSERT_EQ(1, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(newValue, properties[0].value);
         }
         
         TEST(EntityTest, GetClassname) {
-            Entity entity;
+            EntityPtr entity = Entity::newEntity();
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
             
-            ASSERT_EQ(PropertyValues::NoClassname, entity.classname());
-            ASSERT_EQ(defaultClassname, entity.classname(defaultClassname));
+            ASSERT_EQ(PropertyValues::NoClassname, entity->classname());
+            ASSERT_EQ(defaultClassname, entity->classname(defaultClassname));
             
-            entity.addOrUpdateProperty(PropertyKeys::Classname, classname);
-            ASSERT_EQ(classname, entity.classname());
-            ASSERT_EQ(classname, entity.classname(defaultClassname));
+            entity->addOrUpdateProperty(PropertyKeys::Classname, classname);
+            ASSERT_EQ(classname, entity->classname());
+            ASSERT_EQ(classname, entity->classname(defaultClassname));
         }
 
         TEST(EntityTest, AddBrush) {
-            Entity entity;
-            Brush* brush = new Brush(EmptyBrushFaceList);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush = Brush::newBrush(EmptyBrushFaceList);
             
-            entity.addBrush(*brush);
+            entity->addBrush(brush);
 
-            const BrushList& brushes = entity.brushes();
+            const BrushList& brushes = entity->brushes();
             ASSERT_EQ(1, brushes.size());
             ASSERT_EQ(brush, brushes[0]);
         }
         
         TEST(EntityTest, RemoveBrush) {
-            Entity entity;
-            Brush* brush = new Brush(EmptyBrushFaceList);
-            entity.addBrush(*brush);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush = Brush::newBrush(EmptyBrushFaceList);
+            entity->addBrush(brush);
 
-            entity.removeBrush(*brush);
+            entity->removeBrush(brush);
             
-            const BrushList& brushes = entity.brushes();
+            const BrushList& brushes = entity->brushes();
             ASSERT_TRUE(brushes.empty());
-            delete brush;
         }
     }
 }

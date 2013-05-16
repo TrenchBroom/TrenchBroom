@@ -77,6 +77,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		480815BF174528F700F1BF7B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceGeometry.cpp; sourceTree = "<group>"; };
 		483499731742D1CD0051EA5C /* BrushFaceGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFaceGeometry.h; sourceTree = "<group>"; };
@@ -243,6 +244,7 @@
 				48625D63173E6A450059BE1F /* Exceptions.h */,
 				48B954C8173BCEC200E293E5 /* MathUtils.h */,
 				48BA22CB173C454500B6DA64 /* Plane.h */,
+				480815BF174528F700F1BF7B /* SharedPointer.h */,
 				48B954C3173BCD7E00E293E5 /* StringUtils.h */,
 				48625D71173ED7E30059BE1F /* TemplateUtils.h */,
 				48625D62173E67F30059BE1F /* TrenchBroom.h */,

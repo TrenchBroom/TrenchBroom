@@ -27,6 +27,10 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
         
+        BrushFacePtr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            return BrushFacePtr(new BrushFace(point0, point1, point2));
+        }
+
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;

@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_BrushFaceTypes_h
 #define TrenchBroom_BrushFaceTypes_h
 
-#include "VecMath.h"
 #include "TrenchBroom.h"
+#include "VecMath.h"
+#include "SharedPointer.h"
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +40,9 @@ namespace TrenchBroom {
          * 2
          */
         typedef Vec3 BrushFacePoints[3];
-        typedef std::vector<BrushFace*> BrushFaceList;
+        
+        typedef std::tr1::shared_ptr<BrushFace> BrushFacePtr;
+        typedef std::vector<BrushFacePtr> BrushFaceList;
         static const BrushFaceList EmptyBrushFaceList;
     }
 }

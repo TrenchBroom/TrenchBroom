@@ -26,17 +26,17 @@ namespace TrenchBroom {
     namespace Model {
         TEST(BrushTest, ConstructFromBrushFaces) {
             BrushFaceList faces;
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
-                                     Vec3(1.0, 0.0, 0.0),
-                                     Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
-                                     Vec3(1.0, 0.0, 0.0),
-                                     Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
-                                     Vec3(1.0, 0.0, 0.0),
-                                     Vec3(0.0, 1.0, 0.0)));
-            Brush brush(faces);
-            const BrushFaceList& brushBrushFaces = brush.faces();
+            faces.push_back(BrushFace::newBrushFace(Vec3(0.0, 0.0, 0.0),
+                                                    Vec3(1.0, 0.0, 0.0),
+                                                    Vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::newBrushFace(Vec3(0.0, 0.0, 0.0),
+                                                    Vec3(1.0, 0.0, 0.0),
+                                                    Vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::newBrushFace(Vec3(0.0, 0.0, 0.0),
+                                                    Vec3(1.0, 0.0, 0.0),
+                                                    Vec3(0.0, 1.0, 0.0)));
+            BrushPtr brush = Brush::newBrush(faces);
+            const BrushFaceList& brushBrushFaces = brush->faces();
             ASSERT_EQ(faces.size(), brushBrushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
                 ASSERT_EQ(faces[i], brushBrushFaces[i]);

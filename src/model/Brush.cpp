@@ -27,11 +27,10 @@
 namespace TrenchBroom {
     namespace Model {
         Brush::Brush(const BrushFaceList& faces) :
-        m_faces(faces) {
-        }
-        
-        Brush::~Brush() {
-            VectorUtils::clearAndDelete(m_faces);
+        m_faces(faces) {}
+
+        BrushPtr Brush::newBrush(const BrushFaceList& faces) {
+            return BrushPtr(new Brush(faces));
         }
     }
 }
