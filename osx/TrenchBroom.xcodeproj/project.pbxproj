@@ -522,16 +522,14 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/../lib/include\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
@@ -576,16 +574,14 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/../lib/include\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
@@ -636,16 +632,14 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/../lib/include\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
@@ -793,10 +787,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -804,6 +795,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/../lib/include\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
@@ -855,10 +847,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -867,6 +856,7 @@
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
+					"-isystem\"$(SRCROOT)/../lib/include\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
@@ -966,10 +956,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
-				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../src\"",
-					"\"$(SRCROOT)/../lib/include\"",
-				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

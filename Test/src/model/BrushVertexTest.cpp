@@ -22,6 +22,7 @@
 #include "Model/BrushVertex.h"
 #include "VecMath.h"
 
+#include "CollectionUtils.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -30,6 +31,29 @@ namespace TrenchBroom {
             Vec3 position(1.0f, 2.0f, 3.0f);
             BrushVertex vertex(position);
             ASSERT_EQ(position, vertex.position());
+        }
+        
+        TEST(BrushVertexTest, FindBrushVertex) {
+            BrushVertex* v1 = new BrushVertex(Vec3::Null);
+            BrushVertex* v2 = new BrushVertex(Vec3(1.3232, 0.3332, -33123.2954));
+            BrushVertex* v3 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
+            
+            BrushVertexList list;
+            list.push_back(v1);
+            list.push_back(v2);
+            list.push_back(v3);
+            
+            BrushVertexList::iterator notFound = findBrushVertex(list, Vec3(-1.0, 1.0, -1.0));
+            BrushVertexList::iterator  v1Found = findBrushVertex(list, v1->position());
+            BrushVertexList::iterator  v2Found = findBrushVertex(list, v2->position());
+            BrushVertexList::iterator  v3Found = findBrushVertex(list, v3->position());
+            
+            ASSERT_EQ(list.end(), notFound);
+            ASSERT_EQ(v1, *v1Found);
+            ASSERT_EQ(v2, *v2Found);
+            ASSERT_EQ(v3, *v3Found);
+            
+            VectorUtils::clearAndDelete(list);
         }
     }
 }

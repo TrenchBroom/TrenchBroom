@@ -23,5 +23,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TEST(BrushFaceGeometryTest, FindBrushFaceGeometry) {
+            ASSERT_TRUE(false);
+        }
     }
 }
