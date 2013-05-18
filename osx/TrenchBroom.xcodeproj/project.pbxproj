@@ -53,6 +53,7 @@
 		48B9DACF1741841C009B952A /* BBoxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DACD1741841C009B952A /* BBoxTest.cpp */; };
 		48BA22CA173C325400B6DA64 /* BrushFaceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */; };
 		48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */; };
+		48F606CC17480E5900509CAA /* BrushFaceGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -444,6 +445,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48F606CC17480E5900509CAA /* BrushFaceGeometry.cpp in Sources */,
 				48B954C2173BC84500E293E5 /* TrenchBroomApp.cpp in Sources */,
 				48B954B8173BBE0A00E293E5 /* MapDocumentTest.cpp in Sources */,
 				48B954B9173BBE0A00E293E5 /* MapDocument.cpp in Sources */,

@@ -19,7 +19,38 @@
 
 #include "BrushFaceGeometry.h"
 
+#include "MathUtils.h"
+#include "Model/BrushEdge.h"
+#include "Model/BrushVertex.h"
+
 namespace TrenchBroom {
     namespace Model {
+        BrushFaceGeometry::BrushFaceGeometry(const BrushEdgeList& edges) :
+        m_edges(edges) {
+            BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                BrushEdge& edge = **it;
+                m_vertices.push_back(edge.start(this));
+            }
+        }
+
+        bool BrushFaceGeometry::hasVertexPositions(const Vec3::List& positions) const {
+            if (positions.size() != m_vertices.size())
+                return false;
+            
+            const size_t size = m_vertices.size();
+            for (size_t i = 0; i < size; i++) {
+                bool equal = true;
+                for (size_t j = 0; j < size && equal; j++) {
+                    const size_t index = (j + i) % size;
+                    if (m_vertices[j]->position() != positions[index])
+                        equal = false;
+                }
+                if (equal)
+                    return true;
+            }
+            
+            return false;
+        }
     }
 }

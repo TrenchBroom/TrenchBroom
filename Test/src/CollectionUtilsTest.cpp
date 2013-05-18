@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -37,6 +38,27 @@ public:
         m_flag = true;
     }
 };
+
+TEST(CollectionUtilsTest, VecShift) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    VectorUtils::shift(vec, 0);
+    VectorUtils::shift(vec, 1);
+    
+    for (size_t i = 0; i < 21; i++)
+        vec.push_back(i);
+
+    for (size_t i = 0; i < vec.size(); i++) {
+        Vec expected = vec;
+        Vec::iterator middle = expected.begin();
+        std::advance(middle, i);
+        std::rotate(expected.begin(), middle, expected.end());
+        
+        Vec actual = vec;
+        VectorUtils::shift(actual, i);
+        ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+    }
+}
 
 TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {
     typedef std::vector<TestObject*> TestVec;

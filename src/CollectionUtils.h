@@ -33,6 +33,22 @@ namespace VectorUtils {
         }
     };
 
+    template <typename T, typename D>
+    inline void shift(std::vector<T>& vec, const D offset) {
+        if (vec.empty())
+            return;
+        
+        const D corrected = offset % static_cast<D>(vec.size());
+        if (offset == 0)
+            return;
+        
+        typedef std::vector<T> VecType;
+        typedef typename VecType::iterator VecIter;
+        VecIter middle = vec.begin();
+        std::advance(middle, corrected);
+        std::rotate(vec.begin(), middle, vec.end());
+    }
+    
     template <typename T>
     inline void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
         std::for_each(first, last, Deleter<T>());

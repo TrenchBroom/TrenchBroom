@@ -27,22 +27,54 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushVertex;
+        class BrushFaceGeometry;
         
         class BrushEdge {
         private:
             BrushVertex* m_start;
             BrushVertex* m_end;
+            BrushFaceGeometry* m_left;
+            BrushFaceGeometry* m_right;
         public:
-            BrushEdge(BrushVertex* start, BrushVertex* end);
+            BrushEdge(BrushVertex* start, BrushVertex* end, BrushFaceGeometry* left = NULL, BrushFaceGeometry* right = NULL);
             ~BrushEdge();
             
             inline const BrushVertex* start() const {
                 return m_start;
             }
             
+            inline BrushVertex* start() {
+                return m_start;
+            }
+
             inline const BrushVertex* end() const {
                 return m_end;
             }
+            
+            inline BrushVertex* end() {
+                return m_end;
+            }
+            
+            inline const BrushFaceGeometry* left() const {
+                return m_left;
+            }
+            
+            inline BrushFaceGeometry* left() {
+                return m_left;
+            }
+            
+            inline const BrushFaceGeometry* right() const {
+                return m_right;
+            }
+
+            inline BrushFaceGeometry* right() {
+                return m_right;
+            }
+            
+            const BrushVertex* start(BrushFaceGeometry* side) const;
+            BrushVertex* start(BrushFaceGeometry* side);
+            const BrushVertex* end(BrushFaceGeometry* side) const;
+            BrushVertex* end(BrushFaceGeometry* side);
             
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
         };

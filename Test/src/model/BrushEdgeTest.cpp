@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/BrushEdge.h"
+#include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
@@ -39,6 +40,20 @@ namespace TrenchBroom {
             delete end;
         }
         
+        TEST(BrushEdgeTest, ConstructWithStartEndLeftRight) {
+            ASSERT_TRUE(false);
+        }
+        
+        TEST(BrushEdgeTest, StartVertexForSide) {
+            // test with left, right, null and neither side
+            ASSERT_TRUE(false);
+        }
+        
+        TEST(BrushEdgeTest, EndVertexForSide) {
+            // test with left, right, null and neither side
+            ASSERT_TRUE(false);
+        }
+
         TEST(BrushEdgeTest, FindBrushEdge) {
             BrushVertex* e1s = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* e1e = new BrushVertex(Vec3(2.0, 3.0, -1.0));

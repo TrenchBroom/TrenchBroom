@@ -23,13 +23,33 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end) :
+        BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end, BrushFaceGeometry* left, BrushFaceGeometry* right) :
         m_start(start),
-        m_end(end) {}
+        m_end(end),
+        m_left(left),
+        m_right(right) {}
         
         BrushEdge::~BrushEdge() {
             m_start = NULL;
             m_end = NULL;
+            m_left = NULL;
+            m_right = NULL;
+        }
+        
+        const BrushVertex* BrushEdge::start(BrushFaceGeometry* side) const {
+            return m_start;
+        }
+        
+        BrushVertex* BrushEdge::start(BrushFaceGeometry* side) {
+            return m_start;
+        }
+        
+        const BrushVertex* BrushEdge::end(BrushFaceGeometry* side) const {
+            return m_end;
+        }
+        
+        BrushVertex* BrushEdge::end(BrushFaceGeometry* side) {
+            return m_end;
         }
 
         bool BrushEdge::hasPositions(const Vec3& position1, const Vec3& position2) const {
