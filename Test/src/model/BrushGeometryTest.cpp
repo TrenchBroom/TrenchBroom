@@ -47,6 +47,42 @@ namespace TrenchBroom {
             const Vec3 v110( s,  s, -s);
             const Vec3 v111( s,  s,  s);
             
+            Vec3::List topVertices;
+            topVertices.push_back(v001);
+            topVertices.push_back(v011);
+            topVertices.push_back(v111);
+            topVertices.push_back(v101);
+            
+            Vec3::List bottomVertices;
+            bottomVertices.push_back(v000);
+            bottomVertices.push_back(v100);
+            bottomVertices.push_back(v110);
+            bottomVertices.push_back(v010);
+            
+            Vec3::List frontVertices;
+            frontVertices.push_back(v000);
+            frontVertices.push_back(v001);
+            frontVertices.push_back(v101);
+            frontVertices.push_back(v100);
+            
+            Vec3::List backVertices;
+            backVertices.push_back(v010);
+            backVertices.push_back(v110);
+            backVertices.push_back(v111);
+            backVertices.push_back(v011);
+            
+            Vec3::List leftVertices;
+            leftVertices.push_back(v000);
+            leftVertices.push_back(v010);
+            leftVertices.push_back(v011);
+            leftVertices.push_back(v001);
+            
+            Vec3::List rightVertices;
+            rightVertices.push_back(v100);
+            rightVertices.push_back(v101);
+            rightVertices.push_back(v111);
+            rightVertices.push_back(v110);
+            
             ASSERT_NE(vertices.end(), findBrushVertex(vertices, v000));
             ASSERT_NE(vertices.end(), findBrushVertex(vertices, v001));
             ASSERT_NE(vertices.end(), findBrushVertex(vertices, v010));
@@ -69,7 +105,12 @@ namespace TrenchBroom {
             ASSERT_NE(edges.end(), findBrushEdge(edges, v101, v111));
             ASSERT_NE(edges.end(), findBrushEdge(edges, v110, v111));
             
-            // TODO add asserts for sides
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, topVertices));
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, bottomVertices));
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, frontVertices));
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, backVertices));
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, leftVertices));
+            ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, rightVertices));
         }
     }
 }

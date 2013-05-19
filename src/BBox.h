@@ -26,6 +26,11 @@
 template <typename T, size_t S>
 class BBox {
 public:
+    typedef enum {
+        Min,
+        Max
+    } MinMax;
+
     class RelativePosition {
     public:
         typedef enum {
@@ -75,6 +80,18 @@ public:
     
     inline const Vec<T,S> size() const {
         return max - min;
+    }
+    
+    inline const Vec<T,S> vertex(MinMax c[S]) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; i++)
+            result[i] = c[i] == Min ? min[i] : max[i];
+        return result;
+    }
+    
+    inline const Vec<T,3> vertex(MinMax x, MinMax y, MinMax z) const {
+        MinMax c[] = {x, y, z};
+        return vertex(c);
     }
     
     inline BBox<T,S>& mergeWith(const BBox<T,S>& right) {

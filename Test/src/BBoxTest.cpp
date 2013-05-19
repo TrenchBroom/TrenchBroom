@@ -74,6 +74,21 @@ TEST(BBoxTest, GetSize) {
     ASSERT_EQ(Vec3f(2.0f, 5.0f, 8.0f), bounds.size());
 }
 
+TEST(BBoxTest, GetVertex) {
+    const Vec3f min(-1.0f, -2.0f, -3.0f);
+    const Vec3f max( 1.0f,  3.0f,  5.0f);
+    const BBox3f bounds(min, max);
+
+    ASSERT_VEC_EQ(Vec3f(-1.0f, -2.0f, -3.0f), bounds.vertex(BBox3f::Min, BBox3f::Min, BBox3f::Min));
+    ASSERT_VEC_EQ(Vec3f(-1.0f, -2.0f,  5.0f), bounds.vertex(BBox3f::Min, BBox3f::Min, BBox3f::Max));
+    ASSERT_VEC_EQ(Vec3f(-1.0f,  3.0f, -3.0f), bounds.vertex(BBox3f::Min, BBox3f::Max, BBox3f::Min));
+    ASSERT_VEC_EQ(Vec3f(-1.0f,  3.0f,  5.0f), bounds.vertex(BBox3f::Min, BBox3f::Max, BBox3f::Max));
+    ASSERT_VEC_EQ(Vec3f( 1.0f, -2.0f, -3.0f), bounds.vertex(BBox3f::Max, BBox3f::Min, BBox3f::Min));
+    ASSERT_VEC_EQ(Vec3f( 1.0f, -2.0f,  5.0f), bounds.vertex(BBox3f::Max, BBox3f::Min, BBox3f::Max));
+    ASSERT_VEC_EQ(Vec3f( 1.0f,  3.0f, -3.0f), bounds.vertex(BBox3f::Max, BBox3f::Max, BBox3f::Min));
+    ASSERT_VEC_EQ(Vec3f( 1.0f,  3.0f,  5.0f), bounds.vertex(BBox3f::Max, BBox3f::Max, BBox3f::Max));
+}
+
 TEST(BBoxTest, MergeWithBBox) {
     BBox3f bounds1(Vec3f(-12.0f, -3.0f, 4.0f), Vec3f(7.0f, 8.0f, 9.0f));
     const BBox3f bounds2(Vec3f(-10.0f, -5.0f, 3.0f), Vec3f(9.0f, 9.0f, 5.0f));
