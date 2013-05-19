@@ -128,6 +128,12 @@ namespace TrenchBroom {
             assert(m_vertices.size() == 8);
             assert(m_edges.size() == 12);
             assert(m_sides.size() == 6);
+            assert(top->isClosed());
+            assert(bottom->isClosed());
+            assert(front->isClosed());
+            assert(back->isClosed());
+            assert(left->isClosed());
+            assert(right->isClosed());
         }
     }
 }

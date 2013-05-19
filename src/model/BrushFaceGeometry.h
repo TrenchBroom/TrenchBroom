@@ -44,6 +44,7 @@ namespace TrenchBroom {
             void addBackwardEdge(BrushEdge* edge);
             void addBackwardEdges(const BrushEdgeList& edges);
             
+            bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
         };
         

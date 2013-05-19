@@ -119,6 +119,32 @@ namespace TrenchBroom {
             delete v3;
         }
         
+        TEST(BrushFaceGeometryTest, IsClosed) {
+            BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
+            BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v1);
+            
+            BrushFaceGeometry face;
+            ASSERT_FALSE(face.isClosed());
+            face.addForwardEdge(e1);
+            ASSERT_FALSE(face.isClosed());
+            face.addForwardEdge(e2);
+            ASSERT_FALSE(face.isClosed());
+            face.addForwardEdge(e3);
+            ASSERT_TRUE(face.isClosed());
+            
+            delete e1;
+            delete e2;
+            delete e3;
+            delete v1;
+            delete v2;
+            delete v3;
+        }
+        
         TEST(BrushFaceGeometryTest, HasVertexPositions) {
             const Vec3 p1(1.0, 2.0, 3.0);
             const Vec3 p2(2.0, 3.0, 4.0);

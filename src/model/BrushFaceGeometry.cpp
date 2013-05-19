@@ -98,6 +98,22 @@ namespace TrenchBroom {
             }
         }
 
+        bool BrushFaceGeometry::isClosed() const {
+            if (m_edges.size() < 3)
+                return false;
+            
+            BrushEdgeList::const_iterator it, end;
+            const BrushEdge* previous = m_edges.back();
+            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+                const BrushEdge* edge = *it;
+                if (previous->end(this) != edge->start(this))
+                    return false;
+                previous = edge;
+            }
+            
+            return true;
+        }
+
         bool BrushFaceGeometry::hasVertexPositions(const Vec3::List& positions) const {
             if (positions.size() != m_vertices.size())
                 return false;
