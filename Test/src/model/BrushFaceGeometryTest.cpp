@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Exceptions.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "CollectionUtils.h"
@@ -30,6 +31,94 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TEST(BrushFaceGeometryTest, AddForwardEdge) {
+            BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
+            BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v1);
+
+            BrushFaceGeometry face;
+            face.addForwardEdge(e1);
+            
+            ASSERT_THROW(face.addForwardEdge(NULL), GeometryException);
+            ASSERT_THROW(face.addForwardEdge(e1), GeometryException);
+            ASSERT_THROW(face.addForwardEdge(e3), GeometryException);
+            
+            face.addForwardEdge(e2);
+            face.addForwardEdge(e3);
+            
+            const BrushEdgeList& edges = face.edges();
+            ASSERT_EQ(e1, edges[0]);
+            ASSERT_EQ(e2, edges[1]);
+            ASSERT_EQ(e3, edges[2]);
+            
+            const BrushVertexList& vertices = face.vertices();
+            ASSERT_EQ(v1, vertices[0]);
+            ASSERT_EQ(v2, vertices[1]);
+            ASSERT_EQ(v3, vertices[2]);
+            
+            ASSERT_EQ(NULL, e1->left());
+            ASSERT_EQ(NULL, e2->left());
+            ASSERT_EQ(NULL, e3->left());
+            ASSERT_EQ(&face, e1->right());
+            ASSERT_EQ(&face, e2->right());
+            ASSERT_EQ(&face, e3->right());
+            
+            delete e1;
+            delete e2;
+            delete e3;
+            delete v1;
+            delete v2;
+            delete v3;
+        }
+        
+        TEST(BrushFaceGeometryTest, AddBackwardEdge) {
+            BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
+            BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
+            
+            BrushEdge* e1 = new BrushEdge(v2, v1);
+            BrushEdge* e2 = new BrushEdge(v3, v2);
+            BrushEdge* e3 = new BrushEdge(v1, v3);
+            
+            BrushFaceGeometry face;
+            face.addBackwardEdge(e1);
+            
+            ASSERT_THROW(face.addBackwardEdge(NULL), GeometryException);
+            ASSERT_THROW(face.addBackwardEdge(e1), GeometryException);
+            ASSERT_THROW(face.addBackwardEdge(e3), GeometryException);
+            
+            face.addBackwardEdge(e2);
+            face.addBackwardEdge(e3);
+            
+            const BrushEdgeList& edges = face.edges();
+            ASSERT_EQ(e1, edges[0]);
+            ASSERT_EQ(e2, edges[1]);
+            ASSERT_EQ(e3, edges[2]);
+            
+            const BrushVertexList& vertices = face.vertices();
+            ASSERT_EQ(v1, vertices[0]);
+            ASSERT_EQ(v2, vertices[1]);
+            ASSERT_EQ(v3, vertices[2]);
+            
+            ASSERT_EQ(NULL, e1->right());
+            ASSERT_EQ(NULL, e2->right());
+            ASSERT_EQ(NULL, e3->right());
+            ASSERT_EQ(&face, e1->left());
+            ASSERT_EQ(&face, e2->left());
+            ASSERT_EQ(&face, e3->left());
+            
+            delete e1;
+            delete e2;
+            delete e3;
+            delete v1;
+            delete v2;
+            delete v3;
+        }
+        
         TEST(BrushFaceGeometryTest, HasVertexPositions) {
             const Vec3 p1(1.0, 2.0, 3.0);
             const Vec3 p2(2.0, 3.0, 4.0);
@@ -57,7 +146,8 @@ namespace TrenchBroom {
             edges.push_back(new BrushEdge(v4, v5));
             edges.push_back(new BrushEdge(v5, v1));
             
-            BrushFaceGeometry face(edges);
+            BrushFaceGeometry face;
+            face.addForwardEdges(edges);
             
             Vec3::List list;
             list.push_back(p1);
@@ -129,9 +219,12 @@ namespace TrenchBroom {
             edges3.push_back(new BrushEdge(v4, v5));
             edges3.push_back(new BrushEdge(v5, v3));
             
-            BrushFaceGeometry* faceGeometry1 = new BrushFaceGeometry(edges1);
-            BrushFaceGeometry* faceGeometry2 = new BrushFaceGeometry(edges2);
-            BrushFaceGeometry* faceGeometry3 = new BrushFaceGeometry(edges3);
+            BrushFaceGeometry* faceGeometry1 = new BrushFaceGeometry();
+            faceGeometry1->addForwardEdges(edges1);
+            BrushFaceGeometry* faceGeometry2 = new BrushFaceGeometry();
+            faceGeometry2->addForwardEdges(edges2);
+            BrushFaceGeometry* faceGeometry3 = new BrushFaceGeometry();
+            faceGeometry3->addForwardEdges(edges3);
             
             BrushFaceGeometryList faceGeometries;
             faceGeometries.push_back(faceGeometry1);

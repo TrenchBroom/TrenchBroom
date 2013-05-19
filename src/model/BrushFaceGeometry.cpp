@@ -19,18 +19,82 @@
 
 #include "BrushFaceGeometry.h"
 
+#include "Exceptions.h"
 #include "MathUtils.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceGeometry::BrushFaceGeometry(const BrushEdgeList& edges) :
-        m_edges(edges) {
+        void BrushFaceGeometry::addForwardEdge(BrushEdge* edge) {
+            if (edge == NULL) {
+                GeometryException e;
+                e << "Edge must not be NULL";
+                throw e;
+            }
+            
+            if (edge->m_right != NULL) {
+                GeometryException e;
+                e << "Edge already has an incident side on its right";
+                throw e;
+            }
+            
+            if (!m_edges.empty()) {
+                const BrushEdge* previous = m_edges.back();
+                if (previous->end(this) != edge->start()) {
+                    GeometryException e;
+                    e << "Cannot add non-consecutive edge";
+                    throw e;
+                }
+            }
+            
+            edge->m_right = this;
+            m_edges.push_back(edge);
+            m_vertices.push_back(edge->start());
+        }
+        
+        void BrushFaceGeometry::addForwardEdges(const BrushEdgeList& edges) {
             BrushEdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                BrushEdge& edge = **it;
-                m_vertices.push_back(edge.start(this));
+                BrushEdge* edge = *it;
+                addForwardEdge(edge);
+            }
+        }
+
+        void BrushFaceGeometry::addBackwardEdge(BrushEdge* edge) {
+            if (edge == NULL) {
+                GeometryException e;
+                e << "Edge must not be NULL";
+                throw e;
+            }
+            
+            if (edge->m_left != NULL) {
+                GeometryException e;
+                e << "Edge already has an incident side on its left";
+                throw e;
+            }
+
+            if (!m_edges.empty()) {
+                const BrushEdge* previous = m_edges.back();
+                if (previous->end(this) != edge->end()) {
+                    GeometryException e;
+                    e << "Cannot add non-consecutive edge";
+                    throw e;
+                }
+            }
+            
+            edge->m_left = this;
+            m_edges.push_back(edge);
+            m_vertices.push_back(edge->end());
+        }
+
+        void BrushFaceGeometry::addBackwardEdges(const BrushEdgeList& edges) {
+            BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                BrushEdge* edge = *it;
+                addBackwardEdge(edge);
             }
         }
 

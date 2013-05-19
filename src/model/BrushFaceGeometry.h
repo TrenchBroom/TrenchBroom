@@ -31,8 +31,19 @@ namespace TrenchBroom {
             BrushVertexList m_vertices;
             BrushEdgeList m_edges;
         public:
-            BrushFaceGeometry(const BrushEdgeList& edges);
-
+            inline const BrushVertexList& vertices() const {
+                return m_vertices;
+            }
+            
+            inline const BrushEdgeList& edges() const {
+                return m_edges;
+            }
+            
+            void addForwardEdge(BrushEdge* edge);
+            void addForwardEdges(const BrushEdgeList& edges);
+            void addBackwardEdge(BrushEdge* edge);
+            void addBackwardEdges(const BrushEdgeList& edges);
+            
             bool hasVertexPositions(const Vec3::List& positions) const;
         };
         

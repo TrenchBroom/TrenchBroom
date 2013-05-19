@@ -120,7 +120,6 @@
 		487B46D2174007B4005E51F4 /* EntityPropertyTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTypes.h; sourceTree = "<group>"; };
 		487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertiesTest.cpp; sourceTree = "<group>"; };
 		487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTypes.cpp; sourceTree = "<group>"; };
-		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
 		48B954A7173BBB3000E293E5 /* MapDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocument.cpp; sourceTree = "<group>"; };
@@ -227,7 +226,6 @@
 		484763DC15E2BC5000095BC0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				48819C4515EC108400BEA604 /* QuakePalette.lmp */,
 				484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */,
 				484763DE15E2BC5000095BC0 /* InfoPlist.strings */,
 				484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */,

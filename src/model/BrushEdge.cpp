@@ -23,11 +23,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end, BrushFaceGeometry* left, BrushFaceGeometry* right) :
+        BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end) :
         m_start(start),
         m_end(end),
-        m_left(left),
-        m_right(right) {}
+        m_left(NULL),
+        m_right(NULL) {}
         
         BrushEdge::~BrushEdge() {
             m_start = NULL;
@@ -36,20 +36,36 @@ namespace TrenchBroom {
             m_right = NULL;
         }
         
-        const BrushVertex* BrushEdge::start(BrushFaceGeometry* side) const {
-            return m_start;
+        const BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) const {
+            if (side == m_right)
+                return m_start;
+            if (side == m_left)
+                return m_end;
+            return NULL;
         }
         
-        BrushVertex* BrushEdge::start(BrushFaceGeometry* side) {
-            return m_start;
+        BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) {
+            if (side == m_right)
+                return m_start;
+            if (side == m_left)
+                return m_end;
+            return NULL;
         }
         
-        const BrushVertex* BrushEdge::end(BrushFaceGeometry* side) const {
-            return m_end;
+        const BrushVertex* BrushEdge::end(const BrushFaceGeometry* side) const {
+            if (side == m_right)
+                return m_end;
+            if (side == m_left)
+                return m_start;
+            return NULL;
         }
         
-        BrushVertex* BrushEdge::end(BrushFaceGeometry* side) {
-            return m_end;
+        BrushVertex* BrushEdge::end(const BrushFaceGeometry* side) {
+            if (side == m_right)
+                return m_end;
+            if (side == m_left)
+                return m_start;
+            return NULL;
         }
 
         bool BrushEdge::hasPositions(const Vec3& position1, const Vec3& position2) const {

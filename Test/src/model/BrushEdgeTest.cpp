@@ -40,20 +40,37 @@ namespace TrenchBroom {
             delete end;
         }
         
-        TEST(BrushEdgeTest, ConstructWithStartEndLeftRight) {
-            ASSERT_TRUE(false);
-        }
-        
-        TEST(BrushEdgeTest, StartVertexForSide) {
-            // test with left, right, null and neither side
-            ASSERT_TRUE(false);
-        }
-        
-        TEST(BrushEdgeTest, EndVertexForSide) {
-            // test with left, right, null and neither side
-            ASSERT_TRUE(false);
-        }
+        TEST(BrushEdgeTest, StartAndEndVertexForSide) {
+            BrushVertex* start = new BrushVertex(Vec3::Null);
+            BrushVertex* end = new BrushVertex(Vec3::Null);
+            
+            BrushEdge* edge = new BrushEdge(start, end);
+            
+            BrushFaceGeometry* left = new BrushFaceGeometry();
+            BrushFaceGeometry* right = new BrushFaceGeometry();
+            BrushFaceGeometry* neither = new BrushFaceGeometry();
 
+            right->addForwardEdge(edge);
+            left->addBackwardEdge(edge);
+            
+            ASSERT_EQ(NULL, edge->start(NULL));
+            ASSERT_EQ(NULL, edge->start(neither));
+            ASSERT_EQ(start, edge->start(right));
+            ASSERT_EQ(end, edge->start(left));
+            
+            ASSERT_EQ(NULL, edge->end(NULL));
+            ASSERT_EQ(NULL, edge->end(neither));
+            ASSERT_EQ(end, edge->end(right));
+            ASSERT_EQ(start, edge->end(left));
+            
+            delete left;
+            delete right;
+            delete neither;
+            delete edge;
+            delete start;
+            delete end;
+        }
+        
         TEST(BrushEdgeTest, FindBrushEdge) {
             BrushVertex* e1s = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* e1e = new BrushVertex(Vec3(2.0, 3.0, -1.0));
