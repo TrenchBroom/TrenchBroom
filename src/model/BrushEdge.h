@@ -30,11 +30,20 @@ namespace TrenchBroom {
         class BrushFaceGeometry;
         
         class BrushEdge {
+        public:
+            enum Mark {
+                Drop,
+                Keep,
+                Split,
+                Undecided,
+                New
+            };
         private:
             BrushVertex* m_start;
             BrushVertex* m_end;
             BrushFaceGeometry* m_left;
             BrushFaceGeometry* m_right;
+            Mark m_mark;
             
             friend class BrushFaceGeometry;
         public:
@@ -73,6 +82,13 @@ namespace TrenchBroom {
                 return m_right;
             }
             
+            inline const Mark mark() const {
+                return m_mark;
+            }
+            
+            void updateMark();
+            BrushVertex* split(const Plane3& plane);
+            
             const BrushVertex* start(const BrushFaceGeometry* side) const;
             BrushVertex* start(const BrushFaceGeometry* side);
             const BrushVertex* end(const BrushFaceGeometry* side) const;
@@ -81,9 +97,9 @@ namespace TrenchBroom {
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
         };
 
-        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& vertices, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::iterator it = vertices.begin();
-            const BrushEdgeList::iterator end = vertices.end();
+        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::iterator it = edges.begin();
+            const BrushEdgeList::iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))
@@ -93,9 +109,9 @@ namespace TrenchBroom {
             return end;
         }
         
-        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& vertices, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::const_iterator it = vertices.begin();
-            const BrushEdgeList::const_iterator end = vertices.end();
+        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::const_iterator it = edges.begin();
+            const BrushEdgeList::const_iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))

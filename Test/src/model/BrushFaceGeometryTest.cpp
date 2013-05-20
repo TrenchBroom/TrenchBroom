@@ -26,11 +26,305 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
+#include "TestUtils.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
+        inline void updateMarks(const BrushVertexList& vertices, const BrushEdgeList& edges, const Plane3& plane) {
+            BrushVertexList::const_iterator vIt, vEnd;
+            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                BrushVertex& vertex = **vIt;
+                vertex.updateMark(plane);
+            }
+            
+            BrushEdgeList::const_iterator eIt, eEnd;
+            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                BrushEdge& edge = **eIt;
+                edge.updateMark();
+            }
+        }
+        
+        inline BrushVertexList splitEdges(const BrushEdgeList& edges, const Plane3& plane) {
+            BrushVertexList newVertices;
+            BrushEdgeList::const_iterator eIt, eEnd;
+            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                BrushEdge& edge = **eIt;
+                if (edge.mark() == BrushEdge::Split)
+                    newVertices.push_back(edge.split(plane));
+            }
+            return newVertices;
+        }
+        
+        TEST(BrushFaceGeometryTest, GetMark) {
+            BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
+            BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
+            BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v4);
+            BrushEdge* e4 = new BrushEdge(v4, v1);
+            
+            BrushEdgeList edges;
+            edges.push_back(e1);
+            edges.push_back(e2);
+            edges.push_back(e3);
+            edges.push_back(e4);
+            
+            BrushFaceGeometry face;
+            face.addForwardEdge(e1);
+            face.addForwardEdge(e2);
+            face.addForwardEdge(e3);
+            face.addForwardEdge(e4);
+
+            updateMarks(vertices, edges, Plane3(11.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Keep, face.mark());
+
+            updateMarks(vertices, edges, Plane3(10.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Keep, face.mark());
+
+            updateMarks(vertices, edges, Plane3(9.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Split, face.mark());
+
+            updateMarks(vertices, edges, Plane3(1.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Split, face.mark());
+
+            updateMarks(vertices, edges, Plane3(0.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Drop, face.mark());
+
+            updateMarks(vertices, edges, Plane3(-1.0, Vec3::PosX));
+            ASSERT_EQ(BrushFaceGeometry::Drop, face.mark());
+            
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+        }
+        
+        TEST(BrushFaceGeometryTest, SplitSquareVerticallyAndSplitTwoEdges) {
+            BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
+            BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
+            BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v4);
+            BrushEdge* e4 = new BrushEdge(v4, v1);
+            
+            BrushEdgeList edges;
+            edges.push_back(e1);
+            edges.push_back(e2);
+            edges.push_back(e3);
+            edges.push_back(e4);
+            
+            BrushFaceGeometry* face = new BrushFaceGeometry();
+            face->addForwardEdge(e1);
+            face->addForwardEdge(e2);
+            face->addForwardEdge(e3);
+            face->addForwardEdge(e4);
+
+            const Plane3 plane(5.0, Vec3::PosX);
+            updateMarks(vertices, edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
+            BrushEdge* newEdge = face->splitUsingEdgeMarks();
+            
+            ASSERT_TRUE(newEdge != NULL);
+            ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_EQ(4, face->vertices().size());
+            ASSERT_EQ(4, face->edges().size());
+            
+            BrushFaceGeometryList faces;
+            faces.push_back(face);
+            
+            Vec3::List newPositions;
+            newPositions.push_back(Vec3(0.0,  0.0, 0.0));
+            newPositions.push_back(Vec3(0.0, 10.0, 0.0));
+            newPositions.push_back(Vec3(5.0, 10.0, 0.0));
+            newPositions.push_back(Vec3(5.0,  0.0, 0.0));
+            
+            ASSERT_EQ(faces.begin(), findBrushFaceGeometry(faces, newPositions));
+            
+            delete face;
+            delete newEdge;
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+            VectorUtils::clearAndDelete(newVertices);
+        }
+        
+        TEST(BrushFaceGeometryTest, SplitSquareAndSplitOneEdge) {
+            BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
+            BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
+            BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v4);
+            BrushEdge* e4 = new BrushEdge(v4, v1);
+            
+            BrushEdgeList edges;
+            edges.push_back(e1);
+            edges.push_back(e2);
+            edges.push_back(e3);
+            edges.push_back(e4);
+            
+            BrushFaceGeometry* face = new BrushFaceGeometry();
+            face->addForwardEdge(e1);
+            face->addForwardEdge(e2);
+            face->addForwardEdge(e3);
+            face->addForwardEdge(e4);
+            
+            const Plane3 plane(Vec3(10.0, 10.0, 0.0), Vec3(2.0, -1.0, 0.0).normalized());
+            updateMarks(vertices, edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
+            BrushEdge* newEdge = face->splitUsingEdgeMarks();
+            
+            ASSERT_TRUE(newEdge != NULL);
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_EQ(4, face->vertices().size());
+            ASSERT_EQ(4, face->edges().size());
+            
+            BrushFaceGeometryList faces;
+            faces.push_back(face);
+            
+            Vec3::List newPositions;
+            newPositions.push_back(Vec3( 0.0,  0.0, 0.0));
+            newPositions.push_back(Vec3( 0.0, 10.0, 0.0));
+            newPositions.push_back(Vec3(10.0, 10.0, 0.0));
+            newPositions.push_back(Vec3( 5.0,  0.0, 0.0));
+            
+            ASSERT_EQ(faces.begin(), findBrushFaceGeometry(faces, newPositions));
+            
+            delete face;
+            delete newEdge;
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+            VectorUtils::clearAndDelete(newVertices);
+        }
+
+        TEST(BrushFaceGeometryTest, SplitSquareAndSplitNoEdge) {
+            BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
+            BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
+            BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v4);
+            BrushEdge* e4 = new BrushEdge(v4, v1);
+            
+            BrushEdgeList edges;
+            edges.push_back(e1);
+            edges.push_back(e2);
+            edges.push_back(e3);
+            edges.push_back(e4);
+            
+            BrushFaceGeometry* face = new BrushFaceGeometry();
+            face->addForwardEdge(e1);
+            face->addForwardEdge(e2);
+            face->addForwardEdge(e3);
+            face->addForwardEdge(e4);
+            
+            const Plane3 plane(Vec3(10.0, 10.0, 0.0), Vec3(1.0, -1.0, 0.0).normalized());
+            updateMarks(vertices, edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
+            BrushEdge* newEdge = face->splitUsingEdgeMarks();
+            
+            ASSERT_TRUE(newEdge != NULL);
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_EQ(3, face->vertices().size());
+            ASSERT_EQ(3, face->edges().size());
+            
+            BrushFaceGeometryList faces;
+            faces.push_back(face);
+            
+            Vec3::List newPositions;
+            newPositions.push_back(Vec3( 0.0,  0.0, 0.0));
+            newPositions.push_back(Vec3( 0.0, 10.0, 0.0));
+            newPositions.push_back(Vec3(10.0, 10.0, 0.0));
+            
+            ASSERT_EQ(faces.begin(), findBrushFaceGeometry(faces, newPositions));
+            
+            delete face;
+            delete newEdge;
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+            VectorUtils::clearAndDelete(newVertices);
+        }
+        
+        TEST(BrushFaceGeometryTest, FindUndecidedEdge) {
+            BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
+            BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
+            BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
+            BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdge* e1 = new BrushEdge(v1, v2);
+            BrushEdge* e2 = new BrushEdge(v2, v3);
+            BrushEdge* e3 = new BrushEdge(v3, v4);
+            BrushEdge* e4 = new BrushEdge(v4, v1);
+            
+            BrushEdgeList edges;
+            edges.push_back(e1);
+            edges.push_back(e2);
+            edges.push_back(e3);
+            edges.push_back(e4);
+            
+            BrushFaceGeometry* face = new BrushFaceGeometry();
+            face->addForwardEdge(e1);
+            face->addForwardEdge(e2);
+            face->addForwardEdge(e3);
+            face->addForwardEdge(e4);
+            
+            const Plane3 plane1(10.0, Vec3::PosX);
+            updateMarks(vertices, edges, plane1);
+            ASSERT_EQ(BrushFaceGeometry::Keep, face->mark());
+            ASSERT_EQ(e3, face->findUndecidedEdge());
+            
+            const Plane3 plane2(0.0, Vec3::PosX);
+            updateMarks(vertices, edges, plane2);
+            ASSERT_EQ(BrushFaceGeometry::Drop, face->mark());
+            ASSERT_EQ(e1, face->findUndecidedEdge());
+            
+            delete face;
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+        }
+
         TEST(BrushFaceGeometryTest, AddForwardEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));

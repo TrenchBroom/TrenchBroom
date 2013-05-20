@@ -22,9 +22,9 @@
 
 #include "VecMath.h"
 
-typedef double FloatPrecision;
-typedef BBox<FloatPrecision, 3> BBox3;
-typedef Vec<FloatPrecision, 3> Vec3;
-typedef Plane<FloatPrecision, 3> Plane3;
+typedef double FloatType;
+typedef BBox<FloatType, 3> BBox3;
+typedef Vec<FloatType, 3> Vec3;
+typedef Plane<FloatType, 3> Plane3;
 
 #endif

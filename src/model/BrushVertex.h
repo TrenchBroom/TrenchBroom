@@ -27,14 +27,28 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushVertex {
+        public:
+            typedef enum {
+                Drop,
+                Keep,
+                Undecided,
+                New
+            } Mark;
         private:
             Vec3 m_position;
+            Mark m_mark;
         public:
             BrushVertex(const Vec3& position);
             
             inline const Vec3& position() const {
                 return m_position;
             }
+            
+            inline const Mark mark() const {
+                return m_mark;
+            }
+            
+            void updateMark(const Plane3& plane);
         };
         
         inline BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {

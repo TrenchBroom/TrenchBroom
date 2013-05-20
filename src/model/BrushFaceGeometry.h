@@ -23,14 +23,32 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/BrushGeometryTypes.h"
+#include "Model/BrushFaceTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        
         class BrushFaceGeometry {
+        public:
+            typedef enum {
+                Keep,
+                Drop,
+                Split
+            } Mark;
         private:
             BrushVertexList m_vertices;
             BrushEdgeList m_edges;
+            BrushFacePtr m_face;
         public:
+            inline BrushFacePtr face() const {
+                return m_face;
+            }
+            
+            inline void setFace(BrushFacePtr face) {
+                m_face = face;
+            }
+            
             inline const BrushVertexList& vertices() const {
                 return m_vertices;
             }
@@ -39,6 +57,10 @@ namespace TrenchBroom {
                 return m_edges;
             }
             
+            const Mark mark() const;
+            BrushEdge* splitUsingEdgeMarks();
+            BrushEdge* findUndecidedEdge() const;
+            
             void addForwardEdge(BrushEdge* edge);
             void addForwardEdges(const BrushEdgeList& edges);
             void addBackwardEdge(BrushEdge* edge);
@@ -46,6 +68,9 @@ namespace TrenchBroom {
             
             bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
+        private:
+            void replaceEdgesWithForwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
+            void updateVerticesFromEdges();
         };
         
         inline BrushFaceGeometryList::iterator findBrushFaceGeometry(BrushFaceGeometryList& faceGeometries, const Vec3::List& positions) {

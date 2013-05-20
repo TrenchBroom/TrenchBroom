@@ -46,6 +46,8 @@ namespace TrenchBroom {
                 return m_points;
             }
             
+            bool arePointsOnPlane(const Plane3& plane) const;
+            
             inline const Plane3& boundary() const {
                 return m_boundary;
             }

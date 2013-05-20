@@ -40,15 +40,41 @@ namespace TrenchBroom {
                 return m_vertices;
             }
             
+            inline BrushVertexList& vertices() {
+                return m_vertices;
+            }
+            
+            inline void addVertex(BrushVertex* vertex) {
+                m_vertices.push_back(vertex);
+            }
+            
             inline const BrushEdgeList& edges() const {
                 return m_edges;
+            }
+            
+            inline BrushEdgeList& edges() {
+                return m_edges;
+            }
+            
+            inline void addEdge(BrushEdge* edge) {
+                m_edges.push_back(edge);
             }
             
             inline const BrushFaceGeometryList& sides() const {
                 return m_sides;
             }
+            
+            inline BrushFaceGeometryList& sides() {
+                return m_sides;
+            }
+            
+            inline void addSide(BrushFaceGeometry* side) {
+                m_sides.push_back(side);
+            }
         private:
             void initializeWithBounds(const BBox3& bounds);
+            void addFaces(const BrushFaceList& faces);
+            void addFace(BrushFacePtr face);
         };
     }
 }

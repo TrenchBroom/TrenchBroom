@@ -28,6 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         BrushGeometry::BrushGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
             initializeWithBounds(worldBounds);
+            addFaces(faces);
         }
 
         BrushGeometry::~BrushGeometry() {
@@ -96,34 +97,34 @@ namespace TrenchBroom {
             right->addBackwardEdge(v110v111);
             right->addForwardEdge(v110v100);
 
-            m_vertices.push_back(v000);
-            m_vertices.push_back(v001);
-            m_vertices.push_back(v010);
-            m_vertices.push_back(v011);
-            m_vertices.push_back(v100);
-            m_vertices.push_back(v101);
-            m_vertices.push_back(v110);
-            m_vertices.push_back(v111);
+            addVertex(v000);
+            addVertex(v001);
+            addVertex(v010);
+            addVertex(v011);
+            addVertex(v100);
+            addVertex(v101);
+            addVertex(v110);
+            addVertex(v111);
             
-            m_edges.push_back(v000v001);
-            m_edges.push_back(v001v101);
-            m_edges.push_back(v101v100);
-            m_edges.push_back(v100v000);
-            m_edges.push_back(v010v110);
-            m_edges.push_back(v110v111);
-            m_edges.push_back(v111v011);
-            m_edges.push_back(v011v010);
-            m_edges.push_back(v000v010);
-            m_edges.push_back(v011v001);
-            m_edges.push_back(v101v111);
-            m_edges.push_back(v110v100);
+            addEdge(v000v001);
+            addEdge(v001v101);
+            addEdge(v101v100);
+            addEdge(v100v000);
+            addEdge(v010v110);
+            addEdge(v110v111);
+            addEdge(v111v011);
+            addEdge(v011v010);
+            addEdge(v000v010);
+            addEdge(v011v001);
+            addEdge(v101v111);
+            addEdge(v110v100);
             
-            m_sides.push_back(top);
-            m_sides.push_back(bottom);
-            m_sides.push_back(front);
-            m_sides.push_back(back);
-            m_sides.push_back(left);
-            m_sides.push_back(right);
+            addSide(top);
+            addSide(bottom);
+            addSide(front);
+            addSide(back);
+            addSide(left);
+            addSide(right);
             
             assert(m_vertices.size() == 8);
             assert(m_edges.size() == 12);
@@ -134,6 +135,18 @@ namespace TrenchBroom {
             assert(back->isClosed());
             assert(left->isClosed());
             assert(right->isClosed());
+        }
+
+        void BrushGeometry::addFaces(const BrushFaceList& faces) {
+            BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFacePtr face = *it;
+                addFace(face);
+            }
+        }
+        
+        void BrushGeometry::addFace(BrushFacePtr face) {
+            
         }
     }
 }

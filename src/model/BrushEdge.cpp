@@ -27,7 +27,8 @@ namespace TrenchBroom {
         m_start(start),
         m_end(end),
         m_left(NULL),
-        m_right(NULL) {}
+        m_right(NULL),
+        m_mark(New) {}
         
         BrushEdge::~BrushEdge() {
             m_start = NULL;
@@ -36,6 +37,71 @@ namespace TrenchBroom {
             m_right = NULL;
         }
         
+        void BrushEdge::updateMark() {
+            size_t drop = 0;
+            size_t keep = 0;
+            size_t undecided = 0;
+            
+            const BrushVertex::Mark startMark = m_start->mark();
+            const BrushVertex::Mark endMark = m_end->mark();
+            
+            if (startMark == BrushVertex::Drop)
+                drop++;
+            else if (startMark == BrushVertex::Keep)
+                keep++;
+            else if (startMark == BrushVertex::Undecided)
+                undecided++;
+            if (endMark == BrushVertex::Drop)
+                drop++;
+            else if (endMark == BrushVertex::Keep)
+                keep++;
+            else if (endMark == BrushVertex::Undecided)
+                undecided++;
+            assert(drop + keep + undecided == 2);
+            
+            if (drop == 1 && keep == 1)
+                m_mark = BrushEdge::Split;
+            else if (drop > 0)
+                m_mark = BrushEdge::Drop;
+            else if (keep > 0)
+                m_mark = BrushEdge::Keep;
+            else
+                m_mark = BrushEdge::Undecided;
+        }
+        
+        BrushVertex* BrushEdge::split(const Plane3& plane) {
+            assert(mark() == BrushEdge::Split);
+            
+            // Do exactly what QBSP is doing:
+            const FloatType startDist = plane.pointDistance(m_start->position());
+            const FloatType endDist = plane.pointDistance(m_end->position());
+            
+            assert(startDist != endDist);
+            const FloatType dot = startDist / (startDist - endDist);
+
+            const Vec3& startPos = m_start->position();
+            const Vec3& endPos = m_end->position();
+            Vec3 position;
+            for (size_t i = 0; i < 3; i++) {
+                if (plane.normal[i] == 1.0)
+                    position[i] = plane.distance;
+                else if (plane.normal[i] == -1.0)
+                    position[i] = -plane.distance;
+                else
+                    position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
+            }
+            
+            // cheat a little bit?, just like QBSP
+            position.correct();
+            
+            BrushVertex* newVertex = new BrushVertex(position);
+            if (m_start->mark() == BrushVertex::Drop)
+                m_start = newVertex;
+            else
+                m_end = newVertex;
+            return newVertex;
+        }
+
         const BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) const {
             if (side == m_right)
                 return m_start;

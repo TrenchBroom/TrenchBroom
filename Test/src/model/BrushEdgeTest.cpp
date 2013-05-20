@@ -25,6 +25,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,6 +39,59 @@ namespace TrenchBroom {
             
             delete start;
             delete end;
+        }
+        
+        TEST(BrushEdgeTest, Mark) {
+            BrushVertex* start = new BrushVertex(Vec3(0.0, 0.0, -1.0));
+            BrushVertex* end = new BrushVertex(Vec3(0.0, 0.0, 1.0));
+            BrushEdge edge(start, end);
+
+            start->updateMark(Plane3(2.0, Vec3::PosZ));
+            end->updateMark(Plane3(2.0, Vec3::PosZ));
+            edge.updateMark();
+            ASSERT_EQ(BrushEdge::Keep, edge.mark());
+            
+            start->updateMark(Plane3(1.0, Vec3::PosZ));
+            end->updateMark(Plane3(1.0, Vec3::PosZ));
+            edge.updateMark();
+            ASSERT_EQ(BrushEdge::Keep, edge.mark());
+
+            start->updateMark(Plane3(0.0, Vec3::PosZ));
+            end->updateMark(Plane3(0.0, Vec3::PosZ));
+            edge.updateMark();
+            ASSERT_EQ(BrushEdge::Split, edge.mark());
+            
+            start->updateMark(Plane3(-1.0, Vec3::PosZ));
+            end->updateMark(Plane3(-1.0, Vec3::PosZ));
+            edge.updateMark();
+            ASSERT_EQ(BrushEdge::Drop, edge.mark());
+
+            start->updateMark(Plane3(-2.0, Vec3::PosZ));
+            end->updateMark(Plane3(-2.0, Vec3::PosZ));
+            edge.updateMark();
+            ASSERT_EQ(BrushEdge::Drop, edge.mark());
+
+            delete start;
+            delete end;
+        }
+        
+        TEST(BrushEdgeTest, Split) {
+            BrushVertex* start = new BrushVertex(Vec3(3.0, 2.0, 1.0));
+            BrushVertex* end = new BrushVertex(Vec3(3.0, 2.0, 10.0));
+            BrushEdge edge(start, end);
+            
+            const Plane3 plane(8.0, Vec3::PosZ);
+            start->updateMark(plane);
+            end->updateMark(plane);
+            edge.updateMark();
+            
+            BrushVertex* newVertex = edge.split(plane);
+            ASSERT_TRUE(newVertex != NULL);
+            ASSERT_VEC_EQ(Vec3(3.0, 2.0, 8.0), newVertex->position());
+            
+            delete start;
+            delete end;
+            delete newVertex;
         }
         
         TEST(BrushEdgeTest, StartAndEndVertexForSide) {

@@ -31,6 +31,13 @@ namespace TrenchBroom {
             return BrushFacePtr(new BrushFace(point0, point1, point2));
         }
 
+        bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
+            for (size_t i = 0; i < 3; i++)
+                if (plane.pointStatus(m_points[i]) != PointStatus::PSInside)
+                    return false;
+            return true;
+        }
+
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;

@@ -33,6 +33,16 @@ namespace TrenchBroom {
             ASSERT_EQ(position, vertex.position());
         }
         
+        TEST(BrushVertexTest, GetMark) {
+            BrushVertex v(Vec3::Null);
+            v.updateMark(Plane3(-1.0, Vec3::PosZ));
+            ASSERT_EQ(BrushVertex::Drop, v.mark());
+            v.updateMark(Plane3( 0.0, Vec3::PosZ));
+            ASSERT_EQ(BrushVertex::Undecided, v.mark());
+            v.updateMark(Plane3( 1.0, Vec3::PosZ));
+            ASSERT_EQ(BrushVertex::Keep, v.mark());
+        }
+        
         TEST(BrushVertexTest, FindBrushVertex) {
             BrushVertex* v1 = new BrushVertex(Vec3::Null);
             BrushVertex* v2 = new BrushVertex(Vec3(1.3232, 0.3332, -33123.2954));

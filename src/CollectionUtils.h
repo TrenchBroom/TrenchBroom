@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include "SharedPointer.h"
 
 namespace VectorUtils {
     template <typename T>
@@ -80,6 +81,16 @@ namespace VectorUtils {
     inline void removeAndDelete(std::vector<T*>& vec, const T* item) {
         remove(vec, item);
         delete item;
+    }
+    
+    template <typename T>
+    inline typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
+        return std::find(vec.begin(), vec.end(), item);
+    }
+    
+    template <typename T>
+    inline typename std::vector<T>::iterator find(std::vector<T>& vec, const T& item) {
+        return std::find(vec.begin(), vec.end(), item);
     }
     
     template <typename T>

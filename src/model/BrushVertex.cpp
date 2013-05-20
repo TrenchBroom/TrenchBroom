@@ -22,6 +22,22 @@
 namespace TrenchBroom {
     namespace Model {
         BrushVertex::BrushVertex(const Vec3& position) :
-        m_position(position) {}
+        m_position(position),
+        m_mark(New) {}
+
+        void BrushVertex::updateMark(const Plane3& plane) {
+            const PointStatus::Type status = plane.pointStatus(m_position);
+            switch (status) {
+                case PointStatus::PSAbove:
+                    m_mark = Drop;
+                    break;
+                case PointStatus::PSBelow:
+                    m_mark = Keep;
+                    break;
+                default:
+                    m_mark = Undecided;
+                    break;
+            }
+        }
     }
 }
