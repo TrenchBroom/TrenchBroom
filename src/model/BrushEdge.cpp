@@ -102,6 +102,11 @@ namespace TrenchBroom {
             return newVertex;
         }
 
+        void BrushEdge::flip() {
+            std::swap(m_left, m_right);
+            std::swap(m_start, m_end);
+        }
+
         const BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) const {
             if (side == m_right)
                 return m_start;

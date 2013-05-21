@@ -74,16 +74,16 @@ namespace TrenchBroom {
                 const BrushEdge::Mark currentMark = currentEdge->mark();
                 if (currentMark == BrushEdge::Keep && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
-                    newEdgeEnd = currentEdge->start(this);
+                    newEdgeStart = currentEdge->start(this);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
-                    newEdgeEnd = currentEdge->start(this);
+                    newEdgeStart = currentEdge->start(this);
                 } else if (currentMark == BrushEdge::Drop && lastMark == BrushEdge::Keep) {
                     splitIt1 = it;
-                    newEdgeStart = currentEdge->start(this);
+                    newEdgeEnd = currentEdge->start(this);
                 } else if (currentMark == BrushEdge::Drop &&  lastMark == BrushEdge::Split) {
                     splitIt1 = it;
-                    newEdgeStart = lastEdge->end(this);
+                    newEdgeEnd = lastEdge->end(this);
                 }
                 lastEdge = currentEdge;
                 lastMark = currentMark;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             }
             
             BrushEdge* newEdge = new BrushEdge(newEdgeStart, newEdgeEnd);
-            replaceEdgesWithForwardEdge(splitIt1, splitIt2, newEdge);
+            replaceEdgesWithBackwardEdge(splitIt1, splitIt2, newEdge);
             return newEdge;
         }
 
@@ -111,11 +111,7 @@ namespace TrenchBroom {
         }
 
         void BrushFaceGeometry::addForwardEdge(BrushEdge* edge) {
-            if (edge == NULL) {
-                GeometryException e;
-                e << "Edge must not be NULL";
-                throw e;
-            }
+            assert(edge != NULL);
             
             if (edge->m_right != NULL) {
                 GeometryException e;
@@ -146,11 +142,7 @@ namespace TrenchBroom {
         }
 
         void BrushFaceGeometry::addBackwardEdge(BrushEdge* edge) {
-            if (edge == NULL) {
-                GeometryException e;
-                e << "Edge must not be NULL";
-                throw e;
-            }
+            assert(edge != NULL);
             
             if (edge->m_left != NULL) {
                 GeometryException e;
@@ -215,21 +207,22 @@ namespace TrenchBroom {
             return false;
         }
 
-        void BrushFaceGeometry::replaceEdgesWithForwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
+        void BrushFaceGeometry::replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
             if (it1 == it2) {
                 m_edges.insert(it1, edge);
             } else if (it1 < it2) {
-                const BrushEdgeList::iterator insertPos = m_edges.erase(it1, it2);
-                m_edges.insert(insertPos, edge);
+                BrushEdgeList newEdges;
+                newEdges.insert(newEdges.end(), m_edges.begin(), it1);
+                newEdges.push_back(edge);
+                newEdges.insert(newEdges.end(), it2, m_edges.end());
+                m_edges = newEdges;
             } else {
-                const BrushEdgeList::iterator::difference_type distance = it2 - m_edges.begin();
-                m_edges.erase(it1, m_edges.end());
-                BrushEdgeList::iterator end = m_edges.begin();
-                std::advance(end, distance);
-                m_edges.erase(m_edges.begin(), end);
-                m_edges.push_back(edge);
+                BrushEdgeList newEdges;
+                newEdges.insert(newEdges.end(), it2, it1);
+                newEdges.push_back(edge);
+                m_edges = newEdges;
             }
-            edge->m_right = this;
+            edge->m_left = this;
             updateVerticesFromEdges();
         }
 

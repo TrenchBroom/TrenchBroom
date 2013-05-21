@@ -143,8 +143,8 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->end()->position());
             ASSERT_EQ(4, face->vertices().size());
             ASSERT_EQ(4, face->edges().size());
             
@@ -201,8 +201,8 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
             ASSERT_EQ(4, face->vertices().size());
             ASSERT_EQ(4, face->edges().size());
             
@@ -259,8 +259,8 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->end()->position());
+            ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->start()->position());
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
             ASSERT_EQ(3, face->vertices().size());
             ASSERT_EQ(3, face->edges().size());
             
@@ -337,7 +337,6 @@ namespace TrenchBroom {
             BrushFaceGeometry face;
             face.addForwardEdge(e1);
             
-            ASSERT_THROW(face.addForwardEdge(NULL), GeometryException);
             ASSERT_THROW(face.addForwardEdge(e1), GeometryException);
             ASSERT_THROW(face.addForwardEdge(e3), GeometryException);
             
@@ -381,7 +380,6 @@ namespace TrenchBroom {
             BrushFaceGeometry face;
             face.addBackwardEdge(e1);
             
-            ASSERT_THROW(face.addBackwardEdge(NULL), GeometryException);
             ASSERT_THROW(face.addBackwardEdge(e1), GeometryException);
             ASSERT_THROW(face.addBackwardEdge(e3), GeometryException);
             

@@ -69,7 +69,7 @@ namespace TrenchBroom {
             bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
         private:
-            void replaceEdgesWithForwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
             void updateVerticesFromEdges();
         };
         

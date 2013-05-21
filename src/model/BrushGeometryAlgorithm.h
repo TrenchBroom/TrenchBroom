@@ -36,6 +36,8 @@ namespace TrenchBroom {
         public:
             BrushGeometryAlgorithm(BrushGeometry& geometry) :
             m_geometry(geometry) {}
+            
+            virtual ~BrushGeometryAlgorithm() {}
 
             inline R execute() {
                 return doExecute(m_geometry);
@@ -65,7 +67,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            R doExecute(BrushGeometry& geometry);
+            virtual R doExecute(BrushGeometry& geometry) = 0;
         };
     }
 }

@@ -19,6 +19,7 @@
 
 #include "IntersectBrushGeometryWithFace.h"
 
+#include "CollectionUtils.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
@@ -31,13 +32,20 @@ namespace TrenchBroom {
         BrushGeometryAlgorithm(geometry),
         m_face(face) {}
         
-        IntersectBrushGeometryResult IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {
+        BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {
             if (isFaceIdenticalWithAnySide(geometry))
-                return Redundant;
-            const IntersectBrushGeometryResult outside = isFaceOutsideOfGeometry(geometry);
-            if (outside != Split)
-                return outside;
+                return BrushGeometry::FaceIsRedundant;
             
+            const BrushGeometry::AddFaceResultCode processVerticesResult = processVertices(geometry);
+            if (processVerticesResult != BrushGeometry::BrushIsSplit)
+                return processVerticesResult;
+            processEdges(geometry);
+            processSides(geometry);
+            
+            createNewSide();
+            cleanup();
+            
+            return BrushGeometry::BrushIsSplit;
         }
         
         bool IntersectBrushGeometryWithFace::isFaceIdenticalWithAnySide(BrushGeometry& geometry) {
@@ -53,35 +61,138 @@ namespace TrenchBroom {
             return false;
         }
         
-        IntersectBrushGeometryResult IntersectBrushGeometryWithFace::isFaceOutsideOfGeometry(BrushGeometry& geometry) {
+        BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::processVertices(BrushGeometry& geometry) {
+            const Plane3& boundary = m_face->boundary();
+
             size_t drop = 0;
             size_t keep = 0;
             size_t undecided = 0;
+            
             const BrushVertexList& vertices = geometry.vertices();
             BrushVertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                BrushVertex& vertex = **it;
-                const Plane3& boundary = m_face->boundary();
-                const PointStatus::Type status = boundary.pointStatus(vertex.position());
-                switch (status) {
-                    case PointStatus::PSAbove:
+                BrushVertex* vertex = *it;
+                vertex->updateMark(boundary);
+                
+                switch (vertex->mark()) {
+                    case BrushVertex::Drop:
                         drop++;
+                        m_droppedVertices.push_back(vertex);
                         break;
-                    case PointStatus::PSBelow:
+                    case BrushVertex::Keep:
                         keep++;
+                        m_remainingVertices.push_back(vertex);
                         break;
                     default:
                         undecided++;
+                        m_remainingVertices.push_back(vertex);
                         break;
                 }
             }
             
             assert(drop + keep + undecided == vertices.size());
             if (drop + undecided == vertices.size())
-                return Null;
+                return BrushGeometry::BrushIsNull;
             if (keep + undecided == vertices.size())
-                return Redundant;
-            return Split;
+                return BrushGeometry::FaceIsRedundant;
+            return BrushGeometry::BrushIsSplit;
+        }
+
+        void IntersectBrushGeometryWithFace::processEdges(BrushGeometry& geometry) {
+            const Plane3& boundary = m_face->boundary();
+            
+            const BrushEdgeList& edges = geometry.edges();
+            BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                BrushEdge* edge = *it;
+                edge->updateMark();
+                
+                switch (edge->mark()) {
+                    case BrushEdge::Drop: {
+                        m_droppedEdges.push_back(edge);
+                        break;
+                    }
+                    case BrushEdge::Keep: {
+                        m_remainingEdges.push_back(edge);
+                        break;
+                    }
+                    case BrushEdge::Undecided: {
+                        m_remainingEdges.push_back(edge);
+                        break;
+                    }
+                    case BrushEdge::Split: {
+                        BrushVertex* newVertex = edge->split(boundary);
+                        assert(newVertex != NULL);
+                        m_remainingVertices.push_back(newVertex);
+                        m_remainingEdges.push_back(edge);
+                        break;
+                    }
+                    default: {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+        }
+
+        void IntersectBrushGeometryWithFace::processSides(BrushGeometry& geometry) {
+            const BrushFaceGeometryList& sides = geometry.sides();
+            BrushFaceGeometryList::const_iterator it, end;
+            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                BrushFaceGeometry* side = *it;
+                switch (side->mark()) {
+                    case BrushFaceGeometry::Drop: {
+                        m_droppedSides.push_back(side);
+                        break;
+                    }
+                    case BrushFaceGeometry::Keep: {
+                        BrushEdge* undecidedEdge = side->findUndecidedEdge();
+                        if (undecidedEdge != NULL) {
+                            if (undecidedEdge->right() == side)
+                                undecidedEdge->flip();
+                            m_newSideEdges.push_back(undecidedEdge);
+                        }
+                        m_remainingSides.push_back(side);
+                        break;
+                    }
+                    case BrushFaceGeometry::Split: {
+                        BrushEdge* newEdge = side->splitUsingEdgeMarks();
+                        assert(newEdge != NULL);
+                        m_newSideEdges.push_back(newEdge);
+                        m_remainingEdges.push_back(newEdge);
+                        m_remainingSides.push_back(side);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        void IntersectBrushGeometryWithFace::createNewSide() {
+            BrushFaceGeometry* newSide = new BrushFaceGeometry();
+
+            BrushEdgeList::iterator it1, it2, end;
+            for (it1 = m_newSideEdges.begin(), end = m_newSideEdges.end(); it1 != end; ++it1) {
+                BrushEdge* edge = *it1;
+                for (it2 = it1 + 2; it2 < end; ++it2) {
+                    const BrushEdge* candidate = *it2;
+                    if (edge->end() == candidate->start())
+                        std::iter_swap(it1 + 1, it2);
+                }
+                
+                newSide->addForwardEdge(edge);
+            }
+
+            assert(newSide->isClosed());
+            
+            newSide->setFace(m_face);
+            addFace(m_face);
+            m_remainingSides.push_back(newSide);
+        }
+        
+        void IntersectBrushGeometryWithFace::cleanup() {
+            VectorUtils::clearAndDelete(m_droppedSides);
+            VectorUtils::clearAndDelete(m_droppedEdges);
+            VectorUtils::clearAndDelete(m_droppedVertices);
         }
     }
 }

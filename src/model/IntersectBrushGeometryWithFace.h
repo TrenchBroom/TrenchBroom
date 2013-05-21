@@ -23,29 +23,46 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/BrushGeometryAlgorithm.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {
-        
-        typedef enum {
-            Split,
-            Null,
-            Redundant
-        } IntersectBrushGeometryResult;
 
         class BrushEdge;
         class BrushVertex;
 
-        class IntersectBrushGeometryWithFace : public BrushGeometryAlgorithm<IntersectBrushGeometryResult> {
+        class IntersectBrushGeometryWithFace : public BrushGeometryAlgorithm<BrushGeometry::AddFaceResultCode> {
         private:
             BrushFacePtr m_face;
+            BrushVertexList m_remainingVertices;
+            BrushVertexList m_droppedVertices;
+            BrushEdgeList m_remainingEdges;
+            BrushEdgeList m_droppedEdges;
+            BrushEdgeList m_newSideEdges;
+            BrushFaceGeometryList m_remainingSides;
+            BrushFaceGeometryList m_droppedSides;
         public:
             IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFacePtr face);
+            
+            inline const BrushVertexList& vertices() const {
+                return m_remainingVertices;
+            }
+            
+            inline const BrushEdgeList& edges() const {
+                return m_remainingEdges;
+            }
+            
+            inline const BrushFaceGeometryList& sides() const {
+                return m_remainingSides;
+            }
         private:
-            IntersectBrushGeometryResult doExecute(BrushGeometry& geometry);
+            BrushGeometry::AddFaceResultCode doExecute(BrushGeometry& geometry);
             bool isFaceIdenticalWithAnySide(BrushGeometry& geometry);
-            IntersectBrushGeometryResult isFaceOutsideOfGeometry(BrushGeometry& geometry);
+            BrushGeometry::AddFaceResultCode processVertices(BrushGeometry& geometry);
+            void processEdges(BrushGeometry& geometry);
+            void processSides(BrushGeometry& geometry);
+            void createNewSide();
+            void cleanup();
         };
     }
 }

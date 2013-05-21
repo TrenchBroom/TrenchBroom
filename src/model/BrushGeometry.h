@@ -28,6 +28,31 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushGeometry {
+        public:
+            typedef enum {
+                BrushIsSplit,
+                BrushIsNull,
+                FaceIsRedundant
+            } AddFaceResultCode;
+
+            template <typename T>
+            struct Result {
+                T resultCode;
+                BrushFaceList addedFaces;
+                BrushFaceList droppedFaces;
+                
+                Result(const T i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList) :
+                resultCode(i_resultCode),
+                addedFaces(i_addedFaces),
+                droppedFaces(i_droppedFaces) {}
+                
+                void append(const Result<T>& other) {
+                    addedFaces.insert(addedFaces.end(), other.addedFaces.begin(), other.addedFaces.end());
+                    droppedFaces.insert(droppedFaces.end(), other.droppedFaces.begin(), other.droppedFaces.end());
+                }
+            };
+            
+            typedef Result<AddFaceResultCode> AddFaceResult;
         private:
             BrushVertexList m_vertices;
             BrushEdgeList m_edges;
@@ -40,41 +65,18 @@ namespace TrenchBroom {
                 return m_vertices;
             }
             
-            inline BrushVertexList& vertices() {
-                return m_vertices;
-            }
-            
-            inline void addVertex(BrushVertex* vertex) {
-                m_vertices.push_back(vertex);
-            }
-            
             inline const BrushEdgeList& edges() const {
                 return m_edges;
-            }
-            
-            inline BrushEdgeList& edges() {
-                return m_edges;
-            }
-            
-            inline void addEdge(BrushEdge* edge) {
-                m_edges.push_back(edge);
             }
             
             inline const BrushFaceGeometryList& sides() const {
                 return m_sides;
             }
-            
-            inline BrushFaceGeometryList& sides() {
-                return m_sides;
-            }
-            
-            inline void addSide(BrushFaceGeometry* side) {
-                m_sides.push_back(side);
-            }
         private:
             void initializeWithBounds(const BBox3& bounds);
-            void addFaces(const BrushFaceList& faces);
-            void addFace(BrushFacePtr face);
+            
+            AddFaceResult addFaces(const BrushFaceList& faces);
+            AddFaceResult addFace(BrushFacePtr face);
         };
     }
 }
