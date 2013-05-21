@@ -20,17 +20,29 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Brush::Brush(const BrushFaceList& faces) :
-        m_faces(faces) {}
+        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
+        m_faces(faces),
+        m_geometry(NULL) {
+            rebuildGeometry(worldBounds);
+        }
 
-        BrushPtr Brush::newBrush(const BrushFaceList& faces) {
-            return BrushPtr(new Brush(faces));
+        BrushPtr Brush::newBrush(const BBox3& worldBounds, const BrushFaceList& faces) {
+            return BrushPtr(new Brush(worldBounds, faces));
+        }
+        
+        Brush::~Brush() {
+            delete m_geometry;
+            m_geometry = NULL;
+        }
+
+        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+            delete m_geometry;
+            m_geometry = new BrushGeometry(worldBounds, m_faces);
         }
     }
 }

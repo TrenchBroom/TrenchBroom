@@ -79,8 +79,10 @@ namespace TrenchBroom {
         }
 
         TEST(EntityTest, AddBrush) {
+            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
+                                    Vec3( 4096.0,  4096.0,  4096.0));
             EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(EmptyBrushFaceList);
+            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             
             entity->addBrush(brush);
 
@@ -90,8 +92,10 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, RemoveBrush) {
+            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
+                                    Vec3( 4096.0,  4096.0,  4096.0));
             EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(EmptyBrushFaceList);
+            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             entity->addBrush(brush);
 
             entity->removeBrush(brush);

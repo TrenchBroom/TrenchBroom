@@ -32,6 +32,7 @@
 		487B46D51740084A005E51F4 /* EntityPropertiesTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */; };
 		487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
 		487B46D817402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
+		48A66444174BFF97008065EE /* TokenizerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A66442174BFF97008065EE /* TokenizerTest.cpp */; };
 		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
 		48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954AF173BBBE800E293E5 /* MapFrame.cpp */; };
@@ -122,6 +123,9 @@
 		487B46D2174007B4005E51F4 /* EntityPropertyTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTypes.h; sourceTree = "<group>"; };
 		487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertiesTest.cpp; sourceTree = "<group>"; };
 		487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTypes.cpp; sourceTree = "<group>"; };
+		48A6643C174BFC79008065EE /* Tokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
+		48A6643E174BFCA6008065EE /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
+		48A66442174BFF97008065EE /* TokenizerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TokenizerTest.cpp; sourceTree = "<group>"; };
 		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
 		48B954A7173BBB3000E293E5 /* MapDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocument.cpp; sourceTree = "<group>"; };
@@ -238,9 +242,29 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		48A6643B174BFC0B008065EE /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				48A6643E174BFCA6008065EE /* Token.h */,
+				48A6643C174BFC79008065EE /* Tokenizer.h */,
+			);
+			name = IO;
+			path = io;
+			sourceTree = "<group>";
+		};
+		48A66441174BFF8A008065EE /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
+			);
+			name = IO;
+			path = io;
+			sourceTree = "<group>";
+		};
 		48B3D0B3173B0E330069E3CA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				48A6643B174BFC0B008065EE /* IO */,
 				48B954A6173BBB2400E293E5 /* Model */,
 				48B954AE173BBBD600E293E5 /* View */,
 				48B9DACC17418071009B952A /* BBox.h */,
@@ -322,6 +346,7 @@
 		48B954B3173BBCAB00E293E5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				48A66441174BFF8A008065EE /* IO */,
 				48B954B4173BBCC600E293E5 /* Model */,
 				48B9DACD1741841C009B952A /* BBoxTest.cpp */,
 				48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */,
@@ -481,6 +506,7 @@
 				4834997C1742D2770051EA5C /* BrushGeometryTest.cpp in Sources */,
 				4834997F1742D56A0051EA5C /* BrushFaceGeometryTest.cpp in Sources */,
 				48DD14E3174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */,
+				48A66444174BFF97008065EE /* TokenizerTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

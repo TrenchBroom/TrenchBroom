@@ -30,17 +30,24 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushGeometry;
+        
         class Brush : public Object {
         private:
             BrushFaceList m_faces;
+            BrushGeometry* m_geometry;
 
-            Brush(const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
         public:
-            static BrushPtr newBrush(const BrushFaceList& faces);
+            static BrushPtr newBrush(const BBox3& worldBounds, const BrushFaceList& faces);
+            
+            ~Brush();
             
             inline const BrushFaceList& faces() const {
                 return m_faces;
             }
+        private:
+            void rebuildGeometry(const BBox3& worldBounds);
         };
     }
 }

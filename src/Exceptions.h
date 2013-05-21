@@ -56,6 +56,12 @@ namespace TrenchBroom {
         EntityPropertyException() throw() {}
         ~EntityPropertyException() throw() {}
     };
+
+    class ParserException : public Exception {
+    public:
+        ParserException() throw() {}
+        ~ParserException() throw() {}
+    };
 }
 
 #endif
