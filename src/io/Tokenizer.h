@@ -43,6 +43,8 @@ namespace TrenchBroom {
             size_t m_lastColumn;
             
             TokenStack m_tokenStack;
+        protected:
+            static const String Whitespace;
         public:
             Tokenizer(const char* begin, const char* end) :
             m_begin(begin),
@@ -158,14 +160,14 @@ namespace TrenchBroom {
             }
             
             inline bool isWhitespace(const char c) const {
-                return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == 0;
+                return isAnyOf(c, Whitespace);
             }
             
             inline const char* readInteger(const char* begin, const String& delims) {
                 const char* c = begin;
                 if ((*c == '-' && !eof()) || isDigit(*c)) {
                     while (!eof() && isDigit(*(c = nextChar())));
-                    if (eof() || isDelimiter(*c, delims)) {
+                    if (eof() || isAnyOf(*c, delims)) {
                         if (!eof())
                             pushChar();
                         return c;
@@ -191,7 +193,7 @@ namespace TrenchBroom {
                         if (*c == '+' || *c == '-' || isDigit(*c))
                             while (!eof() && isDigit(*(c = nextChar())));
                     }
-                    if (eof() || isDelimiter(*c, delims)) {
+                    if (eof() || isAnyOf(*c, delims)) {
                         if (!eof())
                             pushChar();
                         return c;
@@ -202,7 +204,7 @@ namespace TrenchBroom {
             
             inline const char* readString(const char* begin, const String& delims) {
                 const char* c = begin;
-                while (!eof() && !isDelimiter(*(c = nextChar()), delims));
+                while (!eof() && !isAnyOf(*(c = nextChar()), delims));
                 if (!eof())
                     pushChar();
                 return c;
@@ -214,7 +216,19 @@ namespace TrenchBroom {
                 errorIfEof();
                 return c;
             }
-              
+            
+            inline void discardWhile(const String& allow) {
+                const char* c;
+                while (!eof() && isAnyOf(*(c = nextChar()), allow));
+                if (!eof())
+                    pushChar();
+            }
+            
+            inline void discardUntil(const String& delims) {
+                const char* c;
+                while (!eof() && !isAnyOf(*(c = nextChar()), delims));
+            }
+            
             inline void reset() {
                 m_line = 1;
                 m_column = 1;
@@ -235,15 +249,18 @@ namespace TrenchBroom {
                 }
             }
         private:
-            inline bool isDelimiter(const char c, const String& delims) const {
-                for (size_t i = 0; i < delims.size(); i++)
-                    if (c == delims[i])
-                        return true;
-                return false;
-            }
+           inline bool isAnyOf(const char c, const String& allow) const {
+               for (size_t i = 0; i < allow.size(); i++)
+                   if (c == allow[i])
+                       return true;
+               return false;
+           }
 
             virtual Token emitToken() = 0;
         };
+        
+        template <typename TokenType>
+        const String Tokenizer<TokenType>::Whitespace = " \t\n\r";
     }
 }
 

@@ -22,8 +22,10 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 typedef std::string String;
 typedef std::stringstream StringStream;
+typedef std::vector<String> StringList;
 
 #endif

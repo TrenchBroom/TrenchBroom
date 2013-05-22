@@ -22,23 +22,54 @@
 
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
+#include "IO/Token.h"
+#include "IO/Tokenizer.h"
+#include "Model/BrushFaceTypes.h"
+#include "Model/BrushTypes.h"
+#include "Model/EntityTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Map;
+    }
+    
     namespace IO {
         namespace QuakeMapToken {
             typedef unsigned int Type;
             static const Type Integer       = 1 <<  0; // integer number
             static const Type Decimal       = 1 <<  1; // decimal number
             static const Type String        = 1 <<  2; // string
-            static const Type OBrace        = 1 <<  3; // opening brace: {
-            static const Type CBrace        = 1 <<  4; // closing brace: }
-            static const Type Equals        = 1 <<  5; // equals sign: =
-            static const Type Semicolon     = 1 <<  6; // semicolon: ;
-            static const Type Eof           = 1 <<  7; // end of file
+            static const Type OParenthesis  = 1 <<  3; // opening parenthesis: (
+            static const Type CParenthesis  = 1 <<  4; // closing parenthesis: )
+            static const Type OBrace        = 1 <<  5; // opening brace: {
+            static const Type CBrace        = 1 <<  6; // closing brace: }
+            static const Type OBracket      = 1 <<  7; // opening bracket: [
+            static const Type CBracket      = 1 <<  8; // closing bracket: ]
+            static const Type Comment       = 1 <<  9; // line comment starting with //
+            static const Type Eof           = 1 << 10; // end of file
         }
 
+        class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
+        public:
+            QuakeMapTokenizer(const char* begin, const char* end);
+            QuakeMapTokenizer(const String& str);
+        private:
+            Token emitToken();
+        };
+        
         class QuakeMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
+        private:
+            QuakeMapTokenizer m_tokenizer;
+        public:
+            QuakeMapParser(const char* begin, const char* end);
+            QuakeMapParser(const String& str);
+        private:
+            String tokenName(const QuakeMapToken::Type typeMask) const;
+            void doParseMap(Model::Map& map);
             
+            Model::EntityPtr parseEntity(const BBox3& worldBounds);
+            Model::BrushPtr parseBrush(const BBox3& worldBounds);
+            Model::BrushFacePtr parseFace(const BBox3& worldBounds);
         };
     }
 }

@@ -30,6 +30,8 @@ namespace TrenchBroom {
         class Parser {
         private:
             typedef TokenTemplate<TokenType> Token;
+        public:
+            virtual ~Parser() {}
         protected:
             void expect(const TokenType typeMask, const Token& token) const {
                 if ((token.tokenType() & typeMask) == 0) {
