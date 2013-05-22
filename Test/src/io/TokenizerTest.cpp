@@ -43,8 +43,8 @@ namespace TrenchBroom {
         private:
             Token emitToken() {
                 while (!eof()) {
-                    const size_t startLine = line();
-                    const size_t startColumn = column();
+                    size_t startLine = line();
+                    size_t startColumn = column();
                     const char* c = nextChar();
                     switch (*c) {
                         case '{':
@@ -56,8 +56,12 @@ namespace TrenchBroom {
                         case ';':
                             return Token(SimpleToken::Semicolon, c, c+1, offset(c), startLine, startColumn);
                         default: { // integer, decimal, or string
-                            if (isWhitespace(*c))
+                            if (isWhitespace(*c)) {
+                                // disregard leading whitespace
+                                startLine = line();
+                                startColumn = column();
                                 break;
+                            }
                             const char* begin = c;
                             const char* end = readInteger(begin, "{};= \n\r\t");
                             if (end > begin)
@@ -74,48 +78,87 @@ namespace TrenchBroom {
                 return Token(SimpleToken::Eof, NULL, NULL, length(), line(), column());
             }
         public:
-            SimpleTokenizer(const char* begin, const char* end) :
-            Tokenizer<SimpleToken::Type>(begin, end) {}
+            SimpleTokenizer(const String& str) :
+            Tokenizer<SimpleToken::Type>(str) {}
         };
+        
+        TEST(TokenizerTest, SimpleLanguageEmptyString) {
+            const String testString("");
+            SimpleTokenizer tokenizer(testString);
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+        }
+        
+        TEST(TokenizerTest, SimpleLanguageBlankString) {
+            const String testString("\n  \t ");
+            SimpleTokenizer tokenizer(testString);
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+        }
         
         TEST(TokenizerTest, SimpleLanguageEmptyBlock) {
             const String testString("{"
                                     "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+        }
+        
+        TEST(TokenizerTest, SimpleLanguagePushPeekPopToken) {
+            const String testString("{\n"
+                                    "}");
+            
+            SimpleTokenizer tokenizer(testString);
+            SimpleTokenizer::Token token;
+            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
+            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(1, token.line());
+            tokenizer.pushToken(token);
+            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
+            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+        }
+
+        TEST(TokenizerTest, SimpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
+            const String testString(" \t{"
+                                    " }  ");
+            
+            SimpleTokenizer tokenizer(testString);
+            ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
+            ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
         TEST(TokenizerTest, SimpleLanguageBlockWithStringProperty) {
-            const String testString("{"
-                                    "    property =value;"
-                                    "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
+            const String testString("{\n"
+                                    "    property =value;\n"
+                                    "}\n");
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
             ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_EQ(2, token.line());
+            ASSERT_EQ(5, token.column());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
             ASSERT_STREQ("value", token.data().c_str());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
         TEST(TokenizerTest, SimpleLanguageBlockWithIntegerProperty) {
             const String testString("{"
                                     "    property =  12328;"
                                     "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
@@ -125,16 +168,15 @@ namespace TrenchBroom {
             ASSERT_EQ(12328, token.toInteger());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
         TEST(TokenizerTest, SimpleLanguageBlockWithDecimalProperty) {
             const String testString("{"
                                     "    property =  12328.38283;"
                                     "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
@@ -144,16 +186,15 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(12328.38283, token.toFloat());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
         TEST(TokenizerTest, SimpleLanguageBlockWithDecimalPropertyStartingWithDot) {
             const String testString("{"
                                     "    property =  .38283;"
                                     "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
@@ -163,16 +204,15 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(0.38283, token.toFloat());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
         TEST(TokenizerTest, SimpleLanguageBlockWithNegativeDecimalProperty) {
             const String testString("{"
                                     "    property =  -343.38283;"
                                     "}");
-            const char* begin = testString.c_str();
-            const char* end = begin + testString.size();
             
-            SimpleTokenizer tokenizer(begin, end);
+            SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
@@ -182,6 +222,7 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(-343.38283, token.toFloat());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
     }
 }

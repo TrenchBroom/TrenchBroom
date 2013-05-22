@@ -47,11 +47,19 @@ namespace TrenchBroom {
             Tokenizer(const char* begin, const char* end) :
             m_begin(begin),
             m_end(end),
-            m_cur(begin),
+            m_cur(m_begin),
             m_line(1),
             m_column(1),
             m_lastColumn(0) {}
             
+            Tokenizer(const String& str) :
+            m_begin(str.c_str()),
+            m_end(str.c_str() + str.size()),
+            m_cur(m_begin),
+            m_line(1),
+            m_column(1),
+            m_lastColumn(0) {}
+
             virtual ~Tokenizer() {}
             
             inline Token nextToken() {
@@ -59,7 +67,7 @@ namespace TrenchBroom {
             }
             
             inline Token peekToken() {
-                TokenType token = nextToken();
+                Token token = nextToken();
                 pushToken(token);
                 return token;
             }
