@@ -21,6 +21,10 @@
 		48625D70173ECFD60059BE1F /* CollectionUtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */; };
 		48625D74173EE3F80059BE1F /* BrushTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D72173EE3F70059BE1F /* BrushTest.cpp */; };
 		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
+		4871D244174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D242174D2C3100AB0BEE /* QuakeMapParser.cpp */; };
+		4871D245174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D242174D2C3100AB0BEE /* QuakeMapParser.cpp */; };
+		4871D248174D2CB700AB0BEE /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D247174D2CB700AB0BEE /* MapParser.cpp */; };
+		4871D249174D2CB700AB0BEE /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D247174D2CB700AB0BEE /* MapParser.cpp */; };
 		487B46BD173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
 		487B46BE173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
 		487B46C2173FCA87005E51F4 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46C0173FCA87005E51F4 /* EntityTest.cpp */; };
@@ -110,6 +114,11 @@
 		48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollectionUtilsTest.cpp; sourceTree = "<group>"; };
 		48625D71173ED7E30059BE1F /* TemplateUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TemplateUtils.h; sourceTree = "<group>"; };
 		48625D72173EE3F70059BE1F /* BrushTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushTest.cpp; sourceTree = "<group>"; };
+		4871D23B174D2A1C00AB0BEE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parser.h; sourceTree = "<group>"; };
+		4871D242174D2C3100AB0BEE /* QuakeMapParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuakeMapParser.cpp; sourceTree = "<group>"; };
+		4871D243174D2C3100AB0BEE /* QuakeMapParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuakeMapParser.h; sourceTree = "<group>"; };
+		4871D246174D2C3F00AB0BEE /* MapParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
+		4871D247174D2CB700AB0BEE /* MapParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapParser.cpp; sourceTree = "<group>"; };
 		487B46BB173FC995005E51F4 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		487B46BC173FC995005E51F4 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		487B46BF173FC9A9005E51F4 /* BrushTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushTypes.h; sourceTree = "<group>"; };
@@ -245,6 +254,11 @@
 		48A6643B174BFC0B008065EE /* IO */ = {
 			isa = PBXGroup;
 			children = (
+				4871D247174D2CB700AB0BEE /* MapParser.cpp */,
+				4871D246174D2C3F00AB0BEE /* MapParser.h */,
+				4871D242174D2C3100AB0BEE /* QuakeMapParser.cpp */,
+				4871D243174D2C3100AB0BEE /* QuakeMapParser.h */,
+				4871D23B174D2A1C00AB0BEE /* Parser.h */,
 				48A6643E174BFCA6008065EE /* Token.h */,
 				48A6643C174BFC79008065EE /* Tokenizer.h */,
 			);
@@ -507,6 +521,8 @@
 				4834997F1742D56A0051EA5C /* BrushFaceGeometryTest.cpp in Sources */,
 				48DD14E3174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */,
 				48A66444174BFF97008065EE /* TokenizerTest.cpp in Sources */,
+				4871D245174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */,
+				4871D249174D2CB700AB0BEE /* MapParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,6 +544,8 @@
 				483499741742D1CD0051EA5C /* BrushFaceGeometry.cpp in Sources */,
 				483499771742D1E50051EA5C /* BrushGeometry.cpp in Sources */,
 				48DD14E2174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */,
+				4871D244174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */,
+				4871D248174D2CB700AB0BEE /* MapParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
