@@ -72,6 +72,7 @@ namespace TrenchBroom {
             Model::EntityPtr parseEntity(const BBox3& worldBounds);
             Model::BrushPtr parseBrush(const BBox3& worldBounds);
             Model::BrushFacePtr parseFace(const BBox3& worldBounds);
+            const Vec3 parseVector();
         };
     }
 }

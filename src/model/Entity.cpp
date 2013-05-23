@@ -24,6 +24,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const String Entity::DefaultPropertyValue = "";
+        
         Entity::Entity() {}
 
         EntityPtr Entity::newEntity() {

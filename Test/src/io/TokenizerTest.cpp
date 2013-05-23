@@ -165,7 +165,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("property", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(12328, token.toInteger());
+            ASSERT_EQ(12328, token.toInteger<int>());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("property", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(12328.38283, token.toFloat());
+            ASSERT_DOUBLE_EQ(12328.38283, token.toFloat<double>());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("property", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(0.38283, token.toFloat());
+            ASSERT_DOUBLE_EQ(0.38283, token.toFloat<double>());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("property", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(-343.38283, token.toFloat());
+            ASSERT_DOUBLE_EQ(-343.38283, token.toFloat<double>());
             ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());

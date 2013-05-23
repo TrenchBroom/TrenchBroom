@@ -29,6 +29,8 @@ namespace TrenchBroom {
     namespace Model {
         class Entity : public Object {
         private:
+            static const String DefaultPropertyValue;
+            
             EntityProperties m_properties;
             BrushList m_brushes;
             
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             
             const EntityPropertyList& properties() const;
             const bool hasProperty(const PropertyKey& key) const;
-            const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = "") const;
+            const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;

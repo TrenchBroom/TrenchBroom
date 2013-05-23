@@ -21,6 +21,8 @@
 
 #include "StringUtils.h"
 #include "IO/QuakeMapParser.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityPropertyTypes.h"
 #include "Model/Map.h"
@@ -95,11 +97,17 @@ namespace TrenchBroom {
         }
         
         TEST(QuakeMapParserTest, ParseMapWithWorldspawnAndOneBrush) {
-            const String data("{"
-                              "\"classname\" \"worldspawn\""
-                              "{"
-                              "}"
-                              "}");
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -0 -0 -16 ) ( -0 -0 -0 ) ( 64 -0 -16 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0 -0 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64 -0 ) ( -0 64 -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64 -0 ) ( 64 64 -16 ) ( 64 -0 -0 ) none 0 0 0 1 1\n"
+                              "( 64 64 -0 ) ( 64 -0 -0 ) ( -0 64 -0 ) none 0 0 0 1 1\n"
+                              "}\n"
+                              "}\n");
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
@@ -111,6 +119,13 @@ namespace TrenchBroom {
             const Model::EntityPtr entity = entities.front();
             ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::BrushList& brushes = entity->brushes();
+            ASSERT_EQ(1, brushes.size());
+            
+            const Model::BrushPtr brush = brushes.front();
+            const Model::BrushFaceList faces = brush->faces();
+            ASSERT_EQ(6, faces.size());
         }
     }
 }

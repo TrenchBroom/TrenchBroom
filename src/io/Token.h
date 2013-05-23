@@ -79,23 +79,25 @@ namespace TrenchBroom {
                 return m_column;
             }
             
-            inline double toFloat() const {
+            template <typename T>
+            inline T toFloat() const {
                 static char buffer[64];
                 assert(length() < 64);
                 
                 memcpy(buffer, m_begin, length());
                 buffer[length()] = 0;
-                const double f = std::atof(buffer);
+                const T f = static_cast<T>(std::atof(buffer));
                 return f;
             }
             
-            inline int toInteger() const {
+            template <typename T>
+            inline T toInteger() const {
                 static char buffer[64];
                 assert(length() < 64);
                 
                 memcpy(buffer, m_begin, length());
                 buffer[length()] = 0;
-                const int i = static_cast<int>(std::atoi(buffer));
+                const T i = static_cast<T>(std::atoi(buffer));
                 return i;
             }
         };

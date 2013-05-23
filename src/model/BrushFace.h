@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "StringUtils.h"
 #include "Model/BrushFaceTypes.h"
 
 #include <vector>
@@ -29,24 +30,33 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace {
+        public:
+            static const String NoTextureName;
         private:
             BrushFacePoints m_points;
             Plane3 m_boundary;
+            String m_textureName;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
             float m_xScale;
             float m_yScale;
+            size_t m_lineNumber;
+            size_t m_lineCount;
         private:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
-            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
             
             inline const BrushFacePoints& points() const {
                 return m_points;
             }
             
             bool arePointsOnPlane(const Plane3& plane) const;
+            
+            inline const String& textureName() const {
+                return m_textureName;
+            }
             
             inline const Plane3& boundary() const {
                 return m_boundary;
@@ -90,6 +100,11 @@ namespace TrenchBroom {
             
             inline void setYScale(const float yScale) {
                 m_yScale = yScale;
+            }
+            
+            inline void setFilePosition(const size_t lineNumber, const size_t lineCount) {
+                m_lineNumber = lineNumber;
+                m_lineCount = lineCount;
             }
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
