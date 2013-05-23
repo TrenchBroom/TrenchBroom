@@ -29,6 +29,18 @@
 
 namespace TrenchBroom {
     namespace IO {
+        inline bool findFaceByPoints(const Model::BrushFaceList& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFacePtr face = *it;
+                if (face->points()[0] == point0 &&
+                    face->points()[1] == point1 &&
+                    face->points()[2] == point2)
+                    return true;
+            }
+            return false;
+        }
+        
         TEST(QuakeMapParserTest, ParseEmptyMap) {
             const String data("");
             BBox3 worldBounds(-8192, 8192);
@@ -126,6 +138,12 @@ namespace TrenchBroom {
             const Model::BrushPtr brush = brushes.front();
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6, faces.size());
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)));
         }
     }
 }
