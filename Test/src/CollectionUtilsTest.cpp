@@ -39,25 +39,198 @@ public:
     }
 };
 
-TEST(CollectionUtilsTest, VecShift) {
+TEST(CollectionUtilsTest, VecShiftLeftEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
-    VectorUtils::shift(vec, 0);
-    VectorUtils::shift(vec, 1);
-    
-    for (size_t i = 0; i < 21; i++)
-        vec.push_back(i);
+    VectorUtils::shiftLeft(vec, 0);
+    VectorUtils::shiftLeft(vec, 1);
+}
 
-    for (size_t i = 0; i < vec.size(); i++) {
-        Vec expected = vec;
-        Vec::iterator middle = expected.begin();
-        std::advance(middle, i);
-        std::rotate(expected.begin(), middle, expected.end());
-        
-        Vec actual = vec;
-        VectorUtils::shift(actual, i);
-        ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
-    }
+TEST(CollectionUtilsTest, VecShiftLeftBy2) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec leftBy2;
+    leftBy2.push_back('c');
+    leftBy2.push_back('d');
+    leftBy2.push_back('e');
+    leftBy2.push_back('f');
+    leftBy2.push_back('g');
+    leftBy2.push_back('a');
+    leftBy2.push_back('b');
+    
+    Vec actual = vec;
+    VectorUtils::shiftLeft(actual, 2);
+    ASSERT_TRUE(std::equal(leftBy2.begin(), leftBy2.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftLeftBySize) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec actual = vec;
+    VectorUtils::shiftLeft(actual, vec.size());
+    ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftLeftByMoreThanSize) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec leftBy10;
+    leftBy10.push_back('d');
+    leftBy10.push_back('e');
+    leftBy10.push_back('f');
+    leftBy10.push_back('g');
+    leftBy10.push_back('a');
+    leftBy10.push_back('b');
+    leftBy10.push_back('c');
+
+    Vec actual = vec;
+    VectorUtils::shiftLeft(actual, 10);
+    ASSERT_TRUE(std::equal(leftBy10.begin(), leftBy10.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftLeftByNegative) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec expected = vec;
+    VectorUtils::shiftRight(vec, 3);
+    
+    Vec actual = vec;
+    VectorUtils::shiftLeft(actual, -4);
+    
+    ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftRightEmpty) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    VectorUtils::shiftRight(vec, 0);
+    VectorUtils::shiftRight(vec, 1);
+}
+
+TEST(CollectionUtilsTest, VecShiftRightBy2) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec rightBy2;
+    rightBy2.push_back('f');
+    rightBy2.push_back('g');
+    rightBy2.push_back('a');
+    rightBy2.push_back('b');
+    rightBy2.push_back('c');
+    rightBy2.push_back('d');
+    rightBy2.push_back('e');
+    
+    Vec actual = vec;
+    VectorUtils::shiftRight(actual, 2);
+    ASSERT_TRUE(std::equal(rightBy2.begin(), rightBy2.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftRightBySize) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec actual = vec;
+    VectorUtils::shiftRight(actual, vec.size());
+    ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftRightByMoreThanSize) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec rightBy10;
+    rightBy10.push_back('e');
+    rightBy10.push_back('f');
+    rightBy10.push_back('g');
+    rightBy10.push_back('a');
+    rightBy10.push_back('b');
+    rightBy10.push_back('c');
+    rightBy10.push_back('d');
+    
+    Vec actual = vec;
+    VectorUtils::shiftRight(actual, 10);
+    ASSERT_TRUE(std::equal(rightBy10.begin(), rightBy10.end(), actual.begin()));
+}
+
+TEST(CollectionUtilsTest, VecShiftRightByNegative) {
+    typedef std::vector<size_t> Vec;
+    Vec vec;
+    
+    vec.push_back('a');
+    vec.push_back('b');
+    vec.push_back('c');
+    vec.push_back('d');
+    vec.push_back('e');
+    vec.push_back('f');
+    vec.push_back('g');
+    
+    Vec expected = vec;
+    VectorUtils::shiftLeft(vec, 1);
+    
+    Vec actual = vec;
+    VectorUtils::shiftRight(actual, -6);
+    
+    ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {

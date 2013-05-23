@@ -572,10 +572,10 @@ namespace TrenchBroom {
             positions4.push_back(p5);
             
             for (size_t i = 0; i < positions1.size(); i++) {
-                VectorUtils::shift(positions1, i);
-                VectorUtils::shift(positions2, i);
-                VectorUtils::shift(positions3, i);
-                VectorUtils::shift(positions4, i);
+                VectorUtils::shiftLeft(positions1, i);
+                VectorUtils::shiftLeft(positions2, i);
+                VectorUtils::shiftLeft(positions3, i);
+                VectorUtils::shiftLeft(positions4, i);
 
                 ASSERT_EQ(faceGeometries.begin(), findBrushFaceGeometry(faceGeometries, positions1));
                 ASSERT_EQ(faceGeometries.begin() + 1, findBrushFaceGeometry(faceGeometries, positions2));

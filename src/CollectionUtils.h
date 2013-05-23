@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <vector>
 #include "SharedPointer.h"
@@ -35,19 +36,34 @@ namespace VectorUtils {
     };
 
     template <typename T, typename D>
-    inline void shift(std::vector<T>& vec, const D offset) {
+    inline void shiftRight(std::vector<T>& vec, const D offset);
+
+    template <typename T, typename D>
+    inline void shiftLeft(std::vector<T>& vec, const D offset) {
         if (vec.empty())
             return;
-        
-        const D corrected = offset % static_cast<D>(vec.size());
         if (offset == 0)
             return;
-        
-        typedef std::vector<T> VecType;
-        typedef typename VecType::iterator VecIter;
-        VecIter middle = vec.begin();
-        std::advance(middle, corrected);
-        std::rotate(vec.begin(), middle, vec.end());
+
+        // (offset > 0) is used to silence a compiler warning
+        if (std::numeric_limits<D>::is_signed && !(offset > 0)) {
+            shiftRight(vec, -offset);
+        } else {
+            typedef typename std::vector<T>::iterator::difference_type DiffType;
+            const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
+            if (modOffset == 0)
+                return;
+            
+            std::rotate(vec.begin(), vec.begin() + modOffset, vec.end());
+        }
+    }
+    
+    template <typename T, typename D>
+    inline void shiftRight(std::vector<T>& vec, const D offset) {
+        if (std::numeric_limits<D>::is_signed && !(offset > 0))
+            shiftLeft(vec, -offset);
+        else
+            shiftLeft(vec, static_cast<D>(vec.size()) - offset);
     }
     
     template <typename T>
