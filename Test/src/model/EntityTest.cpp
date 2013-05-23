@@ -25,6 +25,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TEST(EntityTest, HasProperty) {
+            EntityPtr entity = Entity::newEntity();
+            const PropertyKey key("key");
+            const PropertyValue value("value");
+            entity->addOrUpdateProperty(key, value);
+            
+            ASSERT_TRUE(entity->hasProperty("key"));
+            ASSERT_FALSE(entity->hasProperty("asfd"));
+        }
+        
         TEST(EntityTest, GetProperty) {
             EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");

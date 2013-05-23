@@ -23,8 +23,8 @@ namespace TrenchBroom {
     namespace IO {
         MapParser::~MapParser() {}
 
-        void MapParser::parseMap(Model::Map& map) {
-            doParseMap(map);
+        Model::MapPtr MapParser::parseMap(const BBox3& worldBounds) {
+            return doParseMap(worldBounds);
         }
     }
 }

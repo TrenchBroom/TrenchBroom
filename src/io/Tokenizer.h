@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace IO {
         template <typename TokenType>
         class Tokenizer {
-        protected:
+        public:
             typedef TokenTemplate<TokenType> Token;
         private:
             typedef std::stack<Token> TokenStack;

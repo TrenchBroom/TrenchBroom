@@ -236,6 +236,18 @@ TEST(VecTest, Vec3fNull) {
     ASSERT_FALSE(Vec3f::PosX.null());
 }
 
+TEST(VecTest, Vec3fSetNull) {
+    Vec3f v(1.0f, 2.0f, 3.0f);
+    v.setNull();
+    ASSERT_VEC_EQ(Vec3f::Null, v);
+}
+
+TEST(VecTest, Vec3fSetSingleValue) {
+    Vec3f v(1.0f, 2.0f, 3.0f);
+    v.set(7.0f);
+    ASSERT_VEC_EQ(Vec3f(7.0f, 7.0f, 7.0f), v);
+}
+
 TEST(VecTest, Vec3fParallelTo) {
     ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::PosX));
     ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::NegX));

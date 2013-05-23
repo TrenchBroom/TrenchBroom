@@ -28,6 +28,11 @@ namespace TrenchBroom {
         private:
             size_t m_lineNumber;
             size_t m_lineCount;
+        public:
+            inline void setFilePosition(const size_t lineNumber, const size_t lineCount) {
+                m_lineNumber = lineNumber;
+                m_lineCount = lineCount;
+            }
         };
     }
 }

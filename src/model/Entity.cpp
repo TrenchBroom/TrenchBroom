@@ -34,6 +34,10 @@ namespace TrenchBroom {
             return m_properties.properties();
         }
         
+        const bool Entity::hasProperty(const PropertyKey& key) const {
+            return m_properties.hasProperty(key);
+        }
+
         const PropertyValue& Entity::property(const PropertyKey& key, const PropertyValue& defaultValue) const {
             const PropertyValue* value = m_properties.property(key);
             if (value == NULL)

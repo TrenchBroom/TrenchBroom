@@ -19,6 +19,8 @@
 
 #include "QuakeMapParser.h"
 
+#include "Model/Entity.h"
+
 namespace TrenchBroom {
     namespace IO {
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
@@ -50,7 +52,7 @@ namespace TrenchBroom {
                     case ']':
                         return Token(QuakeMapToken::CBracket, c, c+1, offset(c), startLine, startColumn);
                     case '"': { // quoted string
-                        const char* begin = c;
+                        const char* begin = nextChar();
                         const char* end = readQuotedString(begin);
                         return Token(QuakeMapToken::String, begin, end, offset(begin), startLine, startColumn);
                     }
@@ -121,10 +123,60 @@ namespace TrenchBroom {
             return str.str();
         }
 
-        void QuakeMapParser::doParseMap(Model::Map& map) {
+        Model::MapPtr QuakeMapParser::doParseMap(const BBox3& worldBounds) {
+            Model::MapPtr map = Model::Map::newMap();
+            Model::EntityPtr entity = parseEntity(worldBounds);
+            while (entity != NULL) {
+                map->addEntity(entity);
+                entity = parseEntity(worldBounds);
+            }
+            return map;
         }
 
         Model::EntityPtr QuakeMapParser::parseEntity(const BBox3& worldBounds) {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == QuakeMapToken::Eof)
+                return Model::EntityPtr();
+            
+            expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
+            if (token.type() == QuakeMapToken::CBrace)
+                return Model::EntityPtr();
+            
+            Model::EntityPtr entity = Model::Entity::newEntity();
+            const size_t firstLine = token.line();
+            
+            while ((token = m_tokenizer.nextToken()).type() != QuakeMapToken::Eof) {
+                switch (token.type()) {
+                    case QuakeMapToken::String: {
+                        String key = token.data();
+                        expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
+                        String value = token.data();
+                        entity->addOrUpdateProperty(key, value);
+                        break;
+                    }
+                    case QuakeMapToken::OBrace: {
+                        m_tokenizer.pushToken(token);
+                        bool moreBrushes = true;
+                        while (moreBrushes) {
+                            Model::BrushPtr brush = parseBrush(worldBounds);
+                            if (brush != NULL)
+                                entity->addBrush(brush);
+                            expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
+                            moreBrushes = (token.type() == QuakeMapToken::OBrace);
+                            m_tokenizer.pushToken(token);
+                        }
+                        break;
+                    }
+                    case QuakeMapToken::CBrace: {
+                        entity->setFilePosition(firstLine, token.line() - firstLine);
+                        return entity;
+                    }
+                    default:
+                        expect(QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
+                }
+            }
+            
+            return entity;
         }
         
         Model::BrushPtr QuakeMapParser::parseBrush(const BBox3& worldBounds) {

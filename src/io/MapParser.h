@@ -20,18 +20,18 @@
 #ifndef TrenchBroom_MapParser_h
 #define TrenchBroom_MapParser_h
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/Map.h"
+
 namespace TrenchBroom {
-    namespace Model {
-        class Map;
-    }
-    
     namespace IO {
         class MapParser {
         public:
             virtual ~MapParser();
-            void parseMap(Model::Map& map);
+            Model::MapPtr parseMap(const BBox3& worldBounds);
         private:
-            virtual void doParseMap(Model::Map& map) = 0;
+            virtual Model::MapPtr doParseMap(const BBox3& worldBounds) = 0;
         };
     }
 }

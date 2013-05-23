@@ -395,6 +395,11 @@ public:
         for (size_t i = 0; i < S; i++)
             v[i] = static_cast<T>(0.0);
     }
+            
+    inline void set(const T value) {
+        for (size_t i = 0; i < S; i++)
+            v[i] = value;
+    }
     
     inline bool nan() const {
         for (size_t i = 0; i < S; i++)
