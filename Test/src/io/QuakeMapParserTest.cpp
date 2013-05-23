@@ -62,7 +62,55 @@ namespace TrenchBroom {
             const Model::EntityPtr entity = entities.front();
             ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+        }
+
+        TEST(QuakeMapParserTest, ParseMapWithWorldspawnAndOneMoreEntity) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "}"
+                              "{"
+                              "\"classname\" \"info_player_deathmatch\""
+                              "\"origin\" \"1 22 -3\""
+                              "\"angle\" \" -1 \""
+                              "}");
+            BBox3 worldBounds(-8192, 8192);
             
+            QuakeMapParser parser(data);
+            Model::MapPtr map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(2, entities.size());
+            
+            const Model::EntityPtr first = entities.front();
+            ASSERT_TRUE(first->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, first->property(Model::PropertyKeys::Classname));
+            
+            const Model::EntityPtr second = entities[1];
+            ASSERT_TRUE(second->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(String("info_player_deathmatch"), second->property(Model::PropertyKeys::Classname));
+            ASSERT_TRUE(second->hasProperty("origin"));
+            ASSERT_EQ(String("1 22 -3"), second->property("origin"));
+            ASSERT_TRUE(second->hasProperty("angle"));
+            ASSERT_EQ(String(" -1 "), second->property("angle"));
+        }
+        
+        TEST(QuakeMapParserTest, ParseMapWithWorldspawnAndOneBrush) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "{"
+                              "}"
+                              "}");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::MapPtr map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(1, entities.size());
+            
+            const Model::EntityPtr entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
         }
     }
 }
