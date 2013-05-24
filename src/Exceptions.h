@@ -62,6 +62,12 @@ namespace TrenchBroom {
         ParserException() throw() {}
         ~ParserException() throw() {}
     };
+            
+    class VboException : public Exception {
+    public:
+        VboException() throw() {}
+        ~VboException() throw() {}
+    };
 }
 
 #endif

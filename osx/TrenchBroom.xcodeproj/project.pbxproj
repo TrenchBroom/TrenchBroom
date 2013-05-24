@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		482ABA0D174F7CC1005ACC97 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482ABA0B174F7CC1005ACC97 /* Vbo.cpp */; };
+		482ABA0E174F7CC1005ACC97 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482ABA0B174F7CC1005ACC97 /* Vbo.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		483499741742D1CD0051EA5C /* BrushFaceGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */; };
 		483499771742D1E50051EA5C /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499751742D1E50051EA5C /* BrushGeometry.cpp */; };
@@ -37,6 +39,12 @@
 		487B46D717402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
 		487B46D817402848005E51F4 /* EntityPropertyTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */; };
 		487DCC88174E38AB00A099CA /* QuakeMapParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */; };
+		4886064A174FB43400D01422 /* VboTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48860648174FB43400D01422 /* VboTest.cpp */; };
+		48860650174FB79400D01422 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 4886064C174FB79400D01422 /* glew.c */; };
+		48860651174FB79400D01422 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 4886064C174FB79400D01422 /* glew.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		4886066C174FB8F900D01422 /* libgmock_main.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4886066A174FB8F900D01422 /* libgmock_main.a */; };
+		4886066D174FB8F900D01422 /* libgmock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4886066B174FB8F900D01422 /* libgmock.a */; };
+		48860671174FCC1000D01422 /* GLMock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48860670174FCC1000D01422 /* GLMock.cpp */; };
 		48A66444174BFF97008065EE /* TokenizerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A66442174BFF97008065EE /* TokenizerTest.cpp */; };
 		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
@@ -87,6 +95,8 @@
 
 /* Begin PBXFileReference section */
 		480815BF174528F700F1BF7B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
+		482ABA0B174F7CC1005ACC97 /* Vbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vbo.cpp; sourceTree = "<group>"; };
+		482ABA0C174F7CC1005ACC97 /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vbo.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceGeometry.cpp; sourceTree = "<group>"; };
 		483499731742D1CD0051EA5C /* BrushFaceGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFaceGeometry.h; sourceTree = "<group>"; };
@@ -134,6 +144,14 @@
 		487B46D31740084A005E51F4 /* EntityPropertiesTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertiesTest.cpp; sourceTree = "<group>"; };
 		487B46D617402848005E51F4 /* EntityPropertyTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTypes.cpp; sourceTree = "<group>"; };
 		487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuakeMapParserTest.cpp; path = ../../../Test/src/io/QuakeMapParserTest.cpp; sourceTree = "<group>"; };
+		48860648174FB43400D01422 /* VboTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VboTest.cpp; sourceTree = "<group>"; };
+		4886064C174FB79400D01422 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glew.c; sourceTree = "<group>"; };
+		4886064D174FB79400D01422 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
+		48860652174FB7B300D01422 /* GL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GL.h; sourceTree = "<group>"; };
+		48860669174FB86F00D01422 /* GLMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLMock.h; sourceTree = "<group>"; };
+		4886066A174FB8F900D01422 /* libgmock_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmock_main.a; path = ../lib/bin/osx/libgmock_main.a; sourceTree = "<group>"; };
+		4886066B174FB8F900D01422 /* libgmock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmock.a; path = ../lib/bin/osx/libgmock.a; sourceTree = "<group>"; };
+		48860670174FCC1000D01422 /* GLMock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMock.cpp; sourceTree = "<group>"; };
 		48A6643C174BFC79008065EE /* Tokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
 		48A6643E174BFCA6008065EE /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
 		48A66442174BFF97008065EE /* TokenizerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TokenizerTest.cpp; sourceTree = "<group>"; };
@@ -178,6 +196,8 @@
 			files = (
 				48B954BD173BBF8600E293E5 /* libgtest_main.a in Frameworks */,
 				48B954BE173BBF8600E293E5 /* libgtest.a in Frameworks */,
+				4886066C174FB8F900D01422 /* libgmock_main.a in Frameworks */,
+				4886066D174FB8F900D01422 /* libgmock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,9 +212,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		482ABA0A174F7CB2005ACC97 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				482ABA0B174F7CC1005ACC97 /* Vbo.cpp */,
+				482ABA0C174F7CC1005ACC97 /* Vbo.h */,
+			);
+			name = Renderer;
+			path = renderer;
+			sourceTree = "<group>";
+		};
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4886066A174FB8F900D01422 /* libgmock_main.a */,
+				4886066B174FB8F900D01422 /* libgmock.a */,
 				48B954BB173BBF8600E293E5 /* libgtest_main.a */,
 				48B954BC173BBF8600E293E5 /* libgtest.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
@@ -253,6 +285,36 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		48860647174FB42300D01422 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				48860648174FB43400D01422 /* VboTest.cpp */,
+			);
+			name = Renderer;
+			path = ../../Test/src/renderer;
+			sourceTree = "<group>";
+		};
+		4886064B174FB79400D01422 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				48860652174FB7B300D01422 /* GL.h */,
+				4886064C174FB79400D01422 /* glew.c */,
+				4886064D174FB79400D01422 /* glew.h */,
+			);
+			name = GL;
+			path = gl;
+			sourceTree = "<group>";
+		};
+		48860668174FB86300D01422 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				48860670174FCC1000D01422 /* GLMock.cpp */,
+				48860669174FB86F00D01422 /* GLMock.h */,
+			);
+			name = GL;
+			path = ../../Test/src/gl;
+			sourceTree = "<group>";
+		};
 		48A6643B174BFC0B008065EE /* IO */ = {
 			isa = PBXGroup;
 			children = (
@@ -271,8 +333,8 @@
 		48A66441174BFF8A008065EE /* IO */ = {
 			isa = PBXGroup;
 			children = (
-				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
 				487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */,
+				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
 			);
 			name = IO;
 			path = io;
@@ -281,8 +343,10 @@
 		48B3D0B3173B0E330069E3CA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4886064B174FB79400D01422 /* GL */,
 				48A6643B174BFC0B008065EE /* IO */,
 				48B954A6173BBB2400E293E5 /* Model */,
+				482ABA0A174F7CB2005ACC97 /* Renderer */,
 				48B954AE173BBBD600E293E5 /* View */,
 				48B9DACC17418071009B952A /* BBox.h */,
 				48625D6D173ECF4A0059BE1F /* CollectionUtils.h */,
@@ -363,8 +427,10 @@
 		48B954B3173BBCAB00E293E5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				48860668174FB86300D01422 /* GL */,
 				48A66441174BFF8A008065EE /* IO */,
 				48B954B4173BBCC600E293E5 /* Model */,
+				48860647174FB42300D01422 /* Renderer */,
 				48B9DACD1741841C009B952A /* BBoxTest.cpp */,
 				48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */,
 				48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */,
@@ -527,6 +593,10 @@
 				4871D245174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */,
 				4871D249174D2CB700AB0BEE /* MapParser.cpp in Sources */,
 				487DCC88174E38AB00A099CA /* QuakeMapParserTest.cpp in Sources */,
+				482ABA0E174F7CC1005ACC97 /* Vbo.cpp in Sources */,
+				4886064A174FB43400D01422 /* VboTest.cpp in Sources */,
+				48860651174FB79400D01422 /* glew.c in Sources */,
+				48860671174FCC1000D01422 /* GLMock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,6 +620,8 @@
 				48DD14E2174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */,
 				4871D244174D2C3100AB0BEE /* QuakeMapParser.cpp in Sources */,
 				4871D248174D2CB700AB0BEE /* MapParser.cpp in Sources */,
+				482ABA0D174F7CC1005ACC97 /* Vbo.cpp in Sources */,
+				48860650174FB79400D01422 /* glew.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,7 +652,10 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../test/src\"",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
@@ -632,7 +707,10 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../test/src\"",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
@@ -690,7 +768,10 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TESTING=1";
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src\"",
+					"\"$(SRCROOT)/../test/src\"",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib/bin/osx\"",
