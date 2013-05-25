@@ -20,40 +20,13 @@
 #include "Vbo.h"
 
 #include "Exceptions.h"
+#include "Renderer/VboBlock.h"
 
 #include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
-        VboBlock::VboBlock(const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next) :
-        m_free(true),
-        m_offset(offset),
-        m_capacity(capacity),
-        m_previous(previous),
-        m_next(next) {}
-        
-        void VboBlock::deallocate() {
-        }
-
-        VboBlock* VboBlock::split(const size_t capacity) {
-            assert(capacity > m_capacity);
-            const size_t remainderCapacity = m_capacity - capacity;
-            m_capacity = capacity;
-
-            VboBlock* remainder = createSuccessor(remainderCapacity);
-            remainder->setFree(m_free);
-            return remainder;
-        }
-        
-        VboBlock* VboBlock::createSuccessor(const size_t capacity) {
-            VboBlock* successor = new VboBlock(m_offset + m_capacity, capacity, this, m_next);
-            if (m_next != NULL)
-                m_next->setPrevious(successor);
-            m_next = successor;
-            return m_next;
-        }
-
         bool CompareVboBlocksByCapacity::operator() (const VboBlock* lhs, const VboBlock* rhs) const {
             assert(lhs != NULL);
             assert(rhs != NULL);
@@ -91,6 +64,8 @@ namespace TrenchBroom {
             }
         }
 
+        const float Vbo::GrowthFactor = 1.5f;
+
         Vbo::Vbo(const size_t initialCapacity, const GLenum type, const GLenum usage) :
         m_totalCapacity(initialCapacity),
         m_freeCapacity(m_totalCapacity),
@@ -101,7 +76,7 @@ namespace TrenchBroom {
         m_usage(usage),
         m_vboId(0),
         m_buffer(NULL) {
-            m_lastBlock = m_firstBlock = new VboBlock(0, m_totalCapacity, NULL, NULL);
+            m_lastBlock = m_firstBlock = new VboBlock(*this, 0, m_totalCapacity, NULL, NULL);
             m_freeBlocks.push_back(m_firstBlock);
         }
         
@@ -133,9 +108,8 @@ namespace TrenchBroom {
 
             VboBlockList::iterator it = findFreeBlock(capacity);
             if (it == m_freeBlocks.end()) {
-                VboException e;
-                e << "Vbo capacity is exceeded";
-                throw e;
+                increaseCapacityToAccomodate(capacity);
+                it = findFreeBlock(capacity);
             }
             
             assert(it != m_freeBlocks.end());
@@ -192,7 +166,22 @@ namespace TrenchBroom {
             m_state = VboState::Active;
         }
 
+        void Vbo::increaseCapacityToAccomodate(const size_t capacity) {
+            assert(m_state == VboState::Mapped);
+            
+            size_t newMinCapacity = m_totalCapacity + capacity;
+            if (m_lastBlock->isFree())
+                newMinCapacity -= m_lastBlock->capacity();
+            
+            size_t newCapacity = m_totalCapacity;
+            while (newCapacity < newMinCapacity)
+                newCapacity *= GrowthFactor;
+            
+            increaseCapacity(newCapacity - m_totalCapacity);
+        }
+
         void Vbo::increaseCapacity(const size_t delta) {
+            assert(m_state == VboState::Mapped);
             assert(delta > 0);
             
             if (m_lastBlock->isFree()) {
@@ -210,7 +199,7 @@ namespace TrenchBroom {
         }
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
-            VboBlock query(0, minCapacity, NULL, NULL);
+            VboBlock query(*this, 0, minCapacity, NULL, NULL);
             return std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), &query, CompareVboBlocksByCapacity());
         }
 

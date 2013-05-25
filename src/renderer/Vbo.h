@@ -23,61 +23,12 @@
 #include "SharedPointer.h"
 #include <GL/GL.h>
 
+#include <cstring>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
-
-        class VboBlock {
-        private:
-            friend class Vbo;
-
-            bool m_free;
-            size_t m_offset;
-            size_t m_capacity;
-            VboBlock* m_previous;
-            VboBlock* m_next;
-        public:
-            VboBlock(const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next);
-            
-            inline size_t capacity() const {
-                return m_capacity;
-            }
-            
-            void deallocate();
-        private:
-            inline VboBlock* previous() const {
-                return m_previous;
-            }
-            
-            inline void setPrevious(VboBlock* previous) {
-                m_previous = previous;
-            }
-            
-            inline VboBlock* next() const {
-                return m_next;
-            }
-            
-            inline void setNext(VboBlock* next) {
-                m_next = next;
-            }
-            
-            inline bool isFree() const {
-                return m_free;
-            }
-            
-            inline void setFree(const bool free) {
-                m_free = free;
-            }
-            
-            inline void setCapacity(const size_t capacity) {
-                m_capacity = capacity;
-            }
-            
-            VboBlock* split(const size_t capacity);
-            VboBlock* createSuccessor(const size_t capacity);
-        };
+        class VboBlock;
         
         class CompareVboBlocksByCapacity {
         public:
@@ -103,9 +54,8 @@ namespace TrenchBroom {
         
         class Vbo {
         private:
-            friend class SetVboState;
-            
             typedef std::vector<VboBlock*> VboBlockList;
+            static const float GrowthFactor;
             
             size_t m_totalCapacity;
             size_t m_freeCapacity;
@@ -123,20 +73,15 @@ namespace TrenchBroom {
             Vbo(const size_t initialCapacity, const GLenum type, const GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
-            inline const size_t capacity() const {
-                return m_totalCapacity;
-            }
-            
-            inline const size_t freeCapacity() const {
-                return m_freeCapacity;
-            }
-            
             inline const VboState::Type state() const {
                 return m_state;
             }
             
             VboBlock& allocateBlock(const size_t capacity);
         private:
+            friend class SetVboState;
+            friend class VboBlock;
+            
             inline bool isActive() const {
                 return m_state > VboState::Inactive;
             }
@@ -150,6 +95,39 @@ namespace TrenchBroom {
             void map();
             void unmap();
             
+            template <typename T>
+            inline size_t writeElement(const size_t address, const T& element) {
+                assert(isMapped());
+                const size_t size = sizeof(T);
+                assert(address + size < m_totalCapacity);
+                reinterpret_cast<T>(m_buffer + address) = element;
+                return size;
+            }
+            
+            template <typename T>
+            inline size_t writeElements(const size_t address, const std::vector<T>& elements) {
+                assert(isMapped());
+                const size_t size = elements.size() * sizeof(T);
+                assert(address + size < m_totalCapacity);
+                
+                typename std::vector<T>::const_iterator it, end;
+                for (it = elements.begin(), end = elements.end(); it != end; ++it)
+                    reinterpret_cast<T>(m_buffer + address) = *it;
+                return size;
+            }
+            
+            template <typename T>
+            inline size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+                assert(isMapped());
+                const size_t size = buffer.size() * sizeof(T);
+                assert(address + size < m_totalCapacity);
+                
+                const T* ptr = &(buffer[0]);
+                memcpy(m_buffer + address, ptr, size);
+                return size;
+            }
+
+            void increaseCapacityToAccomodate(const size_t capacity);
             void increaseCapacity(const size_t delta);
             VboBlockList::iterator findFreeBlock(const size_t minCapacity);
             void insertFreeBlock(VboBlock* block);

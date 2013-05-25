@@ -21,13 +21,12 @@
 #include <gmock/gmock.h>
 
 #include "Renderer/Vbo.h"
+#include "Renderer/VboBlock.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         TEST(VboTest, Constructor) {
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
-            ASSERT_EQ(0xFFFF, vbo.capacity());
-            ASSERT_EQ(0xFFFF, vbo.freeCapacity());
             ASSERT_EQ(VboState::Inactive, vbo.state());
         }
         
@@ -110,6 +109,91 @@ namespace TrenchBroom {
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // deactivate by leaving block
+                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+            }
+            ASSERT_EQ(VboState::Inactive, vbo.state());
+            
+            // destroy vbo
+            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+        }
+        
+        TEST(VboTest, AllocateBlocks) {
+            using namespace testing;
+            
+            GLMock = new CGLMock();
+            Mock::AllowLeak(GLMock);
+            
+            Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
+            
+            unsigned char buffer[0xFFFF];
+            
+            // activate and map for the first time
+            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            {
+                SetVboState mapVbo(vbo, VboState::Mapped);
+                ASSERT_EQ(VboState::Mapped, vbo.state());
+                
+                VboBlock& block1 = vbo.allocateBlock(124);
+                ASSERT_EQ(124, block1.capacity());
+                
+                VboBlock& block2 = vbo.allocateBlock(646);
+                ASSERT_EQ(646, block2.capacity());
+                
+                const size_t block3Capacity = 0xFFFF - block1.capacity() - block2.capacity();
+                VboBlock& block3 = vbo.allocateBlock(block3Capacity);
+                ASSERT_EQ(block3Capacity, block3.capacity());
+                
+                VboBlock& block4 = vbo.allocateBlock(373);
+                ASSERT_EQ(373, block4.capacity());
+                
+                // deactivate and unmap by leaving block
+                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+            }
+            ASSERT_EQ(VboState::Inactive, vbo.state());
+            
+            // destroy vbo
+            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+        }
+
+        TEST(VboTest, AllocateBlockAndWriteBuffer) {
+            using namespace testing;
+            
+            typedef std::vector<unsigned char> Buf;
+            
+            GLMock = new CGLMock();
+            Mock::AllowLeak(GLMock);
+            
+            Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
+            
+            unsigned char buffer[0xFFFF];
+            
+            // activate and map for the first time
+            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            {
+                SetVboState mapVbo(vbo, VboState::Mapped);
+                ASSERT_EQ(VboState::Mapped, vbo.state());
+                
+                VboBlock& block1 = vbo.allocateBlock(124);
+                ASSERT_EQ(124, block1.capacity());
+                
+                Buf writeBuffer;
+                for (unsigned char i = 0; i < 124; i++)
+                    writeBuffer.push_back(i);
+                const size_t offset = block1.writeBuffer(0, writeBuffer);
+                ASSERT_EQ(124, offset);
+                
+                for (size_t i = 0; i < 124; i++)
+                    ASSERT_EQ(writeBuffer[i], buffer[i]);
+                
+                // deactivate and unmap by leaving block
+                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
                 EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());

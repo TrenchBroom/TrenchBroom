@@ -67,6 +67,8 @@
 		48B9DACF1741841C009B952A /* BBoxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B9DACD1741841C009B952A /* BBoxTest.cpp */; };
 		48BA22CA173C325400B6DA64 /* BrushFaceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22C8173C325400B6DA64 /* BrushFaceTest.cpp */; };
 		48BA22D0173C491A00B6DA64 /* PlaneTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */; };
+		48D9F69F1750A79D004F7835 /* VboBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D9F69D1750A79D004F7835 /* VboBlock.cpp */; };
+		48D9F6A01750A79D004F7835 /* VboBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D9F69D1750A79D004F7835 /* VboBlock.cpp */; };
 		48DD14E2174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */; };
 		48DD14E3174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */; };
 		48F606CC17480E5900509CAA /* BrushFaceGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */; };
@@ -185,6 +187,8 @@
 		48BA22CB173C454500B6DA64 /* Plane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaneTest.cpp; sourceTree = "<group>"; };
 		48C670DD1749F55700DDC8BE /* BrushGeometryAlgorithm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryAlgorithm.h; sourceTree = "<group>"; };
+		48D9F69D1750A79D004F7835 /* VboBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VboBlock.cpp; sourceTree = "<group>"; };
+		48D9F69E1750A79D004F7835 /* VboBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VboBlock.h; sourceTree = "<group>"; };
 		48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectBrushGeometryWithFace.cpp; sourceTree = "<group>"; };
 		48DD14E1174A3AE0009C0815 /* IntersectBrushGeometryWithFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntersectBrushGeometryWithFace.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -217,6 +221,8 @@
 			children = (
 				482ABA0B174F7CC1005ACC97 /* Vbo.cpp */,
 				482ABA0C174F7CC1005ACC97 /* Vbo.h */,
+				48D9F69D1750A79D004F7835 /* VboBlock.cpp */,
+				48D9F69E1750A79D004F7835 /* VboBlock.h */,
 			);
 			name = Renderer;
 			path = renderer;
@@ -597,6 +603,7 @@
 				4886064A174FB43400D01422 /* VboTest.cpp in Sources */,
 				48860651174FB79400D01422 /* glew.c in Sources */,
 				48860671174FCC1000D01422 /* GLMock.cpp in Sources */,
+				48D9F6A01750A79D004F7835 /* VboBlock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -622,6 +629,7 @@
 				4871D248174D2CB700AB0BEE /* MapParser.cpp in Sources */,
 				482ABA0D174F7CC1005ACC97 /* Vbo.cpp in Sources */,
 				48860650174FB79400D01422 /* glew.c in Sources */,
+				48D9F69F1750A79D004F7835 /* VboBlock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
