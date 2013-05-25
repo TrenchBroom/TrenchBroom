@@ -181,6 +181,7 @@ namespace TrenchBroom {
             if (!isActive())
                 activate();
             m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+            assert(m_buffer != NULL);
             m_state = VboState::Mapped;
         }
         

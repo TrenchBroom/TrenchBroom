@@ -31,17 +31,23 @@ public:
     MOCK_METHOD2(DeleteBuffers, void(GLsizei n, GLuint* buffers));
     MOCK_METHOD2(BindBuffer, void(GLenum type, GLuint bufferId));
     MOCK_METHOD4(BufferData, void(GLenum type, GLsizeiptr size, const GLvoid* buffer, GLenum usage));
+    MOCK_METHOD2(MapBuffer, void*(GLenum type, GLenum access));
+    MOCK_METHOD1(UnmapBuffer, void(GLenum type));
 };
 
-extern CGLMock GLMock;
+extern CGLMock* GLMock;
 
 #undef glGenBuffers
-#define glGenBuffers        GLMock.GenBuffers
+#define glGenBuffers        GLMock->GenBuffers
 #undef glDeleteBuffers
-#define glDeleteBuffers     GLMock.DeleteBuffers
+#define glDeleteBuffers     GLMock->DeleteBuffers
 #undef glBindBuffer
-#define glBindBuffer        GLMock.BindBuffer
+#define glBindBuffer        GLMock->BindBuffer
 #undef glBufferData
-#define glBufferData        GLMock.BufferData
+#define glBufferData        GLMock->BufferData
+#undef glMapBuffer
+#define glMapBuffer         GLMock->MapBuffer
+#undef glUnmapBuffer
+#define glUnmapBuffer       GLMock->UnmapBuffer
 
 #endif

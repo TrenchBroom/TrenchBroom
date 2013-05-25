@@ -19,4 +19,4 @@
 
 #include "GLMock.h"
 
-CGLMock GLMock;
+CGLMock* GLMock = NULL;
