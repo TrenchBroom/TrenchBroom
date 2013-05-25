@@ -31,9 +31,22 @@ namespace TrenchBroom {
         m_previous(previous),
         m_next(next) {}
         
-        void VboBlock::deallocate() {
+        void VboBlock::free() {
+            m_vbo.freeBlock(this);
         }
         
+        VboBlock* VboBlock::mergeWithSuccessor() {
+            assert(m_next != NULL);
+            
+            VboBlock* next = m_next;
+            VboBlock* nextNext = next->next();
+            m_next = nextNext;
+            if (m_next != NULL)
+                m_next->setPrevious(this);
+            m_capacity += next->capacity();
+            return next;
+        }
+
         VboBlock* VboBlock::split(const size_t capacity) {
             assert(m_capacity > capacity);
             const size_t remainderCapacity = m_capacity - capacity;

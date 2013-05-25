@@ -78,6 +78,7 @@ namespace TrenchBroom {
         m_buffer(NULL) {
             m_lastBlock = m_firstBlock = new VboBlock(*this, 0, m_totalCapacity, NULL, NULL);
             m_freeBlocks.push_back(m_firstBlock);
+            assert(checkBlockChain());
         }
         
         Vbo::~Vbo() {
@@ -99,7 +100,9 @@ namespace TrenchBroom {
             m_lastBlock = m_firstBlock = NULL;
         }
         
-        VboBlock& Vbo::allocateBlock(const size_t capacity) {
+        VboBlock* Vbo::allocateBlock(const size_t capacity) {
+            assert(checkBlockChain());
+
             if (m_state != VboState::Mapped) {
                 VboException e;
                 e << "Vbo is not mapped";
@@ -113,10 +116,9 @@ namespace TrenchBroom {
             }
             
             assert(it != m_freeBlocks.end());
-            removeFreeBlock(it);
-            
             VboBlock* block = *it;
             assert(block != NULL);
+            removeFreeBlock(it);
             
             if (block->capacity() > capacity) {
                 VboBlock* remainder = block->split(capacity);
@@ -125,7 +127,8 @@ namespace TrenchBroom {
                 insertFreeBlock(remainder);
             }
             
-            return *block;
+            assert(checkBlockChain());
+            return block;
         }
 
         void Vbo::activate() {
@@ -166,6 +169,41 @@ namespace TrenchBroom {
             m_state = VboState::Active;
         }
 
+        void Vbo::freeBlock(VboBlock* block) {
+            assert(block != NULL);
+            assert(!block->isFree());
+            assert(checkBlockChain());
+            
+            VboBlock* previous = block->previous();
+            VboBlock* next = block->next();
+            
+            if (previous != NULL && previous->isFree() &&
+                next != NULL && next->isFree()) {
+                removeFreeBlock(previous);
+                removeFreeBlock(next);
+                previous->mergeWithSuccessor();
+                previous->mergeWithSuccessor();
+                delete block;
+                delete next;
+                insertFreeBlock(previous);
+            } else if (previous != NULL && previous->isFree()) {
+                removeFreeBlock(previous);
+                previous->mergeWithSuccessor();
+                delete block;
+                insertFreeBlock(previous);
+            } else if (next != NULL && next->isFree()) {
+                removeFreeBlock(next);
+                block->mergeWithSuccessor();
+                if (m_lastBlock == next)
+                    m_lastBlock = block;
+                delete next;
+                insertFreeBlock(block);
+            } else {
+                insertFreeBlock(block);
+            }
+            assert(checkBlockChain());
+        }
+
         void Vbo::increaseCapacityToAccomodate(const size_t capacity) {
             assert(m_state == VboState::Mapped);
             
@@ -183,6 +221,7 @@ namespace TrenchBroom {
         void Vbo::increaseCapacity(const size_t delta) {
             assert(m_state == VboState::Mapped);
             assert(delta > 0);
+            assert(checkBlockChain());
             
             if (m_lastBlock->isFree()) {
                 removeFreeBlock(m_lastBlock);
@@ -196,6 +235,7 @@ namespace TrenchBroom {
             
             m_totalCapacity += delta;
             m_freeCapacity += delta;
+            assert(checkBlockChain());
         }
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
@@ -231,6 +271,34 @@ namespace TrenchBroom {
             VboBlock* block = *it;
             block->setFree(false);
             m_freeCapacity -= block->capacity();
+        }
+
+        bool Vbo::checkBlockChain() const {
+            VboBlock* block = m_firstBlock;
+            assert(block != NULL);
+            
+            size_t count = 0;
+            VboBlock* next = block->next();
+            while (next != NULL) {
+                assert(next->previous() == block);
+                assert(!block->isFree() || !next->isFree());
+                block = next;
+                next = next->next();
+                ++count;
+            }
+            
+            assert(block == m_lastBlock);
+            
+            VboBlock* previous = block->previous();
+            while (previous != NULL) {
+                assert(previous->next() == block);
+                block = previous;
+                previous = previous->previous();
+                --count;
+            }
+            assert(count == 0);
+            
+            return true;
         }
     }
 }

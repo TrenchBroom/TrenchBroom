@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 return m_state;
             }
             
-            VboBlock& allocateBlock(const size_t capacity);
+            VboBlock* allocateBlock(const size_t capacity);
         private:
             friend class SetVboState;
             friend class VboBlock;
@@ -94,6 +94,8 @@ namespace TrenchBroom {
             void deactivate();
             void map();
             void unmap();
+            
+            void freeBlock(VboBlock* block);
             
             template <typename T>
             inline size_t writeElement(const size_t address, const T& element) {
@@ -133,6 +135,8 @@ namespace TrenchBroom {
             void insertFreeBlock(VboBlock* block);
             void removeFreeBlock(VboBlock* block);
             void removeFreeBlock(const VboBlockList::iterator it);
+
+            bool checkBlockChain() const;
         };
     }
 }

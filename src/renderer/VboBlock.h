@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 return m_vbo.writeBuffer(m_offset + address, buffer);
             }
             
-            void deallocate();
+            void free();
         private:
             inline VboBlock* previous() const {
                 return m_previous;
@@ -90,6 +90,7 @@ namespace TrenchBroom {
                 m_capacity = capacity;
             }
             
+            VboBlock* mergeWithSuccessor();
             VboBlock* split(const size_t capacity);
             VboBlock* createSuccessor(const size_t capacity);
         };

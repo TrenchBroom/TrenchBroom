@@ -71,6 +71,9 @@
 		48D9F6A01750A79D004F7835 /* VboBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D9F69D1750A79D004F7835 /* VboBlock.cpp */; };
 		48DD14E2174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */; };
 		48DD14E3174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */; };
+		48F400581750E42F0078A84D /* AttributeArrayTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F400561750E42F0078A84D /* AttributeArrayTest.cpp */; };
+		48F4005B1750EE700078A84D /* RenderArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F400591750EE700078A84D /* RenderArray.cpp */; };
+		48F4005C1750EE700078A84D /* RenderArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F400591750EE700078A84D /* RenderArray.cpp */; };
 		48F606CC17480E5900509CAA /* BrushFaceGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499721742D1CD0051EA5C /* BrushFaceGeometry.cpp */; };
 /* End PBXBuildFile section */
 
@@ -191,6 +194,10 @@
 		48D9F69E1750A79D004F7835 /* VboBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VboBlock.h; sourceTree = "<group>"; };
 		48DD14E0174A3AE0009C0815 /* IntersectBrushGeometryWithFace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectBrushGeometryWithFace.cpp; sourceTree = "<group>"; };
 		48DD14E1174A3AE0009C0815 /* IntersectBrushGeometryWithFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntersectBrushGeometryWithFace.h; sourceTree = "<group>"; };
+		48F400531750DD5E0078A84D /* AttributeArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttributeArray.h; sourceTree = "<group>"; };
+		48F400561750E42F0078A84D /* AttributeArrayTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AttributeArrayTest.cpp; path = ../../../test/src/renderer/AttributeArrayTest.cpp; sourceTree = "<group>"; };
+		48F400591750EE700078A84D /* RenderArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderArray.cpp; sourceTree = "<group>"; };
+		48F4005A1750EE700078A84D /* RenderArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderArray.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +226,9 @@
 		482ABA0A174F7CB2005ACC97 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				48F400531750DD5E0078A84D /* AttributeArray.h */,
+				48F400591750EE700078A84D /* RenderArray.cpp */,
+				48F4005A1750EE700078A84D /* RenderArray.h */,
 				482ABA0B174F7CC1005ACC97 /* Vbo.cpp */,
 				482ABA0C174F7CC1005ACC97 /* Vbo.h */,
 				48D9F69D1750A79D004F7835 /* VboBlock.cpp */,
@@ -294,6 +304,7 @@
 		48860647174FB42300D01422 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				48F400561750E42F0078A84D /* AttributeArrayTest.cpp */,
 				48860648174FB43400D01422 /* VboTest.cpp */,
 			);
 			name = Renderer;
@@ -604,6 +615,8 @@
 				48860651174FB79400D01422 /* glew.c in Sources */,
 				48860671174FCC1000D01422 /* GLMock.cpp in Sources */,
 				48D9F6A01750A79D004F7835 /* VboBlock.cpp in Sources */,
+				48F400581750E42F0078A84D /* AttributeArrayTest.cpp in Sources */,
+				48F4005C1750EE700078A84D /* RenderArray.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -630,6 +643,7 @@
 				482ABA0D174F7CC1005ACC97 /* Vbo.cpp in Sources */,
 				48860650174FB79400D01422 /* glew.c in Sources */,
 				48D9F69F1750A79D004F7835 /* VboBlock.cpp in Sources */,
+				48F4005B1750EE700078A84D /* RenderArray.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
