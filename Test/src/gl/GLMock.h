@@ -33,21 +33,55 @@ public:
     MOCK_METHOD4(BufferData, void(GLenum type, GLsizeiptr size, const GLvoid* buffer, GLenum usage));
     MOCK_METHOD2(MapBuffer, void*(GLenum type, GLenum access));
     MOCK_METHOD1(UnmapBuffer, void(GLenum type));
+    
+    MOCK_METHOD1(EnableClientState, void(GLenum cap));
+    MOCK_METHOD1(DisableClientState, void(GLenum cap));
+    MOCK_METHOD1(ClientActiveTexture, void(GLenum texture));
+    
+    MOCK_METHOD4(VertexPointer, void(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer));
+    MOCK_METHOD3(NormalPointer, void(GLenum type, GLsizei stride, const GLvoid* pointer));
+    MOCK_METHOD4(ColorPointer, void(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer));
+    MOCK_METHOD4(TexCoordPointer, void(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer));
+    
+    MOCK_METHOD3(DrawArrays, void(GLenum mode, GLint first, GLsizei count));
+    MOCK_METHOD4(MultiDrawArrays, void(GLenum mode, const GLint* first, const GLsizei* count, GLsizei primCount));
 };
 
 extern CGLMock* GLMock;
 
 #undef glGenBuffers
-#define glGenBuffers        GLMock->GenBuffers
+#define glGenBuffers            GLMock->GenBuffers
 #undef glDeleteBuffers
-#define glDeleteBuffers     GLMock->DeleteBuffers
+#define glDeleteBuffers         GLMock->DeleteBuffers
 #undef glBindBuffer
-#define glBindBuffer        GLMock->BindBuffer
+#define glBindBuffer            GLMock->BindBuffer
 #undef glBufferData
-#define glBufferData        GLMock->BufferData
+#define glBufferData            GLMock->BufferData
 #undef glMapBuffer
-#define glMapBuffer         GLMock->MapBuffer
+#define glMapBuffer             GLMock->MapBuffer
 #undef glUnmapBuffer
-#define glUnmapBuffer       GLMock->UnmapBuffer
+#define glUnmapBuffer           GLMock->UnmapBuffer
+
+#undef glEnableClientState
+#define glEnableClientState     GLMock->EnableClientState
+#undef glDisableClientState
+#define glDisableClientState    GLMock->DisableClientState
+#undef glClientActiveTexture
+#define glClientActiveTexture   GLMock->ClientActiveTexture
+
+#undef glVertexPointer
+#define glVertexPointer         GLMock->VertexPointer
+#undef glNormalPointer
+#define glNormalPointer         GLMock->NormalPointer
+#undef glColorPointer
+#define glColorPointer          GLMock->ColorPointer
+#undef glTexCoordPointer
+#define glTexCoordPointer       GLMock->TexCoordPointer
+
+#undef glDrawArrays
+#define glDrawArrays            GLMock->DrawArrays
+#undef glMultiDrawArrays
+#define glMultiDrawArrays       GLMock->MultiDrawArrays
+
 
 #endif

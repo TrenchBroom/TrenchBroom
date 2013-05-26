@@ -48,8 +48,13 @@ namespace TrenchBroom {
             Vbo& m_vbo;
             VboState::Type m_previousState;
         public:
-            SetVboState(Vbo& vbo, const VboState::Type newState);
+            SetVboState(Vbo& vbo);
             ~SetVboState();
+            
+            void active();
+            void mapped();
+        private:
+            void setState(const VboState::Type newState);
         };
         
         class Vbo {

@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
-#include "Renderer/AttributeArray.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Vbo.h"
 
 #include <cstdlib>
@@ -31,19 +31,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(AttributeArrayTest, Attribute1Array) {
+        TEST(VertexArrayTest, Vertex1Array) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
             
             Vec3f::List vertexPositions;
-            V3Attr::List vertices;
+            VP3::List vertices;
             
             for (size_t i = 0; i < 22; ++i) {
                 Vec3f v;
                 for (size_t j = 0; j < 3; ++j)
                     v[j] = static_cast<float>(std::rand());
                 vertexPositions.push_back(v);
-                vertices.push_back(V3Attr(v));
+                vertices.push_back(VP3(v));
             }
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
@@ -53,9 +54,10 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-            SetVboState mapVbo(vbo, VboState::Mapped);
+            SetVboState setVboState(vbo);
+            setVboState.mapped();
             
-            AttributeArray attrArray(vbo, vertices);
+            VertexArray attrArray(vbo, vertices);
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* x = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 0 * sizeof(float));
@@ -71,13 +73,14 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(AttributeArrayTest, Attribute2Array) {
+        TEST(VertexArrayTest, Vertex2Array) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
             
             Vec3f::List vertexPositions;
             Vec2f::List textureCoords;
-            V3T2Attr::List vertices;
+            VP3T2::List vertices;
             
             for (size_t i = 0; i < 22; ++i) {
                 Vec3f v;
@@ -88,7 +91,7 @@ namespace TrenchBroom {
                     t[j] = static_cast<float>(std::rand());
                 vertexPositions.push_back(v);
                 textureCoords.push_back(t);
-                vertices.push_back(V3T2Attr(v, t));
+                vertices.push_back(VP3T2(v, t));
             }
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
@@ -98,9 +101,10 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-            SetVboState mapVbo(vbo, VboState::Mapped);
+            SetVboState setVboState(vbo);
+            setVboState.mapped();
             
-            AttributeArray attrArray(vbo, vertices);
+            VertexArray attrArray(vbo, vertices);
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* x = reinterpret_cast<const float*>(buffer + i * 5 * sizeof(float) + 0 * sizeof(float));
@@ -119,15 +123,16 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
-
-        TEST(AttributeArrayTest, Attribute3Array) {
+        
+        TEST(VertexArrayTest, Vertex3Array) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
             
             Vec3f::List vertexPositions;
             Vec3f::List normals;
             Vec2f::List textureCoords;
-            V3N3T2Attr::List vertices;
+            VP3N3T2::List vertices;
             
             for (size_t i = 0; i < 22; ++i) {
                 Vec3f v;
@@ -142,7 +147,7 @@ namespace TrenchBroom {
                 vertexPositions.push_back(v);
                 normals.push_back(n);
                 textureCoords.push_back(t);
-                vertices.push_back(V3N3T2Attr(v, n, t));
+                vertices.push_back(VP3N3T2(v, n, t));
             }
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
@@ -152,9 +157,10 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-            SetVboState mapVbo(vbo, VboState::Mapped);
+            SetVboState setVboState(vbo);
+            setVboState.mapped();
             
-            AttributeArray attrArray(vbo, vertices);
+            VertexArray attrArray(vbo, vertices);
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* vx = reinterpret_cast<const float*>(buffer + i * 8 * sizeof(float) + 0 * sizeof(float));
@@ -173,6 +179,51 @@ namespace TrenchBroom {
                 ASSERT_FLOAT_EQ(normals[i].z(), *nz);
                 ASSERT_FLOAT_EQ(textureCoords[i].x(), *ts);
                 ASSERT_FLOAT_EQ(textureCoords[i].y(), *tt);
+            }
+            
+            EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+        }
+
+        TEST(VertexArrayTest, IndexedVertex1Array) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            std::srand(static_cast<unsigned int>(std::time(NULL)));
+            
+            Vec3f::List vertexPositions;
+            IndexedVertexList<VP3> indexedVertices;
+            
+            for (size_t i = 0; i < 7; ++i) {
+                for (size_t j = 0; j < 22; ++j) {
+                    Vec3f v;
+                    for (size_t k = 0; k < 3; ++k)
+                        v[k] = static_cast<float>(std::rand());
+                    vertexPositions.push_back(v);
+                    indexedVertices.addVertex(VP3(v));
+                }
+                indexedVertices.endPrimitive();
+            }
+            
+            Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
+            unsigned char buffer[0xFFFF];
+            
+            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            SetVboState setVboState(vbo);
+            setVboState.mapped();
+            
+            VertexArray attrArray(vbo, indexedVertices.vertices());
+            
+            for (size_t i = 0; i < vertexPositions.size(); i++) {
+                const float* x = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 0 * sizeof(float));
+                const float* y = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 1 * sizeof(float));
+                const float* z = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 2 * sizeof(float));
+                ASSERT_FLOAT_EQ(vertexPositions[i].x(), *x);
+                ASSERT_FLOAT_EQ(vertexPositions[i].y(), *y);
+                ASSERT_FLOAT_EQ(vertexPositions[i].z(), *z);
             }
             
             EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));

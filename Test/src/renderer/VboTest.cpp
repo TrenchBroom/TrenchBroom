@@ -35,6 +35,7 @@ namespace TrenchBroom {
         
         TEST(VboTest, ActivateAndDeactivateVbo) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             GLMock = new CGLMock();
             Mock::AllowLeak(GLMock);
@@ -46,7 +47,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             {
-                SetVboState activateVbo(vbo, VboState::Active);
+                SetVboState setVboState(vbo);
+                setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // deactivate by leaving block
@@ -57,7 +59,8 @@ namespace TrenchBroom {
             // reactivate
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             {
-                SetVboState activateVbo(vbo, VboState::Active);
+                SetVboState setVboState(vbo);
+                setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // deactivate by leaving block
@@ -71,6 +74,7 @@ namespace TrenchBroom {
 
         TEST(VboTest, MapAndUnmapVbo) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             GLMock = new CGLMock();
             Mock::AllowLeak(GLMock);
@@ -85,7 +89,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
-                SetVboState mapVbo(vbo, VboState::Mapped);
+                SetVboState setVboState(vbo);
+                setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 // deactivate and unmap by leaving block
@@ -97,21 +102,17 @@ namespace TrenchBroom {
             // reactivate
             EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             {
-                SetVboState activateVbo(vbo, VboState::Active);
-                ASSERT_EQ(VboState::Active, vbo.state());
-
-                // map
-                EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-                {
-                    SetVboState mapVbo(vbo, VboState::Mapped);
-                    ASSERT_EQ(VboState::Mapped, vbo.state());
-                    
-                    // unmap by leaving block
-                    EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                }
+                SetVboState setVboState(vbo);
+                setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
-                // deactivate by leaving block
+                // map
+                EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+                setVboState.mapped();
+                ASSERT_EQ(VboState::Mapped, vbo.state());
+                
+                // unmap and deactivate by leaving block
+                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
                 EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
@@ -122,6 +123,7 @@ namespace TrenchBroom {
         
         TEST(VboTest, AllocateBlocks) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             GLMock = new CGLMock();
             Mock::AllowLeak(GLMock);
@@ -136,7 +138,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
-                SetVboState mapVbo(vbo, VboState::Mapped);
+                SetVboState setVboState(vbo);
+                setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 VboBlock* block1 = vbo.allocateBlock(124);
@@ -164,6 +167,7 @@ namespace TrenchBroom {
 
         TEST(VboTest, AllocateBlockAndWriteBuffer) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             typedef std::vector<unsigned char> Buf;
             
@@ -180,7 +184,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
-                SetVboState mapVbo(vbo, VboState::Mapped);
+                SetVboState setVboState(vbo);
+                setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 VboBlock* block1 = vbo.allocateBlock(124);
@@ -207,6 +212,7 @@ namespace TrenchBroom {
         
         TEST(VboTest, DeallocateBlock) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             typedef std::vector<unsigned char> Buf;
             
@@ -223,7 +229,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
-                SetVboState mapVbo(vbo, VboState::Mapped);
+                SetVboState setVboState(vbo);
+                setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 // allocate and free a block
@@ -242,6 +249,7 @@ namespace TrenchBroom {
 
         TEST(VboTest, AllocateBlockBetweenOtherBlocks) {
             using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
             typedef std::vector<unsigned char> Buf;
             
@@ -259,7 +267,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
-                SetVboState mapVbo(vbo, VboState::Mapped);
+                SetVboState setVboState(vbo);
+                setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 // allocate three consecutive blocks

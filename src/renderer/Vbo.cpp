@@ -33,33 +33,33 @@ namespace TrenchBroom {
             return lhs->capacity() < rhs->capacity();
         }
 
-        SetVboState::SetVboState(Vbo& vbo, const VboState::Type newState) :
+        SetVboState::SetVboState(Vbo& vbo) :
         m_vbo(vbo),
-        m_previousState(m_vbo.state()) {
-            if (newState > m_previousState) {
+        m_previousState(m_vbo.state()) {}
+        
+        SetVboState::~SetVboState() {
+            setState(m_previousState);
+        }
+
+        void SetVboState::active() {
+            setState(VboState::Active);
+        }
+        
+        void SetVboState::mapped() {
+            setState(VboState::Mapped);
+        }
+
+        void SetVboState::setState(const VboState::Type newState) {
+            const VboState::Type currentState = m_vbo.state();
+            if (newState > currentState) {
                 if (newState == VboState::Active)
                     m_vbo.activate();
                 else if (newState == VboState::Mapped)
                     m_vbo.map();
-            } else if (newState < m_previousState) {
+            } else if (newState < currentState) {
                 if (newState == VboState::Inactive)
                     m_vbo.deactivate();
                 else if (newState == VboState::Active)
-                    m_vbo.unmap();
-            }
-        }
-        
-        SetVboState::~SetVboState() {
-            const VboState::Type currentState = m_vbo.state();
-            if (m_previousState > currentState) {
-                if (m_previousState == VboState::Active)
-                    m_vbo.activate();
-                else if (m_previousState == VboState::Mapped)
-                    m_vbo.map();
-            } else if (m_previousState < currentState) {
-                if (m_previousState == VboState::Inactive)
-                    m_vbo.deactivate();
-                else if (m_previousState == VboState::Active)
                     m_vbo.unmap();
             }
         }
