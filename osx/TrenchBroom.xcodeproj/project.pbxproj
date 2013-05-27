@@ -15,6 +15,10 @@
 		483499781742D1E50051EA5C /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483499751742D1E50051EA5C /* BrushGeometry.cpp */; };
 		4834997C1742D2770051EA5C /* BrushGeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4834997A1742D2770051EA5C /* BrushGeometryTest.cpp */; };
 		4834997F1742D56A0051EA5C /* BrushFaceGeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4834997D1742D56A0051EA5C /* BrushFaceGeometryTest.cpp */; };
+		483A02FA17539D0D00BFAC5D /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A02F817539D0D00BFAC5D /* MappedFile.cpp */; };
+		483A02FB17539D0D00BFAC5D /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A02F817539D0D00BFAC5D /* MappedFile.cpp */; };
+		483A02FD1753A31D00BFAC5D /* data in CopyFiles */ = {isa = PBXBuildFile; fileRef = 483A02FC1753A31D00BFAC5D /* data */; };
+		483A03001753A35B00BFAC5D /* WadTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A02FE1753A35B00BFAC5D /* WadTest.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
 		48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
@@ -96,12 +100,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		483AE26616F8FDF00073686A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				483A02FD1753A31D00BFAC5D /* data in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		48B64C5716CEC30D00ECA6C5 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -126,6 +131,11 @@
 		483499791742D20C0051EA5C /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
 		4834997A1742D2770051EA5C /* BrushGeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometryTest.cpp; sourceTree = "<group>"; };
 		4834997D1742D56A0051EA5C /* BrushFaceGeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFaceGeometryTest.cpp; sourceTree = "<group>"; };
+		483A02F817539D0D00BFAC5D /* MappedFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappedFile.cpp; sourceTree = "<group>"; };
+		483A02F917539D0D00BFAC5D /* MappedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MappedFile.h; sourceTree = "<group>"; };
+		483A02FC1753A31D00BFAC5D /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../test/data; sourceTree = "<group>"; };
+		483A02FE1753A35B00BFAC5D /* WadTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WadTest.cpp; sourceTree = "<group>"; };
+		483A03011753A5FC00BFAC5D /* IOUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOUtils.h; sourceTree = "<group>"; };
 		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -274,6 +284,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				483A02FC1753A31D00BFAC5D /* data */,
 				4886066A174FB8F900D01422 /* libgmock_main.a */,
 				4886066B174FB8F900D01422 /* libgmock.a */,
 				48B954BB173BBF8600E293E5 /* libgtest_main.a */,
@@ -371,6 +382,9 @@
 			children = (
 				4878C5D21752877300F21A4E /* FileSystem.cpp */,
 				4878C5D31752877300F21A4E /* FileSystem.h */,
+				483A03011753A5FC00BFAC5D /* IOUtils.h */,
+				483A02F817539D0D00BFAC5D /* MappedFile.cpp */,
+				483A02F917539D0D00BFAC5D /* MappedFile.h */,
 				4871D247174D2CB700AB0BEE /* MapParser.cpp */,
 				4871D246174D2C3F00AB0BEE /* MapParser.h */,
 				48AB5DDB1752B01600A2106D /* Path.cpp */,
@@ -397,6 +411,7 @@
 				48AB5DDF1752BB6200A2106D /* PathTest.cpp */,
 				487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */,
 				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
+				483A02FE1753A35B00BFAC5D /* WadTest.cpp */,
 			);
 			name = IO;
 			path = io;
@@ -677,6 +692,8 @@
 				4878C5DB17528A5400F21A4E /* StringUtilsTest.cpp in Sources */,
 				48AB5DDE1752B01600A2106D /* Path.cpp in Sources */,
 				48AB5DE11752BB6200A2106D /* PathTest.cpp in Sources */,
+				483A02FB17539D0D00BFAC5D /* MappedFile.cpp in Sources */,
+				483A03001753A35B00BFAC5D /* WadTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +727,7 @@
 				4878C5D01752871200F21A4E /* Wad.cpp in Sources */,
 				4878C5D41752877300F21A4E /* FileSystem.cpp in Sources */,
 				48AB5DDD1752B01600A2106D /* Path.cpp in Sources */,
+				483A02FA17539D0D00BFAC5D /* MappedFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

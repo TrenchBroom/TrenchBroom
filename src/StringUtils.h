@@ -21,6 +21,7 @@
 #define TrenchBroom_StringUtils_h
 
 #include <cassert>
+#include <locale>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -31,6 +32,76 @@ typedef std::vector<String> StringList;
 static const StringList EmptyStringList;
 
 namespace StringUtils {
+    struct CaseSensitiveCharCompare {
+    public:
+        int operator()(char lhs, char rhs) const {
+            return lhs - rhs;
+        }
+    };
+    
+    struct CaseInsensitiveCharCompare {
+    private:
+        const std::locale& m_locale;
+    public:
+        CaseInsensitiveCharCompare(const std::locale& loc = std::locale::classic()) :
+        m_locale(loc) {}
+        
+        int operator()(char lhs, char rhs) const {
+            return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
+        }
+    };
+
+    template <typename Cmp>
+    struct CharEqual {
+    private:
+        Cmp m_compare;
+    public:
+        bool operator()(char lhs, char rhs) const {
+            return m_compare(lhs, rhs) == 0;
+        }
+    };
+    
+    template <typename Cmp>
+    struct CharLess {
+    private:
+        Cmp m_compare;
+    public:
+        bool operator()(char lhs, char rhs) const {
+            return m_compare(lhs, rhs) < 0;
+        }
+    };
+    
+    template <typename Cmp>
+    struct StringEqual {
+    public:
+        bool operator()(const String& lhs, const String& rhs) const {
+            typedef String::iterator::difference_type StringDiff;
+
+            String::const_iterator lhsEnd, rhsEnd;
+            const size_t minSize = std::min(lhs.size(), rhs.size());
+            StringDiff difference = static_cast<StringDiff>(minSize);
+            
+            std::advance(lhsEnd = lhs.begin(), difference);
+            std::advance(rhsEnd = rhs.begin(), difference);
+            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharEqual<Cmp>());
+        }
+    };
+    
+    template <typename Cmp>
+    struct StringLess {
+        bool operator()(const String& lhs, const String& rhs) const {
+            typedef String::iterator::difference_type StringDiff;
+
+            String::const_iterator lhsEnd, rhsEnd;
+            const size_t minSize = std::min(lhs.size(), rhs.size());
+            StringDiff difference = static_cast<StringDiff>(minSize);
+            
+            std::advance(lhsEnd = lhs.begin(), difference);
+            std::advance(rhsEnd = rhs.begin(), difference);
+            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+        }
+    };
+
     inline String trim(const String& str, const String& chars = " \n\t\r") {
         if (str.length() == 0)
             return str;
@@ -82,6 +153,14 @@ namespace StringUtils {
         for (size_t i = 1; i < strs.size(); i++)
             result << d << strs[i];
         return result.str();
+    }
+    
+    inline void sortCaseSensitive(StringList& strs) {
+        std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
+    }
+    
+    inline void sortCaseInsensitive(StringList& strs) {
+        std::sort(strs.begin(), strs.end(), StringLess<CaseInsensitiveCharCompare>());
     }
 }
 

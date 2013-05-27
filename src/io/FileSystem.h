@@ -21,6 +21,7 @@
 #define __TrenchBroom__FileSystem__
 
 #include "StringUtils.h"
+#include "IO/MappedFile.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {
@@ -42,6 +43,7 @@ namespace TrenchBroom {
             void createDirectory(const Path& path) const;
             void deleteFile(const Path& path) const;
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite) const;
+            MappedFile::Ptr mapFile(const Path& path, const std::ios_base::openmode mode) const;
             
             Path logDirectory();
             Path resourceDirectory();

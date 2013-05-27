@@ -118,4 +118,40 @@ namespace StringUtils {
         components.push_back("yo");
         ASSERT_EQ(String("asdf/yo"), join(components, "/"));
     }
+    
+    TEST(StringUtilsTest, SortCaseSensitive) {
+        StringList strs;
+        strs.push_back("bam");
+        strs.push_back("Asdf");
+        strs.push_back("asdf");
+        strs.push_back("1");
+        strs.push_back("BAM");
+        strs.push_back("bambam");
+        
+        sortCaseSensitive(strs);
+        ASSERT_EQ(String("1"), strs[0]);
+        ASSERT_EQ(String("Asdf"), strs[1]);
+        ASSERT_EQ(String("BAM"), strs[2]);
+        ASSERT_EQ(String("asdf"), strs[3]);
+        ASSERT_EQ(String("bam"), strs[4]);
+        ASSERT_EQ(String("bambam"), strs[5]);
+    }
+    
+    TEST(StringUtilsTest, SortCaseInsensitive) {
+        StringList strs;
+        strs.push_back("bam");
+        strs.push_back("Asdf");
+        strs.push_back("asdf");
+        strs.push_back("1");
+        strs.push_back("BAM");
+        strs.push_back("bambam");
+        
+        sortCaseInsensitive(strs);
+        ASSERT_EQ(String("1"), strs[0]);
+        ASSERT_TRUE(strs[1] == "Asdf" || strs[1] == "asdf");
+        ASSERT_TRUE(strs[2] == "Asdf" || strs[2] == "asdf");
+        ASSERT_TRUE(strs[3] == "BAM" || strs[3] == "bam");
+        ASSERT_TRUE(strs[4] == "BAM" || strs[4] == "bam");
+        ASSERT_EQ(String("bambam"), strs[5]);
+    }
 }

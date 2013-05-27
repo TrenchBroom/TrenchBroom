@@ -21,15 +21,63 @@
 #define __TrenchBroom__Wad__
 
 #include "StringUtils.h"
+#include "IO/MappedFile.h"
+#include "IO/Path.h"
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        namespace WadEntryType {
+            static const char WEStatus    = 'B';
+            static const char WEConsole   = 'C';
+            static const char WEMip       = 'D';
+            static const char WEPalette   = '@';
+        }
+        
         class WadEntry {
+        private:
+            String m_name;
+            char m_type;
+            size_t m_address;
+            size_t m_size;
+        public:
+            WadEntry(const String& name, const char type, const size_t address, const size_t size);
+            
+            inline const String& name() const {
+                return m_name;
+            }
+            
+            inline const char type() const {
+                return m_type;
+            }
+            
+            inline const size_t address() const {
+                return m_address;
+            }
+            
+            inline const size_t size() const {
+                return m_size;
+            }
         };
         
+        typedef std::vector<WadEntry> WadEntryList;
+        
         class Wad {
+        private:
+            MappedFile::Ptr m_file;
+            WadEntryList m_entries;
+        public:
+            Wad(const Path& path);
+            
+            inline const WadEntryList& allEntries() const {
+                return m_entries;
+            }
+            
+            const WadEntryList entriesWithType(const char type) const;
+        private:
+            void loadEntries();
         };
     }
 }
