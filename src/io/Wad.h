@@ -64,6 +64,19 @@ namespace TrenchBroom {
         
         typedef std::vector<WadEntry> WadEntryList;
         
+        struct MipSize {
+            size_t width;
+            size_t height;
+            
+            MipSize(const size_t i_width, const size_t i_height) :
+            width(i_width),
+            height(i_height) {}
+            
+            inline bool operator== (const MipSize& rhs) const {
+                return width == rhs.width && height == rhs.height;
+            }
+        };
+        
         class Wad {
         private:
             MappedFile::Ptr m_file;
@@ -76,6 +89,7 @@ namespace TrenchBroom {
             }
             
             const WadEntryList entriesWithType(const char type) const;
+            const MipSize mipSize(const WadEntry& entry) const;
         private:
             void loadEntries();
         };

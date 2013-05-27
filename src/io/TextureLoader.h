@@ -24,15 +24,17 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+        
         class TextureLoader {
         public:
             virtual ~TextureLoader() {}
             
-            inline Model::TextureCollectionPtr loadTextureCollection(const String& path) {
+            inline Model::TextureCollectionPtr loadTextureCollection(const Path& path) {
                 return doLoadTextureCollection(path);
             }
         private:
-            virtual Model::TextureCollectionPtr doLoadTextureCollection(const String& path) = 0;
+            virtual Model::TextureCollectionPtr doLoadTextureCollection(const Path& path) = 0;
         };
     }
 }

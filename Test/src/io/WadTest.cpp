@@ -51,5 +51,17 @@ namespace TrenchBroom {
             ASSERT_EQ(String("blowjob_machine"), entries[19].name());
             ASSERT_EQ(String("lasthopeofhuman"), entries[20].name());
         }
+        
+        TEST(WadTest, GetMipSize) {
+            const Path wadPath("data/io/wad/cr8_czg.wad");
+            Wad wad(wadPath);
+            
+            const WadEntryList& entries = wad.allEntries();
+            ASSERT_EQ(MipSize( 64,  64), wad.mipSize(entries[0]));
+            ASSERT_EQ(MipSize( 64,  64), wad.mipSize(entries[1]));
+            ASSERT_EQ(MipSize( 64, 128), wad.mipSize(entries[2]));
+            ASSERT_EQ(MipSize( 64, 128), wad.mipSize(entries[3]));
+            ASSERT_EQ(MipSize( 64, 128), wad.mipSize(entries[4]));
+        }
     }
 }

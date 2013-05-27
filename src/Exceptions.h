@@ -86,6 +86,13 @@ namespace TrenchBroom {
         FileSystemException(const String& str) throw() : Exception(str) {}
         ~FileSystemException() throw() {}
     };
+            
+    class WadException : public Exception {
+    public:
+        WadException() throw() {}
+        WadException(const String& str) throw() : Exception(str) {}
+        ~WadException() throw() {}
+    };
 }
 
 #endif

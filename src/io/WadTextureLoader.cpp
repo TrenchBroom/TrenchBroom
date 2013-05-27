@@ -19,10 +19,27 @@
 
 #include "WadTextureLoader.h"
 
+#include "IO/Wad.h"
+#include "Model/Texture.h"
+#include "Model/TextureCollection.h"
+
 namespace TrenchBroom {
     namespace IO {
-        Model::TextureCollectionPtr WadTextureLoader::doLoadTextureCollection(const String& path) {
+        Model::TextureCollectionPtr WadTextureLoader::doLoadTextureCollection(const Path& path) {
+            Wad wad(path);
+            const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
+
+            Model::TextureList textures;
+            textures.reserve(mipEntries.size());
             
+            WadEntryList::const_iterator it, end;
+            for (it = mipEntries.begin(), end = mipEntries.end(); it != end; ++it) {
+                const WadEntry& entry = *it;
+                const MipSize mipSize = wad.mipSize(entry);
+                textures.push_back(Model::Texture::newTexture(entry.name(), mipSize.width, mipSize.height));
+            }
+            
+            return Model::TextureCollection::newTextureCollection(path.asString(), textures);
         }
     }
 }

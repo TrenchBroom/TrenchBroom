@@ -19,6 +19,7 @@
 		483A02FB17539D0D00BFAC5D /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A02F817539D0D00BFAC5D /* MappedFile.cpp */; };
 		483A02FD1753A31D00BFAC5D /* data in CopyFiles */ = {isa = PBXBuildFile; fileRef = 483A02FC1753A31D00BFAC5D /* data */; };
 		483A03001753A35B00BFAC5D /* WadTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A02FE1753A35B00BFAC5D /* WadTest.cpp */; };
+		483A03041753AACF00BFAC5D /* WadTextureLoaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483A03021753AACF00BFAC5D /* WadTextureLoaderTest.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		48625D66173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
 		48625D67173ECDBD0059BE1F /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48625D64173ECDBD0059BE1F /* Brush.cpp */; };
@@ -136,6 +137,7 @@
 		483A02FC1753A31D00BFAC5D /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../test/data; sourceTree = "<group>"; };
 		483A02FE1753A35B00BFAC5D /* WadTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WadTest.cpp; sourceTree = "<group>"; };
 		483A03011753A5FC00BFAC5D /* IOUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOUtils.h; sourceTree = "<group>"; };
+		483A03021753AACF00BFAC5D /* WadTextureLoaderTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WadTextureLoaderTest.cpp; sourceTree = "<group>"; };
 		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -412,6 +414,7 @@
 				487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */,
 				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
 				483A02FE1753A35B00BFAC5D /* WadTest.cpp */,
+				483A03021753AACF00BFAC5D /* WadTextureLoaderTest.cpp */,
 			);
 			name = IO;
 			path = io;
@@ -694,6 +697,7 @@
 				48AB5DE11752BB6200A2106D /* PathTest.cpp in Sources */,
 				483A02FB17539D0D00BFAC5D /* MappedFile.cpp in Sources */,
 				483A03001753A35B00BFAC5D /* WadTest.cpp in Sources */,
+				483A03041753AACF00BFAC5D /* WadTextureLoaderTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
