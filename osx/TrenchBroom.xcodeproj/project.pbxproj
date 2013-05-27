@@ -28,6 +28,18 @@
 		4871D248174D2CB700AB0BEE /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D247174D2CB700AB0BEE /* MapParser.cpp */; };
 		4871D249174D2CB700AB0BEE /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4871D247174D2CB700AB0BEE /* MapParser.cpp */; };
 		4878C5BC17526ABE00F21A4E /* VertexArrayRendererTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5BA17526ABE00F21A4E /* VertexArrayRendererTest.cpp */; };
+		4878C5BF1752820E00F21A4E /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5BD1752820E00F21A4E /* Texture.cpp */; };
+		4878C5C01752820E00F21A4E /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5BD1752820E00F21A4E /* Texture.cpp */; };
+		4878C5C71752832B00F21A4E /* TextureCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5C51752832B00F21A4E /* TextureCollection.cpp */; };
+		4878C5C81752832B00F21A4E /* TextureCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5C51752832B00F21A4E /* TextureCollection.cpp */; };
+		4878C5CC1752862C00F21A4E /* WadTextureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5CA1752862C00F21A4E /* WadTextureLoader.cpp */; };
+		4878C5CD1752862C00F21A4E /* WadTextureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5CA1752862C00F21A4E /* WadTextureLoader.cpp */; };
+		4878C5D01752871200F21A4E /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5CE1752871200F21A4E /* Wad.cpp */; };
+		4878C5D11752871200F21A4E /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5CE1752871200F21A4E /* Wad.cpp */; };
+		4878C5D41752877300F21A4E /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5D21752877300F21A4E /* FileSystem.cpp */; };
+		4878C5D51752877300F21A4E /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5D21752877300F21A4E /* FileSystem.cpp */; };
+		4878C5D8175288B600F21A4E /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5D6175288B600F21A4E /* FileSystemTest.cpp */; };
+		4878C5DB17528A5400F21A4E /* StringUtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878C5D917528A5400F21A4E /* StringUtilsTest.cpp */; };
 		487B46BD173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
 		487B46BE173FC995005E51F4 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46BB173FC995005E51F4 /* Entity.cpp */; };
 		487B46C2173FCA87005E51F4 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B46C0173FCA87005E51F4 /* EntityTest.cpp */; };
@@ -47,6 +59,9 @@
 		4886066D174FB8F900D01422 /* libgmock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4886066B174FB8F900D01422 /* libgmock.a */; };
 		48860671174FCC1000D01422 /* GLMock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48860670174FCC1000D01422 /* GLMock.cpp */; };
 		48A66444174BFF97008065EE /* TokenizerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A66442174BFF97008065EE /* TokenizerTest.cpp */; };
+		48AB5DDD1752B01600A2106D /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB5DDB1752B01600A2106D /* Path.cpp */; };
+		48AB5DDE1752B01600A2106D /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB5DDB1752B01600A2106D /* Path.cpp */; };
+		48AB5DE11752BB6200A2106D /* PathTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB5DDF1752BB6200A2106D /* PathTest.cpp */; };
 		48B3D0B6173B0E420069E3CA /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */; };
 		48B954A9173BBB3000E293E5 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954A7173BBB3000E293E5 /* MapDocument.cpp */; };
 		48B954B1173BBBE800E293E5 /* MapFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B954AF173BBBE800E293E5 /* MapFrame.cpp */; };
@@ -137,6 +152,19 @@
 		4871D246174D2C3F00AB0BEE /* MapParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
 		4871D247174D2CB700AB0BEE /* MapParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapParser.cpp; sourceTree = "<group>"; };
 		4878C5BA17526ABE00F21A4E /* VertexArrayRendererTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexArrayRendererTest.cpp; path = ../../../test/src/renderer/VertexArrayRendererTest.cpp; sourceTree = "<group>"; };
+		4878C5BD1752820E00F21A4E /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		4878C5BE1752820E00F21A4E /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		4878C5C51752832B00F21A4E /* TextureCollection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureCollection.cpp; sourceTree = "<group>"; };
+		4878C5C61752832B00F21A4E /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollection.h; sourceTree = "<group>"; };
+		4878C5C9175284DC00F21A4E /* TextureLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureLoader.h; sourceTree = "<group>"; };
+		4878C5CA1752862C00F21A4E /* WadTextureLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WadTextureLoader.cpp; sourceTree = "<group>"; };
+		4878C5CB1752862C00F21A4E /* WadTextureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadTextureLoader.h; sourceTree = "<group>"; };
+		4878C5CE1752871200F21A4E /* Wad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Wad.cpp; sourceTree = "<group>"; };
+		4878C5CF1752871200F21A4E /* Wad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Wad.h; sourceTree = "<group>"; };
+		4878C5D21752877300F21A4E /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
+		4878C5D31752877300F21A4E /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
+		4878C5D6175288B600F21A4E /* FileSystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystemTest.cpp; sourceTree = "<group>"; };
+		4878C5D917528A5400F21A4E /* StringUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtilsTest.cpp; sourceTree = "<group>"; };
 		487B46BB173FC995005E51F4 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		487B46BC173FC995005E51F4 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		487B46BF173FC9A9005E51F4 /* BrushTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushTypes.h; sourceTree = "<group>"; };
@@ -162,6 +190,9 @@
 		48A6643C174BFC79008065EE /* Tokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
 		48A6643E174BFCA6008065EE /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
 		48A66442174BFF97008065EE /* TokenizerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TokenizerTest.cpp; sourceTree = "<group>"; };
+		48AB5DDB1752B01600A2106D /* Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Path.cpp; sourceTree = "<group>"; };
+		48AB5DDC1752B01600A2106D /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
+		48AB5DDF1752BB6200A2106D /* PathTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTest.cpp; sourceTree = "<group>"; };
 		48B3D0B4173B0E420069E3CA /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48B3D0B5173B0E420069E3CA /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
 		48B954A7173BBB3000E293E5 /* MapDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocument.cpp; sourceTree = "<group>"; };
@@ -338,13 +369,22 @@
 		48A6643B174BFC0B008065EE /* IO */ = {
 			isa = PBXGroup;
 			children = (
+				4878C5D21752877300F21A4E /* FileSystem.cpp */,
+				4878C5D31752877300F21A4E /* FileSystem.h */,
 				4871D247174D2CB700AB0BEE /* MapParser.cpp */,
 				4871D246174D2C3F00AB0BEE /* MapParser.h */,
+				48AB5DDB1752B01600A2106D /* Path.cpp */,
+				48AB5DDC1752B01600A2106D /* Path.h */,
 				4871D242174D2C3100AB0BEE /* QuakeMapParser.cpp */,
 				4871D243174D2C3100AB0BEE /* QuakeMapParser.h */,
 				4871D23B174D2A1C00AB0BEE /* Parser.h */,
+				4878C5C9175284DC00F21A4E /* TextureLoader.h */,
 				48A6643E174BFCA6008065EE /* Token.h */,
 				48A6643C174BFC79008065EE /* Tokenizer.h */,
+				4878C5CE1752871200F21A4E /* Wad.cpp */,
+				4878C5CF1752871200F21A4E /* Wad.h */,
+				4878C5CA1752862C00F21A4E /* WadTextureLoader.cpp */,
+				4878C5CB1752862C00F21A4E /* WadTextureLoader.h */,
 			);
 			name = IO;
 			path = io;
@@ -353,6 +393,8 @@
 		48A66441174BFF8A008065EE /* IO */ = {
 			isa = PBXGroup;
 			children = (
+				4878C5D6175288B600F21A4E /* FileSystemTest.cpp */,
+				48AB5DDF1752BB6200A2106D /* PathTest.cpp */,
 				487DCC86174E38AB00A099CA /* QuakeMapParserTest.cpp */,
 				48A66442174BFF97008065EE /* TokenizerTest.cpp */,
 			);
@@ -420,6 +462,10 @@
 				48B954A8173BBB3000E293E5 /* MapDocument.h */,
 				48625D68173ECDEA0059BE1F /* Object.cpp */,
 				48625D69173ECDEA0059BE1F /* Object.h */,
+				4878C5BD1752820E00F21A4E /* Texture.cpp */,
+				4878C5BE1752820E00F21A4E /* Texture.h */,
+				4878C5C51752832B00F21A4E /* TextureCollection.cpp */,
+				4878C5C61752832B00F21A4E /* TextureCollection.h */,
 			);
 			name = Model;
 			path = model;
@@ -455,6 +501,7 @@
 				48625D6E173ECFD60059BE1F /* CollectionUtilsTest.cpp */,
 				48BA22CF173C491A00B6DA64 /* PlaneTest.cpp */,
 				48B954BF173BC02000E293E5 /* RunAllTests.cpp */,
+				4878C5D917528A5400F21A4E /* StringUtilsTest.cpp */,
 				48B9BC77173CF19F001F8E68 /* TestUtils.h */,
 				48B954CA173BCFDC00E293E5 /* VecTest.cpp */,
 			);
@@ -621,6 +668,15 @@
 				48F400581750E42F0078A84D /* VertexArrayTest.cpp in Sources */,
 				48F4005C1750EE700078A84D /* VertexArrayRenderer.cpp in Sources */,
 				4878C5BC17526ABE00F21A4E /* VertexArrayRendererTest.cpp in Sources */,
+				4878C5C01752820E00F21A4E /* Texture.cpp in Sources */,
+				4878C5C81752832B00F21A4E /* TextureCollection.cpp in Sources */,
+				4878C5CD1752862C00F21A4E /* WadTextureLoader.cpp in Sources */,
+				4878C5D11752871200F21A4E /* Wad.cpp in Sources */,
+				4878C5D51752877300F21A4E /* FileSystem.cpp in Sources */,
+				4878C5D8175288B600F21A4E /* FileSystemTest.cpp in Sources */,
+				4878C5DB17528A5400F21A4E /* StringUtilsTest.cpp in Sources */,
+				48AB5DDE1752B01600A2106D /* Path.cpp in Sources */,
+				48AB5DE11752BB6200A2106D /* PathTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,6 +704,12 @@
 				48860650174FB79400D01422 /* glew.c in Sources */,
 				48D9F69F1750A79D004F7835 /* VboBlock.cpp in Sources */,
 				48F4005B1750EE700078A84D /* VertexArrayRenderer.cpp in Sources */,
+				4878C5BF1752820E00F21A4E /* Texture.cpp in Sources */,
+				4878C5C71752832B00F21A4E /* TextureCollection.cpp in Sources */,
+				4878C5CC1752862C00F21A4E /* WadTextureLoader.cpp in Sources */,
+				4878C5D01752871200F21A4E /* Wad.cpp in Sources */,
+				4878C5D41752877300F21A4E /* FileSystem.cpp in Sources */,
+				48AB5DDD1752B01600A2106D /* Path.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

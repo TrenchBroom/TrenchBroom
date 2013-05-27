@@ -30,6 +30,10 @@ namespace TrenchBroom {
         String m_msg;
     public:
         Exception() throw() {}
+        Exception(const String& str) throw() {
+            *this << str;
+        }
+        
         ~Exception() throw() {}
         
         template <typename T>
@@ -67,6 +71,20 @@ namespace TrenchBroom {
     public:
         VboException() throw() {}
         ~VboException() throw() {}
+    };
+            
+    class PathException : public Exception {
+    public:
+        PathException() throw() {}
+        PathException(const String& str) throw() : Exception(str) {}
+        ~PathException() throw() {}
+    };
+            
+    class FileSystemException : public Exception {
+    public:
+        FileSystemException() throw() {}
+        FileSystemException(const String& str) throw() : Exception(str) {}
+        ~FileSystemException() throw() {}
     };
 }
 

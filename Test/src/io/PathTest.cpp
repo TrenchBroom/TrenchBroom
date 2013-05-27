@@ -1,0 +1,108 @@
+/*
+ Copyright (C) 2010-2013 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <gtest/gtest.h>
+
+#include "Exceptions.h"
+#include "StringUtils.h"
+#include "IO/Path.h"
+
+namespace TrenchBroom {
+    namespace IO {
+        TEST(PathTest, ConstructWithString) {
+            ASSERT_EQ(String(""), Path("").asString());
+            ASSERT_EQ(String(""), Path(" ").asString());
+            ASSERT_EQ(String("/"), Path("/").asString());
+            ASSERT_EQ(String("/asdf"), Path("/asdf").asString());
+            ASSERT_EQ(String("/asdf"), Path("/asdf/").asString());
+            ASSERT_EQ(String("/asdf/df"), Path("/asdf/df").asString());
+            ASSERT_EQ(String("hey"), Path("hey").asString());
+            ASSERT_EQ(String("hey"), Path("hey/").asString());
+            ASSERT_EQ(String("hey/asdf"), Path("hey/asdf").asString());
+            ASSERT_EQ(String("./asdf"), Path("./asdf").asString());
+        }
+        
+        TEST(PathTest, Concatenate) {
+            ASSERT_THROW(Path("") + Path("/"), PathException);
+            ASSERT_THROW(Path("") + Path("/asdf"), PathException);
+            ASSERT_THROW(Path("asdf") + Path("/asdf"), PathException);
+            ASSERT_THROW(Path("/asdf") + Path("/asdf"), PathException);
+            ASSERT_EQ(Path(""), Path("") + Path(""));
+            ASSERT_EQ(Path("/"), Path("/") + Path(""));
+            ASSERT_EQ(Path("/asdf"), Path("/asdf") + Path(""));
+            ASSERT_EQ(Path("/asdf"), Path("/") + Path("asdf"));
+            ASSERT_EQ(Path("/asdf/hey"), Path("/asdf") + Path("hey"));
+            ASSERT_EQ(Path("asdf/hey"), Path("asdf") + Path("hey"));
+        }
+        
+        TEST(PathTest, GetLastComponent) {
+            ASSERT_THROW(Path("").lastComponent(), PathException);
+            ASSERT_EQ("asdf", Path("/asdf").lastComponent());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
+            ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent());
+        }
+        
+        TEST(PathTest, DeleteLastComponent) {
+            ASSERT_THROW(Path("").deleteLastComponent(), PathException);
+            ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
+            ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
+            ASSERT_EQ(Path("/this/is/a"), Path("/this/is/a/path.map").deleteLastComponent());
+        }
+        
+        TEST(PathTest, GetExtension) {
+            ASSERT_THROW(Path("").extension(), PathException);
+            ASSERT_EQ(String(""), Path("asdf").extension());
+            ASSERT_EQ(String("map"), Path("asdf.map").extension());
+            ASSERT_EQ(Path("map"), Path("/this/is/a/path.map").extension());
+            ASSERT_EQ(Path("textfile"), Path("/this/is/a/path.map.textfile").extension());
+        }
+        
+        TEST(PathTest, AddExtension) {
+            ASSERT_THROW(Path("").addExtension("map"), PathException);
+            ASSERT_EQ(Path("/asdf."), Path("/asdf").addExtension(""));
+            ASSERT_EQ(Path("/asdf.map"), Path("/asdf").addExtension("map"));
+            ASSERT_EQ(Path("/asdf.map.test"), Path("/asdf.map").addExtension("test"));
+        }
+        
+        TEST(PathTest, MakeAbsolute) {
+            ASSERT_THROW(Path("/asdf").makeAbsolute(Path("/hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
+            ASSERT_EQ(Path("/asdf/hello"), Path("/asdf").makeAbsolute(Path("hello")));
+        }
+        
+        TEST(PathTest, MakeRelative) {
+            ASSERT_THROW(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeRelative(Path("/")), PathException);
+            ASSERT_THROW(Path("/asdf").makeRelative(Path("/hurr/hello")), PathException);
+            ASSERT_THROW(Path("/asdf/test/blah").makeRelative(Path("/asdf/test/hello")), PathException);
+            ASSERT_EQ(Path("hello"), Path("/asdf").makeRelative(Path("/asdf/hello")));
+            ASSERT_EQ(Path("hello"), Path("/./asdf").makeRelative(Path("/asdf/hello")));
+            ASSERT_EQ(Path("hello"), Path("/./asdf").makeRelative(Path("/asdf/hello")));
+            ASSERT_EQ(Path("./hello"), Path("/asdf/test/..").makeRelative(Path("/asdf/./hello")));
+            ASSERT_EQ(Path("hurr/../hello"), Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")));
+        }
+        
+        TEST(PathTest, MakeCanonical) {
+            ASSERT_THROW(Path("/..").makeCanonical(), PathException);
+            ASSERT_THROW(Path("/asdf/../..").makeCanonical(), PathException);
+            ASSERT_EQ(Path("/asdf"), Path("/asdf/test/..").makeCanonical());
+        }
+    }
+}
