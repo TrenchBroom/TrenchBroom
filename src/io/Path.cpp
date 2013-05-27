@@ -25,11 +25,12 @@
 
 namespace TrenchBroom {
     namespace IO {
-#ifdef _Win32
-        const char Path::Separator = '\';
+#ifdef WIN32
+        const char Path::Separator = '\\';
 #else
         const char Path::Separator = '/';
 #endif
+        const String Path::Separators("/\\");
 
         Path::Path(bool absolute, const StringList& components) :
         m_absolute(absolute),
@@ -37,8 +38,8 @@ namespace TrenchBroom {
 
         Path::Path(const String& path) {
             const String trimmed = StringUtils::trim(path);
-            m_components = StringUtils::split(trimmed, Separator);
-#ifdef _Win32
+            m_components = StringUtils::split(trimmed, Separators);
+#ifdef WIN32
             m_absolute = trimmed.size() > 1 && trimmed[1] == ':';
 #else
             m_absolute = !trimmed.empty() && trimmed[0] == Separator;
@@ -61,7 +62,11 @@ namespace TrenchBroom {
 
         String Path::asString() const {
             if (m_absolute)
+#ifdef WIN32
+                return StringUtils::join(m_components, Separator);
+#else
                 return Separator + StringUtils::join(m_components, Separator);
+#endif
             return StringUtils::join(m_components, Separator);
         }
 
@@ -120,7 +125,7 @@ namespace TrenchBroom {
             if (!absolutePath.isAbsolute())
                 throw PathException("Cannot make relative path with relative sub path");
 
-            const StringList resolved = resolvePath(m_components);
+            const StringList resolved = resolvePath(m_absolute, m_components);
             StringList prefix;
             bool prefixEqual = false;
             
@@ -153,10 +158,10 @@ namespace TrenchBroom {
         }
 
         Path Path::makeCanonical() const {
-            return Path(m_absolute, resolvePath(m_components));
+            return Path(m_absolute, resolvePath(m_absolute, m_components));
         }
 
-        StringList Path::resolvePath(const StringList& components) const {
+        StringList Path::resolvePath(const bool absolute, const StringList& components) const {
             StringList::const_iterator it, end;
             StringList resolved;
             for (it = m_components.begin(), end = m_components.end(); it != end; ++it) {
@@ -164,8 +169,13 @@ namespace TrenchBroom {
                 if (comp == ".")
                     continue;
                 if (comp == "..") {
+#ifdef WIN32
+                    if (absolute && resolved.size() < 2 || resolved.empty())
+                        throw PathException("Cannot resolve path");
+#else
                     if (resolved.empty())
                         throw PathException("Cannot resolve path");
+#endif
                     resolved.pop_back();
                     continue;
                 }

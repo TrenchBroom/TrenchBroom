@@ -173,10 +173,12 @@ namespace TrenchBroom {
             BrushEdgeList::iterator it1, it2, end;
             for (it1 = m_newSideEdges.begin(), end = m_newSideEdges.end(); it1 != end; ++it1) {
                 BrushEdge* edge = *it1;
-                for (it2 = it1 + 2; it2 < end; ++it2) {
-                    const BrushEdge* candidate = *it2;
-                    if (edge->end() == candidate->start())
-                        std::iter_swap(it1 + 1, it2);
+                if (std::distance(it1, end) > 2) {
+                    for (it2 = it1 + 2; it2 < end; ++it2) {
+                        const BrushEdge* candidate = *it2;
+                        if (edge->end() == candidate->start())
+                            std::iter_swap(it1 + 1, it2);
+                    }
                 }
                 
                 newSide->addForwardEdge(edge);

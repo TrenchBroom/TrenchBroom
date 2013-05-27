@@ -22,7 +22,7 @@
 #include "TrenchBroomApp.h"
 
 #include <wx/wx.h>
-#include <locale>
+#include <clocale>
 
 int main(int argc, char **argv) {
 
@@ -33,9 +33,17 @@ int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
     // set the locale to US so that we can parse floats property
+#ifdef WIN32
+    std::setlocale(LC_ALL, "us");
+#else
     std::setlocale(LC_ALL, "en_US");
+#endif
     const int result = RUN_ALL_TESTS();
     
     wxEntryCleanup();
+
+#ifdef WIN32
+    std::cin.get();
+#endif
     return result;
 }

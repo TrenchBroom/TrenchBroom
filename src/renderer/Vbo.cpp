@@ -213,7 +213,7 @@ namespace TrenchBroom {
             
             size_t newCapacity = m_totalCapacity;
             while (newCapacity < newMinCapacity)
-                newCapacity *= GrowthFactor;
+                newCapacity = static_cast<size_t>(static_cast<float>(newCapacity) * GrowthFactor);
             
             increaseCapacity(newCapacity - m_totalCapacity);
         }
@@ -267,8 +267,8 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(const VboBlockList::iterator it) {
-            m_freeBlocks.erase(it);
             VboBlock* block = *it;
+            m_freeBlocks.erase(it);
             block->setFree(false);
             m_freeCapacity -= block->capacity();
         }

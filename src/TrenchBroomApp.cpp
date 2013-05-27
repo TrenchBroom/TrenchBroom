@@ -19,7 +19,7 @@
 
 #include "TrenchBroomApp.h"
 
-#if not defined TESTING
+#ifndef TESTING
 IMPLEMENT_APP(TrenchBroomApp)
 #endif
 

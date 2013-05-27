@@ -25,6 +25,87 @@
 
 namespace TrenchBroom {
     namespace IO {
+#ifdef WIN32
+        TEST(PathTest, ConstructWithString) {
+            ASSERT_EQ(String(""), Path("").asString());
+            ASSERT_EQ(String(""), Path(" ").asString());
+            ASSERT_EQ(String("c:"), Path("c:\\").asString());
+            ASSERT_EQ(String("c:\\asdf"), Path("c:\\asdf").asString());
+            ASSERT_EQ(String("c:\\asdf"), Path("c:\\asdf\\").asString());
+            ASSERT_EQ(String("c:\\asdf\\df"), Path("c:\\asdf\\df").asString());
+            ASSERT_EQ(String("hey"), Path("hey").asString());
+            ASSERT_EQ(String("hey"), Path("hey\\").asString());
+            ASSERT_EQ(String("hey\\asdf"), Path("hey\\asdf").asString());
+            ASSERT_EQ(String(".\\asdf"), Path(".\\asdf").asString());
+        }
+        
+        TEST(PathTest, Concatenate) {
+            ASSERT_THROW(Path("") + Path("c:\\"), PathException);
+            ASSERT_THROW(Path("") + Path("c:\\asdf"), PathException);
+            ASSERT_THROW(Path("asdf") + Path("c:\\asdf"), PathException);
+            ASSERT_THROW(Path("c:\\asdf") + Path("c:\\asdf"), PathException);
+            ASSERT_EQ(Path(""), Path("") + Path(""));
+            ASSERT_EQ(Path("c:\\"), Path("c:\\") + Path(""));
+            ASSERT_EQ(Path("c:\\asdf"), Path("c:\\asdf") + Path(""));
+            ASSERT_EQ(Path("c:\\asdf"), Path("c:\\") + Path("asdf"));
+            ASSERT_EQ(Path("c:\\asdf\\hey"), Path("c:\\asdf") + Path("hey"));
+            ASSERT_EQ(Path("asdf\\hey"), Path("asdf") + Path("hey"));
+        }
+        
+        TEST(PathTest, GetLastComponent) {
+            ASSERT_THROW(Path("").lastComponent(), PathException);
+            ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
+            ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent());
+        }
+        
+        TEST(PathTest, DeleteLastComponent) {
+            ASSERT_THROW(Path("").deleteLastComponent(), PathException);
+            ASSERT_EQ(Path("c:\\"), Path("c:\\asdf").deleteLastComponent());
+            ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
+            ASSERT_EQ(Path("c:\\this\\is\\a"), Path("c:\\this\\is\\a\\path.map").deleteLastComponent());
+        }
+        
+        TEST(PathTest, GetExtension) {
+            ASSERT_THROW(Path("").extension(), PathException);
+            ASSERT_EQ(String(""), Path("asdf").extension());
+            ASSERT_EQ(String("map"), Path("asdf.map").extension());
+            ASSERT_EQ(Path("map"), Path("c:\\this\\is\\a\\path.map").extension());
+            ASSERT_EQ(Path("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
+        }
+        
+        TEST(PathTest, AddExtension) {
+            ASSERT_THROW(Path("").addExtension("map"), PathException);
+            ASSERT_EQ(Path("c:\\asdf."), Path("c:\\asdf").addExtension(""));
+            ASSERT_EQ(Path("c:\\asdf.map"), Path("c:\\asdf").addExtension("map"));
+            ASSERT_EQ(Path("c:\\asdf.map.test"), Path("c:\\asdf.map").addExtension("test"));
+        }
+        
+        TEST(PathTest, MakeAbsolute) {
+            ASSERT_THROW(Path("c:\\asdf").makeAbsolute(Path("c:\\hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
+            ASSERT_EQ(Path("c:\\asdf\\hello"), Path("c:\\asdf").makeAbsolute(Path("hello")));
+        }
+        
+        TEST(PathTest, MakeRelative) {
+            ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
+            ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
+            ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")), PathException);
+            ASSERT_THROW(Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello")), PathException);
+            ASSERT_EQ(Path("hello"), Path("c:\\asdf").makeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_EQ(Path("hello"), Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_EQ(Path("hello"), Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_EQ(Path(".\\hello"), Path("c:\\asdf\\test\\..").makeRelative(Path("c:\\asdf\\.\\hello")));
+            ASSERT_EQ(Path("hurr\\..\\hello"), Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
+        }
+        
+        TEST(PathTest, MakeCanonical) {
+            ASSERT_THROW(Path("c:\\..").makeCanonical(), PathException);
+            ASSERT_THROW(Path("c:\\asdf\\..\\..").makeCanonical(), PathException);
+            ASSERT_EQ(Path("c:\\asdf"), Path("c:\\asdf\\test\\..").makeCanonical());
+        }
+#else
         TEST(PathTest, ConstructWithString) {
             ASSERT_EQ(String(""), Path("").asString());
             ASSERT_EQ(String(""), Path(" ").asString());
@@ -104,5 +185,6 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("/asdf/../..").makeCanonical(), PathException);
             ASSERT_EQ(Path("/asdf"), Path("/asdf/test/..").makeCanonical());
         }
+#endif
     }
 }

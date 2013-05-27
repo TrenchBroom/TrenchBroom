@@ -29,12 +29,14 @@ namespace TrenchBroom {
         class Path {
         public:
             typedef std::vector<Path> List;
-#ifdef _Win32
+#ifdef WIN32
             static const char Separator;
 #else
             static const char Separator;
 #endif
         private:
+            static const String Separators;
+            
             StringList m_components;
             bool m_absolute;
             
@@ -59,7 +61,7 @@ namespace TrenchBroom {
             Path makeRelative(const Path& absolutePath) const;
             Path makeCanonical() const;
         private:
-            StringList resolvePath(const StringList& components) const;
+            StringList resolvePath(const bool absolute, const StringList& components) const;
         };
     }
 }

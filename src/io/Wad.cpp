@@ -23,6 +23,12 @@
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 
+#ifdef _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
+
 namespace TrenchBroom {
     namespace IO {
         namespace WadLayout {

@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         MappedFile::Ptr FileSystem::mapFile(const Path& path, const std::ios_base::openmode mode) const {
-#ifdef _Win32
+#ifdef WIN32
             return MappedFile::Ptr(new WinMappedFile(path, mode));
 #else
             return MappedFile::Ptr(new PosixMappedFile(path, mode));

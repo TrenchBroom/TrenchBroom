@@ -24,6 +24,11 @@
 
 #include "Exceptions.h"
 
+#ifdef WIN32
+// can't include Windows.h here
+typedef void *HANDLE;
+#endif
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -70,7 +75,16 @@ namespace TrenchBroom {
             }
         };
 
-#ifdef _Win32
+#ifdef WIN32
+        class WinMappedFile : public MappedFile {
+        private:
+            HANDLE m_fileHandle;
+	        HANDLE m_mappingHandle;
+            char* m_address;
+        public:
+            WinMappedFile(const Path& path, std::ios_base::openmode mode);
+            ~WinMappedFile();
+        };
 #else
         class PosixMappedFile : public MappedFile {
         private:

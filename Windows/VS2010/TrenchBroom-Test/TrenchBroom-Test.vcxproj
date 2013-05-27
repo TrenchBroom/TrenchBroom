@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DC5B1ECF-5B8F-414D-AC98-BBBB28418C07}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>TrenchBroomTest</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>TESTING;NOMINMAX;WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\..\src;..\..\..\lib\include;..\..\..\test\src;.</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4290</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;gtestd.lib;gmockd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WXWIN)\lib\vc100_dll;..\..\..\lib\bin\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.pdb" "$(TargetDir)"
+
+Mkdir "$(TargetDir)\data"
+XCopy "$(ProjectDir)..\..\..\test\data" "$(TargetDir)\data" /S /E /Y
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\BBox.h" />
+    <ClInclude Include="..\..\..\src\CollectionUtils.h" />
+    <ClInclude Include="..\..\..\src\Exceptions.h" />
+    <ClInclude Include="..\..\..\src\gl\GL.h" />
+    <ClInclude Include="..\..\..\src\gl\glew.h" />
+    <ClInclude Include="..\..\..\src\gl\wglew.h" />
+    <ClInclude Include="..\..\..\src\io\FileSystem.h" />
+    <ClInclude Include="..\..\..\src\io\IOUtils.h" />
+    <ClInclude Include="..\..\..\src\io\MapParser.h" />
+    <ClInclude Include="..\..\..\src\io\MappedFile.h" />
+    <ClInclude Include="..\..\..\src\io\Parser.h" />
+    <ClInclude Include="..\..\..\src\io\Path.h" />
+    <ClInclude Include="..\..\..\src\io\QuakeMapParser.h" />
+    <ClInclude Include="..\..\..\src\io\TextureLoader.h" />
+    <ClInclude Include="..\..\..\src\io\Token.h" />
+    <ClInclude Include="..\..\..\src\io\Tokenizer.h" />
+    <ClInclude Include="..\..\..\src\io\Wad.h" />
+    <ClInclude Include="..\..\..\src\io\WadTextureLoader.h" />
+    <ClInclude Include="..\..\..\src\MathUtils.h" />
+    <ClInclude Include="..\..\..\src\model\Brush.h" />
+    <ClInclude Include="..\..\..\src\model\BrushEdge.h" />
+    <ClInclude Include="..\..\..\src\model\BrushFace.h" />
+    <ClInclude Include="..\..\..\src\model\BrushFaceGeometry.h" />
+    <ClInclude Include="..\..\..\src\model\BrushFaceTypes.h" />
+    <ClInclude Include="..\..\..\src\model\BrushGeometry.h" />
+    <ClInclude Include="..\..\..\src\model\BrushGeometryAlgorithm.h" />
+    <ClInclude Include="..\..\..\src\model\BrushGeometryTypes.h" />
+    <ClInclude Include="..\..\..\src\model\BrushTypes.h" />
+    <ClInclude Include="..\..\..\src\model\BrushVertex.h" />
+    <ClInclude Include="..\..\..\src\model\Entity.h" />
+    <ClInclude Include="..\..\..\src\model\EntityProperties.h" />
+    <ClInclude Include="..\..\..\src\model\EntityPropertyTypes.h" />
+    <ClInclude Include="..\..\..\src\model\EntityTypes.h" />
+    <ClInclude Include="..\..\..\src\model\IntersectBrushGeometryWithFace.h" />
+    <ClInclude Include="..\..\..\src\model\Map.h" />
+    <ClInclude Include="..\..\..\src\model\MapDocument.h" />
+    <ClInclude Include="..\..\..\src\model\Object.h" />
+    <ClInclude Include="..\..\..\src\model\Texture.h" />
+    <ClInclude Include="..\..\..\src\model\TextureCollection.h" />
+    <ClInclude Include="..\..\..\src\Plane.h" />
+    <ClInclude Include="..\..\..\src\renderer\Vbo.h" />
+    <ClInclude Include="..\..\..\src\renderer\VboBlock.h" />
+    <ClInclude Include="..\..\..\src\renderer\VertexArray.h" />
+    <ClInclude Include="..\..\..\src\renderer\VertexArrayRenderer.h" />
+    <ClInclude Include="..\..\..\src\SharedPointer.h" />
+    <ClInclude Include="..\..\..\src\StringUtils.h" />
+    <ClInclude Include="..\..\..\src\TemplateUtils.h" />
+    <ClInclude Include="..\..\..\src\TrenchBroom.h" />
+    <ClInclude Include="..\..\..\src\TrenchBroomApp.h" />
+    <ClInclude Include="..\..\..\src\Vec.h" />
+    <ClInclude Include="..\..\..\src\VecMath.h" />
+    <ClInclude Include="..\..\..\src\view\MapFrame.h" />
+    <ClInclude Include="..\..\..\test\src\gl\GLMock.h" />
+    <ClInclude Include="..\..\..\test\src\TestUtils.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\io\FileSystem.cpp" />
+    <ClCompile Include="..\..\..\src\io\MapParser.cpp" />
+    <ClCompile Include="..\..\..\src\io\MappedFile.cpp" />
+    <ClCompile Include="..\..\..\src\io\Path.cpp" />
+    <ClCompile Include="..\..\..\src\io\QuakeMapParser.cpp" />
+    <ClCompile Include="..\..\..\src\io\Wad.cpp" />
+    <ClCompile Include="..\..\..\src\io\WadTextureLoader.cpp" />
+    <ClCompile Include="..\..\..\src\model\Brush.cpp" />
+    <ClCompile Include="..\..\..\src\model\BrushEdge.cpp" />
+    <ClCompile Include="..\..\..\src\model\BrushFace.cpp" />
+    <ClCompile Include="..\..\..\src\model\BrushFaceGeometry.cpp" />
+    <ClCompile Include="..\..\..\src\model\BrushGeometry.cpp" />
+    <ClCompile Include="..\..\..\src\model\BrushVertex.cpp" />
+    <ClCompile Include="..\..\..\src\model\Entity.cpp" />
+    <ClCompile Include="..\..\..\src\model\EntityProperties.cpp" />
+    <ClCompile Include="..\..\..\src\model\EntityPropertyTypes.cpp" />
+    <ClCompile Include="..\..\..\src\model\IntersectBrushGeometryWithFace.cpp" />
+    <ClCompile Include="..\..\..\src\model\Map.cpp" />
+    <ClCompile Include="..\..\..\src\model\MapDocument.cpp" />
+    <ClCompile Include="..\..\..\src\model\Object.cpp" />
+    <ClCompile Include="..\..\..\src\model\Texture.cpp" />
+    <ClCompile Include="..\..\..\src\model\TextureCollection.cpp" />
+    <ClCompile Include="..\..\..\src\renderer\Vbo.cpp" />
+    <ClCompile Include="..\..\..\src\renderer\VboBlock.cpp" />
+    <ClCompile Include="..\..\..\src\renderer\VertexArrayRenderer.cpp" />
+    <ClCompile Include="..\..\..\src\TrenchBroomApp.cpp" />
+    <ClCompile Include="..\..\..\src\view\MapFrame.cpp" />
+    <ClCompile Include="..\..\..\test\src\BBoxTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\CollectionUtilsTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\gl\GLMock.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\FileSystemTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\PathTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\QuakeMapParserTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\TokenizerTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\WadTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\io\WadTextureLoaderTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushEdgeTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushFaceGeometryTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushFaceTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushGeometryTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\BrushVertexTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\EntityPropertiesTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\EntityTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\MapDocumentTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\model\MapTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\PlaneTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\renderer\VboTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\renderer\VertexArrayRendererTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\renderer\VertexArrayTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\RunAllTests.cpp" />
+    <ClCompile Include="..\..\..\test\src\StringUtilsTest.cpp" />
+    <ClCompile Include="..\..\..\test\src\VecTest.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

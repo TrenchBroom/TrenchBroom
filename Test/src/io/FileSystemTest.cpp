@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "IO/FileSystem.h"
+#include "IO/Path.h"
 
 #include <iostream>
 
@@ -66,9 +67,9 @@ namespace TrenchBroom {
             }
             
             bool deleteDirectory(String path) {
-#ifdef _Win32
-                if (path[path.size() - 1] != '\')
-                    path += '\';
+#ifdef WIN32
+                if (path[path.size() - 1] != '\\')
+                    path += '\\';
 #else
                 if (path[path.size() - 1] != '/')
                     path += '/';

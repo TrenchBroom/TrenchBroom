@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_StringUtils_h
 #define TrenchBroom_StringUtils_h
 
+#include <algorithm>
 #include <cassert>
 #include <locale>
 #include <string>
@@ -117,7 +118,8 @@ namespace StringUtils {
         return str.substr(first, last - first + 1);
     }
 
-    inline StringList split(const String& str, char d) {
+    template <typename D>
+    inline StringList split(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
 
@@ -132,7 +134,7 @@ namespace StringUtils {
 
         size_t lastPos = first;
         size_t pos = lastPos;
-        while ((pos = str.find(d, pos)) < last) {
+        while ((pos = str.find_first_of(d, pos)) < last) {
             result.push_back(str.substr(lastPos, pos - lastPos));
             lastPos = ++pos;
         }

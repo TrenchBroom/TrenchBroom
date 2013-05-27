@@ -28,7 +28,7 @@ public:
     int OnExit();
 };
 
-#if not defined TESTING
+#ifndef TESTING
 DECLARE_APP(TrenchBroomApp)
 #endif
 

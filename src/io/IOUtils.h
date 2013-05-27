@@ -27,8 +27,10 @@
 #include <iostream>
 #include <limits>
 
-#ifdef _Win32
+#ifdef _MSC_VER
 #include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
 #endif
 
 namespace TrenchBroom {

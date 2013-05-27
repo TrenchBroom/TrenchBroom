@@ -7,11 +7,14 @@
 
 xcuserdata
 
-/windows/Debug
-/windows/Release
-/windows/TrenchBroom/Debug
-/windows/TrenchBroom/Release
+/windows/VS2010/Debug
+/windows/VS2010/Release
+/windows/VS2010/TrenchBroom/Debug
+/windows/VS2010/TrenchBroom/Release
+/windows/VS2010/TrenchBroom-Test/Debug
+/windows/VS2010/TrenchBroom-Test/Release
 *.suo
+*.vcxproj.user
 
 Version.h
 .DS_STORE
