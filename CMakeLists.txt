@@ -4,6 +4,7 @@ PROJECT(TrenchBroom)
 
 # SET(wxWidgets_ROOT_DIR, "${CMAKE_SOURCE_DIR}/osx/wxWidgets")
 
+# wxWidgets configuration
 IF(CMAKE_BUILD_TYPE MATCHES "DEBUG")
 	SET(wxWidgets_USE_DEBUG)
 ELSE(CMAKE_BUILD_TYPE MATCHES "DEBUG")
@@ -12,37 +13,52 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES "DEBUG")
 
 SET(wxWidgets_USE_UNICODE)
 SET(wxWidgets_USE_UNIVERSAL)
-
 SET(wxWidgets_USE_LIBS)
 FIND_PACKAGE(wxWidgets REQUIRED gl core base)
 INCLUDE("${wxWidgets_USE_FILE}")
 
+# Source directories
 SET(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 SET(TEST_SOURCE_DIR ${CMAKE_SOURCE_DIR}/test/src)
 
 FILE(GLOB_RECURSE SOURCE
     "${SOURCE_DIR}/*.h"
     "${SOURCE_DIR}/*.cpp"
+    "${SOURCE_DIR}/*.c"
 )
 
 FILE(GLOB_RECURSE TEST_SOURCE
     "${TEST_SOURCE_DIR}/*.h"
     "${TEST_SOURCE_DIR}/*.cpp"
+    "${TEST_SOURCE_DIR}/*.c"
 )
 
+# Library configuration
 SET(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 SET(LIB_INCLUDE_DIR ${LIB_DIR}/include)
 SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 
+# Compile gtest and gmock as libraries
 SET(LIB_GTEST_SOURCE_DIR ${LIB_SOURCE_DIR}/gtest)
 SET(LIB_GMOCK_SOURCE_DIR ${LIB_SOURCE_DIR}/gmock)
 SET(LIB_GTEST_SOURCE ${LIB_GTEST_SOURCE_DIR}/gtest-all.cc)
 SET(LIB_GMOCK_SOURCE ${LIB_GMOCK_SOURCE_DIR}/gmock-all.cc)
-
 ADD_LIBRARY(gtest ${LIB_GTEST_SOURCE} ${LIB_INCLUDE_DIR})
 ADD_LIBRARY(gmock ${LIB_GMOCK_SOURCE} ${LIB_INCLUDE_DIR})
 
+# Include directories
 INCLUDE_DIRECTORIES("${LIB_INCLUDE_DIR}" "${SOURCE_DIR}" "${TEST_SOURCE_DIR}")
+
+# TrenchBroom executable
+ADD_EXECUTABLE(TrenchBroom ${SOURCE})
+# SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "TESTING")
+TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES})
+
+# ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+# 	COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" $<TARGET_FILE_DIR:TrenchBroom-Test>/data
+# )
+
+# TrenchBroom-Test executable
 ADD_EXECUTABLE(TrenchBroom-Test ${SOURCE} ${TEST_SOURCE})
 SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "TESTING")
 TARGET_LINK_LIBRARIES(TrenchBroom-Test ${wxWidgets_LIBRARIES} gtest gmock)

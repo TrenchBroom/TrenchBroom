@@ -33,8 +33,8 @@ namespace TrenchBroom {
         const String Path::Separators("/\\");
 
         Path::Path(bool absolute, const StringList& components) :
-        m_absolute(absolute),
-        m_components(components) {}
+        m_components(components),
+        m_absolute(absolute) {}
 
         Path::Path(const String& path) {
             const String trimmed = StringUtils::trim(path);
