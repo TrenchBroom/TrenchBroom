@@ -21,3 +21,4 @@ Version.h
 Thumbs.db
 
 /build/
+/osx/wxWidgets
