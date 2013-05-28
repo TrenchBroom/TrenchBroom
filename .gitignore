@@ -19,3 +19,5 @@ xcuserdata
 Version.h
 .DS_STORE
 Thumbs.db
+
+/build/
