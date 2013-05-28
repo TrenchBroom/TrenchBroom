@@ -23,6 +23,7 @@
 #include "SharedPointer.h"
 #include <GL/GL.h>
 
+#include <cassert>
 #include <cstring>
 #include <vector>
 
