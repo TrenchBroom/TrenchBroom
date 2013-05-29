@@ -145,5 +145,43 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)));
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)));
         }
+
+        TEST(QuakeMapParserTest, ParseBrushWithCurlyBraceInTextureName) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) \"{none\" 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::MapPtr map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(1, entities.size());
+            
+            const Model::EntityPtr entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::BrushList& brushes = entity->brushes();
+            ASSERT_EQ(1, brushes.size());
+            
+            const Model::BrushPtr brush = brushes.front();
+            const Model::BrushFaceList faces = brush->faces();
+            ASSERT_EQ(6, faces.size());
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)));
+        }
     }
 }

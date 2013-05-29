@@ -27,3 +27,96 @@ TEST(RayTest, PointAtDistance) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosX);
     ASSERT_VEC_EQ(Vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
 }
+
+TEST(RayTest, PointStatus) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    ASSERT_EQ(PointStatus::PSAbove, ray.pointStatus(Vec3f(0.0f, 0.0f, 1.0f)));
+    ASSERT_EQ(PointStatus::PSInside, ray.pointStatus(Vec3f(0.0f, 0.0f, 0.0f)));
+    ASSERT_EQ(PointStatus::PSBelow, ray.pointStatus(Vec3f(0.0f, 0.0f, -1.0f)));
+}
+
+TEST(RayTest, IntersectWithPlane) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    ASSERT_TRUE(Mathf::isnan(ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f, -1.0f))));
+    ASSERT_FLOAT_EQ(0.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  0.0f)));
+    ASSERT_FLOAT_EQ(1.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  1.0f)));
+}
+
+TEST(RayTest, IntersectWithSphere) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    
+    // ray originates inside sphere and hits at north pole
+    ASSERT_FLOAT_EQ(2.0f, ray.intersectWithSphere(Vec3f::Null, 2.0f));
+
+    // ray originates outside sphere and hits at south pole
+    ASSERT_FLOAT_EQ(3.0f, ray.intersectWithSphere(Vec3f(0.0f, 0.0f, 5.0f), 2.0f));
+    
+    // miss
+    ASSERT_TRUE(Mathf::isnan(ray.intersectWithSphere(Vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+}
+
+TEST(RayTest, DistanceToPoint) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    
+    // point is behind ray
+    ASSERT_FLOAT_EQ(0.0f, ray.distanceToPointSquared(Vec3f(-1.0f, -1.0f, -1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(3.0f, ray.distanceToPointSquared(Vec3f(-1.0f, -1.0f, -1.0f)).distance);
+    
+    // point is in front of ray
+    ASSERT_FLOAT_EQ(1.0f, ray.distanceToPointSquared(Vec3f(1.0f, 1.0f, 1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(2.0f, ray.distanceToPointSquared(Vec3f(1.0f, 1.0f, 1.0f)).distance);
+    
+    // point is on ray
+    ASSERT_FLOAT_EQ(1.0f, ray.distanceToPointSquared(Vec3f(0.0f, 0.0f, 1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(0.0f, ray.distanceToPointSquared(Vec3f(0.0f, 0.0f, 1.0f)).distance);
+}
+
+TEST(RayTest, DistanceToSegment) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    Ray3f::LineDistance segDist;
+    
+    segDist = ray.distanceToSegmentSquared(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f));
+    ASSERT_TRUE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.distance);
+
+    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 1.0f, 0.0f), Vec3f(1.0f, 1.0f, 1.0f));
+    ASSERT_TRUE(segDist.parallel);
+    ASSERT_FLOAT_EQ(2.0f, segDist.distance);
+    
+    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
+    ASSERT_FALSE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+    
+    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(2.0f, -1.0f, 0.0f));
+    ASSERT_FALSE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+    ASSERT_FLOAT_EQ(1.0f, segDist.distance);
+    ASSERT_VEC_EQ(Vec3f(1.0f, 0.0f, 0.0f), segDist.point);
+}
+
+TEST(RayTest, DistanceToLine) {
+    const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
+    Ray3f::LineDistance segDist;
+    
+    segDist = ray.distanceToLineSquared(Vec3f(0.0f, 0.0f, 0.0f), Vec3f::PosZ);
+    ASSERT_TRUE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.distance);
+    
+    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 1.0f, 0.0f), Vec3f::PosZ);
+    ASSERT_TRUE(segDist.parallel);
+    ASSERT_FLOAT_EQ(2.0f, segDist.distance);
+    
+    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(-1.0f, 1.0f, 0.0f).normalized());
+    ASSERT_FALSE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+    
+    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(1.0f, -1.0f, 0.0f));
+    ASSERT_FALSE(segDist.parallel);
+    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+}

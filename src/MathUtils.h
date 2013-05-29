@@ -159,6 +159,9 @@ const T Math<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
 template <typename T>
 const T Math<T>:: E                   = static_cast<T>(2.718281828459045);
 
+typedef Math<float> Mathf;
+typedef Math<double> Mathd;
+
 inline size_t succ(size_t index, size_t count, size_t offset = 1) {
     return (index + offset) % count;
 }
