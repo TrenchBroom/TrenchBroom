@@ -33,11 +33,7 @@ int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
     // set the locale to US so that we can parse floats property
-#ifdef _WIN32
-    std::setlocale(LC_ALL, "us");
-#else
-    std::setlocale(LC_ALL, "en_US");
-#endif
+    std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();
     
     wxEntryCleanup();

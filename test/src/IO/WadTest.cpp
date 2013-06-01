@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(WadTest, LoadEntries) {
-            const Path wadPath("data/io/wad/cr8_czg.wad");
+            const Path wadPath("data/IO/Wad/cr8_czg.wad");
             Wad wad(wadPath);
             
             const WadEntryList& entries = wad.allEntries();

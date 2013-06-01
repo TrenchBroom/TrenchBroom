@@ -21,7 +21,7 @@
 #define __TrenchBroom__VertexArray__
 
 #include "TrenchBroom.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "VecMath.h"
 
 #include "GL/GL.h"

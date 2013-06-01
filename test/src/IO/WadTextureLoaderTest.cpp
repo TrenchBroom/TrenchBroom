@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
         
         TEST(WadTextureLoaderTest, TestLoadWad) {
-            const Path wadPath("data/io/wad/cr8_czg.wad");
+            const Path wadPath("data/IO/Wad/cr8_czg.wad");
             
             WadTextureLoader loader;
             Model::TextureCollectionPtr collection = loader.loadTextureCollection(wadPath);
