@@ -27,103 +27,12 @@
 #include "GL/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
+#include "Renderer/Vertex.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
-        template <typename T>
-        class Vertex1 {
-        public:
-            typedef std::vector<Vertex1<T> > List;
-        private:
-            T m_value;
-        public:
-            Vertex1(const T& value) :
-            m_value(value) {}
-#if defined _WIN32
-        };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-    
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
-        template <typename T1, typename T2>
-        class Vertex2 {
-        public:
-            typedef std::vector<Vertex2<T1, T2> > List;
-        private:
-            T1 m_value1;
-            T2 m_value2;
-        public:
-            Vertex2(const T1& value1, const T2& value2) :
-            m_value1(value1),
-            m_value2(value2) {}
-#if defined _WIN32
-        };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
-        template <typename T1, typename T2, typename T3>
-        class Vertex3 {
-        public:
-            typedef std::vector<Vertex3<T1, T2, T3> > List;
-        private:
-            T1 m_value1;
-            T2 m_value2;
-            T3 m_value3;
-        public:
-            Vertex3(const T1& value1, const T2& value2, const T3& value3) :
-            m_value1(value1),
-            m_value2(value2),
-            m_value3(value3) {}
-#if defined _WIN32
-        };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
-        template <typename T1, typename T2, typename T3, typename T4>
-        class Vertex4 {
-        public:
-            typedef std::vector<Vertex4<T1, T2, T3, T4> > List;
-        private:
-            T1 m_value1;
-            T2 m_value2;
-            T3 m_value3;
-            T4 m_value4;
-        public:
-            Vertex4(const T1& value1, const T2& value2, const T3& value3, const T4& value4) :
-            m_value1(value1),
-            m_value2(value2),
-            m_value3(value3),
-            m_value4(value4) {}
-#if defined _WIN32
-        };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-
-        typedef Vertex1<Vec3f> VP3;
-        typedef Vertex2<Vec3f,Vec2f> VP3T2;
-        typedef Vertex3<Vec3f,Vec3f,Vec2f> VP3N3T2;
-
         class VertexArray {
         private:
             VboBlock* m_block;

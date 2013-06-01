@@ -131,6 +131,18 @@ namespace MapUtils {
     };
 
     template <typename K, typename V>
+    inline typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
+        typedef std::map<K, V> Map;
+        typename Map::key_compare compare = map.key_comp();
+        typename Map::iterator insertPos = map.lower_bound(key);
+        if (insertPos == map.end() || compare(key, insertPos->first)) {
+            // the two keys are not equal (key is less than insertPos' key), so we must insert the value
+            return map.insert(insertPos, std::pair<K, V>(key, V()));
+        }
+        return insertPos;
+    }
+
+    template <typename K, typename V>
     inline void insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();

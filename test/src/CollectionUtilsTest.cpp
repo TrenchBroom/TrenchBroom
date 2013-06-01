@@ -342,6 +342,25 @@ TEST(CollectionUtilsTest, VecContainsPtr) {
     delete i110;
 }
 
+TEST(CollectionUtilsTest, MapFindOrInsert) {
+    typedef std::map<std::string, std::string> TestMap;
+
+    TestMap testMap;
+    TestMap::iterator it = MapUtils::findOrInsert(testMap, std::string("Key"));
+    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(testMap.begin(), it);
+    ASSERT_EQ(std::string("Key"), it->first);
+    ASSERT_EQ(std::string(""), it->second);
+    ASSERT_EQ(it, MapUtils::findOrInsert(testMap, std::string("Key")));
+    ASSERT_EQ(1, testMap.size());
+    
+    it = MapUtils::findOrInsert(testMap, std::string("Key2"));
+    ASSERT_EQ(2, testMap.size());
+    ASSERT_NE(testMap.end(), it);
+    ASSERT_EQ(std::string("Key2"), it->first);
+    ASSERT_EQ(std::string(""), it->second);
+}
+
 TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
     typedef std::map<std::string, std::string> TestMap;
 
