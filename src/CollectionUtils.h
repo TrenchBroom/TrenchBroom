@@ -35,35 +35,28 @@ namespace VectorUtils {
         }
     };
 
-    template <typename T, typename D>
-    inline void shiftRight(std::vector<T>& vec, const D offset);
-
-    template <typename T, typename D>
-    inline void shiftLeft(std::vector<T>& vec, const D offset) {
-        if (vec.empty())
-            return;
-        if (offset == 0)
+    template <typename T>
+    inline void shiftLeft(std::vector<T>& vec, const size_t offset) {
+        if (vec.empty() || offset == 0)
             return;
 
         // (offset > 0) is used to silence a compiler warning
-        if (std::numeric_limits<D>::is_signed && !(offset > 0)) {
-            shiftRight(vec, -offset);
-        } else {
-            typedef typename std::vector<T>::iterator::difference_type DiffType;
-            const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-            if (modOffset == 0)
-                return;
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
+        if (modOffset == 0)
+            return;
             
-            std::rotate(vec.begin(), vec.begin() + modOffset, vec.end());
-        }
+        std::rotate(vec.begin(), vec.begin() + modOffset, vec.end());
     }
     
-    template <typename T, typename D>
-    inline void shiftRight(std::vector<T>& vec, const D offset) {
-        if (std::numeric_limits<D>::is_signed && !(offset > 0))
-            shiftLeft(vec, -offset);
-        else
-            shiftLeft(vec, static_cast<D>(vec.size()) - offset);
+    template <typename T>
+    inline void shiftRight(std::vector<T>& vec, const size_t offset) {
+        if (vec.empty() || offset == 0)
+            return;
+        
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
+		shiftLeft(vec, static_cast<size_t>(vec.size()) - modOffset);
     }
     
     template <typename T>

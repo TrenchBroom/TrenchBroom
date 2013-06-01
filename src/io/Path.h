@@ -29,11 +29,7 @@ namespace TrenchBroom {
         class Path {
         public:
             typedef std::vector<Path> List;
-#ifdef WIN32
             static const char Separator;
-#else
-            static const char Separator;
-#endif
         private:
             static const String Separators;
             

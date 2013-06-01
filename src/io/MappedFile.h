@@ -24,7 +24,7 @@
 
 #include "Exceptions.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 // can't include Windows.h here
 typedef void *HANDLE;
 #endif
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             }
         };
 
-#ifdef WIN32
+#ifdef _WIN32
         class WinMappedFile : public MappedFile {
         private:
             HANDLE m_fileHandle;

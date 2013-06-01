@@ -115,27 +115,6 @@ TEST(CollectionUtilsTest, VecShiftLeftByMoreThanSize) {
     ASSERT_TRUE(std::equal(leftBy10.begin(), leftBy10.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftLeftByNegative) {
-    typedef std::vector<size_t> Vec;
-    Vec vec;
-    
-    vec.push_back('a');
-    vec.push_back('b');
-    vec.push_back('c');
-    vec.push_back('d');
-    vec.push_back('e');
-    vec.push_back('f');
-    vec.push_back('g');
-    
-    Vec expected = vec;
-    VectorUtils::shiftRight(vec, 3);
-    
-    Vec actual = vec;
-    VectorUtils::shiftLeft(actual, -4);
-    
-    ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
-}
-
 TEST(CollectionUtilsTest, VecShiftRightEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
@@ -210,27 +189,6 @@ TEST(CollectionUtilsTest, VecShiftRightByMoreThanSize) {
     Vec actual = vec;
     VectorUtils::shiftRight(actual, 10);
     ASSERT_TRUE(std::equal(rightBy10.begin(), rightBy10.end(), actual.begin()));
-}
-
-TEST(CollectionUtilsTest, VecShiftRightByNegative) {
-    typedef std::vector<size_t> Vec;
-    Vec vec;
-    
-    vec.push_back('a');
-    vec.push_back('b');
-    vec.push_back('c');
-    vec.push_back('d');
-    vec.push_back('e');
-    vec.push_back('f');
-    vec.push_back('g');
-    
-    Vec expected = vec;
-    VectorUtils::shiftLeft(vec, 1);
-    
-    Vec actual = vec;
-    VectorUtils::shiftRight(actual, -6);
-    
-    ASSERT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {

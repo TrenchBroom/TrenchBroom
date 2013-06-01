@@ -25,7 +25,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstddef>
 #include <map>
 #include <ostream>

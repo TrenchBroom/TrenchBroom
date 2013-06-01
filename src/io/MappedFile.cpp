@@ -22,7 +22,7 @@
 #include "Exceptions.h"
 #include "IO/Path.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #include <fstream>
 #else
@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-#ifdef WIN32
+#ifdef _WIN32
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
         m_fileHandle(INVALID_HANDLE_VALUE),
         m_mappingHandle(NULL),

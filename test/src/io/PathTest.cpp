@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-#ifdef WIN32
+#ifdef _WIN32
         TEST(PathTest, ConstructWithString) {
             ASSERT_EQ(String(""), Path("").asString());
             ASSERT_EQ(String(""), Path(" ").asString());

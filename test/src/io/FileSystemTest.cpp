@@ -67,7 +67,7 @@ namespace TrenchBroom {
             }
             
             bool deleteDirectory(String path) {
-#ifdef WIN32
+#ifdef _WIN32
                 if (path[path.size() - 1] != '\\')
                     path += '\\';
 #else
