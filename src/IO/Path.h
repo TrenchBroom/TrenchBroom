@@ -46,6 +46,7 @@ namespace TrenchBroom {
             String asString() const;
             operator String() const;
             
+            bool isEmpty() const;
             String lastComponent() const;
             Path deleteLastComponent() const;
             const String extension() const;

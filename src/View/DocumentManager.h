@@ -17,33 +17,39 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef __TrenchBroom__DocumentManager__
+#define __TrenchBroom__DocumentManager__
 
-#include "StringUtils.h"
+#include "View/MapDocument.h"
+
+#include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapFrame;
+    namespace IO {
+        class Path;
     }
-    
-    namespace Model {
-        class MapDocument {
+
+    namespace View {
+        typedef std::vector<MapDocumentPtr> DocumentList;
+
+        class DocumentManager {
         private:
-            View::MapFrame* m_frame;
+            bool m_singleDocument;
+            DocumentList m_documents;
         public:
-            MapDocument();
-            ~MapDocument();
+            DocumentManager(const bool singleDocument);
+            ~DocumentManager();
             
-            void newDocument();
-            void openDocument(const String& path);
+            const DocumentList& documents() const;
             
-            View::MapFrame* getFrame() const;
+            MapDocumentPtr newDocument();
+            MapDocumentPtr openDocument(const IO::Path& path);
+            bool closeDocument(MapDocumentPtr document);
+            bool closeAllDocuments();
         private:
-            void createOrRaiseFrame();
-            void destroyFrame();
+            MapDocumentPtr createOrReuseDocument();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif /* defined(__TrenchBroom__DocumentManager__) */

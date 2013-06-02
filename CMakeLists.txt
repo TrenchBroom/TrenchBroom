@@ -91,9 +91,21 @@ ELSE()
 ENDIF()
 
 # TrenchBroom executable
-ADD_EXECUTABLE(TrenchBroom WIN32 ${SOURCE})
+# OS X app bundle configuration
+IF(APPLE)
+	# Configure icons
+	SET(MACOSX_ICON_FILES "${CMAKE_SOURCE_DIR}/resources/graphics/AppIcon.icns" "${CMAKE_SOURCE_DIR}/resources/graphics/DocIcon.icns")
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	SET(SOURCE ${SOURCE} ${MACOSX_ICON_FILES})
+ENDIF()
+
+ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${SOURCE})
 TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES} glew)
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
+IF(APPLE)
+	# Configure plist file
+	SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/mac/TrenchBroom-Info.plist")
+ENDIF()
 
 
 # TrenchBroom-Test executable

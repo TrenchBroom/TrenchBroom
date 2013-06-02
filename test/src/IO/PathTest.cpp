@@ -52,6 +52,15 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf\\hey"), Path("asdf") + Path("hey"));
         }
         
+        TEST(PathTest, IsEmpty) {
+            ASSERT_TRUE(Path("").isEmpty());
+            ASSERT_FALSE(Path("asdf").isEmpty());
+            ASSERT_FALSE(Path("c:").isEmpty());
+            ASSERT_FALSE(Path("c:\\asdf").isEmpty());
+            ASSERT_FALSE(Path(".").isEmpty());
+            ASSERT_FALSE(Path("c:\\.").isEmpty());
+        }
+        
         TEST(PathTest, GetLastComponent) {
             ASSERT_THROW(Path("").lastComponent(), PathException);
             ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent());
@@ -132,6 +141,15 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf/hey"), Path("asdf") + Path("hey"));
         }
         
+        TEST(PathTest, IsEmpty) {
+            ASSERT_TRUE(Path("").isEmpty());
+            ASSERT_FALSE(Path("asdf").isEmpty());
+            ASSERT_FALSE(Path("/").isEmpty());
+            ASSERT_FALSE(Path("/asdf").isEmpty());
+            ASSERT_FALSE(Path(".").isEmpty());
+            ASSERT_FALSE(Path("/.").isEmpty());
+        }
+
         TEST(PathTest, GetLastComponent) {
             ASSERT_THROW(Path("").lastComponent(), PathException);
             ASSERT_EQ("asdf", Path("/asdf").lastComponent());

@@ -19,34 +19,51 @@
 
 #include "MapDocument.h"
 
-#include "view/MapFrame.h"
+#include "View/MapFrame.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
         MapDocument::MapDocument() :
+        m_path(""),
         m_frame(NULL) {}
         
+        MapDocumentPtr MapDocument::newMapDocument() {
+            return MapDocumentPtr(new MapDocument());
+        }
+
         MapDocument::~MapDocument() {
             destroyFrame();
         }
         
+        const IO::Path& MapDocument::path() const {
+            return m_path;
+        }
+
+        const String MapDocument::filename() const {
+            if (m_path.isEmpty())
+                return "";
+            return  m_path.lastComponent();
+        }
+
         void MapDocument::newDocument() {
+            m_path = IO::Path("");
             createOrRaiseFrame();
         }
         
-        void MapDocument::openDocument(const String& path) {
+        void MapDocument::openDocument(const IO::Path& path) {
+            m_path = path;
             createOrRaiseFrame();
         }
 
-        View::MapFrame* MapDocument::getFrame() const {
+        MapFrame* MapDocument::frame() const {
             return m_frame;
         }
 
         void MapDocument::createOrRaiseFrame() {
             if (m_frame == NULL)
-                m_frame = new View::MapFrame();
+                m_frame = new MapFrame();
             m_frame->Show();
             m_frame->Raise();
         }
@@ -56,6 +73,10 @@ namespace TrenchBroom {
                 m_frame->Destroy();
                 m_frame = NULL;
             }
+        }
+
+        bool MapDocument::closeDocument() {
+            return true;
         }
     }
 }

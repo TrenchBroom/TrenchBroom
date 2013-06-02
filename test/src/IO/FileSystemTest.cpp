@@ -77,18 +77,20 @@ namespace TrenchBroom {
                 if (!::wxDirExists(path))
                     return true;
                 
-                wxDir dir(path);
-                assert(dir.IsOpened());
-                
-                wxString filename;
-                if (dir.GetFirst(&filename)) {
-                    do {
-                        const String subPath = path + filename.ToStdString();
-                        if (::wxDirExists(subPath))
-                            deleteDirectory(subPath);
-                        else
-                            ::wxRemoveFile(subPath);
-                    } while (dir.GetNext(&filename));
+                { // put in a block so that dir gets closed before we call wxRmdir
+                    wxDir dir(path);
+                    assert(dir.IsOpened());
+                    
+                    wxString filename;
+                    if (dir.GetFirst(&filename)) {
+                        do {
+                            const String subPath = path + filename.ToStdString();
+                            if (::wxDirExists(subPath))
+                                deleteDirectory(subPath);
+                            else
+                                ::wxRemoveFile(subPath);
+                        } while (dir.GetNext(&filename));
+                    }
                 }
                 return ::wxRmdir(path);
             }

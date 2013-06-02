@@ -26,6 +26,11 @@ class TrenchBroomApp : public wxApp {
 public:
     bool OnInit();
     int OnExit();
+
+#ifdef __APPLE__
+    void MacNewFile();
+    void MacOpenFiles(const wxArrayString& filenames);
+#endif
 };
 
 #ifndef TESTING

@@ -17,24 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/MapDocument.h"
+#include <gtest/gtest.h>
 
-#include <iostream>
-
-#include "gtest/gtest.h"
+#include "IO/Path.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
         TEST(MapDocumentTest, newDocumentCreatesFrame) {
-            MapDocument document;
-            document.newDocument();
-            ASSERT_TRUE(document.getFrame() != NULL);
+            MapDocumentPtr document = MapDocument::newMapDocument();
+            document->newDocument();
+            ASSERT_EQ(IO::Path(""), document->path());
+            ASSERT_EQ(String(""), document->filename());
+            ASSERT_TRUE(document->frame() != NULL);
         }
         
         TEST(MapDocumentTest, openDocumentCreatesFrame) {
-            MapDocument document;
-            document.openDocument("test");
-            ASSERT_TRUE(document.getFrame() != NULL);
+            MapDocumentPtr document = MapDocument::newMapDocument();
+            document->openDocument(IO::Path("/test/blah/hey.map"));
+            ASSERT_EQ(IO::Path("/test/blah/hey.map"), document->path());
+            ASSERT_EQ(String("hey.map"), document->filename());
+            ASSERT_TRUE(document->frame() != NULL);
         }
     }
 }

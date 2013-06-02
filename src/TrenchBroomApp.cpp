@@ -19,14 +19,28 @@
 
 #include "TrenchBroomApp.h"
 
+#include <clocale>
+
 #ifndef TESTING
 IMPLEMENT_APP(TrenchBroomApp)
 #endif
 
 bool TrenchBroomApp::OnInit() {
-    return wxApp::OnInit();
+    if (!wxApp::OnInit())
+        return false;
+
+    std::setlocale(LC_NUMERIC, "C");
+    return true;
 }
 
 int TrenchBroomApp::OnExit() {
     return wxApp::OnExit();
 }
+
+#ifdef __APPLE__
+void TrenchBroomApp::MacNewFile() {
+}
+
+void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
+}
+#endif

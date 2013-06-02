@@ -74,14 +74,18 @@ namespace TrenchBroom {
             return asString();
         }
 
+        bool Path::isEmpty() const {
+            return !m_absolute && m_components.empty();
+        }
+
         String Path::lastComponent() const {
-            if (m_components.empty())
+            if (isEmpty())
                 throw PathException("Cannot return last component of empty path");
             return m_components.back();
         }
 
         Path Path::deleteLastComponent() const {
-            if (m_components.empty())
+            if (isEmpty())
                 throw PathException("Cannot delete last component of empty path");
             StringList components = m_components;
             components.pop_back();
@@ -89,7 +93,7 @@ namespace TrenchBroom {
         }
 
         const String Path::extension() const {
-            if (m_components.empty())
+            if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
             const String& lastComponent = m_components.back();
             const size_t dotIndex = lastComponent.rfind('.');
@@ -99,7 +103,7 @@ namespace TrenchBroom {
         }
 
         Path Path::addExtension(const String& extension) const {
-            if (m_components.empty())
+            if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
             StringList components = m_components;
             String& lastComponent = components.back();
