@@ -145,8 +145,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(newEdge != NULL);
             ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->start()->position());
             ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(4, face->vertices().size());
-            ASSERT_EQ(4, face->edges().size());
+            ASSERT_EQ(4u, face->vertices().size());
+            ASSERT_EQ(4u, face->edges().size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);
@@ -203,8 +203,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(newEdge != NULL);
             ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->start()->position());
             ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(4, face->vertices().size());
-            ASSERT_EQ(4, face->edges().size());
+            ASSERT_EQ(4u, face->vertices().size());
+            ASSERT_EQ(4u, face->edges().size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);
@@ -261,8 +261,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(newEdge != NULL);
             ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->start()->position());
             ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(3, face->vertices().size());
-            ASSERT_EQ(3, face->edges().size());
+            ASSERT_EQ(3u, face->vertices().size());
+            ASSERT_EQ(3u, face->edges().size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);

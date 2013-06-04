@@ -143,17 +143,17 @@ namespace TrenchBroom {
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 VboBlock* block1 = vbo.allocateBlock(124);
-                ASSERT_EQ(124, block1->capacity());
+                ASSERT_EQ(124u, block1->capacity());
                 
                 VboBlock* block2 = vbo.allocateBlock(646);
-                ASSERT_EQ(646, block2->capacity());
+                ASSERT_EQ(646u, block2->capacity());
                 
                 const size_t block3Capacity = 0xFFFF - block1->capacity() - block2->capacity();
                 VboBlock* block3 = vbo.allocateBlock(block3Capacity);
                 ASSERT_EQ(block3Capacity, block3->capacity());
                 
                 VboBlock* block4 = vbo.allocateBlock(373);
-                ASSERT_EQ(373, block4->capacity());
+                ASSERT_EQ(373u, block4->capacity());
                 
                 // deactivate and unmap by leaving block
                 EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
@@ -189,13 +189,13 @@ namespace TrenchBroom {
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 VboBlock* block1 = vbo.allocateBlock(124);
-                ASSERT_EQ(124, block1->capacity());
+                ASSERT_EQ(124u, block1->capacity());
                 
                 Buf writeBuffer;
                 for (unsigned char i = 0; i < 124; i++)
                     writeBuffer.push_back(i);
                 const size_t offset = block1->writeBuffer(0, writeBuffer);
-                ASSERT_EQ(124, offset);
+                ASSERT_EQ(124u, offset);
                 
                 for (size_t i = 0; i < 124; i++)
                     ASSERT_EQ(writeBuffer[i], buffer[i]);

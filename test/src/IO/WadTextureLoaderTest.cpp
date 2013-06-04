@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Model::TextureCollectionPtr collection = loader.loadTextureCollection(wadPath);
             
             const Model::TextureList& textures = collection->textures();
-            ASSERT_EQ(21, textures.size());
+            ASSERT_EQ(21u, textures.size());
             assertTexture("cr8_czg_1",          64,  64, textures[ 0]);
             assertTexture("cr8_czg_2",          64,  64, textures[ 1]);
             assertTexture("cr8_czg_3",          64, 128, textures[ 2]);

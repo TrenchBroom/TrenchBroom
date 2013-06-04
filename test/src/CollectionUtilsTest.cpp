@@ -201,7 +201,7 @@ TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {
         vec.push_back(new TestObject(deleted[i]));
     
     VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
-    ASSERT_EQ(2, vec.size());
+    ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
     ASSERT_FALSE(deleted[2]);
@@ -218,7 +218,7 @@ TEST(CollectionUtilsTest, VecEraseAndDelete2InRange) {
         vec.push_back(new TestObject(deleted[i]));
     
     VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
-    ASSERT_EQ(2, vec.size());
+    ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
     ASSERT_TRUE(deleted[2]);
@@ -236,7 +236,7 @@ TEST(CollectionUtilsTest, VecEraseAndDeleteAllFrom) {
         vec.push_back(new TestObject(deleted[i]));
     
     VectorUtils::eraseAndDelete(vec, vec.begin() + 2);
-    ASSERT_EQ(2, vec.size());
+    ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_FALSE(deleted[1]);
     ASSERT_TRUE(deleted[2]);
@@ -347,15 +347,15 @@ TEST(CollectionUtilsTest, MapFindOrInsert) {
 
     TestMap testMap;
     TestMap::iterator it = MapUtils::findOrInsert(testMap, std::string("Key"));
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(testMap.begin(), it);
     ASSERT_EQ(std::string("Key"), it->first);
     ASSERT_EQ(std::string(""), it->second);
     ASSERT_EQ(it, MapUtils::findOrInsert(testMap, std::string("Key")));
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     
     it = MapUtils::findOrInsert(testMap, std::string("Key2"));
-    ASSERT_EQ(2, testMap.size());
+    ASSERT_EQ(2u, testMap.size());
     ASSERT_NE(testMap.end(), it);
     ASSERT_EQ(std::string("Key2"), it->first);
     ASSERT_EQ(std::string(""), it->second);
@@ -370,11 +370,11 @@ TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
     std::string value2("Value2");
     
     MapUtils::insertOrReplace(testMap, key, value1);
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value1, testMap[key]);
     
     MapUtils::insertOrReplace(testMap, key, value2);
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value2, testMap[key]);
 }
 
@@ -389,12 +389,12 @@ TEST(CollectionUtilsTest, MapInsertOrReplacePointer) {
     TestObject* value2 = new TestObject(deleted2);
     
     MapUtils::insertOrReplace(testMap, key, value1);
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value1, testMap[key]);
     ASSERT_FALSE(deleted1);
     
     MapUtils::insertOrReplace(testMap, key, value2);
-    ASSERT_EQ(1, testMap.size());
+    ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value2, testMap[key]);
     ASSERT_TRUE(deleted1);
     

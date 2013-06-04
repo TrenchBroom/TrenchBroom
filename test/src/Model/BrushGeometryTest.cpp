@@ -39,9 +39,9 @@ namespace TrenchBroom {
             const BrushEdgeList& edges = geometry.edges();
             const BrushFaceGeometryList& sides = geometry.sides();
             
-            ASSERT_EQ(8, vertices.size());
-            ASSERT_EQ(12, edges.size());
-            ASSERT_EQ(6, sides.size());
+            ASSERT_EQ(8u, vertices.size());
+            ASSERT_EQ(12u, edges.size());
+            ASSERT_EQ(6u, sides.size());
             
             const Vec3 v000(-s, -s, -s);
             const Vec3 v001(-s, -s,  s);
@@ -157,9 +157,9 @@ namespace TrenchBroom {
             const BrushEdgeList& edges = geometry.edges();
             const BrushFaceGeometryList& sides = geometry.sides();
             
-            ASSERT_EQ(8, vertices.size());
-            ASSERT_EQ(12, edges.size());
-            ASSERT_EQ(6, sides.size());
+            ASSERT_EQ(8u, vertices.size());
+            ASSERT_EQ(12u, edges.size());
+            ASSERT_EQ(6u, sides.size());
             
             const Vec3 v000(cuboid.min.x(), cuboid.min.y(), cuboid.min.z());
             const Vec3 v001(cuboid.min.x(), cuboid.min.y(), cuboid.max.z());

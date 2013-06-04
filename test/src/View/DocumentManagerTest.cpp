@@ -36,7 +36,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
-            ASSERT_EQ(1, documents.size());
+            ASSERT_EQ(1u, documents.size());
             ASSERT_EQ(document1, documents[0]);
             ASSERT_EQ(document2, documents[0]);
         }
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
-            ASSERT_EQ(2, documents.size());
+            ASSERT_EQ(2u, documents.size());
             ASSERT_EQ(document1, documents[0]);
             ASSERT_EQ(document2, documents[1]);
         }
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             ASSERT_EQ(path2, document2->path());
             
             const DocumentList& documents = manager.documents();
-            ASSERT_EQ(1, documents.size());
+            ASSERT_EQ(1u, documents.size());
             ASSERT_EQ(document1, documents[0]);
             ASSERT_EQ(document2, documents[0]);
         }
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             ASSERT_EQ(path2, document2->path());
             
             const DocumentList& documents = manager.documents();
-            ASSERT_EQ(2, documents.size());
+            ASSERT_EQ(2u, documents.size());
             ASSERT_EQ(document1, documents[0]);
             ASSERT_EQ(document2, documents[1]);
         }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(manager.closeDocument(knownDocument1));
 
             const DocumentList& documents = manager.documents();
-            ASSERT_EQ(1, documents.size());
+            ASSERT_EQ(1u, documents.size());
             ASSERT_EQ(knownDocument2, documents[0]);
         }
         

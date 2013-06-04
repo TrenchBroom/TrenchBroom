@@ -45,13 +45,13 @@ namespace TrenchBroom {
             mesh.endTriangleSet();
 
             const Mesh<Key, VP3>::TriangleSetMap& sets = mesh.triangleSets();
-            ASSERT_EQ(2, sets.size());
+            ASSERT_EQ(2u, sets.size());
             
             Mesh<Key, VP3>::TriangleSetMap::const_iterator it = sets.begin();
             ASSERT_EQ(String("Texture1"), it->first);
             
             const VP3::List& vertices1 = it->second;
-            ASSERT_EQ(9, vertices1.size());
+            ASSERT_EQ(9u, vertices1.size());
             ASSERT_VEC_EQ(Vec3f(1.0f, 1.0f, 1.0f), vertices1[0].value);
             ASSERT_VEC_EQ(Vec3f(2.0f, 2.0f, 2.0f), vertices1[1].value);
             ASSERT_VEC_EQ(Vec3f(3.0f, 3.0f, 3.0f), vertices1[2].value);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Texture2"), it->first);
             
             const VP3::List& vertices2 = it->second;
-            ASSERT_EQ(6, vertices2.size());
+            ASSERT_EQ(6u, vertices2.size());
             ASSERT_VEC_EQ(Vec3f(2.0f, 1.0f, 1.0f), vertices2[0].value);
             ASSERT_VEC_EQ(Vec3f(3.0f, 2.0f, 2.0f), vertices2[1].value);
             ASSERT_VEC_EQ(Vec3f(4.0f, 3.0f, 3.0f), vertices2[2].value);

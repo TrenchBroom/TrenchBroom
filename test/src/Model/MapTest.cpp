@@ -31,7 +31,7 @@ namespace TrenchBroom {
             map->addEntity(entity);
             
             const EntityList& entities = map->entities();
-            ASSERT_EQ(1, entities.size());
+            ASSERT_EQ(1u, entities.size());
             ASSERT_EQ(entity, entities[0]);
         }
         

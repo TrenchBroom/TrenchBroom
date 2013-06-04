@@ -46,35 +46,35 @@ namespace StringUtils {
         ASSERT_TRUE(result.empty());
         
         result = split("asdf", ' ');
-        ASSERT_EQ(1, result.size());
+        ASSERT_EQ(1u, result.size());
         ASSERT_EQ(String("asdf"), result[0]);
         
         result = split("d asdf", ' ');
-        ASSERT_EQ(2, result.size());
+        ASSERT_EQ(2u, result.size());
         ASSERT_EQ(String("d"), result[0]);
         ASSERT_EQ(String("asdf"), result[1]);
         
         result = split("asdf d", ' ');
-        ASSERT_EQ(2, result.size());
+        ASSERT_EQ(2u, result.size());
         ASSERT_EQ(String("asdf"), result[0]);
         ASSERT_EQ(String("d"), result[1]);
         
         result = split("The quick brown fox", ' ');
-        ASSERT_EQ(4, result.size());
+        ASSERT_EQ(4u, result.size());
         ASSERT_EQ(String("The"), result[0]);
         ASSERT_EQ(String("quick"), result[1]);
         ASSERT_EQ(String("brown"), result[2]);
         ASSERT_EQ(String("fox"), result[3]);
 
         result = split(" The quick brown fox", ' ');
-        ASSERT_EQ(4, result.size());
+        ASSERT_EQ(4u, result.size());
         ASSERT_EQ(String("The"), result[0]);
         ASSERT_EQ(String("quick"), result[1]);
         ASSERT_EQ(String("brown"), result[2]);
         ASSERT_EQ(String("fox"), result[3]);
 
         result = split("  The quick brown fox", ' ');
-        ASSERT_EQ(4, result.size());
+        ASSERT_EQ(4u, result.size());
         ASSERT_EQ(String("The"), result[0]);
         ASSERT_EQ(String("quick"), result[1]);
         ASSERT_EQ(String("brown"), result[2]);
@@ -93,7 +93,7 @@ namespace StringUtils {
         ASSERT_EQ(String("fox"), result[3]);
         
         result = split("The quick  brown fox", ' ');
-        ASSERT_EQ(5, result.size());
+        ASSERT_EQ(5u, result.size());
         ASSERT_EQ(String("The"), result[0]);
         ASSERT_EQ(String("quick"), result[1]);
         ASSERT_EQ(String(""), result[2]);

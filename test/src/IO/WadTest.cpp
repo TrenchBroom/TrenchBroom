@@ -28,7 +28,7 @@ namespace TrenchBroom {
             Wad wad(wadPath);
             
             const WadEntryList& entries = wad.allEntries();
-            ASSERT_EQ(21, entries.size());
+            ASSERT_EQ(21u, entries.size());
             ASSERT_EQ(String("cr8_czg_1"), entries[ 0].name());
             ASSERT_EQ(String("cr8_czg_2"), entries[ 1].name());
             ASSERT_EQ(String("cr8_czg_3"), entries[ 2].name());

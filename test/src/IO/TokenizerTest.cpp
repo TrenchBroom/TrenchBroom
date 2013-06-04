@@ -111,14 +111,14 @@ namespace TrenchBroom {
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
-            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(1u, token.line());
             tokenizer.pushToken(token);
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
-            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(1, token.line());
+            ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
@@ -143,8 +143,8 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
             ASSERT_STREQ("property", token.data().c_str());
-            ASSERT_EQ(2, token.line());
-            ASSERT_EQ(5, token.column());
+            ASSERT_EQ(2u, token.line());
+            ASSERT_EQ(5u, token.column());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
             ASSERT_STREQ("value", token.data().c_str());

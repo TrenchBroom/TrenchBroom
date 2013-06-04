@@ -55,7 +55,7 @@ namespace TrenchBroom {
             entity->addOrUpdateProperty(key, value);
 
             const EntityPropertyList& properties = entity->properties();
-            ASSERT_EQ(1, properties.size());
+            ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(value, properties[0].value);
         }
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             entity->addOrUpdateProperty(key, newValue);
             
             const EntityPropertyList& properties = entity->properties();
-            ASSERT_EQ(1, properties.size());
+            ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(newValue, properties[0].value);
         }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             entity->addBrush(brush);
 
             const BrushList& brushes = entity->brushes();
-            ASSERT_EQ(1, brushes.size());
+            ASSERT_EQ(1u, brushes.size());
             ASSERT_EQ(brush, brushes[0]);
         }
         
