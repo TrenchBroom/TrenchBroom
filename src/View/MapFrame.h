@@ -20,16 +20,26 @@
 #ifndef __TrenchBroom__MapFrame__
 #define __TrenchBroom__MapFrame__
 
+#include "View/MapDocument.h"
+
 #include <wx/frame.h>
 
 namespace TrenchBroom {
     namespace View {
         class MapFrame : public wxFrame {
+        private:
+            MapDocument::Ptr m_document;
         public:
             MapFrame();
+            MapFrame(MapDocument::Ptr document);
+            void Create(MapDocument::Ptr document);
             ~MapFrame();
             
+            void OnClose(wxCloseEvent& event);
+            
             DECLARE_DYNAMIC_CLASS(MapFrame)
+        private:
+            void createGui();
         };
     }
 }

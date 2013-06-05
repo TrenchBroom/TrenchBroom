@@ -19,18 +19,25 @@
 
 #include "MapDocument.h"
 
+#include "IO/FileSystem.h"
 #include "View/MapFrame.h"
 
 #include <cassert>
+
+#include <wx/filedlg.h>
+#include <wx/msgdlg.h>
 
 namespace TrenchBroom {
     namespace View {
         MapDocument::MapDocument() :
         m_path(""),
-        m_frame(NULL) {}
+        m_frame(NULL),
+        m_modificationCount(0) {}
         
-        MapDocumentPtr MapDocument::newMapDocument() {
-            return MapDocumentPtr(new MapDocument());
+        MapDocument::Ptr MapDocument::newMapDocument() {
+            MapDocument::Ptr document = MapDocument::Ptr(new MapDocument());
+            document->setPtr(document);
+            return document;
         }
 
         MapDocument::~MapDocument() {
@@ -41,29 +48,93 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        const String MapDocument::filename() const {
+        String MapDocument::filename() const {
             if (m_path.isEmpty())
                 return "";
             return  m_path.lastComponent();
         }
 
-        void MapDocument::newDocument() {
-            m_path = IO::Path("");
-            createOrRaiseFrame();
+        bool MapDocument::isModified() const {
+            return m_modificationCount > 0;
+        }
+
+        void MapDocument::incModificationCount() {
+            ++m_modificationCount;
+            m_frame->OSXSetModified(true);
         }
         
-        void MapDocument::openDocument(const IO::Path& path) {
-            m_path = path;
+        void MapDocument::decModificationCount() {
+            assert(m_modificationCount > 0);
+            --m_modificationCount;
+            m_frame->OSXSetModified(m_modificationCount > 0);
+        }
+
+        void MapDocument::clearModificationCount() {
+            m_modificationCount = 0;
+            m_frame->OSXSetModified(false);
+        }
+
+        bool MapDocument::newDocument() {
+            if (!confirmDiscardChanges())
+                return false;
+            
+            m_path = IO::Path("");
+            clearModificationCount();
             createOrRaiseFrame();
+            return true;
+        }
+        
+        bool MapDocument::openDocument(const IO::Path& path) {
+            if (!confirmDiscardChanges())
+                return false;
+
+            m_path = path;
+            clearModificationCount();
+            createOrRaiseFrame();
+            return true;
+        }
+
+        bool MapDocument::saveDocument() {
+            IO::FileSystem fs;
+            if (!fs.exists(m_path)) {
+                const wxString newPathStr = ::wxSaveFileSelector("", "map", filename(), m_frame);
+                if (newPathStr.empty())
+                    return false;
+                const IO::Path newPath(newPathStr.ToStdString());
+                return saveDocumentAs(newPath);
+            }
+            return doSaveDocument(m_path);
+        }
+        
+        bool MapDocument::saveDocumentAs(const IO::Path& path) {
+            return doSaveDocument(path);
         }
 
         MapFrame* MapDocument::frame() const {
             return m_frame;
         }
 
+        void MapDocument::setPtr(MapDocument::Ptr ptr) {
+            m_ptr = ptr;
+        }
+
+        bool MapDocument::confirmDiscardChanges() {
+            if (!isModified())
+                return true;
+            const int result = ::wxMessageBox(filename() + " has been modified. Do you want to save the changes?", "", wxYES_NO | wxCANCEL, m_frame);
+            switch (result) {
+                case wxYES:
+                    return saveDocument();
+                case wxNO:
+                    return true;
+                default:
+                    return false;
+            };
+        }
+
         void MapDocument::createOrRaiseFrame() {
             if (m_frame == NULL)
-                m_frame = new MapFrame();
+                m_frame = new MapFrame(Ptr(m_ptr));
             m_frame->Show();
             m_frame->Raise();
         }
@@ -75,7 +146,16 @@ namespace TrenchBroom {
             }
         }
 
+        bool MapDocument::doSaveDocument(const IO::Path& path) {
+            m_path = path;
+            return true;
+        }
+
         bool MapDocument::closeDocument() {
+            if (!confirmDiscardChanges())
+                return false;
+
+            destroyFrame();
             return true;
         }
     }

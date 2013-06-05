@@ -29,10 +29,10 @@ namespace TrenchBroom {
         TEST(DocumentManagerTest, SDINewDocument) {
             DocumentManager manager(true);
 
-            MapDocumentPtr document1 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument();
             ASSERT_TRUE(document1 != NULL);
             
-            MapDocumentPtr document2 = manager.newDocument();
+            MapDocument::Ptr document2 = manager.newDocument();
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
@@ -44,10 +44,10 @@ namespace TrenchBroom {
         TEST(DocumentManagerTest, MDINewDocument) {
             DocumentManager manager(false);
             
-            MapDocumentPtr document1 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument();
             ASSERT_TRUE(document1 != NULL);
             
-            MapDocumentPtr document2 = manager.newDocument();
+            MapDocument::Ptr document2 = manager.newDocument();
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
@@ -61,11 +61,11 @@ namespace TrenchBroom {
             const IO::Path path1("data/View/DocumentManager/TestDoc1.map");
             const IO::Path path2("data/View/DocumentManager/TestDoc2.map");
             
-            MapDocumentPtr document1 = manager.openDocument(path1);
+            MapDocument::Ptr document1 = manager.openDocument(path1);
             ASSERT_TRUE(document1 != NULL);
             ASSERT_EQ(path1, document1->path());
             
-            MapDocumentPtr document2 = manager.openDocument(path2);
+            MapDocument::Ptr document2 = manager.openDocument(path2);
             ASSERT_TRUE(document2 != NULL);
             ASSERT_EQ(path2, document2->path());
             
@@ -80,11 +80,11 @@ namespace TrenchBroom {
             const IO::Path path1("data/View/DocumentManager/TestDoc1.map");
             const IO::Path path2("data/View/DocumentManager/TestDoc2.map");
             
-            MapDocumentPtr document1 = manager.openDocument(path1);
+            MapDocument::Ptr document1 = manager.openDocument(path1);
             ASSERT_TRUE(document1 != NULL);
             ASSERT_EQ(path1, document1->path());
             
-            MapDocumentPtr document2 = manager.openDocument(path2);
+            MapDocument::Ptr document2 = manager.openDocument(path2);
             ASSERT_TRUE(document2 != NULL);
             ASSERT_EQ(path2, document2->path());
             
@@ -96,9 +96,9 @@ namespace TrenchBroom {
         
         TEST(DocumentManagerTest, CloseDocument) {
             DocumentManager manager(false);
-            MapDocumentPtr unknownDocument = MapDocument::newMapDocument();
-            MapDocumentPtr knownDocument1 = manager.newDocument();
-            MapDocumentPtr knownDocument2 = manager.newDocument();
+            MapDocument::Ptr unknownDocument = MapDocument::newMapDocument();
+            MapDocument::Ptr knownDocument1 = manager.newDocument();
+            MapDocument::Ptr knownDocument2 = manager.newDocument();
             
             ASSERT_THROW(manager.closeDocument(unknownDocument), DocumentManagerException);
             ASSERT_TRUE(manager.closeDocument(knownDocument1));
@@ -111,8 +111,8 @@ namespace TrenchBroom {
         TEST(DocumentManagerTest, CloseAllDocuments) {
             DocumentManager manager(false);
             
-            MapDocumentPtr document1 = manager.newDocument();
-            MapDocumentPtr document2 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument();
+            MapDocument::Ptr document2 = manager.newDocument();
 
             manager.closeAllDocuments();
             ASSERT_TRUE(manager.documents().empty());

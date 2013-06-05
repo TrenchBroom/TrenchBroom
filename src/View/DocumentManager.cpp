@@ -36,21 +36,19 @@ namespace TrenchBroom {
             return m_documents;
         }
 
-        MapDocumentPtr DocumentManager::newDocument() {
-            MapDocumentPtr document = createOrReuseDocument();
-            if (document != NULL)
-                document->newDocument();
+        MapDocument::Ptr DocumentManager::newDocument() {
+            MapDocument::Ptr document = createOrReuseDocument();
+            document->newDocument();
             return document;
         }
         
-        MapDocumentPtr DocumentManager::openDocument(const IO::Path& path) {
-            MapDocumentPtr document = createOrReuseDocument();
-            if (document != NULL)
-                document->openDocument(path);
+        MapDocument::Ptr DocumentManager::openDocument(const IO::Path& path) {
+            MapDocument::Ptr document = createOrReuseDocument();
+            document->openDocument(path);
             return document;
         }
         
-        bool DocumentManager::closeDocument(MapDocumentPtr document) {
+        bool DocumentManager::closeDocument(MapDocument::Ptr document) {
             DocumentList::iterator it = std::find(m_documents.begin(), m_documents.end(), document);
             if (it == m_documents.end())
                 throw DocumentManagerException("Unknown document");
@@ -65,7 +63,7 @@ namespace TrenchBroom {
         bool DocumentManager::closeAllDocuments() {
             DocumentList::iterator it = m_documents.begin();
             while (it != m_documents.end()) {
-                MapDocumentPtr document = *it;
+                MapDocument::Ptr document = *it;
                 if (document->closeDocument())
                     it = m_documents.erase(it);
                 else
@@ -74,15 +72,12 @@ namespace TrenchBroom {
             return m_documents.empty();
         }
 
-        MapDocumentPtr DocumentManager::createOrReuseDocument() {
+        MapDocument::Ptr DocumentManager::createOrReuseDocument() {
             assert(!m_singleDocument || m_documents.size() <= 1);
             if (m_singleDocument && m_documents.size() == 1) {
-                MapDocumentPtr document = m_documents.front();
-                if (document->closeDocument())
-                    return document;
-                return MapDocumentPtr();
+                return m_documents.front();
             } else {
-                MapDocumentPtr document = MapDocument::newMapDocument();
+                MapDocument::Ptr document = MapDocument::newMapDocument();
                 m_documents.push_back(document);
                 return document;
             }

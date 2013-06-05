@@ -19,6 +19,9 @@
 
 #include "MapFrame.h"
 
+#include "TrenchBroomApp.h"
+#include "View/DocumentManager.h"
+
 namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
@@ -26,6 +29,26 @@ namespace TrenchBroom {
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, wxT("unnamed.map")) {}
 
+        MapFrame::MapFrame(MapDocument::Ptr document) :
+        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")) {
+            Create(document);
+            createGui();
+        }
+
+        void MapFrame::Create(MapDocument::Ptr document) {
+            m_document = document;
+            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+        }
+
         MapFrame::~MapFrame() {}
+
+        void MapFrame::OnClose(wxCloseEvent& event) {
+            DocumentManager& documentManager = ::documentManager();
+            if (!documentManager.closeDocument(m_document))
+                event.Veto();
+        }
+
+        void MapFrame::createGui() {
+        }
     }
 }

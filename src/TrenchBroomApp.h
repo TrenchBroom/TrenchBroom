@@ -20,10 +20,20 @@
 #ifndef __TrenchBroom__TrenchBroomApp__
 #define __TrenchBroom__TrenchBroomApp__
 
+#include "View/DocumentManager.h"
+
 #include <wx/wx.h>
 
 class TrenchBroomApp : public wxApp {
+private:
+    TrenchBroom::View::DocumentManager m_documentManager;
 public:
+    TrenchBroomApp();
+    
+    inline TrenchBroom::View::DocumentManager& documentManager() {
+        return m_documentManager;
+    }
+    
     bool OnInit();
     int OnExit();
 
@@ -31,7 +41,17 @@ public:
     void MacNewFile();
     void MacOpenFiles(const wxArrayString& filenames);
 #endif
+    
+private:
+    static bool useSDI();
 };
+
+namespace {
+    inline static TrenchBroom::View::DocumentManager& documentManager() {
+        TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+        return app->documentManager();
+    }
+}
 
 #ifndef TESTING
 DECLARE_APP(TrenchBroomApp)

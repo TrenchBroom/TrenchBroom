@@ -25,6 +25,10 @@
 IMPLEMENT_APP(TrenchBroomApp)
 #endif
 
+TrenchBroomApp::TrenchBroomApp() :
+wxApp(),
+m_documentManager(useSDI()) {}
+
 bool TrenchBroomApp::OnInit() {
     if (!wxApp::OnInit())
         return false;
@@ -39,8 +43,17 @@ int TrenchBroomApp::OnExit() {
 
 #ifdef __APPLE__
 void TrenchBroomApp::MacNewFile() {
+    m_documentManager.newDocument();
 }
 
 void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
 }
 #endif
+
+bool TrenchBroomApp::useSDI() {
+#ifdef _WIN32
+    return true;
+#else
+    return false;
+#endif
+}

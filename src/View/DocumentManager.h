@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        typedef std::vector<MapDocumentPtr> DocumentList;
+        typedef std::vector<MapDocument::Ptr> DocumentList;
 
         class DocumentManager {
         private:
@@ -42,12 +42,12 @@ namespace TrenchBroom {
             
             const DocumentList& documents() const;
             
-            MapDocumentPtr newDocument();
-            MapDocumentPtr openDocument(const IO::Path& path);
-            bool closeDocument(MapDocumentPtr document);
+            MapDocument::Ptr newDocument();
+            MapDocument::Ptr openDocument(const IO::Path& path);
+            bool closeDocument(MapDocument::Ptr document);
             bool closeAllDocuments();
         private:
-            MapDocumentPtr createOrReuseDocument();
+            MapDocument::Ptr createOrReuseDocument();
         };
     }
 }

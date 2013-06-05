@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace View {
         TEST(MapDocumentTest, newDocumentCreatesFrame) {
-            MapDocumentPtr document = MapDocument::newMapDocument();
+            MapDocument::Ptr document = MapDocument::newMapDocument();
             document->newDocument();
             ASSERT_EQ(IO::Path(""), document->path());
             ASSERT_EQ(String(""), document->filename());
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapDocumentTest, openDocumentCreatesFrame) {
-            MapDocumentPtr document = MapDocument::newMapDocument();
+            MapDocument::Ptr document = MapDocument::newMapDocument();
             document->openDocument(IO::Path("/test/blah/hey.map"));
             ASSERT_EQ(IO::Path("/test/blah/hey.map"), document->path());
             ASSERT_EQ(String("hey.map"), document->filename());

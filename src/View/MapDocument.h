@@ -26,34 +26,47 @@
 
 namespace TrenchBroom {
     namespace View {
-        class DocumentManager;
-        class MapDocument;
-        
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
-        
         class MapFrame;
 
         class MapDocument {
+        public:
+            typedef std::tr1::shared_ptr<MapDocument> Ptr;
         private:
+            typedef std::tr1::weak_ptr<MapDocument> WkPtr;
+            
+            WkPtr m_ptr;
             IO::Path m_path;
             MapFrame* m_frame;
+            
+            size_t m_modificationCount;
+            
             MapDocument();
         public:
-            static MapDocumentPtr newMapDocument();
+            static MapDocument::Ptr newMapDocument();
             
             ~MapDocument();
             
             const IO::Path& path() const;
-            const String filename() const;
+            String filename() const;
             
-            void newDocument();
-            void openDocument(const IO::Path& path);
+            bool isModified() const;
+            void incModificationCount();
+            void decModificationCount();
+            void clearModificationCount();
+            
+            bool newDocument();
+            bool openDocument(const IO::Path& path);
+            bool saveDocument();
+            bool saveDocumentAs(const IO::Path& path);
             
             MapFrame* frame() const;
         private:
+            void setPtr(MapDocument::Ptr ptr);
+            bool confirmDiscardChanges();
             void createOrRaiseFrame();
             void destroyFrame();
             
+            bool doSaveDocument(const IO::Path& path);
             bool closeDocument();
             
             friend class DocumentManager;
