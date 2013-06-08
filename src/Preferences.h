@@ -17,26 +17,17 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#ifndef TrenchBroom_Preferences_h
+#define TrenchBroom_Preferences_h
 
-#include "IO/Path.h"
-#include "View/MapDocument.h"
+#include "Color.h"
+#include "Preference.h"
+#include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    namespace View {
-        TEST(MapDocumentTest, newDocument) {
-            MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->newDocument();
-            ASSERT_EQ(IO::Path(""), document->path());
-            ASSERT_EQ(String(""), document->filename());
-        }
-        
-        TEST(MapDocumentTest, openDocument) {
-            MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->openDocument(IO::Path("/test/blah/hey.map"));
-            ASSERT_EQ(IO::Path("/test/blah/hey.map"), document->path());
-            ASSERT_EQ(String("hey.map"), document->filename());
-        }
+    namespace Preferences {
+        extern Preference<Color> BackgroundColor;
     }
 }
 
+#endif

@@ -17,39 +17,31 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFrame__
-#define __TrenchBroom__MapFrame__
+#ifndef __TrenchBroom__NavBar__
+#define __TrenchBroom__NavBar__
 
-#include "View/MapDocument.h"
+#include <wx/panel.h>
 
-#include <wx/frame.h>
+class wxSearchCtrl;
+class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class Console;
-        class MapView;
-        class NavBar;
-        
-        class MapFrame : public wxFrame {
+        class NavBar : public wxPanel {
         private:
-            MapDocument::Ptr m_document;
-
-            Console* m_console;
-            NavBar* m_navBar;
-            MapView* m_mapView;
+            wxPanel* m_navPanel;
+            wxSearchCtrl* m_searchBox;
+            
+            wxStaticText* makeBreadcrump(const wxString& text, bool link);
         public:
-            MapFrame();
-            MapFrame(MapDocument::Ptr document);
-            void Create(MapDocument::Ptr document);
-            ~MapFrame();
+            NavBar(wxWindow* parent);
             
-            void OnClose(wxCloseEvent& event);
+            void OnPaint(wxPaintEvent& event);
+            void OnSearchPatternChanged(wxCommandEvent& event);
             
-            DECLARE_DYNAMIC_CLASS(MapFrame)
-        private:
-            void createGui();
+            void updateBreadcrump();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFrame__) */
+#endif /* defined(__TrenchBroom__NavBar__) */

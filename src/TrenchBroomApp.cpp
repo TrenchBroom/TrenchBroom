@@ -21,6 +21,9 @@
 
 #include <clocale>
 
+#include "IO/Path.h"
+#include "View/MapDocument.h"
+
 #ifndef TESTING
 IMPLEMENT_APP(TrenchBroomApp)
 #endif
@@ -34,6 +37,15 @@ bool TrenchBroomApp::OnInit() {
         return false;
 
     std::setlocale(LC_NUMERIC, "C");
+
+#ifndef __APPLE__
+    if (wxApp::argc > 1) {
+        const wxString filename = wxApp::argv[1];
+        return openDocument(filename.ToStdString());
+    } else {
+        return newDocument();
+    }
+#endif
     return true;
 }
 
@@ -43,10 +55,15 @@ int TrenchBroomApp::OnExit() {
 
 #ifdef __APPLE__
 void TrenchBroomApp::MacNewFile() {
-    m_documentManager.newDocument();
+    newDocument();
 }
 
 void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
+    wxArrayString::const_iterator it, end;
+    for (it = filenames.begin(), end = filenames.end(); it != end; ++it) {
+        const wxString& filename = *it;
+        openDocument(filename.ToStdString());
+    }
 }
 #endif
 
@@ -56,4 +73,21 @@ bool TrenchBroomApp::useSDI() {
 #else
     return false;
 #endif
+}
+
+bool TrenchBroomApp::newDocument() {
+    TrenchBroom::View::MapDocument::Ptr document = m_documentManager.newDocument();
+    if (document == NULL)
+        return false;
+    document->createOrRaiseFrame();
+    return true;
+}
+
+bool TrenchBroomApp::openDocument(const String& pathStr) {
+    const TrenchBroom::IO::Path path(pathStr);
+    TrenchBroom::View::MapDocument::Ptr document = m_documentManager.openDocument(path);
+    if (document == NULL)
+        return false;
+    document->createOrRaiseFrame();
+    return true;
 }

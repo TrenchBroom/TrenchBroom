@@ -59,11 +59,11 @@ namespace TrenchBroom {
             bool saveDocument();
             bool saveDocumentAs(const IO::Path& path);
             
+            void createOrRaiseFrame();
             MapFrame* frame() const;
         private:
             void setPtr(MapDocument::Ptr ptr);
             bool confirmDiscardChanges();
-            void createOrRaiseFrame();
             void destroyFrame();
             
             bool doSaveDocument(const IO::Path& path);

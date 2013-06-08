@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdarg>
+#include <cstdio>
 #include <locale>
 #include <string>
 #include <sstream>
@@ -102,6 +104,18 @@ namespace StringUtils {
             return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
         }
     };
+
+    inline String formatString(const char* format, va_list arguments) {
+        static char buffer[4096];
+        
+#if defined _MSC_VER
+        vsprintf_s(buffer, format, arguments);
+#else
+        vsprintf(buffer, format, arguments);
+#endif
+        
+        return buffer;
+    }
 
     inline String trim(const String& str, const String& chars = " \n\t\r") {
         if (str.length() == 0)

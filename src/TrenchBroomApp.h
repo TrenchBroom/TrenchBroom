@@ -44,6 +44,8 @@ public:
     
 private:
     static bool useSDI();
+    bool newDocument();
+    bool openDocument(const String& pathStr);
 };
 
 namespace {

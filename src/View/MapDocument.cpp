@@ -71,7 +71,8 @@ namespace TrenchBroom {
 
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
-            m_frame->OSXSetModified(false);
+            if (m_frame != NULL)
+                m_frame->OSXSetModified(false);
         }
 
         bool MapDocument::newDocument() {
@@ -80,7 +81,6 @@ namespace TrenchBroom {
             
             m_path = IO::Path("");
             clearModificationCount();
-            createOrRaiseFrame();
             return true;
         }
         
@@ -90,7 +90,6 @@ namespace TrenchBroom {
 
             m_path = path;
             clearModificationCount();
-            createOrRaiseFrame();
             return true;
         }
 

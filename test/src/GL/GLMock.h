@@ -25,15 +25,6 @@
 
 #include "GL/glew.h"
 
-/*
- void glVertexAttribPointer(	GLuint  	index,
- GLint  	size,
- GLenum  	type,
- GLboolean  	normalized,
- GLsizei  	stride,
- const GLvoid *  	pointer);
- */
-
 class CGLMock {
 public:
     MOCK_METHOD2(GenBuffers, void(GLsizei n, GLuint* buffers));

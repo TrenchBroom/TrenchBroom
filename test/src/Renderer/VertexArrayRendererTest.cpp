@@ -36,6 +36,9 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
+
+            GLMock = new CGLMock();
+            Mock::AllowLeak(GLMock);
             
             Vec3f::List vertexPositions;
             VP3::List vertices;
@@ -79,6 +82,9 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
             
+            GLMock = new CGLMock();
+            Mock::AllowLeak(GLMock);
+
             VP3N3T2::List vertices;
             
             for (size_t i = 0; i < 22; ++i) {

@@ -17,39 +17,36 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFrame__
-#define __TrenchBroom__MapFrame__
+#ifndef __TrenchBroom__MapView__
+#define __TrenchBroom__MapView__
 
-#include "View/MapDocument.h"
+#include "GL/GL.h"
 
-#include <wx/frame.h>
+#include <vector>
+#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace View {
         class Console;
-        class MapView;
-        class NavBar;
         
-        class MapFrame : public wxFrame {
+        class MapView : public wxGLCanvas {
         private:
-            MapDocument::Ptr m_document;
-
-            Console* m_console;
-            NavBar* m_navBar;
-            MapView* m_mapView;
+            bool m_initialized;
+            Console& m_console;
+            wxGLContext* m_glContext;
         public:
-            MapFrame();
-            MapFrame(MapDocument::Ptr document);
-            void Create(MapDocument::Ptr document);
-            ~MapFrame();
+            MapView(wxWindow* parent, Console& console);
+            ~MapView();
             
-            void OnClose(wxCloseEvent& event);
-            
-            DECLARE_DYNAMIC_CLASS(MapFrame)
+            void OnPaint(wxPaintEvent& event);
         private:
-            void createGui();
+            void initializeGL();
+            
+            static const int* attribs();
+            static int depthBits();
+            static bool multisample();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFrame__) */
+#endif /* defined(__TrenchBroom__MapView__) */
