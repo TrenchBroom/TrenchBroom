@@ -23,12 +23,21 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const EntityPropertyList& EntityProperties::properties() const {
+        namespace PropertyKeys {
+            const PropertyKey Classname = "classname";
+        }
+        
+        namespace PropertyValues {
+            const PropertyValue WorldspawnClassname = "worldspawn";
+            const PropertyValue NoClassname         = "undefined";
+        }
+
+        const EntityProperty::List& EntityProperties::properties() const {
             return m_properties;
         }
         
         void EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
-            EntityPropertyList::iterator it = findProperty(key);
+            EntityProperty::List::iterator it = findProperty(key);
             if (it != m_properties.end())
                 it->value = value;
             else
@@ -40,14 +49,14 @@ namespace TrenchBroom {
         }
 
         const PropertyValue* EntityProperties::property(const PropertyKey& key) const {
-            EntityPropertyList::const_iterator it = findProperty(key);
+            EntityProperty::List::const_iterator it = findProperty(key);
             if (it == m_properties.end())
                 return NULL;
             return &it->value;
         }
 
-        EntityPropertyList::const_iterator EntityProperties::findProperty(const PropertyKey& key) const {
-            EntityPropertyList::const_iterator it, end;
+        EntityProperty::List::const_iterator EntityProperties::findProperty(const PropertyKey& key) const {
+            EntityProperty::List::const_iterator it, end;
             for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
                 if (property.key == key)
@@ -57,8 +66,8 @@ namespace TrenchBroom {
             return end;
         }
         
-        EntityPropertyList::iterator EntityProperties::findProperty(const PropertyKey& key) {
-            EntityPropertyList::iterator it, end;
+        EntityProperty::List::iterator EntityProperties::findProperty(const PropertyKey& key) {
+            EntityProperty::List::iterator it, end;
             for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
                 if (property.key == key)

@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFacePtr face) :
+        IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace::Ptr face) :
         BrushGeometryAlgorithm(geometry),
         m_face(face) {}
         
@@ -49,8 +49,8 @@ namespace TrenchBroom {
         }
         
         bool IntersectBrushGeometryWithFace::isFaceIdenticalWithAnySide(BrushGeometry& geometry) {
-            const BrushFaceGeometryList& sides = geometry.sides();
-            BrushFaceGeometryList::const_iterator it, end;
+            const BrushFaceGeometry::List& sides = geometry.sides();
+            BrushFaceGeometry::List::const_iterator it, end;
             for (it = sides.begin(), end = sides.end(); it != end; ++it) {
                 BrushFaceGeometry& side = **it;
                 if (side.face() != NULL) {
@@ -68,8 +68,8 @@ namespace TrenchBroom {
             size_t keep = 0;
             size_t undecided = 0;
             
-            const BrushVertexList& vertices = geometry.vertices();
-            BrushVertexList::const_iterator it, end;
+            const BrushVertex::List& vertices = geometry.vertices();
+            BrushVertex::List::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                 BrushVertex* vertex = *it;
                 vertex->updateMark(boundary);
@@ -101,8 +101,8 @@ namespace TrenchBroom {
         void IntersectBrushGeometryWithFace::processEdges(BrushGeometry& geometry) {
             const Plane3& boundary = m_face->boundary();
             
-            const BrushEdgeList& edges = geometry.edges();
-            BrushEdgeList::const_iterator it, end;
+            const BrushEdge::List& edges = geometry.edges();
+            BrushEdge::List::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
                 edge->updateMark();
@@ -136,8 +136,8 @@ namespace TrenchBroom {
         }
 
         void IntersectBrushGeometryWithFace::processSides(BrushGeometry& geometry) {
-            const BrushFaceGeometryList& sides = geometry.sides();
-            BrushFaceGeometryList::const_iterator it, end;
+            const BrushFaceGeometry::List& sides = geometry.sides();
+            BrushFaceGeometry::List::const_iterator it, end;
             for (it = sides.begin(), end = sides.end(); it != end; ++it) {
                 BrushFaceGeometry* side = *it;
                 switch (side->mark()) {
@@ -170,7 +170,7 @@ namespace TrenchBroom {
         void IntersectBrushGeometryWithFace::createNewSide() {
             BrushFaceGeometry* newSide = new BrushFaceGeometry();
 
-            BrushEdgeList::iterator it1, it2, end;
+            BrushEdge::List::iterator it1, it2, end;
             for (it1 = m_newSideEdges.begin(), end = m_newSideEdges.end(); it1 != end; ++it1) {
                 BrushEdge* edge = *it1;
                 if (std::distance(it1, end) > 2) {

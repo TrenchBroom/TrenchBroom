@@ -23,6 +23,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const BrushEdge::List BrushEdge::EmptyList = BrushEdge::List();
+
         BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end) :
         m_start(start),
         m_end(end),

@@ -17,26 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushGeometryTypes_h
-#define TrenchBroom_BrushGeometryTypes_h
-
-#include <vector>
+#include "MapRenderer.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushVertex;
-        class BrushEdge;
-        class BrushFaceGeometry;
+    namespace Renderer {
+        void MapRenderer::loadMap(const Model::Map::Ptr map) {
+            
+        }
         
-        typedef std::vector<BrushVertex*> BrushVertexList;
-        static const BrushVertexList EmptyBrushVertexList;
+        void MapRenderer::clear() {
+        }
         
-        typedef std::vector<BrushEdge*> BrushEdgeList;
-        static const BrushEdgeList EmptyBrushEdgeList;
-        
-        typedef std::vector<BrushFaceGeometry*> BrushFaceGeometryList;
-        static const BrushFaceGeometryList EmptyBrushFaceGeometryList;
+        void MapRenderer::render(const RenderContext& context) {
+        }
     }
 }
-
-#endif

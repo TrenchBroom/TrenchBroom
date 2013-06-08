@@ -20,37 +20,43 @@
 #ifndef __TrenchBroom__Entity__
 #define __TrenchBroom__Entity__
 
-#include "Model/BrushTypes.h"
+#include "SharedPointer.h"
+#include "Model/Brush.h"
 #include "Model/EntityProperties.h"
-#include "Model/EntityTypes.h"
 #include "Model/Object.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Entity : public Object {
+        public:
+            typedef std::tr1::shared_ptr<Entity> Ptr;
+            typedef std::vector<Entity::Ptr> List;
+            static const List EmptyList;
         private:
             static const String DefaultPropertyValue;
             
             EntityProperties m_properties;
-            BrushList m_brushes;
+            Brush::List m_brushes;
             
             Entity();
         public:
-            static EntityPtr newEntity();
+            static Entity::Ptr newEntity();
             
-            const EntityPropertyList& properties() const;
+            const EntityProperty::List& properties() const;
             const bool hasProperty(const PropertyKey& key) const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             
-            inline const BrushList& brushes() const {
+            inline const Brush::List& brushes() const {
                 return m_brushes;
             }
             
-            void addBrush(BrushPtr brush);
-            void removeBrush(BrushPtr brush);
+            void addBrush(Brush::Ptr brush);
+            void removeBrush(Brush::Ptr brush);
         };
     }
 }

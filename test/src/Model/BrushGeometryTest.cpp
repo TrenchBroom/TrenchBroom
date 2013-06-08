@@ -33,11 +33,11 @@ namespace TrenchBroom {
             const FloatType s = 8192.0;
             const Vec3 worldSize2(s, s, s);
             const BBox3 worldBounds(-worldSize2, worldSize2);
-            const BrushGeometry geometry(worldBounds, EmptyBrushFaceList);
+            const BrushGeometry geometry(worldBounds, BrushFace::EmptyList);
             
-            const BrushVertexList& vertices = geometry.vertices();
-            const BrushEdgeList& edges = geometry.edges();
-            const BrushFaceGeometryList& sides = geometry.sides();
+            const BrushVertex::List& vertices = geometry.vertices();
+            const BrushEdge::List& edges = geometry.edges();
+            const BrushFaceGeometry::List& sides = geometry.sides();
             
             ASSERT_EQ(8u, vertices.size());
             ASSERT_EQ(12u, edges.size());
@@ -121,26 +121,26 @@ namespace TrenchBroom {
         TEST(BrushGeometryTest, BuildCuboid) {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
             
-            BrushFacePtr top = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
+            BrushFace::Ptr top = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
                                                        Vec3(0.0, 1.0, cuboid.max.z()),
                                                        Vec3(1.0, 0.0, cuboid.max.z()));
-            BrushFacePtr bottom = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
+            BrushFace::Ptr bottom = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
                                                           Vec3(1.0, 0.0, cuboid.min.z()),
                                                           Vec3(0.0, 1.0, cuboid.min.z()));
-            BrushFacePtr front = BrushFace::newBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
+            BrushFace::Ptr front = BrushFace::newBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
                                                          Vec3(1.0, cuboid.min.y(),  0.0),
                                                          Vec3(0.0, cuboid.min.y(), -1.0));
-            BrushFacePtr back = BrushFace::newBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
+            BrushFace::Ptr back = BrushFace::newBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
                                                         Vec3(-1.0, cuboid.max.y(),  0.0),
                                                         Vec3( 0.0, cuboid.max.y(), -1.0));
-            BrushFacePtr left = BrushFace::newBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
+            BrushFace::Ptr left = BrushFace::newBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
                                                         Vec3(cuboid.min.x(), -1.0,  0.0),
                                                         Vec3(cuboid.min.x(),  0.0, -1.0));
-            BrushFacePtr right = BrushFace::newBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
+            BrushFace::Ptr right = BrushFace::newBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
                                                          Vec3(cuboid.max.x(), 1.0,  0.0),
                                                          Vec3(cuboid.max.x(), 0.0, -1.0));
             
-            BrushFaceList faces;
+            BrushFace::List faces;
             faces.push_back(top);
             faces.push_back(bottom);
             faces.push_back(front);
@@ -153,9 +153,9 @@ namespace TrenchBroom {
             const BBox3 worldBounds(-worldSize2, worldSize2);
             const BrushGeometry geometry(worldBounds, faces);
             
-            const BrushVertexList& vertices = geometry.vertices();
-            const BrushEdgeList& edges = geometry.edges();
-            const BrushFaceGeometryList& sides = geometry.sides();
+            const BrushVertex::List& vertices = geometry.vertices();
+            const BrushEdge::List& edges = geometry.edges();
+            const BrushFaceGeometry::List& sides = geometry.sides();
             
             ASSERT_EQ(8u, vertices.size());
             ASSERT_EQ(12u, edges.size());

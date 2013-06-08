@@ -21,32 +21,31 @@
 #define __TrenchBroom__Map__
 
 #include "SharedPointer.h"
-#include "Model/EntityTypes.h"
+#include "Model/Entity.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Map;
-        typedef std::tr1::shared_ptr<Map> MapPtr;
-        
         class Map {
+        public:
+            typedef std::tr1::shared_ptr<Map> Ptr;
         private:
-            EntityList m_entities;
-            EntityPtr m_worldspawn;
+            Entity::List m_entities;
+            Entity::Ptr m_worldspawn;
             
             Map();
         public:
-            static MapPtr newMap();
+            static Ptr newMap();
             ~Map();
             
-            inline const EntityList& entities() const {
+            inline const Entity::List& entities() const {
                 return m_entities;
             }
             
-            void addEntity(EntityPtr entity);
+            void addEntity(Entity::Ptr entity);
             
-            EntityPtr worldspawn();
+            Entity::Ptr worldspawn();
         private:
-            EntityPtr findWorldspawn() const;
+            Entity::Ptr findWorldspawn() const;
         };
     }
 }

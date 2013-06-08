@@ -25,34 +25,34 @@
 namespace TrenchBroom {
     namespace Model {
         Map::Map() :
-        m_worldspawn(EntityPtr()) {}
+        m_worldspawn(Entity::Ptr()) {}
         
-        MapPtr Map::newMap() {
-            return MapPtr(new Map());
+        Map::Ptr Map::newMap() {
+            return Ptr(new Map());
         }
 
         Map::~Map() {
-            m_worldspawn = EntityPtr();
+            m_worldspawn = Entity::Ptr();
         }
 
-        void Map::addEntity(EntityPtr entity) {
+        void Map::addEntity(Entity::Ptr entity) {
             m_entities.push_back(entity);
         }
 
-        EntityPtr Map::worldspawn() {
+        Entity::Ptr Map::worldspawn() {
             if (m_worldspawn == NULL)
                 m_worldspawn = findWorldspawn();
             return m_worldspawn;
         }
         
-        EntityPtr Map::findWorldspawn() const {
-            EntityList::const_iterator it, end;
+        Entity::Ptr Map::findWorldspawn() const {
+            Entity::List::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                EntityPtr entity = *it;
+                Entity::Ptr entity = *it;
                 if (entity->classname() == PropertyValues::WorldspawnClassname)
                     return entity;
             }
-            return EntityPtr();
+            return Entity::Ptr();
         }
     }
 }

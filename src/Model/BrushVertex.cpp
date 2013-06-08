@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const BrushVertex::List BrushVertex::EmptyList = BrushVertex::List();
+        
         BrushVertex::BrushVertex(const Vec3& position) :
         m_position(position),
         m_mark(New) {}

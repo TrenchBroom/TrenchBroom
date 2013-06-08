@@ -30,7 +30,7 @@ namespace TrenchBroom {
             const PropertyValue value("value");
             entityProperties.addOrUpdateProperty(key, value);
             
-            const EntityPropertyList& propertyList = entityProperties.properties();
+            const EntityProperty::List& propertyList = entityProperties.properties();
             ASSERT_EQ(1u, propertyList.size());
             ASSERT_EQ(key, propertyList[0].key);
             ASSERT_EQ(value, propertyList[0].value);
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             entityProperties.addOrUpdateProperty(key, value);
             entityProperties.addOrUpdateProperty(key, newValue);
             
-            const EntityPropertyList& propertyList = entityProperties.properties();
+            const EntityProperty::List& propertyList = entityProperties.properties();
             ASSERT_EQ(1u, propertyList.size());
             ASSERT_EQ(key, propertyList[0].key);
             ASSERT_EQ(newValue, propertyList[0].value);

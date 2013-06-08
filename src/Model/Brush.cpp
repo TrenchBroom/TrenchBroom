@@ -25,14 +25,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
+        const Brush::List Brush::EmptyList = Brush::List();
+
+        Brush::Brush(const BBox3& worldBounds, const BrushFace::List& faces) :
         m_faces(faces),
         m_geometry(NULL) {
             rebuildGeometry(worldBounds);
         }
 
-        BrushPtr Brush::newBrush(const BBox3& worldBounds, const BrushFaceList& faces) {
-            return BrushPtr(new Brush(worldBounds, faces));
+        Brush::Ptr Brush::newBrush(const BBox3& worldBounds, const BrushFace::List& faces) {
+            return Brush::Ptr(new Brush(worldBounds, faces));
         }
         
         Brush::~Brush() {

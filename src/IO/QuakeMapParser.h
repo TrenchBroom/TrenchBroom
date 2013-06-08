@@ -24,9 +24,9 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
-#include "Model/BrushFaceTypes.h"
-#include "Model/BrushTypes.h"
-#include "Model/EntityTypes.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/Map.h"
 
 namespace TrenchBroom {
@@ -67,11 +67,11 @@ namespace TrenchBroom {
             QuakeMapParser(const String& str);
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
-            Model::MapPtr doParseMap(const BBox3& worldBounds);
+            Model::Map::Ptr doParseMap(const BBox3& worldBounds);
             
-            Model::EntityPtr parseEntity(const BBox3& worldBounds);
-            Model::BrushPtr parseBrush(const BBox3& worldBounds);
-            Model::BrushFacePtr parseFace(const BBox3& worldBounds);
+            Model::Entity::Ptr parseEntity(const BBox3& worldBounds);
+            Model::Brush::Ptr parseBrush(const BBox3& worldBounds);
+            Model::BrushFace::Ptr parseFace(const BBox3& worldBounds);
             const Vec3 parseVector();
         };
     }

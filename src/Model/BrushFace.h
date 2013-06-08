@@ -23,17 +23,37 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
-#include "Model/BrushFaceTypes.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/Vertex.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceGeometry;
+        
         class BrushFace {
         public:
+            /*
+             * The order of points, when looking from outside the face:
+             *
+             * 0-----------1
+             * |
+             * |
+             * |
+             * |
+             * 2
+             */
+            typedef Vec3 Points[3];
+            
+            typedef std::tr1::shared_ptr<BrushFace> Ptr;
+            typedef std::vector<BrushFace::Ptr> List;
+            static const List EmptyList;
+
+            typedef Renderer::Mesh<String, Renderer::VP3N3T2> Mesh;
             static const String NoTextureName;
         private:
-            BrushFacePoints m_points;
+            BrushFace::Points m_points;
             Plane3 m_boundary;
             String m_textureName;
             float m_xOffset;
@@ -43,12 +63,13 @@ namespace TrenchBroom {
             float m_yScale;
             size_t m_lineNumber;
             size_t m_lineCount;
+            BrushFaceGeometry* m_side;
         private:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
-            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
+            static BrushFace::Ptr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
             
-            inline const BrushFacePoints& points() const {
+            inline const BrushFace::Points& points() const {
                 return m_points;
             }
             
@@ -106,6 +127,8 @@ namespace TrenchBroom {
                 m_lineNumber = lineNumber;
                 m_lineCount = lineCount;
             }
+            
+            void addToMesh(Mesh& mesh);
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };

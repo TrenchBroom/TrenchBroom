@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushGeometry::BrushGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
+        BrushGeometry::BrushGeometry(const BBox3& worldBounds, const BrushFace::List& faces) {
             initializeWithBounds(worldBounds);
             addFaces(faces);
         }
@@ -138,12 +138,12 @@ namespace TrenchBroom {
             assert(right->isClosed());
         }
 
-        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
+        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFace::List& faces) {
             AddFaceResult totalResult(BrushIsSplit);
             
-            BrushFaceList::const_iterator it, end;
+            BrushFace::List::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFacePtr face = *it;
+                BrushFace::Ptr face = *it;
                 const AddFaceResult result = addFace(face);
                 if (result.resultCode == BrushIsNull)
                     return AddFaceResult(BrushIsNull);
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             return totalResult;
         }
         
-        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFacePtr face) {
+        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace::Ptr face) {
             IntersectBrushGeometryWithFace algorithm(*this, face);
             const AddFaceResultCode resultCode = algorithm.execute();
             switch (resultCode) {

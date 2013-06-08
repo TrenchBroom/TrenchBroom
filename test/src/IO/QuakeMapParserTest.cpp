@@ -24,15 +24,15 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
-#include "Model/EntityPropertyTypes.h"
+#include "Model/EntityProperties.h"
 #include "Model/Map.h"
 
 namespace TrenchBroom {
     namespace IO {
-        inline bool findFaceByPoints(const Model::BrushFaceList& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
-            Model::BrushFaceList::const_iterator it, end;
+        inline bool findFaceByPoints(const Model::BrushFace::List& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            Model::BrushFace::List::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                const Model::BrushFacePtr face = *it;
+                const Model::BrushFace::Ptr face = *it;
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
                     face->points()[2] == point2)
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
             
             ASSERT_TRUE(map->entities().empty());
         }
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
 
             ASSERT_EQ(1u, map->entities().size());
         }
@@ -68,12 +68,12 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
             
-            const Model::EntityList& entities = map->entities();
+            const Model::Entity::List& entities = map->entities();
             ASSERT_EQ(1u, entities.size());
             
-            const Model::EntityPtr entity = entities.front();
+            const Model::Entity::Ptr entity = entities.front();
             ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
         }
@@ -90,16 +90,16 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
             
-            const Model::EntityList& entities = map->entities();
+            const Model::Entity::List& entities = map->entities();
             ASSERT_EQ(2u, entities.size());
             
-            const Model::EntityPtr first = entities.front();
+            const Model::Entity::Ptr first = entities.front();
             ASSERT_TRUE(first->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, first->property(Model::PropertyKeys::Classname));
             
-            const Model::EntityPtr second = entities[1];
+            const Model::Entity::Ptr second = entities[1];
             ASSERT_TRUE(second->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(String("info_player_deathmatch"), second->property(Model::PropertyKeys::Classname));
             ASSERT_TRUE(second->hasProperty("origin"));
@@ -123,20 +123,20 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
             
-            const Model::EntityList& entities = map->entities();
+            const Model::Entity::List& entities = map->entities();
             ASSERT_EQ(1u, entities.size());
             
-            const Model::EntityPtr entity = entities.front();
+            const Model::Entity::Ptr entity = entities.front();
             ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
             
-            const Model::BrushList& brushes = entity->brushes();
+            const Model::Brush::List& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
             
-            const Model::BrushPtr brush = brushes.front();
-            const Model::BrushFaceList faces = brush->faces();
+            const Model::Brush::Ptr brush = brushes.front();
+            const Model::BrushFace::List faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)));
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)));
@@ -161,20 +161,20 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             QuakeMapParser parser(data);
-            Model::MapPtr map = parser.parseMap(worldBounds);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
             
-            const Model::EntityList& entities = map->entities();
+            const Model::Entity::List& entities = map->entities();
             ASSERT_EQ(1u, entities.size());
             
-            const Model::EntityPtr entity = entities.front();
+            const Model::Entity::Ptr entity = entities.front();
             ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
             
-            const Model::BrushList& brushes = entity->brushes();
+            const Model::Brush::List& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
             
-            const Model::BrushPtr brush = brushes.front();
-            const Model::BrushFaceList faces = brush->faces();
+            const Model::Brush::Ptr brush = brushes.front();
+            const Model::BrushFace::List faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)));
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)));

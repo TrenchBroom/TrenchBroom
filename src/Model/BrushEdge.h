@@ -22,7 +22,9 @@
 
 #include "VecMath.h"
 #include "TrenchBroom.h"
-#include "Model/BrushGeometryTypes.h"
+#include "BrushEdge.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,6 +33,9 @@ namespace TrenchBroom {
         
         class BrushEdge {
         public:
+            typedef std::vector<BrushEdge*> List;
+            static const List EmptyList;
+            
             enum Mark {
                 Drop,
                 Keep,
@@ -99,9 +104,9 @@ namespace TrenchBroom {
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
         };
 
-        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::iterator it = edges.begin();
-            const BrushEdgeList::iterator end = edges.end();
+        inline BrushEdge::List::iterator findBrushEdge(BrushEdge::List& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdge::List::iterator it = edges.begin();
+            const BrushEdge::List::iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))
@@ -111,9 +116,9 @@ namespace TrenchBroom {
             return end;
         }
         
-        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::const_iterator it = edges.begin();
-            const BrushEdgeList::const_iterator end = edges.end();
+        inline BrushEdge::List::const_iterator findBrushEdge(const BrushEdge::List& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdge::List::const_iterator it = edges.begin();
+            const BrushEdge::List::const_iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))

@@ -25,14 +25,15 @@
 namespace TrenchBroom {
     namespace Model {
         const String Entity::DefaultPropertyValue = "";
+        const Entity::List Entity::EmptyList = Entity::List();
         
         Entity::Entity() {}
 
-        EntityPtr Entity::newEntity() {
-            return EntityPtr(new Entity());
+        Entity::Ptr Entity::newEntity() {
+            return Entity::Ptr(new Entity());
         }
 
-        const EntityPropertyList& Entity::properties() const {
+        const EntityProperty::List& Entity::properties() const {
             return m_properties.properties();
         }
         
@@ -55,11 +56,11 @@ namespace TrenchBroom {
             return property(PropertyKeys::Classname, defaultClassname);
         }
 
-        void Entity::addBrush(BrushPtr brush) {
+        void Entity::addBrush(Brush::Ptr brush) {
             m_brushes.push_back(brush);
         }
 
-        void Entity::removeBrush(BrushPtr brush) {
+        void Entity::removeBrush(Brush::Ptr brush) {
             VectorUtils::remove(m_brushes, brush);
         }
     }

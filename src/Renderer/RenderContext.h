@@ -17,21 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityTypes_h
-#define TrenchBroom_EntityTypes_h
+#ifndef __TrenchBroom__RenderContext__
+#define __TrenchBroom__RenderContext__
 
-#include "SharedPointer.h"
-
-#include <vector>
+#include <iostream>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-        
-        typedef std::tr1::shared_ptr<Entity> EntityPtr;
-        typedef std::vector<EntityPtr> EntityList;
-        static const EntityList EmptyEntityList;
+    namespace Renderer {
+        class RenderContext {
+        };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__RenderContext__) */

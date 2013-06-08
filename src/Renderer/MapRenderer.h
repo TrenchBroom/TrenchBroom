@@ -17,17 +17,24 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityPropertyTypes.h"
+#ifndef __TrenchBroom__MapRenderer__
+#define __TrenchBroom__MapRenderer__
+
+#include "Model/Map.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace PropertyKeys {
-            const PropertyKey Classname = "classname";
-        }
+    namespace Renderer {
+        class RenderContext;
         
-        namespace PropertyValues {
-            const PropertyValue WorldspawnClassname = "worldspawn";
-            const PropertyValue NoClassname         = "undefined";
-        }
+        class MapRenderer {
+        private:
+        public:
+            void loadMap(const Model::Map::Ptr map);
+            void clear();
+            
+            void render(const RenderContext& context);
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__MapRenderer__) */

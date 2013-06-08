@@ -22,8 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushGeometryTypes.h"
-#include "Model/BrushFaceTypes.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceGeometry.h"
+#include "Model/BrushEdge.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,10 +39,10 @@ namespace TrenchBroom {
             template <typename T>
             struct Result {
                 T resultCode;
-                BrushFaceList addedFaces;
-                BrushFaceList droppedFaces;
+                BrushFace::List addedFaces;
+                BrushFace::List droppedFaces;
                 
-                Result(const T i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList) :
+                Result(const T i_resultCode, const BrushFace::List& i_addedFaces = BrushFace::EmptyList, const BrushFace::List& i_droppedFaces = BrushFace::EmptyList) :
                 resultCode(i_resultCode),
                 addedFaces(i_addedFaces),
                 droppedFaces(i_droppedFaces) {}
@@ -54,29 +55,29 @@ namespace TrenchBroom {
             
             typedef Result<AddFaceResultCode> AddFaceResult;
         private:
-            BrushVertexList m_vertices;
-            BrushEdgeList m_edges;
-            BrushFaceGeometryList m_sides;
+            BrushVertex::List m_vertices;
+            BrushEdge::List m_edges;
+            BrushFaceGeometry::List m_sides;
         public:
-            BrushGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
+            BrushGeometry(const BBox3& worldBounds, const BrushFace::List& faces);
             ~BrushGeometry();
             
-            inline const BrushVertexList& vertices() const {
+            inline const BrushVertex::List& vertices() const {
                 return m_vertices;
             }
             
-            inline const BrushEdgeList& edges() const {
+            inline const BrushEdge::List& edges() const {
                 return m_edges;
             }
             
-            inline const BrushFaceGeometryList& sides() const {
+            inline const BrushFaceGeometry::List& sides() const {
                 return m_sides;
             }
         private:
             void initializeWithBounds(const BBox3& bounds);
             
-            AddFaceResult addFaces(const BrushFaceList& faces);
-            AddFaceResult addFace(BrushFacePtr face);
+            AddFaceResult addFaces(const BrushFace::List& faces);
+            AddFaceResult addFace(BrushFace::Ptr face);
         };
     }
 }

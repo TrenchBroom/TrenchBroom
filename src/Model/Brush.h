@@ -22,8 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushTypes.h"
-#include "Model/BrushFaceTypes.h"
+#include "Model/BrushFace.h"
 #include "Model/Object.h"
 
 #include <vector>
@@ -33,17 +32,21 @@ namespace TrenchBroom {
         class BrushGeometry;
         
         class Brush : public Object {
+        public:
+            typedef std::tr1::shared_ptr<Brush> Ptr;
+            typedef std::vector<Brush::Ptr> List;
+            static const List EmptyList;
         private:
-            BrushFaceList m_faces;
+            BrushFace::List m_faces;
             BrushGeometry* m_geometry;
 
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushFace::List& faces);
         public:
-            static BrushPtr newBrush(const BBox3& worldBounds, const BrushFaceList& faces);
+            static Brush::Ptr newBrush(const BBox3& worldBounds, const BrushFace::List& faces);
             
             ~Brush();
             
-            inline const BrushFaceList& faces() const {
+            inline const BrushFace::List& faces() const {
                 return m_faces;
             }
         private:

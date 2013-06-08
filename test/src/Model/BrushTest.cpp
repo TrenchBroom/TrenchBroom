@@ -28,7 +28,7 @@ namespace TrenchBroom {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
-            BrushFaceList faces;
+            BrushFace::List faces;
             faces.push_back(BrushFace::newBrushFace(Vec3(0.0, 0.0, 0.0),
                                                     Vec3(1.0, 0.0, 0.0),
                                                     Vec3(0.0, 1.0, 0.0)));
@@ -39,8 +39,8 @@ namespace TrenchBroom {
                                                     Vec3(1.0, 0.0, 0.0),
                                                     Vec3(0.0, 1.0, 0.0)));
             
-            BrushPtr brush = Brush::newBrush(worldBounds, faces);
-            const BrushFaceList& brushBrushFaces = brush->faces();
+            Brush::Ptr brush = Brush::newBrush(worldBounds, faces);
+            const BrushFace::List& brushBrushFaces = brush->faces();
             ASSERT_EQ(faces.size(), brushBrushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
                 ASSERT_EQ(faces[i], brushBrushFaces[i]);

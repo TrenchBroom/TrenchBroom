@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(EntityTest, HasProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             entity->addOrUpdateProperty(key, value);
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, GetProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
             const PropertyValue value("value");
@@ -48,20 +48,20 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, AddProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             
             entity->addOrUpdateProperty(key, value);
 
-            const EntityPropertyList& properties = entity->properties();
+            const EntityProperty::List& properties = entity->properties();
             ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(value, properties[0].value);
         }
         
         TEST(EntityTest, UpdateProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             const PropertyValue newValue("value");
@@ -69,14 +69,14 @@ namespace TrenchBroom {
             
             entity->addOrUpdateProperty(key, newValue);
             
-            const EntityPropertyList& properties = entity->properties();
+            const EntityProperty::List& properties = entity->properties();
             ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(newValue, properties[0].value);
         }
         
         TEST(EntityTest, GetClassname) {
-            EntityPtr entity = Entity::newEntity();
+            Entity::Ptr entity = Entity::newEntity();
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
             
@@ -91,12 +91,12 @@ namespace TrenchBroom {
         TEST(EntityTest, AddBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            Entity::Ptr entity = Entity::newEntity();
+            Brush::Ptr brush = Brush::newBrush(worldBounds, BrushFace::EmptyList);
             
             entity->addBrush(brush);
 
-            const BrushList& brushes = entity->brushes();
+            const Brush::List& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
             ASSERT_EQ(brush, brushes[0]);
         }
@@ -104,13 +104,13 @@ namespace TrenchBroom {
         TEST(EntityTest, RemoveBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            Entity::Ptr entity = Entity::newEntity();
+            Brush::Ptr brush = Brush::newBrush(worldBounds, BrushFace::EmptyList);
             entity->addBrush(brush);
 
             entity->removeBrush(brush);
             
-            const BrushList& brushes = entity->brushes();
+            const Brush::List& brushes = entity->brushes();
             ASSERT_TRUE(brushes.empty());
         }
     }

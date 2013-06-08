@@ -20,13 +20,27 @@
 #ifndef __TrenchBroom__EntityProperties__
 #define __TrenchBroom__EntityProperties__
 
-#include "Model/EntityPropertyTypes.h"
+#include "StringUtils.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        typedef String PropertyKey;
+        typedef String PropertyValue;
+        
+        namespace PropertyKeys {
+            extern const PropertyKey Classname;
+        }
+        
+        namespace PropertyValues {
+            extern const PropertyValue WorldspawnClassname;
+            extern const PropertyValue NoClassname;
+        }
+
         struct EntityProperty {
+            typedef std::vector<EntityProperty> List;
+
             PropertyKey key;
             PropertyValue value;
             
@@ -35,20 +49,19 @@ namespace TrenchBroom {
             value(i_value) {}
         };
         
-        typedef std::vector<EntityProperty> EntityPropertyList;
 
         class EntityProperties {
         private:
-            EntityPropertyList m_properties;
+            EntityProperty::List m_properties;
         public:
-            const EntityPropertyList& properties() const;
+            const EntityProperty::List& properties() const;
             
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue* property(const PropertyKey& key) const;
         private:
-            EntityPropertyList::const_iterator findProperty(const PropertyKey& key) const;
-            EntityPropertyList::iterator findProperty(const PropertyKey& key);
+            EntityProperty::List::const_iterator findProperty(const PropertyKey& key) const;
+            EntityProperty::List::iterator findProperty(const PropertyKey& key);
         };
     }
 }

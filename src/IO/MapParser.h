@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class MapParser {
         public:
             virtual ~MapParser();
-            Model::MapPtr parseMap(const BBox3& worldBounds);
+            Model::Map::Ptr parseMap(const BBox3& worldBounds);
         private:
-            virtual Model::MapPtr doParseMap(const BBox3& worldBounds) = 0;
+            virtual Model::Map::Ptr doParseMap(const BBox3& worldBounds) = 0;
         };
     }
 }

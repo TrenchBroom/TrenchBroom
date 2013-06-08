@@ -48,15 +48,15 @@ namespace TrenchBroom {
             BrushVertex* v2 = new BrushVertex(Vec3(1.3232, 0.3332, -33123.2954));
             BrushVertex* v3 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             
-            BrushVertexList list;
+            BrushVertex::List list;
             list.push_back(v1);
             list.push_back(v2);
             list.push_back(v3);
             
-            BrushVertexList::iterator notFound = findBrushVertex(list, Vec3(-1.0, 1.0, -1.0));
-            BrushVertexList::iterator  v1Found = findBrushVertex(list, v1->position());
-            BrushVertexList::iterator  v2Found = findBrushVertex(list, v2->position());
-            BrushVertexList::iterator  v3Found = findBrushVertex(list, v3->position());
+            BrushVertex::List::iterator notFound = findBrushVertex(list, Vec3(-1.0, 1.0, -1.0));
+            BrushVertex::List::iterator  v1Found = findBrushVertex(list, v1->position());
+            BrushVertex::List::iterator  v2Found = findBrushVertex(list, v2->position());
+            BrushVertex::List::iterator  v3Found = findBrushVertex(list, v3->position());
             
             ASSERT_EQ(list.end(), notFound);
             ASSERT_EQ(v1, *v1Found);

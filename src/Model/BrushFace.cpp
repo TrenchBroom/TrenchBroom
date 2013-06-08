@@ -24,14 +24,15 @@
 namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
+        const BrushFace::List BrushFace::EmptyList = BrushFace::List();
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
         m_textureName(textureName) {
             setPoints(point0, point1, point2);
         }
         
-        BrushFacePtr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
-            return BrushFacePtr(new BrushFace(point0, point1, point2, textureName));
+        BrushFace::Ptr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            return BrushFace::Ptr(new BrushFace(point0, point1, point2, textureName));
         }
 
         bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
@@ -54,6 +55,11 @@ namespace TrenchBroom {
                 m_points[2].asString() << ")";
                 throw e;
             }
+        }
+
+        void BrushFace::addToMesh(Mesh& mesh) {
+            mesh.beginTriangleSet(m_textureName);
+            mesh.endTriangleSet();
         }
     }
 }
