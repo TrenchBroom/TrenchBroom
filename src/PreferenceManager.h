@@ -20,7 +20,10 @@
 #ifndef __TrenchBroom__PreferenceManager__
 #define __TrenchBroom__PreferenceManager__
 
+#include "Color.h"
 #include "Preference.h"
+#include "StringUtils.h"
+#include "View/KeyboardShortcut.h"
 
 #include <map>
 
@@ -59,11 +62,9 @@ namespace TrenchBroom {
         const Color& getColor(Preference<Color>& preference) const;
         void setColor(Preference<Color>& preference, const Color& value);
         
-        /*
-        const KeyboardShortcut& getKeyboardShortcut(const Preference<KeyboardShortcut>& preference) const;
-        void setKeyboardShortcut(const Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value);
-         */
-        
-    };}
+        const View::KeyboardShortcut& getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const;
+        void setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value);
+    };
+}
 
 #endif /* defined(__TrenchBroom__PreferenceManager__) */

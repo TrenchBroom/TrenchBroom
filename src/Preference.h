@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "StringUtils.h"
+#include "View/KeyboardShortcut.h"
 
 #include <wx/config.h>
 #include <wx/confbase.h>
@@ -114,19 +115,17 @@ namespace TrenchBroom {
         }
     };
     
-    /*
     template<>
-    class Converter<KeyboardShortcut> {
+    class Converter<View::KeyboardShortcut> {
     public:
-        wxString toWxString(const KeyboardShortcut& value) const {
+        wxString toWxString(const View::KeyboardShortcut& value) const {
             return wxString(value.asString());
         }
         
-        KeyboardShortcut fromWxString(const wxString& string) const {
-            return KeyboardShortcut(string.ToStdString());
+        View::KeyboardShortcut fromWxString(const wxString& string) const {
+            return View::KeyboardShortcut(string.ToStdString());
         }
     };
-    */
     
     class ValueHolderBase {};
     

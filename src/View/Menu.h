@@ -20,9 +20,13 @@
 #ifndef __TrenchBroom__Menu__
 #define __TrenchBroom__Menu__
 
+#include "Preference.h"
 #include "SharedPointer.h"
+#include "StringUtils.h"
+#include "View/KeyboardShortcut.h"
 
 #include <vector>
+#include <map>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,23 +49,92 @@ namespace TrenchBroom {
             MenuItemType m_type;
             MenuItemParent* m_parent;
         public:
-            MenuItem(MenuItemType type, MenuItemParent* parent) :
-            m_type(type),
-            m_parent(parent) {}
+            MenuItem(const MenuItemType type, MenuItemParent* parent);
+            virtual ~MenuItem();
             
-            virtual ~MenuItem() {}
+            MenuItemType type() const;
+            const MenuItemParent* parent() const;
+            virtual const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
+        };
+
+        class TextMenuItem : public MenuItem {
+        public:
+            TextMenuItem(const MenuItemType type, MenuItemParent* parent);
+            virtual ~TextMenuItem();
+            virtual const String& text() const = 0;
+        };
+        
+        class ShortcutMenuItem : public TextMenuItem {
+        private:
+            mutable KeyboardShortcut m_shortcut;
+            mutable Preference<KeyboardShortcut> m_preference;
             
-            inline MenuItemType type() const {
-                return m_type;
-            }
+            String path() const;
+        public:
+            ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent);
+            virtual ~ShortcutMenuItem();
             
-            inline const MenuItemParent* parent() const {
-                return m_parent;
-            }
+            inline const String& text() const;
+            const String longText() const;
+            const KeyboardShortcut& shortcut() const;
+            void setShortcut(const KeyboardShortcut& shortcut) const;
+            const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
+        };
+        
+        class Menu;
+        
+        class MenuItemParent : public TextMenuItem {
+        private:
+            String m_text;
+            int m_menuId;
+            List m_items;
+        public:
+            const List& items() const;
+            void addItem(MenuItem::Ptr item);
+            const String& text() const;
+            int menuId() const;
+            const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
+        protected:
+            MenuItemParent(MenuItemType type, const String& text, MenuItemParent* parent, int menuId);
+            virtual ~MenuItemParent();
+        };
+        
+        class MultiMenu;
+        
+        class MultiMenuSelector {
+        public:
+            virtual ~MultiMenuSelector();
+            virtual const Menu* select(const MultiMenu& multiMenu) const = 0;
+        };
+        
+        class MultiMenu : public MenuItemParent {
+        public:
+            MultiMenu(const String& text, MenuItemParent* parent, const int menuId);
+            Menu& addMenu(const String& text, const int menuId);
+            const Menu* menuById(const int menuId) const;
+            const Menu* selectMenu(const MultiMenuSelector& selector) const;
+        };
+        
+        extern const String FileMenu;
+        extern const String EditMenu;
+        extern const String ViewMenu;
+
+        class Menu : public MenuItemParent {
+        public:
+            typedef std::map<String, Ptr> MenuMap;
+        public:
+            Menu(const String& text, MenuItemParent* parent = NULL, int menuId = wxID_ANY);
+            virtual ~Menu();
             
-            virtual const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
-                return NULL;
-            }
+            static const Menu& getMenu(const String& name);
+            
+            MenuItem::Ptr addActionItem(const KeyboardShortcut& shortcut);
+            MenuItem::Ptr addCheckItem(const KeyboardShortcut& shortcut);
+            void addSeparator();
+            Menu& addMenu(const String& text, int menuId = wxID_ANY);
+            MultiMenu& addMultiMenu(const String& text, int menuId);
+        private:
+            static const MenuMap buildMenus();
         };
     }
 }

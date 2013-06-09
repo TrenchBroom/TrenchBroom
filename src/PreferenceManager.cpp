@@ -142,21 +142,19 @@ namespace TrenchBroom {
             markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
     }
     
-    /*
-    const KeyboardShortcut& PreferenceManager::getKeyboardShortcut(Preference<KeyboardShortcut>& preference) const {
+    const View::KeyboardShortcut& PreferenceManager::getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const {
         if (!preference.initialized())
             preference.load(wxConfig::Get());
         
         return preference.value();
     }
     
-    void PreferenceManager::setKeyboardShortcut(Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value) {
-        KeyboardShortcut previousValue = preference.value();
+    void PreferenceManager::setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value) {
+        View::KeyboardShortcut previousValue = preference.value();
         preference.setValue(value);
         if (m_saveInstantly)
             preference.save(wxConfig::Get());
         else
-            markAsUnsaved(&preference, new ValueHolder<KeyboardShortcut>(previousValue));
+            markAsUnsaved(&preference, new ValueHolder<View::KeyboardShortcut>(previousValue));
     }
-     */
 }
