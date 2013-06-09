@@ -22,6 +22,9 @@
 #include "PreferenceManager.h"
 #include "View/CommandIds.h"
 
+#include <wx/menu.h>
+#include <wx/menuitem.h>
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -145,6 +148,10 @@ namespace TrenchBroom {
 
         MultiMenuSelector::~MultiMenuSelector() {}
 
+        const Menu* NullMenuSelector::select(const MultiMenu& multiMenu) const {
+            return NULL;
+        }
+
         MultiMenu::MultiMenu(const String& text, MenuItemParent* parent, int menuId) :
         MenuItemParent(MITMultiMenu, text, parent, menuId) {
             assert(parent != NULL);
@@ -180,13 +187,6 @@ namespace TrenchBroom {
         
         Menu::~Menu() {}
 
-        const Menu& Menu::getMenu(const String& name) {
-            static const Menu::MenuMap menus = buildMenus();
-            MenuMap::const_iterator it = menus.find(name);
-            assert(it != menus.end());
-            return static_cast<const Menu&>(*(it->second.get()));
-        }
-
         MenuItem::Ptr Menu::addActionItem(const KeyboardShortcut& shortcut) {
             MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::MITAction, shortcut, this));
             addItem(item);
@@ -216,6 +216,96 @@ namespace TrenchBroom {
             return *menu;
         }
 
+        wxMenuBar* Menu::createMenuBar(const MultiMenuSelector& selector, const bool showModifiers) {
+            wxMenu* fileMenu = createMenu(FileMenu, selector, showModifiers);
+            wxMenu* editMenu = createMenu(EditMenu, selector, showModifiers);
+            wxMenu* viewMenu = createMenu(ViewMenu, selector, showModifiers);
+
+            wxMenu* helpMenu = new wxMenu();
+            helpMenu->Append(CommandIds::Menu::HelpShowHelp, wxT("TrenchBroom Help"));
+
+#ifdef __APPLE__
+            // these won't show up in the app menu if we don't add them here
+            fileMenu->Append(wxID_ABOUT, wxT("About"));
+            fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
+            fileMenu->Append(wxID_EXIT, wxT("Exit"));
+#endif
+            
+            wxMenuBar* menuBar = new wxMenuBar();
+            menuBar->Append(fileMenu, wxT("File"));
+            menuBar->Append(editMenu, wxT("Edit"));
+            menuBar->Append(viewMenu, wxT("View"));
+            menuBar->Append(helpMenu, wxT("Help"));
+            return menuBar;
+        }
+
+        wxMenu* Menu::createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers) {
+            const Menu& menu = getMenu(name);
+            return createMenu(menu, selector, showModifiers);
+        }
+
+        wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers) {
+            wxMenu* result = new wxMenu();
+            
+            const Menu::List& items = menu.items();
+            Menu::List::const_iterator it, end;
+            for (it = items.begin(), end = items.end(); it != end; ++it) {
+                const MenuItem& item = **it;
+                switch (item.type()) {
+                    case MenuItem::MITAction: {
+                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
+                        const KeyboardShortcut& shortcut = shortcutItem.shortcut();
+                        if (showModifiers || shortcut.alwaysShowModifier())
+                            result->Append(shortcut.commandId(), shortcut.menuText());
+                        else
+                            result->Append(shortcut.commandId(), shortcut.text());
+                        break;
+                    }
+                    case MenuItem::MITCheck: {
+                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
+                        const KeyboardShortcut& shortcut = shortcutItem.shortcut();
+                        if (showModifiers || shortcut.alwaysShowModifier())
+                            result->AppendCheckItem(shortcut.commandId(), shortcut.menuText());
+                        else
+                            result->AppendCheckItem(shortcut.commandId(), shortcut.text());
+                        break;
+                    }
+                    case MenuItem::MITMenu: {
+                        const Menu& subMenu = static_cast<const Menu&>(item);
+                        wxMenuItem* wxSubMenuItem = new wxMenuItem(result, subMenu.menuId(), subMenu.text());
+                        wxSubMenuItem->SetSubMenu(createMenu(subMenu, selector, showModifiers));
+                        result->Append(wxSubMenuItem);
+                        break;
+                    }
+                    case MenuItem::MITMultiMenu: {
+                        const MultiMenu& multiMenu = static_cast<const MultiMenu&>(item);
+                        const Menu* multiMenuItem = multiMenu.selectMenu(selector);
+                        if (multiMenuItem != NULL) {
+                            wxMenuItem* wxSubMenuItem = new wxMenuItem(result, multiMenu.menuId(), multiMenu.text());
+                            wxSubMenuItem->SetSubMenu(createMenu(*multiMenuItem, selector, showModifiers));
+                            result->Append(wxSubMenuItem);
+                        } else {
+                            result->Append(multiMenu.menuId(), multiMenu.text());
+                        }
+                        break;
+                    }
+                    case MenuItem::MITSeparator: {
+                        result->AppendSeparator();
+                        break;
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        const Menu& Menu::getMenu(const String& name) {
+            static const Menu::MenuMap menus = buildMenus();
+            MenuMap::const_iterator it = menus.find(name);
+            assert(it != menus.end());
+            return static_cast<const Menu&>(*(it->second.get()));
+        }
+        
         const Menu::MenuMap Menu::buildMenus() {
             Menu::MenuMap menus;
             

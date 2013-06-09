@@ -28,6 +28,9 @@
 #include <vector>
 #include <map>
 
+class wxMenu;
+class wxMenuBar;
+
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcut;
@@ -107,6 +110,11 @@ namespace TrenchBroom {
             virtual const Menu* select(const MultiMenu& multiMenu) const = 0;
         };
         
+        class NullMenuSelector : public MultiMenuSelector {
+        public:
+            const Menu* select(const MultiMenu& multiMenu) const;
+        };
+
         class MultiMenu : public MenuItemParent {
         public:
             MultiMenu(const String& text, MenuItemParent* parent, const int menuId);
@@ -126,14 +134,17 @@ namespace TrenchBroom {
             Menu(const String& text, MenuItemParent* parent = NULL, int menuId = wxID_ANY);
             virtual ~Menu();
             
-            static const Menu& getMenu(const String& name);
-            
             MenuItem::Ptr addActionItem(const KeyboardShortcut& shortcut);
             MenuItem::Ptr addCheckItem(const KeyboardShortcut& shortcut);
             void addSeparator();
             Menu& addMenu(const String& text, int menuId = wxID_ANY);
             MultiMenu& addMultiMenu(const String& text, int menuId);
+            
+            static wxMenuBar* createMenuBar(const MultiMenuSelector& selector, const bool showModifiers);
+            static wxMenu* createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers);
         private:
+            static wxMenu* createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers);
+            static const Menu& getMenu(const String& name);
             static const MenuMap buildMenus();
         };
     }

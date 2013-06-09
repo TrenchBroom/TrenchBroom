@@ -23,6 +23,7 @@
 
 #include "IO/Path.h"
 #include "View/MapDocument.h"
+#include "View/Menu.h"
 
 #ifndef TESTING
 IMPLEMENT_APP(TrenchBroomApp)
@@ -38,6 +39,11 @@ bool TrenchBroomApp::OnInit() {
 
     std::setlocale(LC_NUMERIC, "C");
 
+#ifdef __APPLE__
+    wxMenuBar* menuBar = TrenchBroom::View::Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
+    wxMenuBar::MacSetCommonMenuBar(menuBar);
+#endif
+    
 #ifndef __APPLE__
     if (wxApp::argc > 1) {
         const wxString filename = wxApp::argv[1];
