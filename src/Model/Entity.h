@@ -57,6 +57,15 @@ namespace TrenchBroom {
             
             void addBrush(Brush::Ptr brush);
             void removeBrush(Brush::Ptr brush);
+
+            template <class BrushFaceOp>
+            inline void eachBrushFace(BrushFaceOp& faceOp) {
+                Brush::List::const_iterator it, end;
+                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
+                    Brush::Ptr brush = *it;
+                    brush->eachBrushFace(faceOp);
+                }
+            }
         };
     }
 }

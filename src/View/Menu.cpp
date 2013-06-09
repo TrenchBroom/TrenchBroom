@@ -17,12 +17,4 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TestUtils_h
-#define TrenchBroom_TestUtils_h
-
-#include <gtest/gtest.h>
-
-#define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
-#define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))
-
-#endif
+#include "Menu.h"

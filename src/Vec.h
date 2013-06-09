@@ -222,6 +222,14 @@ public:
         v[S-1] = last;
     }
     
+    template <typename U>
+    inline operator Vec<U,S>() const {
+        Vec<U,S> result;
+        for (size_t i = 0; i < S; i++)
+            result[i] = static_cast<U>(v[i]);
+        return result;
+    }
+    
     inline bool operator== (const Vec<T,S>& right) const {
         for (size_t i = 0; i < S; i++)
             if (v[i] != right[i])

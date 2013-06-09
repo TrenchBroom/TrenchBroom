@@ -187,6 +187,7 @@ namespace TrenchBroom {
             assert(newSide->isClosed());
             
             newSide->setFace(m_face);
+            m_face->setSide(newSide);
             addFace(m_face);
             m_remainingSides.push_back(newSide);
         }

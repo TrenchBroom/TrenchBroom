@@ -23,6 +23,8 @@
 #include "SharedPointer.h"
 #include "Model/Entity.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Model {
         class Map {
@@ -42,8 +44,16 @@ namespace TrenchBroom {
             }
             
             void addEntity(Entity::Ptr entity);
-            
             Entity::Ptr worldspawn();
+            
+            template <class BrushFaceOp>
+            inline void eachBrushFace(BrushFaceOp& faceOp) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    entity->eachBrushFace(faceOp);
+                }
+            }
         private:
             Entity::Ptr findWorldspawn() const;
         };

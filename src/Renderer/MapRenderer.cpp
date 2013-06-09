@@ -19,10 +19,23 @@
 
 #include "MapRenderer.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
+#include "Renderer/Mesh.h"
+
 namespace TrenchBroom {
     namespace Renderer {
+        struct BuildBrushFaceMesh {
+            Model::BrushFace::Mesh mesh;
+            inline void operator()(Model::BrushFace::Ptr face){
+                face->addToMesh(mesh);
+            }
+        };
+        
         void MapRenderer::loadMap(const Model::Map::Ptr map) {
-            
+            BuildBrushFaceMesh buildFaceMesh;
+            map->eachBrushFace(buildFaceMesh);
         }
         
         void MapRenderer::clear() {

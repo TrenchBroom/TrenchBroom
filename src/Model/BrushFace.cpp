@@ -20,6 +20,9 @@
 #include "BrushFace.h"
 
 #include "Exceptions.h"
+#include "VecMath.h"
+#include "Model/BrushFaceGeometry.h"
+#include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -27,7 +30,8 @@ namespace TrenchBroom {
         const BrushFace::List BrushFace::EmptyList = BrushFace::List();
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
-        m_textureName(textureName) {
+        m_textureName(textureName),
+        m_side(NULL) {
             setPoints(point0, point1, point2);
         }
         
@@ -58,7 +62,24 @@ namespace TrenchBroom {
         }
 
         void BrushFace::addToMesh(Mesh& mesh) {
+            assert(m_side != NULL);
+            
             mesh.beginTriangleSet(m_textureName);
+
+            const BrushVertex::List& vertices = m_side->vertices();
+            for (size_t i = 1; i < vertices.size() - 1; i++) {
+                const Renderer::VP3N3T2 v1(vertices[0]->position(),
+                                           Vec3f(0.0f),
+                                           Vec2f(0.0f));
+                const Renderer::VP3N3T2 v2(vertices[i]->position(),
+                                           Vec3f(0.0f),
+                                           Vec2f(0.0f));
+                const Renderer::VP3N3T2 v3(vertices[i+1]->position(),
+                                           Vec3f(0.0f),
+                                           Vec2f(0.0f));
+                mesh.addTriangleToSet(v1, v2, v3);
+            }
+            
             mesh.endTriangleSet();
         }
     }

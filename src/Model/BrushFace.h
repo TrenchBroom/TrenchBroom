@@ -128,6 +128,10 @@ namespace TrenchBroom {
                 m_lineCount = lineCount;
             }
             
+            inline void setSide(BrushFaceGeometry* side) {
+                m_side = side;
+            }
+            
             void addToMesh(Mesh& mesh);
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
