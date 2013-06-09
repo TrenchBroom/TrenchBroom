@@ -40,6 +40,7 @@ bool TrenchBroomApp::OnInit() {
     std::setlocale(LC_NUMERIC, "C");
 
 #ifdef __APPLE__
+    SetExitOnFrameDelete(false);
     wxMenuBar* menuBar = TrenchBroom::View::Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
     wxMenuBar::MacSetCommonMenuBar(menuBar);
 #endif
