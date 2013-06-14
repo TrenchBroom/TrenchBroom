@@ -39,6 +39,42 @@ namespace TrenchBroom {
             m_right = NULL;
         }
         
+        const BrushVertex* BrushEdge::start() const {
+            return m_start;
+        }
+        
+        BrushVertex* BrushEdge::start() {
+            return m_start;
+        }
+        
+        const BrushVertex* BrushEdge::end() const {
+            return m_end;
+        }
+        
+        BrushVertex* BrushEdge::end() {
+            return m_end;
+        }
+        
+        const BrushFaceGeometry* BrushEdge::left() const {
+            return m_left;
+        }
+        
+        BrushFaceGeometry* BrushEdge::left() {
+            return m_left;
+        }
+        
+        const BrushFaceGeometry* BrushEdge::right() const {
+            return m_right;
+        }
+        
+        BrushFaceGeometry* BrushEdge::right() {
+            return m_right;
+        }
+        
+        BrushEdge::Mark BrushEdge::mark() const {
+            return m_mark;
+        }
+
         void BrushEdge::updateMark() {
             size_t drop = 0;
             size_t keep = 0;

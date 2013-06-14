@@ -220,7 +220,7 @@ namespace TrenchBroom {
             return m_attributeSpecs[index];
         }
         
-        const size_t VertexSpec::size() const {
+        size_t VertexSpec::size() const {
             return m_attributeSpecs.size();
         }
         

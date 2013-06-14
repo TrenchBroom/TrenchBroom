@@ -45,7 +45,7 @@ namespace TrenchBroom {
             static Entity::Ptr newEntity();
             
             const EntityProperty::List& properties() const;
-            const bool hasProperty(const PropertyKey& key) const;
+            bool hasProperty(const PropertyKey& key) const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             

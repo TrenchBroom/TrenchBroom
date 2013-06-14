@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 return m_position;
             }
             
-            inline const Mark mark() const {
+            inline Mark mark() const {
                 return m_mark;
             }
             

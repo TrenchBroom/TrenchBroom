@@ -39,6 +39,10 @@ namespace TrenchBroom {
             return BrushFace::Ptr(new BrushFace(point0, point1, point2, textureName));
         }
 
+        const BrushFace::Points& BrushFace::points() const {
+            return m_points;
+        }
+
         bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
                 if (plane.pointStatus(m_points[i]) != PointStatus::PSInside)
@@ -46,26 +50,68 @@ namespace TrenchBroom {
             return true;
         }
 
-        void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
-            m_points[0] = point0;
-            m_points[1] = point1;
-            m_points[2] = point2;
-            
-            if (!setPlanePoints(m_boundary, m_points)) {
-                GeometryException e;
-                e << "Colinear face points: (" <<
-                m_points[0].asString() << ") (" <<
-                m_points[1].asString() << ") (" <<
-                m_points[2].asString() << ")";
-                throw e;
-            }
+        const String& BrushFace::textureName() const {
+            return m_textureName;
         }
-
+        
+        const Plane3& BrushFace::boundary() const {
+            return m_boundary;
+        }
+        
+        float BrushFace::xOffset() const {
+            return m_xOffset;
+        }
+        
+        float BrushFace::yOffset() const {
+            return m_yOffset;
+        }
+        
+        float BrushFace::rotation() const {
+            return m_rotation;
+        }
+        
+        float BrushFace::xScale() const {
+            return m_xScale;
+        }
+        
+        float BrushFace::yScale() const {
+            return m_yScale;
+        }
+        
+        void BrushFace::setXOffset(const float xOffset) {
+            m_xOffset = xOffset;
+        }
+        
+        void BrushFace::setYOffset(const float yOffset) {
+            m_yOffset = yOffset;
+        }
+        
+        void BrushFace::setRotation(const float rotation) {
+            m_rotation = rotation;
+        }
+        
+        void BrushFace::setXScale(const float xScale) {
+            m_xScale = xScale;
+        }
+        
+        void BrushFace::setYScale(const float yScale) {
+            m_yScale = yScale;
+        }
+        
+        void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+            m_lineNumber = lineNumber;
+            m_lineCount = lineCount;
+        }
+        
+        void BrushFace::setSide(BrushFaceGeometry* side) {
+            m_side = side;
+        }
+        
         void BrushFace::addToMesh(Mesh& mesh) {
             assert(m_side != NULL);
             
             mesh.beginTriangleSet(m_textureName);
-
+            
             const BrushVertex::List& vertices = m_side->vertices();
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 const Renderer::VP3N3T2 v1(vertices[0]->position(),
@@ -81,6 +127,21 @@ namespace TrenchBroom {
             }
             
             mesh.endTriangleSet();
+        }
+
+        void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            m_points[0] = point0;
+            m_points[1] = point1;
+            m_points[2] = point2;
+            
+            if (!setPlanePoints(m_boundary, m_points)) {
+                GeometryException e;
+                e << "Colinear face points: (" <<
+                m_points[0].asString() << ") (" <<
+                m_points[1].asString() << ") (" <<
+                m_points[2].asString() << ")";
+                throw e;
+            }
         }
     }
 }

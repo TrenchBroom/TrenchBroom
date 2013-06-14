@@ -43,7 +43,7 @@ public:
         return origin + direction * distance;
     }
 
-    inline const PointStatus::Type pointStatus(const Vec<T,S>& point) const {
+    inline PointStatus::Type pointStatus(const Vec<T,S>& point) const {
         const T dot = direction.dot(point - origin);
         if (dot >  Math<T>::PointStatusEpsilon)
             return PointStatus::PSAbove;

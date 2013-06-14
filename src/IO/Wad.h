@@ -45,21 +45,10 @@ namespace TrenchBroom {
         public:
             WadEntry(const String& name, const char type, const size_t address, const size_t size);
             
-            inline const String& name() const {
-                return m_name;
-            }
-            
-            inline const char type() const {
-                return m_type;
-            }
-            
-            inline const size_t address() const {
-                return m_address;
-            }
-            
-            inline const size_t size() const {
-                return m_size;
-            }
+            const String& name() const;
+            char type() const;
+            size_t address() const;
+            size_t size() const;
         };
         
         typedef std::vector<WadEntry> WadEntryList;
@@ -68,13 +57,8 @@ namespace TrenchBroom {
             size_t width;
             size_t height;
             
-            MipSize(const size_t i_width, const size_t i_height) :
-            width(i_width),
-            height(i_height) {}
-            
-            inline bool operator== (const MipSize& rhs) const {
-                return width == rhs.width && height == rhs.height;
-            }
+            MipSize(const size_t i_width, const size_t i_height);
+            bool operator== (const MipSize& rhs) const;
         };
         
         class Wad {
@@ -84,10 +68,7 @@ namespace TrenchBroom {
         public:
             Wad(const Path& path);
             
-            inline const WadEntryList& allEntries() const {
-                return m_entries;
-            }
-            
+            const WadEntryList& allEntries() const;
             const WadEntryList entriesWithType(const char type) const;
             const MipSize mipSize(const WadEntry& entry) const;
         private:

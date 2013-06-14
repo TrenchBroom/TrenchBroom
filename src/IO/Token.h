@@ -55,32 +55,32 @@ namespace TrenchBroom {
                 assert(end >= begin);
             }
             
-            inline Type type() const {
+            Type type() const {
                 return m_type;
             }
             
-            inline const String data() const {
+            const String data() const {
                 return String(m_begin, length());
             }
             
-            inline size_t position() const {
+            size_t position() const {
                 return m_position;
             }
             
-            inline size_t length() const {
+            size_t length() const {
                 return static_cast<size_t>(m_end - m_begin);
             }
             
-            inline size_t line() const {
+            size_t line() const {
                 return m_line;
             }
             
-            inline size_t column() const {
+            size_t column() const {
                 return m_column;
             }
             
             template <typename T>
-            inline T toFloat() const {
+            T toFloat() const {
                 static char buffer[64];
                 assert(length() < 64);
                 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            inline T toInteger() const {
+            T toInteger() const {
                 static char buffer[64];
                 assert(length() < 64);
                 

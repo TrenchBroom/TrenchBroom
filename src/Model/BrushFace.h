@@ -69,68 +69,24 @@ namespace TrenchBroom {
         public:
             static BrushFace::Ptr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
             
-            inline const BrushFace::Points& points() const {
-                return m_points;
-            }
-            
+            const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
             
-            inline const String& textureName() const {
-                return m_textureName;
-            }
+            const String& textureName() const;
+            const Plane3& boundary() const;
+            float xOffset() const;
+            float yOffset() const;
+            float rotation() const;
+            float xScale() const;
+            float yScale() const;
             
-            inline const Plane3& boundary() const {
-                return m_boundary;
-            }
-            
-            inline const float xOffset() const {
-                return m_xOffset;
-            }
-            
-            inline const float yOffset() const {
-                return m_yOffset;
-            }
-            
-            inline const float rotation() const {
-                return m_rotation;
-            }
-            
-            inline const float xScale() const {
-                return m_xScale;
-            }
-            
-            inline const float yScale() const {
-                return m_yScale;
-            }
-            
-            inline void setXOffset(const float xOffset) {
-                m_xOffset = xOffset;
-            }
-            
-            inline void setYOffset(const float yOffset) {
-                m_yOffset = yOffset;
-            }
-            
-            inline void setRotation(const float rotation) {
-                m_rotation = rotation;
-            }
-            
-            inline void setXScale(const float xScale) {
-                m_xScale = xScale;
-            }
-            
-            inline void setYScale(const float yScale) {
-                m_yScale = yScale;
-            }
-            
-            inline void setFilePosition(const size_t lineNumber, const size_t lineCount) {
-                m_lineNumber = lineNumber;
-                m_lineCount = lineCount;
-            }
-            
-            inline void setSide(BrushFaceGeometry* side) {
-                m_side = side;
-            }
+            void setXOffset(const float xOffset);
+            void setYOffset(const float yOffset);
+            void setRotation(const float rotation);
+            void setXScale(const float xScale);
+            void setYScale(const float yScale);
+            void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            void setSide(BrushFaceGeometry* side);
             
             void addToMesh(Mesh& mesh);
         private:

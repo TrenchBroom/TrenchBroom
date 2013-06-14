@@ -46,11 +46,11 @@ namespace TrenchBroom {
                 return m_name;
             }
             
-            inline const size_t width() const {
+            inline size_t width() const {
                 return m_width;
             }
             
-            inline const size_t height() const {
+            inline size_t height() const {
                 return m_height;
             }
             

@@ -86,12 +86,12 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline const size_t blockOffset() const {
+            inline size_t blockOffset() const {
                 assert(m_block != NULL);
                 return m_block->offset();
             }
             
-            inline const size_t vertexCount() const {
+            inline size_t vertexCount() const {
                 return m_vertexCount;
             }
             

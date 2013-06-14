@@ -30,7 +30,23 @@ namespace TrenchBroom {
     namespace Model {
         const BrushFaceGeometry::List BrushFaceGeometry::EmptyList = BrushFaceGeometry::List();
 
-        const BrushFaceGeometry::Mark BrushFaceGeometry::mark() const {
+        BrushFace::Ptr BrushFaceGeometry::face() const {
+            return m_face;
+        }
+        
+        void BrushFaceGeometry::setFace(BrushFace::Ptr face) {
+            m_face = face;
+        }
+        
+        const BrushVertex::List& BrushFaceGeometry::vertices() const {
+            return m_vertices;
+        }
+        
+        const BrushEdge::List& BrushFaceGeometry::edges() const {
+            return m_edges;
+        }
+
+        BrushFaceGeometry::Mark BrushFaceGeometry::mark() const {
             size_t drop = 0;
             size_t keep = 0;
             size_t split = 0;

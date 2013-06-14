@@ -64,28 +64,28 @@ namespace TrenchBroom {
 
             virtual ~Tokenizer() {}
             
-            inline Token nextToken() {
+            Token nextToken() {
                 return !m_tokenStack.empty() ? popToken() : emitToken();
             }
             
-            inline Token peekToken() {
+            Token peekToken() {
                 Token token = nextToken();
                 pushToken(token);
                 return token;
             }
             
-            inline void pushToken(Token& token) {
+            void pushToken(Token& token) {
                 m_tokenStack.push(token);
             }
             
-            inline Token popToken() {
+            Token popToken() {
                 assert(!m_tokenStack.empty());
                 Token token = m_tokenStack.top();
                 m_tokenStack.pop();
                 return token;
             }
             
-            inline String readRemainder(unsigned int delimiterType) {
+            String readRemainder(unsigned int delimiterType) {
                 if (eof())
                     return "";
                 
@@ -101,28 +101,28 @@ namespace TrenchBroom {
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
         protected:
-            inline size_t line() const {
+            size_t line() const {
                 return m_line;
             }
             
-            inline size_t column() const {
+            size_t column() const {
                 return m_column;
             }
             
-            inline bool eof() const {
+            bool eof() const {
                 return m_cur >= m_end;
             }
             
-            inline size_t length() const {
+            size_t length() const {
                 return static_cast<size_t>(m_end - m_begin);
             }
             
-            inline size_t offset(const char* ptr) const {
+            size_t offset(const char* ptr) const {
                 assert(ptr >= m_begin);
                 return static_cast<size_t>(ptr - m_begin);
             }
             
-            inline const char* nextChar() {
+            const char* nextChar() {
                 if (eof())
                     return 0;
                 
@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 return m_cur++;
             }
             
-            inline void pushChar() {
+            void pushChar() {
                 assert(m_cur > m_begin);
                 if (*--m_cur == '\n') {
                     m_line--;
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline char peekChar(size_t offset = 0) {
+            char peekChar(size_t offset = 0) {
                 if (eof())
                     return 0;
                 
@@ -155,15 +155,15 @@ namespace TrenchBroom {
                 return *(m_cur + offset);
             }
             
-            inline bool isDigit(const char c) const {
+            bool isDigit(const char c) const {
                 return c >= '0' && c <= '9';
             }
             
-            inline bool isWhitespace(const char c) const {
+            bool isWhitespace(const char c) const {
                 return isAnyOf(c, Whitespace);
             }
             
-            inline const char* readInteger(const char* begin, const String& delims) {
+            const char* readInteger(const char* begin, const String& delims) {
                 const char* c = begin;
                 if ((*c == '-' && !eof()) || isDigit(*c)) {
                     while (!eof() && isDigit(*(c = nextChar())));
@@ -176,7 +176,7 @@ namespace TrenchBroom {
                 return begin;
             }
             
-            inline const char* readDecimal(const char* begin, const String& delims) {
+            const char* readDecimal(const char* begin, const String& delims) {
                 const char* c = begin;
                 if (((*c == '-' || *c == '.') && !eof()) || isDigit(*c)) {
                     while (!eof() && isDigit(*(c = nextChar())));
@@ -202,7 +202,7 @@ namespace TrenchBroom {
                 return begin;
             }
             
-            inline const char* readString(const char* begin, const String& delims) {
+            const char* readString(const char* begin, const String& delims) {
                 const char* c = begin;
                 while (!eof() && !isAnyOf(*(c = nextChar()), delims));
                 if (!eof())
@@ -210,38 +210,38 @@ namespace TrenchBroom {
                 return c;
             }
             
-            inline const char* readQuotedString(const char* begin) {
+            const char* readQuotedString(const char* begin) {
                 const char* c = begin;
                 while (!eof() && *(c = nextChar()) != '"');
                 errorIfEof();
                 return c;
             }
             
-            inline void discardWhile(const String& allow) {
+            void discardWhile(const String& allow) {
                 const char* c;
                 while (!eof() && isAnyOf(*(c = nextChar()), allow));
                 if (!eof())
                     pushChar();
             }
             
-            inline void discardUntil(const String& delims) {
+            void discardUntil(const String& delims) {
                 const char* c;
                 while (!eof() && !isAnyOf(*(c = nextChar()), delims));
             }
             
-            inline void reset() {
+            void reset() {
                 m_line = 1;
                 m_column = 1;
                 m_cur = m_begin;
             }
             
-            inline void error(const char c) const {
+            void error(const char c) const {
                 ParserException e;
                 e << "Unexpected character '" << c << "'";
                 throw e;
             }
             
-            inline void errorIfEof() const {
+            void errorIfEof() const {
                 if (eof()) {
                     ParserException e;
                     e << "Unexpected end of file";
@@ -249,7 +249,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-           inline bool isAnyOf(const char c, const String& allow) const {
+           bool isAnyOf(const char c, const String& allow) const {
                for (size_t i = 0; i < allow.size(); i++)
                    if (c == allow[i])
                        return true;

@@ -33,6 +33,39 @@
 
 namespace TrenchBroom {
     namespace IO {
+        MappedFile::MappedFile() :
+        m_begin(NULL),
+        m_end(NULL),
+        m_size(0) {
+        }
+        
+        MappedFile::~MappedFile() {
+            m_begin = NULL;
+            m_end = NULL;
+            m_size = 0;
+        };
+
+        size_t MappedFile::size() const {
+            return m_size;
+        }
+        
+        const char* MappedFile::begin() const {
+            return m_begin;
+        }
+        
+        const char* MappedFile::end() const {
+            return m_end;
+        }
+
+        void MappedFile::init(char* begin, char* end) {
+            assert(m_begin == NULL && m_end == NULL);
+            if (end < begin)
+                throw new FileSystemException("End of mapped file is before begin");
+            m_begin = begin;
+            m_end = end;
+            m_size = static_cast<size_t>(m_end - m_begin);
+        }
+
 #ifdef _WIN32
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
         m_fileHandle(INVALID_HANDLE_VALUE),

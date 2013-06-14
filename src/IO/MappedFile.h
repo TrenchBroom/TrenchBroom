@@ -41,38 +41,14 @@ namespace TrenchBroom {
             char* m_end;
             size_t m_size;
         public:
-            MappedFile() :
-            m_begin(NULL),
-            m_end(NULL),
-            m_size(0) {
-            }
+            MappedFile();
+            virtual ~MappedFile();
             
-            virtual ~MappedFile() {
-                m_begin = NULL;
-                m_end = NULL;
-                m_size = 0;
-            };
-            
-            inline size_t size() const {
-                return m_size;
-            }
-            
-            inline const char* begin() const {
-                return m_begin;
-            }
-            
-            inline const char* end() const {
-                return m_end;
-            }
+            size_t size() const;
+            const char* begin() const;
+            const char* end() const;
         protected:
-            void init(char* begin, char* end) {
-                assert(m_begin == NULL && m_end == NULL);
-                if (end < begin)
-                    throw new FileSystemException("End of mapped file is before begin");
-                m_begin = begin;
-                m_end = end;
-                m_size = static_cast<size_t>(m_end - m_begin);
-            }
+            void init(char* begin, char* end);
         };
 
 #ifdef _WIN32

@@ -46,23 +46,12 @@ namespace TrenchBroom {
             BrushEdge::List m_edges;
             BrushFace::Ptr m_face;
         public:
-            inline BrushFace::Ptr face() const {
-                return m_face;
-            }
+            BrushFace::Ptr face() const;
+            void setFace(BrushFace::Ptr face);
+            const BrushVertex::List& vertices() const;
+            const BrushEdge::List& edges() const;
             
-            inline void setFace(BrushFace::Ptr face) {
-                m_face = face;
-            }
-            
-            inline const BrushVertex::List& vertices() const {
-                return m_vertices;
-            }
-            
-            inline const BrushEdge::List& edges() const {
-                return m_edges;
-            }
-            
-            const Mark mark() const;
+            Mark mark() const;
             BrushEdge* splitUsingEdgeMarks();
             BrushEdge* findUndecidedEdge() const;
             

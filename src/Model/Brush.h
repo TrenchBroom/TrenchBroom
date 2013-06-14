@@ -43,15 +43,12 @@ namespace TrenchBroom {
             Brush(const BBox3& worldBounds, const BrushFace::List& faces);
         public:
             static Brush::Ptr newBrush(const BBox3& worldBounds, const BrushFace::List& faces);
-            
             ~Brush();
             
-            inline const BrushFace::List& faces() const {
-                return m_faces;
-            }
+            const BrushFace::List& faces() const;
 
             template <class BrushFaceOp>
-            inline void eachBrushFace(BrushFaceOp& faceOp) {
+            void eachBrushFace(BrushFaceOp& faceOp) {
                 BrushFace::List::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                     BrushFace::Ptr face = *it;

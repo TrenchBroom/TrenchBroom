@@ -42,6 +42,10 @@ namespace TrenchBroom {
             m_geometry = NULL;
         }
 
+        const BrushFace::List& Brush::faces() const {
+            return m_faces;
+        }
+
         void Brush::rebuildGeometry(const BBox3& worldBounds) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds, m_faces);

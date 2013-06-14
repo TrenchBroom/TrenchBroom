@@ -40,8 +40,8 @@ namespace TrenchBroom {
         public:
             Path(const String& path);
             
-            const Path operator+ (const Path& rhs) const;
-            const bool operator== (const Path& rhs) const;
+            Path operator+ (const Path& rhs) const;
+            bool operator== (const Path& rhs) const;
             
             String asString() const;
             operator String() const;

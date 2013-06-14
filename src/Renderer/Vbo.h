@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Vbo(const size_t initialCapacity, const GLenum type, const GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
-            inline const VboState::Type state() const {
+            inline VboState::Type state() const {
                 return m_state;
             }
             

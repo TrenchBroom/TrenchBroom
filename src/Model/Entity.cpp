@@ -37,7 +37,7 @@ namespace TrenchBroom {
             return m_properties.properties();
         }
         
-        const bool Entity::hasProperty(const PropertyKey& key) const {
+        bool Entity::hasProperty(const PropertyKey& key) const {
             return m_properties.hasProperty(key);
         }
 

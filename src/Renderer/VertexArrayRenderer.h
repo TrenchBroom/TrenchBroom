@@ -74,7 +74,7 @@ namespace TrenchBroom {
             static const VertexSpec P3N3T2();
             
             const AttributeSpec& operator[] (const size_t index) const;
-            const size_t size() const;
+            size_t size() const;
             
             void setup(const size_t baseOffset) const;
             void cleanup() const;

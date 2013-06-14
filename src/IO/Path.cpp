@@ -46,7 +46,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        const Path Path::operator+ (const Path& rhs) const {
+        Path Path::operator+ (const Path& rhs) const {
             if (rhs.isAbsolute())
                 throw PathException("Cannot concatenate absolute path");
             StringList components = m_components;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return Path(m_absolute, components);
         }
 
-        const bool Path::operator== (const Path& rhs) const {
+        bool Path::operator== (const Path& rhs) const {
             return (m_absolute == rhs.m_absolute &&
                     m_components.size() == rhs.m_components.size() &&
                     std::equal(m_components.begin(), m_components.end(), rhs.m_components.begin()));

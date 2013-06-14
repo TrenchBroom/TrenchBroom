@@ -55,41 +55,15 @@ namespace TrenchBroom {
             BrushEdge(BrushVertex* start, BrushVertex* end);
             ~BrushEdge();
             
-            inline const BrushVertex* start() const {
-                return m_start;
-            }
-            
-            inline BrushVertex* start() {
-                return m_start;
-            }
-
-            inline const BrushVertex* end() const {
-                return m_end;
-            }
-            
-            inline BrushVertex* end() {
-                return m_end;
-            }
-            
-            inline const BrushFaceGeometry* left() const {
-                return m_left;
-            }
-            
-            inline BrushFaceGeometry* left() {
-                return m_left;
-            }
-            
-            inline const BrushFaceGeometry* right() const {
-                return m_right;
-            }
-
-            inline BrushFaceGeometry* right() {
-                return m_right;
-            }
-            
-            inline const Mark mark() const {
-                return m_mark;
-            }
+            const BrushVertex* start() const;
+            BrushVertex* start();
+            const BrushVertex* end() const;
+            BrushVertex* end();
+            const BrushFaceGeometry* left() const;
+            BrushFaceGeometry* left();
+            const BrushFaceGeometry* right() const;
+            BrushFaceGeometry* right();
+            Mark mark() const;
             
             void updateMark();
             BrushVertex* split(const Plane3& plane);

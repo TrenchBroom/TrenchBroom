@@ -48,12 +48,40 @@ namespace TrenchBroom {
         m_address(address),
         m_size(size) {}
 
+        const String& WadEntry::name() const {
+            return m_name;
+        }
+        
+        char WadEntry::type() const {
+            return m_type;
+        }
+        
+        size_t WadEntry::address() const {
+            return m_address;
+        }
+        
+        size_t WadEntry::size() const {
+            return m_size;
+        }
+
+        MipSize::MipSize(const size_t i_width, const size_t i_height) :
+        width(i_width),
+        height(i_height) {}
+        
+        bool MipSize::operator== (const MipSize& rhs) const {
+            return width == rhs.width && height == rhs.height;
+        }
+
         Wad::Wad(const Path& path) {
             FileSystem fs;
             m_file = fs.mapFile(path, std::ios_base::in);
             if (m_file == NULL)
                 throw WadException("Cannot open wad file " + path.asString());
             loadEntries();
+        }
+
+        const WadEntryList& Wad::allEntries() const {
+            return m_entries;
         }
 
         const WadEntryList Wad::entriesWithType(const char type) const {
