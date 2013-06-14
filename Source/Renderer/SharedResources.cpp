@@ -162,16 +162,6 @@ namespace TrenchBroom {
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs, wxDefaultPosition, GetClientSize());
             m_sharedContext = new wxGLContext(m_glCanvas);
             
-            /*
-             GLXFBConfig *fbc = m_glCanvas->GetGLXFBConfig();
-             assert(fbc != NULL);
-             
-             GLXContext glxContext = glXCreateNewContext( wxGetX11Display(), fbc[0], GLX_RGBA_TYPE,
-             NULL,
-             GL_TRUE );
-             assert(glxContext != NULL);
-             */
-            
             m_sharedContext->SetCurrent(*m_glCanvas);
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));

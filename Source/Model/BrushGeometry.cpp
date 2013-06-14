@@ -1465,7 +1465,7 @@ namespace TrenchBroom {
                 try {
                     sides[i]->face->updatePointsFromVertices();
                     sides[i]->face->updatePointsFromBoundary();
-                } catch (GeometryException& e) {
+                } catch (GeometryException&) {
                     // This method must ONLY be called at the end of a vertex operation, just before
                     // the geometry is rebuilt anyway
                     faceManager.dropFace(sides[i]);

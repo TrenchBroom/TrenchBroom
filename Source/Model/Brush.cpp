@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 m_faces.push_back(&face);
                 rebuildGeometry();
                 return !m_faces.empty() && closed();
-            } catch (GeometryException& e) {
+            } catch (GeometryException&) {
                 return false;
             }
         }

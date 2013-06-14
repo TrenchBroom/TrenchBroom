@@ -255,7 +255,7 @@ namespace TrenchBroom {
                             if (!brush->closed())
                                 m_console.warn("Non-closed brush at line %i", firstLine);
                             return brush;
-                        } catch (Model::GeometryException& e) {
+                        } catch (Model::GeometryException&) {
                             m_console.warn("Invalid brush at line %i", firstLine);
                             Utility::deleteAll(faces);
                             return NULL;
@@ -354,7 +354,7 @@ namespace TrenchBroom {
                 while ((entity = parseEntity(worldBounds, forceIntegerFacePoints ? Integer : Float, NULL)) != NULL)
                     entities.push_back(entity);
                 return !entities.empty();
-            } catch (MapParserException& e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(entities, oldSize);
                 m_tokenizer.reset();
                 return false;
@@ -368,7 +368,7 @@ namespace TrenchBroom {
                 while ((brush = parseBrush(worldBounds, forceIntegerFacePoints, NULL)) != NULL)
                     brushes.push_back(brush);
                 return !brushes.empty();
-            } catch (MapParserException& e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(brushes, oldSize);
                 m_tokenizer.reset();
                 return false;
@@ -382,7 +382,7 @@ namespace TrenchBroom {
                 while ((face = parseFace(worldBounds, forceIntegerFacePoints)) != NULL)
                     faces.push_back(face);
                 return !faces.empty();
-            } catch (MapParserException& e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(faces, oldSize);
                 m_tokenizer.reset();
                 return false;

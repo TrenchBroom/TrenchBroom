@@ -31,7 +31,7 @@ namespace TrenchBroom {
             IO::Mip* mip = NULL;
             try {
                 mip = m_wad.loadMip(texture.name(), 1);
-            } catch (IO::IOException& e) {
+            } catch (IO::IOException&) {
                  delete mip;
                 return NULL;
             }

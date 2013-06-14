@@ -6,18 +6,15 @@ Build environment
   http://sourceforge.net/projects/wxwindows/files/2.9.4/binaries/
 
   - For 32bit builds, you need the following files:
-    - wxMSW-2.9.4_Headers.7z
+    - wxWidgets-2.9.4_Headers.7z
     - wxMSW-2.9.4-vc100_Dev.7z
     - wxMSW-2.9.4_vc100_ReleaseDLL.7z
     - wxMSW-2.9.4_vc100_ReleasePDB.7z
-  - For (experimental) 64bit builds, you need the following files:
-    - wxMSW-2.9.4_Headers.7z
-    - wxMSW-2.9.4-vc100_x64_Dev.7z
-    - wxMSW-2.9.4_vc100_x64_ReleaseDLL.7z
-    - wxMSW-2.9.4_vc100_x64_ReleasePDB.7z
 
 - Unpack all files into the same directory so that "include" and "lib" directories are at the same level after unpacking.
-- Finally, set up an environment variable named "WXWIN" pointing to the directory that contains the aforementioned directories.
+- Rename the directory lib/vc100_dll to lib/vc_dll
+- Set up an environment variable named "WXWIN" pointing to the directory that contains the aforementioned directories.
+- Add C:\wxWidgets-2.9.4\lib\vc_dll to the "PATH" environment variable.
 
 3. Build
 Open the Visual Studio solution at Windows/TrenchBroom.sln and compile / run it!
