@@ -23,6 +23,7 @@
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/Command.h"
 #include "Controller/RemoveObjectsCommand.h"
+#include "Controller/ReparentBrushesCommand.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
@@ -81,6 +82,8 @@ namespace TrenchBroom {
             m_frontBrushes.clear();
             m_backBrushes.clear();
             
+            Model::BrushList allFrontBrushes, allBackBrushes;
+            
             Vec3f planePoints[3];
             bool validPlane = false;
             if (m_numPoints > 0) {
@@ -125,6 +128,7 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                     Model::Brush& brush = **brushIt;
+                    Model::Entity* entity = brush.entity();
                     Model::Face* frontFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[1], planePoints[2], textureName);
                     Model::Face* backFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[2], planePoints[1], textureName);
                     
@@ -154,25 +158,27 @@ namespace TrenchBroom {
                     backFace->setAttributes(*bestBackFace);
                     
                     Model::Brush* frontBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
-                    if (frontBrush->clip(*frontFace))
-                        m_frontBrushes.push_back(frontBrush);
-                    else
+                    if (frontBrush->clip(*frontFace)) {
+                        m_frontBrushes[entity].push_back(frontBrush);
+                        allFrontBrushes.push_back(frontBrush);
+                    } else {
                         delete frontBrush;
+                    }
                     
                     Model::Brush* backBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
-                    if (backBrush->clip(*backFace))
-                        m_backBrushes.push_back(backBrush);
-                    else
+                    if (backBrush->clip(*backFace)) {
+                        m_backBrushes[entity].push_back(backBrush);
+                        allBackBrushes.push_back(backBrush);
+                    } else {
                         delete backBrush;
+                    }
                 }
-                m_frontBrushFigure->setBrushes(m_frontBrushes);
-                m_backBrushFigure->setBrushes(m_backBrushes);
             } else {
-                m_frontBrushes = brushes;
+                m_frontBrushes = entityBrushes(brushes);
             }
 
-            m_frontBrushFigure->setBrushes(m_frontBrushes);
-            m_backBrushFigure->setBrushes(m_backBrushes);
+            m_frontBrushFigure->setBrushes(allFrontBrushes);
+            m_backBrushFigure->setBrushes(allBackBrushes);
         }
         
         Vec3f::List ClipTool::getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const {
@@ -567,7 +573,7 @@ namespace TrenchBroom {
             assert(active());
             assert(m_numPoints > 0);
 
-            Model::BrushList addBrushes;
+            Model::EntityBrushesMap addBrushes;
             switch (m_clipSide) {
                 case CMFront:
                     addBrushes = m_frontBrushes;
@@ -575,33 +581,32 @@ namespace TrenchBroom {
                 case CMBack:
                     addBrushes = m_backBrushes;
                     break;
-                default: {
-                    addBrushes.insert(addBrushes.end(), m_frontBrushes.begin(), m_frontBrushes.end());
-                    addBrushes.insert(addBrushes.end(), m_backBrushes.begin(), m_backBrushes.end());
+                default:
+                    addBrushes = mergeEntityBrushes(m_frontBrushes, m_backBrushes);
                     break;
-                }
             }
             
             const Model::BrushList& removeBrushes = document().editStateManager().selectedBrushes();
 
-            ChangeEditStateCommand* deselectCommand = ChangeEditStateCommand::deselectAll(document());
-            AddObjectsCommand* addCommand = NULL;
-            ChangeEditStateCommand* selectCommand = NULL;
-            RemoveObjectsCommand* removeCommand = RemoveObjectsCommand::removeObjects(document(), Model::EmptyEntityList, removeBrushes);
-            
-            if (!addBrushes.empty()) {
-                selectCommand = ChangeEditStateCommand::select(document(), addBrushes);
-                addCommand = AddObjectsCommand::addBrushes(document(), addBrushes);
-            }
-            
-
             beginCommandGroup(wxT("Clip"));
-            submitCommand(deselectCommand);
+            submitCommand(ChangeEditStateCommand::deselectAll(document()));
+
             if (!addBrushes.empty()) {
-                submitCommand(addCommand);
-                submitCommand(selectCommand);
+                Model::BrushList allBrushes;
+                Model::EntityBrushesMap::const_iterator it, end;
+                for (it = addBrushes.begin(), end = addBrushes.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    
+                    const Model::BrushList& entityBrushes = it->second;
+                    allBrushes.insert(allBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                    
+                    submitCommand(AddObjectsCommand::addBrushes(document(), entityBrushes));
+                    if (!entity->worldspawn())
+                        submitCommand(ReparentBrushesCommand::reparent(document(), entityBrushes, *entity));
+                }
             }
-            submitCommand(removeCommand);
+
+            submitCommand(RemoveObjectsCommand::removeBrushes(document(), removeBrushes));
             endCommandGroup();
             
             m_numPoints = 0;

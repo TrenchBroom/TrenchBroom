@@ -104,8 +104,8 @@ namespace TrenchBroom {
             bool m_directHit;
             
             ClipSide m_clipSide;
-            Model::BrushList m_frontBrushes;
-            Model::BrushList m_backBrushes;
+            Model::EntityBrushesMap m_frontBrushes;
+            Model::EntityBrushesMap m_backBrushes;
             Renderer::BrushFigure* m_frontBrushFigure;
             Renderer::BrushFigure* m_backBrushFigure;
             

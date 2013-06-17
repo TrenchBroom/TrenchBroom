@@ -118,6 +118,10 @@ namespace TrenchBroom {
             return new RemoveObjectsCommand(RemoveObjects, document, makeObjectActionName(wxT("Remove"), entities, brushes), entities, brushes);
         }
 
+        RemoveObjectsCommand* RemoveObjectsCommand::removeBrushes(Model::MapDocument& document, const Model::BrushList& brushes) {
+            return removeObjects(document, Model::EmptyEntityList, brushes);
+        }
+
         RemoveObjectsCommand* RemoveObjectsCommand::removeBrush(Model::MapDocument& document, Model::Brush& brush) {
             Model::BrushList brushList;
             brushList.push_back(&brush);

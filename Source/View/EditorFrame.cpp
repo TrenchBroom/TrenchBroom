@@ -38,6 +38,7 @@
 
 #include <wx/colour.h>
 #include <wx/config.h>
+#include <wx/display.h>
 #include <wx/docview.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
@@ -170,7 +171,10 @@ namespace TrenchBroom {
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
-            SetSize(1024, 768);
+            
+            const wxDisplay display;
+            const wxRect displaySize = display.GetClientArea();
+            SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
             EditorFrame* topWindow = wxDynamicCast(wxTheApp->GetTopWindow(), EditorFrame);
             if (topWindow != NULL) {
                 wxPoint position = topWindow->GetPosition();

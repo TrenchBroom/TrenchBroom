@@ -164,6 +164,29 @@ namespace TrenchBroom {
             bool intersectsEntity(const Entity& entity) const;
             bool containsEntity(const Entity& entity) const;
         };
+        
+        inline static EntityBrushesMap entityBrushes(const BrushList& brushes) {
+            EntityBrushesMap entityBrushesMap;
+            BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                Model::Entity* entity = brush->entity();
+                entityBrushesMap[entity].push_back(brush);
+            }
+            return entityBrushesMap;
+        }
+        
+        inline static EntityBrushesMap mergeEntityBrushes(const EntityBrushesMap& left, const EntityBrushesMap& right) {
+            EntityBrushesMap result = left;
+            EntityBrushesMap::const_iterator it, end;
+            for (it = right.begin(), end = right.end(); it != end; ++it) {
+                Entity* entity = it->first;
+                const BrushList& brushes = it->second;
+                BrushList& resultBrushes = result[entity];
+                resultBrushes.insert(resultBrushes.end(), brushes.begin(), brushes.end());
+            }
+            return result;
+        }
     }
 }
 
