@@ -174,7 +174,8 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                m_frontBrushes = entityBrushes(brushes);
+                allFrontBrushes = brushes;
+                m_frontBrushes = entityBrushes(allFrontBrushes);
             }
 
             m_frontBrushFigure->setBrushes(allFrontBrushes);
@@ -586,7 +587,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            const Model::BrushList& removeBrushes = document().editStateManager().selectedBrushes();
+            const Model::BrushList removeBrushes = document().editStateManager().selectedBrushes();
 
             beginCommandGroup(wxT("Clip"));
             submitCommand(ChangeEditStateCommand::deselectAll(document()));
