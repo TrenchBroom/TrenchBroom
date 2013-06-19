@@ -47,6 +47,8 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHOICE(CommandIds::ViewInspector::FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
@@ -69,6 +71,8 @@ namespace TrenchBroom {
             m_toggleClipBrushes->SetValue(viewOptions.showClipBrushes());
             m_toggleSkipBrushes->SetValue(viewOptions.showSkipBrushes());
             m_toggleHintBrushes->SetValue(viewOptions.showHintBrushes());
+            m_toggleLiquidBrushes->SetValue(viewOptions.showLiquidBrushes());
+            m_toggleTriggerBrushes->SetValue(viewOptions.showTriggerBrushes());
 
             m_toggleEntityModels->Enable(viewOptions.showEntities());
             m_toggleEntityBounds->Enable(viewOptions.showEntities());
@@ -76,6 +80,8 @@ namespace TrenchBroom {
             m_toggleClipBrushes->Enable(viewOptions.showBrushes());
             m_toggleSkipBrushes->Enable(viewOptions.showBrushes());
             m_toggleHintBrushes->Enable(viewOptions.showBrushes());
+            m_toggleLiquidBrushes->Enable(viewOptions.showBrushes());
+            m_toggleTriggerBrushes->Enable(viewOptions.showBrushes());
 
             m_faceRenderModeChoice->SetSelection(viewOptions.faceRenderMode());
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
@@ -96,6 +102,8 @@ namespace TrenchBroom {
             m_toggleClipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
             m_toggleSkipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
             m_toggleHintBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, wxT("Hint brushes"));
+            m_toggleLiquidBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId, wxT("Liquid brushes"));
+            m_toggleTriggerBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId, wxT("Trigger brushes"));
             
             wxGridBagSizer* filterPanelSizer = new wxGridBagSizer(LayoutConstants::CheckBoxVerticalMargin, LayoutConstants::ControlHorizontalMargin);
             filterPanelSizer->Add(m_toggleEntities, wxGBPosition(0, 0));
@@ -107,6 +115,8 @@ namespace TrenchBroom {
             filterPanelSizer->Add(m_toggleClipBrushes, wxGBPosition(1, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->Add(m_toggleSkipBrushes, wxGBPosition(2, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->Add(m_toggleHintBrushes, wxGBPosition(3, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleLiquidBrushes, wxGBPosition(4, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleTriggerBrushes, wxGBPosition(5, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->AddGrowableCol(1);
             
             // layout of the contained controls
@@ -208,6 +218,12 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::ViewInspector::ShowHintBrushesCheckBoxId:
                     editorView.viewOptions().setShowHintBrushes(event.GetInt() != 0);
+                    break;
+                case CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId:
+                    editorView.viewOptions().setShowLiquidBrushes(event.GetInt() != 0);
+                    break;
+                case CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId:
+                    editorView.viewOptions().setShowTriggerBrushes(event.GetInt() != 0);
                     break;
             }
             

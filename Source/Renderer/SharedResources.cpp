@@ -148,7 +148,7 @@ namespace TrenchBroom {
                     for (size_t i = 0; i < count; i++)
                         m_attribs[i] = attribs[index + i];
                     m_attribs[count] = 0;
-                    m_depthbits = m_attribs[2];
+                    m_depthbits = m_attribs[3];
                     if (m_attribs[4] > 0) {
                         m_multisample = true;
                         m_samples = m_attribs[7];

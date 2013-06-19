@@ -39,6 +39,7 @@ namespace TrenchBroom {
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
             bool m_definitionChanged;
+            bool m_force;
             
             inline const Model::PropertyKey& key() const {
                 assert(m_keys.size() == 1);
@@ -77,8 +78,13 @@ namespace TrenchBroom {
                 m_newValue = newValue;
             }
             
+            inline void setForce(const bool force) {
+                m_force = force;
+            }
+            
             bool performDo();
             bool affectsImmutableProperty() const;
+            bool affectsImmutableKey() const;
             bool canSetKey() const;
             bool anyEntityHasProperty(const Model::PropertyKey& key) const;
             void setKey();
@@ -90,11 +96,11 @@ namespace TrenchBroom {
 
             EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
         public:
-            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
-            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
-            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
-            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key);
-            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys);
+            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
+            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys, const bool force = false);
             
             inline bool hasDefinitionChanged() const {
                 return m_definitionChanged;

@@ -412,7 +412,7 @@ namespace TrenchBroom {
 #else
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditNavigateUp, WXK_ESCAPE, KeyboardShortcut::SCAny, "Navigate Up"));
 #endif
-            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditShowMapProperties, KeyboardShortcut::SCAny, "Map Properties"));
+            editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditShowMapProperties, KeyboardShortcut::SCAny, "Map Properties..."));
 
             Menu* viewMenu = new Menu("View");
             menus[ViewMenu] = Menu::Ptr(viewMenu);

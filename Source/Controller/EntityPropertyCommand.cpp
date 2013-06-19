@@ -27,10 +27,11 @@
 namespace TrenchBroom {
     namespace Controller {
         bool EntityPropertyCommand::performDo() {
-            if (affectsImmutableProperty())
+            if (!m_force && affectsImmutableProperty())
                 return false;
-            if (type() == SetEntityPropertyKey && !canSetKey())
-                return false;
+            if (type() == SetEntityPropertyKey)
+                if (!canSetKey() || (!m_force && affectsImmutableKey()))
+                    return false;
             
             makeSnapshots(m_entities);
             document().entitiesWillChange(m_entities);
@@ -64,10 +65,13 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool EntityPropertyCommand::affectsImmutableKey() const {
+            return (Model::Entity::propertyKeyIsMutable(m_newKey) &&
+                    Model::Entity::propertyKeyIsMutable(key()));
+        }
+
         bool EntityPropertyCommand::canSetKey() const {
             return (key() != m_newKey &&
-                    Model::Entity::propertyKeyIsMutable(m_newKey) &&
-                    Model::Entity::propertyKeyIsMutable(key()) &&
                     !anyEntityHasProperty(m_newKey));
         }
 
@@ -138,40 +142,46 @@ namespace TrenchBroom {
         EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name) :
         SnapshotCommand(type, document, name),
         m_entities(entities),
-        m_definitionChanged(false) {}
+        m_definitionChanged(false),
+        m_force(false) {}
 
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, entities, wxT("Set Property Key"));
             command->setKey(oldKey);
             command->setNewKey(newKey);
+            command->setForce(force);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
             command->setKey(key);
             command->setNewValue(newValue);
+            command->setForce(force);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
             Model::EntityList entities;
             entities.push_back(&entity);
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
             command->setKey(key);
             command->setNewValue(newValue);
+            command->setForce(force);
             return command;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key) {
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Property"));
             command->setKey(key);
+            command->setForce(force);
             return command;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys) {
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Properties"));
             command->setKeys(keys);
+            command->setForce(force);
             return command;
         }
     }

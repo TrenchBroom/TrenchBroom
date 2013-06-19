@@ -153,6 +153,8 @@ namespace TrenchBroom {
                 static const int FogCheckBoxId                      = Lowest +  11;
                 static const int LinkDisplayModeChoiceId            = Lowest +  12;
                 static const int ShowHintBrushesCheckBoxId          = Lowest +  13;
+                static const int ShowLiquidBrushesCheckBoxId        = Lowest +  14;
+                static const int ShowTriggerBrushesCheckBoxId       = Lowest +  15;
                 static const int Highest                            = Lowest +  99;
             }
             

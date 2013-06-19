@@ -122,11 +122,23 @@ namespace TrenchBroom {
                     return false;
 
                 const String& pattern = m_viewOptions.filterPattern();
-                if (!pattern.empty() || !m_viewOptions.showClipBrushes() || !m_viewOptions.showSkipBrushes()) {
+                if (!pattern.empty() ||
+                    !m_viewOptions.showClipBrushes() || !m_viewOptions.showSkipBrushes() ||
+                    !m_viewOptions.showHintBrushes() || !m_viewOptions.showLiquidBrushes() ||
+                    !m_viewOptions.showTriggerBrushes()) {
+                    
+                    if (!m_viewOptions.showTriggerBrushes()) {
+                        Model::Entity* entity = brush.entity();
+                        if (entity != NULL && Utility::startsWith(entity->safeClassname(), "trigger_"))
+                            return false;
+                    }
+                    
                     const Model::FaceList& faces = brush.faces();
                     unsigned int clipCount = 0;
                     unsigned int skipCount = 0;
                     unsigned int hintCount = 0;
+                    unsigned int liquidCount = 0;
+                    unsigned int triggerCount = 0;
                     bool matches = pattern.empty();
                     for (unsigned int i = 0; i < faces.size(); i++) {
                         const String& textureName = faces[i]->textureName();
@@ -136,6 +148,10 @@ namespace TrenchBroom {
                             skipCount++;
                         if (!m_viewOptions.showHintBrushes() && Utility::containsString(textureName, "hint", false))
                             hintCount++;
+                        if (!m_viewOptions.showLiquidBrushes() && textureName[0] == '*')
+                            liquidCount++;
+                        if (!m_viewOptions.showTriggerBrushes() && Utility::containsString(textureName, "trigger", false))
+                            triggerCount++;
                         if (!matches)
                             matches = Utility::containsString(textureName, pattern, false);
                     }
@@ -145,6 +161,10 @@ namespace TrenchBroom {
                     if (!m_viewOptions.showSkipBrushes() && skipCount == faces.size())
                         return false;
                     if (!m_viewOptions.showHintBrushes() && hintCount == faces.size())
+                        return false;
+                    if (!m_viewOptions.showLiquidBrushes() && liquidCount == faces.size())
+                        return false;
+                    if (!m_viewOptions.showTriggerBrushes() && triggerCount == faces.size())
                         return false;
 
                     return matches;

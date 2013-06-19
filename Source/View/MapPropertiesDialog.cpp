@@ -243,7 +243,7 @@ namespace TrenchBroom {
         }
 
         void MapPropertiesDialog::updateWadProperty() {
-            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::WadKey, m_wadList->wadString());
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::WadKey, m_wadList->wadString(), true);
             m_document->GetCommandProcessor()->Submit(command);
         }
 
@@ -410,7 +410,7 @@ namespace TrenchBroom {
             if (index < static_cast<int>(builtinDefs.size())) {
                 const String defPath = "builtin:" + builtinDefs[static_cast<size_t>(index)];
 
-                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath);
+                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath, true);
                 m_document->GetCommandProcessor()->Submit(command);
             } else if (index == static_cast<int>(builtinDefs.size())) {
                 wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("DEF files (*.def)|*.def|FGD files (*.fgd)|*.fgd"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
@@ -418,7 +418,7 @@ namespace TrenchBroom {
                     PathDialog pathDialog(this, openDefinitionDialog.GetPath().ToStdString(), m_document->GetFilename().ToStdString());
                     if (pathDialog.ShowModal() == wxID_OK) {
                         const String defPath = "external:" + pathDialog.path();
-                        Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath);
+                        Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::DefKey, defPath, true);
                         m_document->GetCommandProcessor()->Submit(command);
                         init();
                     }
@@ -434,7 +434,7 @@ namespace TrenchBroom {
                 return;
 
             const String mod = m_modChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
-            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::ModKey, mod);
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(*m_document, m_document->worldspawn(), Model::Entity::ModKey, mod, true);
             m_document->GetCommandProcessor()->Submit(command);
             init();
         }
