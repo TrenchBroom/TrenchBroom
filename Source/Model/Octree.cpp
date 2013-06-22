@@ -144,13 +144,22 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool OctreeNode::empty() {
+        bool OctreeNode::empty() const {
             if (!m_objects.empty())
                 return false;
             for (unsigned int i = 0; i < 8; i++)
                 if (m_children[i] != NULL)
                     return false;
             return true;
+        }
+
+        size_t OctreeNode::count() const {
+            size_t count = m_objects.size();
+            for (size_t i = 0; i < 8; i++) {
+                if (m_children[i] != NULL)
+                    count += m_children[i]->count();
+            }
+            return count;
         }
 
         void OctreeNode::intersect(const Rayf& ray, MapObjectList& objects) {
@@ -218,6 +227,10 @@ namespace TrenchBroom {
             }
         }
         
+        size_t Octree::count() const {
+            return m_root->count();
+        }
+
         MapObjectList Octree::intersect(const Rayf& ray) {
             MapObjectList result;
             m_root->intersect(ray, result);

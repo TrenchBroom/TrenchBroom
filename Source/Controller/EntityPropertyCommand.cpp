@@ -36,6 +36,7 @@ namespace TrenchBroom {
             makeSnapshots(m_entities);
             document().entitiesWillChange(m_entities);
             switch (type()) {
+                case Command::SetEntityPropertyKey:
                     setKey();
                     break;
                 case SetEntityPropertyValue:
@@ -66,8 +67,8 @@ namespace TrenchBroom {
         }
 
         bool EntityPropertyCommand::affectsImmutableKey() const {
-            return (Model::Entity::propertyKeyIsMutable(m_newKey) &&
-                    Model::Entity::propertyKeyIsMutable(key()));
+            return (!Model::Entity::propertyKeyIsMutable(m_newKey) ||
+                    !Model::Entity::propertyKeyIsMutable(key()));
         }
 
         bool EntityPropertyCommand::canSetKey() const {

@@ -335,8 +335,8 @@
 	]
 ]
 
-//@SolidClass = func_group : "Group of brushes for in-editor use" []
-//@SolidClass = func_detail : "Group of brushes for certain compilers " []
+@SolidClass = func_group : "Group of brushes for in-editor use" []
+@SolidClass = func_detail : "Group of brushes for certain compilers " []
 
 // 
 // ambient sounds

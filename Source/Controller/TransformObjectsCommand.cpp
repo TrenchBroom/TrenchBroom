@@ -29,41 +29,47 @@
 namespace TrenchBroom {
     namespace Controller {
         bool TransformObjectsCommand::performDo() {
-            makeSnapshots(m_entities);
-            makeSnapshots(m_brushes);
+            if (!m_entities.empty()) {
+                makeSnapshots(m_entities);
+                document().entitiesWillChange(m_entities);
 
-            document().entitiesWillChange(m_entities);
-            document().brushesWillChange(m_brushes);
-
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                entity.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
+                    entity.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
+                }
+                document().entitiesDidChange(m_entities);
             }
-
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                brush.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
+            
+            if (!m_brushes.empty()) {
+                makeSnapshots(m_brushes);
+                document().brushesWillChange(m_brushes);
+                
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush& brush = **brushIt;
+                    brush.transform(m_pointTransform, m_vectorTransform, m_lockTextures, m_invertOrientation);
+                }
+                document().brushesDidChange(m_brushes);
             }
-
-            document().entitiesDidChange(m_entities);
-            document().brushesDidChange(m_brushes);
-
+            
             return true;
         }
 
         bool TransformObjectsCommand::performUndo() {
-            document().entitiesWillChange(m_entities);
-            document().brushesWillChange(m_brushes);
+            if (!m_entities.empty()) {
+                document().entitiesWillChange(m_entities);
+                restoreSnapshots(m_entities);
+                document().entitiesDidChange(m_entities);
+            }
+            
+            if (!m_brushes.empty()) {
+                document().brushesWillChange(m_brushes);
+                restoreSnapshots(m_brushes);
+                document().brushesDidChange(m_brushes);
+            }
 
-            restoreSnapshots(m_brushes);
-            restoreSnapshots(m_entities);
             clear();
-
-            document().entitiesDidChange(m_entities);
-            document().brushesDidChange(m_brushes);
-
             return true;
         }
 

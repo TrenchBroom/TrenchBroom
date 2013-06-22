@@ -364,6 +364,25 @@ namespace TrenchBroom {
             }
         }
 
+        void MapDocument::removeBrush(Brush& brush) {
+            m_octree->removeObject(brush);
+            Entity* entity = brush.entity();
+            if (entity != NULL) {
+                if (!entity->worldspawn())
+                    m_octree->removeObject(*entity);
+                entity->removeBrush(brush);
+                if (!entity->worldspawn())
+                    m_octree->addObject(*entity);
+            }
+            
+            const FaceList& faces = brush.faces();
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.setTexture(NULL);
+            }
+        }
+        
         void MapDocument::brushWillChange(Brush& brush) {
             Entity* entity = brush.entity();
             if (entity != NULL && !entity->worldspawn())
@@ -394,18 +413,18 @@ namespace TrenchBroom {
         }
 
         void MapDocument::brushesDidChange(const BrushList& brushes) {
-            MapObjectList objects;
-            objects.insert(objects.begin(), brushes.begin(), brushes.end());
+            MapObjectSet objects;
+            objects.insert(brushes.begin(), brushes.end());
 
             BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Brush* brush = *it;
                 Entity* entity = brush->entity();
                 if (entity != NULL && !entity->worldspawn())
-                    objects.push_back(entity);
+                    objects.insert(entity);
             }
 
-            m_octree->addObjects(objects);
+            m_octree->addObjects(Utility::makeList(objects));
         }
 
         void MapDocument::setForceIntegerCoordinates(bool forceIntegerCoordinates) {
@@ -422,25 +441,6 @@ namespace TrenchBroom {
 
             Controller::Command loadCommand(Controller::Command::LoadMap);
             UpdateAllViews(NULL, &loadCommand);
-        }
-
-        void MapDocument::removeBrush(Brush& brush) {
-            m_octree->removeObject(brush);
-            Entity* entity = brush.entity();
-            if (entity != NULL) {
-                if (!entity->worldspawn())
-                    m_octree->removeObject(*entity);
-                entity->removeBrush(brush);
-                if (!entity->worldspawn())
-                    m_octree->addObject(*entity);
-            }
-            
-            const FaceList& faces = brush.faces();
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.setTexture(NULL);
-            }
         }
 
         Utility::Console& MapDocument::console() const {

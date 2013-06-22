@@ -55,7 +55,8 @@ namespace TrenchBroom {
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
-            bool empty();
+            bool empty() const;
+            size_t count() const;
             void intersect(const Rayf& ray, MapObjectList& objects);
         };
         
@@ -74,6 +75,8 @@ namespace TrenchBroom {
             void addObjects(const MapObjectList& objects);
             void removeObject(MapObject& object);
             void removeObjects(const MapObjectList& objects);
+            
+            size_t count() const;
 
             MapObjectList intersect(const Rayf& ray);
         };
