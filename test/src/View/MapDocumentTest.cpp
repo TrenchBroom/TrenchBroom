@@ -20,22 +20,30 @@
 #include <gtest/gtest.h>
 
 #include "IO/Path.h"
+#include "Model/QuakeGame.h"
 #include "View/MapDocument.h"
+#include "View/MapFrame.h"
+
+#include <wx/frame.h>
 
 namespace TrenchBroom {
     namespace View {
         TEST(MapDocumentTest, newDocument) {
             MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->newDocument();
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
+            document->newDocument(game);
+            
             ASSERT_EQ(IO::Path(""), document->path());
             ASSERT_EQ(String(""), document->filename());
         }
         
         TEST(MapDocumentTest, openDocument) {
             MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->openDocument(IO::Path("/test/blah/hey.map"));
-            ASSERT_EQ(IO::Path("/test/blah/hey.map"), document->path());
-            ASSERT_EQ(String("hey.map"), document->filename());
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
+            document->openDocument(game, IO::Path("data/View/DocumentManager/TestDoc1.map"));
+            
+            ASSERT_EQ(IO::Path("data/View/DocumentManager/TestDoc1.map"), document->path());
+            ASSERT_EQ(String("TestDoc1.map"), document->filename());
         }
     }
 }

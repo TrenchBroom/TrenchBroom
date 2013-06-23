@@ -17,29 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include "Game.h"
 
-#include "TrenchBroomApp.h"
+namespace TrenchBroom {
+    namespace Model {
+        Map::Ptr Game::openMap(const IO::Path& path) const {
+            return doOpenMap(path);
+        }
 
-#include <wx/wx.h>
-#include <clocale>
+        Game::Game() {}
 
-int main(int argc, char **argv) {
-
-    wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
-    wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
-    
-    ::testing::InitGoogleTest(&argc, argv);
-
-    // set the locale to US so that we can parse floats property
-    std::setlocale(LC_NUMERIC, "C");
-    const int result = RUN_ALL_TESTS();
-    
-    wxEntryCleanup();
-
-#ifdef _WIN32
-    std::cin.get();
-#endif
-    return result;
+        Game::~Game() {}
+    }
 }

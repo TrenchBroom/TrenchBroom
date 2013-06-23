@@ -45,9 +45,15 @@ namespace TrenchBroom {
             
             void OnClose(wxCloseEvent& event);
             
+            void OnFileClose(wxCommandEvent& event);
+            void OnUpdateUI(wxUpdateUIEvent& event);
+            
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:
             void createGui();
+            void createMenuBar();
+
+            DECLARE_EVENT_TABLE()
         };
     }
 }

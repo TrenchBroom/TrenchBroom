@@ -20,9 +20,11 @@
 #include "MapFrame.h"
 
 #include "TrenchBroomApp.h"
+#include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/DocumentManager.h"
 #include "View/MapView.h"
+#include "View/Menu.h"
 #include "View/NavBar.h"
 
 #include <wx/sizer.h>
@@ -32,6 +34,21 @@
 namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
+
+        BEGIN_EVENT_TABLE(MapFrame, wxFrame)
+        EVT_MENU(wxID_CLOSE, MapFrame::OnFileClose)
+        
+        EVT_UPDATE_UI(wxID_SAVE, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_SAVEAS, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_CLOSE, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_UNDO, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_REDO, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_CUT, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_COPY, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_PASTE, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI(wxID_DELETE, MapFrame::OnUpdateUI)
+        EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, MapFrame::OnUpdateUI)
+        END_EVENT_TABLE()
 
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
@@ -46,7 +63,8 @@ namespace TrenchBroom {
         m_mapView(NULL) {
             Create(document);
             createGui();
-
+            createMenuBar();
+            
             SetSize(1024, 768);
             CenterOnScreen();
         }
@@ -59,9 +77,24 @@ namespace TrenchBroom {
         MapFrame::~MapFrame() {}
 
         void MapFrame::OnClose(wxCloseEvent& event) {
-            DocumentManager& documentManager = ::documentManager();
+            DocumentManager& documentManager = getDocumentManager();
             if (!documentManager.closeDocument(m_document))
                 event.Veto();
+        }
+
+        void MapFrame::OnFileClose(wxCommandEvent& event) {
+            Close();
+        }
+
+        void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
+            switch (event.GetId()) {
+                case wxID_CLOSE:
+                    event.Enable(true);
+                    break;
+                default:
+                    event.Enable(false);
+                    break;
+            }
         }
 
         void MapFrame::createGui() {
@@ -99,6 +132,11 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
+        }
+        
+        void MapFrame::createMenuBar() {
+            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
+            SetMenuBar(menuBar);
         }
     }
 }

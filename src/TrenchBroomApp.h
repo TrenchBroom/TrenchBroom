@@ -24,44 +24,55 @@
 
 #include <wx/wx.h>
 
-class TrenchBroomApp : public wxApp {
-private:
-    TrenchBroom::View::DocumentManager* m_documentManager;
-public:
-    TrenchBroomApp();
-    
-    inline TrenchBroom::View::DocumentManager& documentManager() {
-        assert(m_documentManager != NULL);
-        return *m_documentManager;
-    }
-    
-    bool OnInit();
-    int OnExit();
+namespace TrenchBroom {
+    namespace View {
+        class TrenchBroomApp : public wxApp {
+        private:
+            TrenchBroom::View::DocumentManager* m_documentManager;
+        public:
+            TrenchBroomApp();
+            
+            inline TrenchBroom::View::DocumentManager& documentManager() {
+                assert(m_documentManager != NULL);
+                return *m_documentManager;
+            }
+            
+            bool OnInit();
+            int OnExit();
+            void OnUnhandledException();
+            
+            void OnFileNew(wxCommandEvent& event);
+            void OnFileOpen(wxCommandEvent& event);
 
-    void OnFileExit(wxCommandEvent& event);
-    
 #ifdef __APPLE__
-    void MacNewFile();
-    void MacOpenFiles(const wxArrayString& filenames);
+            void OnOpenPreferences(wxCommandEvent& event);
+            void OnFileExit(wxCommandEvent& event);
+            void OnUpdateUI(wxUpdateUIEvent& event);
+
+            void MacNewFile();
+            void MacOpenFiles(const wxArrayString& filenames);
 #endif
-    
-private:
-    static bool useSDI();
-    bool newDocument();
-    bool openDocument(const String& pathStr);
-
-    DECLARE_EVENT_TABLE()
-};
-
-namespace {
-    inline static TrenchBroom::View::DocumentManager& documentManager() {
-        TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-        return app->documentManager();
+            
+        private:
+            static bool useSDI();
+            bool newDocument();
+            bool openDocument(const String& pathStr);
+            
+            DECLARE_EVENT_TABLE()
+        };
+        
+        namespace {
+            inline static DocumentManager& getDocumentManager() {
+                TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+                return app->documentManager();
+            }
+        }
+        
     }
 }
 
 #ifndef TESTING
-DECLARE_APP(TrenchBroomApp)
+DECLARE_APP(TrenchBroom::View::TrenchBroomApp)
 #endif
 
 #endif /* defined(__TrenchBroom__TrenchBroomApp__) */

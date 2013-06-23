@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "IO/Path.h"
+#include "Model/QuakeGame.h"
 #include "View/DocumentManager.h"
 #include "View/MapDocument.h"
 
@@ -28,11 +29,12 @@ namespace TrenchBroom {
     namespace View {
         TEST(DocumentManagerTest, SDINewDocument) {
             DocumentManager manager(true);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
 
-            MapDocument::Ptr document1 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument(game);
             ASSERT_TRUE(document1 != NULL);
             
-            MapDocument::Ptr document2 = manager.newDocument();
+            MapDocument::Ptr document2 = manager.newDocument(game);
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
@@ -43,11 +45,12 @@ namespace TrenchBroom {
         
         TEST(DocumentManagerTest, MDINewDocument) {
             DocumentManager manager(false);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
             
-            MapDocument::Ptr document1 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument(game);
             ASSERT_TRUE(document1 != NULL);
             
-            MapDocument::Ptr document2 = manager.newDocument();
+            MapDocument::Ptr document2 = manager.newDocument(game);
             ASSERT_TRUE(document2 != NULL);
             
             const DocumentList& documents = manager.documents();
@@ -58,14 +61,16 @@ namespace TrenchBroom {
         
         TEST(DocumentManagerTest, SDIOpenDocument) {
             DocumentManager manager(true);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
+
             const IO::Path path1("data/View/DocumentManager/TestDoc1.map");
             const IO::Path path2("data/View/DocumentManager/TestDoc2.map");
             
-            MapDocument::Ptr document1 = manager.openDocument(path1);
+            MapDocument::Ptr document1 = manager.openDocument(game, path1);
             ASSERT_TRUE(document1 != NULL);
             ASSERT_EQ(path1, document1->path());
             
-            MapDocument::Ptr document2 = manager.openDocument(path2);
+            MapDocument::Ptr document2 = manager.openDocument(game, path2);
             ASSERT_TRUE(document2 != NULL);
             ASSERT_EQ(path2, document2->path());
             
@@ -77,14 +82,16 @@ namespace TrenchBroom {
         
         TEST(DocumentManagertest, MDIOpenDocument) {
             DocumentManager manager(false);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
+
             const IO::Path path1("data/View/DocumentManager/TestDoc1.map");
             const IO::Path path2("data/View/DocumentManager/TestDoc2.map");
             
-            MapDocument::Ptr document1 = manager.openDocument(path1);
+            MapDocument::Ptr document1 = manager.openDocument(game, path1);
             ASSERT_TRUE(document1 != NULL);
             ASSERT_EQ(path1, document1->path());
             
-            MapDocument::Ptr document2 = manager.openDocument(path2);
+            MapDocument::Ptr document2 = manager.openDocument(game, path2);
             ASSERT_TRUE(document2 != NULL);
             ASSERT_EQ(path2, document2->path());
             
@@ -96,9 +103,11 @@ namespace TrenchBroom {
         
         TEST(DocumentManagerTest, CloseDocument) {
             DocumentManager manager(false);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
+
             MapDocument::Ptr unknownDocument = MapDocument::newMapDocument();
-            MapDocument::Ptr knownDocument1 = manager.newDocument();
-            MapDocument::Ptr knownDocument2 = manager.newDocument();
+            MapDocument::Ptr knownDocument1 = manager.newDocument(game);
+            MapDocument::Ptr knownDocument2 = manager.newDocument(game);
             
             ASSERT_THROW(manager.closeDocument(unknownDocument), DocumentManagerException);
             ASSERT_TRUE(manager.closeDocument(knownDocument1));
@@ -110,9 +119,10 @@ namespace TrenchBroom {
         
         TEST(DocumentManagerTest, CloseAllDocuments) {
             DocumentManager manager(false);
+            Model::Game::Ptr game = Model::QuakeGame::newGame();
             
-            MapDocument::Ptr document1 = manager.newDocument();
-            MapDocument::Ptr document2 = manager.newDocument();
+            MapDocument::Ptr document1 = manager.newDocument(game);
+            MapDocument::Ptr document2 = manager.newDocument(game);
 
             manager.closeAllDocuments();
             ASSERT_TRUE(manager.documents().empty());

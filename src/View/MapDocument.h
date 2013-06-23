@@ -23,6 +23,8 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "Model/Game.h"
+#include "Model/Map.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -35,17 +37,17 @@ namespace TrenchBroom {
             typedef std::tr1::weak_ptr<MapDocument> WkPtr;
             
             WkPtr m_ptr;
+            Model::Game::Ptr m_game;
+            Model::Map::Ptr m_map;
             IO::Path m_path;
             MapFrame* m_frame;
             
             size_t m_modificationCount;
-            
-            MapDocument();
         public:
             static MapDocument::Ptr newMapDocument();
-            
             ~MapDocument();
             
+            Model::Game::Ptr game() const;
             const IO::Path& path() const;
             String filename() const;
             
@@ -54,20 +56,23 @@ namespace TrenchBroom {
             void decModificationCount();
             void clearModificationCount();
             
-            bool newDocument();
-            bool openDocument(const IO::Path& path);
+            bool newDocument(Model::Game::Ptr game);
+            bool openDocument(Model::Game::Ptr game, const IO::Path& path);
             bool saveDocument();
             bool saveDocumentAs(const IO::Path& path);
             
             void createOrRaiseFrame();
             MapFrame* frame() const;
         private:
+            MapDocument();
             void setPtr(MapDocument::Ptr ptr);
             bool confirmDiscardChanges();
             void destroyFrame();
             
             bool doSaveDocument(const IO::Path& path);
             bool closeDocument();
+            void setDocumentPath(const IO::Path& path);
+            void updateDocumentTitle();
             
             friend class DocumentManager;
         };

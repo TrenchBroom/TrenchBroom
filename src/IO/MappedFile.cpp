@@ -43,7 +43,7 @@ namespace TrenchBroom {
             m_begin = NULL;
             m_end = NULL;
             m_size = 0;
-        };
+        }
 
         size_t MappedFile::size() const {
             return m_size;

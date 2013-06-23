@@ -17,29 +17,22 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#ifndef __TrenchBroom__QuakeGame__
+#define __TrenchBroom__QuakeGame__
 
-#include "TrenchBroomApp.h"
+#include "Model/Game.h"
+#include "VecMath.h"
 
-#include <wx/wx.h>
-#include <clocale>
-
-int main(int argc, char **argv) {
-
-    wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
-    wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
-    
-    ::testing::InitGoogleTest(&argc, argv);
-
-    // set the locale to US so that we can parse floats property
-    std::setlocale(LC_NUMERIC, "C");
-    const int result = RUN_ALL_TESTS();
-    
-    wxEntryCleanup();
-
-#ifdef _WIN32
-    std::cin.get();
-#endif
-    return result;
+namespace TrenchBroom {
+    namespace Model {
+        class QuakeGame : public Game {
+        public:
+            static Ptr newGame();
+        private:
+            static const BBox3 WorldBounds;
+            Map::Ptr doOpenMap(const IO::Path& path) const;
+        };
+    }
 }
+
+#endif /* defined(__TrenchBroom__QuakeGame__) */

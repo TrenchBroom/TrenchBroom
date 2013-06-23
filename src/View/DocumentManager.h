@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__DocumentManager__
 #define __TrenchBroom__DocumentManager__
 
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 
 #include <vector>
@@ -42,8 +43,8 @@ namespace TrenchBroom {
             
             const DocumentList& documents() const;
             
-            MapDocument::Ptr newDocument();
-            MapDocument::Ptr openDocument(const IO::Path& path);
+            MapDocument::Ptr newDocument(Model::Game::Ptr game);
+            MapDocument::Ptr openDocument(Model::Game::Ptr game, const IO::Path& path);
             bool closeDocument(MapDocument::Ptr document);
             bool closeAllDocuments();
         private:

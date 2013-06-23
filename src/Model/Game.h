@@ -17,29 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#ifndef TrenchBroom_Game_h
+#define TrenchBroom_Game_h
 
-#include "TrenchBroomApp.h"
+#include "SharedPointer.h"
+#include "IO/Path.h"
+#include "Model/Map.h"
 
-#include <wx/wx.h>
-#include <clocale>
-
-int main(int argc, char **argv) {
-
-    wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
-    wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
-    
-    ::testing::InitGoogleTest(&argc, argv);
-
-    // set the locale to US so that we can parse floats property
-    std::setlocale(LC_NUMERIC, "C");
-    const int result = RUN_ALL_TESTS();
-    
-    wxEntryCleanup();
-
-#ifdef _WIN32
-    std::cin.get();
-#endif
-    return result;
+namespace TrenchBroom {
+    namespace Model {
+        class Game {
+        public:
+            typedef std::tr1::shared_ptr<Game> Ptr;
+        public:
+            virtual ~Game();
+            
+            Map::Ptr openMap(const IO::Path& path) const;
+        protected:
+            Game();
+        private:
+            virtual Map::Ptr doOpenMap(const IO::Path& path) const = 0;
+        };
+    }
 }
+
+#endif

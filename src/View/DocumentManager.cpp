@@ -36,15 +36,15 @@ namespace TrenchBroom {
             return m_documents;
         }
 
-        MapDocument::Ptr DocumentManager::newDocument() {
+        MapDocument::Ptr DocumentManager::newDocument(Model::Game::Ptr game) {
             MapDocument::Ptr document = createOrReuseDocument();
-            document->newDocument();
+            document->newDocument(game);
             return document;
         }
         
-        MapDocument::Ptr DocumentManager::openDocument(const IO::Path& path) {
+        MapDocument::Ptr DocumentManager::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             MapDocument::Ptr document = createOrReuseDocument();
-            document->openDocument(path);
+            document->openDocument(game, path);
             return document;
         }
         

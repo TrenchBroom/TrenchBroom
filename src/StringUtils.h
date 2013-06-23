@@ -44,9 +44,9 @@ namespace StringUtils {
     
     struct CaseInsensitiveCharCompare {
     private:
-        const std::locale& m_locale;
+        std::locale m_locale;
     public:
-        CaseInsensitiveCharCompare(const std::locale& loc = std::locale::classic()) :
+        CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
         m_locale(loc) {}
         
         int operator()(char lhs, char rhs) const {
