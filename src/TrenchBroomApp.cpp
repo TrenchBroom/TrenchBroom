@@ -29,16 +29,24 @@
 IMPLEMENT_APP(TrenchBroomApp)
 #endif
 
+BEGIN_EVENT_TABLE(TrenchBroomApp, wxApp)
+EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
+END_EVENT_TABLE()
+
+
 TrenchBroomApp::TrenchBroomApp() :
 wxApp(),
-m_documentManager(useSDI()) {}
+m_documentManager(NULL) {}
 
 bool TrenchBroomApp::OnInit() {
     if (!wxApp::OnInit())
         return false;
 
     std::setlocale(LC_NUMERIC, "C");
-
+    
+    assert(m_documentManager == NULL);
+    m_documentManager = new TrenchBroom::View::DocumentManager(useSDI());
+    
 #ifdef __APPLE__
     SetExitOnFrameDelete(false);
     wxMenuBar* menuBar = TrenchBroom::View::Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
@@ -57,7 +65,14 @@ bool TrenchBroomApp::OnInit() {
 }
 
 int TrenchBroomApp::OnExit() {
+    delete m_documentManager;
+    m_documentManager = NULL;
+    
     return wxApp::OnExit();
+}
+
+void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
+    Exit();
 }
 
 #ifdef __APPLE__
@@ -83,7 +98,7 @@ bool TrenchBroomApp::useSDI() {
 }
 
 bool TrenchBroomApp::newDocument() {
-    TrenchBroom::View::MapDocument::Ptr document = m_documentManager.newDocument();
+    TrenchBroom::View::MapDocument::Ptr document = m_documentManager->newDocument();
     if (document == NULL)
         return false;
     document->createOrRaiseFrame();
@@ -92,7 +107,7 @@ bool TrenchBroomApp::newDocument() {
 
 bool TrenchBroomApp::openDocument(const String& pathStr) {
     const TrenchBroom::IO::Path path(pathStr);
-    TrenchBroom::View::MapDocument::Ptr document = m_documentManager.openDocument(path);
+    TrenchBroom::View::MapDocument::Ptr document = m_documentManager->openDocument(path);
     if (document == NULL)
         return false;
     document->createOrRaiseFrame();

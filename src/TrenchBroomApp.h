@@ -26,17 +26,20 @@
 
 class TrenchBroomApp : public wxApp {
 private:
-    TrenchBroom::View::DocumentManager m_documentManager;
+    TrenchBroom::View::DocumentManager* m_documentManager;
 public:
     TrenchBroomApp();
     
     inline TrenchBroom::View::DocumentManager& documentManager() {
-        return m_documentManager;
+        assert(m_documentManager != NULL);
+        return *m_documentManager;
     }
     
     bool OnInit();
     int OnExit();
 
+    void OnFileExit(wxCommandEvent& event);
+    
 #ifdef __APPLE__
     void MacNewFile();
     void MacOpenFiles(const wxArrayString& filenames);
@@ -46,6 +49,8 @@ private:
     static bool useSDI();
     bool newDocument();
     bool openDocument(const String& pathStr);
+
+    DECLARE_EVENT_TABLE()
 };
 
 namespace {
