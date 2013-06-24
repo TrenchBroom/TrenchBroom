@@ -43,6 +43,8 @@ namespace TrenchBroom {
             void Create(MapDocument::Ptr document);
             ~MapFrame();
             
+            Console* console() const;
+            
             void OnClose(wxCloseEvent& event);
             
             void OnFileClose(wxCommandEvent& event);

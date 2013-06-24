@@ -27,54 +27,6 @@ namespace TrenchBroom {
             SetBackgroundColour(*wxBLACK);
         }
 
-        void Console::debug(const String& message) {
-            log(LLDebug, message);
-        }
-        
-        void Console::debug(const char* format, ...) {
-            va_list(arguments);
-            va_start(arguments, format);
-            const String message = StringUtils::formatString(format, arguments);
-            va_end(arguments);
-            debug(message);
-        }
-        
-        void Console::info(const String& message) {
-            log(LLInfo, message);
-        }
-        
-        void Console::info(const char* format, ...) {
-            va_list(arguments);
-            va_start(arguments, format);
-            const String message = StringUtils::formatString(format, arguments);
-            va_end(arguments);
-            info(message);
-        }
-        
-        void Console::warn(const String& message) {
-            log(LLWarn, message);
-        }
-        
-        void Console::warn(const char* format, ...) {
-            va_list(arguments);
-            va_start(arguments, format);
-            const String message = StringUtils::formatString(format, arguments);
-            va_end(arguments);
-            warn(message);
-        }
-        
-        void Console::error(const String& message) {
-            log(LLError, message);
-        }
-        
-        void Console::error(const char* format, ...) {
-            va_list(arguments);
-            va_start(arguments, format);
-            const String message = StringUtils::formatString(format, arguments);
-            va_end(arguments);
-            error(message);
-        }
-        
         void Console::log(const LogLevel level, const String& message) {
             logToConsole(level, message);
         }

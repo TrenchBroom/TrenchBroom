@@ -22,6 +22,7 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
+#include "IO/WadTextureLoader.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,11 +33,16 @@ namespace TrenchBroom {
             return Ptr(new QuakeGame());
         }
 
-        Map::Ptr QuakeGame::doOpenMap(const IO::Path& path) const {
+        Map::Ptr QuakeGame::doLoadMap(const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(WorldBounds);
+        }
+
+        TextureCollection::Ptr QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
+            IO::WadTextureLoader loader;
+            return loader.loadTextureCollection(path);
         }
     }
 }

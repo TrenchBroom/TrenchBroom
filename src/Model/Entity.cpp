@@ -56,6 +56,10 @@ namespace TrenchBroom {
             return property(PropertyKeys::Classname, defaultClassname);
         }
 
+        const Brush::List& Entity::brushes() const {
+            return m_brushes;
+        }
+
         void Entity::addBrush(Brush::Ptr brush) {
             m_brushes.push_back(brush);
         }

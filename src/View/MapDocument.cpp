@@ -20,6 +20,7 @@
 #include "MapDocument.h"
 
 #include "IO/FileSystem.h"
+#include "View/Console.h"
 #include "View/MapFrame.h"
 
 #include <cassert>
@@ -97,8 +98,9 @@ namespace TrenchBroom {
                 return false;
 
             assert(game != NULL);
+            m_logger.info("Loading map " + path.asString());
+            m_map = game->loadMap(path);
             m_game = game;
-            m_map = m_game->openMap(path);
             
             setDocumentPath(path);
             clearModificationCount();
@@ -146,6 +148,7 @@ namespace TrenchBroom {
         void MapDocument::createOrRaiseFrame() {
             if (m_frame == NULL) {
                 m_frame = new MapFrame(Ptr(m_ptr));
+                m_logger.setParentLogger(m_frame->console());
                 updateDocumentTitle();
             }
             m_frame->Show();

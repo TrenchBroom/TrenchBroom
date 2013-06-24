@@ -17,24 +17,37 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Console__
-#define __TrenchBroom__Console__
+#ifndef __TrenchBroom__CachingLogger__
+#define __TrenchBroom__CachingLogger__
 
 #include "StringUtils.h"
 #include "View/Logger.h"
 
-#include <wx/textctrl.h>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        class Console : public wxTextCtrl, public Logger {
-        public:
-            Console(wxWindow* parent);
-            void log(const LogLevel level, const String& message);
+        class CachingLogger : public Logger {
         private:
-            void logToConsole(const LogLevel level, const String& message);
+            struct Message {
+            public:
+                Logger::LogLevel level;
+                String str;
+                
+                Message(const Logger::LogLevel i_level, const String& i_str);
+            };
+            
+            typedef std::vector<Message> MessageList;
+            
+            MessageList m_cachedMessages;
+            Logger* m_logger;
+        public:
+            CachingLogger();
+            
+            void setParentLogger(Logger* logger);
+            void log(const LogLevel level, const String& message);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Console__) */
+#endif /* defined(__TrenchBroom__CachingLogger__) */

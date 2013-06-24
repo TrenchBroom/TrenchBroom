@@ -35,6 +35,10 @@ namespace TrenchBroom {
             m_worldspawn = Entity::Ptr();
         }
 
+        const Entity::List& Map::entities() const {
+            return m_entities;
+        }
+
         void Map::addEntity(Entity::Ptr entity) {
             m_entities.push_back(entity);
         }

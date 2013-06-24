@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Model::TextureCollectionPtr WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Model::TextureCollection::Ptr WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
 

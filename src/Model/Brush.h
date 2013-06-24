@@ -47,12 +47,13 @@ namespace TrenchBroom {
             
             const BrushFace::List& faces() const;
 
-            template <class BrushFaceOp>
-            void eachBrushFace(BrushFaceOp& faceOp) {
+            template <class Operator, class Filter>
+            void eachBrushFace(Operator& op, Filter& filter) {
                 BrushFace::List::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                     BrushFace::Ptr face = *it;
-                    faceOp(face);
+                    if (filter(face))
+                        op(face);
                 }
             }
         private:

@@ -33,9 +33,24 @@ namespace TrenchBroom {
             }
         };
         
+        struct BuildBrushFaceMeshFilter {
+            inline bool operator()(Model::Entity::Ptr entity) {
+                return true;
+            }
+            
+            inline bool operator()(Model::Brush::Ptr brush) {
+                return true;
+            }
+            
+            inline bool operator()(Model::BrushFace::Ptr face) {
+                return true;
+            }
+        };
+        
         void MapRenderer::loadMap(const Model::Map::Ptr map) {
-            BuildBrushFaceMesh buildFaceMesh;
-            map->eachBrushFace(buildFaceMesh);
+            BuildBrushFaceMesh builder;
+            BuildBrushFaceMeshFilter filter;
+            map->eachBrushFace(builder, filter);
         }
         
         void MapRenderer::clear() {

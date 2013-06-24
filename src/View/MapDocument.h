@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "View/CachingLogger.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
             Model::Map::Ptr m_map;
             IO::Path m_path;
             MapFrame* m_frame;
+            CachingLogger m_logger;
             
             size_t m_modificationCount;
         public:

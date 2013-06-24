@@ -28,16 +28,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class TextureCollection;
-        typedef std::tr1::shared_ptr<TextureCollection> TextureCollectionPtr;
-        typedef std::vector<TextureCollectionPtr> TextureCollectionList;
-        
+
         class TextureCollection {
+        public:
+            typedef std::tr1::shared_ptr<TextureCollection> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             String m_name;
             TextureList m_textures;
         public:
-            static TextureCollectionPtr newTextureCollection(const String& name, const TextureList& textures);
+            static Ptr newTextureCollection(const String& name, const TextureList& textures);
             
             inline const TextureList& textures() const {
                 return m_textures;

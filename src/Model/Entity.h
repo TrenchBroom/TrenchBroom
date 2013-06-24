@@ -51,19 +51,17 @@ namespace TrenchBroom {
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             
-            inline const Brush::List& brushes() const {
-                return m_brushes;
-            }
-            
+            const Brush::List& brushes() const;
             void addBrush(Brush::Ptr brush);
             void removeBrush(Brush::Ptr brush);
 
-            template <class BrushFaceOp>
-            inline void eachBrushFace(BrushFaceOp& faceOp) {
+            template <class Operator, class Filter>
+            inline void eachBrushFace(Operator& op, Filter& filter) {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                     Brush::Ptr brush = *it;
-                    brush->eachBrushFace(faceOp);
+                    if (filter(brush))
+                        brush->eachBrushFace(op, filter);
                 }
             }
         };

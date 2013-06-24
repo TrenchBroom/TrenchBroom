@@ -17,31 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Game_h
-#define TrenchBroom_Game_h
-
-#include "SharedPointer.h"
-#include "IO/Path.h"
-#include "Model/Map.h"
-#include "Model/TextureCollection.h"
+#include "TextureLoader.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Game {
-        public:
-            typedef std::tr1::shared_ptr<Game> Ptr;
-        public:
-            virtual ~Game();
-            
-            Map::Ptr loadMap(const IO::Path& path) const;
-            TextureCollection::Ptr loadTextureCollection(const IO::Path& path) const;
-        protected:
-            Game();
-        private:
-            virtual Map::Ptr doLoadMap(const IO::Path& path) const = 0;
-            virtual TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const = 0;
-        };
+    namespace IO {
+        TextureLoader::~TextureLoader() {}
+        
+        Model::TextureCollection::Ptr TextureLoader::loadTextureCollection(const Path& path) {
+            return doLoadTextureCollection(path);
+        }
     }
 }
-
-#endif

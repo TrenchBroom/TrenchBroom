@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
             
             WadTextureLoader loader;
-            Model::TextureCollectionPtr collection = loader.loadTextureCollection(wadPath);
+            Model::TextureCollection::Ptr collection = loader.loadTextureCollection(wadPath);
             
             const Model::TextureList& textures = collection->textures();
             ASSERT_EQ(21u, textures.size());

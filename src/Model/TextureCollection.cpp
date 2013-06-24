@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TextureCollectionPtr TextureCollection::newTextureCollection(const String& name, const TextureList& textures) {
-            return TextureCollectionPtr(new TextureCollection(name, textures));
+        TextureCollection::Ptr TextureCollection::newTextureCollection(const String& name, const TextureList& textures) {
+            return Ptr(new TextureCollection(name, textures));
         }
 
         TextureCollection::TextureCollection(const String& name, const TextureList& textures) :

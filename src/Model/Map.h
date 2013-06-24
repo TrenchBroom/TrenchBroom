@@ -39,19 +39,17 @@ namespace TrenchBroom {
             static Ptr newMap();
             ~Map();
             
-            inline const Entity::List& entities() const {
-                return m_entities;
-            }
-            
+            const Entity::List& entities() const;
             void addEntity(Entity::Ptr entity);
             Entity::Ptr worldspawn();
             
-            template <class BrushFaceOp>
-            inline void eachBrushFace(BrushFaceOp& faceOp) {
+            template <class Operator, class Filter>
+            inline void eachBrushFace(Operator& op, Filter& filter) {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
-                    entity->eachBrushFace(faceOp);
+                    if (filter(entity))
+                        entity->eachBrushFace(op, filter);
                 }
             }
         private:

@@ -30,7 +30,8 @@ namespace TrenchBroom {
             static Ptr newGame();
         private:
             static const BBox3 WorldBounds;
-            Map::Ptr doOpenMap(const IO::Path& path) const;
+            Map::Ptr doLoadMap(const IO::Path& path) const;
+            TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const;
         };
     }
 }

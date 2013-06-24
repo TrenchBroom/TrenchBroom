@@ -82,6 +82,10 @@ namespace TrenchBroom {
                 event.Veto();
         }
 
+        Console* MapFrame::console() const {
+            return m_console;
+        }
+
         void MapFrame::OnFileClose(wxCommandEvent& event) {
             Close();
         }

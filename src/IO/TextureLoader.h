@@ -28,13 +28,11 @@ namespace TrenchBroom {
         
         class TextureLoader {
         public:
-            virtual ~TextureLoader() {}
+            virtual ~TextureLoader();
             
-            inline Model::TextureCollectionPtr loadTextureCollection(const Path& path) {
-                return doLoadTextureCollection(path);
-            }
+            Model::TextureCollection::Ptr loadTextureCollection(const Path& path);
         private:
-            virtual Model::TextureCollectionPtr doLoadTextureCollection(const Path& path) = 0;
+            virtual Model::TextureCollection::Ptr doLoadTextureCollection(const Path& path) = 0;
         };
     }
 }
