@@ -39,6 +39,7 @@ namespace TrenchBroom {
             static const size_t DirEntryNameSize      = 16;
             static const size_t PalLength             = 256;
             static const size_t TexWidthOffset        = 16;
+            static const size_t TexDataOffset         = 24;
             static const size_t MaxTextureSize        = 512;
         }
 
@@ -70,6 +71,14 @@ namespace TrenchBroom {
         
         bool MipSize::operator== (const MipSize& rhs) const {
             return width == rhs.width && height == rhs.height;
+        }
+
+        MipData::MipData(const char* i_begin, const char* i_end) :
+        begin(i_begin),
+        end(i_end) {
+            assert(begin != NULL);
+            assert(end != NULL);
+            assert(begin <= end);
         }
 
         Wad::Wad(const Path& path) {
@@ -141,6 +150,29 @@ namespace TrenchBroom {
                 throw WadException(entry.name() + "has invalid dimensions");
             
             return MipSize(width, height);
+        }
+
+        const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) {
+            assert(mipLevel > 0);
+            assert(mipLevel < 4);
+            
+            if (entry.type() != WadEntryType::WEMip)
+                throw WadException(entry.name() + " is not a Mip entry");
+
+            const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
+            const size_t width = readSize<int32_t>(cursor);
+            const size_t height = readSize<int32_t>(cursor);
+            if (width == 0 || height == 0)
+                throw WadException(entry.name() + "has invalid dimensions");
+
+            size_t offset = 0;
+            size_t size = width * height;
+            for (size_t i = 1; i < mipLevel; ++i) {
+                offset += size;
+                size /= 2;
+            }
+            
+            return MipData(cursor, cursor + offset);
         }
     }
 }

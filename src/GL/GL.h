@@ -26,5 +26,4 @@
 #include "GL/glew.h"
 #endif
 
-
 #endif

@@ -21,11 +21,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TexturePtr Texture::newTexture(const String& name, const size_t width, const size_t height) {
-            return TexturePtr(new Texture(name, width, height));
+        TexturePtr Texture::newTexture(const GLuint textureId, const String& name, const size_t width, const size_t height) {
+            return TexturePtr(new Texture(textureId, name, width, height));
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        Texture::Texture(const GLuint textureId, const String& name, const size_t width, const size_t height) :
+        m_textureId(textureId),
         m_name(name),
         m_width(width),
         m_height(height),

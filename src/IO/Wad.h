@@ -61,6 +61,13 @@ namespace TrenchBroom {
             bool operator== (const MipSize& rhs) const;
         };
         
+        struct MipData {
+            const char* begin;
+            const char* end;
+            
+            MipData(const char* i_begin, const char* i_end);
+        };
+        
         class Wad {
         private:
             MappedFile::Ptr m_file;
@@ -71,6 +78,7 @@ namespace TrenchBroom {
             const WadEntryList& allEntries() const;
             const WadEntryList entriesWithType(const char type) const;
             const MipSize mipSize(const WadEntry& entry) const;
+            const MipData mipData(const WadEntry& entry, const size_t mipLevel);
         private:
             void loadEntries();
         };

@@ -19,6 +19,7 @@
 
 #include "WadTextureLoader.h"
 
+#include "GL/GL.h"
 #include "IO/Wad.h"
 #include "Model/Texture.h"
 #include "Model/TextureCollection.h"
@@ -32,11 +33,30 @@ namespace TrenchBroom {
             Model::TextureList textures;
             textures.reserve(mipEntries.size());
             
+            glEnable(GL_TEXTURE_2D);
+
             WadEntryList::const_iterator it, end;
             for (it = mipEntries.begin(), end = mipEntries.end(); it != end; ++it) {
                 const WadEntry& entry = *it;
                 const MipSize mipSize = wad.mipSize(entry);
-                textures.push_back(Model::Texture::newTexture(entry.name(), mipSize.width, mipSize.height));
+                GLuint textureId = 0;
+                
+                glGenTextures(1, &textureId);
+                glBindTexture(GL_TEXTURE_2D, textureId);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                for (size_t i = 1; i <= 4; ++i) {
+                    const MipData mipData = wad.mipData(entry, i);
+                    glTexImage2D(GL_TEXTURE_2D, i - 1, GL_RGBA,
+                                 static_cast<GLsizei>(mipSize.width),
+                                 static_cast<GLsizei>(mipSize.height),
+                                 0, GL_RGB, GL_UNSIGNED_BYTE, mipData.begin);
+                }
+                glBindTexture(GL_TEXTURE_2D, 0);
+                
+                textures.push_back(Model::Texture::newTexture(textureId, entry.name(), mipSize.width, mipSize.height));
             }
             
             return Model::TextureCollection::newTextureCollection(path.asString(), textures);

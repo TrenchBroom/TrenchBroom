@@ -81,6 +81,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::newDocument(Model::Game::Ptr game) {
+            createOrRaiseFrame();
             if (!confirmDiscardChanges())
                 return false;
             
@@ -94,6 +95,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
+            createOrRaiseFrame();
             if (!confirmDiscardChanges())
                 return false;
 

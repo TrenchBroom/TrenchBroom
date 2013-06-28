@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
+#include "GL/GL.h"
 
 #include <cassert>
 #include <vector>
@@ -34,13 +35,14 @@ namespace TrenchBroom {
 
         class Texture {
         private:
+            GLuint m_textureId;
             String m_name;
             size_t m_width;
             size_t m_height;
             size_t m_usageCount;
             bool m_overridden;
         public:
-            static TexturePtr newTexture(const String& name, const size_t width, const size_t height);
+            static TexturePtr newTexture(const GLuint textureId, const String& name, const size_t width, const size_t height);
             
             inline const String& name() const {
                 return m_name;
@@ -75,7 +77,7 @@ namespace TrenchBroom {
                 m_overridden = overridden;
             }
         private:
-            Texture(const String& name, const size_t width, const size_t height);
+            Texture(const GLuint textureId, const String& name, const size_t width, const size_t height);
         };
     }
 }
