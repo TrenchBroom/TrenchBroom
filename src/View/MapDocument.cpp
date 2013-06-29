@@ -32,17 +32,13 @@ namespace TrenchBroom {
     namespace View {
         MapDocument::MapDocument() :
         m_path(""),
-        m_frame(NULL),
         m_modificationCount(0) {}
         
         MapDocument::Ptr MapDocument::newMapDocument() {
-            MapDocument::Ptr document = MapDocument::Ptr(new MapDocument());
-            document->setPtr(document);
-            return document;
+            return MapDocument::Ptr(new MapDocument());
         }
 
         MapDocument::~MapDocument() {
-            destroyFrame();
         }
         
         Model::Game::Ptr MapDocument::game() const {
@@ -65,26 +61,18 @@ namespace TrenchBroom {
 
         void MapDocument::incModificationCount() {
             ++m_modificationCount;
-            m_frame->OSXSetModified(true);
         }
         
         void MapDocument::decModificationCount() {
             assert(m_modificationCount > 0);
             --m_modificationCount;
-            m_frame->OSXSetModified(m_modificationCount > 0);
         }
 
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
-            if (m_frame != NULL)
-                m_frame->OSXSetModified(false);
         }
 
         bool MapDocument::newDocument(Model::Game::Ptr game) {
-            createOrRaiseFrame();
-            if (!confirmDiscardChanges())
-                return false;
-            
             assert(game != NULL);
             m_game = game;
             m_map = Model::Map::newMap();
@@ -95,12 +83,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
-            createOrRaiseFrame();
-            if (!confirmDiscardChanges())
-                return false;
-
             assert(game != NULL);
-            m_logger.info("Loading map " + path.asString());
             m_map = game->loadMap(path);
             m_game = game;
             
@@ -110,14 +93,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::saveDocument() {
-            IO::FileSystem fs;
-            if (!fs.exists(m_path)) {
-                const wxString newPathStr = ::wxSaveFileSelector("", "map", filename(), m_frame);
-                if (newPathStr.empty())
-                    return false;
-                const IO::Path newPath(newPathStr.ToStdString());
-                return saveDocumentAs(newPath);
-            }
+            assert(!m_path.isEmpty());
             return doSaveDocument(m_path);
         }
         
@@ -125,66 +101,13 @@ namespace TrenchBroom {
             return doSaveDocument(path);
         }
 
-        MapFrame* MapDocument::frame() const {
-            return m_frame;
-        }
-
-        void MapDocument::setPtr(MapDocument::Ptr ptr) {
-            m_ptr = ptr;
-        }
-
-        bool MapDocument::confirmDiscardChanges() {
-            if (!isModified())
-                return true;
-            const int result = ::wxMessageBox(filename() + " has been modified. Do you want to save the changes?", "", wxYES_NO | wxCANCEL, m_frame);
-            switch (result) {
-                case wxYES:
-                    return saveDocument();
-                case wxNO:
-                    return true;
-                default:
-                    return false;
-            };
-        }
-
-        void MapDocument::createOrRaiseFrame() {
-            if (m_frame == NULL) {
-                m_frame = new MapFrame(Ptr(m_ptr));
-                m_logger.setParentLogger(m_frame->console());
-                updateDocumentTitle();
-            }
-            m_frame->Show();
-            m_frame->Raise();
-        }
-        
-        void MapDocument::destroyFrame() {
-            if (m_frame != NULL) {
-                m_frame->Destroy();
-                m_frame = NULL;
-            }
-        }
-
         bool MapDocument::doSaveDocument(const IO::Path& path) {
             setDocumentPath(path);
             return true;
         }
 
-        bool MapDocument::closeDocument() {
-            if (!confirmDiscardChanges())
-                return false;
-
-            destroyFrame();
-            return true;
-        }
-
         void MapDocument::setDocumentPath(const IO::Path& path) {
             m_path = path;
-            updateDocumentTitle();
-        }
-
-        void MapDocument::updateDocumentTitle() {
-            if (m_frame != NULL)
-                m_frame->SetTitle(filename());
         }
     }
 }

@@ -25,8 +25,22 @@
 
 #include "GL/glew.h"
 
+/*
+ void glDeleteTextures(	GLsizei  	n,
+ const GLuint *  	textures);
+ */
+
 class CGLMock {
 public:
+    MOCK_METHOD1(Enable, void(GLenum cap));
+    
+    MOCK_METHOD2(GenTextures, void(GLsizei n, GLuint* textures));
+    MOCK_METHOD2(DeleteTextures, void(GLsizei n, const GLuint* textures));
+    MOCK_METHOD2(BindTexture, void(GLenum target, GLuint texture));
+    MOCK_METHOD3(TexParameterf, void(GLenum target, GLenum pname, GLfloat param));
+    MOCK_METHOD3(TexParameteri, void(GLenum target, GLenum pname, GLint param));
+    MOCK_METHOD9(TexImage2D, void(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data));
+    
     MOCK_METHOD2(GenBuffers, void(GLsizei n, GLuint* buffers));
     MOCK_METHOD2(DeleteBuffers, void(GLsizei n, GLuint* buffers));
     MOCK_METHOD2(BindBuffer, void(GLenum type, GLuint bufferId));
@@ -51,6 +65,23 @@ public:
 };
 
 extern CGLMock* GLMock;
+
+#undef glEnable
+#define glEnable                    GLMock->Enable
+
+#undef glGenTextures
+#define glGenTextures               GLMock->GenTextures
+#undef glDeleteTextures
+#define glDeleteTextures            GLMock->DeleteTextures
+#undef glBindTexture
+#define glBindTexture               GLMock->BindTexture
+#undef glTexParameterf
+#define glTexParameterf             GLMock->TexParameterf
+#undef glTexParameteri
+#define glTexParameteri             GLMock->TexParameteri
+#undef glTexImage2D
+#define glTexImage2D                GLMock->TexImage2D
+
 
 #undef glGenBuffers
 #define glGenBuffers                GLMock->GenBuffers

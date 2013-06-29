@@ -40,9 +40,9 @@ namespace TrenchBroom {
         TEST(MapDocumentTest, openDocument) {
             MapDocument::Ptr document = MapDocument::newMapDocument();
             Model::Game::Ptr game = Model::QuakeGame::newGame();
-            document->openDocument(game, IO::Path("data/View/DocumentManager/TestDoc1.map"));
+            document->openDocument(game, IO::Path("data/View/FrameManager/TestDoc1.map"));
             
-            ASSERT_EQ(IO::Path("data/View/DocumentManager/TestDoc1.map"), document->path());
+            ASSERT_EQ(IO::Path("data/View/FrameManager/TestDoc1.map"), document->path());
             ASSERT_EQ(String("TestDoc1.map"), document->filename());
         }
     }

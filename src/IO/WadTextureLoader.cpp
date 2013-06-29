@@ -29,19 +29,24 @@ namespace TrenchBroom {
         Model::TextureCollection::Ptr WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
+            const size_t textureCount = mipEntries.size();
 
             Model::TextureList textures;
-            textures.reserve(mipEntries.size());
+            textures.reserve(textureCount);
             
             glEnable(GL_TEXTURE_2D);
+            
+            typedef std::vector<GLuint> TextureIdList;
+            TextureIdList textureIds;
+            textureIds.resize(textureCount);
+            glGenTextures(textureCount, &textureIds[0]);
 
-            WadEntryList::const_iterator it, end;
-            for (it = mipEntries.begin(), end = mipEntries.end(); it != end; ++it) {
-                const WadEntry& entry = *it;
+            assert(mipEntries.size() == textureIds.size());
+            for (size_t i = 0; i < textureCount; ++i) {
+                const WadEntry& entry = mipEntries[i];
+                const GLuint textureId = textureIds[i];
                 const MipSize mipSize = wad.mipSize(entry);
-                GLuint textureId = 0;
-                
-                glGenTextures(1, &textureId);
+
                 glBindTexture(GL_TEXTURE_2D, textureId);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);

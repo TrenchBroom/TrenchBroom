@@ -17,10 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DocumentManager__
-#define __TrenchBroom__DocumentManager__
+#ifndef __TrenchBroom__FrameManager__
+#define __TrenchBroom__FrameManager__
 
-#include "Model/Game.h"
 #include "View/MapDocument.h"
 
 #include <vector>
@@ -31,26 +30,29 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        typedef std::vector<MapDocument::Ptr> DocumentList;
-
-        class DocumentManager {
+        typedef std::vector<MapFrame*> FrameList;
+        
+        class FrameManager {
         private:
-            bool m_singleDocument;
-            DocumentList m_documents;
+            bool m_singleFrame;
+            FrameList m_frames;
         public:
-            DocumentManager(const bool singleDocument);
-            ~DocumentManager();
+            FrameManager(const bool singleFrame);
+            ~FrameManager();
             
-            const DocumentList& documents() const;
-            
-            MapDocument::Ptr newDocument(Model::Game::Ptr game);
-            MapDocument::Ptr openDocument(Model::Game::Ptr game, const IO::Path& path);
-            bool closeDocument(MapDocument::Ptr document);
-            bool closeAllDocuments();
+            MapFrame* newFrame();
+            void closeAllFrames();
+
+            FrameList frames() const;
+            bool allFramesClosed() const;
         private:
-            MapDocument::Ptr createOrReuseDocument();
+            MapFrame* createOrReuseFrame();
+            MapFrame* createFrame(MapDocument::Ptr document);
+            void removeAndDestroyFrame(MapFrame* frame);
+            
+            friend class MapFrame;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__DocumentManager__) */
+#endif /* defined(__TrenchBroom__FrameManager__) */

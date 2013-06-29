@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__MapFrame__
 #define __TrenchBroom__MapFrame__
 
+#include "IO/Path.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 
 #include <wx/frame.h>
@@ -27,11 +29,13 @@
 namespace TrenchBroom {
     namespace View {
         class Console;
+        class FrameManager;
         class MapView;
         class NavBar;
         
         class MapFrame : public wxFrame {
         private:
+            FrameManager* m_frameManager;
             MapDocument::Ptr m_document;
 
             Console* m_console;
@@ -39,9 +43,12 @@ namespace TrenchBroom {
             MapView* m_mapView;
         public:
             MapFrame();
-            MapFrame(MapDocument::Ptr document);
-            void Create(MapDocument::Ptr document);
+            MapFrame(FrameManager* frameManager, MapDocument::Ptr document);
+            void Create(FrameManager* frameManager, MapDocument::Ptr document);
             ~MapFrame();
+            
+            bool newDocument(Model::Game::Ptr game);
+            bool openDocument(Model::Game::Ptr game, const IO::Path& path);
             
             Console* console() const;
             
@@ -54,7 +61,13 @@ namespace TrenchBroom {
         private:
             void createGui();
             void createMenuBar();
+            void updateTitle();
 
+            bool confirmOrDiscardChanges();
+            
+            bool saveDocument();
+            bool saveDocumentAs(const IO::Path& path);
+            
             DECLARE_EVENT_TABLE()
         };
     }

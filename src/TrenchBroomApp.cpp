@@ -25,6 +25,7 @@
 #include "Model/QuakeGame.h"
 #include "View/CommandIds.h"
 #include "View/MapDocument.h"
+#include "View/MapFrame.h"
 #include "View/Menu.h"
 
 #include <wx/filedlg.h>
@@ -62,16 +63,20 @@ namespace TrenchBroom {
         
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
-        m_documentManager(NULL) {}
+        m_frameManager(NULL) {}
         
+        FrameManager* TrenchBroomApp::frameManager() {
+            return m_frameManager;
+        }
+
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
                 return false;
             
             std::setlocale(LC_NUMERIC, "C");
             
-            assert(m_documentManager == NULL);
-            m_documentManager = new TrenchBroom::View::DocumentManager(useSDI());
+            assert(m_frameManager == NULL);
+            m_frameManager = new FrameManager(useSDI());
             
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
@@ -91,9 +96,8 @@ namespace TrenchBroom {
         }
         
         int TrenchBroomApp::OnExit() {
-            delete m_documentManager;
-            m_documentManager = NULL;
-            
+            delete m_frameManager;
+            m_frameManager = NULL;
             return wxApp::OnExit();
         }
         
@@ -132,7 +136,7 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 default:
-                    if (m_documentManager->documents().empty())
+                    if (m_frameManager->allFramesClosed())
                         event.Enable(false);
                     break;
             }
@@ -161,21 +165,15 @@ namespace TrenchBroom {
         
         bool TrenchBroomApp::newDocument() {
             Model::Game::Ptr game = Model::QuakeGame::newGame();
-            MapDocument::Ptr document = m_documentManager->newDocument(game);
-            if (document == NULL)
-                return false;
-            document->createOrRaiseFrame();
-            return true;
+            MapFrame* frame = m_frameManager->newFrame();
+            return frame != NULL && frame->newDocument(game);
         }
         
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             Model::Game::Ptr game = Model::QuakeGame::newGame();
             const IO::Path path(pathStr);
-            MapDocument::Ptr document = m_documentManager->openDocument(game, path);
-            if (document == NULL)
-                return false;
-            document->createOrRaiseFrame();
-            return true;
+            MapFrame* frame = m_frameManager->newFrame();
+            return frame != NULL && frame->openDocument(game, path);
         }
     }
 }

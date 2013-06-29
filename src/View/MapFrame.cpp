@@ -22,7 +22,7 @@
 #include "TrenchBroomApp.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
-#include "View/DocumentManager.h"
+#include "View/FrameManager.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/NavBar.h"
@@ -52,34 +52,54 @@ namespace TrenchBroom {
 
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
+        m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
         m_mapView(NULL) {}
 
-        MapFrame::MapFrame(MapDocument::Ptr document) :
+        MapFrame::MapFrame(FrameManager* frameManager, MapDocument::Ptr document) :
         wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
+        m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
         m_mapView(NULL) {
-            Create(document);
+            Create(frameManager, document);
+        }
+
+        void MapFrame::Create(FrameManager* frameManager, MapDocument::Ptr document) {
+            m_frameManager = frameManager;
+            m_document = document;
             createGui();
             createMenuBar();
+            updateTitle();
+
+            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             
             SetSize(1024, 768);
             CenterOnScreen();
         }
 
-        void MapFrame::Create(MapDocument::Ptr document) {
-            m_document = document;
-            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
-        }
-
         MapFrame::~MapFrame() {}
 
+        bool MapFrame::newDocument(Model::Game::Ptr game) {
+            if (!confirmOrDiscardChanges())
+                return false;
+            const bool result = m_document->newDocument(game);
+            updateTitle();
+            return result;
+        }
+        
+        bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
+            if (!confirmOrDiscardChanges())
+                return false;
+            const bool result = m_document->openDocument(game, path);
+            updateTitle();
+            return result;
+        }
+
         void MapFrame::OnClose(wxCloseEvent& event) {
-            DocumentManager& documentManager = getDocumentManager();
-            if (!documentManager.closeDocument(m_document))
-                event.Veto();
+            assert(m_frameManager != NULL);
+            m_frameManager->removeAndDestroyFrame(this);
         }
 
         Console* MapFrame::console() const {
@@ -141,6 +161,32 @@ namespace TrenchBroom {
         void MapFrame::createMenuBar() {
             wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
             SetMenuBar(menuBar);
+        }
+
+        void MapFrame::updateTitle() {
+            SetTitle(m_document->filename());
+        }
+
+        bool MapFrame::confirmOrDiscardChanges() {
+            if (!m_document->isModified())
+                return true;
+            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", "", wxYES_NO | wxCANCEL, this);
+            switch (result) {
+                case wxYES:
+                    return saveDocument();
+                case wxNO:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        bool MapFrame::saveDocument() {
+            return true;
+        }
+        
+        bool MapFrame::saveDocumentAs(const IO::Path& path) {
+            return true;
         }
     }
 }

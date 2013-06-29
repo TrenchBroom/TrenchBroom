@@ -93,13 +93,6 @@ namespace TrenchBroom {
         WadException(const String& str) throw() : Exception(str) {}
         ~WadException() throw() {}
     };
-            
-    class DocumentManagerException : public Exception {
-    public:
-        DocumentManagerException() throw() {}
-        DocumentManagerException(const String& str) throw() : Exception(str) {}
-        ~DocumentManagerException() throw() {}
-    };
 }
 
 #endif

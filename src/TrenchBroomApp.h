@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__TrenchBroomApp__
 #define __TrenchBroom__TrenchBroomApp__
 
-#include "View/DocumentManager.h"
+#include "View/FrameManager.h"
 
 #include <wx/wx.h>
 
@@ -28,14 +28,11 @@ namespace TrenchBroom {
     namespace View {
         class TrenchBroomApp : public wxApp {
         private:
-            TrenchBroom::View::DocumentManager* m_documentManager;
+            TrenchBroom::View::FrameManager* m_frameManager;
         public:
             TrenchBroomApp();
             
-            inline TrenchBroom::View::DocumentManager& documentManager() {
-                assert(m_documentManager != NULL);
-                return *m_documentManager;
-            }
+            FrameManager* frameManager();
             
             bool OnInit();
             int OnExit();
@@ -60,14 +57,6 @@ namespace TrenchBroom {
             
             DECLARE_EVENT_TABLE()
         };
-        
-        namespace {
-            inline static DocumentManager& getDocumentManager() {
-                TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-                return app->documentManager();
-            }
-        }
-        
     }
 }
 

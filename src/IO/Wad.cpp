@@ -154,7 +154,7 @@ namespace TrenchBroom {
 
         const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) {
             assert(mipLevel > 0);
-            assert(mipLevel < 4);
+            assert(mipLevel <= 4);
             
             if (entry.type() != WadEntryType::WEMip)
                 throw WadException(entry.name() + " is not a Mip entry");
