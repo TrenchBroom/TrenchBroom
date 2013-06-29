@@ -27,6 +27,7 @@
 #include "View/Menu.h"
 #include "View/NavBar.h"
 
+#include <wx/display.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/textctrl.h>
@@ -74,12 +75,29 @@ namespace TrenchBroom {
             updateTitle();
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
-            
-            SetSize(1024, 768);
-            CenterOnScreen();
         }
 
         MapFrame::~MapFrame() {}
+
+        void MapFrame::positionOnScreen(wxFrame* reference) {
+            const wxDisplay display;
+            const wxRect displaySize = display.GetClientArea();
+            if (reference == NULL) {
+                SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
+                CenterOnScreen();
+            } else {
+                wxPoint position = reference->GetPosition();
+                position.x += 23;
+                position.y += 23;
+                
+                if (displaySize.GetBottom() - position.x < 100 ||
+                    displaySize.GetRight() - position.y < 70)
+                    position = displaySize.GetTopLeft();
+                
+                SetPosition(position);
+                SetSize(std::min(displaySize.GetRight() - position.x, 1024), std::min(displaySize.GetBottom() - position.y, 768));
+            }
+        }
 
         bool MapFrame::newDocument(Model::Game::Ptr game) {
             if (!confirmOrDiscardChanges())

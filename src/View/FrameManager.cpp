@@ -24,10 +24,13 @@
 
 #include <cassert>
 
+#include <wx/display.h>
+
 namespace TrenchBroom {
     namespace View {
         FrameManager::FrameManager(const bool singleFrame) :
-        m_singleFrame(singleFrame) {}
+        m_singleFrame(singleFrame),
+        m_topFrame(NULL) {}
         
         FrameManager::~FrameManager() {
             closeAllFrames();
@@ -55,6 +58,11 @@ namespace TrenchBroom {
             return m_frames.empty();
         }
 
+        void FrameManager::OnFrameActivate(wxActivateEvent& event) {
+            if (event.GetActive())
+                m_topFrame = static_cast<MapFrame*>(event.GetEventObject());
+        }
+
         MapFrame* FrameManager::createOrReuseFrame() {
             assert(!m_singleFrame || m_frames.size() <= 1);
             if (!m_singleFrame || m_frames.empty()) {
@@ -67,6 +75,8 @@ namespace TrenchBroom {
 
         MapFrame* FrameManager::createFrame(MapDocument::Ptr document) {
             MapFrame* frame = new MapFrame(this, document);
+            frame->positionOnScreen(m_topFrame);
+            frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Show();
             frame->Raise();
             return frame;
@@ -76,6 +86,11 @@ namespace TrenchBroom {
             FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
             assert(it != m_frames.end());
             m_frames.erase(it);
+
+            if (m_topFrame == frame)
+                m_topFrame = NULL;
+
+            frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Destroy();
         }
     }

@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include <wx/event.h>
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -36,6 +38,7 @@ namespace TrenchBroom {
         private:
             bool m_singleFrame;
             FrameList m_frames;
+            MapFrame* m_topFrame;
         public:
             FrameManager(const bool singleFrame);
             ~FrameManager();
@@ -45,6 +48,8 @@ namespace TrenchBroom {
 
             FrameList frames() const;
             bool allFramesClosed() const;
+            
+            void OnFrameActivate(wxActivateEvent& event);
         private:
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocument::Ptr document);

@@ -47,6 +47,8 @@ namespace TrenchBroom {
             void Create(FrameManager* frameManager, MapDocument::Ptr document);
             ~MapFrame();
             
+            void positionOnScreen(wxFrame* reference);
+            
             bool newDocument(Model::Game::Ptr game);
             bool openDocument(Model::Game::Ptr game, const IO::Path& path);
             
