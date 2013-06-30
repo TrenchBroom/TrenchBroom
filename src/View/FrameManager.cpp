@@ -61,6 +61,7 @@ namespace TrenchBroom {
         void FrameManager::OnFrameActivate(wxActivateEvent& event) {
             if (event.GetActive())
                 m_topFrame = static_cast<MapFrame*>(event.GetEventObject());
+            event.Skip();
         }
 
         MapFrame* FrameManager::createOrReuseFrame() {

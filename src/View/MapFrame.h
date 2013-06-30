@@ -69,8 +69,6 @@ namespace TrenchBroom {
             
             bool saveDocument();
             bool saveDocumentAs(const IO::Path& path);
-            
-            DECLARE_EVENT_TABLE()
         };
     }
 }

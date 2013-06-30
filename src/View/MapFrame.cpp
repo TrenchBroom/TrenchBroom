@@ -36,21 +36,6 @@ namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
-        BEGIN_EVENT_TABLE(MapFrame, wxFrame)
-        EVT_MENU(wxID_CLOSE, MapFrame::OnFileClose)
-        
-        EVT_UPDATE_UI(wxID_SAVE, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_SAVEAS, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_CLOSE, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_UNDO, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_REDO, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_CUT, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_COPY, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_PASTE, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_DELETE, MapFrame::OnUpdateUI)
-        EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, MapFrame::OnUpdateUI)
-        END_EVENT_TABLE()
-
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
         m_frameManager(NULL),
@@ -70,11 +55,24 @@ namespace TrenchBroom {
         void MapFrame::Create(FrameManager* frameManager, MapDocument::Ptr document) {
             m_frameManager = frameManager;
             m_document = document;
-            createGui();
+            
             createMenuBar();
+            createGui();
             updateTitle();
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
+
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_UNDO);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_REDO);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
         }
 
         MapFrame::~MapFrame() {}

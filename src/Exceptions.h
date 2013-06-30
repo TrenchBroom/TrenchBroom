@@ -93,6 +93,13 @@ namespace TrenchBroom {
         WadException(const String& str) throw() : Exception(str) {}
         ~WadException() throw() {}
     };
+        
+    class CommandProcessorException : public Exception {
+    public:
+        CommandProcessorException() throw() {}
+        CommandProcessorException(const String& str) throw() : Exception(str) {}
+        ~CommandProcessorException() throw() {}
+    };
 }
 
 #endif
