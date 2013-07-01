@@ -56,22 +56,24 @@ namespace TrenchBroom {
             const String& lastCommandName() const;
             const String& nextCommandName() const;
             
-            void beginGroup(const String& name, const bool undoable);
-            void endGroup();
+            void beginUndoableGroup(const String& name);
+            void beginOneShotGroup(const String& name);
+            void closeGroup();
+            void undoGroup();
             
             bool submitCommand(Command::Ptr command);
             bool submitAndStoreCommand(Command::Ptr command);
             bool undoLastCommand();
-            bool undoLastGroupedCommand();
             bool redoNextCommand();
         private:
             bool doCommand(Command::Ptr command);
             bool undoCommand(Command::Ptr command);
             void storeCommand(Command::Ptr command);
             
+            void beginGroup(const String& name, const bool undoable);
             void pushGroupedCommand(Command::Ptr command);
             Command::Ptr popGroupedCommand();
-            Command::Ptr createCommandGroup();
+            void createAndStoreCommandGroup();
 
             void pushLastCommand(Command::Ptr command);
             void pushNextCommand(Command::Ptr command);

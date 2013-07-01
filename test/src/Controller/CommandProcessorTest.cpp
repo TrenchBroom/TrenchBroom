@@ -18,6 +18,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "Exceptions.h"
 #include "Controller/Command.h"
@@ -26,30 +27,25 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class TestCommand : public Command {
-        private:
-            bool m_doFailure;
-            bool m_undoFailure;
-            
-            inline bool doPerformDo() {
-                return !m_doFailure;
-            }
-            
-            inline bool doPerformUndo() {
-                return !m_undoFailure;
-            }
+        class MockCommand : public Command {
+        public: // changing visibility to public for gmock
+            MOCK_METHOD0(doPerformDo, bool());
+            MOCK_METHOD0(doPerformUndo, bool());
         public:
-            TestCommand(const String& name, const bool undoable = true, const bool doFailure = false, const bool undoFailure = false) :
-            Command(name, undoable),
-            m_doFailure(doFailure),
-            m_undoFailure(undoFailure) {}
+            MockCommand(const String& name, const bool undoable = true) :
+            Command(name, undoable) {}
         };
         
         TEST(CommandProcessorTest, submitAndDontStoreCommand) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+
             CommandProcessor proc;
-            Command::Ptr cmd = Command::Ptr(new TestCommand("test"));
+            MockCommand* cmd = new MockCommand("test");
             
-            ASSERT_TRUE(proc.submitCommand(cmd));
+            EXPECT_CALL(*cmd, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitCommand(Command::Ptr(cmd)));
             ASSERT_FALSE(proc.hasLastCommand());
             ASSERT_FALSE(proc.hasNextCommand());
             ASSERT_THROW(proc.lastCommandName(), CommandProcessorException);
@@ -59,10 +55,15 @@ namespace TrenchBroom {
         }
         
         TEST(CommandProcessorTest, submitAndStoreCommand) {
-            CommandProcessor proc;
-            Command::Ptr cmd = Command::Ptr(new TestCommand("test"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd));
+            CommandProcessor proc;
+            MockCommand* cmd = new MockCommand("test");
+            
+            EXPECT_CALL(*cmd, doPerformDo()).WillOnce(Return(true));
+
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd)));
             ASSERT_TRUE(proc.hasLastCommand());
             ASSERT_FALSE(proc.hasNextCommand());
             ASSERT_THROW(proc.nextCommandName(), CommandProcessorException);
@@ -71,12 +72,18 @@ namespace TrenchBroom {
         }
 
         TEST(CommandProcessorTest, submitAndStore2Commands) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.hasLastCommand());
             ASSERT_FALSE(proc.hasNextCommand());
             ASSERT_THROW(proc.nextCommandName(), CommandProcessorException);
@@ -85,12 +92,19 @@ namespace TrenchBroom {
         }
         
         TEST(CommandProcessorTest, undoLastCommand) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
             ASSERT_TRUE(proc.hasLastCommand());
             ASSERT_TRUE(proc.hasNextCommand());
@@ -99,24 +113,40 @@ namespace TrenchBroom {
         }
         
         TEST(CommandProcessorTest, undoTooManyCommands) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd1, doPerformUndo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
             ASSERT_TRUE(proc.undoLastCommand());
             ASSERT_THROW(proc.undoLastCommand(), CommandProcessorException);
         }
         
         TEST(CommandProcessorTest, redoNextCommand) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
             ASSERT_TRUE(proc.redoNextCommand());
             ASSERT_TRUE(proc.hasLastCommand());
@@ -126,44 +156,67 @@ namespace TrenchBroom {
         }
         
         TEST(CommandProcessorTest, redoTooManyCommands) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
             ASSERT_TRUE(proc.redoNextCommand());
             ASSERT_THROW(proc.redoNextCommand(), CommandProcessorException);
         }
         
         TEST(CommandProcessorTest, undoLastAndSubmitNewCommand) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
-            Command::Ptr cmd3 = Command::Ptr(new TestCommand("test3"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd3));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
             ASSERT_EQ(cmd3->name(), proc.lastCommandName());
-            ASSERT_EQ(1u, cmd2.use_count());
             ASSERT_TRUE(proc.hasLastCommand());
             ASSERT_FALSE(proc.hasNextCommand());
             ASSERT_THROW(proc.redoNextCommand(), CommandProcessorException);
         }
 
         TEST(CommandProcessorTest, submitOneShotCommand) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
-            Command::Ptr cmd3 = Command::Ptr(new TestCommand("test3", false));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd1));
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd2));
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3", false);
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
             ASSERT_TRUE(proc.undoLastCommand());
-            ASSERT_TRUE(proc.submitAndStoreCommand(cmd3));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
 
             ASSERT_FALSE(proc.hasLastCommand());
             ASSERT_FALSE(proc.hasNextCommand());
@@ -173,12 +226,180 @@ namespace TrenchBroom {
             ASSERT_THROW(proc.redoNextCommand(), CommandProcessorException);
         }
         
-        TEST(CommandProcessorTest, createCommandGroup) {
-            CommandProcessor proc;
-            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
-            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
-            Command::Ptr cmd3 = Command::Ptr(new TestCommand("test3"));
+        TEST(CommandProcessorTest, createAndCloseCommandGroup) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("group");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
+            proc.closeGroup();
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_FALSE(proc.hasNextCommand());
+            ASSERT_EQ(String("group"), proc.lastCommandName());
+        }
+        
+        TEST(CommandProcessorTest, createAndCloseEmptyCommandGroup) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("group");
+            proc.closeGroup();
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_FALSE(proc.hasNextCommand());
+            ASSERT_EQ(cmd1->name(), proc.lastCommandName());
+        }
+        
+        TEST(CommandProcessorTest, createCommandGroupAndUndoGroupedCommand) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("group");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            ASSERT_THROW(proc.undoLastCommand(), CommandProcessorException);
+            proc.closeGroup();
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_FALSE(proc.hasNextCommand());
+            ASSERT_EQ(String("group"), proc.lastCommandName());
+        }
+        
+        TEST(CommandProcessorTest, createCommandGroupAndRedo) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd1, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.undoLastCommand());
+            proc.beginUndoableGroup("group");
+            ASSERT_THROW(proc.redoNextCommand(), CommandProcessorException);
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            proc.closeGroup();
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_FALSE(proc.hasNextCommand());
+            ASSERT_EQ(String("group"), proc.lastCommandName());
+        }
+        
+        TEST(CommandProcessorTest, createAndCloseCommandGroupTooOften) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("group");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
+            proc.closeGroup();
+            ASSERT_THROW(proc.closeGroup(), CommandProcessorException);
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_FALSE(proc.hasNextCommand());
+            ASSERT_EQ(String("group"), proc.lastCommandName());
+        }
+        
+        TEST(CommandProcessorTest, createCloseAndUndoCommandGroup) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("group");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
+            proc.closeGroup();
+            ASSERT_TRUE(proc.undoLastCommand());
+            
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_TRUE(proc.hasNextCommand());
+            ASSERT_EQ(cmd1->name(), proc.lastCommandName());
+            ASSERT_EQ(String("group"), proc.nextCommandName());
+        }
+
+        TEST(CommandProcessorTest, createNestedCommandGroups) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+            MockCommand* cmd4 = new MockCommand("test4");
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd4, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd4, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd3, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("outer");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            proc.beginUndoableGroup("inner");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
+            proc.closeGroup();
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd4)));
+            proc.closeGroup();
+            
+            ASSERT_EQ(String("outer"), proc.lastCommandName());
+            ASSERT_TRUE(proc.undoLastCommand());
+            ASSERT_TRUE(proc.hasLastCommand());
+            ASSERT_TRUE(proc.hasNextCommand());
+            ASSERT_EQ(cmd1->name(), proc.lastCommandName());
+            ASSERT_EQ(String("outer"), proc.nextCommandName());
         }
     }
 }

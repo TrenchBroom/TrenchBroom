@@ -71,22 +71,25 @@ namespace TrenchBroom {
             return m_nextCommandStack.back()->name();
         }
 
-        void CommandProcessor::beginGroup(const String& name, const bool undoable) {
-            if (m_groupLevel == 0) {
-                m_groupName = name;
-                m_groupUndoable = undoable;
-            }
-            ++m_groupLevel;
+        void CommandProcessor::beginUndoableGroup(const String& name) {
+            beginGroup(name, true);
         }
         
-        void CommandProcessor::endGroup() {
+        void CommandProcessor::beginOneShotGroup(const String& name) {
+            beginGroup(name, false);
+        }
+
+        void CommandProcessor::closeGroup() {
             if (m_groupLevel == 0)
                 throw CommandProcessorException("Group stack is empty");
             --m_groupLevel;
-            if (m_groupLevel == 0) {
-                Command::Ptr group = createCommandGroup();
-                pushLastCommand(group);
-            }
+            if (m_groupLevel == 0)
+                createAndStoreCommandGroup();
+        }
+
+        void CommandProcessor::undoGroup() {
+            while (!m_groupedCommands.empty())
+                popGroupedCommand()->performUndo();
         }
 
         bool CommandProcessor::submitCommand(Command::Ptr command) {
@@ -120,13 +123,6 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
-        bool CommandProcessor::undoLastGroupedCommand() {
-            if (m_groupLevel == 0)
-                throw CommandProcessorException("Cannot undo grouped commands if no group is active");
-            Command::Ptr command = popGroupedCommand();
-            return undoCommand(command); // grouped commands are not redoable
-        }
 
         bool CommandProcessor::redoNextCommand() {
             if (m_groupLevel > 0)
@@ -155,6 +151,14 @@ namespace TrenchBroom {
                 pushGroupedCommand(command);
         }
         
+        void CommandProcessor::beginGroup(const String& name, const bool undoable) {
+            if (m_groupLevel == 0) {
+                m_groupName = name;
+                m_groupUndoable = undoable;
+            }
+            ++m_groupLevel;
+        }
+        
         void CommandProcessor::pushGroupedCommand(Command::Ptr command) {
             assert(m_groupLevel > 0);
             if (m_groupUndoable && !command->undoable())
@@ -171,12 +175,14 @@ namespace TrenchBroom {
             return groupedCommand;
         }
 
-        Command::Ptr CommandProcessor::createCommandGroup() {
-            Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands));
+        void CommandProcessor::createAndStoreCommandGroup() {
+            if (!m_groupedCommands.empty()) {
+                Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands));
+                m_groupedCommands.clear();
+                pushLastCommand(group);
+            }
             m_groupName = "";
             m_groupUndoable = false;
-            m_groupedCommands.clear();
-            return group;
         }
 
         void CommandProcessor::pushLastCommand(Command::Ptr command) {
