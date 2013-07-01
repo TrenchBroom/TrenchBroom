@@ -28,21 +28,21 @@ namespace TrenchBroom {
     namespace Controller {
         class TestCommand : public Command {
         private:
-            bool m_executeFailure;
-            bool m_rollbackFailure;
+            bool m_doFailure;
+            bool m_undoFailure;
             
-            inline bool doExecute() {
-                return !m_executeFailure;
+            inline bool doPerformDo() {
+                return !m_doFailure;
             }
             
-            inline bool doRollback() {
-                return !m_rollbackFailure;
+            inline bool doPerformUndo() {
+                return !m_undoFailure;
             }
         public:
-            TestCommand(const String& name, const bool canRollback = true, const bool executeFailure = false, const bool rollbackFailure = false) :
-            Command(name, canRollback),
-            m_executeFailure(executeFailure),
-            m_rollbackFailure(rollbackFailure) {}
+            TestCommand(const String& name, const bool undoable = true, const bool doFailure = false, const bool undoFailure = false) :
+            Command(name, undoable),
+            m_doFailure(doFailure),
+            m_undoFailure(undoFailure) {}
         };
         
         TEST(CommandProcessorTest, submitAndDontStoreCommand) {
@@ -171,6 +171,14 @@ namespace TrenchBroom {
             ASSERT_THROW(proc.nextCommandName(), CommandProcessorException);
             ASSERT_THROW(proc.undoLastCommand(), CommandProcessorException);
             ASSERT_THROW(proc.redoNextCommand(), CommandProcessorException);
+        }
+        
+        TEST(CommandProcessorTest, createCommandGroup) {
+            CommandProcessor proc;
+            Command::Ptr cmd1 = Command::Ptr(new TestCommand("test1"));
+            Command::Ptr cmd2 = Command::Ptr(new TestCommand("test2"));
+            Command::Ptr cmd3 = Command::Ptr(new TestCommand("test3"));
+            
         }
     }
 }

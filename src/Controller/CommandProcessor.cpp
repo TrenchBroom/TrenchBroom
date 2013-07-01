@@ -23,6 +23,34 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands) :
+        Command(name, undoable),
+        m_commands(commands) {}
+
+        bool CommandGroup::doPerformDo() {
+            List::iterator it, end;
+            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+                Command::Ptr command = *it;
+                if (!command->performDo())
+                    throw CommandProcessorException("Partial failure of while executing command group");
+            }
+            return true;
+        }
+        
+        bool CommandGroup::doPerformUndo() {
+            List::reverse_iterator it, end;
+            for (it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
+                Command::Ptr command = *it;
+                if (!command->performUndo())
+                    throw CommandProcessorException("Partial failure of while undoing command group");
+            }
+            return true;
+        }
+
+        CommandProcessor::CommandProcessor() :
+        m_groupUndoable(false),
+        m_groupLevel(0) {}
+
         bool CommandProcessor::hasLastCommand() const {
             return !m_lastCommandStack.empty();
         }
@@ -43,53 +71,140 @@ namespace TrenchBroom {
             return m_nextCommandStack.back()->name();
         }
 
-        bool CommandProcessor::submitCommand(Command::Ptr command) {
-            if (command->execute()) {
-                if (!command->canRollback()) {
-                    m_lastCommandStack.clear();
-                    m_nextCommandStack.clear();
-                }
-                return true;
+        void CommandProcessor::beginGroup(const String& name, const bool undoable) {
+            if (m_groupLevel == 0) {
+                m_groupName = name;
+                m_groupUndoable = undoable;
             }
-            return false;
+            ++m_groupLevel;
+        }
+        
+        void CommandProcessor::endGroup() {
+            if (m_groupLevel == 0)
+                throw CommandProcessorException("Group stack is empty");
+            --m_groupLevel;
+            if (m_groupLevel == 0) {
+                Command::Ptr group = createCommandGroup();
+                pushLastCommand(group);
+            }
+        }
+
+        bool CommandProcessor::submitCommand(Command::Ptr command) {
+            if (!doCommand(command))
+                return false;
+            if (!command->undoable()) {
+                m_lastCommandStack.clear();
+                m_nextCommandStack.clear();
+            }
+            return true;
         }
         
         bool CommandProcessor::submitAndStoreCommand(Command::Ptr command) {
             if (!submitCommand(command))
                 return false;
-            if (command->canRollback())
-                m_lastCommandStack.push_back(command);
+            if (command->undoable())
+                storeCommand(command);
             if (!m_nextCommandStack.empty())
                 m_nextCommandStack.clear();
             return true;
         }
 
         bool CommandProcessor::undoLastCommand() {
-            if (m_lastCommandStack.empty())
-                throw CommandProcessorException("Command stack is empty");
-        
-            Command::Ptr command = m_lastCommandStack.back();
-            m_lastCommandStack.pop_back();
+            if (m_groupLevel > 0)
+                throw CommandProcessorException("Cannot undo individual commands of a command group");
             
-            if (command->rollback()) {
-                m_nextCommandStack.push_back(command);
+            Command::Ptr command = popLastCommand();
+            if (undoCommand(command)) {
+                pushNextCommand(command);
                 return true;
             }
             return false;
         }
         
+        bool CommandProcessor::undoLastGroupedCommand() {
+            if (m_groupLevel == 0)
+                throw CommandProcessorException("Cannot undo grouped commands if no group is active");
+            Command::Ptr command = popGroupedCommand();
+            return undoCommand(command); // grouped commands are not redoable
+        }
+
         bool CommandProcessor::redoNextCommand() {
-            if (m_nextCommandStack.empty())
-                throw CommandProcessorException("Undo stack is empty");
+            if (m_groupLevel > 0)
+                throw CommandProcessorException("Cannot redo while in a command group");
             
-            Command::Ptr command = m_nextCommandStack.back();
-            m_nextCommandStack.pop_back();
-            
-            if (command->execute()) {
-                m_lastCommandStack.push_back(command);
+            Command::Ptr command = popNextCommand();
+            if (doCommand(command)) {
+                pushLastCommand(command);
                 return true;
             }
             return false;
+        }
+
+        bool CommandProcessor::doCommand(Command::Ptr command) {
+            return command->performDo();
+        }
+        
+        bool CommandProcessor::undoCommand(Command::Ptr command) {
+            return command->performUndo();
+        }
+
+        void CommandProcessor::storeCommand(Command::Ptr command) {
+            if (m_groupLevel == 0)
+                pushLastCommand(command);
+            else
+                pushGroupedCommand(command);
+        }
+        
+        void CommandProcessor::pushGroupedCommand(Command::Ptr command) {
+            assert(m_groupLevel > 0);
+            if (m_groupUndoable && !command->undoable())
+                throw CommandProcessorException("Cannot add one-shot command to undoable command group");
+            m_groupedCommands.push_back(command);
+        }
+        
+        Command::Ptr CommandProcessor::popGroupedCommand() {
+            assert(m_groupLevel > 0);
+            if (m_groupedCommands.empty())
+                throw CommandProcessorException("Group command stack is empty");
+            Command::Ptr groupedCommand = m_groupedCommands.back();
+            m_groupedCommands.pop_back();
+            return groupedCommand;
+        }
+
+        Command::Ptr CommandProcessor::createCommandGroup() {
+            Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands));
+            m_groupName = "";
+            m_groupUndoable = false;
+            m_groupedCommands.clear();
+            return group;
+        }
+
+        void CommandProcessor::pushLastCommand(Command::Ptr command) {
+            assert(m_groupLevel == 0);
+            m_lastCommandStack.push_back(command);
+        }
+        
+        void CommandProcessor::pushNextCommand(Command::Ptr command) {
+            assert(m_groupLevel == 0);
+            m_nextCommandStack.push_back(command);
+        }
+
+        Command::Ptr CommandProcessor::popLastCommand() {
+            assert(m_groupLevel == 0);
+            if (m_lastCommandStack.empty())
+                throw CommandProcessorException("Command stack is empty");
+            Command::Ptr lastCommand = m_lastCommandStack.back();
+            m_lastCommandStack.pop_back();
+            return lastCommand;
+        }
+
+        Command::Ptr CommandProcessor::popNextCommand() {
+            assert(m_groupLevel == 0);
+            if (m_nextCommandStack.empty())
+                throw CommandProcessorException("Command stack is empty");
+            Command::Ptr nextCommand = m_nextCommandStack.back();
+            m_nextCommandStack.pop_back();
+            return nextCommand;
         }
     }
 }

@@ -28,22 +28,55 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        class CommandGroup : public Command {
+        private:
+            List m_commands;
+        public:
+            CommandGroup(const String& name, const bool undoable, const Command::List& commands);
+        private:
+            bool doPerformDo();
+            bool doPerformUndo();
+        };
+        
         class CommandProcessor {
         private:
-            typedef std::vector<Command::Ptr> CommandStack;
-
+            typedef Command::List CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
+
+            String m_groupName;
+            bool m_groupUndoable;
+            CommandStack m_groupedCommands;
+            size_t m_groupLevel;
         public:
+            CommandProcessor();
+            
             bool hasLastCommand() const;
             bool hasNextCommand() const;
             const String& lastCommandName() const;
             const String& nextCommandName() const;
             
+            void beginGroup(const String& name, const bool undoable);
+            void endGroup();
+            
             bool submitCommand(Command::Ptr command);
             bool submitAndStoreCommand(Command::Ptr command);
             bool undoLastCommand();
+            bool undoLastGroupedCommand();
             bool redoNextCommand();
+        private:
+            bool doCommand(Command::Ptr command);
+            bool undoCommand(Command::Ptr command);
+            void storeCommand(Command::Ptr command);
+            
+            void pushGroupedCommand(Command::Ptr command);
+            Command::Ptr popGroupedCommand();
+            Command::Ptr createCommandGroup();
+
+            void pushLastCommand(Command::Ptr command);
+            void pushNextCommand(Command::Ptr command);
+            Command::Ptr popLastCommand();
+            Command::Ptr popNextCommand();
         };
     }
 }

@@ -21,24 +21,24 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Command::Command(const String& name, const bool canRollback) :
+        Command::Command(const String& name, const bool undoable) :
         m_name(name),
-        m_canRollback(canRollback) {}
+        m_undoable(undoable) {}
         
-        bool Command::canRollback() const {
-            return m_canRollback;
+        bool Command::undoable() const {
+            return m_undoable;
         }
 
         const String& Command::name() const {
             return m_name;
         }
         
-        bool Command::execute() {
-            return doExecute();
+        bool Command::performDo() {
+            return doPerformDo();
         }
         
-        bool Command::rollback() {
-            return doRollback();
+        bool Command::performUndo() {
+            return doPerformUndo();
         }
     }
 }

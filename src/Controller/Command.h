@@ -23,24 +23,27 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Controller {
         class Command {
         public:
             typedef std::tr1::shared_ptr<Command> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             String m_name;
-            bool m_canRollback;
+            bool m_undoable;
         public:
-            Command(const String& name, const bool canRollback);
+            Command(const String& name, const bool undoable);
             
-            bool canRollback() const;
+            bool undoable() const;
             const String& name() const;
-            bool execute();
-            bool rollback();
+            bool performDo();
+            bool performUndo();
         private:
-            virtual bool doExecute() = 0;
-            virtual bool doRollback() = 0;
+            virtual bool doPerformDo() = 0;
+            virtual bool doPerformUndo() = 0;
         };
     }
 }
