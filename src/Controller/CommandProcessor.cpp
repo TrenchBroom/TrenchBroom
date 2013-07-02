@@ -23,8 +23,10 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        const Command::CommandType CommandGroup::Type = Command::freeType();
+        
         CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands) :
-        Command(name, undoable),
+        Command(Type, name, undoable),
         m_commands(commands) {}
 
         bool CommandGroup::doPerformDo() {

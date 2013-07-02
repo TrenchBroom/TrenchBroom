@@ -17,40 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Command__
-#define __TrenchBroom__Command__
+#ifndef __TrenchBroom__NewDocumentCommand__
+#define __TrenchBroom__NewDocumentCommand__
 
-#include "SharedPointer.h"
-#include "StringUtils.h"
-
-#include <vector>
+#include "Controller/Command.h"
+#include "Model/Game.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class Command {
+        class NewDocumentCommand : public Command {
         public:
-            typedef std::tr1::shared_ptr<Command> Ptr;
-            typedef std::vector<Ptr> List;
-            typedef size_t CommandType;
+            static const CommandType Type;
         private:
-            CommandType m_type;
-            String m_name;
-            bool m_undoable;
+            View::MapDocument::Ptr m_document;
+            Model::Game::Ptr m_game;
         public:
-            static CommandType freeType();
-            
-            Command(const CommandType type, const String& name, const bool undoable);
-
-            CommandType type() const;
-            const String& name() const;
-            bool undoable() const;
-            bool performDo();
-            bool performUndo();
+            NewDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game);
         private:
-            virtual bool doPerformDo() = 0;
-            virtual bool doPerformUndo();
+            bool doPerformDo();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Command__) */
+#endif /* defined(__TrenchBroom__NewDocumentCommand__) */

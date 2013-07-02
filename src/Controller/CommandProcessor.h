@@ -29,6 +29,8 @@
 namespace TrenchBroom {
     namespace Controller {
         class CommandGroup : public Command {
+        public:
+            static const CommandType Type;
         private:
             List m_commands;
         public:

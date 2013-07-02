@@ -18,19 +18,30 @@
  */
 
 #include "Command.h"
+#include "Exceptions.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        Command::Command(const String& name, const bool undoable) :
+        Command::CommandType Command::freeType() {
+            static CommandType type = 1;
+            return type++;
+        }
+
+        Command::Command(const CommandType type, const String& name, const bool undoable) :
+        m_type(type),
         m_name(name),
         m_undoable(undoable) {}
         
-        bool Command::undoable() const {
-            return m_undoable;
+        Command::CommandType Command::type() const {
+            return m_type;
         }
-
+        
         const String& Command::name() const {
             return m_name;
+        }
+        
+        bool Command::undoable() const {
+            return m_undoable;
         }
         
         bool Command::performDo() {
@@ -38,7 +49,13 @@ namespace TrenchBroom {
         }
         
         bool Command::performUndo() {
+            if (!undoable())
+                throw CommandProcessorException("Cannot undo one-shot command");
             return doPerformUndo();
+        }
+        
+        bool Command::doPerformUndo() {
+            throw CommandProcessorException("Undo not implemented");
         }
     }
 }

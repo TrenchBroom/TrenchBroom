@@ -33,7 +33,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(doPerformUndo, bool());
         public:
             MockCommand(const String& name, const bool undoable = true) :
-            Command(name, undoable) {}
+            Command(freeType(), name, undoable) {}
         };
         
         TEST(CommandProcessorTest, submitAndDontStoreCommand) {
