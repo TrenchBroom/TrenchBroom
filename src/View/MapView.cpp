@@ -19,6 +19,7 @@
 
 #include "MapView.h"
 
+#include "Exceptions.h"
 #include "Preferences.h"
 #include "View/Console.h"
 
@@ -36,8 +37,14 @@ namespace TrenchBroom {
         
         MapView::~MapView() {
             delete m_glContext;
+            m_glContext = NULL;
         }
         
+        void MapView::makeCurrent() {
+            if (!SetCurrent(*m_glContext))
+                throw RenderException("Failed to set current OpenGL context");
+        }
+
         void MapView::OnPaint(wxPaintEvent& event) {
             if (!IsShownOnScreen())
                 return;

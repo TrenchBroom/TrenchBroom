@@ -19,39 +19,53 @@
 
 #include <gtest/gtest.h>
 
-#include "Controller/NewDocumentCommand.h"
+#include "Controller/OpenDocumentCommand.h"
 #include "IO/Path.h"
+#include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/QuakeGame.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        TEST(NewDocumentCommandTest, newDocumentInEmptyDocument) {
+        TEST(OpenDocumentCommandTest, openDocumentInEmptyDocument) {
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
             Model::Game::Ptr game = Model::QuakeGame::newGame();
+            const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(IO::Path(""), doc->path());
+            ASSERT_EQ(path, doc->path());
             ASSERT_FALSE(doc->modified());
+
+            Model::Map::Ptr map = doc->map();
+            ASSERT_EQ(1, map->entities().size());
+            
+            Model::Entity::Ptr entity = map->worldspawn();
+            ASSERT_TRUE(entity != NULL);
+            ASSERT_EQ(1, entity->brushes().size());
         }
 
-        TEST(NewDocumentCommandTest, newDocumentInExistingDocument) {
+        TEST(OpenDocumentCommandTest, openDocumentInExistingDocument) {
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
             Model::Game::Ptr game = Model::QuakeGame::newGame();
-            doc->openDocument(game, IO::Path("data/Controller/NewDocumentCommandTest/Cube.map"));
+            const IO::Path path("data/Controller/OpenDocumentCommandTest/2Cubes.map");
+
+            doc->openDocument(game, IO::Path("data/Controller/OpenDocumentCommandTest/Cube.map"));
             
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(IO::Path(""), doc->path());
+            ASSERT_EQ(path, doc->path());
             ASSERT_FALSE(doc->modified());
             
             Model::Map::Ptr map = doc->map();
-            ASSERT_TRUE(map->entities().empty());
-            ASSERT_TRUE(map->worldspawn() == NULL);
+            ASSERT_EQ(1, map->entities().size());
+            
+            Model::Entity::Ptr entity = map->worldspawn();
+            ASSERT_TRUE(entity != NULL);
+            ASSERT_EQ(2, entity->brushes().size());
         }
     }
 }

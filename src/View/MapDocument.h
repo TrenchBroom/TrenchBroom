@@ -37,32 +37,34 @@ namespace TrenchBroom {
         private:
             typedef std::tr1::weak_ptr<MapDocument> WkPtr;
             
+            IO::Path m_path;
             Model::Game::Ptr m_game;
             Model::Map::Ptr m_map;
-            IO::Path m_path;
             
             size_t m_modificationCount;
         public:
             static MapDocument::Ptr newMapDocument();
             ~MapDocument();
             
-            Model::Game::Ptr game() const;
             const IO::Path& path() const;
             String filename() const;
+
+            Model::Game::Ptr game() const;
+            Model::Map::Ptr map() const;
             
-            bool isModified() const;
+            bool modified() const;
             void incModificationCount();
             void decModificationCount();
             void clearModificationCount();
             
-            bool newDocument(Model::Game::Ptr game);
-            bool openDocument(Model::Game::Ptr game, const IO::Path& path);
-            bool saveDocument();
-            bool saveDocumentAs(const IO::Path& path);
+            void newDocument(Model::Game::Ptr game);
+            void openDocument(Model::Game::Ptr game, const IO::Path& path);
+            void saveDocument();
+            void saveDocumentAs(const IO::Path& path);
         private:
             MapDocument();
             
-            bool doSaveDocument(const IO::Path& path);
+            void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);
         };
     }

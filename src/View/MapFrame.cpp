@@ -75,8 +75,6 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
         }
 
-        MapFrame::~MapFrame() {}
-
         void MapFrame::positionOnScreen(wxFrame* reference) {
             const wxDisplay display;
             const wxRect displaySize = display.GetClientArea();
@@ -100,17 +98,17 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::Game::Ptr game) {
             if (!confirmOrDiscardChanges())
                 return false;
-            const bool result = m_document->newDocument(game);
-            updateTitle();
-            return result;
+            m_console->info("Creating new document");
+            m_mapView->makeCurrent();
+            return m_controller.newDocument(m_document, game);
         }
         
         bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            const bool result = m_document->openDocument(game, path);
-            updateTitle();
-            return result;
+            m_console->info("Opening document " + path.asString());
+            m_mapView->makeCurrent();
+            return m_controller.openDocument(m_document, game, path);
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
@@ -184,7 +182,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::confirmOrDiscardChanges() {
-            if (!m_document->isModified())
+            if (!m_document->modified())
                 return true;
             const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", "", wxYES_NO | wxCANCEL, this);
             switch (result) {

@@ -17,19 +17,20 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NewDocumentCommand.h"
+#include "OpenDocumentCommand.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        const Command::CommandType NewDocumentCommand::Type = Command::freeType();
-
-        NewDocumentCommand::NewDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game) :
-        Command(Type, "New Document", false),
+        const Command::CommandType OpenDocumentCommand::Type = Command::freeType();
+        
+        OpenDocumentCommand::OpenDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path) :
+        Command(Type, "Open Document", false),
         m_document(document),
-        m_game(game) {}
-
-        bool NewDocumentCommand::doPerformDo() {
-            m_document->newDocument(m_game);
+        m_game(game),
+        m_path(path) {}
+        
+        bool OpenDocumentCommand::doPerformDo() {
+            m_document->openDocument(m_game, m_path);
             return true;
         }
     }

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapFrame__
 #define __TrenchBroom__MapFrame__
 
+#include "Controller/ControllerFacade.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
@@ -36,6 +37,7 @@ namespace TrenchBroom {
         class MapFrame : public wxFrame {
         private:
             FrameManager* m_frameManager;
+            Controller::ControllerFacade m_controller;
             MapDocument::Ptr m_document;
 
             Console* m_console;
@@ -45,7 +47,6 @@ namespace TrenchBroom {
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocument::Ptr document);
             void Create(FrameManager* frameManager, MapDocument::Ptr document);
-            ~MapFrame();
             
             void positionOnScreen(wxFrame* reference);
             

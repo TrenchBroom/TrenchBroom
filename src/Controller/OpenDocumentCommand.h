@@ -17,38 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView__
-#define __TrenchBroom__MapView__
+#ifndef __TrenchBroom__OpenDocumentCommand__
+#define __TrenchBroom__OpenDocumentCommand__
 
-#include "GL/GL.h"
-
-#include <vector>
-#include <wx/glcanvas.h>
+#include "Controller/Command.h"
+#include "IO/Path.h"
+#include "Model/Game.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class Console;
-        
-        class MapView : public wxGLCanvas {
-        private:
-            bool m_initialized;
-            Console& m_console;
-            wxGLContext* m_glContext;
+    namespace Controller {
+        class OpenDocumentCommand : public Command {
         public:
-            MapView(wxWindow* parent, Console& console);
-            ~MapView();
-            
-            void makeCurrent();
-            
-            void OnPaint(wxPaintEvent& event);
+            static const CommandType Type;
         private:
-            void initializeGL();
-            
-            static const int* attribs();
-            static int depthBits();
-            static bool multisample();
+            View::MapDocument::Ptr m_document;
+            Model::Game::Ptr m_game;
+            IO::Path m_path;
+        public:
+            OpenDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path);
+        private:
+            bool doPerformDo();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView__) */
+#endif /* defined(__TrenchBroom__OpenDocumentCommand__) */

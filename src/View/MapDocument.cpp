@@ -41,21 +41,25 @@ namespace TrenchBroom {
         MapDocument::~MapDocument() {
         }
         
-        Model::Game::Ptr MapDocument::game() const {
-            return m_game;
-        }
-
         const IO::Path& MapDocument::path() const {
             return m_path;
         }
-
+        
         String MapDocument::filename() const {
             if (m_path.isEmpty())
                 return "";
             return  m_path.lastComponent();
         }
+        
+        Model::Game::Ptr MapDocument::game() const {
+            return m_game;
+        }
+        
+        Model::Map::Ptr MapDocument::map() const {
+            return m_map;
+        }
 
-        bool MapDocument::isModified() const {
+        bool MapDocument::modified() const {
             return m_modificationCount > 0;
         }
 
@@ -72,38 +76,35 @@ namespace TrenchBroom {
             m_modificationCount = 0;
         }
 
-        bool MapDocument::newDocument(Model::Game::Ptr game) {
+        void MapDocument::newDocument(Model::Game::Ptr game) {
             assert(game != NULL);
             m_game = game;
             m_map = Model::Map::newMap();
             
             setDocumentPath(IO::Path(""));
             clearModificationCount();
-            return true;
         }
         
-        bool MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
+        void MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             assert(game != NULL);
             m_map = game->loadMap(path);
             m_game = game;
             
             setDocumentPath(path);
             clearModificationCount();
-            return true;
         }
 
-        bool MapDocument::saveDocument() {
+        void MapDocument::saveDocument() {
             assert(!m_path.isEmpty());
-            return doSaveDocument(m_path);
+            doSaveDocument(m_path);
         }
         
-        bool MapDocument::saveDocumentAs(const IO::Path& path) {
-            return doSaveDocument(path);
+        void MapDocument::saveDocumentAs(const IO::Path& path) {
+            doSaveDocument(path);
         }
 
-        bool MapDocument::doSaveDocument(const IO::Path& path) {
+        void MapDocument::doSaveDocument(const IO::Path& path) {
             setDocumentPath(path);
-            return true;
         }
 
         void MapDocument::setDocumentPath(const IO::Path& path) {

@@ -100,6 +100,13 @@ namespace TrenchBroom {
         CommandProcessorException(const String& str) throw() : Exception(str) {}
         ~CommandProcessorException() throw() {}
     };
+
+    class RenderException : public Exception {
+    public:
+        RenderException() throw() {}
+        RenderException(const String& str) throw() : Exception(str) {}
+        ~RenderException() throw() {}
+    };
 }
 
 #endif
