@@ -23,18 +23,31 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
+#include "Controller/CommandListener.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Controller {
+        class CommandListenerNotifier {
+        private:
+            CommandListener::List m_listeners;
+        public:
+            void addCommandListener(CommandListener::Ptr listener);
+            void removeCommandListener(CommandListener::Ptr listener);
+
+            void doCommandListeners(Command::Ptr command);
+            void undoCommandListeners(Command::Ptr command);
+        };
+        
         class CommandGroup : public Command {
         public:
             static const CommandType Type;
         private:
             List m_commands;
+            CommandListenerNotifier& m_notifier;
         public:
-            CommandGroup(const String& name, const bool undoable, const Command::List& commands);
+            CommandGroup(const String& name, const bool undoable, const Command::List& commands, CommandListenerNotifier& notifier);
         private:
             bool doPerformDo();
             bool doPerformUndo();
@@ -42,6 +55,8 @@ namespace TrenchBroom {
         
         class CommandProcessor {
         private:
+            CommandListenerNotifier m_notifier;
+            
             typedef Command::List CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
@@ -52,6 +67,9 @@ namespace TrenchBroom {
             size_t m_groupLevel;
         public:
             CommandProcessor();
+            
+            void addCommandListener(CommandListener::Ptr listener);
+            void removeCommandListener(CommandListener::Ptr listener);
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;

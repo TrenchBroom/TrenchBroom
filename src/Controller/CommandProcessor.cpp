@@ -23,11 +23,38 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void CommandListenerNotifier::addCommandListener(CommandListener::Ptr listener) {
+            m_listeners.push_back(listener);
+        }
+        
+        void CommandListenerNotifier::removeCommandListener(CommandListener::Ptr listener) {
+            CommandListener::List::iterator it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+            if (it != m_listeners.end())
+                m_listeners.erase(it);
+        }
+        
+        void CommandListenerNotifier::doCommandListeners(Command::Ptr command) {
+            CommandListener::List::const_iterator it, end;
+            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
+                CommandListener::Ptr listener = *it;
+                listener->commandDone(command);
+            }
+        }
+        
+        void CommandListenerNotifier::undoCommandListeners(Command::Ptr command) {
+            CommandListener::List::const_iterator it, end;
+            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
+                CommandListener::Ptr listener = *it;
+                listener->commandUndone(command);
+            }
+        }
+        
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
-        CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands) :
+        CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands, CommandListenerNotifier& notifier) :
         Command(Type, name, undoable),
-        m_commands(commands) {}
+        m_commands(commands),
+        m_notifier(notifier) {}
 
         bool CommandGroup::doPerformDo() {
             List::iterator it, end;
@@ -35,6 +62,7 @@ namespace TrenchBroom {
                 Command::Ptr command = *it;
                 if (!command->performDo())
                     throw CommandProcessorException("Partial failure of while executing command group");
+                m_notifier.doCommandListeners(command);
             }
             return true;
         }
@@ -45,6 +73,7 @@ namespace TrenchBroom {
                 Command::Ptr command = *it;
                 if (!command->performUndo())
                     throw CommandProcessorException("Partial failure of while undoing command group");
+                m_notifier.undoCommandListeners(command);
             }
             return true;
         }
@@ -52,6 +81,14 @@ namespace TrenchBroom {
         CommandProcessor::CommandProcessor() :
         m_groupUndoable(false),
         m_groupLevel(0) {}
+
+        void CommandProcessor::addCommandListener(CommandListener::Ptr listener) {
+            m_notifier.addCommandListener(listener);
+        }
+        
+        void CommandProcessor::removeCommandListener(CommandListener::Ptr listener) {
+            m_notifier.removeCommandListener(listener);
+        }
 
         bool CommandProcessor::hasLastCommand() const {
             return !m_lastCommandStack.empty();
@@ -139,11 +176,21 @@ namespace TrenchBroom {
         }
 
         bool CommandProcessor::doCommand(Command::Ptr command) {
-            return command->performDo();
+            if (command->performDo()) {
+                if (command->type() != CommandGroup::Type)
+                    m_notifier.doCommandListeners(command);
+                return true;
+            }
+            return false;
         }
         
         bool CommandProcessor::undoCommand(Command::Ptr command) {
-            return command->performUndo();
+            if (command->performUndo()) {
+                if (command->type() != CommandGroup::Type)
+                    m_notifier.undoCommandListeners(command);
+                return true;
+            }
+            return false;
         }
 
         void CommandProcessor::storeCommand(Command::Ptr command) {
@@ -179,7 +226,7 @@ namespace TrenchBroom {
 
         void CommandProcessor::createAndStoreCommandGroup() {
             if (!m_groupedCommands.empty()) {
-                Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands));
+                Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands, m_notifier));
                 m_groupedCommands.clear();
                 pushLastCommand(group);
             }

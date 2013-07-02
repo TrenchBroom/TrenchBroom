@@ -24,6 +24,14 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void ControllerFacade::addCommandListener(CommandListener::Ptr listener) {
+            m_commandProcessor.addCommandListener(listener);
+        }
+        
+        void ControllerFacade::removeCommandListener(CommandListener::Ptr listener) {
+            m_commandProcessor.removeCommandListener(listener);
+        }
+
         bool ControllerFacade::newDocument(View::MapDocument::Ptr document, Model::Game::Ptr game) {
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(document, game));
             return m_commandProcessor.submitCommand(command);

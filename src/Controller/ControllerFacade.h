@@ -21,6 +21,7 @@
 #define __TrenchBroom__ControllerFacade__
 
 #include "Controller/CommandProcessor.h"
+#include "Controller/CommandListener.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
 
@@ -36,6 +37,9 @@ namespace TrenchBroom {
         private:
             CommandProcessor m_commandProcessor;
         public:
+            void addCommandListener(CommandListener::Ptr listener);
+            void removeCommandListener(CommandListener::Ptr listener);
+
             bool newDocument(View::MapDocument::Ptr document, Model::Game::Ptr game);
             bool openDocument(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path);
         };

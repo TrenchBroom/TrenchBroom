@@ -23,6 +23,7 @@
 #include "Exceptions.h"
 #include "Controller/Command.h"
 #include "Controller/CommandProcessor.h"
+#include "Controller/CommandListener.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -34,6 +35,12 @@ namespace TrenchBroom {
         public:
             MockCommand(const String& name, const bool undoable = true) :
             Command(freeType(), name, undoable) {}
+        };
+        
+        class MockListener : public CommandListener {
+        public:
+            MOCK_METHOD1(commandDone, void(Command::Ptr));
+            MOCK_METHOD1(commandUndone, void(Command::Ptr));
         };
         
         TEST(CommandProcessorTest, submitAndDontStoreCommand) {
@@ -401,5 +408,118 @@ namespace TrenchBroom {
             ASSERT_EQ(cmd1->name(), proc.lastCommandName());
             ASSERT_EQ(String("outer"), proc.nextCommandName());
         }
+        
+        TEST(CommandProcessorTest, testCommandListenerWith1Command) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd = new MockCommand("test");
+            
+            MockListener listener;
+            proc.addCommandListener(&listener);
+
+            EXPECT_CALL(*cmd, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test")))));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd)));
+        }
+        
+        TEST(CommandProcessorTest, testCommandListenerWith2Commands) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            MockListener listener;
+            proc.addCommandListener(&listener);
+
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+        }
+        
+        TEST(CommandProcessorTest, testCommandListenerWithGroups) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            MockCommand* cmd3 = new MockCommand("test3");
+            MockCommand* cmd4 = new MockCommand("test4");
+           
+            MockListener listener;
+            proc.addCommandListener(&listener);
+
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            EXPECT_CALL(*cmd4, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
+            
+            EXPECT_CALL(*cmd4, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
+            EXPECT_CALL(*cmd3, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            EXPECT_CALL(*cmd1, doPerformUndo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            EXPECT_CALL(*cmd4, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.beginUndoableGroup("outer");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+            proc.beginUndoableGroup("inner");
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd3)));
+            proc.closeGroup();
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd4)));
+            proc.closeGroup();
+            
+            ASSERT_TRUE(proc.undoLastCommand());
+            ASSERT_TRUE(proc.undoLastCommand());
+            ASSERT_TRUE(proc.redoNextCommand());
+            ASSERT_TRUE(proc.redoNextCommand());
+        }
+
+        TEST(CommandProcessorTest, testRemoveCommandListener) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            CommandProcessor proc;
+            MockCommand* cmd1 = new MockCommand("test1");
+            MockCommand* cmd2 = new MockCommand("test2");
+            
+            MockListener listener;
+            proc.addCommandListener(&listener);
+            
+            EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
+            EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd1)));
+            proc.removeCommandListener(&listener);
+            
+            ASSERT_TRUE(proc.submitAndStoreCommand(Command::Ptr(cmd2)));
+        }
+        
     }
 }
