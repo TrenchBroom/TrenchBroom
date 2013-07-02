@@ -54,8 +54,6 @@ namespace TrenchBroom {
             static bool useSDI();
             bool newDocument();
             bool openDocument(const String& pathStr);
-            
-            DECLARE_EVENT_TABLE()
         };
     }
 }

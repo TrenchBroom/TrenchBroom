@@ -61,6 +61,7 @@ namespace TrenchBroom {
             updateTitle();
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
@@ -113,7 +114,10 @@ namespace TrenchBroom {
 
         void MapFrame::OnClose(wxCloseEvent& event) {
             assert(m_frameManager != NULL);
-            m_frameManager->removeAndDestroyFrame(this);
+            if (event.CanVeto() && !confirmOrDiscardChanges())
+                event.Veto();
+            else
+                m_frameManager->removeAndDestroyFrame(this);
         }
 
         Console* MapFrame::console() const {

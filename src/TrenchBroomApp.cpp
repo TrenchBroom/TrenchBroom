@@ -36,31 +36,6 @@ IMPLEMENT_APP(TrenchBroom::View::TrenchBroomApp)
 
 namespace TrenchBroom {
     namespace View {
-        BEGIN_EVENT_TABLE(TrenchBroomApp, wxApp)
-        EVT_MENU(wxID_NEW, TrenchBroomApp::OnFileNew)
-        EVT_MENU(wxID_OPEN, TrenchBroomApp::OnFileOpen)
-
-#ifdef __APPLE__
-        EVT_MENU(wxID_PREFERENCES, TrenchBroomApp::OnOpenPreferences)
-        EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
-
-        EVT_UPDATE_UI(wxID_PREFERENCES, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_NEW, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_OPEN, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_EXIT, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_SAVE, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_SAVEAS, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_CLOSE, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_UNDO, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_CUT, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_COPY, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_PASTE, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI(wxID_DELETE, TrenchBroomApp::OnUpdateUI)
-        EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, TrenchBroomApp::OnUpdateUI)
-#endif
-        END_EVENT_TABLE()
-        
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL) {}
@@ -82,8 +57,27 @@ namespace TrenchBroom {
             SetExitOnFrameDelete(false);
             wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
-#endif
             
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
+            
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVEAS);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CLOSE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_UNDO);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_REDO);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CUT);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_COPY);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PASTE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+#endif
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
+
 #ifndef __APPLE__
             if (wxApp::argc > 1) {
                 const wxString filename = wxApp::argv[1];
