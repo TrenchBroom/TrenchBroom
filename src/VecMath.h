@@ -29,7 +29,9 @@
 #endif
 
 #include "BBox.h"
+#include "Mat.h"
 #include "Plane.h"
+#include "Quat.h"
 #include "Vec.h"
 
 #endif

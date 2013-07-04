@@ -1,0 +1,134 @@
+/*
+ Copyright (C) 2010-2013 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <gtest/gtest.h>
+
+#include "Math.h"
+#include "Quat.h"
+#include "Vec.h"
+#include "TestUtils.h"
+
+TEST(QuatTest, DefaultConstructor) {
+    const Quatf q;
+    ASSERT_FLOAT_EQ(0.0f, q.r);
+    ASSERT_TRUE(q.v.null());
+}
+
+TEST(QuatTest, RotationConstructor) {
+    const float angle(Mathf::radians(15.0f));
+    const Vec3f axis(Vec<float,3>(1.0f, 2.0f, 3.0f).normalized());
+    const Quatf q(axis, angle);
+    
+    ASSERT_FLOAT_EQ(std::cos(angle / 2.0f), q.r);
+    ASSERT_VEC_EQ(axis * std::sin(angle / 2.0f), q.v);
+}
+
+TEST(QuatTest, Negation) {
+    const Quatf q(Vec<float,3>::PosX, Mathf::radians(15.0f));
+    const Quatf nq = -q;
+    
+    ASSERT_FLOAT_EQ(-(q.r), nq.r);
+    ASSERT_VEC_EQ(q.v, nq.v);
+}
+
+TEST(QuatTest, ScalarRightMultiplication) {
+    const Quatf q(Vec<float,3>::PosX, Mathf::radians(15.0f));
+    const Quatf p = q * 2.0f;
+    ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
+}
+
+TEST(QuatTest, ScalarLeftMultiplication) {
+    const Quatf q(Vec<float,3>::PosX, Mathf::radians(15.0f));
+    const Quatf p = 2.0f * q;
+    ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
+}
+
+TEST(QuatTest, ScalarRightMultiplicationAndAssign) {
+    const Quatf q(Vec<float,3>::PosX, Mathf::radians(15.0f));
+    Quatf p = q;
+    p *= 2.0f;
+    ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
+}
+
+TEST(QuatTest, Multiplication) {
+    const float angle1 = Mathf::radians(15.0f);
+    const Quatf q1(Vec<float,3>::PosZ, angle1);
+    const float angle2 = Mathf::radians(10.0f);
+    const Quatf q2(Vec<float,3>::PosZ, angle2);
+    const Quatf q = q1 * q2;
+    const Vec3f v = Vec3f::PosX;
+    const Vec3f w = q * v;
+
+    ASSERT_VEC_EQ(Vec3f(std::cos(angle1 + angle2), std::sin(angle1 + angle2), 0.0f), w);
+}
+
+TEST(QuatTest, MultiplicationAndAssign) {
+    const float angle1 = Mathf::radians(15.0f);
+    Quatf q1(Vec<float,3>::PosZ, angle1);
+    const float angle2 = Mathf::radians(10.0f);
+    const Quatf q2(Vec<float,3>::PosZ, angle2);
+    q1 *= q2;
+    const Vec3f v = Vec3f::PosX;
+    const Vec3f w = q1 * v;
+    
+    ASSERT_VEC_EQ(Vec3f(std::cos(angle1 + angle2), std::sin(angle1 + angle2), 0.0f), w);
+}
+
+TEST(QuatTest, VectorMultiplication) {
+    const float angle = Mathf::radians(15.0f);
+    const Quatf q(Vec<float,3>::PosZ, angle);
+    const Vec3f v = Vec3f::PosX;
+    const Vec3f w = q * v;
+    
+    ASSERT_VEC_EQ(Vec3f(std::cos(angle), std::sin(angle), 0.0f), w);
+}
+
+TEST(QuatTest, Angle) {
+    const float angle = Mathf::radians(15.0f);
+    const Quatf q(Vec<float,3>::PosZ, angle);
+    
+    ASSERT_NEAR(angle, q.angle(), 0.001f);
+}
+
+TEST(QuatTest, Axis) {
+    const Vec3f axis = Vec<float,3>::PosZ;
+    const float angle = Mathf::radians(15.0f);
+    const Quatf q(axis, angle);
+    
+    ASSERT_VEC_EQ(axis, q.axis());
+}
+
+TEST(QuatTest, Conjugate) {
+    const Vec3f axis = Vec<float,3>::PosZ;
+    const float angle = Mathf::radians(15.0f);
+    const Quatf q(axis, angle);
+    Quatf p = q;
+    p.conjugate();
+    
+    ASSERT_VEC_EQ(-q.v, p.v);
+}
+
+TEST(QuatTest, Conjugated) {
+    const Vec3f axis = Vec<float,3>::PosZ;
+    const float angle = Mathf::radians(15.0f);
+    const Quatf q(axis, angle);
+    const Quatf p = q.conjugated();
+    
+    ASSERT_VEC_EQ(-q.v, p.v);
+}

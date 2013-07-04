@@ -23,6 +23,7 @@
 #include <gtest/gtest.h>
 
 #define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
+#define ASSERT_MAT_EQ(mat1, mat2) ASSERT_TRUE((mat1).equals((mat2)))
 #define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))
 
 #endif

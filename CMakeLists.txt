@@ -78,7 +78,6 @@ ADD_LIBRARY(glew ${LIB_GLEW_SOURCE} ${LIB_INCLUDE_DIR})
 # Include directories
 INCLUDE_DIRECTORIES("${LIB_INCLUDE_DIR}" "${SOURCE_DIR}" "${TEST_SOURCE_DIR}")
 
-
 # Compiler configuration
 IF(MSVC)
 	SET(CMAKE_CXX_FLAGS "/W3 /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
@@ -86,8 +85,14 @@ IF(MSVC)
 ELSE()
 	SET(CMAKE_CXX_FLAGS_RELEASE "-Os")
 	SET(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++0x")
+
 	# Xcode requires these flags to allow debugging
 	SET(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -fno-inline")
+
+	# Hide some bogus warnings and enable color diagnostics if ccache is used with clang
+	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		SET(CMAKE_CXX_FLAGS "-Qunused-arguments -fcolor-diagnostics")
+	ENDIF()
 ENDIF()
 
 # TrenchBroom executable
