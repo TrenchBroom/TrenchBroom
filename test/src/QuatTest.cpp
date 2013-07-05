@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Math.h"
+#include "MathUtils.h"
 #include "Quat.h"
 #include "Vec.h"
 #include "TestUtils.h"

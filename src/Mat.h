@@ -174,14 +174,15 @@ public:
     }
 
     inline const Vec<T,C-1> operator* (const Vec<T,C-1>& right) const {
-        return (*this * Vec<T,C>(right, static_cast<T>(1.0))).overLast();
+        const Vec<T,C> t(right, static_cast<T>(1.0));
+        return (*this * t).overLast();
     }
 
     inline const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
         typename Vec<T,C>::List result;
         result.reserve(right.size());
 
-        typename Vec<T,C>::List::const_iteartor it, end;
+        typename Vec<T,C>::List::const_iterator it, end;
         for (it = right.begin(), end = right.end(); it != end; ++it)
             result.push_back(*this * *it);
         return result;
@@ -263,7 +264,7 @@ inline const Vec<T,R> operator* (const Vec<T,R> left, const Mat<T,R,C>& right) {
 }
 
 template <typename T, size_t R, size_t C>
-inline Vec<T,R>& operator*= (Vec<T,R> left, const Mat<T,R,C>& right) {
+inline Vec<T,R>& operator*= (Vec<T,R>& left, const Mat<T,R,C>& right) {
     return left = left * right;
 }
 
@@ -302,7 +303,7 @@ inline Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
 template <typename T, size_t R, size_t C>
 inline const typename Vec<T,R-1>::List operator* (const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R-1>::List result;
-    result.reserve(right.size());
+    result.reserve(left.size());
     
     typename Vec<T,R-1>::List::const_iterator it, end;
     for (it = left.begin(), end = left.end(); it != end; ++it)
@@ -470,11 +471,11 @@ inline const Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up
                        zero,  zero,  zero, one);
 }
 
-// The returned matrix will rotate any point counter-clockwise about the given axis by the given angle.
+// The returned matrix will rotate any point counter-clockwise about the given axis by the given angle (in radians).
 template <typename T>
-inline const Mat<T,4,4> rotationMatrix(const T angle, const Vec<T,3>& axis) {
-    const T s = sinf(angle);
-    const T c = cosf(angle);
+inline const Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
+    const T s = sinf(-angle);
+    const T c = cosf(-angle);
     const T i = static_cast<T>(1.0 - c);
     
     const T ix  = i  * axis[0];
@@ -510,7 +511,7 @@ inline const Mat<T,4,4> rotationMatrix(const T angle, const Vec<T,3>& axis) {
 
 template <typename T>
 inline const Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
-    const T a = quat.s;
+    const T a = quat.r;
     const T b = quat.v[0];
     const T c = quat.v[1];
     const T d = quat.v[2];
