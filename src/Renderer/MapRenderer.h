@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapRenderer__
 
 #include "Model/Map.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -28,11 +29,18 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
+            Vbo m_auxVbo;
         public:
+            MapRenderer();
+            
             void loadMap(const Model::Map::Ptr map);
             void clear();
             
-            void render(const RenderContext& context);
+            void render(RenderContext& context);
+        private:
+            void setupGL(RenderContext& context);
+            void clearBackground(RenderContext& context);
+            void renderCoordinateSystem(RenderContext& context);
         };
     }
 }

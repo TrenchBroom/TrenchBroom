@@ -76,7 +76,7 @@ namespace TrenchBroom {
             GLuint m_vboId;
             unsigned char* m_buffer;
         public:
-            Vbo(const size_t initialCapacity, const GLenum type, const GLenum usage = GL_DYNAMIC_DRAW);
+            Vbo(const size_t initialCapacity, const GLenum type = GL_ARRAY_BUFFER, const GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
             inline VboState::Type state() const {

@@ -19,10 +19,18 @@
 
 #include "MapRenderer.h"
 
+#include "Color.h"
+#include "Preferences.h"
+#include "GL/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexArrayRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -47,6 +55,9 @@ namespace TrenchBroom {
             }
         };
         
+        MapRenderer::MapRenderer() :
+        m_auxVbo(0xFFFF) {}
+        
         void MapRenderer::loadMap(const Model::Map::Ptr map) {
             BuildBrushFaceMesh builder;
             BuildBrushFaceMeshFilter filter;
@@ -56,7 +67,64 @@ namespace TrenchBroom {
         void MapRenderer::clear() {
         }
         
-        void MapRenderer::render(const RenderContext& context) {
+        void MapRenderer::render(RenderContext& context) {
+            setupGL(context);
+            
+            clearBackground(context);
+            renderCoordinateSystem(context);
+        }
+
+        void MapRenderer::setupGL(RenderContext& context) {
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+            
+            glEnable(GL_MULTISAMPLE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glFrontFace(GL_CW);
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            glShadeModel(GL_SMOOTH);
+            // glResetEdgeOffset();
+            
+            const Camera& camera = context.camera();
+            const Camera::Viewport& viewport = camera.viewport();
+            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+        }
+
+        void MapRenderer::clearBackground(RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+            glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+        
+        void MapRenderer::renderCoordinateSystem(RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
+            const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
+            const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
+            
+            VP3C4::List vertices;
+            vertices.push_back(VP3C4(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(VP3C4(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(VP3C4(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
+            vertices.push_back(VP3C4(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
+            vertices.push_back(VP3C4(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
+            vertices.push_back(VP3C4(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
+            
+            SetVboState setVboState(m_auxVbo);
+            setVboState.mapped();
+            
+            VertexArray vertexArray(m_auxVbo, vertices);
+            VertexArrayRenderer renderer(VertexSpec::P3C4(), GL_LINES, vertexArray);
+            
+            setVboState.active();
+            renderer.render();
         }
     }
 }

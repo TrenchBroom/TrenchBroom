@@ -207,6 +207,10 @@ namespace TrenchBroom {
             return VertexSpec(AttributeSpec::P3());
         }
         
+        const VertexSpec VertexSpec::P3C4() {
+            return VertexSpec(AttributeSpec::P3(), AttributeSpec::C4());
+        }
+        
         const VertexSpec VertexSpec::P3T2() {
             return VertexSpec(AttributeSpec::P3(), AttributeSpec::T02());
         }

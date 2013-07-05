@@ -23,11 +23,36 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Camera::Camera(const float fov, const float near, const float far, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        Camera::Viewport::Viewport() :
+        x(0),
+        y(0),
+        width(0),
+        height(0) {}
+        
+        Camera::Viewport::Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height) :
+        x(i_x),
+        y(i_y),
+        width(i_width),
+        height(i_height) {}
+
+        Camera::Camera() :
+        m_fov(90.0f),
+        m_near(1.0f),
+        m_far(1000.0f),
+        m_viewport(Viewport(0, 0, 1024, 768)),
+        m_position(Vec3f::Null),
+        m_valid(false) {
+            setDirection(Vec3f::PosX, Vec3f::PosZ);
+        }
+
+
+        Camera::Camera(const float fov, const float near, const float far, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
         m_fov(fov),
         m_near(near),
         m_far(far),
-        m_position(position) {
+        m_viewport(viewport),
+        m_position(position),
+        m_valid(false) {
             assert(m_fov > 0.0f);
             assert(m_near >= 0.0f);
             assert(m_far > m_near);
@@ -36,12 +61,82 @@ namespace TrenchBroom {
             setDirection(direction, up);
         }
         
+        float Camera::fov() const {
+            return m_fov;
+        }
+        
+        float Camera::near() const {
+            return m_near;
+        }
+        
+        float Camera::far() const {
+            return m_far;
+        }
+        
+        const Camera::Viewport& Camera::viewport() const {
+            return m_viewport;
+        }
+
+        const Vec3f& Camera::position() const {
+            return m_position;
+        }
+        
+        const Vec3f& Camera::direction() const {
+            return m_direction;
+        }
+        
+        const Vec3f& Camera::up() const {
+            return m_up;
+        }
+        
+        const Vec3f& Camera::right() const {
+            return m_right;
+        }
+        
+        const Mat4x4f& Camera::projectionMatrix() const {
+            if (!m_valid)
+                validateMatrices();
+            return m_projectionMatrix;
+        }
+        
+        const Mat4x4f& Camera::viewMatrix() const {
+            if (!m_valid)
+                validateMatrices();
+            return m_viewMatrix;
+        }
+
+        void Camera::setFov(const float fov) {
+            assert(fov > 0.0f);
+            m_fov = fov;
+            m_valid = false;
+        }
+        
+        void Camera::setNear(const float near) {
+            assert(near >= 0.0f);
+            assert(near < m_far);
+            m_near = near;
+            m_valid = false;
+        }
+        
+        void Camera::setFar(const float far) {
+            assert(far > m_near);
+            m_far = far;
+            m_valid = false;
+        }
+        
+        void Camera::setViewport(const Viewport& viewport) {
+            m_viewport = viewport;
+            m_valid = false;
+        }
+
         void Camera::moveTo(const Vec3f& position) {
             m_position = position;
+            m_valid = false;
         }
         
         void Camera::moveBy(const Vec3f& delta) {
             m_position += delta;
+            m_valid = false;
         }
         
         void Camera::lookAt(const Vec3f& point, const Vec3f& up) {
@@ -52,6 +147,7 @@ namespace TrenchBroom {
             m_direction = direction;
             m_right = crossed(m_direction, up).normalized();
             m_up = crossed(m_right, m_direction);
+            m_valid = false;
         }
         
         void Camera::rotate(const float yaw, const float pitch) {
@@ -106,6 +202,17 @@ namespace TrenchBroom {
             
             setDirection(newDirection, newUp);
             moveTo(offset + center);
+        }
+
+        void Camera::validateMatrices() const {
+            m_projectionMatrix = perspectiveMatrix(m_fov, m_near, m_far, m_viewport.width, m_viewport.height);
+            m_viewMatrix = ::viewMatrix(m_direction, m_up) * translationMatrix(-m_position);
+            m_matrix = m_projectionMatrix * m_viewMatrix;
+            
+            bool invertible = false;
+            m_invertedMatrix = invertedMatrix(m_matrix, invertible);
+            assert(invertible);
+            m_valid = true;
         }
     }
 }

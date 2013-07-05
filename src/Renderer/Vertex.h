@@ -21,6 +21,7 @@
 #define TrenchBrooVertex_h
 
 #include "TrenchBroom.h"
+#include "Color.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
@@ -114,6 +115,7 @@ namespace TrenchBroom {
 #endif
 
         typedef Vertex1<Vec3f> VP3;
+        typedef Vertex2<Vec3f,Color> VP3C4;
         typedef Vertex2<Vec3f,Vec2f> VP3T2;
         typedef Vertex3<Vec3f,Vec3f,Vec2f> VP3N3T2;
     }

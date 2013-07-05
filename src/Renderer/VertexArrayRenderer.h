@@ -70,6 +70,7 @@ namespace TrenchBroom {
             VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2, const AttributeSpec& attributeSpec3, const AttributeSpec& attributeSpec4);
             
             static const VertexSpec P3();
+            static const VertexSpec P3C4();
             static const VertexSpec P3T2();
             static const VertexSpec P3N3T2();
             

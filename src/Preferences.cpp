@@ -22,5 +22,8 @@
 namespace TrenchBroom {
     namespace Preferences {
         Preference<Color> BackgroundColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> XAxisColor = Preference<Color>("Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> YAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
+        Preference<Color> ZAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
     }
 }

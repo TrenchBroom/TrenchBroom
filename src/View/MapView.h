@@ -21,6 +21,8 @@
 #define __TrenchBroom__MapView__
 
 #include "GL/GL.h"
+#include "Renderer/Camera.h"
+#include "Renderer/MapRenderer.h"
 
 #include <vector>
 #include <wx/glcanvas.h>
@@ -34,6 +36,9 @@ namespace TrenchBroom {
             bool m_initialized;
             Console& m_console;
             wxGLContext* m_glContext;
+            
+            Renderer::Camera m_camera;
+            Renderer::MapRenderer m_renderer;
         public:
             MapView(wxWindow* parent, Console& console);
             ~MapView();
@@ -41,6 +46,7 @@ namespace TrenchBroom {
             void makeCurrent();
             
             void OnPaint(wxPaintEvent& event);
+            void OnSize(wxSizeEvent& event);
         private:
             void initializeGL();
             

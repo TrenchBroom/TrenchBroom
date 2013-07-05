@@ -18,3 +18,20 @@
  */
 
 #include "RenderContext.h"
+#include "Renderer/Camera.h"
+
+namespace TrenchBroom {
+    namespace Renderer {
+        RenderContext::RenderContext(const Camera& camera) :
+        m_camera(camera),
+        m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()) {}
+        
+        const Camera& RenderContext::camera() const {
+            return m_camera;
+        }
+
+        Transformation& RenderContext::transformation() {
+            return m_transformation;
+        }
+    }
+}

@@ -242,7 +242,7 @@ public:
         return result;
     }
     
-    inline void write(float* buffer) const {
+    inline void write(T* buffer) const {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 buffer[(c*C + r)] = v[c][r];

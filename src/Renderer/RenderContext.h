@@ -20,11 +20,21 @@
 #ifndef __TrenchBroom__RenderContext__
 #define __TrenchBroom__RenderContext__
 
-#include <iostream>
+#include "Renderer/Transformation.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
+        
         class RenderContext {
+        private:
+            const Camera& m_camera;
+            Transformation m_transformation;
+        public:
+            RenderContext(const Camera& camera);
+            
+            const Camera& camera() const;
+            Transformation& transformation();
         };
     }
 }

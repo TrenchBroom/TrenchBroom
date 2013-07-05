@@ -27,8 +27,47 @@ namespace TrenchBroom {
     namespace Renderer {
         class Camera {
         public:
-            Camera(const float fov, const float near, const float far, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+            struct Viewport {
+                int x, y;
+                unsigned int width, height;
+
+                Viewport();
+                Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height);
+            };
+        private:
+            float m_fov;
+            float m_near;
+            float m_far;
+            Viewport m_viewport;
+            Vec3f m_position;
+            Vec3f m_direction;
+            Vec3f m_up;
+            Vec3f m_right;
+            
+            mutable Mat4x4f m_projectionMatrix;
+            mutable Mat4x4f m_viewMatrix;
+            mutable Mat4x4f m_matrix;
+            mutable Mat4x4f m_invertedMatrix;
+            mutable bool m_valid;
+        public:
+            Camera();
+            Camera(const float fov, const float near, const float far, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         
+            float fov() const;
+            float near() const;
+            float far() const;
+            const Viewport& viewport() const;
+            const Vec3f& position() const;
+            const Vec3f& direction() const;
+            const Vec3f& up() const;
+            const Vec3f& right() const;
+            const Mat4x4f& projectionMatrix() const;
+            const Mat4x4f& viewMatrix() const;
+            
+            void setFov(const float fov);
+            void setNear(const float near);
+            void setFar(const float far);
+            void setViewport(const Viewport& viewport);
             void moveTo(const Vec3f& position);
             void moveBy(const Vec3f& delta);
             void lookAt(const Vec3f& point, const Vec3f& up);
@@ -36,13 +75,7 @@ namespace TrenchBroom {
             void rotate(const float yaw, const float pitch);
             void orbit(const Vec3f& center, const float horizontal, const float vertical);
         private:
-            float m_fov;
-            float m_near;
-            float m_far;
-            Vec3f m_position;
-            Vec3f m_direction;
-            Vec3f m_up;
-            Vec3f m_right;
+            void validateMatrices() const;
         };
     }
 }

@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Preferences.h"
+#include "Renderer/RenderContext.h"
 #include "View/Console.h"
 
 #include <wx/dcclient.h>
@@ -32,7 +33,11 @@ namespace TrenchBroom {
         m_initialized(false),
         m_console(console),
         m_glContext(new wxGLContext(this)) {
+            m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+            m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+            
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
+            Bind(wxEVT_SIZE, &MapView::OnSize, this);
         }
         
         MapView::~MapView() {
@@ -46,6 +51,7 @@ namespace TrenchBroom {
         }
 
         void MapView::OnPaint(wxPaintEvent& event) {
+#ifndef TESTING
             if (!IsShownOnScreen())
                 return;
             
@@ -54,22 +60,19 @@ namespace TrenchBroom {
             
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
-                glEnable(GL_MULTISAMPLE);
-                
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-                
-				glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                
-				glDisableClientState(GL_VERTEX_ARRAY);
-				glDisableClientState(GL_COLOR_ARRAY);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glDisable(GL_TEXTURE_2D);
-                
+                { // new block to make sure that the render context is destroyed before SwapBuffers is called
+                    Renderer::RenderContext context(m_camera);
+                    m_renderer.render(context);
+                }
                 SwapBuffers();
             }
+#endif
+        }
+
+        void MapView::OnSize(wxSizeEvent& event) {
+            const wxSize clientSize = GetClientSize();
+            const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
+            m_camera.setViewport(viewport);
         }
 
         void MapView::initializeGL() {
