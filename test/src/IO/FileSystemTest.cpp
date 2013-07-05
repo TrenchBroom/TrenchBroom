@@ -100,7 +100,7 @@ namespace TrenchBroom {
             }
         };
         
-        TEST(FileSystemTest, DirectoryContents) {
+        TEST(FileSystemTest, directoryContents) {
             TestEnvironment env;
             FileSystem fs;
             StringList names;

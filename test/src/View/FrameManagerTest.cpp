@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TEST(FrameManagerTest, SDINewFrame) {
+        TEST(FrameManagerTest, sDINewFrame) {
             using namespace testing;
             GLMock = new NiceMock<CGLMock>(); // NiceMock suppresses "uninteresting call" warnings
             Mock::AllowLeak(GLMock);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             ASSERT_EQ(frame2, frames[0]);
         }
         
-        TEST(FrameManagerTest, MDINewFrame) {
+        TEST(FrameManagerTest, mDINewFrame) {
             using namespace testing;
             GLMock = new NiceMock<CGLMock>(); // NiceMock suppresses "uninteresting call" warnings
             Mock::AllowLeak(GLMock);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             ASSERT_EQ(frame2, frames[1]);
         }
         
-        TEST(FrameManagerTest, CloseAllFrames) {
+        TEST(FrameManagerTest, closeAllFrames) {
             using namespace testing;
             GLMock = new NiceMock<CGLMock>(); // NiceMock suppresses "uninteresting call" warnings
             Mock::AllowLeak(GLMock);

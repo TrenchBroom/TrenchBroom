@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(VertexArrayRendererTest, RenderSerialP3Array) {
+        TEST(VertexArrayRendererTest, renderSerialP3Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VertexArrayRendererTest, RenderSerialP3N3T2Array) {
+        TEST(VertexArrayRendererTest, renderSerialP3N3T2Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));

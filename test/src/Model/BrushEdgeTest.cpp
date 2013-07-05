@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushEdgeTest, ConstructWithStartAndEnd) {
+        TEST(BrushEdgeTest, constructWithStartAndEnd) {
             BrushVertex* start = new BrushVertex(Vec3::Null);
             BrushVertex* end = new BrushVertex(Vec3::Null);
             BrushEdge edge(start, end);
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             delete end;
         }
         
-        TEST(BrushEdgeTest, Mark) {
+        TEST(BrushEdgeTest, mark) {
             BrushVertex* start = new BrushVertex(Vec3(0.0, 0.0, -1.0));
             BrushVertex* end = new BrushVertex(Vec3(0.0, 0.0, 1.0));
             BrushEdge edge(start, end);
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             delete end;
         }
         
-        TEST(BrushEdgeTest, Split) {
+        TEST(BrushEdgeTest, split) {
             BrushVertex* start = new BrushVertex(Vec3(3.0, 2.0, 1.0));
             BrushVertex* end = new BrushVertex(Vec3(3.0, 2.0, 10.0));
             BrushEdge edge(start, end);
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             delete newVertex;
         }
         
-        TEST(BrushEdgeTest, StartAndEndVertexForSide) {
+        TEST(BrushEdgeTest, startAndEndVertexForSide) {
             BrushVertex* start = new BrushVertex(Vec3::Null);
             BrushVertex* end = new BrushVertex(Vec3::Null);
             
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             delete end;
         }
         
-        TEST(BrushEdgeTest, FindBrushEdge) {
+        TEST(BrushEdgeTest, findBrushEdge) {
             BrushVertex* e1s = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* e1e = new BrushVertex(Vec3(2.0, 3.0, -1.0));
             BrushVertex* e2s = new BrushVertex(Vec3(0.3823, -37373.002, 1231.12312312474));

@@ -22,7 +22,7 @@
 #include "StringUtils.h"
 
 namespace StringUtils {
-    TEST(StringUtilsTest, Trim) {
+    TEST(StringUtilsTest, trim) {
         String result;
         
         ASSERT_EQ(String(""), trim(""));
@@ -36,7 +36,7 @@ namespace StringUtils {
         ASSERT_EQ(String("/this/is/a/path.map"), trim("/this/is/a/path.map"));
     }
     
-    TEST(StringUtilsTest, Split) {
+    TEST(StringUtilsTest, split) {
         StringList result;
         
         result = split("", ' ');
@@ -101,7 +101,7 @@ namespace StringUtils {
         ASSERT_EQ(String("fox"), result[4]);
     }
     
-    TEST(StringUtilsTest, Join) {
+    TEST(StringUtilsTest, join) {
         StringList components;
         ASSERT_EQ(String(""), join(components, "/"));
 
@@ -119,7 +119,7 @@ namespace StringUtils {
         ASSERT_EQ(String("asdf/yo"), join(components, "/"));
     }
     
-    TEST(StringUtilsTest, SortCaseSensitive) {
+    TEST(StringUtilsTest, sortCaseSensitive) {
         StringList strs;
         strs.push_back("bam");
         strs.push_back("Asdf");
@@ -137,7 +137,7 @@ namespace StringUtils {
         ASSERT_EQ(String("bambam"), strs[5]);
     }
     
-    TEST(StringUtilsTest, SortCaseInsensitive) {
+    TEST(StringUtilsTest, sortCaseInsensitive) {
         StringList strs;
         strs.push_back("bam");
         strs.push_back("Asdf");

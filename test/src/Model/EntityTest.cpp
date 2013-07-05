@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(EntityTest, HasProperty) {
+        TEST(EntityTest, hasProperty) {
             Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(entity->hasProperty("asfd"));
         }
         
-        TEST(EntityTest, GetProperty) {
+        TEST(EntityTest, getProperty) {
             Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             ASSERT_EQ(defaultValue, entity->property(key2, defaultValue));
         }
         
-        TEST(EntityTest, AddProperty) {
+        TEST(EntityTest, addProperty) {
             Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             ASSERT_EQ(value, properties[0].value);
         }
         
-        TEST(EntityTest, UpdateProperty) {
+        TEST(EntityTest, updateProperty) {
             Entity::Ptr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             ASSERT_EQ(newValue, properties[0].value);
         }
         
-        TEST(EntityTest, GetClassname) {
+        TEST(EntityTest, getClassname) {
             Entity::Ptr entity = Entity::newEntity();
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             ASSERT_EQ(classname, entity->classname(defaultClassname));
         }
 
-        TEST(EntityTest, AddBrush) {
+        TEST(EntityTest, addBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             Entity::Ptr entity = Entity::newEntity();
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             ASSERT_EQ(brush, brushes[0]);
         }
         
-        TEST(EntityTest, RemoveBrush) {
+        TEST(EntityTest, removeBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             Entity::Ptr entity = Entity::newEntity();

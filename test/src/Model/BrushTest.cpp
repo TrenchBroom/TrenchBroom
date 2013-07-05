@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushTest, ConstructFromBrushFaces) {
+        TEST(BrushTest, constructFromBrushFaces) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             

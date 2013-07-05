@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(MeshTest, CreateTriangleSet) {
+        TEST(MeshTest, createTriangleSet) {
             typedef String Key;
             Mesh<Key, VP3> mesh;
             

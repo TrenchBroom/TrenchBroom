@@ -28,12 +28,12 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(VboTest, Constructor) {
+        TEST(VboTest, constructor) {
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             ASSERT_EQ(VboState::Inactive, vbo.state());
         }
         
-        TEST(VboTest, ActivateAndDeactivateVbo) {
+        TEST(VboTest, activateAndDeactivateVbo) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VboTest, MapAndUnmapVbo) {
+        TEST(VboTest, mapAndUnmapVbo) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
         
-        TEST(VboTest, AllocateBlocks) {
+        TEST(VboTest, allocateBlocks) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VboTest, AllocateBlockAndWriteBuffer) {
+        TEST(VboTest, allocateBlockAndWriteBuffer) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
         
-        TEST(VboTest, DeallocateBlock) {
+        TEST(VboTest, deallocateBlock) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VboTest, AllocateBlockBetweenOtherBlocks) {
+        TEST(VboTest, allocateBlockBetweenOtherBlocks) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             

@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(EntityPropertiesTest, AddProperty) {
+        TEST(EntityPropertiesTest, addProperty) {
             EntityProperties entityProperties;
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             ASSERT_EQ(value, propertyList[0].value);
         }
         
-        TEST(EntityPropertiesTest, UpdateProperty) {
+        TEST(EntityPropertiesTest, updateProperty) {
             EntityProperties entityProperties;
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             ASSERT_EQ(newValue, propertyList[0].value);
         }
     
-        TEST(EntityPropertiesTest, HasProperty) {
+        TEST(EntityPropertiesTest, hasProperty) {
             EntityProperties entityProperties;
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(entityProperties.hasProperty("asfd"));
         }
         
-        TEST(EntityPropertiesTest, GetExistingProperty) {
+        TEST(EntityPropertiesTest, getExistingProperty) {
             EntityProperties entityProperties;
             const PropertyKey key("key");
             const PropertyValue value("value");
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             ASSERT_EQ(value, *result);
         }
         
-        TEST(EntityPropertiesTest, GetNonExistingProperty) {
+        TEST(EntityPropertiesTest, getNonExistingProperty) {
             EntityProperties entityProperties;
             ASSERT_EQ(NULL, entityProperties.property("key"));
             

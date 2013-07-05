@@ -39,14 +39,14 @@ public:
     }
 };
 
-TEST(CollectionUtilsTest, VecShiftLeftEmpty) {
+TEST(CollectionUtilsTest, vecShiftLeftEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     VectorUtils::shiftLeft(vec, 0);
     VectorUtils::shiftLeft(vec, 1);
 }
 
-TEST(CollectionUtilsTest, VecShiftLeftBy2) {
+TEST(CollectionUtilsTest, vecShiftLeftBy2) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -72,7 +72,7 @@ TEST(CollectionUtilsTest, VecShiftLeftBy2) {
     ASSERT_TRUE(std::equal(leftBy2.begin(), leftBy2.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftLeftBySize) {
+TEST(CollectionUtilsTest, vecShiftLeftBySize) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -89,7 +89,7 @@ TEST(CollectionUtilsTest, VecShiftLeftBySize) {
     ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftLeftByMoreThanSize) {
+TEST(CollectionUtilsTest, vecShiftLeftByMoreThanSize) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -115,14 +115,14 @@ TEST(CollectionUtilsTest, VecShiftLeftByMoreThanSize) {
     ASSERT_TRUE(std::equal(leftBy10.begin(), leftBy10.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftRightEmpty) {
+TEST(CollectionUtilsTest, vecShiftRightEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     VectorUtils::shiftRight(vec, 0);
     VectorUtils::shiftRight(vec, 1);
 }
 
-TEST(CollectionUtilsTest, VecShiftRightBy2) {
+TEST(CollectionUtilsTest, vecShiftRightBy2) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -148,7 +148,7 @@ TEST(CollectionUtilsTest, VecShiftRightBy2) {
     ASSERT_TRUE(std::equal(rightBy2.begin(), rightBy2.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftRightBySize) {
+TEST(CollectionUtilsTest, vecShiftRightBySize) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -165,7 +165,7 @@ TEST(CollectionUtilsTest, VecShiftRightBySize) {
     ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecShiftRightByMoreThanSize) {
+TEST(CollectionUtilsTest, vecShiftRightByMoreThanSize) {
     typedef std::vector<size_t> Vec;
     Vec vec;
     
@@ -191,7 +191,7 @@ TEST(CollectionUtilsTest, VecShiftRightByMoreThanSize) {
     ASSERT_TRUE(std::equal(rightBy10.begin(), rightBy10.end(), actual.begin()));
 }
 
-TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {
+TEST(CollectionUtilsTest, vecEraseAndDelete1InRange) {
     typedef std::vector<TestObject*> TestVec;
 
     static const size_t count = 3;
@@ -208,7 +208,7 @@ TEST(CollectionUtilsTest, VecEraseAndDelete1InRange) {
     VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecEraseAndDelete2InRange) {
+TEST(CollectionUtilsTest, vecEraseAndDelete2InRange) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -226,7 +226,7 @@ TEST(CollectionUtilsTest, VecEraseAndDelete2InRange) {
     VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecEraseAndDeleteAllFrom) {
+TEST(CollectionUtilsTest, vecEraseAndDeleteAllFrom) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -244,7 +244,7 @@ TEST(CollectionUtilsTest, VecEraseAndDeleteAllFrom) {
     VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecClearAndDelete) {
+TEST(CollectionUtilsTest, vecClearAndDelete) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -259,7 +259,7 @@ TEST(CollectionUtilsTest, VecClearAndDelete) {
         ASSERT_TRUE(deleted[i]);
 }
 
-TEST(CollectionUtilsTest, VecRemove) {
+TEST(CollectionUtilsTest, vecRemove) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -274,7 +274,7 @@ TEST(CollectionUtilsTest, VecRemove) {
     VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecRemoveAndDelete) {
+TEST(CollectionUtilsTest, vecRemoveAndDelete) {
     typedef std::vector<TestObject*> TestVec;
     
     static const size_t count = 4;
@@ -289,7 +289,7 @@ TEST(CollectionUtilsTest, VecRemoveAndDelete) {
     VectorUtils::clearAndDelete(vec);
 }
 
-TEST(CollectionUtilsTest, VecContains) {
+TEST(CollectionUtilsTest, vecContains) {
     typedef std::vector<int> TestVec;
     TestVec vec;
     
@@ -307,7 +307,7 @@ TEST(CollectionUtilsTest, VecContains) {
     ASSERT_FALSE(VectorUtils::contains(vec, 110));
 }
 
-TEST(CollectionUtilsTest, VecContainsPtr) {
+TEST(CollectionUtilsTest, vecContainsPtr) {
     typedef std::vector<int*> TestVec;
     TestVec vec;
     
@@ -342,7 +342,7 @@ TEST(CollectionUtilsTest, VecContainsPtr) {
     delete i110;
 }
 
-TEST(CollectionUtilsTest, MapFindOrInsert) {
+TEST(CollectionUtilsTest, mapFindOrInsert) {
     typedef std::map<std::string, std::string> TestMap;
 
     TestMap testMap;
@@ -361,7 +361,7 @@ TEST(CollectionUtilsTest, MapFindOrInsert) {
     ASSERT_EQ(std::string(""), it->second);
 }
 
-TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
+TEST(CollectionUtilsTest, mapInsertOrReplaceCopy) {
     typedef std::map<std::string, std::string> TestMap;
 
     TestMap testMap;
@@ -378,7 +378,7 @@ TEST(CollectionUtilsTest, MapInsertOrReplaceCopy) {
     ASSERT_EQ(value2, testMap[key]);
 }
 
-TEST(CollectionUtilsTest, MapInsertOrReplacePointer) {
+TEST(CollectionUtilsTest, mapInsertOrReplacePointer) {
     typedef std::map<std::string, TestObject*> TestMap;
     
     TestMap testMap;
@@ -401,7 +401,7 @@ TEST(CollectionUtilsTest, MapInsertOrReplacePointer) {
     MapUtils::clearAndDelete(testMap);
 }
 
-TEST(CollectionUtilsTest, MapClearAndDelete) {
+TEST(CollectionUtilsTest, mapClearAndDelete) {
     typedef std::map<std::string, TestObject*> TestMap;
     
     TestMap testMap;

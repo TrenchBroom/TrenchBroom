@@ -82,19 +82,19 @@ namespace TrenchBroom {
             Tokenizer<SimpleToken::Type>(str) {}
         };
         
-        TEST(TokenizerTest, SimpleLanguageEmptyString) {
+        TEST(TokenizerTest, simpleLanguageEmptyString) {
             const String testString("");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageBlankString) {
+        TEST(TokenizerTest, simpleLanguageBlankString) {
             const String testString("\n  \t ");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageEmptyBlock) {
+        TEST(TokenizerTest, simpleLanguageEmptyBlock) {
             const String testString("{"
                                     "}");
             
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguagePushPeekPopToken) {
+        TEST(TokenizerTest, simpleLanguagePushPeekPopToken) {
             const String testString("{\n"
                                     "}");
             
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, SimpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
+        TEST(TokenizerTest, simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
             const String testString(" \t{"
                                     " }  ");
             
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageBlockWithStringProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithStringProperty) {
             const String testString("{\n"
                                     "    property =value;\n"
                                     "}\n");
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, SimpleLanguageBlockWithIntegerProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithIntegerProperty) {
             const String testString("{"
                                     "    property =  12328;"
                                     "}");
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageBlockWithDecimalProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithDecimalProperty) {
             const String testString("{"
                                     "    property =  12328.38283;"
                                     "}");
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageBlockWithDecimalPropertyStartingWithDot) {
+        TEST(TokenizerTest, simpleLanguageBlockWithDecimalPropertyStartingWithDot) {
             const String testString("{"
                                     "    property =  .38283;"
                                     "}");
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, SimpleLanguageBlockWithNegativeDecimalProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalProperty) {
             const String testString("{"
                                     "    property =  -343.38283;"
                                     "}");

@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(WadTest, LoadEntries) {
+        TEST(WadTest, loadEntries) {
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
             Wad wad(wadPath);
             
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("lasthopeofhuman"), entries[20].name());
         }
         
-        TEST(WadTest, GetMipSize) {
+        TEST(WadTest, getMipSize) {
             const Path wadPath("data/io/wad/cr8_czg.wad");
             Wad wad(wadPath);
             

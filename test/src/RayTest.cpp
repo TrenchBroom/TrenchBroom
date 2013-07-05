@@ -23,26 +23,26 @@
 #include "MathUtils.h"
 #include "TestUtils.h"
 
-TEST(RayTest, PointAtDistance) {
+TEST(RayTest, pointAtDistance) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosX);
     ASSERT_VEC_EQ(Vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
 }
 
-TEST(RayTest, PointStatus) {
+TEST(RayTest, pointStatus) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     ASSERT_EQ(PointStatus::PSAbove, ray.pointStatus(Vec3f(0.0f, 0.0f, 1.0f)));
     ASSERT_EQ(PointStatus::PSInside, ray.pointStatus(Vec3f(0.0f, 0.0f, 0.0f)));
     ASSERT_EQ(PointStatus::PSBelow, ray.pointStatus(Vec3f(0.0f, 0.0f, -1.0f)));
 }
 
-TEST(RayTest, IntersectWithPlane) {
+TEST(RayTest, intersectWithPlane) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     ASSERT_TRUE(Mathf::isnan(ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f, -1.0f))));
     ASSERT_FLOAT_EQ(0.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  0.0f)));
     ASSERT_FLOAT_EQ(1.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  1.0f)));
 }
 
-TEST(RayTest, IntersectWithSphere) {
+TEST(RayTest, intersectWithSphere) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     
     // ray originates inside sphere and hits at north pole
@@ -55,7 +55,7 @@ TEST(RayTest, IntersectWithSphere) {
     ASSERT_TRUE(Mathf::isnan(ray.intersectWithSphere(Vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
 }
 
-TEST(RayTest, DistanceToPoint) {
+TEST(RayTest, distanceToPoint) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     
     // point is behind ray
@@ -71,7 +71,7 @@ TEST(RayTest, DistanceToPoint) {
     ASSERT_FLOAT_EQ(0.0f, ray.distanceToPointSquared(Vec3f(0.0f, 0.0f, 1.0f)).distance);
 }
 
-TEST(RayTest, DistanceToSegment) {
+TEST(RayTest, distanceToSegment) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     Ray3f::LineDistance segDist;
     
@@ -96,7 +96,7 @@ TEST(RayTest, DistanceToSegment) {
     ASSERT_VEC_EQ(Vec3f(1.0f, 0.0f, 0.0f), segDist.point);
 }
 
-TEST(RayTest, DistanceToLine) {
+TEST(RayTest, distanceToLine) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     Ray3f::LineDistance segDist;
     

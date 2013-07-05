@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace IO {
 #ifdef _WIN32
-        TEST(PathTest, ConstructWithString) {
+        TEST(PathTest, constructWithString) {
             ASSERT_EQ(String(""), Path("").asString());
             ASSERT_EQ(String(""), Path(" ").asString());
             ASSERT_EQ(String("c:"), Path("c:\\").asString());
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String(".\\asdf"), Path(".\\asdf").asString());
         }
         
-        TEST(PathTest, Concatenate) {
+        TEST(PathTest, concatenate) {
             ASSERT_THROW(Path("") + Path("c:\\"), PathException);
             ASSERT_THROW(Path("") + Path("c:\\asdf"), PathException);
             ASSERT_THROW(Path("asdf") + Path("c:\\asdf"), PathException);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf\\hey"), Path("asdf") + Path("hey"));
         }
         
-        TEST(PathTest, IsEmpty) {
+        TEST(PathTest, isEmpty) {
             ASSERT_TRUE(Path("").isEmpty());
             ASSERT_FALSE(Path("asdf").isEmpty());
             ASSERT_FALSE(Path("c:").isEmpty());
@@ -61,21 +61,21 @@ namespace TrenchBroom {
             ASSERT_FALSE(Path("c:\\.").isEmpty());
         }
         
-        TEST(PathTest, GetLastComponent) {
+        TEST(PathTest, getLastComponent) {
             ASSERT_THROW(Path("").lastComponent(), PathException);
             ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
             ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent());
         }
         
-        TEST(PathTest, DeleteLastComponent) {
+        TEST(PathTest, deleteLastComponent) {
             ASSERT_THROW(Path("").deleteLastComponent(), PathException);
             ASSERT_EQ(Path("c:\\"), Path("c:\\asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("c:\\this\\is\\a"), Path("c:\\this\\is\\a\\path.map").deleteLastComponent());
         }
         
-        TEST(PathTest, GetExtension) {
+        TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(String(""), Path("asdf").extension());
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
@@ -83,20 +83,20 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
         }
         
-        TEST(PathTest, AddExtension) {
+        TEST(PathTest, addExtension) {
             ASSERT_THROW(Path("").addExtension("map"), PathException);
             ASSERT_EQ(Path("c:\\asdf."), Path("c:\\asdf").addExtension(""));
             ASSERT_EQ(Path("c:\\asdf.map"), Path("c:\\asdf").addExtension("map"));
             ASSERT_EQ(Path("c:\\asdf.map.test"), Path("c:\\asdf.map").addExtension("test"));
         }
         
-        TEST(PathTest, MakeAbsolute) {
+        TEST(PathTest, makeAbsolute) {
             ASSERT_THROW(Path("c:\\asdf").makeAbsolute(Path("c:\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
             ASSERT_EQ(Path("c:\\asdf\\hello"), Path("c:\\asdf").makeAbsolute(Path("hello")));
         }
         
-        TEST(PathTest, MakeRelative) {
+        TEST(PathTest, makeRelative) {
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
@@ -109,13 +109,13 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("hurr\\..\\hello"), Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
         
-        TEST(PathTest, MakeCanonical) {
+        TEST(PathTest, makeCanonical) {
             ASSERT_THROW(Path("c:\\..").makeCanonical(), PathException);
             ASSERT_THROW(Path("c:\\asdf\\..\\..").makeCanonical(), PathException);
             ASSERT_EQ(Path("c:\\asdf"), Path("c:\\asdf\\test\\..").makeCanonical());
         }
 #else
-        TEST(PathTest, ConstructWithString) {
+        TEST(PathTest, constructWithString) {
             ASSERT_EQ(String(""), Path("").asString());
             ASSERT_EQ(String(""), Path(" ").asString());
             ASSERT_EQ(String("/"), Path("/").asString());
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("./asdf"), Path("./asdf").asString());
         }
         
-        TEST(PathTest, Concatenate) {
+        TEST(PathTest, concatenate) {
             ASSERT_THROW(Path("") + Path("/"), PathException);
             ASSERT_THROW(Path("") + Path("/asdf"), PathException);
             ASSERT_THROW(Path("asdf") + Path("/asdf"), PathException);
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf/hey"), Path("asdf") + Path("hey"));
         }
         
-        TEST(PathTest, IsEmpty) {
+        TEST(PathTest, isEmpty) {
             ASSERT_TRUE(Path("").isEmpty());
             ASSERT_FALSE(Path("asdf").isEmpty());
             ASSERT_FALSE(Path("/").isEmpty());
@@ -150,21 +150,21 @@ namespace TrenchBroom {
             ASSERT_FALSE(Path("/.").isEmpty());
         }
 
-        TEST(PathTest, GetLastComponent) {
+        TEST(PathTest, getLastComponent) {
             ASSERT_THROW(Path("").lastComponent(), PathException);
             ASSERT_EQ("asdf", Path("/asdf").lastComponent());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
             ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent());
         }
         
-        TEST(PathTest, DeleteLastComponent) {
+        TEST(PathTest, deleteLastComponent) {
             ASSERT_THROW(Path("").deleteLastComponent(), PathException);
             ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("/this/is/a"), Path("/this/is/a/path.map").deleteLastComponent());
         }
         
-        TEST(PathTest, GetExtension) {
+        TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(String(""), Path("asdf").extension());
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
@@ -172,20 +172,20 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("textfile"), Path("/this/is/a/path.map.textfile").extension());
         }
         
-        TEST(PathTest, AddExtension) {
+        TEST(PathTest, addExtension) {
             ASSERT_THROW(Path("").addExtension("map"), PathException);
             ASSERT_EQ(Path("/asdf."), Path("/asdf").addExtension(""));
             ASSERT_EQ(Path("/asdf.map"), Path("/asdf").addExtension("map"));
             ASSERT_EQ(Path("/asdf.map.test"), Path("/asdf.map").addExtension("test"));
         }
         
-        TEST(PathTest, MakeAbsolute) {
+        TEST(PathTest, makeAbsolute) {
             ASSERT_THROW(Path("/asdf").makeAbsolute(Path("/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
             ASSERT_EQ(Path("/asdf/hello"), Path("/asdf").makeAbsolute(Path("hello")));
         }
         
-        TEST(PathTest, MakeRelative) {
+        TEST(PathTest, makeRelative) {
             ASSERT_THROW(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/")), PathException);
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("hurr/../hello"), Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")));
         }
         
-        TEST(PathTest, MakeCanonical) {
+        TEST(PathTest, makeCanonical) {
             ASSERT_THROW(Path("/..").makeCanonical(), PathException);
             ASSERT_THROW(Path("/asdf/../..").makeCanonical(), PathException);
             ASSERT_EQ(Path("/asdf"), Path("/asdf/test/..").makeCanonical());

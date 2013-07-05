@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushGeometryTest, ConstructWithEmptyFaceList) {
+        TEST(BrushGeometryTest, constructWithEmptyFaceList) {
             const FloatType s = 8192.0;
             const Vec3 worldSize2(s, s, s);
             const BBox3 worldBounds(-worldSize2, worldSize2);
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, rightVertices));
         }
         
-        TEST(BrushGeometryTest, BuildCuboid) {
+        TEST(BrushGeometryTest, buildCuboid) {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
             
             BrushFace::Ptr top = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),

@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TEST(KeyboardShortcutTest, ContextName) {
+        TEST(KeyboardShortcutTest, contextName) {
             ASSERT_WXSTR_EQ(wxString("Any"), KeyboardShortcut::contextName(KeyboardShortcut::SCAny));
             ASSERT_WXSTR_EQ(wxString("Vertex Tool"), KeyboardShortcut::contextName(KeyboardShortcut::SCVertexTool));
             ASSERT_WXSTR_EQ(wxString("Clip Tool"), KeyboardShortcut::contextName(KeyboardShortcut::SCClipTool));
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ASSERT_EQ(exp3, key3);
         }
         
-        TEST(KeyboardShortcutTest, SortModifierKeys) {
+        TEST(KeyboardShortcutTest, sortModifierKeys) {
             assertSortModifierKeys(WXK_ALT, WXK_NONE, WXK_NONE,
                                    WXK_ALT, WXK_NONE, WXK_NONE);
             assertSortModifierKeys(WXK_SHIFT, WXK_NONE, WXK_NONE,
@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
         
 #ifdef __linux__
-        TEST(KeyboardShortcutTest, IsShortcutValid) {
+        TEST(KeyboardShortcutTest, isShortcutValid) {
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB));
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB, WXK_CONTROL));
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_ESCAPE));
@@ -106,14 +106,14 @@ namespace TrenchBroom {
         }
 #endif
         
-        TEST(KeyboardShortcutTest, StaticModifierKeyMenuText) {
+        TEST(KeyboardShortcutTest, staticModifierKeyMenuText) {
             ASSERT_WXSTR_EQ(wxString("Ctrl"), KeyboardShortcut::modifierKeyMenuText(WXK_CONTROL));
             ASSERT_WXSTR_EQ(wxString("Alt"), KeyboardShortcut::modifierKeyMenuText(WXK_ALT));
             ASSERT_WXSTR_EQ(wxString("Shift"), KeyboardShortcut::modifierKeyMenuText(WXK_SHIFT));
             ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierKeyMenuText(WXK_TAB));
         }
         
-        TEST(KeyboardShortcutTest, ModifierKeyDisplayText) {
+        TEST(KeyboardShortcutTest, modifierKeyDisplayText) {
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(wxString(L"\u2318"), KeyboardShortcut::modifierKeyDisplayText(WXK_CONTROL));
             ASSERT_WXSTR_EQ(wxString(L"\u2325"), KeyboardShortcut::modifierKeyDisplayText(WXK_ALT));
@@ -127,7 +127,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        TEST(KeyboardShortcutTest, StaticShortcutDisplayText) {
+        TEST(KeyboardShortcutTest, staticShortcutDisplayText) {
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(wxString("C"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, 'C'));
             ASSERT_WXSTR_EQ(wxString(L"\u238B"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, WXK_ESCAPE));
@@ -145,7 +145,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        TEST(KeyboardShortcutTest, ParseShortcut) {
+        TEST(KeyboardShortcutTest, parseShortcut) {
             int m1, m2, m3, k;
             
             ASSERT_TRUE(KeyboardShortcut::parseShortcut("", m1, m2, m3, k));
@@ -219,7 +219,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        TEST(KeyboardShortcutTest, ConstructWithString) {
+        TEST(KeyboardShortcutTest, constructWithString) {
             StringStream test;
             test << "7:" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE << ":" << static_cast<int>('D') << ":" << KeyboardShortcut::SCObjects << ":Duplicate";
             
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Duplicate"), shortcut.text());
         }
         
-        TEST(KeyboardShortcutTest, Matches) {
+        TEST(KeyboardShortcutTest, matches) {
             const KeyboardShortcut shortcut(0, WXK_CONTROL, WXK_ALT, 'D', KeyboardShortcut::SCObjects, "Test");
             
             ASSERT_FALSE(shortcut.matches('S', WXK_CONTROL, WXK_ALT));
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(shortcut.matches('D', WXK_NONE, WXK_ALT, WXK_CONTROL));
         }
         
-        TEST(KeyboardShortcutTest, ModifierKeyMenuText) {
+        TEST(KeyboardShortcutTest, modifierKeyMenuText) {
             const KeyboardShortcut shortcut(0, WXK_ALT, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Test");
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(wxString("Alt+Ctrl"), shortcut.modifierKeyMenuText());

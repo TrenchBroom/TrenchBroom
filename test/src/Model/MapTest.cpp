@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(MapTest, AddEntity) {
+        TEST(MapTest, addEntity) {
             Map::Ptr map = Map::newMap();
             
             Entity::Ptr entity = Entity::newEntity();
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             ASSERT_EQ(entity, entities[0]);
         }
         
-        TEST(MapTest, GetNonExistingWorldspawn) {
+        TEST(MapTest, getNonExistingWorldspawn) {
             Map::Ptr map = Map::newMap();
             ASSERT_EQ(Entity::Ptr(), map->worldspawn());
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Entity::Ptr(), map->worldspawn());
         }
         
-        TEST(MapTest, GetExistingWorldspawn) {
+        TEST(MapTest, getExistingWorldspawn) {
             Map::Ptr map = Map::newMap();
             Entity::Ptr worldspawn = Entity::newEntity();
             worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);

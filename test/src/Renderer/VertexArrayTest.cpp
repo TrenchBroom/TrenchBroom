@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(VertexArrayTest, Vertex1Array) {
+        TEST(VertexArrayTest, vertex1Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VertexArrayTest, Vertex2Array) {
+        TEST(VertexArrayTest, vertex2Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
         
-        TEST(VertexArrayTest, Vertex3Array) {
+        TEST(VertexArrayTest, vertex3Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
         }
 
-        TEST(VertexArrayTest, IndexedVertex1Array) {
+        TEST(VertexArrayTest, indexedVertex1Array) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));

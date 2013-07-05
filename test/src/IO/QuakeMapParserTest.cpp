@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        TEST(QuakeMapParserTest, ParseEmptyMap) {
+        TEST(QuakeMapParserTest, parseEmptyMap) {
             const String data("");
             BBox3 worldBounds(-8192, 8192);
             
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(map->entities().empty());
         }
         
-        TEST(QuakeMapParserTest, ParseMapWithEmptyEntity) {
+        TEST(QuakeMapParserTest, parseMapWithEmptyEntity) {
             const String data("{}");
             BBox3 worldBounds(-8192, 8192);
             
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, map->entities().size());
         }
         
-        TEST(QuakeMapParserTest, ParseMapWithWorldspawn) {
+        TEST(QuakeMapParserTest, parseMapWithWorldspawn) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
                               "}");
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
         }
 
-        TEST(QuakeMapParserTest, ParseMapWithWorldspawnAndOneMoreEntity) {
+        TEST(QuakeMapParserTest, parseMapWithWorldspawnAndOneMoreEntity) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
                               "}"
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String(" -1 "), second->property("angle"));
         }
         
-        TEST(QuakeMapParserTest, ParseMapWithWorldspawnAndOneBrush) {
+        TEST(QuakeMapParserTest, parseMapWithWorldspawnAndOneBrush) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)));
         }
 
-        TEST(QuakeMapParserTest, ParseBrushWithCurlyBraceInTextureName) {
+        TEST(QuakeMapParserTest, parseBrushWithCurlyBraceInTextureName) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"

@@ -33,7 +33,7 @@ namespace TrenchBroom {
             ASSERT_EQ(height, texture->height());
         }
         
-        TEST(WadTextureLoaderTest, TestLoadWad) {
+        TEST(WadTextureLoaderTest, testLoadWad) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             std::srand(static_cast<unsigned int>(std::time(NULL)));

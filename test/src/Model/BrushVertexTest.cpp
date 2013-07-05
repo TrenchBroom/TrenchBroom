@@ -27,13 +27,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushVertexTest, ConstructWithPosition) {
+        TEST(BrushVertexTest, constructWithPosition) {
             Vec3 position(1.0f, 2.0f, 3.0f);
             BrushVertex vertex(position);
             ASSERT_EQ(position, vertex.position());
         }
         
-        TEST(BrushVertexTest, GetMark) {
+        TEST(BrushVertexTest, getMark) {
             BrushVertex v(Vec3::Null);
             v.updateMark(Plane3(-1.0, Vec3::PosZ));
             ASSERT_EQ(BrushVertex::Drop, v.mark());
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             ASSERT_EQ(BrushVertex::Keep, v.mark());
         }
         
-        TEST(BrushVertexTest, FindBrushVertex) {
+        TEST(BrushVertexTest, findBrushVertex) {
             BrushVertex* v1 = new BrushVertex(Vec3::Null);
             BrushVertex* v2 = new BrushVertex(Vec3(1.3232, 0.3332, -33123.2954));
             BrushVertex* v3 = new BrushVertex(Vec3(1.0, 2.0, 3.0));

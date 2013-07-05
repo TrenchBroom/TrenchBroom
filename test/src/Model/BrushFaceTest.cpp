@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushFaceTest, ConstructWithValidPoints) {
+        TEST(BrushFaceTest, constructWithValidPoints) {
             const Vec3 point0(0.0,  0.0, 4.0);
             const Vec3 point1(1.f,  0.0, 4.0);
             const Vec3 point2(0.0, -1.0, 4.0);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ASSERT_EQ(4.0, face->boundary().distance);
         }
         
-        TEST(BrushFaceTest, ConstructWithColinearPoints) {
+        TEST(BrushFaceTest, constructWithColinearPoints) {
             const Vec3 point0(0.0, 0.0, 4.0);
             const Vec3 point1(1.f, 0.0, 4.0);
             const Vec3 point2(2.0, 0.0, 4.0);

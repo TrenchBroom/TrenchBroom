@@ -57,7 +57,7 @@ namespace TrenchBroom {
             return newVertices;
         }
         
-        TEST(BrushFaceGeometryTest, GetMark) {
+        TEST(BrushFaceGeometryTest, getMark) {
             BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
             BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(vertices);
         }
         
-        TEST(BrushFaceGeometryTest, SplitSquareVerticallyAndSplitTwoEdges) {
+        TEST(BrushFaceGeometryTest, splitSquareVerticallyAndSplitTwoEdges) {
             BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
             BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(newVertices);
         }
         
-        TEST(BrushFaceGeometryTest, SplitSquareAndSplitOneEdge) {
+        TEST(BrushFaceGeometryTest, splitSquareAndSplitOneEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
             BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(newVertices);
         }
 
-        TEST(BrushFaceGeometryTest, SplitSquareAndSplitNoEdge) {
+        TEST(BrushFaceGeometryTest, splitSquareAndSplitNoEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
             BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
@@ -281,7 +281,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(newVertices);
         }
         
-        TEST(BrushFaceGeometryTest, FindUndecidedEdge) {
+        TEST(BrushFaceGeometryTest, findUndecidedEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3( 0.0,  0.0, 0.0));
             BrushVertex* v2 = new BrushVertex(Vec3( 0.0, 10.0, 0.0));
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
@@ -325,7 +325,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(vertices);
         }
 
-        TEST(BrushFaceGeometryTest, AddForwardEdge) {
+        TEST(BrushFaceGeometryTest, addForwardEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
             BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
@@ -368,7 +368,7 @@ namespace TrenchBroom {
             delete v3;
         }
         
-        TEST(BrushFaceGeometryTest, AddBackwardEdge) {
+        TEST(BrushFaceGeometryTest, addBackwardEdge) {
             BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
             BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
@@ -411,7 +411,7 @@ namespace TrenchBroom {
             delete v3;
         }
         
-        TEST(BrushFaceGeometryTest, IsClosed) {
+        TEST(BrushFaceGeometryTest, isClosed) {
             BrushVertex* v1 = new BrushVertex(Vec3(1.0, 2.0, 3.0));
             BrushVertex* v2 = new BrushVertex(Vec3(2.0, 3.0, 4.0));
             BrushVertex* v3 = new BrushVertex(Vec3(3.0, 4.0, 5.0));
@@ -437,7 +437,7 @@ namespace TrenchBroom {
             delete v3;
         }
         
-        TEST(BrushFaceGeometryTest, HasVertexPositions) {
+        TEST(BrushFaceGeometryTest, hasVertexPositions) {
             const Vec3 p1(1.0, 2.0, 3.0);
             const Vec3 p2(2.0, 3.0, 4.0);
             const Vec3 p3(3.0, 4.0, 5.0);
@@ -500,7 +500,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(vertices);
         }
         
-        TEST(BrushFaceGeometryTest, FindBrushFaceGeometry) {
+        TEST(BrushFaceGeometryTest, findBrushFaceGeometry) {
             const Vec3 p1(1.0, 2.0, 3.0);
             const Vec3 p2(2.0, 3.0, 4.0);
             const Vec3 p3(3.0, 4.0, 5.0);
