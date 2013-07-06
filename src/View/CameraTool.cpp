@@ -31,6 +31,23 @@ namespace TrenchBroom {
         m_camera(camera),
         m_orbit(false) {}
         
+        void CameraTool::doScroll(const InputState& inputState) {
+            if (move(inputState)) {
+                if (m_orbit) {
+                    const Plane3f orbitPlane(m_camera.direction(), m_orbitCenter);
+                    const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
+                    const float distance = std::min(inputState.scrollY() * moveSpeed(), maxDistance);
+                    m_camera.moveBy(distance * m_camera.direction());
+                } else {
+                    // PreferenceManager prefs = PreferenceManager::instance();
+                    // const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : camera.direction();
+                    const Vec3f moveDirection = m_camera.direction();
+                    const float distance = inputState.scrollY() * moveSpeed();
+                    m_camera.moveBy(distance * moveDirection);
+                }
+            }
+        }
+
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
             } else if (look(inputState)) {
@@ -71,6 +88,11 @@ namespace TrenchBroom {
         
         void CameraTool::doCancelMouseDrag(const InputState& inputState) {
             m_orbit = false;
+        }
+
+        bool CameraTool::move(const InputState& inputState) const {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
 
         bool CameraTool::look(const InputState& inputState) const {

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             virtual bool doMouseDown(const InputState& inputState);
             virtual bool doMouseUp(const InputState& inputState);
             virtual bool doMouseDoubleClick(const InputState& inputState);
-            virtual bool doScroll(const InputState& inputState);
+            virtual void doScroll(const InputState& inputState);
             virtual void doMouseMove(const InputState& inputState);
         };
         
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             virtual bool mouseDown(const InputState& inputState) = 0;
             virtual bool mouseUp(const InputState& inputState) = 0;
             virtual bool mouseDoubleClick(const InputState& inputState) = 0;
-            virtual bool scroll(const InputState& inputState) = 0;
+            virtual void scroll(const InputState& inputState) = 0;
             virtual void mouseMove(const InputState& inputState) = 0;
             
             virtual bool startMouseDrag(const InputState& inputState) = 0;
@@ -109,12 +109,10 @@ namespace TrenchBroom {
                 return false;
             }
             
-            inline bool scroll(const InputState& inputState) {
-                if (static_cast<MousePolicyType&>(*this).doScroll(inputState))
-                    return true;
+            inline void scroll(const InputState& inputState) {
+                static_cast<MousePolicyType&>(*this).doScroll(inputState);
                 if (m_next != NULL)
-                    return m_next->scroll(inputState);
-                return false;
+                    m_next->scroll(inputState);
             }
             
             inline void mouseMove(const InputState& inputState) {

@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool : public Tool<EmptyPolicy, MouseDragPolicy> {
+        class CameraTool : public Tool<MousePolicy, MouseDragPolicy> {
         private:
             Renderer::Camera& m_camera;
             bool m_orbit;
@@ -38,11 +38,13 @@ namespace TrenchBroom {
         public:
             CameraTool(BaseTool* next, Renderer::Camera& camera);
         private:
+            void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
             
+            bool move(const InputState& inputState) const;
             bool look(const InputState& inputState) const;
             bool pan(const InputState& inputState) const;
             bool orbit(const InputState& inputState) const;

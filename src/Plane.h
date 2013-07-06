@@ -20,8 +20,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_Plane_h
 #define TrenchBroom_Plane_h
 
-#include "Vec.h"
+#include "Line.h"
 #include "MathUtils.h"
+#include "Ray.h"
+#include "Vec.h"
 
 template <typename T, size_t S>
 class Plane {
@@ -67,18 +69,16 @@ public:
         return normal * distance;
     }
     
-            /*
-    inline T intersectWithRay(const Ray<T>& ray) const {
+    inline T intersectWithRay(const Ray<T,S>& ray) const {
         return ray.intersectWithPlane(normal, anchor());
     }
     
-    inline T intersectWithLine(const Line<T>& line) const {
+    inline T intersectWithLine(const Line<T,S>& line) const {
         const T d = line.direction.dot(normal);
         if (Math<T>::zero(d))
             return Math<T>::nan();
         return ((anchor() - line.point).dot(normal)) / d;
     }
-             */
     
     inline PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math<T>::PointStatusEpsilon) const {
         const T dist = pointDistance(point);

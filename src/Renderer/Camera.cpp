@@ -105,6 +105,10 @@ namespace TrenchBroom {
             return m_viewMatrix;
         }
 
+        Ray3f Camera::viewRay() const {
+            return Ray3f(m_position, m_direction);
+        }
+
         void Camera::setFov(const float fov) {
             assert(fov > 0.0f);
             m_fov = fov;

@@ -29,6 +29,7 @@
 #endif
 
 #include "BBox.h"
+#include "Line.h"
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"

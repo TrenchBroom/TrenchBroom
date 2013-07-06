@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,19 +17,31 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TrenchBroom_h
-#define TrenchBroom_TrenchBroom_h
+#ifndef TrenchBroom_Line_h
+#define TrenchBroom_Line_h
 
-#include "VecMath.h"
+#include "Vec.h"
 
-typedef double FloatType;
-typedef BBox<FloatType, 3> BBox3;
-typedef Vec<FloatType, 3> Vec3;
-typedef Plane<FloatType, 3> Plane3;
-typedef Quat<FloatType> Quat3;
-typedef Mat<FloatType, 4, 4> Mat4x4;
-typedef Mat<FloatType, 3, 3> Mat3x3;
-typedef Mat<FloatType, 2, 2> Mat2x2;
-typedef Line<FloatType, 3> Line3;
+template <typename T, size_t S>
+class Line {
+public:
+    Vec<T,S> point;
+    Vec<T,S> direction;
+
+    Line() :
+    point(Vec<T,S>::Null),
+    direction(Vec<T,S>::Null) {}
+    
+    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
+    point(i_point),
+    direction(i_direction) {}
+    
+    inline const Vec<T,S> pointAtDistance(const T distance) const {
+        return point + direction * distance;
+    }
+};
+
+typedef Line<float,3> Line3f;
+typedef Line<double,3> Line3d;
 
 #endif

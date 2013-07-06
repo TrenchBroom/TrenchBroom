@@ -64,6 +64,8 @@ namespace TrenchBroom {
             const Mat4x4f& projectionMatrix() const;
             const Mat4x4f& viewMatrix() const;
             
+            Ray3f viewRay() const;
+            
             void setFov(const float fov);
             void setNear(const float near);
             void setFar(const float far);
