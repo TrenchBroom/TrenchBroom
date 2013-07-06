@@ -40,11 +40,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(doc->modified());
 
             Model::Map::Ptr map = doc->map();
-            ASSERT_EQ(1, map->entities().size());
+            ASSERT_EQ(1u, map->entities().size());
             
             Model::Entity::Ptr entity = map->worldspawn();
             ASSERT_TRUE(entity != NULL);
-            ASSERT_EQ(1, entity->brushes().size());
+            ASSERT_EQ(1u, entity->brushes().size());
         }
 
         TEST(OpenDocumentCommandTest, openDocumentInExistingDocument) {
@@ -61,11 +61,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(doc->modified());
             
             Model::Map::Ptr map = doc->map();
-            ASSERT_EQ(1, map->entities().size());
+            ASSERT_EQ(1u, map->entities().size());
             
             Model::Entity::Ptr entity = map->worldspawn();
             ASSERT_TRUE(entity != NULL);
-            ASSERT_EQ(2, entity->brushes().size());
+            ASSERT_EQ(2u, entity->brushes().size());
         }
     }
 }

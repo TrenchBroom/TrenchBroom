@@ -65,6 +65,23 @@ namespace TrenchBroom {
         const View::KeyboardShortcut& getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const;
         void setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value);
     };
+    
+    template <typename T>
+    class SetTemporaryPreference {
+    private:
+        Preference<T>& m_pref;
+        T m_oldValue;
+    public:
+        SetTemporaryPreference(Preference<T>& pref, const T& newValue) :
+        m_pref(pref),
+        m_oldValue(pref.value()) {
+            m_pref.setValue(newValue);
+        }
+        
+        ~SetTemporaryPreference() {
+            m_pref.setValue(m_oldValue);
+        }
+    };
 }
 
 #endif /* defined(__TrenchBroom__PreferenceManager__) */

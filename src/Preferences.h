@@ -30,6 +30,16 @@ namespace TrenchBroom {
         extern Preference<Color> XAxisColor;
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;
+        
+        extern Preference<float> CameraLookSpeed;
+        extern Preference<bool> CameraLookInvertH;
+        extern Preference<bool> CameraLookInvertV;
+        extern Preference<float> CameraPanSpeed;
+        extern Preference<bool> CameraPanInvertH;
+        extern Preference<bool> CameraPanInvertV;
+        extern Preference<float> CameraMoveSpeed;
+        extern Preference<bool> CameraEnableAltMove;
+        extern Preference<bool> CameraMoveInCursorDir;
     }
 }
 

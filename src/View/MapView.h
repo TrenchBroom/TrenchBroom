@@ -23,6 +23,7 @@
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "View/InputState.h"
 
 #include <vector>
 #include <wx/event.h>
@@ -30,6 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        class BaseTool;
+        class CameraTool;
         class Console;
         
         class MapView : public wxGLCanvas {
@@ -40,6 +43,12 @@ namespace TrenchBroom {
             
             Renderer::Camera m_camera;
             Renderer::MapRenderer m_renderer;
+            
+            InputState m_inputState;
+            bool m_drag;
+            wxPoint m_clickPos;
+            CameraTool* m_cameraTool;
+            BaseTool* m_toolChain;
         public:
             MapView(wxWindow* parent, Console& console);
             ~MapView();
@@ -49,10 +58,14 @@ namespace TrenchBroom {
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
+            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         private:
+            void createTools();
+            void deleteTools();
+            void bindEvents();
             void initializeGL();
             
             static const int* attribs();

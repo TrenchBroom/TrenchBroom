@@ -25,5 +25,15 @@ namespace TrenchBroom {
         Preference<Color> XAxisColor = Preference<Color>("Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> YAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
         Preference<Color> ZAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
+
+        Preference<float> CameraLookSpeed = Preference<float>("Controls/Camera/Look speed", 0.5f);
+        Preference<bool>  CameraLookInvertH = Preference<bool>("Controls/Camera/Invert horizontal look", false);
+        Preference<bool>  CameraLookInvertV = Preference<bool>("Controls/Camera/Invert vertical look", false);
+        Preference<float> CameraPanSpeed = Preference<float>("Controls/Camera/Pan speed", 0.5f);
+        Preference<bool>  CameraPanInvertH = Preference<bool>("Controls/Camera/Invert horizontal pan", false);
+        Preference<bool>  CameraPanInvertV = Preference<bool>("Controls/Camera/Invert vertical pan", false);
+        Preference<float> CameraMoveSpeed = Preference<float>("Controls/Camera/Move speed", 0.3f);
+        Preference<bool> CameraEnableAltMove = Preference<bool>("Controls/Camera/Use alt to move", false);
+        Preference<bool> CameraMoveInCursorDir = Preference<bool>("Controls/Camera/Move camera in cursor dir", false);
     }
 }

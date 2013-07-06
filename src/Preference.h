@@ -162,6 +162,7 @@ namespace TrenchBroom {
     class Preference : public PreferenceBase {
     protected:
         friend class PreferenceManager;
+        template<typename> friend class SetTemporaryPreference;
         
         Converter<T> m_converter;
         String m_name;

@@ -22,6 +22,7 @@
 #include "TrenchBroomApp.h"
 
 #include <wx/wx.h>
+#include <wx/config.h>
 #include <clocale>
 
 int main(int argc, char **argv) {
@@ -29,6 +30,10 @@ int main(int argc, char **argv) {
     wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
     wxApp::SetInstance(pApp);
     wxEntryStart(argc, argv);
+
+    // use an empty file config so that we always use the default preferences
+    wxFileConfig* config = new wxFileConfig();
+    wxConfig::Set(config);
     
     ::testing::InitGoogleTest(&argc, argv);
 
@@ -37,6 +42,7 @@ int main(int argc, char **argv) {
     const int result = RUN_ALL_TESTS();
     
     wxEntryCleanup();
+    delete config;
 
 #ifdef _WIN32
     std::cin.get();

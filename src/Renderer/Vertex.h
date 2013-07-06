@@ -26,9 +26,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
         template <typename T>
         class Vertex1 {
         public:
@@ -38,16 +35,8 @@ namespace TrenchBroom {
             
             Vertex1(const T& i_value) :
             value(i_value) {}
-#if defined _WIN32
         };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-    
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
+        
         template <typename T1, typename T2>
         class Vertex2 {
         public:
@@ -59,16 +48,8 @@ namespace TrenchBroom {
             Vertex2(const T1& i_value1, const T2& i_value2) :
             value1(i_value1),
             value2(i_value2) {}
-#if defined _WIN32
         };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
 
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
         template <typename T1, typename T2, typename T3>
         class Vertex3 {
         public:
@@ -82,16 +63,8 @@ namespace TrenchBroom {
             value1(i_value1),
             value2(i_value2),
             value3(i_value3) {}
-#if defined _WIN32
         };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
 
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
         template <typename T1, typename T2, typename T3, typename T4>
         class Vertex4 {
         public:
@@ -107,13 +80,8 @@ namespace TrenchBroom {
             value2(i_value2),
             value3(i_value3),
             value4(i_value4) {}
-#if defined _WIN32
         };
-#pragma pack(pop)
-#else
-        } __attribute__((packed));
-#endif
-
+    
         typedef Vertex1<Vec3f> VP3;
         typedef Vertex2<Vec3f,Color> VP3C4;
         typedef Vertex2<Vec3f,Vec2f> VP3T2;

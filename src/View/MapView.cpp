@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
+#include "View/CameraTool.h"
 #include "View/Console.h"
 
 #include <wx/dcclient.h>
@@ -32,33 +33,19 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, attribs()),
         m_initialized(false),
         m_console(console),
-        m_glContext(new wxGLContext(this)) {
+        m_glContext(new wxGLContext(this)),
+        m_drag(false),
+        m_cameraTool(NULL),
+        m_toolChain(NULL) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
-            
-            Bind(wxEVT_LEFT_DOWN, &MapView::OnMouseButton, this);
-            Bind(wxEVT_LEFT_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseButton, this);
-            Bind(wxEVT_RIGHT_DOWN, &MapView::OnMouseButton, this);
-            Bind(wxEVT_RIGHT_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_RIGHT_DCLICK, &MapView::OnMouseButton, this);
-            Bind(wxEVT_MIDDLE_DOWN, &MapView::OnMouseButton, this);
-            Bind(wxEVT_MIDDLE_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_MIDDLE_DCLICK, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX1_DOWN, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX1_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX1_DCLICK, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX2_DOWN, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX2_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseButton, this);
-            Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
-            Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
 
-            Bind(wxEVT_PAINT, &MapView::OnPaint, this);
-            Bind(wxEVT_SIZE, &MapView::OnSize, this);
+            createTools();
+            bindEvents();
         }
         
         MapView::~MapView() {
+            deleteTools();
             delete m_glContext;
             m_glContext = NULL;
         }
@@ -69,12 +56,89 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMouseButton(wxMouseEvent& event) {
+            if (event.LeftDown()) {
+                CaptureMouse();
+                m_clickPos = event.GetPosition();
+                m_inputState.mouseDown(MouseButtons::MBLeft);
+                m_toolChain->mouseDown(m_inputState);
+            } else if (event.LeftUp()) {
+                if (m_drag) {
+                    m_toolChain->endMouseDrag(m_inputState);
+                    m_drag = false;
+                }
+                m_toolChain->mouseUp(m_inputState);
+                m_inputState.mouseUp(MouseButtons::MBLeft);
+                if (GetCapture() == this)
+                    ReleaseMouse();
+            } else if (event.MiddleDown()) {
+                CaptureMouse();
+                m_clickPos = event.GetPosition();
+                m_inputState.mouseDown(MouseButtons::MBMiddle);
+                m_toolChain->mouseDown(m_inputState);
+            } else if (event.MiddleUp()) {
+                if (m_drag) {
+                    m_toolChain->endMouseDrag(m_inputState);
+                    m_drag = false;
+                }
+                m_toolChain->mouseUp(m_inputState);
+                m_inputState.mouseUp(MouseButtons::MBMiddle);
+                if (GetCapture() == this)
+                    ReleaseMouse();
+            } else if (event.RightDown()) {
+                CaptureMouse();
+                m_clickPos = event.GetPosition();
+                m_inputState.mouseDown(MouseButtons::MBRight);
+                m_toolChain->mouseDown(m_inputState);
+            } else if (event.RightUp()) {
+                if (m_drag) {
+                    m_toolChain->endMouseDrag(m_inputState);
+                    m_drag = false;
+                }
+                m_toolChain->mouseUp(m_inputState);
+                m_inputState.mouseUp(MouseButtons::MBRight);
+                if (GetCapture() == this)
+                    ReleaseMouse();
+            }
+            Refresh();
         }
         
         void MapView::OnMouseMotion(wxMouseEvent& event) {
+            if (m_drag) {
+                m_inputState.mouseMove(event.GetX(), event.GetY());
+                m_toolChain->mouseDrag(m_inputState);
+            } else {
+                if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
+                    (std::abs(event.GetX() - m_clickPos.x) > 1 ||
+                     std::abs(event.GetY() - m_clickPos.y) > 1)) {
+                        m_drag = true;
+                        m_toolChain->startMouseDrag(m_inputState);
+                        m_inputState.mouseMove(event.GetX(), event.GetY());
+                        m_toolChain->mouseDrag(m_inputState);
+                    } else {
+                        m_inputState.mouseMove(event.GetX(), event.GetY());
+                        m_toolChain->mouseMove(m_inputState);
+                    }
+            }
+            Refresh();
         }
         
         void MapView::OnMouseWheel(wxMouseEvent& event) {
+            const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
+            if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
+                m_inputState.scroll(delta, 0.0f);
+            else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
+                m_inputState.scroll(0.0f, delta);
+            m_toolChain->scroll(m_inputState);
+            Refresh();
+        }
+
+        void MapView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (m_drag) {
+                m_toolChain->cancelMouseDrag(m_inputState);
+                m_inputState.clearMouseButtons();
+                m_drag = false;
+            }
+            Refresh();
         }
 
         void MapView::OnPaint(wxPaintEvent& event) {
@@ -100,6 +164,40 @@ namespace TrenchBroom {
             const wxSize clientSize = GetClientSize();
             const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
             m_camera.setViewport(viewport);
+        }
+        
+        void MapView::createTools() {
+            m_cameraTool = new CameraTool(NULL, m_camera);
+            m_toolChain = m_cameraTool;
+        }
+        
+        void MapView::deleteTools() {
+            m_toolChain = NULL;
+            delete m_cameraTool;
+            m_cameraTool = NULL;
+        }
+
+        void MapView::bindEvents() {
+            Bind(wxEVT_LEFT_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
+            Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
+            
+            Bind(wxEVT_PAINT, &MapView::OnPaint, this);
+            Bind(wxEVT_SIZE, &MapView::OnSize, this);
         }
 
         void MapView::initializeGL() {
