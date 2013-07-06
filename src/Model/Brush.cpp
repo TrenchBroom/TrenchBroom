@@ -46,6 +46,16 @@ namespace TrenchBroom {
             return m_faces;
         }
 
+        void Brush::addEdges(Renderer::VP3::List& vertices) const {
+            const BrushEdge::List edges = m_geometry->edges();
+            BrushEdge::List::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                const BrushEdge* edge = *it;
+                vertices.push_back(Renderer::VP3(edge->start()->position()));
+                vertices.push_back(Renderer::VP3(edge->end()->position()));
+            }
+        }
+
         void Brush::rebuildGeometry(const BBox3& worldBounds) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds, m_faces);

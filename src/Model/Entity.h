@@ -56,6 +56,16 @@ namespace TrenchBroom {
             void removeBrush(Brush::Ptr brush);
 
             template <class Operator, class Filter>
+            inline void eachBrush(Operator& op, Filter& filter) {
+                Brush::List::const_iterator it, end;
+                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
+                    Brush::Ptr brush = *it;
+                    if (filter(brush))
+                        op(brush);
+                }
+            }
+
+            template <class Operator, class Filter>
             inline void eachBrushFace(Operator& op, Filter& filter) {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {

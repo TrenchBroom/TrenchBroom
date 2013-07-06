@@ -44,6 +44,16 @@ namespace TrenchBroom {
             Entity::Ptr worldspawn();
             
             template <class Operator, class Filter>
+            inline void eachBrush(Operator& op, Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity))
+                        entity->eachBrush(op, filter);
+                }
+            }
+            
+            template <class Operator, class Filter>
             inline void eachBrushFace(Operator& op, Filter& filter) {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {

@@ -166,6 +166,14 @@ namespace TrenchBroom {
             m_camera.setViewport(viewport);
         }
         
+        void MapView::commandDone(Controller::Command::Ptr command) {
+            m_renderer.commandDone(command);
+        }
+        
+        void MapView::commandUndone(Controller::Command::Ptr command) {
+            m_renderer.commandUndone(command);
+        }
+
         void MapView::createTools() {
             m_cameraTool = new CameraTool(NULL, m_camera);
             m_toolChain = m_cameraTool;

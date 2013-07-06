@@ -21,6 +21,8 @@
 
 #include "Color.h"
 #include "Preferences.h"
+#include "Controller/NewDocumentCommand.h"
+#include "Controller/OpenDocumentCommand.h"
 #include "GL/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -34,9 +36,16 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        struct BuildBrushEdges {
+            VP3::List vertices;
+            inline void operator()(Model::Brush::Ptr brush) {
+                brush->addEdges(vertices);
+            }
+        };
+        
         struct BuildBrushFaceMesh {
             Model::BrushFace::Mesh mesh;
-            inline void operator()(Model::BrushFace::Ptr face){
+            inline void operator()(Model::BrushFace::Ptr face) {
                 face->addToMesh(mesh);
             }
         };
@@ -58,20 +67,28 @@ namespace TrenchBroom {
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFF) {}
         
-        void MapRenderer::loadMap(const Model::Map::Ptr map) {
-            BuildBrushFaceMesh builder;
-            BuildBrushFaceMeshFilter filter;
-            map->eachBrushFace(builder, filter);
-        }
-        
-        void MapRenderer::clear() {
-        }
-        
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
             clearBackground(context);
             renderCoordinateSystem(context);
+        }
+
+        void MapRenderer::commandDone(Controller::Command::Ptr command) {
+            if (command->type() == Controller::NewDocumentCommand::Type) {
+                clearState();
+                Controller::NewDocumentCommand::Ptr newDocumentCommand = Controller::Command::cast<Controller::NewDocumentCommand>(command);
+                Model::Map::Ptr map = newDocumentCommand->map();
+                loadMap(map);
+            } else if (command->type() == Controller::OpenDocumentCommand::Type) {
+                clearState();
+                Controller::OpenDocumentCommand::Ptr openDocumentCommand = Controller::Command::cast<Controller::OpenDocumentCommand>(command);
+                Model::Map::Ptr map = openDocumentCommand->map();
+                loadMap(map);
+            }
+        }
+        
+        void MapRenderer::commandUndone(Controller::Command::Ptr command) {
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
@@ -125,6 +142,19 @@ namespace TrenchBroom {
             
             setVboState.active();
             renderer.render();
+        }
+
+        void MapRenderer::clearState() {
+        }
+
+        void MapRenderer::loadMap(Model::Map::Ptr map) {
+            BuildBrushFaceMeshFilter filter;
+
+            BuildBrushFaceMesh buildFaces;
+            map->eachBrushFace(buildFaces, filter);
+            
+            BuildBrushEdges buildEdges;
+            map->eachBrush(buildEdges, filter);
         }
     }
 }

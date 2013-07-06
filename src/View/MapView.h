@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapView__
 #define __TrenchBroom__MapView__
 
+#include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
@@ -62,6 +63,9 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
+
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
         private:
             void createTools();
             void deleteTools();

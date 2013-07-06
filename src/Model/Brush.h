@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Model/BrushFace.h"
 #include "Model/Object.h"
+#include "Renderer/Vertex.h"
 
 #include <vector>
 
@@ -56,6 +57,8 @@ namespace TrenchBroom {
                         op(face);
                 }
             }
+            
+            void addEdges(Renderer::VP3::List& vertices) const;
         private:
             void rebuildGeometry(const BBox3& worldBounds);
         };

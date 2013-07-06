@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapRenderer__
 #define __TrenchBroom__MapRenderer__
 
+#include "Controller/Command.h"
 #include "Model/Map.h"
 #include "Renderer/Vbo.h"
 
@@ -33,14 +34,16 @@ namespace TrenchBroom {
         public:
             MapRenderer();
             
-            void loadMap(const Model::Map::Ptr map);
-            void clear();
-            
             void render(RenderContext& context);
+
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
         private:
             void setupGL(RenderContext& context);
             void clearBackground(RenderContext& context);
             void renderCoordinateSystem(RenderContext& context);
+            void clearState();
+            void loadMap(Model::Map::Ptr map);
         };
     }
 }

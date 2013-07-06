@@ -55,6 +55,7 @@ namespace TrenchBroom {
         void MapFrame::Create(FrameManager* frameManager, MapDocument::Ptr document) {
             m_frameManager = frameManager;
             m_document = document;
+            m_controller.addCommandListener(this);
             
             createMenuBar();
             createGui();
@@ -74,6 +75,10 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+        }
+
+        MapFrame::~MapFrame() {
+            m_controller.removeCommandListener(this);
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
@@ -137,6 +142,14 @@ namespace TrenchBroom {
                     event.Enable(false);
                     break;
             }
+        }
+
+        void MapFrame::commandDone(Controller::Command::Ptr command) {
+            m_mapView->commandDone(command);
+        }
+        
+        void MapFrame::commandUndone(Controller::Command::Ptr command) {
+            m_mapView->commandUndone(command);
         }
 
         void MapFrame::createGui() {

@@ -17,24 +17,30 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NewDocumentCommand.h"
+#ifndef __TrenchBroom__Shader__
+#define __TrenchBroom__Shader__
+
+#include "StringUtils.h"
+#include "GL/GL.h"
+#include "IO/Path.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        const Command::CommandType NewDocumentCommand::Type = Command::freeType();
-
-        NewDocumentCommand::NewDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game) :
-        Command(Type, "New Document", false),
-        m_document(document),
-        m_game(game) {}
-
-        Model::Map::Ptr NewDocumentCommand::map() const {
-            return m_document->map();
-        }
-
-        bool NewDocumentCommand::doPerformDo() {
-            m_document->newDocument(m_game);
-            return true;
-        }
+    namespace Renderer {
+        class Shader {
+        private:
+            String m_name;
+            GLenum m_type;
+            GLuint m_shaderId;
+        public:
+            Shader(const IO::Path& path, const GLenum type);
+            ~Shader();
+            
+            void attach(const GLuint programId);
+            void detach(const GLuint programId);
+        private:
+            static StringList loadSource(const IO::Path& path);
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__Shader__) */

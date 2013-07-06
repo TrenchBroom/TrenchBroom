@@ -29,6 +29,10 @@ namespace TrenchBroom {
         m_game(game),
         m_path(path) {}
         
+        Model::Map::Ptr OpenDocumentCommand::map() const {
+            return m_document->map();
+        }
+
         bool OpenDocumentCommand::doPerformDo() {
             m_document->openDocument(m_game, m_path);
             return true;

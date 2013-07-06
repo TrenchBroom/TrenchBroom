@@ -20,9 +20,11 @@
 #ifndef __TrenchBroom__OpenDocumentCommand__
 #define __TrenchBroom__OpenDocumentCommand__
 
+#include "SharedPointer.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
+#include "Model/Map.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -30,12 +32,15 @@ namespace TrenchBroom {
         class OpenDocumentCommand : public Command {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<OpenDocumentCommand> Ptr;
         private:
             View::MapDocument::Ptr m_document;
             Model::Game::Ptr m_game;
             IO::Path m_path;
         public:
             OpenDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path);
+            
+            Model::Map::Ptr map() const;
         private:
             bool doPerformDo();
         };

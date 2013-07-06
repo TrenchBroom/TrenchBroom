@@ -46,6 +46,11 @@ namespace TrenchBroom {
             bool undoable() const;
             bool performDo();
             bool performUndo();
+            
+            template <class T>
+            static std::tr1::shared_ptr<T> cast(Ptr& command) {
+                return std::tr1::static_pointer_cast<T>(command);
+            }
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();

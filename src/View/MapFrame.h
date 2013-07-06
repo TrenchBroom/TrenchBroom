@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapFrame__
 
 #include "Controller/ControllerFacade.h"
+#include "Controller/CommandListener.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         class MapView;
         class NavBar;
         
-        class MapFrame : public wxFrame {
+        class MapFrame : public wxFrame, public Controller::CommandListener {
         private:
             FrameManager* m_frameManager;
             Controller::ControllerFacade m_controller;
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocument::Ptr document);
             void Create(FrameManager* frameManager, MapDocument::Ptr document);
+            ~MapFrame();
             
             void positionOnScreen(wxFrame* reference);
             
@@ -60,6 +62,9 @@ namespace TrenchBroom {
             void OnFileClose(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
             
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
+
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:
             void createGui();
