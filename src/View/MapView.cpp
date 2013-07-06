@@ -36,6 +36,24 @@ namespace TrenchBroom {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
             
+            Bind(wxEVT_LEFT_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_DOWN, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_UP, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
+            Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
+
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
             Bind(wxEVT_SIZE, &MapView::OnSize, this);
         }
@@ -48,6 +66,15 @@ namespace TrenchBroom {
         void MapView::makeCurrent() {
             if (!SetCurrent(*m_glContext))
                 throw RenderException("Failed to set current OpenGL context");
+        }
+        
+        void MapView::OnMouseButton(wxMouseEvent& event) {
+        }
+        
+        void MapView::OnMouseMotion(wxMouseEvent& event) {
+        }
+        
+        void MapView::OnMouseWheel(wxMouseEvent& event) {
         }
 
         void MapView::OnPaint(wxPaintEvent& event) {

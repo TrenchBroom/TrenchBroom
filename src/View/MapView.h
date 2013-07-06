@@ -25,6 +25,7 @@
 #include "Renderer/MapRenderer.h"
 
 #include <vector>
+#include <wx/event.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
@@ -44,6 +45,10 @@ namespace TrenchBroom {
             ~MapView();
             
             void makeCurrent();
+            
+            void OnMouseButton(wxMouseEvent& event);
+            void OnMouseMotion(wxMouseEvent& event);
+            void OnMouseWheel(wxMouseEvent& event);
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
