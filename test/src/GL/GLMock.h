@@ -62,6 +62,60 @@ public:
     
     MOCK_METHOD3(DrawArrays, void(GLenum mode, GLint first, GLsizei count));
     MOCK_METHOD4(MultiDrawArrays, void(GLenum mode, const GLint* first, const GLsizei* count, GLsizei primCount));
+    
+    MOCK_METHOD1(CreateShader, GLuint(GLenum type));
+    MOCK_METHOD1(DeleteShader, void(GLuint shader));
+    MOCK_METHOD4(ShaderSource, void(GLuint shader, GLsizei count, const GLchar** string, const GLint* length));
+    MOCK_METHOD1(CompileShader, void(GLuint shader));
+    MOCK_METHOD3(GetShaderiv, void(GLuint shader, GLenum pname, GLint* params));
+    MOCK_METHOD4(GetShaderInfoLog, void(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog));
+    MOCK_METHOD2(AttachShader, void(GLuint program, GLuint shader));
+    MOCK_METHOD2(DetachShader, void(GLuint program, GLuint shader));
+    
+    MOCK_METHOD0(CreateProgram, GLuint());
+    MOCK_METHOD1(DeleteProgram, void(GLuint program));
+    MOCK_METHOD1(LinkProgram, void(GLuint program));
+    MOCK_METHOD3(GetProgramiv, void(GLuint program, GLenum pname, GLint* params));
+    MOCK_METHOD4(GetProgramInfoLog, void(GLuint program, GLsizei maxLength, GLsizei* length, GLchar* infoLog));
+    MOCK_METHOD1(UseProgram, void(GLuint program));
+    
+    MOCK_METHOD2(Uniform1f, void(GLint location, GLfloat v0));
+    MOCK_METHOD3(Uniform2f, void(GLint location, GLfloat v0, GLfloat v1));
+    MOCK_METHOD4(Uniform3f, void(GLint location, GLfloat v0, GLfloat v1, GLfloat v2));
+    MOCK_METHOD5(Uniform4f, void(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3));
+    MOCK_METHOD2(Uniform1i, void(GLint location, GLint v0));
+    MOCK_METHOD3(Uniform2i, void(GLint location, GLint v0, GLint v1));
+    MOCK_METHOD4(Uniform3i, void(GLint location, GLint v0, GLint v1, GLint v2));
+    MOCK_METHOD5(Uniform4i, void(GLint location, GLint v0, GLint v1, GLint v2, GLint v3));
+    MOCK_METHOD2(Uniform1ui, void(GLint location, GLuint v0));
+    MOCK_METHOD3(Uniform2ui, void(GLint location, GLuint v0, GLuint v1));
+    MOCK_METHOD4(Uniform3ui, void(GLint location, GLuint v0, GLuint v1, GLuint v2));
+    MOCK_METHOD5(Uniform4ui, void(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3));
+
+    MOCK_METHOD3(Uniform1fv, void(GLint location, GLsizei count, const GLfloat* value));
+    MOCK_METHOD3(Uniform2fv, void(GLint location, GLsizei count, const GLfloat* value));
+    MOCK_METHOD3(Uniform3fv, void(GLint location, GLsizei count, const GLfloat* value));
+    MOCK_METHOD3(Uniform4fv, void(GLint location, GLsizei count, const GLfloat* value));
+    MOCK_METHOD3(Uniform1iv, void(GLint location, GLsizei count, const GLint* value));
+    MOCK_METHOD3(Uniform2iv, void(GLint location, GLsizei count, const GLint* value));
+    MOCK_METHOD3(Uniform3iv, void(GLint location, GLsizei count, const GLint* value));
+    MOCK_METHOD3(Uniform4iv, void(GLint location, GLsizei count, const GLint* value));
+    MOCK_METHOD3(Uniform1uiv, void(GLint location, GLsizei count, const GLuint* value));
+    MOCK_METHOD3(Uniform2uiv, void(GLint location, GLsizei count, const GLuint* value));
+    MOCK_METHOD3(Uniform3uiv, void(GLint location, GLsizei count, const GLuint* value));
+    MOCK_METHOD3(Uniform4uiv, void(GLint location, GLsizei count, const GLuint* value));
+
+    MOCK_METHOD4(UniformMatrix2fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix3fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix4fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix2x3fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix3x2fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix2x4fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix4x2fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix3x4fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    MOCK_METHOD4(UniformMatrix4x3fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
+    
+    MOCK_METHOD2(GetUniformLocation, GLint(GLuint program, const GLchar* name));
 };
 
 extern CGLMock* GLMock;
@@ -123,5 +177,54 @@ extern CGLMock* GLMock;
 #undef glMultiDrawArrays
 #define glMultiDrawArrays           GLMock->MultiDrawArrays
 
+#undef glCreateShader
+#define glCreateShader              GLMock->CreateShader
+#undef glDeleteShader
+#define glDeleteShader              GLMock->DeleteShader
+#undef glShaderSource
+#define glShaderSource              GLMock->ShaderSource
+#undef glCompileShader
+#define glCompileShader             GLMock->CompileShader
+#undef glGetShaderiv
+#define glGetShaderiv               GLMock->GetShaderiv
+#undef glGetShaderInfoLog
+#define glGetShaderInfoLog          GLMock->GetShaderInfoLog
+#undef glAttachShader
+#define glAttachShader              GLMock->AttachShader
+#undef glDetachShader
+#define glDetachShader              GLMock->DetachShader
+#undef glCreateProgram
+
+#define glCreateProgram             GLMock->CreateProgram
+#undef glDeleteProgram
+#define glDeleteProgram             GLMock->DeleteProgram
+#undef glLinkProgram
+#define glLinkProgram               GLMock->LinkProgram
+#undef glGetProgramiv
+#define glGetProgramiv              GLMock->GetProgramiv
+#undef glGetProgramInfoLog
+#define glGetProgramInfoLog         GLMock->GetProgramInfoLog
+#undef glUseProgram
+#define glUseProgram                GLMock->UseProgram
+
+#undef glUniform1f
+#define glUniform1f                 GLMock->Uniform1f
+#undef glUniform2f
+#define glUniform2f                 GLMock->Uniform2f
+#undef glUniform3f
+#define glUniform3f                 GLMock->Uniform3f
+#undef glUniform4f
+#define glUniform4f                 GLMock->Uniform4f
+#undef glUniform1i
+#define glUniform1i                 GLMock->Uniform1i
+#undef glUniformMatrix2fv
+#define glUniformMatrix2fv          GLMock->UniformMatrix2fv
+#undef glUniformMatrix3fv
+#define glUniformMatrix3fv          GLMock->UniformMatrix3fv
+#undef glUniformMatrix4fv
+#define glUniformMatrix4fv          GLMock->UniformMatrix4fv
+
+#undef glGetUniformLocation
+#define glGetUniformLocation        GLMock->GetUniformLocation
 
 #endif

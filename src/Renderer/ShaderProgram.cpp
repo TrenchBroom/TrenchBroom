@@ -79,7 +79,7 @@ namespace TrenchBroom {
             glUniform1f(findUniformLocation(name), value);
         }
 
-        void ShaderProgram::ShaderProgram::set(const String& name, const Vec2f& value) {
+        void ShaderProgram::set(const String& name, const Vec2f& value) {
             assert(checkActive());
             glUniform2f(findUniformLocation(name), value.x(), value.y());
         }
@@ -159,4 +159,3 @@ namespace TrenchBroom {
         }
     }
 }
-+
