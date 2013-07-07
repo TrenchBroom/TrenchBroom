@@ -19,6 +19,7 @@
 
 #include "WadTextureLoader.h"
 
+#include "Exceptions.h"
 #include "GL/GL.h"
 #include "IO/Wad.h"
 #include "Model/Texture.h"
@@ -31,8 +32,29 @@ namespace TrenchBroom {
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
-            Model::TextureList textures;
+            Model::Texture::List textures;
             textures.reserve(textureCount);
+
+            for (size_t i = 0; i < textureCount; ++i) {
+                const WadEntry& entry = mipEntries[i];
+                const MipSize mipSize = wad.mipSize(entry);
+                textures.push_back(Model::Texture::newTexture(entry.name(), mipSize.width, mipSize.height));
+            }
+            
+            return Model::TextureCollection::newTextureCollection(path, textures);
+        }
+
+        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollection::Ptr collection) {
+            const IO::Path& path = collection->path();
+            Wad wad(path);
+
+            const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
+            const Model::Texture::List& textures = collection->textures();
+            
+            if (mipEntries.size() != textures.size())
+                throw WadException("Found different number of textures in " + path.asString() + " while uploading mip data");
+            
+            const size_t textureCount = mipEntries.size();
             
             glEnable(GL_TEXTURE_2D);
             
@@ -41,12 +63,12 @@ namespace TrenchBroom {
             textureIds.resize(textureCount);
             glGenTextures(textureCount, &textureIds[0]);
 
-            assert(mipEntries.size() == textureIds.size());
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
+                const Model::Texture::Ptr texture = textures[i];
+                assert(entry.name() == texture->name());
+                
                 const GLuint textureId = textureIds[i];
-                const MipSize mipSize = wad.mipSize(entry);
-
                 glBindTexture(GL_TEXTURE_2D, textureId);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -55,16 +77,12 @@ namespace TrenchBroom {
                 for (size_t i = 1; i <= 4; ++i) {
                     const MipData mipData = wad.mipData(entry, i);
                     glTexImage2D(GL_TEXTURE_2D, i - 1, GL_RGBA,
-                                 static_cast<GLsizei>(mipSize.width),
-                                 static_cast<GLsizei>(mipSize.height),
+                                 static_cast<GLsizei>(texture->width()),
+                                 static_cast<GLsizei>(texture->height()),
                                  0, GL_RGB, GL_UNSIGNED_BYTE, mipData.begin);
                 }
                 glBindTexture(GL_TEXTURE_2D, 0);
-                
-                textures.push_back(Model::Texture::newTexture(textureId, entry.name(), mipSize.width, mipSize.height));
             }
-            
-            return Model::TextureCollection::newTextureCollection(path.asString(), textures);
         }
     }
 }

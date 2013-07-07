@@ -35,11 +35,13 @@ namespace TrenchBroom {
             
             Map::Ptr loadMap(const IO::Path& path) const;
             TextureCollection::Ptr loadTextureCollection(const IO::Path& path) const;
+            void uploadTextureCollection(TextureCollection::Ptr collection) const;
         protected:
             Game();
         private:
             virtual Map::Ptr doLoadMap(const IO::Path& path) const = 0;
             virtual TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const = 0;
+            virtual void doUploadTextureCollection(TextureCollection::Ptr collection) const = 0;
         };
     }
 }

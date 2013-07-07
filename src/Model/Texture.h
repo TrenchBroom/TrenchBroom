@@ -29,11 +29,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Texture;
-        typedef std::tr1::shared_ptr<Texture> TexturePtr;
-        typedef std::vector<TexturePtr> TextureList;
-
         class Texture {
+        public:
+            typedef std::tr1::shared_ptr<Texture> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             GLuint m_textureId;
             String m_name;
@@ -42,42 +41,21 @@ namespace TrenchBroom {
             size_t m_usageCount;
             bool m_overridden;
         public:
-            static TexturePtr newTexture(const GLuint textureId, const String& name, const size_t width, const size_t height);
-            
-            inline const String& name() const {
-                return m_name;
-            }
-            
-            inline size_t width() const {
-                return m_width;
-            }
-            
-            inline size_t height() const {
-                return m_height;
-            }
-            
-            inline size_t usageCount() const {
-                return m_usageCount;
-            }
-            
-            inline void incUsageCount() {
-                ++m_usageCount;
-            }
-            
-            inline void decUsageCount() {
-                assert(m_usageCount > 0);
-                --m_usageCount;
-            }
-            
-            inline bool isOverridden() const {
-                return m_overridden;
-            }
-            
-            inline void setOverridden(const bool overridden) {
-                m_overridden = overridden;
-            }
+            static Ptr newTexture(const String& name, const size_t width, const size_t height);
+            ~Texture();
+
+            GLuint textureId() const;
+            void setTextureId(const GLuint textureId);
+            const String& name() const;
+            size_t width() const;
+            size_t height() const;
+            size_t usageCount() const;
+            void incUsageCount();
+            void decUsageCount();
+            bool isOverridden() const;
+            void setOverridden(const bool overridden);
         private:
-            Texture(const GLuint textureId, const String& name, const size_t width, const size_t height);
+            Texture(const String& name, const size_t width, const size_t height);
         };
     }
 }

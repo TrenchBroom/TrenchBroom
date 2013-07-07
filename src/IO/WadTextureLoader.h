@@ -30,6 +30,7 @@ namespace TrenchBroom {
         class WadTextureLoader : public TextureLoader {
         private:
             Model::TextureCollection::Ptr doLoadTextureCollection(const Path& path);
+            void doUploadTextureCollection(Model::TextureCollection::Ptr collection);
         };
     }
 }

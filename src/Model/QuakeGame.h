@@ -32,6 +32,7 @@ namespace TrenchBroom {
             static const BBox3 WorldBounds;
             Map::Ptr doLoadMap(const IO::Path& path) const;
             TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(TextureCollection::Ptr collection) const;
         };
     }
 }

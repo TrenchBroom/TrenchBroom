@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_TextureLoader_h
 #define TrenchBroom_TextureLoader_h
 
+#include "SharedPointer.h"
 #include "Model/TextureCollection.h"
 
 namespace TrenchBroom {
@@ -31,8 +32,10 @@ namespace TrenchBroom {
             virtual ~TextureLoader();
             
             Model::TextureCollection::Ptr loadTextureCollection(const Path& path);
+            void uploadTextureCollection(Model::TextureCollection::Ptr collection);
         private:
             virtual Model::TextureCollection::Ptr doLoadTextureCollection(const Path& path) = 0;
+            virtual void doUploadTextureCollection(Model::TextureCollection::Ptr collection) = 0;
         };
     }
 }

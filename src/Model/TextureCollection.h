@@ -21,6 +21,7 @@
 #define __TrenchBroom__TextureCollection__
 
 #include "StringUtils.h"
+#include "IO/Path.h"
 #include "Model/Texture.h"
 #include "SharedPointer.h"
 
@@ -28,22 +29,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-
         class TextureCollection {
         public:
             typedef std::tr1::shared_ptr<TextureCollection> Ptr;
             typedef std::vector<Ptr> List;
         private:
-            String m_name;
-            TextureList m_textures;
+            IO::Path m_path;
+            Texture::List m_textures;
         public:
-            static Ptr newTextureCollection(const String& name, const TextureList& textures);
+            static Ptr newTextureCollection(const IO::Path& path, const Texture::List& textures);
             
-            inline const TextureList& textures() const {
-                return m_textures;
-            }
+            const IO::Path& path() const;
+            const Texture::List& textures() const;
         private:
-            TextureCollection(const String& name, const TextureList& textures);
+            TextureCollection(const IO::Path& path, const Texture::List& textures);
         };
         
     }

@@ -44,5 +44,10 @@ namespace TrenchBroom {
             IO::WadTextureLoader loader;
             return loader.loadTextureCollection(path);
         }
+
+        void QuakeGame::doUploadTextureCollection(TextureCollection::Ptr collection) const {
+            IO::WadTextureLoader loader;
+            loader.uploadTextureCollection(collection);
+        }
     }
 }

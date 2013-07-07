@@ -42,6 +42,7 @@ namespace TrenchBroom {
             
             Path operator+ (const Path& rhs) const;
             bool operator== (const Path& rhs) const;
+            bool operator< (const Path& rhs) const;
             
             String asString() const;
             operator String() const;

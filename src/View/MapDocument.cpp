@@ -80,6 +80,7 @@ namespace TrenchBroom {
             assert(game != NULL);
             m_game = game;
             m_map = Model::Map::newMap();
+            m_textureManager.reset(m_game);
             
             setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
@@ -89,6 +90,7 @@ namespace TrenchBroom {
             assert(game != NULL);
             m_map = game->loadMap(path);
             m_game = game;
+            m_textureManager.reset(m_game);
             
             setDocumentPath(path);
             clearModificationCount();

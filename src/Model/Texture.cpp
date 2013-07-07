@@ -21,12 +21,61 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TexturePtr Texture::newTexture(const GLuint textureId, const String& name, const size_t width, const size_t height) {
-            return TexturePtr(new Texture(textureId, name, width, height));
+        Texture::Ptr Texture::newTexture(const String& name, const size_t width, const size_t height) {
+            return Ptr(new Texture(name, width, height));
         }
 
-        Texture::Texture(const GLuint textureId, const String& name, const size_t width, const size_t height) :
-        m_textureId(textureId),
+        Texture::~Texture() {
+            if (m_textureId != 0) {
+                glDeleteTextures(1, &m_textureId);
+                m_textureId = 0;
+            }
+        }
+
+        GLuint Texture::textureId() const {
+            return m_textureId;
+        }
+        
+        void Texture::setTextureId(const GLuint textureId) {
+            assert(m_textureId == 0);
+            m_textureId = textureId;
+        }
+
+        const String& Texture::name() const {
+            return m_name;
+        }
+        
+        size_t Texture::width() const {
+            return m_width;
+        }
+        
+        size_t Texture::height() const {
+            return m_height;
+        }
+        
+        size_t Texture::usageCount() const {
+            return m_usageCount;
+        }
+        
+        void Texture::incUsageCount() {
+            ++m_usageCount;
+        }
+        
+        void Texture::decUsageCount() {
+            assert(m_usageCount > 0);
+            --m_usageCount;
+        }
+        
+        bool Texture::isOverridden() const {
+            return m_overridden;
+        }
+        
+        void Texture::setOverridden(const bool overridden) {
+            m_overridden = overridden;
+        }
+
+        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        m_textureId(0),
         m_name(name),
         m_width(width),
         m_height(height),

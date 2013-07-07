@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/TextureManager.h"
 #include "View/CachingLogger.h"
 
 namespace TrenchBroom {
@@ -40,6 +41,7 @@ namespace TrenchBroom {
             IO::Path m_path;
             Model::Game::Ptr m_game;
             Model::Map::Ptr m_map;
+            Model::TextureManager m_textureManager;
             
             size_t m_modificationCount;
         public:

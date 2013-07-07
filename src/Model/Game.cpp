@@ -29,6 +29,10 @@ namespace TrenchBroom {
             return doLoadTextureCollection(path);
         }
 
+        void Game::uploadTextureCollection(TextureCollection::Ptr collection) const {
+            doUploadTextureCollection(collection);
+        }
+
         Game::Game() {}
 
         Game::~Game() {}

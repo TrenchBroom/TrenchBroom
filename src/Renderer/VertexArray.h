@@ -33,35 +33,35 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class BaseHolder {
-        public:
-            virtual ~BaseHolder() {}
-            
-            virtual VboBlock* upload() = 0;
-        };
-        
-        template <typename T>
-        class Holder : public BaseHolder {
-        private:
-            Vbo& m_vbo;
-            std::vector<T> m_data;
-        public:
-            Holder(Vbo& vbo, const std::vector<T> data) :
-            m_vbo(vbo),
-            m_data(data) {}
-            
-            inline VboBlock* upload() {
-                SetVboState mapVbo(m_vbo);
-                mapVbo.mapped();
-                
-                VboBlock* block = m_vbo.allocateBlock(m_data.size() * sizeof(T));
-                block->writeBuffer(0, m_data);
-                return block;
-            }
-        };
-        
         class VertexArray {
         private:
+            class BaseHolder {
+            public:
+                virtual ~BaseHolder() {}
+                
+                virtual VboBlock* upload() = 0;
+            };
+            
+            template <typename T>
+            class Holder : public BaseHolder {
+            private:
+                Vbo& m_vbo;
+                std::vector<T> m_data;
+            public:
+                Holder(Vbo& vbo, const std::vector<T> data) :
+                m_vbo(vbo),
+                m_data(data) {}
+                
+                inline VboBlock* upload() {
+                    SetVboState mapVbo(m_vbo);
+                    mapVbo.mapped();
+                    
+                    VboBlock* block = m_vbo.allocateBlock(m_data.size() * sizeof(T));
+                    block->writeBuffer(0, m_data);
+                    return block;
+                }
+            };
+
             BaseHolder* m_holder;
             VboBlock* m_block;
             size_t m_vertexCount;

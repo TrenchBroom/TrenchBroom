@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace IO {
@@ -58,6 +59,24 @@ namespace TrenchBroom {
             return (m_absolute == rhs.m_absolute &&
                     m_components.size() == rhs.m_components.size() &&
                     std::equal(m_components.begin(), m_components.end(), rhs.m_components.begin()));
+        }
+
+        bool Path::operator< (const Path& rhs) const {
+            const StringList& rcomps = rhs.m_components;
+
+            size_t i = 0;
+            const size_t max = std::min(m_components.size(), rcomps.size());
+            while (i < max) {
+                const String& mcomp = m_components[i];
+                const String& rcomp = rcomps[i];
+                const int result = mcomp.compare(rcomp);
+                if (result < 0)
+                    return true;
+                if (result > 0)
+                    return false;
+                ++i;
+            }
+            return false;
         }
 
         String Path::asString() const {

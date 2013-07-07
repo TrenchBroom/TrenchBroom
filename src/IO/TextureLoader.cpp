@@ -26,5 +26,9 @@ namespace TrenchBroom {
         Model::TextureCollection::Ptr TextureLoader::loadTextureCollection(const Path& path) {
             return doLoadTextureCollection(path);
         }
+
+        void TextureLoader::uploadTextureCollection(Model::TextureCollection::Ptr collection) {
+            doUploadTextureCollection(collection);
+        }
     }
 }
