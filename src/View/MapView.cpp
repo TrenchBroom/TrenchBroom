@@ -50,11 +50,6 @@ namespace TrenchBroom {
             m_glContext = NULL;
         }
         
-        void MapView::makeCurrent() {
-            if (!SetCurrent(*m_glContext))
-                throw RenderException("Failed to set current OpenGL context");
-        }
-        
         void MapView::OnMouseButton(wxMouseEvent& event) {
             if (event.LeftDown()) {
                 CaptureMouse();
@@ -150,9 +145,9 @@ namespace TrenchBroom {
                 initializeGL();
             
             wxPaintDC(this);
-			if (SetCurrent(*m_glContext)) {
+            if (m_glContext->SetCurrent(*this)) {
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    Renderer::RenderContext context(m_camera);
+                    Renderer::RenderContext context(m_camera, m_shaderManager);
                     m_renderer.render(context);
                 }
                 SwapBuffers();

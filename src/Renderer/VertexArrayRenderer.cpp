@@ -166,6 +166,9 @@ namespace TrenchBroom {
                     break;
             }
         }
+        
+        VertexSpec::VertexSpec() :
+        m_totalSize(0) {}
 
         VertexSpec::VertexSpec(const AttributeSpec& attributeSpec1) :
         m_totalSize(0) {
@@ -244,6 +247,10 @@ namespace TrenchBroom {
             }
         }
 
+        VertexArrayRenderer::VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType) :
+        m_vertexSpec(vertexSpec),
+        m_primType(primType) {}
+
         VertexArrayRenderer::VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType, VertexArray& vertexArray) :
         m_vertexSpec(vertexSpec),
         m_primType(primType),
@@ -258,9 +265,22 @@ namespace TrenchBroom {
             assert(m_indices == m_counts);
         }
         
-        void VertexArrayRenderer::render() const {
-            assert(m_indices == m_counts);
+        VertexArrayRenderer::VertexArrayRenderer(VertexArrayRenderer& other) {
+            using std::swap;
+            swap(*this, other);
+        }
+        
+        VertexArrayRenderer& VertexArrayRenderer::operator= (VertexArrayRenderer other) {
+            swap(*this, other);
+            return *this;
+        }
 
+        void VertexArrayRenderer::render() {
+            assert(m_indices == m_counts);
+            if (m_vertexArray.vertexCount() == 0)
+                return;
+
+            m_vertexArray.prepare();
             m_vertexSpec.setup(m_vertexArray.blockOffset());
             
             const size_t primCount = m_indices.size();
@@ -274,5 +294,6 @@ namespace TrenchBroom {
             
             m_vertexSpec.cleanup();
         }
+
     }
 }

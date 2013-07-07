@@ -22,6 +22,13 @@
 
 #include <wx/dir.h>
 
+#if defined __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#elif defined _WIN32
+#include <Windows.h>
+#elif defined __linux__
+#endif
+
 namespace TrenchBroom {
     namespace IO {
         bool FileSystem::isDirectory(const Path& path) const {
@@ -78,5 +85,58 @@ namespace TrenchBroom {
             return MappedFile::Ptr(new PosixMappedFile(path, mode));
 #endif
         }
+
+#if defined __APPLE__
+        Path FileSystem::resourceDirectory() const {
+            CFBundleRef mainBundle = CFBundleGetMainBundle ();
+            CFURLRef resourcePathUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
+            
+            UInt8 buffer[512];
+            CFURLGetFileSystemRepresentation(resourcePathUrl, true, buffer, 512);
+            CFRelease(resourcePathUrl);
+            
+            StringStream result;
+            for (unsigned int i = 0; i < 512; i++) {
+                UInt8 c = buffer[i];
+                if (c == 0)
+                    break;
+                result << c;
+            }
+            
+            return Path(result.str());
+        }
+#elif defined _WIN32
+        Path FileSystem::resourceDirectory() const {
+            return appDirectory() + Path("Resources");
+        }
+#elif defined __linux__
+        Path FileSystem::resourceDirectory() const {
+            return appDirectory() + Path("Resources");
+        }
+#endif
+        
+#if defined _WIN32
+        Path FileSystem::appDirectory() const {
+			TCHAR uAppPathC[MAX_PATH] = L"";
+			DWORD numChars = GetModuleFileName(0, uAppPathC, MAX_PATH - 1);
+            
+			char appPathC[MAX_PATH];
+			WideCharToMultiByte(CP_ACP, 0, uAppPathC, numChars, appPathC, numChars, NULL, NULL);
+			appPathC[numChars] = 0;
+            
+            const String appPathStr(appPathC);
+            const Path appPath(appPathStr);
+            return appPath.deleteLastComponent();
+        }
+#elif defined __linux__
+        Path FileSystem::appDirectory() const {
+            char buf[1024];
+            const ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf));
+            
+            const String appPathStr(buf, len);
+            const Path appPath(appPathStr);
+            return appPath.deleteLastComponent();
+        }
+#endif
     }
 }

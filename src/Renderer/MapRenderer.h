@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 #include "Model/Map.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VertexArrayRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,6 +32,8 @@ namespace TrenchBroom {
         class MapRenderer {
         private:
             Vbo m_auxVbo;
+            Vbo m_edgeVbo;
+            VertexArrayRenderer m_edgeRenderer;
         public:
             MapRenderer();
             
@@ -42,6 +45,7 @@ namespace TrenchBroom {
             void setupGL(RenderContext& context);
             void clearBackground(RenderContext& context);
             void renderCoordinateSystem(RenderContext& context);
+            void renderEdges(RenderContext& context);
             void clearState();
             void loadMap(Model::Map::Ptr map);
         };

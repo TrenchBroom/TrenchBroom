@@ -45,9 +45,13 @@ namespace TrenchBroom {
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite) const;
             MappedFile::Ptr mapFile(const Path& path, const std::ios_base::openmode mode) const;
             
-            Path logDirectory();
-            Path resourceDirectory();
-            Path findFontFile(const String& fontName);
+            Path logDirectory() const;
+            Path resourceDirectory() const;
+            Path findFontFile(const String& fontName) const;
+#ifndef __APPLE__
+        private:
+            Path appDirectory() const;
+#endif
         };
     }
 }

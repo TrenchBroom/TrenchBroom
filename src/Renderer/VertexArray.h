@@ -33,57 +33,89 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class BaseHolder {
+        public:
+            virtual ~BaseHolder() {}
+            
+            virtual VboBlock* upload() = 0;
+        };
+        
+        template <typename T>
+        class Holder : public BaseHolder {
+        private:
+            Vbo& m_vbo;
+            std::vector<T> m_data;
+        public:
+            Holder(Vbo& vbo, const std::vector<T> data) :
+            m_vbo(vbo),
+            m_data(data) {}
+            
+            inline VboBlock* upload() {
+                SetVboState mapVbo(m_vbo);
+                mapVbo.mapped();
+                
+                VboBlock* block = m_vbo.allocateBlock(m_data.size() * sizeof(T));
+                block->writeBuffer(0, m_data);
+                return block;
+            }
+        };
+        
         class VertexArray {
         private:
+            BaseHolder* m_holder;
             VboBlock* m_block;
             size_t m_vertexCount;
         public:
             template <typename T>
             explicit VertexArray(Vbo& vbo, const typename std::vector<Vertex1<T> >& data) :
+            m_holder(new Holder<Vertex1<T> >(vbo, data)),
             m_block(NULL),
-            m_vertexCount(data.size()) {
-                m_block = vbo.allocateBlock(data.size() * sizeof(Vertex1<T>));
-                m_block->writeBuffer(0, data);
-            }
+            m_vertexCount(data.size()) {}
             
             template <typename T1, typename T2>
             explicit VertexArray(Vbo& vbo, const typename std::vector<Vertex2<T1, T2> >& data) :
+            m_holder(new Holder<Vertex2<T1, T2> >(vbo, data)),
             m_block(NULL),
-            m_vertexCount(data.size()) {
-                m_block = vbo.allocateBlock(data.size() * sizeof(Vertex2<T1, T2>));
-                m_block->writeBuffer(0, data);
-            }
+            m_vertexCount(data.size()) {}
             
             template <typename T1, typename T2, typename T3>
             explicit VertexArray(Vbo& vbo, const typename std::vector<Vertex3<T1, T2, T3> >& data) :
+            m_holder(new Holder<Vertex3<T1, T2, T3> >(vbo, data)),
             m_block(NULL),
-            m_vertexCount(data.size()) {
-                m_block = vbo.allocateBlock(data.size() * sizeof(Vertex3<T1, T2, T3>));
-                m_block->writeBuffer(0, data);
-            }
+            m_vertexCount(data.size()) {}
             
             template <typename T1, typename T2, typename T3, typename T4>
             explicit VertexArray(Vbo& vbo, const typename std::vector<Vertex4<T1, T2, T3, T4> >& data) :
+            m_holder(new Holder<Vertex4<T1, T2, T3, T4> >(vbo, data)),
             m_block(NULL),
-            m_vertexCount(data.size()) {
-                m_block = vbo.allocateBlock(data.size() * sizeof(Vertex4<T1, T2, T3, T4>));
-                m_block->writeBuffer(0, data);
-            }
+            m_vertexCount(data.size()) {}
+            
+            VertexArray() :
+            m_holder(NULL),
+            m_block(0),
+            m_vertexCount(0) {}
             
             VertexArray(VertexArray& other) :
+            m_holder(NULL),
             m_block(NULL),
-            m_vertexCount(other.m_vertexCount) {
-                std::swap(m_block, other.m_block);
+            m_vertexCount(0) {
+                using std::swap;
+                swap(*this, other);
             }
             
-            inline VertexArray& operator= (VertexArray& other) {
-                if (m_block != NULL) {
-                    m_block->free();
-                    m_block = NULL;
-                }
-                std::swap(m_block, other.m_block);
-                m_vertexCount = other.m_vertexCount;
+            inline VertexArray& operator= (VertexArray other) {
+                using std::swap;
+                swap(*this, other);
                 return *this;
+            }
+            
+            inline void prepare() {
+                if (m_holder != NULL) {
+                    assert(m_block == NULL);
+                    m_block = m_holder->upload();
+                    delete m_holder;
+                    m_holder = NULL;
+                }
             }
             
             inline size_t blockOffset() const {
@@ -96,13 +128,25 @@ namespace TrenchBroom {
             }
             
             ~VertexArray() {
+                if (m_holder != NULL) {
+                    delete m_holder;
+                    m_holder = NULL;
+                }
                 if (m_block != NULL) {
                     m_block->free();
                     m_block = NULL;
                 }
             }
-        };
 
+            inline friend void swap(VertexArray& left, VertexArray& right) {
+                using std::swap;
+                swap(left.m_holder, right.m_holder);
+                swap(left.m_block, right.m_block);
+                swap(left.m_vertexCount, right.m_vertexCount);
+            }
+        };
+        
+        
         template <typename T>
         class IndexedVertexList {
         private:

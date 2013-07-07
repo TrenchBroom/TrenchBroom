@@ -37,8 +37,8 @@ namespace TrenchBroom {
 
         Camera::Camera() :
         m_fov(90.0f),
-        m_near(1.0f),
-        m_far(1000.0f),
+        m_nearPlane(1.0f),
+        m_farPlane(1000.0f),
         m_viewport(Viewport(0, 0, 1024, 768)),
         m_position(Vec3f::Null),
         m_valid(false) {
@@ -46,16 +46,16 @@ namespace TrenchBroom {
         }
 
 
-        Camera::Camera(const float fov, const float near, const float far, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        Camera::Camera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
         m_fov(fov),
-        m_near(near),
-        m_far(far),
+        m_nearPlane(nearPlane),
+        m_farPlane(farPlane),
         m_viewport(viewport),
         m_position(position),
         m_valid(false) {
             assert(m_fov > 0.0f);
-            assert(m_near >= 0.0f);
-            assert(m_far > m_near);
+            assert(m_nearPlane >= 0.0f);
+            assert(m_farPlane > m_nearPlane);
             assert(Math<float>::eq(direction.length(), 1.0f));
             assert(Math<float>::eq(up.length(), 1.0f));
             setDirection(direction, up);
@@ -65,12 +65,12 @@ namespace TrenchBroom {
             return m_fov;
         }
         
-        float Camera::near() const {
-            return m_near;
+        float Camera::nearPlane() const {
+            return m_nearPlane;
         }
         
-        float Camera::far() const {
-            return m_far;
+        float Camera::farPlane() const {
+            return m_farPlane;
         }
         
         const Camera::Viewport& Camera::viewport() const {
@@ -115,16 +115,16 @@ namespace TrenchBroom {
             m_valid = false;
         }
         
-        void Camera::setNear(const float near) {
-            assert(near >= 0.0f);
-            assert(near < m_far);
-            m_near = near;
+        void Camera::setNearPlane(const float nearPlane) {
+            assert(nearPlane >= 0.0f);
+            assert(nearPlane < m_farPlane);
+            m_nearPlane = nearPlane;
             m_valid = false;
         }
         
-        void Camera::setFar(const float far) {
-            assert(far > m_near);
-            m_far = far;
+        void Camera::setFarPlane(const float farPlane) {
+            assert(farPlane > m_nearPlane);
+            m_farPlane = farPlane;
             m_valid = false;
         }
         
@@ -209,7 +209,7 @@ namespace TrenchBroom {
         }
 
         void Camera::validateMatrices() const {
-            m_projectionMatrix = perspectiveMatrix(m_fov, m_near, m_far, m_viewport.width, m_viewport.height);
+            m_projectionMatrix = perspectiveMatrix(m_fov, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             m_viewMatrix = ::viewMatrix(m_direction, m_up) * translationMatrix(-m_position);
             m_matrix = m_projectionMatrix * m_viewMatrix;
             

@@ -41,6 +41,10 @@ namespace TrenchBroom {
         public:
             VboBlock(Vbo& vbo, const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next);
             
+            inline Vbo& vbo() const {
+                return m_vbo;
+            }
+            
             inline size_t offset() const {
                 return m_offset;
             }

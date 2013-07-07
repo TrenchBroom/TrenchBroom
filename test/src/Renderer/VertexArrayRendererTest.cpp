@@ -54,19 +54,18 @@ namespace TrenchBroom {
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             unsigned char buffer[0xFFFF];
             
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-            SetVboState setVboState(vbo);
-            setVboState.mapped();
-
             VertexArray vertexArray(vbo, vertices);
             VertexArrayRenderer renderer(VertexSpec::P3(), GL_TRIANGLES, vertexArray);
 
-            EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            SetVboState setVboState(vbo);
             setVboState.active();
             
+            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+
             EXPECT_CALL(*GLMock, EnableClientState(GL_VERTEX_ARRAY));
             EXPECT_CALL(*GLMock, VertexPointer(3, GL_FLOAT, 12, 0));
             EXPECT_CALL(*GLMock, DrawArrays(GL_TRIANGLES, 0, 22));
@@ -103,19 +102,18 @@ namespace TrenchBroom {
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             unsigned char buffer[0xFFFF];
             
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
-            SetVboState setVboState(vbo);
-            setVboState.mapped();
-            
             VertexArray vertexArray(vbo, vertices);
             VertexArrayRenderer renderer(VertexSpec::P3N3T2(), GL_TRIANGLES, vertexArray);
             
-            EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            SetVboState setVboState(vbo);
             setVboState.active();
             
+            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+
             EXPECT_CALL(*GLMock, EnableClientState(GL_VERTEX_ARRAY));
             EXPECT_CALL(*GLMock, VertexPointer(3, GL_FLOAT, (3 + 3 + 2) * 4, 0));
             EXPECT_CALL(*GLMock, EnableClientState(GL_NORMAL_ARRAY));

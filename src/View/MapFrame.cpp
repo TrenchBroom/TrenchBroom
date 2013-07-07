@@ -20,6 +20,9 @@
 #include "MapFrame.h"
 
 #include "TrenchBroomApp.h"
+#include "Controller/Command.h"
+#include "Controller/NewDocumentCommand.h"
+#include "Controller/OpenDocumentCommand.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/FrameManager.h"
@@ -37,14 +40,14 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
+        wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
         m_mapView(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocument::Ptr document) :
-        wxFrame(NULL, wxID_ANY, wxT("unnamed.map")),
+        wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
@@ -105,7 +108,6 @@ namespace TrenchBroom {
             if (!confirmOrDiscardChanges())
                 return false;
             m_console->info("Creating new document");
-            m_mapView->makeCurrent();
             return m_controller.newDocument(m_document, game);
         }
         
@@ -113,7 +115,6 @@ namespace TrenchBroom {
             if (!confirmOrDiscardChanges())
                 return false;
             m_console->info("Opening document " + path.asString());
-            m_mapView->makeCurrent();
             return m_controller.openDocument(m_document, game, path);
         }
 
@@ -145,6 +146,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::commandDone(Controller::Command::Ptr command) {
+            if (command->type() == Controller::NewDocumentCommand::Type ||
+                command->type() == Controller::OpenDocumentCommand::Type)
+                updateTitle();
             m_mapView->commandDone(command);
         }
         

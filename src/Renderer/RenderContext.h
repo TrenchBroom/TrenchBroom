@@ -25,16 +25,19 @@
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
+        class ShaderManager;
         
         class RenderContext {
         private:
             const Camera& m_camera;
             Transformation m_transformation;
+            ShaderManager& m_shaderManager;
         public:
-            RenderContext(const Camera& camera);
+            RenderContext(const Camera& camera, ShaderManager& shaderManager);
             
             const Camera& camera() const;
             Transformation& transformation();
+            ShaderManager& shaderManager();
         };
     }
 }

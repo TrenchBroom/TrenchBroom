@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_game = game;
             m_map = Model::Map::newMap();
             
-            setDocumentPath(IO::Path(""));
+            setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
         }
         

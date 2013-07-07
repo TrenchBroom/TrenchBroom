@@ -36,8 +36,8 @@ namespace TrenchBroom {
             };
         private:
             float m_fov;
-            float m_near;
-            float m_far;
+            float m_nearPlane;
+            float m_farPlane;
             Viewport m_viewport;
             Vec3f m_position;
             Vec3f m_direction;
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             mutable bool m_valid;
         public:
             Camera();
-            Camera(const float fov, const float near, const float far, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+            Camera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         
             float fov() const;
-            float near() const;
-            float far() const;
+            float nearPlane() const;
+            float farPlane() const;
             const Viewport& viewport() const;
             const Vec3f& position() const;
             const Vec3f& direction() const;
@@ -67,8 +67,8 @@ namespace TrenchBroom {
             Ray3f viewRay() const;
             
             void setFov(const float fov);
-            void setNear(const float near);
-            void setFar(const float far);
+            void setNearPlane(const float nearPlane);
+            void setFarPlane(const float farPlane);
             void setViewport(const Viewport& viewport);
             void moveTo(const Vec3f& position);
             void moveBy(const Vec3f& delta);

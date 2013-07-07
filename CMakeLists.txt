@@ -102,6 +102,17 @@ IF(APPLE)
 	SET(MACOSX_ICON_FILES "${CMAKE_SOURCE_DIR}/resources/graphics/AppIcon.icns" "${CMAKE_SOURCE_DIR}/resources/graphics/DocIcon.icns")
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	SET(SOURCE ${SOURCE} ${MACOSX_ICON_FILES})
+
+	# Configure shaders
+	# Collect all shaders
+	FILE(GLOB_RECURSE SHADERS
+	    "${CMAKE_SOURCE_DIR}/resources/shader/*.fragsh"
+	    "${CMAKE_SOURCE_DIR}/resources/shader/*.vertsh"
+	)
+
+	SET(MACOSX_SHADER_FILES ${SHADERS})
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
+	SET(SOURCE ${SOURCE} ${MACOSX_SHADER_FILES})
 ENDIF()
 
 ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${SOURCE})
@@ -112,6 +123,12 @@ IF(APPLE)
 	SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/mac/TrenchBroom-Info.plist")
 ENDIF()
 
+IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	# Copy shader files to resources directory
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/shader" $<TARGET_FILE_DIR:TrenchBroom>/Resources/shader
+	)
+ENDIF()
 
 # TrenchBroom-Test executable
 ADD_EXECUTABLE(TrenchBroom-Test ${SOURCE} ${TEST_SOURCE})

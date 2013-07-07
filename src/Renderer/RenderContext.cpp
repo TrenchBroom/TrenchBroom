@@ -22,9 +22,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderContext::RenderContext(const Camera& camera) :
+        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager) :
         m_camera(camera),
-        m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()) {}
+        m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
+        m_shaderManager(shaderManager) {}
         
         const Camera& RenderContext::camera() const {
             return m_camera;
@@ -32,6 +33,10 @@ namespace TrenchBroom {
 
         Transformation& RenderContext::transformation() {
             return m_transformation;
+        }
+
+        ShaderManager& RenderContext::shaderManager() {
+            return m_shaderManager;
         }
     }
 }

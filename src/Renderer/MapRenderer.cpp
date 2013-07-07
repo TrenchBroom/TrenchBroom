@@ -30,6 +30,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexArrayRenderer.h"
@@ -65,13 +66,16 @@ namespace TrenchBroom {
         };
         
         MapRenderer::MapRenderer() :
-        m_auxVbo(0xFFFF) {}
+        m_auxVbo(0xFFFF),
+        m_edgeVbo(0xFFFF),
+        m_edgeRenderer(VertexSpec::P3(), GL_LINES) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
             clearBackground(context);
             renderCoordinateSystem(context);
+            renderEdges(context);
         }
 
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
@@ -144,7 +148,19 @@ namespace TrenchBroom {
             renderer.render();
         }
 
+        void MapRenderer::renderEdges(RenderContext& context) {
+            ShaderManager& shaderManager = context.shaderManager();
+            ActivateShader edgeShader(shaderManager, Shaders::EdgeShader);
+            edgeShader.set("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            
+            SetVboState activateVbo(m_edgeVbo);
+            activateVbo.active();
+            m_edgeRenderer.render();
+        }
+
         void MapRenderer::clearState() {
+            VertexArrayRenderer temp(VertexSpec::P3(), GL_LINES);
+            m_edgeRenderer = temp;
         }
 
         void MapRenderer::loadMap(Model::Map::Ptr map) {
@@ -155,6 +171,10 @@ namespace TrenchBroom {
             
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
+            
+            VertexArray edgeArray(m_edgeVbo, buildEdges.vertices);
+            VertexArrayRenderer edgeRenderer(VertexSpec::P3(), GL_LINES, edgeArray);
+            m_edgeRenderer = edgeRenderer;
         }
     }
 }

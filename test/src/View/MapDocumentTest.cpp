@@ -33,8 +33,8 @@ namespace TrenchBroom {
             Model::Game::Ptr game = Model::QuakeGame::newGame();
             document->newDocument(game);
             
-            ASSERT_EQ(IO::Path(""), document->path());
-            ASSERT_EQ(String(""), document->filename());
+            ASSERT_EQ(IO::Path("unnamed.map"), document->path());
+            ASSERT_EQ(String("unnamed.map"), document->filename());
         }
         
         TEST(MapDocumentTest, openDocument) {

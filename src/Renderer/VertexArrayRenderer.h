@@ -64,6 +64,7 @@ namespace TrenchBroom {
             AttributeSpecList m_attributeSpecs;
             size_t m_totalSize;
         public:
+            VertexSpec();
             VertexSpec(const AttributeSpec& attributeSpec1);
             VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2);
             VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2, const AttributeSpec& attributeSpec3);
@@ -92,10 +93,22 @@ namespace TrenchBroom {
             IndexArray m_indices;
             CountArray m_counts;
         public:
+            VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType);
             VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType, VertexArray& vertexArray);
             VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType, VertexArray& vertexArray, const IndexArray& indices, const CountArray& counts);
+            VertexArrayRenderer(VertexArrayRenderer& other);
             
-            void render() const;
+            VertexArrayRenderer& operator= (VertexArrayRenderer other);
+            inline friend void swap(VertexArrayRenderer& left, VertexArrayRenderer& right) {
+                using std::swap;
+                swap(left.m_vertexSpec, right.m_vertexSpec);
+                swap(left.m_primType, right.m_primType);
+                swap(left.m_vertexArray, right.m_vertexArray);
+                swap(left.m_indices, right.m_indices);
+                swap(left.m_counts, right.m_counts);
+            }
+            
+            void render();
         };
     }
 }

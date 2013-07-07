@@ -58,6 +58,7 @@ namespace TrenchBroom {
             setVboState.mapped();
             
             VertexArray attrArray(vbo, vertices);
+            attrArray.prepare();
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* x = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 0 * sizeof(float));
@@ -105,6 +106,7 @@ namespace TrenchBroom {
             setVboState.mapped();
             
             VertexArray attrArray(vbo, vertices);
+            attrArray.prepare();
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* x = reinterpret_cast<const float*>(buffer + i * 5 * sizeof(float) + 0 * sizeof(float));
@@ -161,6 +163,7 @@ namespace TrenchBroom {
             setVboState.mapped();
             
             VertexArray attrArray(vbo, vertices);
+            attrArray.prepare();
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* vx = reinterpret_cast<const float*>(buffer + i * 8 * sizeof(float) + 0 * sizeof(float));
@@ -216,6 +219,7 @@ namespace TrenchBroom {
             setVboState.mapped();
             
             VertexArray attrArray(vbo, indexedVertices.vertices());
+            attrArray.prepare();
             
             for (size_t i = 0; i < vertexPositions.size(); i++) {
                 const float* x = reinterpret_cast<const float*>(buffer + i * 3 * sizeof(float) + 0 * sizeof(float));

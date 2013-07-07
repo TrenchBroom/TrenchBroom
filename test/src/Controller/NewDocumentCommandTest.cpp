@@ -34,7 +34,7 @@ namespace TrenchBroom {
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(IO::Path(""), doc->path());
+            ASSERT_EQ(IO::Path("unnamed.map"), doc->path());
             ASSERT_FALSE(doc->modified());
         }
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(IO::Path(""), doc->path());
+            ASSERT_EQ(IO::Path("unnamed.map"), doc->path());
             ASSERT_FALSE(doc->modified());
             
             Model::Map::Ptr map = doc->map();

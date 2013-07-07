@@ -41,8 +41,8 @@ namespace TrenchBroom {
             camera.moveTo(newPosition);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(newPosition, camera.position());
             ASSERT_VEC_EQ(direction, camera.direction());
             ASSERT_VEC_EQ(up, camera.up());
@@ -66,8 +66,8 @@ namespace TrenchBroom {
             camera.moveBy(delta);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(newPosition, camera.position());
             ASSERT_VEC_EQ(direction, camera.direction());
             ASSERT_VEC_EQ(up, camera.up());
@@ -93,8 +93,8 @@ namespace TrenchBroom {
             camera.lookAt(focus, Vec3f::PosZ);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(position, camera.position());
             ASSERT_VEC_EQ(newDirection, camera.direction());
             ASSERT_VEC_EQ(newUp, camera.up());
@@ -120,8 +120,8 @@ namespace TrenchBroom {
             camera.setDirection(newDirection, Vec3f::PosZ);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(position, camera.position());
             ASSERT_VEC_EQ(newDirection, camera.direction());
             ASSERT_VEC_EQ(newUp, camera.up());
@@ -151,8 +151,8 @@ namespace TrenchBroom {
             camera.rotate(yaw, pitch);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(position, camera.position());
             ASSERT_VEC_EQ(newDirection, camera.direction());
             ASSERT_VEC_EQ(newUp, camera.up());
@@ -182,8 +182,8 @@ namespace TrenchBroom {
             camera.rotate(yaw, pitch);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(position, camera.position());
             ASSERT_VEC_EQ(newDirection, camera.direction());
             ASSERT_VEC_EQ(newUp, camera.up());
@@ -213,8 +213,8 @@ namespace TrenchBroom {
             camera.rotate(yaw, pitch);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
-            ASSERT_FLOAT_EQ(near, camera.near());
-            ASSERT_FLOAT_EQ(far, camera.far());
+            ASSERT_FLOAT_EQ(near, camera.nearPlane());
+            ASSERT_FLOAT_EQ(far, camera.farPlane());
             ASSERT_VEC_EQ(position, camera.position());
             ASSERT_VEC_EQ(newDirection, camera.direction());
             ASSERT_VEC_EQ(newUp, camera.up());

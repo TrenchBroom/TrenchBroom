@@ -24,6 +24,7 @@
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/ShaderManager.h"
 #include "View/InputState.h"
 
 #include <vector>
@@ -44,6 +45,7 @@ namespace TrenchBroom {
             
             Renderer::Camera m_camera;
             Renderer::MapRenderer m_renderer;
+            Renderer::ShaderManager m_shaderManager;
             
             InputState m_inputState;
             bool m_drag;
@@ -53,8 +55,6 @@ namespace TrenchBroom {
         public:
             MapView(wxWindow* parent, Console& console);
             ~MapView();
-            
-            void makeCurrent();
             
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
