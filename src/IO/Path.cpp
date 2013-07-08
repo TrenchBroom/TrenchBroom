@@ -184,6 +184,18 @@ namespace TrenchBroom {
             return Path(m_absolute, resolvePath(m_absolute, m_components));
         }
 
+        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const String& relativePath) {
+            List result;
+            List::const_iterator it, end;
+            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+                const Path& path = *it;
+                const Path absPath = path.makeAbsolute(relativePath);
+                const Path canPath = path.makeCanonical();
+                result.push_back(canPath);
+            }
+            return result;
+        }
+
         StringList Path::resolvePath(const bool absolute, const StringList& components) const {
             StringList::const_iterator it, end;
             StringList resolved;

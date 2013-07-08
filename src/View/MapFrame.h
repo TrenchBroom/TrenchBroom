@@ -55,8 +55,6 @@ namespace TrenchBroom {
             bool newDocument(Model::Game::Ptr game);
             bool openDocument(Model::Game::Ptr game, const IO::Path& path);
             
-            Console* console() const;
-            
             void OnClose(wxCloseEvent& event);
             
             void OnFileClose(wxCommandEvent& event);

@@ -25,6 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         namespace PropertyKeys {
             const PropertyKey Classname = "classname";
+            const PropertyKey Wad = "wad";
         }
         
         namespace PropertyValues {

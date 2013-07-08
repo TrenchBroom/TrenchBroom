@@ -35,6 +35,8 @@ namespace TrenchBroom {
             } FileSystemFilter;
         public:
             Path findRootPath(const Path::List& rootPaths, const Path& relativePath);
+            Path resolvePath(const Path::List& rootPaths, const Path& path);
+            Path::List resolvePaths(const Path::List& rootPaths, const Path::List& paths);
             
             bool isDirectory(const Path& path) const;
             bool exists(const Path& path) const;
@@ -45,13 +47,10 @@ namespace TrenchBroom {
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite) const;
             MappedFile::Ptr mapFile(const Path& path, const std::ios_base::openmode mode) const;
             
+            Path appDirectory() const;
             Path logDirectory() const;
             Path resourceDirectory() const;
             Path findFontFile(const String& fontName) const;
-#ifndef __APPLE__
-        private:
-            Path appDirectory() const;
-#endif
         };
     }
 }

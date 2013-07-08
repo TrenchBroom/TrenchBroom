@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
+#include "Model/Texture.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Vertex.h"
 
@@ -63,6 +64,8 @@ namespace TrenchBroom {
             float m_yScale;
             size_t m_lineNumber;
             size_t m_lineCount;
+            
+            Texture::Ptr m_texture;
             BrushFaceGeometry* m_side;
         private:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
@@ -80,6 +83,7 @@ namespace TrenchBroom {
             float xScale() const;
             float yScale() const;
             
+            void setTexture(Texture::Ptr texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);

@@ -63,6 +63,7 @@ namespace TrenchBroom {
             createMenuBar();
             createGui();
             updateTitle();
+            m_document->setParentLogger(m_console);
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
 
@@ -107,14 +108,12 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::Game::Ptr game) {
             if (!confirmOrDiscardChanges())
                 return false;
-            m_console->info("Creating new document");
             return m_controller.newDocument(m_document, game);
         }
         
         bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            m_console->info("Opening document " + path.asString());
             return m_controller.openDocument(m_document, game, path);
         }
 
@@ -124,10 +123,6 @@ namespace TrenchBroom {
                 event.Veto();
             else
                 m_frameManager->removeAndDestroyFrame(this);
-        }
-
-        Console* MapFrame::console() const {
-            return m_console;
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
@@ -176,7 +171,7 @@ namespace TrenchBroom {
                                              );
             
             m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, *m_console);
+            m_mapView = new MapView(container, m_console);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);

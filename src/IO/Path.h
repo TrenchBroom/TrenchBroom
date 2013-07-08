@@ -58,6 +58,8 @@ namespace TrenchBroom {
             Path makeAbsolute(const Path& relativePath) const;
             Path makeRelative(const Path& absolutePath) const;
             Path makeCanonical() const;
+            
+            static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
         private:
             StringList resolvePath(const bool absolute, const StringList& components) const;
         };

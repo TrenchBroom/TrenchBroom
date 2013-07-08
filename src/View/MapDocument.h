@@ -30,9 +30,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        class MapFrame;
+        class Logger;
 
-        class MapDocument {
+        class MapDocument : public CachingLogger {
         public:
             typedef std::tr1::shared_ptr<MapDocument> Ptr;
         private:
@@ -63,9 +63,13 @@ namespace TrenchBroom {
             void openDocument(Model::Game::Ptr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
+            
         private:
             MapDocument();
             
+            void loadAndUpdateTextures();
+            void loadTextures();
+            void updateTextures();
             void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);
         };

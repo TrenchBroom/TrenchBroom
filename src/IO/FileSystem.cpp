@@ -31,6 +31,45 @@
 
 namespace TrenchBroom {
     namespace IO {
+        Path FileSystem::findRootPath(const Path::List& rootPaths, const Path& relativePath) {
+            if (relativePath.isAbsolute())
+                throw FileSystemException("Cannot find root path of absolute path");
+            
+            Path::List::const_iterator it, end;
+            for (it = rootPaths.begin(), end = rootPaths.end(); it != end; ++it) {
+                const IO::Path& rootPath = *it;
+                if (!rootPath.isAbsolute())
+                    throw FileSystemException("Root path must be absolute");
+                if (exists(rootPath + relativePath))
+                    return rootPath;
+            }
+            return Path("");
+        }
+
+        Path FileSystem::resolvePath(const Path::List& rootPaths, const Path& path) {
+            if (!path.isAbsolute()) {
+                const IO::Path absolutePath = findRootPath(rootPaths, path) + path;
+                return absolutePath.makeCanonical();
+            } else {
+                return path.makeCanonical();
+            }
+        }
+
+        Path::List FileSystem::resolvePaths(const Path::List& rootPaths, const Path::List& paths) {
+            Path::List result;
+            Path::List::const_iterator it, end;
+            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+                const Path& path = *it;
+                if (!path.isAbsolute()) {
+                    const IO::Path absolutePath = findRootPath(rootPaths, path) + path;
+                    result.push_back(absolutePath.makeCanonical());
+                } else {
+                    result.push_back(path.makeCanonical());
+                }
+            }
+            return result;
+        }
+
         bool FileSystem::isDirectory(const Path& path) const {
             return ::wxDirExists(path.asString());
         }
@@ -86,36 +125,27 @@ namespace TrenchBroom {
 #endif
         }
 
+        
 #if defined __APPLE__
-        Path FileSystem::resourceDirectory() const {
+        Path FileSystem::appDirectory() const {
             CFBundleRef mainBundle = CFBundleGetMainBundle ();
-            CFURLRef resourcePathUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
+            CFURLRef bundleUrl = CFBundleCopyBundleURL(mainBundle);
             
-            UInt8 buffer[512];
-            CFURLGetFileSystemRepresentation(resourcePathUrl, true, buffer, 512);
-            CFRelease(resourcePathUrl);
+            UInt8 buffer[1024];
+            CFURLGetFileSystemRepresentation(bundleUrl, true, buffer, 1024);
+            CFRelease(bundleUrl);
             
             StringStream result;
-            for (unsigned int i = 0; i < 512; i++) {
+            for (size_t i = 0; i < 1024; i++) {
                 UInt8 c = buffer[i];
                 if (c == 0)
                     break;
                 result << c;
             }
             
-            return Path(result.str());
+            return Path(result.str()).deleteLastComponent();
         }
 #elif defined _WIN32
-        Path FileSystem::resourceDirectory() const {
-            return appDirectory() + Path("Resources");
-        }
-#elif defined __linux__
-        Path FileSystem::resourceDirectory() const {
-            return appDirectory() + Path("Resources");
-        }
-#endif
-        
-#if defined _WIN32
         Path FileSystem::appDirectory() const {
 			TCHAR uAppPathC[MAX_PATH] = L"";
 			DWORD numChars = GetModuleFileName(0, uAppPathC, MAX_PATH - 1);
@@ -136,6 +166,35 @@ namespace TrenchBroom {
             const String appPathStr(buf, len);
             const Path appPath(appPathStr);
             return appPath.deleteLastComponent();
+        }
+#endif
+
+#if defined __APPLE__
+        Path FileSystem::resourceDirectory() const {
+            CFBundleRef mainBundle = CFBundleGetMainBundle ();
+            CFURLRef resourcePathUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
+            
+            UInt8 buffer[1024];
+            CFURLGetFileSystemRepresentation(resourcePathUrl, true, buffer, 1024);
+            CFRelease(resourcePathUrl);
+            
+            StringStream result;
+            for (size_t i = 0; i < 1024; i++) {
+                UInt8 c = buffer[i];
+                if (c == 0)
+                    break;
+                result << c;
+            }
+            
+            return Path(result.str());
+        }
+#elif defined _WIN32
+        Path FileSystem::resourceDirectory() const {
+            return appDirectory() + Path("Resources");
+        }
+#elif defined __linux__
+        Path FileSystem::resourceDirectory() const {
+            return appDirectory() + Path("Resources");
         }
 #endif
     }

@@ -25,6 +25,10 @@ namespace TrenchBroom {
             return doLoadMap(path);
         }
 
+        IO::Path::List Game::extractTexturePaths(Model::Map::Ptr map) const {
+            return doExtractTexturePaths(map);
+        }
+
         TextureCollection::Ptr Game::loadTextureCollection(const IO::Path& path) const {
             return doLoadTextureCollection(path);
         }

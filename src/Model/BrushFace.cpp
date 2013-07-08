@@ -78,6 +78,16 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
+        void BrushFace::setTexture(Texture::Ptr texture) {
+            if (m_texture != NULL)
+                m_texture->decUsageCount();
+            m_texture = texture;
+            if (m_texture != NULL) {
+                m_textureName = m_texture->name();
+                m_texture->incUsageCount();
+            }
+        }
+
         void BrushFace::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
         }

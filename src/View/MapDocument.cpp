@@ -20,7 +20,10 @@
 #include "MapDocument.h"
 
 #include "IO/FileSystem.h"
-#include "View/Console.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
+#include "View/Logger.h"
 #include "View/MapFrame.h"
 
 #include <cassert>
@@ -30,7 +33,36 @@
 
 namespace TrenchBroom {
     namespace View {
+        class SetFaceTexture {
+        private:
+            Model::TextureManager& m_textureManager;
+        public:
+            SetFaceTexture(Model::TextureManager& textureManager) :
+            m_textureManager(textureManager) {}
+            
+            inline void operator()(Model::BrushFace::Ptr face) {
+                const String& textureName = face->textureName();
+                Model::Texture::Ptr texture = m_textureManager.texture(textureName);
+                face->setTexture(texture);
+            }
+        };
+        
+        struct SetFaceTextureFilter {
+            inline bool operator()(Model::Entity::Ptr entity) {
+                return true;
+            }
+            
+            inline bool operator()(Model::Brush::Ptr brush) {
+                return true;
+            }
+            
+            inline bool operator()(Model::BrushFace::Ptr face) {
+                return true;
+            }
+        };
+        
         MapDocument::MapDocument() :
+        CachingLogger(),
         m_path(""),
         m_modificationCount(0) {}
         
@@ -78,6 +110,8 @@ namespace TrenchBroom {
 
         void MapDocument::newDocument(Model::Game::Ptr game) {
             assert(game != NULL);
+            info("Creating new document");
+
             m_game = game;
             m_map = Model::Map::newMap();
             m_textureManager.reset(m_game);
@@ -88,12 +122,15 @@ namespace TrenchBroom {
         
         void MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             assert(game != NULL);
+            info("Opening document document " + path.asString());
+
             m_map = game->loadMap(path);
             m_game = game;
             m_textureManager.reset(m_game);
             
             setDocumentPath(path);
             clearModificationCount();
+            loadAndUpdateTextures();
         }
 
         void MapDocument::saveDocument() {
@@ -103,6 +140,39 @@ namespace TrenchBroom {
         
         void MapDocument::saveDocumentAs(const IO::Path& path) {
             doSaveDocument(path);
+        }
+        
+        void MapDocument::loadAndUpdateTextures() {
+            loadTextures();
+            updateTextures();
+        }
+
+        void MapDocument::loadTextures() {
+            IO::FileSystem fs;
+            
+            IO::Path::List rootPaths;
+            rootPaths.push_back(fs.appDirectory());
+            if (m_path.isAbsolute())
+                rootPaths.push_back(m_path.deleteLastComponent());
+            
+            const IO::Path::List wadPaths = m_game->extractTexturePaths(m_map);
+            IO::Path::List::const_iterator it, end;
+            for (it = wadPaths.begin(), end = wadPaths.end(); it != end; ++it) {
+                const IO::Path& wadPath = *it;
+                try {
+                    const IO::Path path = fs.resolvePath(rootPaths, *it);
+                    m_textureManager.addTextureCollection(path);
+                    info("Loaded texture collection " + wadPath.asString());
+                } catch (Exception e) {
+                    error("Error loading texture collection " + wadPath.asString() + ": " + e.what());
+                }
+            }
+        }
+
+        void MapDocument::updateTextures() {
+            SetFaceTexture op(m_textureManager);
+            SetFaceTextureFilter filter;
+            m_map->eachBrushFace(op, filter);
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

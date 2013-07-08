@@ -19,10 +19,13 @@
 
 #include "QuakeGame.h"
 
+#include "StringUtils.h"
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/WadTextureLoader.h"
+#include "Model/Entity.h"
+#include "Model/EntityProperties.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,6 +41,30 @@ namespace TrenchBroom {
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(WorldBounds);
+        }
+
+        IO::Path::List QuakeGame::doExtractTexturePaths(Model::Map::Ptr map) const {
+            IO::Path::List paths;
+            
+            Entity::Ptr worldspawn = map->worldspawn();
+            if (worldspawn == NULL)
+                return paths;
+            
+            const Model::PropertyValue& wadValue = worldspawn->property(Model::PropertyKeys::Wad);
+            if (wadValue.empty())
+                return paths;
+            
+            const StringList pathStrs = StringUtils::split(wadValue, ';');
+            StringList::const_iterator it, end;
+            for (it = pathStrs.begin(), end = pathStrs.end(); it != end; ++it) {
+                const String pathStr = StringUtils::trim(*it);
+                if (!pathStr.empty()) {
+                    const IO::Path path(pathStr);
+                    paths.push_back(path);
+                }
+            }
+            
+            return paths;
         }
 
         TextureCollection::Ptr QuakeGame::doLoadTextureCollection(const IO::Path& path) const {

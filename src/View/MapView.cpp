@@ -23,16 +23,16 @@
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
 #include "View/CameraTool.h"
-#include "View/Console.h"
+#include "View/Logger.h"
 
 #include <wx/dcclient.h>
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Console& console) :
+        MapView::MapView(wxWindow* parent, Logger* logger) :
         wxGLCanvas(parent, wxID_ANY, attribs()),
+        m_logger(logger),
         m_initialized(false),
-        m_console(console),
         m_glContext(new wxGLContext(this)),
         m_drag(false),
         m_cameraTool(NULL),
@@ -48,6 +48,7 @@ namespace TrenchBroom {
             deleteTools();
             delete m_glContext;
             m_glContext = NULL;
+            m_logger = NULL;
         }
         
         void MapView::OnMouseButton(wxMouseEvent& event) {
@@ -208,22 +209,22 @@ namespace TrenchBroom {
                 const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
                 const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
                 const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-                m_console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
-                m_console.info("Depth buffer bits: %d", depthBits());
+                m_logger->info("Renderer info: %s version %s from %s", renderer, version, vendor);
+                m_logger->info("Depth buffer bits: %d", depthBits());
                 
                 if (multisample())
-                    m_console.info("Multisampling enabled");
+                    m_logger->info("Multisampling enabled");
                 else
-                    m_console.info("Multisampling disabled");
+                    m_logger->info("Multisampling disabled");
                 
 #ifndef TESTING
                 glewExperimental = GL_TRUE;
                 const GLenum glewState = glewInit();
                 if (glewState != GLEW_OK)
-                    m_console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
+                    m_logger->error("Unable to initialize glew: %s", glewGetErrorString(glewState));
 #endif
             } else {
-                m_console.info("Unable to set current GL context");
+                m_logger->info("Unable to set current GL context");
             }
             m_initialized = true;
         }

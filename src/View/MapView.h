@@ -35,12 +35,12 @@ namespace TrenchBroom {
     namespace View {
         class BaseTool;
         class CameraTool;
-        class Console;
+        class Logger;
         
         class MapView : public wxGLCanvas {
         private:
+            Logger* m_logger;
             bool m_initialized;
-            Console& m_console;
             wxGLContext* m_glContext;
             
             Renderer::Camera m_camera;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             CameraTool* m_cameraTool;
             BaseTool* m_toolChain;
         public:
-            MapView(wxWindow* parent, Console& console);
+            MapView(wxWindow* parent, Logger* logger);
             ~MapView();
             
             void OnMouseButton(wxMouseEvent& event);

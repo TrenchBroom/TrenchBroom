@@ -32,6 +32,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapFrame;
+        
         typedef std::vector<MapFrame*> FrameList;
         
         class FrameManager {

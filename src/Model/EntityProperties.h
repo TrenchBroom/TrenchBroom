@@ -31,6 +31,7 @@ namespace TrenchBroom {
         
         namespace PropertyKeys {
             extern const PropertyKey Classname;
+            extern const PropertyKey Wad;
         }
         
         namespace PropertyValues {
