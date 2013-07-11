@@ -37,7 +37,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         struct BuildBrushEdges {
-            VertexSpecs::P3::VertexType::List vertices;
+            VertexSpecs::P3::Vertex::List vertices;
             inline void operator()(Model::Brush::Ptr brush) {
                 brush->addEdges(vertices);
             }
@@ -66,8 +66,7 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFF),
-        m_edgeVbo(0xFFFF),
-        m_edgeRenderer(VertexSpec::P3(), GL_LINES) {}
+        m_edgeVbo(0xFFFF) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -129,7 +128,7 @@ namespace TrenchBroom {
             const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
             const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
 
-            typedef VertexSpecs::P3C4::VertexType Vertex;
+            typedef VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
             
             vertices.push_back(Vertex(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
@@ -157,8 +156,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::clearState() {
-            VertexArrayRenderer temp(VertexSpec::P3(), GL_LINES);
-            m_edgeRenderer = temp;
+            m_edgeRenderer = VertexArrayRenderer();
         }
 
         void MapRenderer::loadMap(Model::Map::Ptr map) {
@@ -170,9 +168,7 @@ namespace TrenchBroom {
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
             
-            VertexArray edgeArray(m_edgeVbo, buildEdges.vertices);
-            VertexArrayRenderer edgeRenderer(VertexSpec::P3(), GL_LINES, edgeArray);
-            m_edgeRenderer = edgeRenderer;
+            m_edgeRenderer = VertexArrayRenderer(m_edgeVbo, GL_LINES, buildEdges.vertices);
         }
     }
 }

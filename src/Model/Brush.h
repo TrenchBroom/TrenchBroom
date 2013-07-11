@@ -38,7 +38,7 @@ namespace TrenchBroom {
             typedef std::vector<Brush::Ptr> List;
             static const List EmptyList;
             typedef Renderer::VertexSpecs::P3 VertexSpec;
-            typedef VertexSpec::VertexType Vertex;
+            typedef VertexSpec::Vertex Vertex;
         private:
             BrushFace::List m_faces;
             BrushGeometry* m_geometry;

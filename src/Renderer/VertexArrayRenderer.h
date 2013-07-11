@@ -42,7 +42,7 @@ namespace TrenchBroom {
         template <typename VertexSpec>
         class VertexArrayT : public VertexArray {
         public:
-            typedef typename VertexSpec::VertexType::List VertexList;
+            typedef typename VertexSpec::Vertex::List VertexList;
         private:
             Vbo& m_vbo;
             VboBlock* m_block;
@@ -97,6 +97,9 @@ namespace TrenchBroom {
             IndexArray m_indices;
             CountArray m_counts;
         public:
+            explicit VertexArrayRenderer() :
+            m_primType(GL_INVALID_ENUM) {}
+            
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
             explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const std::vector<Vertex<A1, A2, A3, A4, A5> >& vertices) :
             m_primType(primType),

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
         class VertexSpec {
         public:
-            typedef Vertex<A1, A2, A3, A4, A5> VertexType;
+            typedef Vertex<A1, A2, A3, A4, A5> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {

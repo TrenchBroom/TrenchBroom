@@ -33,7 +33,7 @@ namespace TrenchBroom {
             typedef std::vector<GLsizei> CountArray;
             
             size_t m_primStart;
-            typename T::VertexType::List m_vertices;
+            typename T::Vertex::List m_vertices;
             IndexArray m_indices;
             CountArray m_counts;
         public:
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 return m_counts;
             }
             
-            inline const typename T::VertexType::List& vertices() const {
+            inline const typename T::Vertex::List& vertices() const {
                 return m_vertices;
             }
         };

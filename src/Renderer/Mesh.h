@@ -33,8 +33,8 @@ namespace TrenchBroom {
         template <typename Key, class VertexSpec>
         class Mesh {
         public:
-            typedef std::vector<typename VertexSpec::VertexType::List> TriangleSeries;
-            typedef std::map<Key, typename VertexSpec::VertexType::List> TriangleSetMap;
+            typedef std::vector<typename VertexSpec::Vertex::List> TriangleSeries;
+            typedef std::map<Key, typename VertexSpec::Vertex::List> TriangleSetMap;
             typedef std::map<Key, TriangleSeries> TriangleSeriesMap;
             typedef std::map<Key, VertexArrayRenderer> RendererMap;
             typedef std::pair<Key, VertexArrayRenderer> RendererMapEntry;
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 typename TriangleSetMap::const_iterator it, end;
                 for (it = m_triangleSets.begin(), end = m_triangleSets.end(); it != end; ++it) {
                     const Key& key = it->first;
-                    const typename VertexSpec::VertexType::List& vertices = it->second;
+                    const typename VertexSpec::Vertex::List& vertices = it->second;
                     VertexArrayRenderer renderer(vbo, GL_TRIANGLES, vertices);
                     result.insert(RendererMapEntry(key, renderer));
                 }
@@ -105,9 +105,9 @@ namespace TrenchBroom {
                     m_currentSet = MapUtils::findOrInsert(m_triangleSets, key);
             }
             
-            inline void addTriangleToSet(const typename VertexSpec::VertexType& v1,
-                                         const typename VertexSpec::VertexType& v2,
-                                         const typename VertexSpec::VertexType& v3) {
+            inline void addTriangleToSet(const typename VertexSpec::Vertex& v1,
+                                         const typename VertexSpec::Vertex& v2,
+                                         const typename VertexSpec::Vertex& v3) {
                 assert(m_currentType == Set);
                 m_currentSet->second.push_back(v1);
                 m_currentSet->second.push_back(v2);
@@ -125,10 +125,10 @@ namespace TrenchBroom {
                 
                 if (m_currentFan == m_triangleFans.end() || m_currentFan->first != key)
                     m_currentFan = MapUtils::findOrInsert(m_triangleFans, key);
-                m_currentFan->second.push_back(VertexSpec::VertexType::List());
+                m_currentFan->second.push_back(VertexSpec::Vertex::List());
             }
             
-            inline void addVertexToFan(const typename VertexSpec::VertexType& v) {
+            inline void addVertexToFan(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Fan);
                 m_currentFan->second.back().push_back(v);
             }
@@ -144,10 +144,10 @@ namespace TrenchBroom {
                 
                 if (m_currentStrip == m_triangleStrips.end() || m_currentStrip->first != key)
                     m_currentStrip = MapUtils::findOrInsert(m_currentStrip, key);
-                m_currentStrip->second.push_back(VertexSpec::VertexType::List());
+                m_currentStrip->second.push_back(VertexSpec::Vertex::List());
             }
 
-            inline void addVertexToStrip(const typename VertexSpec::VertexType& v) {
+            inline void addVertexToStrip(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Strip);
                 m_currentStrip->second.back().push_back(v);
             }
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                     IndexedVertexList<VertexSpec> indexList;
                     typename TriangleSeries::const_iterator sIt, sEnd;
                     for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
-                        const typename VertexSpec::VertexType::List& vertices = *sIt;
+                        const typename VertexSpec::Vertex::List& vertices = *sIt;
                         indexList.addVertices(vertices);
                         indexList.endPrimitive();
                     }

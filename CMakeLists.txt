@@ -103,14 +103,22 @@ IF(APPLE)
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	SET(SOURCE ${SOURCE} ${MACOSX_ICON_FILES})
 
+	# Configure game resources
+	# Collect all game resources
+	FILE(GLOB_RECURSE MACOSX_GAME_FILES
+	    "${CMAKE_SOURCE_DIR}/resources/games/quake/*.*"
+	)
+
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/quake)
+	SET(SOURCE ${SOURCE} ${MACOSX_GAME_FILES})
+
 	# Configure shaders
 	# Collect all shaders
-	FILE(GLOB_RECURSE SHADERS
+	FILE(GLOB_RECURSE MACOSX_SHADER_FILES
 	    "${CMAKE_SOURCE_DIR}/resources/shader/*.fragsh"
 	    "${CMAKE_SOURCE_DIR}/resources/shader/*.vertsh"
 	)
 
-	SET(MACOSX_SHADER_FILES ${SHADERS})
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
 	SET(SOURCE ${SOURCE} ${MACOSX_SHADER_FILES})
 ENDIF()
@@ -124,6 +132,11 @@ IF(APPLE)
 ENDIF()
 
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	# Copy game files to resources directory
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/games/*" $<TARGET_FILE_DIR:TrenchBroom>/Resources/
+	)
+
 	# Copy shader files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/shader" $<TARGET_FILE_DIR:TrenchBroom>/Resources/shader

@@ -77,7 +77,7 @@ namespace TrenchBroom {
             static const List EmptyList;
 
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
-            typedef VertexSpec::VertexType Vertex;
+            typedef VertexSpec::Vertex Vertex;
             typedef Renderer::Mesh<Texture::Ptr, VertexSpec> Mesh;
             static const String NoTextureName;
         private:

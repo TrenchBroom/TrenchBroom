@@ -36,9 +36,9 @@ namespace TrenchBroom {
         const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
                                                    Vec3(+16384.0, +16384.0, +16384.0));
         
-        static IO::Path palettePath() {
+        IO::Path QuakeGame::palettePath() {
             IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("QuakePalette.lmp");
+            return fs.resourceDirectory() + IO::Path("quake/palette.lmp");
         }
 
         QuakeGame::QuakeGame() :
