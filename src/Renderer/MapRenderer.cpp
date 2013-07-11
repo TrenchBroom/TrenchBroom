@@ -37,7 +37,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         struct BuildBrushEdges {
-            VP3::List vertices;
+            VertexSpecs::P3::VertexType::List vertices;
             inline void operator()(Model::Brush::Ptr brush) {
                 brush->addEdges(vertices);
             }

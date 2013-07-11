@@ -48,7 +48,7 @@ namespace TrenchBroom {
             void render(RenderContext& context, bool grayScale, const Color* tintColor);
             void renderOpaqueFaces(ActiveShader& shader, const bool applyTexture);
             void renderTransparentFaces(ActiveShader& shader, const bool applyTexture);
-            void renderFaces(RendererMap& renderers, const ActiveShader& shader, const bool applyTexture);
+            void renderFaces(RendererMap& renderers, ActiveShader& shader, const bool applyTexture);
         };
     }
 }

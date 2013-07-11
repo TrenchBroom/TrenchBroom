@@ -24,6 +24,8 @@
 #include "SharedPointer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -95,15 +97,15 @@ namespace TrenchBroom {
             IndexArray m_indices;
             CountArray m_counts;
         public:
-            template <typename VertexSpec>
-            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const typename VertexSpec::VertexType::List& vertices) :
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const std::vector<Vertex<A1, A2, A3, A4, A5> >& vertices) :
             m_primType(primType),
-            m_vertexArray(VertexArray::Ptr(new VertexArrayT<VertexSpec>(vbo, vertices))) {}
+            m_vertexArray(VertexArray::Ptr(new VertexArrayT<typename Vertex<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))) {}
             
-            template <typename VertexSpec>
-            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const typename VertexSpec::VertexType::List& vertices, const IndexArray& indices, const CountArray& counts) :
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const std::vector<Vertex<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
-            m_vertexArray(VertexArray::Ptr(new VertexArrayT<VertexSpec>(vbo, vertices))),
+            m_vertexArray(VertexArray::Ptr(new VertexArrayT<typename Vertex<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {}
 

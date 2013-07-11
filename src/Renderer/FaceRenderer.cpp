@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         FaceRenderer::FaceRenderer(Vbo& vbo, const Model::BrushFace::Mesh& mesh, const Color& faceColor) :
-        m_renderers(mesh.triangleSetRenderers(vbo, VertexSpec::P3N3T2())),
+        m_renderers(mesh.triangleSetRenderers(vbo)),
         m_faceColor(faceColor) {}
 
         void FaceRenderer::render(RenderContext& context, const bool grayScale) {
