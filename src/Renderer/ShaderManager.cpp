@@ -118,12 +118,12 @@ namespace TrenchBroom {
             return *shader;
         }
 
-        ActivateShader::ActivateShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
+        ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
         m_program(shaderManager.program(shaderConfig)) {
             m_program.activate();
         }
         
-        ActivateShader::~ActivateShader() {
+        ActiveShader::~ActiveShader() {
             m_program.deactivate();
         }
     }

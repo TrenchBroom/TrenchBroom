@@ -17,37 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Color_h
-#define TrenchBroom_Color_h
+#include "VertexSpec.h"
 
-#include "Vec.h"
-
-class Color : public Vec<float, 4> {
-public:
-    Color() :
-    Vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
-    
-    Color(const float r, const float g, const float b, const float a) :
-    Vec<float, 4>(r, g, b, a) {}
-    
-    Color(const std::string& str) :
-    Vec<float, 4>(str) {}
-    
-    inline float r() const {
-        return x();
+namespace TrenchBroom {
+    namespace Renderer {
     }
-
-    inline float g() const {
-        return y();
-    }
-
-    inline float b() const {
-        return z();
-    }
-
-    inline float a() const {
-        return w();
-    }
-};
-
-#endif
+}

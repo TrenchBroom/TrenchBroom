@@ -19,6 +19,7 @@
 
 #include "WadTextureLoader.h"
 
+#include "Color.h"
 #include "Exceptions.h"
 #include "GL/GL.h"
 #include "IO/Wad.h"
@@ -27,6 +28,9 @@
 
 namespace TrenchBroom {
     namespace IO {
+        WadTextureLoader::WadTextureLoader(const Model::Palette& palette) :
+        m_palette(palette) {}
+
         Model::TextureCollection::Ptr WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
@@ -45,6 +49,10 @@ namespace TrenchBroom {
         }
 
         void WadTextureLoader::doUploadTextureCollection(Model::TextureCollection::Ptr collection) {
+            Model::Palette::TextureBuffer buffer;
+            buffer.resize(InitialBufferSize);
+            Color averageColor;
+            
             const IO::Path& path = collection->path();
             Wad wad(path);
 
@@ -74,12 +82,16 @@ namespace TrenchBroom {
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                
                 for (size_t i = 1; i <= 4; ++i) {
                     const MipData mipData = wad.mipData(entry, i);
+                    m_palette.indexedToRgb(mipData.begin, texture->width() * texture->height(), buffer, averageColor);
+                    if (i == 1)
+                        texture->setAverageColor(averageColor);
                     glTexImage2D(GL_TEXTURE_2D, i - 1, GL_RGBA,
                                  static_cast<GLsizei>(texture->width()),
                                  static_cast<GLsizei>(texture->height()),
-                                 0, GL_RGB, GL_UNSIGNED_BYTE, mipData.begin);
+                                 0, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
                 }
                 glBindTexture(GL_TEXTURE_2D, 0);
             }

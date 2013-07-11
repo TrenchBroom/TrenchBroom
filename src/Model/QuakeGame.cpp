@@ -29,13 +29,21 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
-                                                   Vec3(+16384.0, +16384.0, +16384.0));
-        
         Game::Ptr QuakeGame::newGame() {
             return Ptr(new QuakeGame());
         }
 
+        const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
+                                                   Vec3(+16384.0, +16384.0, +16384.0));
+        
+        static IO::Path palettePath() {
+            IO::FileSystem fs;
+            return fs.resourceDirectory() + IO::Path("QuakePalette.lmp");
+        }
+
+        QuakeGame::QuakeGame() :
+        m_palette(palettePath()) {}
+        
         Map::Ptr QuakeGame::doLoadMap(const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
@@ -68,12 +76,12 @@ namespace TrenchBroom {
         }
 
         TextureCollection::Ptr QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
-            IO::WadTextureLoader loader;
+            IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
 
         void QuakeGame::doUploadTextureCollection(TextureCollection::Ptr collection) const {
-            IO::WadTextureLoader loader;
+            IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
         }
     }

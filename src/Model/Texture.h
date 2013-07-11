@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Texture__
 #define __TrenchBroom__Texture__
 
+#include "Color.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "GL/GL.h"
@@ -35,6 +36,7 @@ namespace TrenchBroom {
             typedef std::vector<Ptr> List;
         private:
             GLuint m_textureId;
+            Color m_averageColor;
             String m_name;
             size_t m_width;
             size_t m_height;
@@ -46,6 +48,8 @@ namespace TrenchBroom {
 
             GLuint textureId() const;
             void setTextureId(const GLuint textureId);
+            const Color& averageColor() const;
+            void setAverageColor(const Color& averageColor);
             const String& name() const;
             size_t width() const;
             size_t height() const;
@@ -54,6 +58,9 @@ namespace TrenchBroom {
             void decUsageCount();
             bool isOverridden() const;
             void setOverridden(const bool overridden);
+            
+            void activate();
+            void deactivate();
         private:
             Texture(const String& name, const size_t width, const size_t height);
         };

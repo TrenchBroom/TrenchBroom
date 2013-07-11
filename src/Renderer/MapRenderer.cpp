@@ -31,8 +31,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArrayRenderer.h"
 
 namespace TrenchBroom {
@@ -129,28 +128,27 @@ namespace TrenchBroom {
             const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
             const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
             const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
+
+            typedef VertexSpecs::P3C4::VertexType Vertex;
+            Vertex::List vertices;
             
-            VP3C4::List vertices;
-            vertices.push_back(VP3C4(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(VP3C4(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(VP3C4(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
-            vertices.push_back(VP3C4(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
-            vertices.push_back(VP3C4(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
-            vertices.push_back(VP3C4(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
+            vertices.push_back(Vertex(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(Vertex(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
+            
+            VertexArrayRenderer renderer(m_auxVbo, GL_LINES, vertices);
             
             SetVboState setVboState(m_auxVbo);
-            setVboState.mapped();
-            
-            VertexArray vertexArray(m_auxVbo, vertices);
-            VertexArrayRenderer renderer(VertexSpec::P3C4(), GL_LINES, vertexArray);
-            
             setVboState.active();
             renderer.render();
         }
 
         void MapRenderer::renderEdges(RenderContext& context) {
             ShaderManager& shaderManager = context.shaderManager();
-            ActivateShader edgeShader(shaderManager, Shaders::EdgeShader);
+            ActiveShader edgeShader(shaderManager, Shaders::EdgeShader);
             edgeShader.set("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
             
             SetVboState activateVbo(m_edgeVbo);

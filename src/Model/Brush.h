@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "Model/BrushFace.h"
 #include "Model/Object.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 
 #include <vector>
 
@@ -37,6 +37,8 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<Brush> Ptr;
             typedef std::vector<Brush::Ptr> List;
             static const List EmptyList;
+            typedef Renderer::VertexSpecs::P3 VertexSpec;
+            typedef VertexSpec::VertexType Vertex;
         private:
             BrushFace::List m_faces;
             BrushGeometry* m_geometry;
@@ -58,7 +60,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void addEdges(Renderer::VP3::List& vertices) const;
+            void addEdges(Vertex::List& vertices) const;
         private:
             void rebuildGeometry(const BBox3& worldBounds);
         };

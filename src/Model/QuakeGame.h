@@ -22,15 +22,21 @@
 
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/Palette.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
         class QuakeGame : public Game {
+        private:
+            Model::Palette m_palette;
         public:
             static Ptr newGame();
         private:
             static const BBox3 WorldBounds;
+            static IO::Path palettePath();
+            QuakeGame();
+            
             Map::Ptr doLoadMap(const IO::Path& path) const;
             IO::Path::List doExtractTexturePaths(Model::Map::Ptr map) const;
             TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const;

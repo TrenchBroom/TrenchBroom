@@ -84,12 +84,12 @@ namespace TrenchBroom {
             Shader& loadShader(const String& name, const GLenum type);
         };
 
-        class ActivateShader {
+        class ActiveShader {
         private:
             ShaderProgram& m_program;
         public:
-            ActivateShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
-            ~ActivateShader();
+            ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
+            ~ActiveShader();
             
             template <class T>
             void set(const String& name, const T& value) {

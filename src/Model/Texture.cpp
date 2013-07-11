@@ -41,6 +41,14 @@ namespace TrenchBroom {
             m_textureId = textureId;
         }
 
+        const Color& Texture::averageColor() const {
+            return m_averageColor;
+        }
+        
+        void Texture::setAverageColor(const Color& averageColor) {
+            m_averageColor = averageColor;
+        }
+
         const String& Texture::name() const {
             return m_name;
         }
@@ -72,6 +80,14 @@ namespace TrenchBroom {
         
         void Texture::setOverridden(const bool overridden) {
             m_overridden = overridden;
+        }
+
+        void Texture::activate() {
+            glBindTexture(GL_TEXTURE_2D, m_textureId);
+        }
+        
+        void Texture::deactivate() {
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         Texture::Texture(const String& name, const size_t width, const size_t height) :

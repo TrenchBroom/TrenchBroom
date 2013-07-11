@@ -22,17 +22,41 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Model/Texture.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceGeometry;
+        class BrushFace;
         
+        class TextureCoordinateSystem {
+        private:
+            static const Vec3 BaseAxes[18];
+            
+            BrushFace* m_face;
+            mutable bool m_valid;
+            mutable size_t m_texPlaneNormIndex;
+            mutable size_t m_texFaceNormIndex;
+            mutable Vec3 m_texAxisX;
+            mutable Vec3 m_texAxisY;
+            mutable Vec3 m_scaledTexAxisX;
+            mutable Vec3 m_scaledTexAxisY;
+        public:
+            TextureCoordinateSystem(BrushFace* face);
+            Vec2f textureCoordinates(const Vec3& vertex) const;
+            void invalidate();
+        private:
+            void validate() const;
+            void axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const;
+            void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const;
+        };
+
         class BrushFace {
         public:
             /*
@@ -48,10 +72,13 @@ namespace TrenchBroom {
             typedef Vec3 Points[3];
             
             typedef std::tr1::shared_ptr<BrushFace> Ptr;
+            typedef std::tr1::weak_ptr<BrushFace> WkPtr;
             typedef std::vector<BrushFace::Ptr> List;
             static const List EmptyList;
 
-            typedef Renderer::Mesh<String, Renderer::VP3N3T2> Mesh;
+            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
+            typedef VertexSpec::VertexType Vertex;
+            typedef Renderer::Mesh<Texture::Ptr, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
             BrushFace::Points m_points;
@@ -67,6 +94,7 @@ namespace TrenchBroom {
             
             Texture::Ptr m_texture;
             BrushFaceGeometry* m_side;
+            TextureCoordinateSystem m_textureCoordinateSystem;
         private:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
@@ -76,6 +104,7 @@ namespace TrenchBroom {
             bool arePointsOnPlane(const Plane3& plane) const;
             
             const String& textureName() const;
+            Texture::Ptr texture() const;
             const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;

@@ -20,66 +20,69 @@
 #ifndef __TrenchBroom__VertexArrayRenderer__
 #define __TrenchBroom__VertexArrayRenderer__
 
-#include "Renderer/VertexArray.h"
+#include "GL/GL.h"
+#include "SharedPointer.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VboBlock.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class AttributeSpec {
+        class VertexArray {
         public:
-            typedef enum {
-                User,
-                Position,
-                Normal,
-                Color,
-                TexCoord0,
-                TexCoord1,
-                TexCoord2,
-                TexCoord3
-            } AttributeType;
-        private:
-            AttributeType m_attributeType;
-            GLenum m_dataType;
-            GLint m_size;
-        public:
-            AttributeSpec(const AttributeType attributeType, const GLenum dataType, const GLint size);
+            typedef std::tr1::shared_ptr<VertexArray> Ptr;
+            virtual ~VertexArray() {}
             
-            static const AttributeSpec& P2();
-            static const AttributeSpec& P3();
-            static const AttributeSpec& N3();
-            static const AttributeSpec& C4();
-            static const AttributeSpec& T02();
-
-            AttributeType attributeType() const;
-            GLenum dataType() const;
-            GLint size() const;
-            size_t sizeInBytes() const;
-            
-            void setup(const size_t index, const size_t stride, const size_t offset) const;
-            void cleanup(const size_t index) const;
+            virtual size_t size() const = 0;
+            virtual void setup() = 0;
+            virtual void cleanup() = 0;
         };
         
-        class VertexSpec {
-        private:
-            typedef std::vector<AttributeSpec> AttributeSpecList;
-            AttributeSpecList m_attributeSpecs;
-            size_t m_totalSize;
+        template <typename VertexSpec>
+        class VertexArrayT : public VertexArray {
         public:
-            VertexSpec();
-            VertexSpec(const AttributeSpec& attributeSpec1);
-            VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2);
-            VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2, const AttributeSpec& attributeSpec3);
-            VertexSpec(const AttributeSpec& attributeSpec1, const AttributeSpec& attributeSpec2, const AttributeSpec& attributeSpec3, const AttributeSpec& attributeSpec4);
+            typedef typename VertexSpec::VertexType::List VertexList;
+        private:
+            Vbo& m_vbo;
+            VboBlock* m_block;
             
-            static const VertexSpec P3();
-            static const VertexSpec P3C4();
-            static const VertexSpec P3T2();
-            static const VertexSpec P3N3T2();
+            VertexList m_vertices;
+            size_t m_size;
+        public:
+            VertexArrayT(Vbo& vbo, const VertexList& vertices) :
+            m_vbo(vbo),
+            m_block(NULL),
+            m_vertices(vertices),
+            m_size(m_vertices.size()) {}
             
-            const AttributeSpec& operator[] (const size_t index) const;
-            size_t size() const;
+            ~VertexArrayT() {
+                if (m_block != NULL) {
+                    m_block->free();
+                    m_block = NULL;
+                }
+            }
             
-            void setup(const size_t baseOffset) const;
-            void cleanup() const;
+            inline size_t size() const {
+                return m_size;
+            }
+            
+            inline void setup() {
+                assert(m_size > 0);
+                if (m_block == NULL) {
+                    const size_t capacity = VertexSpec::Size * m_vertices.size();
+                    m_block = m_vbo.allocateBlock(capacity);
+                    
+                    SetVboState mapVbo(m_vbo);
+                    mapVbo.mapped();
+                    m_block->writeBuffer(0, m_vertices);
+                    m_vertices.resize(0);
+                }
+                
+                VertexSpec::setup(m_block->offset());
+            }
+            
+            inline void cleanup() {
+                VertexSpec::cleanup();
+            }
         };
         
         class VertexArrayRenderer {
@@ -87,27 +90,23 @@ namespace TrenchBroom {
             typedef std::vector<GLint> IndexArray;
             typedef std::vector<GLsizei> CountArray;
         private:
-            VertexSpec m_vertexSpec;
             GLenum m_primType;
-            VertexArray m_vertexArray;
+            VertexArray::Ptr m_vertexArray;
             IndexArray m_indices;
             CountArray m_counts;
         public:
-            VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType);
-            VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType, VertexArray& vertexArray);
-            VertexArrayRenderer(const VertexSpec& vertexSpec, const GLenum primType, VertexArray& vertexArray, const IndexArray& indices, const CountArray& counts);
-            VertexArrayRenderer(VertexArrayRenderer& other);
+            template <typename VertexSpec>
+            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const typename VertexSpec::VertexType::List& vertices) :
+            m_primType(primType),
+            m_vertexArray(VertexArray::Ptr(new VertexArrayT<VertexSpec>(vbo, vertices))) {}
             
-            VertexArrayRenderer& operator= (VertexArrayRenderer other);
-            inline friend void swap(VertexArrayRenderer& left, VertexArrayRenderer& right) {
-                using std::swap;
-                swap(left.m_vertexSpec, right.m_vertexSpec);
-                swap(left.m_primType, right.m_primType);
-                swap(left.m_vertexArray, right.m_vertexArray);
-                swap(left.m_indices, right.m_indices);
-                swap(left.m_counts, right.m_counts);
-            }
-            
+            template <typename VertexSpec>
+            explicit VertexArrayRenderer(Vbo& vbo, const GLenum primType, const typename VertexSpec::VertexType::List& vertices, const IndexArray& indices, const CountArray& counts) :
+            m_primType(primType),
+            m_vertexArray(VertexArray::Ptr(new VertexArrayT<VertexSpec>(vbo, vertices))),
+            m_indices(indices),
+            m_counts(counts) {}
+
             void render();
         };
     }
