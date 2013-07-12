@@ -134,7 +134,7 @@ ENDIF()
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Copy game files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/games/*" $<TARGET_FILE_DIR:TrenchBroom>/Resources/
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/games/" $<TARGET_FILE_DIR:TrenchBroom>/Resources/
 	)
 
 	# Copy shader files to resources directory

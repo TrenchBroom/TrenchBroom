@@ -48,7 +48,8 @@ namespace TrenchBroom {
             mutable Vec3 m_scaledTexAxisX;
             mutable Vec3 m_scaledTexAxisY;
         public:
-            TextureCoordinateSystem(BrushFace* face);
+            TextureCoordinateSystem();
+            void setFace(BrushFace* face);
             Vec2f textureCoordinates(const Vec3& vertex) const;
             void invalidate();
         private:

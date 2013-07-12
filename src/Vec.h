@@ -75,7 +75,7 @@ public:
     class LexicographicOrder {
     public:
         inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            for (size_t i = 0; i < S; i++) {
+            for (size_t i = 0; i < S; ++i) {
                 if (Math<T>::lt(lhs[i], rhs[i]))
                     return true;
                 if (Math<T>::gt(lhs[i], rhs[i]))
@@ -146,7 +146,7 @@ public:
         size_t pos = 0;
         std::string blank = " \t\n\r";
         
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
                 return;
             v[i] = static_cast<T>(std::atof(cstr + pos));
@@ -158,7 +158,7 @@ public:
     Vec(const T i_x) {
         if (S > 0)
             v[0] = i_x;
-        for (size_t i = 1; i < S; i++)
+        for (size_t i = 1; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
             
@@ -167,7 +167,7 @@ public:
             v[0] = i_x;
         if (S > 1)
             v[1] = i_y;
-        for (size_t i = 2; i < S; i++)
+        for (size_t i = 2; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
@@ -178,7 +178,7 @@ public:
             v[1] = i_y;
         if (S > 2)
             v[2] = i_z;
-        for (size_t i = 3; i < S; i++)
+        for (size_t i = 3; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
@@ -191,32 +191,32 @@ public:
             v[2] = i_z;
         if (S > 3)
             v[3] = i_w;
-        for (size_t i = 4; i < S; i++)
+        for (size_t i = 4; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
     template <size_t O>
     Vec(const Vec<T,O>& vec) {
-        for (size_t i = 0; i < std::min(S,O); i++)
+        for (size_t i = 0; i < std::min(S,O); ++i)
             v[i] = vec[i];
-        for (size_t i = std::min(S,O); i < S; i++)
+        for (size_t i = std::min(S,O); i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
     template <size_t O>
     Vec(const Vec<T,O>& vec, const T last) {
-        for (size_t i = 0; i < std::min(S-1,O); i++)
+        for (size_t i = 0; i < std::min(S-1,O); ++i)
             v[i] = vec[i];
-        for (size_t i = std::min(S-1, O); i < S-1; i++)
+        for (size_t i = std::min(S-1, O); i < S-1; ++i)
             v[i] = static_cast<T>(0.0);
         v[S-1] = last;
     }
     
     template <size_t O>
     Vec(const Vec<T,O>& vec, const T oneButLast, const T last) {
-        for (size_t i = 0; i < std::min(S-2,O); i++)
+        for (size_t i = 0; i < std::min(S-2,O); ++i)
             v[i] = vec[i];
-        for (size_t i = std::min(S-2, O); i < S-2; i++)
+        for (size_t i = std::min(S-2, O); i < S-2; ++i)
             v[i] = static_cast<T>(0.0);
         v[S-2] = oneButLast;
         v[S-1] = last;
@@ -225,13 +225,13 @@ public:
     template <typename U>
     inline operator Vec<U,S>() const {
         Vec<U,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = static_cast<U>(v[i]);
         return result;
     }
     
     inline bool operator== (const Vec<T,S>& right) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (v[i] != right[i])
                 return false;
         return true;
@@ -243,68 +243,68 @@ public:
     
     template <size_t O>
     inline Vec<T,S>& operator= (const Vec<T,O>& right) {
-        for (size_t i = 0; i < std::min(S,O); i++)
+        for (size_t i = 0; i < std::min(S,O); ++i)
             v[i] = right[i];
-        for (size_t i = std::min(S,O); i < S; i++)
+        for (size_t i = std::min(S,O); i < S; ++i)
             v[i] = static_cast<T>(0.0);
         return *this;
     }
     
     inline const Vec<T,S> operator- () const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
         return result;
     }
 
     inline const Vec<T,S> operator+ (const Vec<T,S>& right) const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = v[i] + right[i];
         return result;
     }
     
     inline const Vec<T,S> operator- (const Vec<T,S>& right) const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = v[i] - right[i];
         return result;
     }
     
     inline const Vec<T,S> operator* (const T right) const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right;
         return result;
     }
     
     inline const Vec<T,S> operator/ (const T right) const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right;
         return result;
     }
     
     inline Vec<T,S>& operator+= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] += right[i];
         return *this;
     }
     
     inline Vec<T,S>& operator-= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] -= right[i];
         return *this;
     }
     
     inline Vec<T,S>& operator*= (const T right) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] *= right;
         return *this;
     }
     
     inline Vec<T,S>& operator/= (const T right) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] /= right;
         return *this;
     }
@@ -353,14 +353,14 @@ public:
             
     inline Vec<T,S-1> overLast() const {
         Vec<T,S-1> result;
-        for (size_t i = 0; i < S-1; i++)
+        for (size_t i = 0; i < S-1; ++i)
             result[i] = v[i] / v[S-1];
         return result;
     }
 
     inline const T dot(const Vec<T,S>& right) const {
         T result = static_cast<T>(0.0);
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result += (v[i] * right[i]);
         return result;
     }
@@ -391,7 +391,7 @@ public:
     }
     
     inline bool equals(const Vec<T,S>& other, const T epsilon = Math<T>::AlmostZero) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)
                 return false;
         return true;
@@ -400,19 +400,19 @@ public:
     inline bool null() const {
         return equals(Null, Math<T>::AlmostZero);
     }
-    
+
     inline void setNull() {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
             
     inline void set(const T value) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] = value;
     }
     
     inline bool nan() const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (!Math<T>::isnan(v[i]))
                 return false;
         return true;
@@ -431,7 +431,7 @@ public:
         
         if (k == 0) {
             size_t index = 0;
-            for (size_t i = 1; i < S; i++) {
+            for (size_t i = 1; i < S; ++i) {
                 if (std::abs(v[i]) > std::abs(v[index]))
                     index = i;
             }
@@ -442,7 +442,7 @@ public:
         // we store the indices of the values in heap
         SelectionHeapCmp cmp(*this, true);
         std::vector<size_t> heap;
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             heap.push_back(i);
             std::push_heap(heap.begin(), heap.end(), cmp);
         }
@@ -501,7 +501,7 @@ public:
     }
     
     void write(std::ostream& str) const {
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             str << v[i];
             if (i < S - 1)
                 str << ' ';
@@ -515,7 +515,7 @@ public:
     }
             
     inline Vec<T,S>& makeAbsolute() {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] = std::abs(v[i]);
         return *this;
     }
@@ -525,7 +525,7 @@ public:
     }
     
     inline Vec<T,S>& round() {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] = Math<T>::round(v[i]);
         return *this;
     }
@@ -535,14 +535,14 @@ public:
     }
     
     inline bool isInteger(const T epsilon = Math<T>::AlmostZero) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - Math<T>::round(v[i])) > epsilon)
                 return false;
         return true;
     }
     
     inline Vec<T,S>& correct(const T epsilon = Math<T>::CorrectEpsilon) {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             v[i] = Math<T>::correct(v[i], epsilon);
         return *this;
     }

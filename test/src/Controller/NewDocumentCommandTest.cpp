@@ -21,15 +21,18 @@
 
 #include "Controller/NewDocumentCommand.h"
 #include "IO/Path.h"
+#include "Model/MockGame.h"
 #include "Model/Map.h"
-#include "Model/QuakeGame.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
         TEST(NewDocumentCommandTest, newDocumentInEmptyDocument) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
             ASSERT_FALSE(command->undoable());
@@ -39,9 +42,18 @@ namespace TrenchBroom {
         }
 
         TEST(NewDocumentCommandTest, newDocumentInExistingDocument) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+
+            const IO::Path path("data/Controller/NewDocumentCommandTest/Cube.map");
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
+
+            Model::Map::Ptr map = Model::Map::newMap();
+            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
-            doc->openDocument(game, IO::Path("data/Controller/NewDocumentCommandTest/Cube.map"));
+            doc->openDocument(game, path);
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
             ASSERT_FALSE(command->undoable());
@@ -49,9 +61,8 @@ namespace TrenchBroom {
             ASSERT_EQ(IO::Path("unnamed.map"), doc->path());
             ASSERT_FALSE(doc->modified());
             
-            Model::Map::Ptr map = doc->map();
-            ASSERT_TRUE(map->entities().empty());
-            ASSERT_TRUE(map->worldspawn() == NULL);
+            ASSERT_TRUE(doc->map()->entities().empty());
+            ASSERT_TRUE(doc->map()->worldspawn() == NULL);
         }
     }
 }

@@ -22,6 +22,7 @@
 
 #include "IO/Path.h"
 #include "IO/WadTextureLoader.h"
+#include "Model/Palette.h"
 #include "Model/Texture.h"
 #include "Model/TextureCollection.h"
 
@@ -60,9 +61,10 @@ namespace TrenchBroom {
                 EXPECT_CALL(*GLMock, BindTexture(GL_TEXTURE_2D, 0));
             }
             
-            const Path wadPath("data/IO/Wad/cr8_czg.wad");
+            const Model::Palette palette(Path("data/palette.lmp"));
+            WadTextureLoader loader(palette);
             
-            WadTextureLoader loader;
+            const Path wadPath("data/IO/Wad/cr8_czg.wad");
             Model::TextureCollection::Ptr collection = loader.loadTextureCollection(wadPath);
             
             const Model::Texture::List& textures = collection->textures();

@@ -474,8 +474,8 @@ inline const Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up
 // The returned matrix will rotate any point counter-clockwise about the given axis by the given angle (in radians).
 template <typename T>
 inline const Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
-    const T s = sinf(-angle);
-    const T c = cosf(-angle);
+    const T s = std::sin(-angle);
+    const T c = std::cos(-angle);
     const T i = static_cast<T>(1.0 - c);
     
     const T ix  = i  * axis[0];

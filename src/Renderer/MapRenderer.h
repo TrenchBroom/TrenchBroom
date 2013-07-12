@@ -23,7 +23,7 @@
 #include "Controller/Command.h"
 #include "Model/Map.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VertexArrayRenderer.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             Vbo m_auxVbo;
             Vbo m_edgeVbo;
-            VertexArrayRenderer m_edgeRenderer;
+            VertexArray m_edgeArray;
         public:
             MapRenderer();
             

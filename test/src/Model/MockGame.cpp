@@ -17,28 +17,12 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Game.h"
+#include "MockGame.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Ptr Game::loadMap(const IO::Path& path) const {
-            return doLoadMap(path);
+        MockGame::Ptr MockGame::newGame() {
+            return MockGame::Ptr(new MockGame());
         }
-
-        IO::Path::List Game::extractTexturePaths(Map::Ptr map) const {
-            return doExtractTexturePaths(map);
-        }
-
-        TextureCollection::Ptr Game::loadTextureCollection(const IO::Path& path) const {
-            return doLoadTextureCollection(path);
-        }
-
-        void Game::uploadTextureCollection(TextureCollection::Ptr collection) const {
-            doUploadTextureCollection(collection);
-        }
-
-        Game::Game() {}
-
-        Game::~Game() {}
     }
 }

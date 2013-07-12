@@ -32,7 +32,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexSpec.h"
-#include "Renderer/VertexArrayRenderer.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -138,11 +138,11 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
             vertices.push_back(Vertex(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
             
-            VertexArrayRenderer renderer(m_auxVbo, GL_LINES, vertices);
+            VertexArray array(m_auxVbo, GL_LINES, vertices);
             
             SetVboState setVboState(m_auxVbo);
             setVboState.active();
-            renderer.render();
+            array.render();
         }
 
         void MapRenderer::renderEdges(RenderContext& context) {
@@ -152,11 +152,11 @@ namespace TrenchBroom {
             
             SetVboState activateVbo(m_edgeVbo);
             activateVbo.active();
-            m_edgeRenderer.render();
+            m_edgeArray.render();
         }
 
         void MapRenderer::clearState() {
-            m_edgeRenderer = VertexArrayRenderer();
+            m_edgeArray = VertexArray();
         }
 
         void MapRenderer::loadMap(Model::Map::Ptr map) {
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
             
-            m_edgeRenderer = VertexArrayRenderer(m_edgeVbo, GL_LINES, buildEdges.vertices);
+            m_edgeArray = VertexArray(m_edgeVbo, GL_LINES, buildEdges.vertices);
         }
     }
 }

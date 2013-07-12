@@ -74,23 +74,23 @@ namespace TrenchBroom {
             glDepthMask(GL_TRUE);
         }
         
-        void FaceRenderer::renderFaces(RendererMap& renderers, ActiveShader& shader, const bool applyTexture) {
-            RendererMap::iterator it, end;
+        void FaceRenderer::renderFaces(VertexArrayMap& renderers, ActiveShader& shader, const bool applyTexture) {
+            VertexArrayMap::iterator it, end;
             for (it = renderers.begin(), end = renderers.end(); it != end; ++it) {
                 Model::Texture::Ptr texture = it->first;
-                VertexArrayRenderer& renderer = it->second;
+                VertexArray& array = it->second;
                 
                 if (texture != NULL) {
                     texture->activate();
                     shader.set("ApplyTexture", applyTexture);
                     shader.set("FaceTexture", 0);
                     shader.set("Color", texture->averageColor());
-                    renderer.render();
+                    array.render();
                     texture->deactivate();
                 } else {
                     shader.set("ApplyTexture", false);
                     shader.set("Color", m_faceColor);
-                    renderer.render();
+                    array.render();
                 }
             }
         }

@@ -20,7 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "IO/Path.h"
-#include "Model/QuakeGame.h"
+#include "Model/MockGame.h"
+#include "Model/Map.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 
@@ -29,8 +30,11 @@
 namespace TrenchBroom {
     namespace View {
         TEST(MapDocumentTest, newDocument) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
+
             MapDocument::Ptr document = MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
             document->newDocument(game);
             
             ASSERT_EQ(IO::Path("unnamed.map"), document->path());
@@ -38,11 +42,21 @@ namespace TrenchBroom {
         }
         
         TEST(MapDocumentTest, openDocument) {
-            MapDocument::Ptr document = MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
-            document->openDocument(game, IO::Path("data/View/FrameManager/TestDoc1.map"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
             
-            ASSERT_EQ(IO::Path("data/View/FrameManager/TestDoc1.map"), document->path());
+            const IO::Path path("data/View/FrameManager/TestDoc1.map");
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            
+            Model::Map::Ptr map = Model::Map::newMap();
+            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+
+            
+            MapDocument::Ptr document = MapDocument::newMapDocument();
+            document->openDocument(game, path);
+            
+            ASSERT_EQ(path, document->path());
             ASSERT_EQ(String("TestDoc1.map"), document->filename());
         }
     }

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return parser.parseMap(WorldBounds);
         }
 
-        IO::Path::List QuakeGame::doExtractTexturePaths(Model::Map::Ptr map) const {
+        IO::Path::List QuakeGame::doExtractTexturePaths(Map::Ptr map) const {
             IO::Path::List paths;
             
             Entity::Ptr worldspawn = map->worldspawn();

@@ -35,12 +35,16 @@ namespace TrenchBroom {
             Vec3::NegY, Vec3::PosX, Vec3::NegZ
         };
         
-        TextureCoordinateSystem::TextureCoordinateSystem(BrushFace* face) :
-        m_face(face),
-        m_valid(false) {
-            assert(m_face != NULL);
-        }
+        TextureCoordinateSystem::TextureCoordinateSystem() :
+        m_face(NULL),
+        m_valid(false) {}
         
+        void TextureCoordinateSystem::setFace(BrushFace* face) {
+            assert(m_face == NULL);
+            assert(face != NULL);
+            m_face = face;
+        }
+
         Vec2f TextureCoordinateSystem::textureCoordinates(const Vec3& vertex) const {
             if (!m_valid)
                 validate();
@@ -49,8 +53,8 @@ namespace TrenchBroom {
             const size_t width = texture != NULL ? texture->width() : 1;
             const size_t height = texture != NULL ? texture->height() : 1;
             
-            const float x = (vertex.dot(m_scaledTexAxisX) + m_face->xOffset()) / width;
-            const float y = (vertex.dot(m_scaledTexAxisY) + m_face->yOffset()) / height;
+            const float x = static_cast<float>((vertex.dot(m_scaledTexAxisX) + m_face->xOffset()) / width);
+            const float y = static_cast<float>((vertex.dot(m_scaledTexAxisY) + m_face->yOffset()) / height);
             return Vec2f(x, y);
         }
         
@@ -98,8 +102,8 @@ namespace TrenchBroom {
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
         m_textureName(textureName),
-        m_side(NULL),
-        m_textureCoordinateSystem(this) {
+        m_side(NULL) {
+            m_textureCoordinateSystem.setFace(this);
             setPoints(point0, point1, point2);
         }
         

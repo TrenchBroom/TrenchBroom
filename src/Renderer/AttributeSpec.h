@@ -68,7 +68,6 @@ namespace TrenchBroom {
         };
         
         typedef enum {
-            ATNone,
             ATUser,
             ATPosition,
             ATNormal,
@@ -239,7 +238,6 @@ namespace TrenchBroom {
         };
         
         namespace AttributeSpecs {
-            typedef AttributeSpec<ATNone, GL_FLOAT, 0> Empty;
             typedef AttributeSpec<ATPosition, GL_FLOAT, 3> P3;
             typedef AttributeSpec<ATNormal, GL_FLOAT, 3> N;
             typedef AttributeSpec<ATTexCoord0, GL_FLOAT, 2> T02;

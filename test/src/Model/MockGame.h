@@ -17,32 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeGame__
-#define __TrenchBroom__QuakeGame__
+#ifndef __TrenchBroom__MockGame__
+#define __TrenchBroom__MockGame__
 
+#include "SharedPointer.h"
+#include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
-#include "Model/Palette.h"
-#include "VecMath.h"
+#include "Model/TextureCollection.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class QuakeGame : public Game {
-        private:
-            Model::Palette m_palette;
+        class MockGame : public Game {
         public:
+            typedef std::tr1::shared_ptr<MockGame> Ptr;
             static Ptr newGame();
-        private:
-            static const BBox3 WorldBounds;
-            static IO::Path palettePath();
-            QuakeGame();
-            
-            Map::Ptr doLoadMap(const IO::Path& path) const;
-            IO::Path::List doExtractTexturePaths(Map::Ptr map) const;
-            TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(TextureCollection::Ptr collection) const;
+
+            MOCK_CONST_METHOD1(doLoadMap, Map::Ptr(const IO::Path&));
+            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(Map::Ptr));
+            MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollection::Ptr(const IO::Path&));
+            MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollection::Ptr));
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeGame__) */
+#endif /* defined(__TrenchBroom__MockGame__) */

@@ -22,31 +22,145 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        template <typename A1>
+        class VertexSpec1;
+        template <typename A1, typename A2>
+        class VertexSpec2;
+        template <typename A1, typename A2, typename A3>
+        class VertexSpec3;
+        template <typename A1, typename A2, typename A3, typename A4>
+        class VertexSpec4;
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
-        class VertexSpec;
+        class VertexSpec5;
         
+        template <typename A1>
+        class Vertex1 {
+        public:
+            typedef VertexSpec1<A1> Spec;
+            typedef std::vector<Vertex1<A1> > List;
+            
+            typename A1::ElementType v1;
+            
+            Vertex1() {}
+
+            Vertex1(const typename A1::ElementType& i_v1) :
+            v1(i_v1) {}
+            
+            inline bool operator==(const Vertex1<A1>& other) const {
+                return v1 == other.v1;
+            }
+        };
+        
+        template <typename A1, typename A2>
+        class Vertex2 {
+        public:
+            typedef VertexSpec2<A1, A2> Spec;
+            typedef std::vector<Vertex2<A1, A2> > List;
+            
+            typename A1::ElementType v1;
+            typename A2::ElementType v2;
+            
+            Vertex2() {}
+
+            Vertex2(const typename A1::ElementType& i_v1,
+                    const typename A2::ElementType& i_v2) :
+            v1(i_v1),
+            v2(i_v2) {}
+            
+            inline bool operator==(const Vertex2<A1, A2>& other) const {
+                return (v1 == other.v1 &&
+                        v2 == other.v2);
+            }
+        };
+        
+        template <typename A1, typename A2, typename A3>
+        class Vertex3 {
+        public:
+            typedef VertexSpec3<A1, A2, A3> Spec;
+            typedef std::vector<Vertex3<A1, A2, A3> > List;
+            
+            typename A1::ElementType v1;
+            typename A2::ElementType v2;
+            typename A3::ElementType v3;
+            
+            Vertex3() {}
+            
+            Vertex3(const typename A1::ElementType& i_v1,
+                    const typename A2::ElementType& i_v2,
+                    const typename A3::ElementType& i_v3) :
+            v1(i_v1),
+            v2(i_v2),
+            v3(i_v3) {}
+            
+            inline bool operator==(const Vertex3<A1, A2, A3>& other) const {
+                return (v1 == other.v1 &&
+                        v2 == other.v2 &&
+                        v3 == other.v3);
+            }
+        };
+        
+        template <typename A1, typename A2, typename A3, typename A4>
+        class Vertex4 {
+        public:
+            typedef VertexSpec4<A1, A2, A3, A4> Spec;
+            typedef std::vector<Vertex4<A1, A2, A3, A4> > List;
+            
+            typename A1::ElementType v1;
+            typename A2::ElementType v2;
+            typename A3::ElementType v3;
+            typename A4::ElementType v4;
+            
+            Vertex4() {}
+            
+            Vertex4(const typename A1::ElementType& i_v1,
+                    const typename A2::ElementType& i_v2,
+                    const typename A3::ElementType& i_v3,
+                    const typename A4::ElementType& i_v4) :
+            v1(i_v1),
+            v2(i_v2),
+            v3(i_v3),
+            v4(i_v4) {}
+            
+            inline bool operator==(const Vertex4<A1, A2, A3, A4>& other) const {
+                return (v1 == other.v1 &&
+                        v2 == other.v2 &&
+                        v3 == other.v3 &&
+                        v4 == other.v4);
+            }
+        };
+
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
-        class Vertex {
+        class Vertex5 {
         public:
-            typedef VertexSpec<A1, A2, A3, A4, A5> Spec;
-            typedef std::vector<Vertex<A1, A2, A3, A4, A5> > List;
-        private:
-            typename A1::ElementType m_v1;
-            typename A2::ElementType m_v2;
-            typename A3::ElementType m_v3;
-            typename A4::ElementType m_v4;
-            typename A5::ElementType m_v5;
-        public:
-            Vertex(const typename A1::ElementType& v1 = typename A1::ElementType(),
-                   const typename A2::ElementType& v2 = typename A2::ElementType(),
-                   const typename A3::ElementType& v3 = typename A3::ElementType(),
-                   const typename A4::ElementType& v4 = typename A4::ElementType(),
-                   const typename A5::ElementType& v5 = typename A5::ElementType()) :
-            m_v1(v1),
-            m_v2(v2),
-            m_v3(v3),
-            m_v4(v4),
-            m_v5(v5) {}
+            typedef VertexSpec5<A1, A2, A3, A4, A5> Spec;
+            typedef std::vector<Vertex5<A1, A2, A3, A4, A5> > List;
+
+            typename A1::ElementType v1;
+            typename A2::ElementType v2;
+            typename A3::ElementType v3;
+            typename A4::ElementType v4;
+            typename A5::ElementType v5;
+
+            Vertex5() {}
+            
+            Vertex5(const typename A1::ElementType& i_v1,
+                    const typename A2::ElementType& i_v2,
+                    const typename A3::ElementType& i_v3,
+                    const typename A4::ElementType& i_v4,
+                    const typename A5::ElementType& i_v5) :
+            v1(i_v1),
+            v2(i_v2),
+            v3(i_v3),
+            v4(i_v4),
+            v5(i_v5) {}
+            
+            inline bool operator==(const Vertex5<A1, A2, A3, A4, A5>& other) const {
+                return (v1 == other.v1 &&
+                        v2 == other.v2 &&
+                        v3 == other.v3 &&
+                        v4 == other.v4 &&
+                        v5 == other.v5);
+            }
         };
     }
 }

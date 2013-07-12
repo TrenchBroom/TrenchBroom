@@ -40,6 +40,7 @@ public:
     MOCK_METHOD3(TexParameterf, void(GLenum target, GLenum pname, GLfloat param));
     MOCK_METHOD3(TexParameteri, void(GLenum target, GLenum pname, GLint param));
     MOCK_METHOD9(TexImage2D, void(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data));
+    MOCK_METHOD1(ActiveTexture, void(GLenum texture));
     
     MOCK_METHOD2(GenBuffers, void(GLsizei n, GLuint* buffers));
     MOCK_METHOD2(DeleteBuffers, void(GLsizei n, GLuint* buffers));
@@ -135,6 +136,8 @@ extern CGLMock* GLMock;
 #define glTexParameteri             GLMock->TexParameteri
 #undef glTexImage2D
 #define glTexImage2D                GLMock->TexImage2D
+#undef glActiveTexture
+#define glActiveTexture             GLMock->ActiveTexture
 
 
 #undef glGenBuffers

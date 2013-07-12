@@ -23,49 +23,55 @@
 #include "IO/Path.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
-#include "Model/QuakeGame.h"
+#include "Model/MockGame.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
         TEST(OpenDocumentCommandTest, openDocumentInEmptyDocument) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
+
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
+            Model::Map::Ptr map = Model::Map::newMap();
+            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(path, doc->path());
             ASSERT_FALSE(doc->modified());
-
-            Model::Map::Ptr map = doc->map();
-            ASSERT_EQ(1u, map->entities().size());
-            
-            Model::Entity::Ptr entity = map->worldspawn();
-            ASSERT_TRUE(entity != NULL);
-            ASSERT_EQ(1u, entity->brushes().size());
+            ASSERT_EQ(map, doc->map());
         }
 
         TEST(OpenDocumentCommandTest, openDocumentInExistingDocument) {
-            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
-            const IO::Path path("data/Controller/OpenDocumentCommandTest/2Cubes.map");
-
-            doc->openDocument(game, IO::Path("data/Controller/OpenDocumentCommandTest/Cube.map"));
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
             
-            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path));
+            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");
+            const IO::Path path2("data/Controller/OpenDocumentCommandTest/Cube.map");
+
+            Model::Map::Ptr map1 = Model::Map::newMap();
+            Model::Map::Ptr map2 = Model::Map::newMap();
+            EXPECT_CALL(*game, doLoadMap(path1)).WillOnce(Return(map1));
+            EXPECT_CALL(*game, doExtractTexturePaths(map1)).WillOnce(Return(IO::Path::List()));
+            EXPECT_CALL(*game, doLoadMap(path2)).WillOnce(Return(map2));
+            EXPECT_CALL(*game, doExtractTexturePaths(map2)).WillOnce(Return(IO::Path::List()));
+
+            doc->openDocument(game, path1);
+            
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path2));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(path, doc->path());
+            ASSERT_EQ(path2, doc->path());
             ASSERT_FALSE(doc->modified());
-            
-            Model::Map::Ptr map = doc->map();
-            ASSERT_EQ(1u, map->entities().size());
-            
-            Model::Entity::Ptr entity = map->worldspawn();
-            ASSERT_TRUE(entity != NULL);
-            ASSERT_EQ(2u, entity->brushes().size());
+            ASSERT_EQ(map2, doc->map());
         }
     }
 }

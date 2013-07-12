@@ -17,29 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexArrayRenderer.h"
+#include "VertexArray.h"
 
 #include <cassert>
 #include <limits>
 
 namespace TrenchBroom {
     namespace Renderer {
-        void VertexArrayRenderer::render() {
-            assert(m_primType != GL_INVALID_ENUM);
+        void VertexArray::render() {
             assert(m_indices == m_counts);
-            if (m_vertexArray->size() == 0)
+            if (m_holder == NULL || m_holder->size() == 0)
                 return;
 
-            m_vertexArray->setup();
+            m_holder->setup();
             const size_t primCount = m_indices.size();
             if (primCount <= 1) {
-                glDrawArrays(m_primType, 0, static_cast<GLsizei>(m_vertexArray->size()));
+                glDrawArrays(m_primType, 0, static_cast<GLsizei>(m_holder->size()));
             } else {
                 const GLint* indexArray = &m_indices[0];
                 const GLsizei* countArray = &m_counts[0];
                 glMultiDrawArrays(m_primType, indexArray, countArray, static_cast<GLint>(primCount));
             }
-            m_vertexArray->cleanup();
+            m_holder->cleanup();
         }
 
     }

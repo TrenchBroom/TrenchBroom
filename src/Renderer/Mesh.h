@@ -23,10 +23,15 @@
 #include "CollectionUtils.h"
 #include "Renderer/IndexedVertexList.h"
 #include "Renderer/VertexSpec.h"
-#include "Renderer/VertexArrayRenderer.h"
+#include "Renderer/VertexArray.h"
 
 #include <cassert>
 #include <map>
+
+// disable warnings about truncated names in MSVC:
+#ifdef _WIN32
+#pragma warning(disable:4503)
+#endif
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,8 +41,7 @@ namespace TrenchBroom {
             typedef std::vector<typename VertexSpec::Vertex::List> TriangleSeries;
             typedef std::map<Key, typename VertexSpec::Vertex::List> TriangleSetMap;
             typedef std::map<Key, TriangleSeries> TriangleSeriesMap;
-            typedef std::map<Key, VertexArrayRenderer> RendererMap;
-            typedef std::pair<Key, VertexArrayRenderer> RendererMapEntry;
+            typedef std::map<Key, VertexArray> VertexArrayMap;
         private:
             typedef enum {
                 Set,
@@ -77,23 +81,23 @@ namespace TrenchBroom {
                 return m_triangleStrips;
             }
             
-            inline RendererMap triangleSetRenderers(Vbo& vbo) const {
-                RendererMap result;
+            inline VertexArrayMap triangleSetRenderers(Vbo& vbo) const {
+                VertexArrayMap result;
                 typename TriangleSetMap::const_iterator it, end;
                 for (it = m_triangleSets.begin(), end = m_triangleSets.end(); it != end; ++it) {
                     const Key& key = it->first;
                     const typename VertexSpec::Vertex::List& vertices = it->second;
-                    VertexArrayRenderer renderer(vbo, GL_TRIANGLES, vertices);
-                    result.insert(RendererMapEntry(key, renderer));
+                    VertexArray array(vbo, GL_TRIANGLES, vertices);
+                    result.insert(std::make_pair(key, array));
                 }
                 return result;
             }
             
-            inline RendererMap triangleFanRenderers(Vbo& vbo) const {
+            inline VertexArrayMap triangleFanRenderers(Vbo& vbo) const {
                 return triangleSeriesRenderers(vbo, GL_TRIANGLE_FAN, m_triangleFans);
             }
             
-            inline RendererMap triangleStripRenderers(Vbo& vbo) const {
+            inline VertexArrayMap triangleStripRenderers(Vbo& vbo) const {
                 return triangleSeriesRenderers(vbo, GL_TRIANGLE_STRIP, m_triangleStrips);
             }
             
@@ -158,8 +162,8 @@ namespace TrenchBroom {
             }
 
         private:
-            inline RendererMap triangleSeriesRenderers(Vbo& vbo, const GLenum primType, const TriangleSeriesMap seriesMap) const {
-                RendererMap result;
+            inline VertexArrayMap triangleSeriesRenderers(Vbo& vbo, const GLenum primType, const TriangleSeriesMap seriesMap) const {
+                VertexArrayMap result;
                 typename TriangleSeriesMap::const_iterator mIt, mEnd;
                 for (mIt = seriesMap.begin(), mEnd = seriesMap.end(); mIt != mEnd; ++mIt) {
                     const Key& key = mIt->first;
@@ -173,8 +177,7 @@ namespace TrenchBroom {
                         indexList.endPrimitive();
                     }
                     
-                    VertexArrayRenderer renderer(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
-                    result[key] = renderer;
+                    result[key] = VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
                 }
                 
                 return result;

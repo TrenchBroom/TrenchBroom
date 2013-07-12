@@ -23,7 +23,7 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 
 #include "TestUtils.h"
 
@@ -31,48 +31,49 @@ namespace TrenchBroom {
     namespace Renderer {
         TEST(MeshTest, createTriangleSet) {
             typedef String Key;
-            Mesh<Key, VP3> mesh;
+            typedef VertexSpecs::P3::Vertex Vertex;
+            Mesh<Key, VertexSpecs::P3> mesh;
             
             mesh.beginTriangleSet("Texture1");
-            mesh.addTriangleToSet(VP3(Vec3f(1.0f, 1.0f, 1.0f)), VP3(Vec3f(2.0f, 2.0f, 2.0f)), VP3(Vec3f(3.0f, 3.0f, 3.0f)));
-            mesh.addTriangleToSet(VP3(Vec3f(4.0f, 4.0f, 4.0f)), VP3(Vec3f(5.0f, 5.0f, 5.0f)), VP3(Vec3f(6.0f, 6.0f, 6.0f)));
-            mesh.addTriangleToSet(VP3(Vec3f(1.0f, 2.0f, 3.0f)), VP3(Vec3f(5.0f, 5.0f, 5.0f)), VP3(Vec3f(6.0f, 6.0f, 6.0f)));
+            mesh.addTriangleToSet(Vertex(Vec3f(1.0f, 1.0f, 1.0f)), Vertex(Vec3f(2.0f, 2.0f, 2.0f)), Vertex(Vec3f(3.0f, 3.0f, 3.0f)));
+            mesh.addTriangleToSet(Vertex(Vec3f(4.0f, 4.0f, 4.0f)), Vertex(Vec3f(5.0f, 5.0f, 5.0f)), Vertex(Vec3f(6.0f, 6.0f, 6.0f)));
+            mesh.addTriangleToSet(Vertex(Vec3f(1.0f, 2.0f, 3.0f)), Vertex(Vec3f(5.0f, 5.0f, 5.0f)), Vertex(Vec3f(6.0f, 6.0f, 6.0f)));
             mesh.endTriangleSet();
 
             mesh.beginTriangleSet("Texture2");
-            mesh.addTriangleToSet(VP3(Vec3f(2.0f, 1.0f, 1.0f)), VP3(Vec3f(3.0f, 2.0f, 2.0f)), VP3(Vec3f(4.0f, 3.0f, 3.0f)));
-            mesh.addTriangleToSet(VP3(Vec3f(5.0f, 4.0f, 4.0f)), VP3(Vec3f(6.0f, 5.0f, 5.0f)), VP3(Vec3f(7.0f, 6.0f, 6.0f)));
+            mesh.addTriangleToSet(Vertex(Vec3f(2.0f, 1.0f, 1.0f)), Vertex(Vec3f(3.0f, 2.0f, 2.0f)), Vertex(Vec3f(4.0f, 3.0f, 3.0f)));
+            mesh.addTriangleToSet(Vertex(Vec3f(5.0f, 4.0f, 4.0f)), Vertex(Vec3f(6.0f, 5.0f, 5.0f)), Vertex(Vec3f(7.0f, 6.0f, 6.0f)));
             mesh.endTriangleSet();
 
-            const Mesh<Key, VP3>::TriangleSetMap& sets = mesh.triangleSets();
+            const Mesh<Key, VertexSpecs::P3>::TriangleSetMap& sets = mesh.triangleSets();
             ASSERT_EQ(2u, sets.size());
             
-            Mesh<Key, VP3>::TriangleSetMap::const_iterator it = sets.begin();
+            Mesh<Key, VertexSpecs::P3>::TriangleSetMap::const_iterator it = sets.begin();
             ASSERT_EQ(String("Texture1"), it->first);
             
-            const VP3::List& vertices1 = it->second;
+            const Vertex::List& vertices1 = it->second;
             ASSERT_EQ(9u, vertices1.size());
-            ASSERT_VEC_EQ(Vec3f(1.0f, 1.0f, 1.0f), vertices1[0].value);
-            ASSERT_VEC_EQ(Vec3f(2.0f, 2.0f, 2.0f), vertices1[1].value);
-            ASSERT_VEC_EQ(Vec3f(3.0f, 3.0f, 3.0f), vertices1[2].value);
-            ASSERT_VEC_EQ(Vec3f(4.0f, 4.0f, 4.0f), vertices1[3].value);
-            ASSERT_VEC_EQ(Vec3f(5.0f, 5.0f, 5.0f), vertices1[4].value);
-            ASSERT_VEC_EQ(Vec3f(6.0f, 6.0f, 6.0f), vertices1[5].value);
-            ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 3.0f), vertices1[6].value);
-            ASSERT_VEC_EQ(Vec3f(5.0f, 5.0f, 5.0f), vertices1[7].value);
-            ASSERT_VEC_EQ(Vec3f(6.0f, 6.0f, 6.0f), vertices1[8].value);
+            ASSERT_VEC_EQ(Vec3f(1.0f, 1.0f, 1.0f), vertices1[0].v1);
+            ASSERT_VEC_EQ(Vec3f(2.0f, 2.0f, 2.0f), vertices1[1].v1);
+            ASSERT_VEC_EQ(Vec3f(3.0f, 3.0f, 3.0f), vertices1[2].v1);
+            ASSERT_VEC_EQ(Vec3f(4.0f, 4.0f, 4.0f), vertices1[3].v1);
+            ASSERT_VEC_EQ(Vec3f(5.0f, 5.0f, 5.0f), vertices1[4].v1);
+            ASSERT_VEC_EQ(Vec3f(6.0f, 6.0f, 6.0f), vertices1[5].v1);
+            ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 3.0f), vertices1[6].v1);
+            ASSERT_VEC_EQ(Vec3f(5.0f, 5.0f, 5.0f), vertices1[7].v1);
+            ASSERT_VEC_EQ(Vec3f(6.0f, 6.0f, 6.0f), vertices1[8].v1);
             
             it = sets.find("Texture2");
             ASSERT_EQ(String("Texture2"), it->first);
             
-            const VP3::List& vertices2 = it->second;
+            const Vertex::List& vertices2 = it->second;
             ASSERT_EQ(6u, vertices2.size());
-            ASSERT_VEC_EQ(Vec3f(2.0f, 1.0f, 1.0f), vertices2[0].value);
-            ASSERT_VEC_EQ(Vec3f(3.0f, 2.0f, 2.0f), vertices2[1].value);
-            ASSERT_VEC_EQ(Vec3f(4.0f, 3.0f, 3.0f), vertices2[2].value);
-            ASSERT_VEC_EQ(Vec3f(5.0f, 4.0f, 4.0f), vertices2[3].value);
-            ASSERT_VEC_EQ(Vec3f(6.0f, 5.0f, 5.0f), vertices2[4].value);
-            ASSERT_VEC_EQ(Vec3f(7.0f, 6.0f, 6.0f), vertices2[5].value);
+            ASSERT_VEC_EQ(Vec3f(2.0f, 1.0f, 1.0f), vertices2[0].v1);
+            ASSERT_VEC_EQ(Vec3f(3.0f, 2.0f, 2.0f), vertices2[1].v1);
+            ASSERT_VEC_EQ(Vec3f(4.0f, 3.0f, 3.0f), vertices2[2].v1);
+            ASSERT_VEC_EQ(Vec3f(5.0f, 4.0f, 4.0f), vertices2[3].v1);
+            ASSERT_VEC_EQ(Vec3f(6.0f, 5.0f, 5.0f), vertices2[4].v1);
+            ASSERT_VEC_EQ(Vec3f(7.0f, 6.0f, 6.0f), vertices2[5].v1);
         }
     }
 }
