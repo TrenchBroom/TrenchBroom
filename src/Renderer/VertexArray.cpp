@@ -25,7 +25,6 @@
 namespace TrenchBroom {
     namespace Renderer {
         void VertexArray::render() {
-            assert(m_indices == m_counts);
             if (m_holder == NULL || m_holder->size() == 0)
                 return;
 

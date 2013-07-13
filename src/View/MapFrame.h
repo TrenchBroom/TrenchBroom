@@ -32,6 +32,7 @@ namespace TrenchBroom {
     namespace View {
         class Console;
         class FrameManager;
+        class Logger;
         class MapView;
         class NavBar;
         
@@ -50,6 +51,7 @@ namespace TrenchBroom {
             void Create(FrameManager* frameManager, MapDocument::Ptr document);
             ~MapFrame();
             
+            Logger* logger() const;
             void positionOnScreen(wxFrame* reference);
             
             bool newDocument(Model::Game::Ptr game);

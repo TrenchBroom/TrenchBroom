@@ -28,8 +28,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        FaceRenderer::FaceRenderer() {}
+        
         FaceRenderer::FaceRenderer(Vbo& vbo, const Model::BrushFace::Mesh& mesh, const Color& faceColor) :
-        m_renderers(mesh.triangleSetRenderers(vbo)),
+        m_arrays(mesh.triangleSetArrays(vbo)),
         m_faceColor(faceColor) {}
 
         void FaceRenderer::render(RenderContext& context, const bool grayScale) {
@@ -66,17 +68,19 @@ namespace TrenchBroom {
         }
         
         void FaceRenderer::renderOpaqueFaces(ActiveShader& shader, const bool applyTexture) {
+            renderFaces(m_arrays, shader, applyTexture);
         }
         
         void FaceRenderer::renderTransparentFaces(ActiveShader& shader, const bool applyTexture) {
+            /*
             glDepthMask(GL_FALSE);
-            
             glDepthMask(GL_TRUE);
+             */
         }
         
-        void FaceRenderer::renderFaces(VertexArrayMap& renderers, ActiveShader& shader, const bool applyTexture) {
+        void FaceRenderer::renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture) {
             VertexArrayMap::iterator it, end;
-            for (it = renderers.begin(), end = renderers.end(); it != end; ++it) {
+            for (it = arrays.begin(), end = arrays.end(); it != end; ++it) {
                 Model::Texture::Ptr texture = it->first;
                 VertexArray& array = it->second;
                 

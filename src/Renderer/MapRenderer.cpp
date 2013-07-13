@@ -66,6 +66,7 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFF),
+        m_faceVbo(0xFFFF),
         m_edgeVbo(0xFFFF) {}
         
         void MapRenderer::render(RenderContext& context) {
@@ -73,6 +74,7 @@ namespace TrenchBroom {
             
             clearBackground(context);
             renderCoordinateSystem(context);
+            renderFaces(context);
             renderEdges(context);
         }
 
@@ -145,6 +147,12 @@ namespace TrenchBroom {
             array.render();
         }
 
+        void MapRenderer::renderFaces(RenderContext& context) {
+            SetVboState activateVbo(m_faceVbo);
+            activateVbo.active();
+            m_faceRenderer.render(context, false);
+        }
+
         void MapRenderer::renderEdges(RenderContext& context) {
             ShaderManager& shaderManager = context.shaderManager();
             ActiveShader edgeShader(shaderManager, Shaders::EdgeShader);
@@ -169,6 +177,7 @@ namespace TrenchBroom {
             map->eachBrush(buildEdges, filter);
             
             m_edgeArray = VertexArray(m_edgeVbo, GL_LINES, buildEdges.vertices);
+            m_faceRenderer = FaceRenderer(m_faceVbo, buildFaces.mesh, Color(1.0f, 1.0f, 0.0f, 1.0f));
         }
     }
 }

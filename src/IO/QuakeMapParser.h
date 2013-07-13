@@ -34,6 +34,10 @@ namespace TrenchBroom {
         class Map;
     }
     
+    namespace View {
+        class Logger;
+    }
+    
     namespace IO {
         namespace QuakeMapToken {
             typedef unsigned int Type;
@@ -60,11 +64,40 @@ namespace TrenchBroom {
         
         class QuakeMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
+            class PlaneWeightOrder {
+            private:
+                bool m_deterministic;
+            public:
+                PlaneWeightOrder(const bool deterministic) :
+                m_deterministic(deterministic) {}
+                
+                template <typename T, size_t S>
+                inline bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
+                    int result = lhs.normal.weight() - rhs.normal.weight();
+                    if (m_deterministic)
+                        result += static_cast<int>(1000.0 * (lhs.distance - lhs.distance));
+                    return result < 0;
+                }
+            };
+            
+            class FaceWeightOrder {
+            private:
+                const PlaneWeightOrder& m_planeOrder;
+            public:
+                FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
+                m_planeOrder(planeOrder) {}
+                
+                inline bool operator()(const Model::BrushFace::Ptr lhs, const Model::BrushFace::Ptr rhs) const {
+                    return m_planeOrder(lhs->boundary(), rhs->boundary());
+                }
+            };
+
+            View::Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
             typedef QuakeMapTokenizer::Token Token;
         public:
-            QuakeMapParser(const char* begin, const char* end);
-            QuakeMapParser(const String& str);
+            QuakeMapParser(const char* begin, const char* end, View::Logger* logger = NULL);
+            QuakeMapParser(const String& str, View::Logger* logger = NULL);
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
             Model::Map::Ptr doParseMap(const BBox3& worldBounds);
@@ -73,6 +106,8 @@ namespace TrenchBroom {
             Model::Brush::Ptr parseBrush(const BBox3& worldBounds);
             Model::BrushFace::Ptr parseFace(const BBox3& worldBounds);
             const Vec3 parseVector();
+            
+            Model::Brush::Ptr createBrush(const BBox3& worldBounds, const Model::BrushFace::List faces, const size_t firstLine, const size_t lineCount) const;
         };
     }
 }

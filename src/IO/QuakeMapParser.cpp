@@ -19,9 +19,11 @@
 
 #include "QuakeMapParser.h"
 
+#include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "View/Logger.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -81,10 +83,12 @@ namespace TrenchBroom {
             return Token(QuakeMapToken::Eof, NULL, NULL, length(), line(), column());
         }
 
-        QuakeMapParser::QuakeMapParser(const char* begin, const char* end) :
+        QuakeMapParser::QuakeMapParser(const char* begin, const char* end, View::Logger* logger) :
+        m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(begin, end)) {}
                     
-        QuakeMapParser::QuakeMapParser(const String& str) :
+        QuakeMapParser::QuakeMapParser(const String& str, View::Logger* logger) :
+        m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(str)) {}
         
         String QuakeMapParser::tokenName(const QuakeMapToken::Type typeMask) const {
@@ -203,9 +207,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case QuakeMapToken::CBrace: {
-                        Model::Brush::Ptr brush = Model::Brush::newBrush(worldBounds, faces);
-                        brush->setFilePosition(firstLine, token.line() - firstLine);
-                        return brush;
+                        return createBrush(worldBounds, faces, firstLine, token.line() - firstLine);
                     }
                     default: {
                         expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis, token);
@@ -275,6 +277,23 @@ namespace TrenchBroom {
                 vec[i] = token.toFloat<double>();
             }
             return vec;
+        }
+
+        Model::Brush::Ptr QuakeMapParser::createBrush(const BBox3& worldBounds, const Model::BrushFace::List faces, const size_t firstLine, const size_t lineCount) const {
+            try {
+                // sort the faces by the weight of their plane normals like QBSP does
+                Model::BrushFace::List sortedFaces = faces;
+                std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
+                std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
+
+                Model::Brush::Ptr brush = Model::Brush::newBrush(worldBounds, sortedFaces);
+                brush->setFilePosition(firstLine, lineCount);
+                return brush;
+            } catch (GeometryException& e) {
+                if (m_logger != NULL)
+                    m_logger->error("Error parsing brush at line %u: %s", firstLine, e.what());
+                return Model::Brush::Ptr();
+            }
         }
     }
 }

@@ -37,9 +37,10 @@ namespace TrenchBroom {
         private:
             typedef std::map<Model::Texture::Ptr, VertexArray> VertexArrayMap;
             
-            VertexArrayMap m_renderers;
+            VertexArrayMap m_arrays;
             Color m_faceColor;
         public:
+            FaceRenderer();
             FaceRenderer(Vbo& vbo, const Model::BrushFace::Mesh& mesh, const Color& faceColor);
 
             void render(RenderContext& context, const bool grayScale);
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             void render(RenderContext& context, bool grayScale, const Color* tintColor);
             void renderOpaqueFaces(ActiveShader& shader, const bool applyTexture);
             void renderTransparentFaces(ActiveShader& shader, const bool applyTexture);
-            void renderFaces(VertexArrayMap& renderers, ActiveShader& shader, const bool applyTexture);
+            void renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture);
         };
     }
 }

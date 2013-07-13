@@ -29,8 +29,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Game::Ptr QuakeGame::newGame() {
-            return Ptr(new QuakeGame());
+        Game::Ptr QuakeGame::newGame(View::Logger* logger) {
+            return Ptr(new QuakeGame(logger));
         }
 
         const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
@@ -41,13 +41,14 @@ namespace TrenchBroom {
             return fs.resourceDirectory() + IO::Path("quake/palette.lmp");
         }
 
-        QuakeGame::QuakeGame() :
+        QuakeGame::QuakeGame(View::Logger* logger) :
+        m_logger(logger),
         m_palette(palettePath()) {}
         
         Map::Ptr QuakeGame::doLoadMap(const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
-            IO::QuakeMapParser parser(file->begin(), file->end());
+            IO::QuakeMapParser parser(file->begin(), file->end(), m_logger);
             return parser.parseMap(WorldBounds);
         }
 

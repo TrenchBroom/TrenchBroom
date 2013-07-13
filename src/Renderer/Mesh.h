@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 return m_triangleStrips;
             }
             
-            inline VertexArrayMap triangleSetRenderers(Vbo& vbo) const {
+            inline VertexArrayMap triangleSetArrays(Vbo& vbo) const {
                 VertexArrayMap result;
                 typename TriangleSetMap::const_iterator it, end;
                 for (it = m_triangleSets.begin(), end = m_triangleSets.end(); it != end; ++it) {
@@ -93,11 +93,11 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline VertexArrayMap triangleFanRenderers(Vbo& vbo) const {
+            inline VertexArrayMap triangleFanArrays(Vbo& vbo) const {
                 return triangleSeriesRenderers(vbo, GL_TRIANGLE_FAN, m_triangleFans);
             }
             
-            inline VertexArrayMap triangleStripRenderers(Vbo& vbo) const {
+            inline VertexArrayMap triangleStripArrays(Vbo& vbo) const {
                 return triangleSeriesRenderers(vbo, GL_TRIANGLE_STRIP, m_triangleStrips);
             }
             
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             }
 
         private:
-            inline VertexArrayMap triangleSeriesRenderers(Vbo& vbo, const GLenum primType, const TriangleSeriesMap seriesMap) const {
+            inline VertexArrayMap triangleSeriesArrays(Vbo& vbo, const GLenum primType, const TriangleSeriesMap seriesMap) const {
                 VertexArrayMap result;
                 typename TriangleSeriesMap::const_iterator mIt, mEnd;
                 for (mIt = seriesMap.begin(), mEnd = seriesMap.end(); mIt != mEnd; ++mIt) {
@@ -177,7 +177,7 @@ namespace TrenchBroom {
                         indexList.endPrimitive();
                     }
                     
-                    result[key] = VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
+                    result.insert(std::make_pair(key, VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts())));
                 }
                 
                 return result;

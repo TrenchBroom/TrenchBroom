@@ -26,16 +26,21 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace View {
+        class Logger;
+    }
+    
     namespace Model {
         class QuakeGame : public Game {
         private:
+            View::Logger* m_logger;
             Model::Palette m_palette;
         public:
-            static Ptr newGame();
+            static Ptr newGame(View::Logger* logger = NULL);
         private:
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
-            QuakeGame();
+            QuakeGame(View::Logger* logger);
             
             Map::Ptr doLoadMap(const IO::Path& path) const;
             IO::Path::List doExtractTexturePaths(Map::Ptr map) const;

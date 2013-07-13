@@ -130,35 +130,45 @@ namespace TrenchBroom {
             m_primType(primType),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))),
             m_indices(indices),
-            m_counts(counts) {}
+            m_counts(counts) {
+                assert(m_indices == m_counts);
+            }
             
             template <typename A1, typename A2>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))),
             m_indices(indices),
-            m_counts(counts) {}
+            m_counts(counts) {
+                assert(m_indices == m_counts);
+            }
             
             template <typename A1, typename A2, typename A3>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))),
             m_indices(indices),
-            m_counts(counts) {}
+            m_counts(counts) {
+                assert(m_indices == m_counts);
+            }
             
             template <typename A1, typename A2, typename A3, typename A4>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))),
             m_indices(indices),
-            m_counts(counts) {}
+            m_counts(counts) {
+                assert(m_indices == m_counts);
+            }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))),
             m_indices(indices),
-            m_counts(counts) {}
+            m_counts(counts) {
+                assert(m_indices == m_counts);
+            }
 
             void render();
         };

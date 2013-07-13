@@ -158,15 +158,15 @@ namespace TrenchBroom {
         }
         
         bool TrenchBroomApp::newDocument() {
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
             MapFrame* frame = m_frameManager->newFrame();
+            Model::Game::Ptr game = Model::QuakeGame::newGame(frame->logger());
             return frame != NULL && frame->newDocument(game);
         }
         
         bool TrenchBroomApp::openDocument(const String& pathStr) {
-            Model::Game::Ptr game = Model::QuakeGame::newGame();
-            const IO::Path path(pathStr);
             MapFrame* frame = m_frameManager->newFrame();
+            Model::Game::Ptr game = Model::QuakeGame::newGame(frame->logger());
+            const IO::Path path(pathStr);
             return frame != NULL && frame->openDocument(game, path);
         }
     }

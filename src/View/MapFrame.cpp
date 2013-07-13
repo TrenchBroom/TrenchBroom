@@ -85,6 +85,10 @@ namespace TrenchBroom {
             m_controller.removeCommandListener(this);
         }
 
+        Logger* MapFrame::logger() const {
+            return m_console;
+        }
+
         void MapFrame::positionOnScreen(wxFrame* reference) {
             const wxDisplay display;
             const wxRect displaySize = display.GetClientArea();

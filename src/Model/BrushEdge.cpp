@@ -120,7 +120,7 @@ namespace TrenchBroom {
             const Vec3& startPos = m_start->position();
             const Vec3& endPos = m_end->position();
             Vec3 position;
-            for (size_t i = 0; i < 3; i++) {
+            for (size_t i = 0; i < 3; ++i) {
                 if (plane.normal[i] == 1.0)
                     position[i] = plane.distance;
                 else if (plane.normal[i] == -1.0)

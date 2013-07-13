@@ -87,7 +87,7 @@ namespace TrenchBroom {
             BrushEdge* lastEdge = m_edges.back();
             BrushEdge::Mark lastMark = lastEdge->mark();
             BrushEdge::List::iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = m_edges.begin(), end = m_edges.end(); it != end && (splitIt1 == end || splitIt2 == end); ++it) {
                 BrushEdge* currentEdge = *it;
                 const BrushEdge::Mark currentMark = currentEdge->mark();
                 if (currentMark == BrushEdge::Keep && lastMark == BrushEdge::Drop) {
@@ -101,6 +101,10 @@ namespace TrenchBroom {
                     newEdgeEnd = currentEdge->start(this);
                 } else if (currentMark == BrushEdge::Drop &&  lastMark == BrushEdge::Split) {
                     splitIt1 = it;
+                    newEdgeEnd = lastEdge->end(this);
+                } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Split) {
+                    splitIt1 = splitIt2 = it;
+                    newEdgeStart = currentEdge->start(this);
                     newEdgeEnd = lastEdge->end(this);
                 }
                 lastEdge = currentEdge;
