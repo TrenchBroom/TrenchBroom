@@ -75,16 +75,16 @@ namespace TrenchBroom {
         }
         
         void TextureManager::commitChanges() {
-            assert(m_game != NULL);
-            
-            TextureCollectionMap::iterator it, end;
-            for (it = m_toUpload.begin(), end = m_toUpload.end(); it != end; ++it) {
-                TextureCollection::Ptr collection = it->second;
-                m_game->uploadTextureCollection(collection);
+            if (m_game != NULL) {
+                TextureCollectionMap::iterator it, end;
+                for (it = m_toUpload.begin(), end = m_toUpload.end(); it != end; ++it) {
+                    TextureCollection::Ptr collection = it->second;
+                    m_game->uploadTextureCollection(collection);
+                }
+                
+                m_toUpload.clear();
+                m_toRemove.clear();
             }
-
-            m_toUpload.clear();
-            m_toRemove.clear();
         }
 
         Texture::Ptr TextureManager::texture(const String& name) const {

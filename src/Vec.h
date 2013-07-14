@@ -31,9 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include <vector>
 
-#if defined _WIN32
-#pragma pack(push,1)
-#endif
 template <typename T, size_t S>
 class Vec {
 private:
@@ -550,12 +547,7 @@ public:
     inline const Vec<T,S> corrected(const T epsilon = Math<T>::CorrectEpsilon) const {
         return Vec<T,S>(*this).correct();
     }
-#if defined _WIN32
 };
-#pragma pack(pop)
-#else
-} __attribute__((packed));
-#endif
             
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));

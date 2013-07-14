@@ -37,7 +37,7 @@ namespace TrenchBroom {
         
         class TextureCoordinateSystem {
         private:
-            static const Vec3 BaseAxes[18];
+            static const Vec3 BaseAxes[];
             
             BrushFace* m_face;
             mutable bool m_valid;

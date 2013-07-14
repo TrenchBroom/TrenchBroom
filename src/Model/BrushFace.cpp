@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Vec3 TextureCoordinateSystem::BaseAxes[18] = {
-            Vec3::PosZ, Vec3::PosX, Vec3::NegY,
-            Vec3::NegZ, Vec3::PosX, Vec3::NegY,
-            Vec3::PosX, Vec3::PosY, Vec3::NegZ,
-            Vec3::NegX, Vec3::PosY, Vec3::NegZ,
-            Vec3::PosY, Vec3::PosX, Vec3::NegZ,
-            Vec3::NegY, Vec3::PosX, Vec3::NegZ
+        const Vec3 TextureCoordinateSystem::BaseAxes[] = {
+            Vec3( 0.0,  0.0,  1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
+            Vec3( 0.0,  0.0, -1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
+            Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
+            Vec3(-1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
+            Vec3( 0.0,  1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
+            Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
         
         TextureCoordinateSystem::TextureCoordinateSystem() :
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         void TextureCoordinateSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
-            for (size_t i = 0; i < 6; i++) {
+            for (size_t i = 0; i < 6; ++i) {
                 const FloatType dot = normal.dot(BaseAxes[i * 3]);
                 if (dot > bestDot) { // no need to use -altaxis for qbsp
                     bestDot = dot;

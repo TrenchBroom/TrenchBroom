@@ -29,11 +29,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document) :
         wxGLCanvas(parent, wxID_ANY, attribs()),
         m_logger(logger),
         m_initialized(false),
         m_glContext(new wxGLContext(this)),
+        m_document(document),
         m_drag(false),
         m_cameraTool(NULL),
         m_toolChain(NULL) {
@@ -145,8 +146,10 @@ namespace TrenchBroom {
             if (!m_initialized)
                 initializeGL();
             
-            wxPaintDC(this);
-            if (m_glContext->SetCurrent(*this)) {
+            if (SetCurrent(*m_glContext)) {
+                wxPaintDC(this);
+
+                m_document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
                     Renderer::RenderContext context(m_camera, m_shaderManager);
                     m_renderer.render(context);
@@ -302,9 +305,9 @@ namespace TrenchBroom {
             size_t index = 0;
             while (!initialized && testAttribs[index] != 0) {
                 size_t count = 0;
-                for (; testAttribs[index + count] != 0; count++);
+                for (; testAttribs[index + count] != 0; ++count);
                 if (wxGLCanvas::IsDisplaySupported(&testAttribs[index])) {
-                    for (size_t i = 0; i < count; i++)
+                    for (size_t i = 0; i < count; ++i)
                         attribs.push_back(testAttribs[index + i]);
                     attribs.push_back(0);
                     initialized = true;

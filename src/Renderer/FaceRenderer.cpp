@@ -46,15 +46,17 @@ namespace TrenchBroom {
             ShaderManager& shaderManager = context.shaderManager();
             ActiveShader shader(shaderManager, Shaders::FaceShader);
             
+            glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
             const bool applyTexture = true;
             shader.set("Brightness", 1.0f);
             shader.set("Alpha", 1.0f);
             shader.set("RenderGrid", true);
-            shader.set("GridSize", 32);
+            shader.set("GridSize", 32.0f);
             shader.set("GridAlpha", 0.5f);
             shader.set("GridCheckerboard", false);
             shader.set("ApplyTexture", applyTexture);
+            shader.set("FaceTexture", 0);
             shader.set("ApplyTinting", tintColor != NULL);
             if (tintColor != NULL)
                 shader.set("TintColor", *tintColor);
@@ -87,7 +89,6 @@ namespace TrenchBroom {
                 if (texture != NULL) {
                     texture->activate();
                     shader.set("ApplyTexture", applyTexture);
-                    shader.set("FaceTexture", 0);
                     shader.set("Color", texture->averageColor());
                     array.render();
                     texture->deactivate();

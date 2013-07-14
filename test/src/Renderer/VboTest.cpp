@@ -152,6 +152,15 @@ namespace TrenchBroom {
                 VboBlock* block3 = vbo.allocateBlock(block3Capacity);
                 ASSERT_EQ(block3Capacity, block3->capacity());
                 
+                // buffer reallocation
+                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+                EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(14));
+                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 14));
+                EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0x17FFE, NULL, GL_DYNAMIC_DRAW));
+                EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+
                 VboBlock* block4 = vbo.allocateBlock(373);
                 ASSERT_EQ(373u, block4->capacity());
                 
@@ -162,7 +171,7 @@ namespace TrenchBroom {
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(14)));
         }
 
         TEST(VboTest, allocateBlockAndWriteBuffer) {

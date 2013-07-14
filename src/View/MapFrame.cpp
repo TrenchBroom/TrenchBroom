@@ -175,7 +175,7 @@ namespace TrenchBroom {
                                              );
             
             m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, m_console);
+            m_mapView = new MapView(container, m_console, m_document);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);

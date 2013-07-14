@@ -64,6 +64,7 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
+            void commitPendingRenderStateChanges();
         private:
             MapDocument();
             

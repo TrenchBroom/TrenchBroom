@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Model {
         class Palette {
         public:
-            typedef std::vector<char> TextureBuffer;
+            typedef std::vector<unsigned char> TextureBuffer;
         private:
             char* m_data;
             size_t m_size;

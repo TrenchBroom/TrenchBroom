@@ -36,6 +36,11 @@
 namespace TrenchBroom {
     namespace IO {
         template <typename T>
+        inline void advance(const char*& cursor, const size_t i = 1) {
+            cursor += (i * sizeof(T));
+        }
+        
+        template <typename T>
         inline T read(const char*& cursor) {
             T value;
             memcpy(&value, cursor, sizeof(T));

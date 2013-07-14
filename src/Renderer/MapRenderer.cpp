@@ -96,6 +96,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
+            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
+            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+            
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -111,10 +114,6 @@ namespace TrenchBroom {
             glDepthFunc(GL_LEQUAL);
             glShadeModel(GL_SMOOTH);
             // glResetEdgeOffset();
-            
-            const Camera& camera = context.camera();
-            const Camera::Viewport& viewport = camera.viewport();
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
         }
 
         void MapRenderer::clearBackground(RenderContext& context) {

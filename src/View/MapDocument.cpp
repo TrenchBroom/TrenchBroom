@@ -142,6 +142,10 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        void MapDocument::commitPendingRenderStateChanges() {
+            m_textureManager.commitChanges();
+        }
+
         void MapDocument::loadAndUpdateTextures() {
             loadTextures();
             updateTextures();

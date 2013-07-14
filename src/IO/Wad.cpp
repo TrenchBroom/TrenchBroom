@@ -147,14 +147,13 @@ namespace TrenchBroom {
             const size_t width = readSize<int32_t>(cursor);
             const size_t height = readSize<int32_t>(cursor);
             if (width == 0 || height == 0)
-                throw WadException(entry.name() + "has invalid dimensions");
+                throw WadException(entry.name() + " has invalid dimensions");
             
             return MipSize(width, height);
         }
 
         const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) {
-            assert(mipLevel > 0);
-            assert(mipLevel <= 4);
+            assert(mipLevel < 4);
             
             if (entry.type() != WadEntryType::WEMip)
                 throw WadException(entry.name() + " is not a Mip entry");
@@ -162,17 +161,20 @@ namespace TrenchBroom {
             const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
             const size_t width = readSize<int32_t>(cursor);
             const size_t height = readSize<int32_t>(cursor);
-            if (width == 0 || height == 0)
-                throw WadException(entry.name() + "has invalid dimensions");
+            if (width == 0 || height == 0 ||
+                width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
+                throw WadException(entry.name() + " has invalid dimensions");
 
-            size_t offset = 0;
-            size_t size = width * height;
-            for (size_t i = 1; i < mipLevel; ++i) {
-                offset += size;
-                size /= 2;
-            }
+            advance<int32_t>(cursor, mipLevel);
+            const size_t offset = readSize<int32_t>(cursor);
+            const size_t divisor = 1 << mipLevel;
+            const size_t size = width * height / (divisor * divisor);
             
-            return MipData(cursor, cursor + offset);
+            if (offset + size > entry.size())
+                throw WadException("Mip data of '" + entry.name() + "' is out of bounds");
+            
+            cursor = m_file->begin() + entry.address() + offset;
+            return MipData(cursor, cursor + size);
         }
     }
 }
