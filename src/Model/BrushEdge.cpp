@@ -30,7 +30,9 @@ namespace TrenchBroom {
         m_end(end),
         m_left(NULL),
         m_right(NULL),
-        m_mark(New) {}
+        m_mark(New) {
+            assert(start != end);
+        }
         
         BrushEdge::~BrushEdge() {
             m_start = NULL;

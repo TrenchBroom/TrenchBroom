@@ -60,6 +60,7 @@ namespace TrenchBroom {
             void addBackwardEdge(BrushEdge* edge);
             void addBackwardEdges(const BrushEdge::List& edges);
             
+            bool containsDroppedEdge() const;
             bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
         private:

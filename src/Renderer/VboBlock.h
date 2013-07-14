@@ -55,16 +55,19 @@ namespace TrenchBroom {
             
             template <typename T>
             inline size_t writeElement(const size_t address, const T& element) {
+                assert(address + sizeof(T) <= m_capacity);
                 return m_vbo.writeElement(m_offset + address, element);
             }
             
             template <typename T>
             inline size_t writeElements(const size_t address, const std::vector<T>& elements) {
+                assert(address + elements.size() * sizeof(T) <= m_capacity);
                 return m_vbo.writeElements(m_offset + address, elements);
             }
             
             template <typename T>
             inline size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+                assert(address + buffer.size() * sizeof(T) <= m_capacity);
                 return m_vbo.writeBuffer(m_offset + address, buffer);
             }
             

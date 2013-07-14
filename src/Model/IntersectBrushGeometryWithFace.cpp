@@ -158,6 +158,8 @@ namespace TrenchBroom {
                     case BrushFaceGeometry::Split: {
                         BrushEdge* newEdge = side->splitUsingEdgeMarks();
                         assert(newEdge != NULL);
+                        assert(!side->containsDroppedEdge());
+                        
                         m_newSideEdges.push_back(newEdge);
                         m_remainingEdges.push_back(newEdge);
                         m_remainingSides.push_back(side);
@@ -193,9 +195,26 @@ namespace TrenchBroom {
         }
         
         void IntersectBrushGeometryWithFace::cleanup() {
+            assert(checkDroppedEdges());
             VectorUtils::clearAndDelete(m_droppedSides);
             VectorUtils::clearAndDelete(m_droppedEdges);
             VectorUtils::clearAndDelete(m_droppedVertices);
+        }
+
+        bool IntersectBrushGeometryWithFace::checkDroppedEdges() {
+            BrushEdge::List::const_iterator eIt, eEnd;
+            for (eIt = m_droppedEdges.begin(), eEnd = m_droppedEdges.end(); eIt != eEnd; ++eIt) {
+                BrushEdge* edge = *eIt;
+
+                BrushFaceGeometry::List::const_iterator sIt, sEnd;
+                for (sIt = m_remainingSides.begin(), sEnd = m_remainingSides.end(); sIt != sEnd; ++sIt) {
+                    BrushFaceGeometry* side = *sIt;
+                    const BrushEdge::List& sideEdges = side->edges();
+                    if (std::find(sideEdges.begin(), sideEdges.end(), edge) != sideEdges.end())
+                        return false;
+                }
+            }
+            return true;
         }
     }
 }

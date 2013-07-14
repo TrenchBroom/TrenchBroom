@@ -223,6 +223,9 @@ namespace TrenchBroom {
             assert(delta > 0);
             assert(checkBlockChain());
             
+            const size_t begin = (m_firstBlock->isFree() ?  m_firstBlock->capacity() : 0);
+            const size_t end = m_totalCapacity - (m_lastBlock->isFree() ? m_lastBlock->capacity() : 0);
+            
             if (m_lastBlock->isFree()) {
                 removeFreeBlock(m_lastBlock);
                 m_lastBlock->setCapacity(m_lastBlock->capacity() + delta);
@@ -236,6 +239,26 @@ namespace TrenchBroom {
             m_totalCapacity += delta;
             m_freeCapacity += delta;
             assert(checkBlockChain());
+            
+            if (begin < end) {
+                unsigned char* temp = new unsigned char[end - begin];
+                memcpy(temp, m_buffer + begin, end - begin);
+                
+                deactivate();
+                glDeleteBuffers(1, &m_vboId);
+                m_vboId = 0;
+                map();
+                assert(isMapped());
+                
+                memcpy(m_buffer + begin, temp, end - begin);
+                delete [] temp;
+            } else {
+                deactivate();
+                glDeleteBuffers(1, &m_vboId);
+                m_vboId = 0;
+                map();
+                assert(isMapped());
+            }
         }
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {

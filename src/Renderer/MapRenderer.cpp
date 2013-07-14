@@ -65,9 +65,9 @@ namespace TrenchBroom {
         };
         
         MapRenderer::MapRenderer() :
-        m_auxVbo(0xFFFF),
-        m_faceVbo(0xFFFF),
-        m_edgeVbo(0xFFFF) {}
+        m_auxVbo(0xFFFFF),
+        m_faceVbo(0xFFFFF),
+        m_edgeVbo(0xFFFFF) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);

@@ -87,26 +87,46 @@ namespace TrenchBroom {
             BrushEdge* lastEdge = m_edges.back();
             BrushEdge::Mark lastMark = lastEdge->mark();
             BrushEdge::List::iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end && (splitIt1 == end || splitIt2 == end); ++it) {
+            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 BrushEdge* currentEdge = *it;
                 const BrushEdge::Mark currentMark = currentEdge->mark();
                 if (currentMark == BrushEdge::Keep && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
                     newEdgeStart = currentEdge->start(this);
+                    assert(newEdgeStart != NULL);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
                     newEdgeStart = currentEdge->start(this);
+                    assert(newEdgeStart != NULL);
                 } else if (currentMark == BrushEdge::Drop && lastMark == BrushEdge::Keep) {
                     splitIt1 = it;
                     newEdgeEnd = currentEdge->start(this);
+                    assert(newEdgeEnd != NULL);
                 } else if (currentMark == BrushEdge::Drop &&  lastMark == BrushEdge::Split) {
                     splitIt1 = it;
                     newEdgeEnd = lastEdge->end(this);
+                    assert(newEdgeEnd != NULL);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Split) {
-                    splitIt1 = splitIt2 = it;
-                    newEdgeStart = currentEdge->start(this);
-                    newEdgeEnd = lastEdge->end(this);
+                    if (currentEdge->start(this)->mark() == BrushVertex::New) {
+                        splitIt1 = splitIt2 = it;
+                        newEdgeStart = currentEdge->start(this);
+                        newEdgeEnd = lastEdge->end(this);
+                    } else {
+                        assert(currentEdge->start(this)->mark() == BrushVertex::Keep);
+                        splitIt1 = it < m_edges.end() - 1 ? it + 1 : m_edges.begin();
+                        splitIt2 = it > m_edges.begin() ? it - 1 : m_edges.end() - 1;
+                        newEdgeStart = lastEdge->start(this);
+                        newEdgeEnd = currentEdge->end(this);
+                    }
+                    
+                    assert(newEdgeStart != NULL);
+                    assert(newEdgeEnd != NULL);
+                    assert(newEdgeStart != newEdgeEnd);
                 }
+                
+                if (splitIt1 != end && splitIt2 != end)
+                    break;
+                
                 lastEdge = currentEdge;
                 lastMark = currentMark;
             }
@@ -117,6 +137,8 @@ namespace TrenchBroom {
                 throw e;
             }
             
+            assert(newEdgeStart != NULL);
+            assert(newEdgeEnd != NULL);
             BrushEdge* newEdge = new BrushEdge(newEdgeStart, newEdgeEnd);
             replaceEdgesWithBackwardEdge(splitIt1, splitIt2, newEdge);
             return newEdge;
@@ -194,6 +216,16 @@ namespace TrenchBroom {
             }
         }
 
+        bool BrushFaceGeometry::containsDroppedEdge() const {
+            BrushEdge::List::const_iterator it, end;
+            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+                const BrushEdge* edge = *it;
+                if (edge->mark() == BrushEdge::Drop)
+                    return true;
+            }
+            return false;
+        }
+
         bool BrushFaceGeometry::isClosed() const {
             if (m_edges.size() < 3)
                 return false;
@@ -244,6 +276,7 @@ namespace TrenchBroom {
                 newEdges.push_back(edge);
                 m_edges = newEdges;
             }
+            assert(m_edges.size() >= 3);
             edge->m_left = this;
             updateVerticesFromEdges();
         }

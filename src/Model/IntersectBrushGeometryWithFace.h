@@ -63,6 +63,7 @@ namespace TrenchBroom {
             void processSides(BrushGeometry& geometry);
             void createNewSide();
             void cleanup();
+            bool checkDroppedEdges();
         };
     }
 }

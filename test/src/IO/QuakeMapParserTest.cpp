@@ -184,7 +184,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)));
         }
         
-        TEST(QuakeMapParserTest, parseBrushWithErrorFromRTZ) {
+        TEST(QuakeMapParserTest, parseProblematicBrush1) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -220,6 +220,46 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)));
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)));
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)));
+        }
+
+        TEST(QuakeMapParserTest, parseProblematicBrush2) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -572 1078 128 ) ( -594 1088 128 ) ( -597 1072 96 ) mt_sr_v16 -64 0 -180 1 -1\n"
+                              "( -572 1078 160 ) ( -572 1078 128 ) ( -590 1051 128 ) b_rc_v4 32 0 90 1 1\n"
+                              "( -601 1056 160 ) ( -601 1056 128 ) ( -594 1088 128 ) b_rc_v4 32 0 90 1 1\n"
+                              "( -590 1051 160 ) ( -590 1051 128 ) ( -601 1056 128 ) b_rc_v4 32 -16 90 1 1\n"
+                              "( -512 1051 128 ) ( -624 1051 128 ) ( -568 1088 128 ) b_rc_v4 0 -16 90 1 1\n"
+                              "( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
+            
+            const Model::Entity::List& entities = map->entities();
+            ASSERT_EQ(1u, entities.size());
+            
+            const Model::Entity::Ptr entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::Brush::List& brushes = entity->brushes();
+            ASSERT_EQ(1u, brushes.size());
+            
+            /*
+            const Model::Brush::Ptr brush = brushes.front();
+            const Model::BrushFace::List faces = brush->faces();
+            ASSERT_EQ(6u, faces.size());
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 108.0, 176.0), Vec3(308.0, 132.0, 176.0), Vec3(252.0, 132.0, 176.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(252.0, 132.0, 208.0), Vec3(308.0, 132.0, 208.0), Vec3(308.0, 108.0, 208.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 152.0, 176.0), Vec3(288.0, 152.0, 208.0), Vec3(288.0, 120.0, 208.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)));
+            ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)));
+             */
         }
     }
 }
