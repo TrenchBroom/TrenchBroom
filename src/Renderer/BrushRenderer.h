@@ -17,39 +17,35 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapRenderer__
-#define __TrenchBroom__MapRenderer__
+#ifndef __TrenchBroom__BrushRenderer__
+#define __TrenchBroom__BrushRenderer__
 
-#include "Controller/Command.h"
-#include "Model/Map.h"
-#include "Renderer/BrushRenderer.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/EdgeRenderer.h"
+#include "Renderer/FaceRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
+        class Vbo;
         
-        class MapRenderer {
+        class BrushRenderer {
         private:
-            Vbo m_auxVbo;
-            Vbo m_geometryVbo;
-            BrushRenderer m_brushRenderer;
+            bool m_grayScale;
+            FaceRenderer m_faceRenderer;
+            EdgeRenderer m_edgeRenderer;
         public:
-            MapRenderer();
+            BrushRenderer();
+            BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
+            BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
+            
+            void setGrayScale(const bool grayScale);
             
             void render(RenderContext& context);
-
-            void commandDone(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
         private:
-            void setupGL(RenderContext& context);
-            void clearBackground(RenderContext& context);
-            void renderCoordinateSystem(RenderContext& context);
-            void renderGeometry(RenderContext& context);
-            void clearState();
-            void loadMap(Model::Map::Ptr map);
+            static Color faceColor();
+            static Color edgeColor();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapRenderer__) */
+#endif /* defined(__TrenchBroom__BrushRenderer__) */

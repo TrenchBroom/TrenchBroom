@@ -176,7 +176,6 @@ namespace TrenchBroom {
             if (m_vboId > 0) {
                 glDeleteBuffers(1, &m_vboId);
                 m_vboId = 0;
-                assert(glGetError() == GL_NO_ERROR);
             }
         }
 

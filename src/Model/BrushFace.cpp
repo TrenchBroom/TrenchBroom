@@ -92,7 +92,7 @@ namespace TrenchBroom {
         
         void TextureCoordinateSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const  {
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            const Quat3 rot(planeNormIndex == 12 ? -angle : angle, BaseAxes[planeNormIndex]);
+            const Quat3 rot(BaseAxes[planeNormIndex], planeNormIndex == 12 ? -angle : angle);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;
         }

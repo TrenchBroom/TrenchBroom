@@ -66,16 +66,14 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFFF),
-        m_faceVbo(0xFFFFF),
-        m_edgeVbo(0xFFFFF) {}
+        m_geometryVbo(0xFFFFF) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
             clearBackground(context);
             renderCoordinateSystem(context);
-            renderFaces(context);
-            renderEdges(context);
+            renderGeometry(context);
         }
 
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
@@ -146,24 +144,14 @@ namespace TrenchBroom {
             array.render();
         }
 
-        void MapRenderer::renderFaces(RenderContext& context) {
-            SetVboState activateVbo(m_faceVbo);
-            activateVbo.active();
-            m_faceRenderer.render(context, false);
-        }
-
-        void MapRenderer::renderEdges(RenderContext& context) {
-            ShaderManager& shaderManager = context.shaderManager();
-            ActiveShader edgeShader(shaderManager, Shaders::EdgeShader);
-            edgeShader.set("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-            
-            SetVboState activateVbo(m_edgeVbo);
-            activateVbo.active();
-            m_edgeArray.render();
+        void MapRenderer::renderGeometry(RenderContext& context) {
+            SetVboState vboState(m_geometryVbo);
+            vboState.active();
+            m_brushRenderer.render(context);
         }
 
         void MapRenderer::clearState() {
-            m_edgeArray = VertexArray();
+            m_brushRenderer = BrushRenderer();
         }
 
         void MapRenderer::loadMap(Model::Map::Ptr map) {
@@ -175,8 +163,7 @@ namespace TrenchBroom {
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
             
-            m_edgeArray = VertexArray(m_edgeVbo, GL_LINES, buildEdges.vertices);
-            m_faceRenderer = FaceRenderer(m_faceVbo, buildFaces.mesh, Color(1.0f, 1.0f, 0.0f, 1.0f));
+            m_brushRenderer = BrushRenderer(m_geometryVbo, buildFaces.mesh, buildEdges.vertices);
         }
     }
 }

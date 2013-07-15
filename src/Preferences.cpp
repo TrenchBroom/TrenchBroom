@@ -25,6 +25,8 @@ namespace TrenchBroom {
         Preference<Color> XAxisColor = Preference<Color>("Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> YAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
         Preference<Color> ZAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
+        Preference<Color> FaceColor = Preference<Color>("Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
+        Preference<Color> EdgeColor = Preference<Color>("Colors/Edges", Color(.7f,  0.7f,  0.7f,  1.0f));
 
         Preference<float> CameraLookSpeed = Preference<float>("Controls/Camera/Look speed", 0.5f);
         Preference<bool>  CameraLookInvertH = Preference<bool>("Controls/Camera/Invert horizontal look", false);
