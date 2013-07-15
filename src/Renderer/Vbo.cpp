@@ -84,11 +84,7 @@ namespace TrenchBroom {
         Vbo::~Vbo() {
             if (isActive())
                 deactivate();
-            
-            if (m_vboId > 0) {
-                glDeleteBuffers(1, &m_vboId);
-                m_vboId = 0;
-            }
+            free();
             
             VboBlock* block = m_firstBlock;
             while (block != NULL) {
@@ -141,7 +137,7 @@ namespace TrenchBroom {
             } else {
                 glBindBuffer(m_type, m_vboId);
             }
-            
+            assert(glGetError() == GL_NO_ERROR);
             m_state = VboState::Active;
         }
         
@@ -150,6 +146,7 @@ namespace TrenchBroom {
             if (isMapped())
                 unmap();
             glBindBuffer(m_type, 0);
+            assert(glGetError() == GL_NO_ERROR);
             m_state = VboState::Inactive;
         }
         
@@ -157,7 +154,12 @@ namespace TrenchBroom {
             assert(!isMapped());
             if (!isActive())
                 activate();
-            m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+#ifdef __APPLE__
+            // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
+            glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, m_vboId);
+#endif
+            m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_READ_WRITE));
+            assert(glGetError() == GL_NO_ERROR);
             assert(m_buffer != NULL);
             m_state = VboState::Mapped;
         }
@@ -166,7 +168,16 @@ namespace TrenchBroom {
             assert(isMapped());
             glUnmapBuffer(m_type);
 			m_buffer = NULL;
+            assert(glGetError() == GL_NO_ERROR);
             m_state = VboState::Active;
+        }
+
+        void Vbo::free() {
+            if (m_vboId > 0) {
+                glDeleteBuffers(1, &m_vboId);
+                m_vboId = 0;
+                assert(glGetError() == GL_NO_ERROR);
+            }
         }
 
         void Vbo::freeBlock(VboBlock* block) {
@@ -245,8 +256,7 @@ namespace TrenchBroom {
                 memcpy(temp, m_buffer + begin, end - begin);
                 
                 deactivate();
-                glDeleteBuffers(1, &m_vboId);
-                m_vboId = 0;
+                free();
                 map();
                 assert(isMapped());
                 
@@ -254,8 +264,7 @@ namespace TrenchBroom {
                 delete [] temp;
             } else {
                 deactivate();
-                glDeleteBuffers(1, &m_vboId);
-                m_vboId = 0;
+                free();
                 map();
                 assert(isMapped());
             }

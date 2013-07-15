@@ -100,6 +100,7 @@ namespace TrenchBroom {
             void deactivate();
             void map();
             void unmap();
+            void free();
             
             void freeBlock(VboBlock* block);
             
