@@ -141,6 +141,7 @@ namespace TrenchBroom {
             MultiMenu& addMultiMenu(const String& text, int menuId);
             
             static wxMenuBar* createMenuBar(const MultiMenuSelector& selector, const bool showModifiers);
+            static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
             static wxMenu* createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers);
         private:
             static wxMenu* createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers);

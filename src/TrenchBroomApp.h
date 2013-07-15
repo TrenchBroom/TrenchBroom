@@ -21,18 +21,27 @@
 #define __TrenchBroom__TrenchBroomApp__
 
 #include "View/FrameManager.h"
+#include "View/RecentDocuments.h"
 
 #include <wx/wx.h>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class TrenchBroomApp : public wxApp {
         private:
-            TrenchBroom::View::FrameManager* m_frameManager;
+            FrameManager* m_frameManager;
+            RecentDocuments<TrenchBroomApp> m_recentDocuments;
         public:
             TrenchBroomApp();
             
             FrameManager* frameManager();
+            void addRecentDocumentMenu(wxMenu* menu);
+            void removeRecentDocumentMenu(wxMenu* menu);
+            void updateRecentDocument(const IO::Path& path);
             
             bool OnInit();
             int OnExit();
@@ -40,6 +49,7 @@ namespace TrenchBroom {
             
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
+            void OnFileOpenRecent(wxCommandEvent& event);
 
 #ifdef __APPLE__
             void OnOpenPreferences(wxCommandEvent& event);

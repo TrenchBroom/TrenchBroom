@@ -83,6 +83,9 @@ namespace TrenchBroom {
 
         MapFrame::~MapFrame() {
             m_controller.removeCommandListener(this);
+            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
+            if (app != NULL)
+                app->removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(GetMenuBar()));
         }
 
         Logger* MapFrame::logger() const {
@@ -195,6 +198,10 @@ namespace TrenchBroom {
         void MapFrame::createMenuBar() {
             wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
             SetMenuBar(menuBar);
+            
+            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
+            if (app != NULL)
+                app->addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
         }
 
         void MapFrame::updateTitle() {

@@ -239,13 +239,24 @@ namespace TrenchBroom {
             return menuBar;
         }
 
+        wxMenu* Menu::findRecentDocumentsMenu(const wxMenuBar* menuBar) {
+            const size_t fileMenuIndex = menuBar->FindMenu("File");
+            const wxMenu* fileMenu = menuBar->GetMenu(fileMenuIndex);
+            if (fileMenu == NULL)
+                return NULL;
+            const wxMenuItem* recentDocumentsItem = fileMenu->FindItem(CommandIds::Menu::FileOpenRecent);
+            if (recentDocumentsItem == NULL)
+                return NULL;
+            return recentDocumentsItem->GetSubMenu();
+        }
+        
         wxMenu* Menu::createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers) {
             const Menu& menu = getMenu(name);
             return createMenu(menu, selector, showModifiers);
         }
 
         wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers) {
-            wxMenu* result = new wxMenu();
+            wxMenu* result = new wxMenu(menu.text());
             
             const Menu::List& items = menu.items();
             Menu::List::const_iterator it, end;

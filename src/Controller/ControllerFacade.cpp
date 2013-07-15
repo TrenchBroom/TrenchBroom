@@ -21,6 +21,7 @@
 
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "TrenchBroomApp.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -39,7 +40,13 @@ namespace TrenchBroom {
         
         bool ControllerFacade::openDocument(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path) {
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(document, game, path));
-            return m_commandProcessor.submitCommand(command);
+            if (m_commandProcessor.submitCommand(command)) {
+                View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
+                if (app != NULL)
+                    app->updateRecentDocument(path);
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -38,10 +38,23 @@ namespace TrenchBroom {
     namespace View {
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
-        m_frameManager(NULL) {}
+        m_frameManager(NULL),
+        m_recentDocuments(CommandIds::Menu::FileRecentDocuments, 10) {}
         
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
+        }
+
+        void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
+            m_recentDocuments.addMenu(menu);
+        }
+        
+        void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
+            m_recentDocuments.removeMenu(menu);
+        }
+
+        void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
+            m_recentDocuments.update(path);
         }
 
         bool TrenchBroomApp::OnInit() {
@@ -53,10 +66,16 @@ namespace TrenchBroom {
             assert(m_frameManager == NULL);
             m_frameManager = new FrameManager(useSDI());
             
+            m_recentDocuments.setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
+            
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
+            
+            wxMenu* recentDocumentsMenu = Menu::findRecentDocumentsMenu(menuBar);
+            assert(recentDocumentsMenu != NULL);
+            m_recentDocuments.addMenu(recentDocumentsMenu);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
@@ -112,7 +131,14 @@ namespace TrenchBroom {
             if (!pathStr.empty())
                 openDocument(pathStr.ToStdString());
         }
-        
+
+        void TrenchBroomApp::OnFileOpenRecent(wxCommandEvent& event) {
+            const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
+            assert(object != NULL);
+            const wxString data = object->GetString();
+            openDocument(data.ToStdString());
+        }
+
 #ifdef __APPLE__
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
         }
@@ -127,10 +153,14 @@ namespace TrenchBroom {
                 case wxID_NEW:
                 case wxID_OPEN:
                 case wxID_EXIT:
+                case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;
                 default:
-                    if (m_frameManager->allFramesClosed())
+                    if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
+                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
+                        event.Enable(true);
+                    else if (m_frameManager->allFramesClosed())
                         event.Enable(false);
                     break;
             }
