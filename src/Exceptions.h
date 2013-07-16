@@ -107,6 +107,13 @@ namespace TrenchBroom {
         RenderException(const String& str) throw() : Exception(str) {}
         ~RenderException() throw() {}
     };
+            
+    class OctreeException : public Exception {
+    public:
+        OctreeException() throw() {}
+        OctreeException(const String& str) throw() : Exception(str) {}
+        ~OctreeException() throw() {}
+    };
 }
 
 #endif

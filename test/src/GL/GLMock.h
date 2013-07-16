@@ -117,6 +117,9 @@ public:
     MOCK_METHOD4(UniformMatrix4x3fv, void(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value));
     
     MOCK_METHOD2(GetUniformLocation, GLint(GLuint program, const GLchar* name));
+    
+    void FinishObjectAPPLE(GLuint object, GLuint name) {}
+    GLenum GetError() {return GL_NO_ERROR;}
 };
 
 extern CGLMock* GLMock;
@@ -230,4 +233,9 @@ extern CGLMock* GLMock;
 #undef glGetUniformLocation
 #define glGetUniformLocation        GLMock->GetUniformLocation
 
+#undef glFinishObjectAPPLE
+#define glFinishObjectAPPLE         GLMock->FinishObjectAPPLE
+
+#undef glGetError
+#define glGetError                  GLMock->GetError
 #endif

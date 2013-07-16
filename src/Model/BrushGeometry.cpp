@@ -38,6 +38,26 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_vertices);
         }
 
+        BBox3 BrushGeometry::bounds() const {
+            assert(m_vertices.size() > 0);
+            BBox3 bounds(m_vertices[0]->position(), m_vertices[0]->position());
+            for (size_t i = 1; i < m_vertices.size(); ++i)
+                bounds.mergeWith(m_vertices[i]->position());
+            return bounds;
+        }
+
+        const BrushVertex::List& BrushGeometry::vertices() const {
+            return m_vertices;
+        }
+        
+        const BrushEdge::List& BrushGeometry::edges() const {
+            return m_edges;
+        }
+        
+        const BrushFaceGeometry::List& BrushGeometry::sides() const {
+            return m_sides;
+        }
+
         void BrushGeometry::initializeWithBounds(const BBox3& bounds) {
             BrushVertex* v000 = new BrushVertex(bounds.vertex(BBox3::Min, BBox3::Min, BBox3::Min));
             BrushVertex* v001 = new BrushVertex(bounds.vertex(BBox3::Min, BBox3::Min, BBox3::Max));

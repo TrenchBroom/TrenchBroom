@@ -226,91 +226,39 @@ public:
         
     }
     
-    /*
-    T intersectWithRay(const Ray<T>& ray, Vec<T,3>* sideNormal = NULL) const {
+    T intersectWithRay(const Ray<T,S>& ray, Vec<T,S>* sideNormal = NULL) const {
         const bool inside = contains(ray.origin);
         
-        if (ray.direction.x() < 0) {
-            const Plane<T> plane(Vec<T,3>::PosX, inside ? min : max);
+        for (size_t i = 0; i < S; ++i) {
+            if (ray.direction[i] == static_cast<T>(0.0))
+                continue;
+            
+            Vec<T,S> normal, position;
+            normal[i] = ray.direction[i] < static_cast<T>(0.0) ? static_cast<T>(1.0) : static_cast<T>(-1.0);
+            if (inside)
+                position = ray.direction[i] < static_cast<T>(0.0) ? min : max;
+            else
+                position = ray.direction[i] < static_cast<T>(0.0) ? max : min;
+            
+            const Plane<T,S> plane(position, normal);
             const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.y(), min.y(), max.y()) &&
-                    Math<T>::between(point.z(), min.z(), max.z())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::NegX : Vec<T,3>::PosX;
-                    return distance;
-                }
-            }
-        } else if (ray.direction.x() > 0) {
-            const Plane<T> plane(Vec<T,3>::NegX, inside ? max : min);
-            const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.y(), min.y(), max.y()) &&
-                    Math<T>::between(point.z(), min.z(), max.z())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::PosX : Vec<T,3>::NegX;
-                    return distance;
-                }
-            }
-        }
-        
-        if (ray.direction.y() < 0) {
-            const Plane<T> plane(Vec<T,3>::PosY, inside ? min : max);
-            const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.x(), min.x(), max.x()) &&
-                    Math<T>::between(point.z(), min.z(), max.z())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::NegY : Vec<T,3>::PosY;
-                    return distance;
-                }
-            }
-        } else if (ray.direction.y() > 0) {
-            const Plane<T> plane(Vec<T,3>::NegY, inside ? max : min);
-            const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.x(), min.x(), max.x()) &&
-                    Math<T>::between(point.z(), min.z(), max.z())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::PosY : Vec<T,3>::NegY;
-                    return distance;
-                }
-            }
-        }
-        
-        if (ray.direction.z() < 0) {
-            const Plane<T> plane(Vec<T,3>::PosZ, inside ? min : max);
-            const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.x(), min.x(), max.x()) &&
-                    Math<T>::between(point.y(), min.y(), max.y())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
-                    return distance;
-                }
-            }
-        } else if (ray.direction.z() > 0) {
-            const Plane<T> plane(Vec<T,3>::NegZ, inside ? max : min);
-            const T distance = plane.intersectWithRay(ray);
-            if (!Math<T>::isnan(distance)) {
-                const Vec<T,3> point = ray.pointAtDistance(distance);
-                if (Math<T>::between(point.x(), min.x(), max.x()) &&
-                    Math<T>::between(point.y(), min.y(), max.y())) {
-                    if (sideNormal != NULL)
-                        *sideNormal = inside ? Vec<T,3>::PosZ : Vec<T,3>::NegZ;
-                    return distance;
-                }
-            }
+            if (Math<T>::isnan(distance))
+                continue;
+            
+            const Vec<T,S> point = ray.pointAtDistance(distance);
+            for (size_t j = 0; j < S; ++j)
+                if (i != j && !Math<T>::between(point[j], min[j], max[j]))
+                    goto cont;
+            
+            if (sideNormal != NULL)
+                *sideNormal = inside ? -normal : normal;
+            return distance;
+            
+        cont:;
         }
         
         return std::numeric_limits<T>::quiet_NaN();
     }
-    */
     
     inline BBox<T,S>& expand(const T f) {
         for (size_t i = 0; i < S; i++) {

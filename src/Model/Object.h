@@ -21,18 +21,25 @@
 #define __TrenchBroom__Object__
 
 #include "TrenchBroom.h"
+#include "SharedPointer.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Object {
+        public:
+            typedef std::tr1::shared_ptr<Object> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             size_t m_lineNumber;
             size_t m_lineCount;
         public:
-            inline void setFilePosition(const size_t lineNumber, const size_t lineCount) {
-                m_lineNumber = lineNumber;
-                m_lineCount = lineCount;
-            }
+            virtual ~Object();
+            
+            virtual BBox3 bounds() const = 0;
+
+            void setFilePosition(const size_t lineNumber, const size_t lineCount);
         };
     }
 }

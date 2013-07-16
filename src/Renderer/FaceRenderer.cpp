@@ -20,6 +20,8 @@
 #include "FaceRenderer.h"
 
 #include "GL/GL.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Model/Texture.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -45,16 +47,17 @@ namespace TrenchBroom {
         void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
             ShaderManager& shaderManager = context.shaderManager();
             ActiveShader shader(shaderManager, Shaders::FaceShader);
+            PreferenceManager& prefs = PreferenceManager::instance();
             
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
             const bool applyTexture = true;
-            shader.set("Brightness", 1.0f);
+            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
             shader.set("Alpha", 1.0f);
             shader.set("RenderGrid", true);
             shader.set("GridSize", 32.0f);
-            shader.set("GridAlpha", 0.5f);
-            shader.set("GridCheckerboard", false);
+            shader.set("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
+            shader.set("GridCheckerboard", prefs.getBool(Preferences::GridCheckerboard));
             shader.set("ApplyTexture", applyTexture);
             shader.set("FaceTexture", 0);
             shader.set("ApplyTinting", tintColor != NULL);
@@ -62,8 +65,8 @@ namespace TrenchBroom {
                 shader.set("TintColor", *tintColor);
             shader.set("GrayScale", grayScale);
             shader.set("CameraPosition", context.camera().position());
-            shader.set("ShadeFaces", true);
-            shader.set("UseFog", false);
+            shader.set("ShadeFaces", prefs.getBool(Preferences::ShadeFaces));
+            shader.set("UseFog", prefs.getBool(Preferences::UseFog));
             
             renderOpaqueFaces(shader, applyTexture);
             renderTransparentFaces(shader, applyTexture);

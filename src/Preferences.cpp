@@ -21,13 +21,19 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        Preference<Color> BackgroundColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> XAxisColor = Preference<Color>("Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> YAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
-        Preference<Color> ZAxisColor = Preference<Color>("Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
-        Preference<Color> FaceColor = Preference<Color>("Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
-        Preference<Color> EdgeColor = Preference<Color>("Colors/Edges", Color(.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> BackgroundColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> XAxisColor = Preference<Color>("Renderer/Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> YAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
+        Preference<Color> ZAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
+        Preference<Color> FaceColor = Preference<Color>("Renderer/Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
+        Preference<Color> EdgeColor = Preference<Color>("Renderer/Colors/Edges", Color(.7f,  0.7f,  0.7f,  1.0f));
 
+        Preference<float> Brightness = Preference<float>("Renderer/Brightness", 1.0f);
+        Preference<float> GridAlpha = Preference<float>("Renderer/Grid/Alpha", 0.5f);
+        Preference<bool> GridCheckerboard = Preference<bool>("Renderer/Grid/Checkerboard", false);
+        Preference<bool> ShadeFaces = Preference<bool>("Renderer/ShadeFaces", true);
+        Preference<bool> UseFog = Preference<bool>("Renderer/UseFog", false);
+        
         Preference<float> CameraLookSpeed = Preference<float>("Controls/Camera/Look speed", 0.5f);
         Preference<bool>  CameraLookInvertH = Preference<bool>("Controls/Camera/Invert horizontal look", false);
         Preference<bool>  CameraLookInvertV = Preference<bool>("Controls/Camera/Invert vertical look", false);

@@ -42,6 +42,11 @@ namespace TrenchBroom {
             m_geometry = NULL;
         }
 
+        BBox3 Brush::bounds() const {
+            assert(m_geometry != NULL);
+            return m_geometry->bounds();
+        }
+
         const BrushFace::List& Brush::faces() const {
             return m_faces;
         }

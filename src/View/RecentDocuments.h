@@ -76,8 +76,16 @@ namespace TrenchBroom {
                     createBindings();
             }
             
-            void update(const IO::Path& path) {
+            void updatePath(const IO::Path& path) {
                 insertPath(path);
+                updateMenus();
+                updateBindings();
+                saveToConfig();
+            }
+            
+            void removePath(const IO::Path& path) {
+                const IO::Path canonPath = path.makeCanonical();
+                VectorUtils::remove(m_recentDocuments, canonPath);
                 updateMenus();
                 updateBindings();
                 saveToConfig();
@@ -98,6 +106,7 @@ namespace TrenchBroom {
             
             void saveToConfig() {
                 wxConfigBase* conf = wxConfig::Get();
+                conf->DeleteGroup("RecentDocuments");
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     const wxString confName = wxString("RecentDocuments/") << i;
                     const wxString value = m_recentDocuments[i].asString();

@@ -21,5 +21,11 @@
 
 namespace TrenchBroom {
     namespace Model {
+        Object::~Object() {}
+
+        void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+            m_lineNumber = lineNumber;
+            m_lineCount = lineCount;
+        }
     }
 }

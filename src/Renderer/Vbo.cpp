@@ -158,7 +158,7 @@ namespace TrenchBroom {
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
             glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, m_vboId);
 #endif
-            m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_READ_WRITE));
+            m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             assert(glGetError() == GL_NO_ERROR);
             assert(m_buffer != NULL);
             m_state = VboState::Mapped;

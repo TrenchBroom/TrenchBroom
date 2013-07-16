@@ -48,6 +48,8 @@ namespace TrenchBroom {
             static Brush::Ptr newBrush(const BBox3& worldBounds, const BrushFace::List& faces);
             ~Brush();
             
+            BBox3 bounds() const;
+            
             const BrushFace::List& faces() const;
 
             template <class Operator, class Filter>

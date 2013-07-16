@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
-            m_recentDocuments.update(path);
+            m_recentDocuments.updatePath(path);
         }
 
         bool TrenchBroomApp::OnInit() {
@@ -136,7 +136,10 @@ namespace TrenchBroom {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
             assert(object != NULL);
             const wxString data = object->GetString();
-            openDocument(data.ToStdString());
+            if (!openDocument(data.ToStdString())) {
+                m_recentDocuments.removePath(IO::Path(data.ToStdString()));
+                ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
+            }
         }
 
 #ifdef __APPLE__
@@ -195,9 +198,15 @@ namespace TrenchBroom {
         
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             MapFrame* frame = m_frameManager->newFrame();
-            Model::Game::Ptr game = Model::QuakeGame::newGame(frame->logger());
-            const IO::Path path(pathStr);
-            return frame != NULL && frame->openDocument(game, path);
+            try {
+                Model::Game::Ptr game = Model::QuakeGame::newGame(frame->logger());
+                const IO::Path path(pathStr);
+                return frame != NULL && frame->openDocument(game, path);
+            } catch (...) {
+                if (frame != NULL)
+                    frame->Close();
+                return false;
+            }
         }
     }
 }

@@ -33,6 +33,10 @@ namespace TrenchBroom {
             return Entity::Ptr(new Entity());
         }
 
+        BBox3 Entity::bounds() const {
+            return BBox3(); // TODO implement this
+        }
+
         const EntityProperty::List& Entity::properties() const {
             return m_properties.properties();
         }

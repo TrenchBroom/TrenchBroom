@@ -33,6 +33,12 @@ namespace TrenchBroom {
         extern Preference<Color> FaceColor;
         extern Preference<Color> EdgeColor;
         
+        extern Preference<float> Brightness;
+        extern Preference<float> GridAlpha;
+        extern Preference<bool> GridCheckerboard;
+        extern Preference<bool> ShadeFaces;
+        extern Preference<bool> UseFog;
+        
         extern Preference<float> CameraLookSpeed;
         extern Preference<bool> CameraLookInvertH;
         extern Preference<bool> CameraLookInvertV;
