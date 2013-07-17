@@ -122,14 +122,14 @@ namespace TrenchBroom {
             }
             
             void createBindings() {
-                for (int i = 0; i < m_recentDocuments.size(); ++i) {
+                for (int i = 0; i < static_cast<int>(m_recentDocuments.size()); ++i) {
                     wxVariant* data = new wxVariant(wxString(m_recentDocuments[i].asString()));
                     m_handler->Bind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, m_baseId + i, m_baseId + i, data);
                 }
             }
             
             void clearBindings() {
-                for (int i = 0; i < m_maxSize; ++i)
+                for (int i = 0; i < static_cast<int>(m_maxSize); ++i)
                     m_handler->Unbind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, m_baseId + i);
             }
             

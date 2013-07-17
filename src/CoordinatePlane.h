@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CoordinatePlane_h
 #define TrenchBroom_CoordinatePlane_h
 
-#include "Math.h"
+#include "MathUtils.h"
 #include "Vec.h"
 
 template <typename T, size_t S>

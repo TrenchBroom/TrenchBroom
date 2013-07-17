@@ -288,18 +288,34 @@ namespace TrenchBroom {
             
             const Model::Brush::List& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
+        }
+
+        TEST(QuakeMapParserTest, parseProblematicBrush3) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( 256 1152 -96 ) ( 160 1152 -96 ) ( 160 1120 -96 ) b_rc_v4 31 -31 90 1 1\n"
+                              "( -64 1120 64 ) ( -64 1184 64 ) ( -32 1184 32 ) b_rc_v4 31 -31 90 1 1\n"
+                              "( -112 1120 32 ) ( 224 1120 32 ) ( 224 1120 -96 ) b_rc_v4 0 0 90 1 1\n"
+                              "( -112 1184 -96 ) ( 264 1184 -96 ) ( 264 1184 32 ) b_rc_v4 -127 -32 90 1 1\n"
+                              "( -64 1184 64 ) ( -64 1120 64 ) ( -64 1120 -96 ) b_rc_v4 -127 32 90 1 1\n"
+                              "( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(-8192, 8192);
             
-            /*
-            const Model::Brush::Ptr brush = brushes.front();
-            const Model::BrushFace::List faces = brush->faces();
-            ASSERT_EQ(6u, faces.size());
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 108.0, 176.0), Vec3(308.0, 132.0, 176.0), Vec3(252.0, 132.0, 176.0)));
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(252.0, 132.0, 208.0), Vec3(308.0, 132.0, 208.0), Vec3(308.0, 108.0, 208.0)));
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 152.0, 176.0), Vec3(288.0, 152.0, 208.0), Vec3(288.0, 120.0, 208.0)));
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)));
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)));
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)));
-             */
+            QuakeMapParser parser(data);
+            Model::Map::Ptr map = parser.parseMap(worldBounds);
+            
+            const Model::Entity::List& entities = map->entities();
+            ASSERT_EQ(1u, entities.size());
+            
+            const Model::Entity::Ptr entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::Brush::List& brushes = entity->brushes();
+            ASSERT_EQ(1u, brushes.size());
         }
     }
 }
