@@ -79,11 +79,15 @@ namespace TrenchBroom {
         }
 
         void Entity::addBrush(Brush::Ptr brush) {
+            assert(brush->parent() == NULL);
             m_brushes.push_back(brush);
+            brush->setParent(this);
         }
 
         void Entity::removeBrush(Brush::Ptr brush) {
+            assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
+            brush->setParent(NULL);
         }
 
         Entity::Ptr Entity::sharedFromThis() {

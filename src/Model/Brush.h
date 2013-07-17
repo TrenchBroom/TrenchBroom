@@ -33,6 +33,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushGeometry;
+        class Entity;
         
         class Brush : public Object, public std::tr1::enable_shared_from_this<Brush> {
         public:
@@ -44,13 +45,18 @@ namespace TrenchBroom {
 
             static const Hit::HitType BrushHit;
         private:
+            Entity* m_parent;
             BrushFace::List m_faces;
             BrushGeometry* m_geometry;
-
-            Brush(const BBox3& worldBounds, const BrushFace::List& faces);
         public:
             static Brush::Ptr newBrush(const BBox3& worldBounds, const BrushFace::List& faces);
             ~Brush();
+            
+            Entity* parent() const;
+            void setParent(Entity* parent);
+            
+            bool select();
+            bool deselect();
             
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
@@ -82,8 +88,12 @@ namespace TrenchBroom {
             
             void addEdges(Vertex::List& vertices) const;
         private:
+            Brush(const BBox3& worldBounds, const BrushFace::List& faces);
             Ptr sharedFromThis();
-            void rebuildGeometry(const BBox3& worldBounds);
+            void rebuildGeometry(const BBox3& worldBounds, const BrushFace::List& faces);
+            void addFaces(const BrushFace::List& faces);
+            void addFace(BrushFace::Ptr face);
+            void removeAllFaces();
         };
     }
 }

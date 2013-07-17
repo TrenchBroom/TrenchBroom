@@ -22,18 +22,12 @@
 #include "CollectionUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Entity.h"
 
 namespace TrenchBroom {
     namespace Model {
         const Brush::List Brush::EmptyList = Brush::List();
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
-
-        Brush::Brush(const BBox3& worldBounds, const BrushFace::List& faces) :
-        Object(OTBrush),
-        m_faces(faces),
-        m_geometry(NULL) {
-            rebuildGeometry(worldBounds);
-        }
 
         Brush::Ptr Brush::newBrush(const BBox3& worldBounds, const BrushFace::List& faces) {
             return Brush::Ptr(new Brush(worldBounds, faces));
@@ -44,6 +38,41 @@ namespace TrenchBroom {
             m_geometry = NULL;
         }
 
+        Entity* Brush::parent() const {
+            return m_parent;
+        }
+        
+        void Brush::setParent(Entity* parent) {
+            if (m_parent == parent)
+                return;
+            
+            if (m_parent != NULL) {
+                if (selected())
+                    m_parent->decChildSelectionCount();
+            }
+            m_parent = parent;
+            if (m_parent != NULL) {
+                if (selected())
+                    m_parent->incChildSelectionCount();
+            }
+        }
+
+        bool Brush::select() {
+            if (!Object::select())
+                return false;
+            if (m_parent != NULL)
+                m_parent->incChildSelectionCount();
+            return true;
+        }
+        
+        bool Brush::deselect() {
+            if (!Object::deselect())
+                return false;
+            if (m_parent != NULL)
+                m_parent->decChildSelectionCount();
+            return true;
+        }
+        
         BBox3 Brush::bounds() const {
             assert(m_geometry != NULL);
             return m_geometry->bounds();
@@ -81,13 +110,45 @@ namespace TrenchBroom {
             }
         }
 
+        Brush::Brush(const BBox3& worldBounds, const BrushFace::List& faces) :
+        Object(OTBrush),
+        m_parent(NULL),
+        m_geometry(NULL) {
+            rebuildGeometry(worldBounds, faces);
+        }
+        
         Brush::Ptr Brush::sharedFromThis() {
             return shared_from_this();
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+        void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFace::List& faces) {
             delete m_geometry;
-            m_geometry = new BrushGeometry(worldBounds, m_faces);
+            m_geometry = new BrushGeometry(worldBounds);
+            BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
+            
+            removeAllFaces();
+            addFaces(result.addedFaces);
+        }
+
+        void Brush::addFaces(const BrushFace::List& faces) {
+            BrushFace::List::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFace::Ptr face = *it;
+                addFace(face);
+            }
+        }
+        
+        void Brush::addFace(BrushFace::Ptr face) {
+            m_faces.push_back(face);
+            face->setParent(this);
+        }
+        
+        void Brush::removeAllFaces() {
+            while (!m_faces.empty()) {
+                BrushFace::Ptr face = m_faces.back();
+                m_faces.pop_back();
+                face->setParent(NULL);
+            }
         }
     }
 }

@@ -27,9 +27,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushGeometry::BrushGeometry(const BBox3& worldBounds, const BrushFace::List& faces) {
+        BrushGeometry::BrushGeometry(const BBox3& worldBounds) {
             initializeWithBounds(worldBounds);
-            addFaces(faces);
         }
 
         BrushGeometry::~BrushGeometry() {
@@ -56,6 +55,39 @@ namespace TrenchBroom {
         
         const BrushFaceGeometry::List& BrushGeometry::sides() const {
             return m_sides;
+        }
+        
+        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFace::List& faces) {
+            AddFaceResult totalResult(BrushIsSplit);
+            
+            BrushFace::List::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFace::Ptr face = *it;
+                const AddFaceResult result = addFace(face);
+                if (result.resultCode == BrushIsNull)
+                    return AddFaceResult(BrushIsNull);
+                totalResult.append(result);
+            }
+            
+            return totalResult;
+        }
+        
+        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace::Ptr face) {
+            IntersectBrushGeometryWithFace algorithm(*this, face);
+            const AddFaceResultCode resultCode = algorithm.execute();
+            switch (resultCode) {
+                case BrushIsNull:
+                    break;
+                case FaceIsRedundant:
+                    break;
+                case BrushIsSplit:
+                    m_vertices = algorithm.vertices();
+                    m_edges = algorithm.edges();
+                    m_sides = algorithm.sides();
+                    break;
+            }
+            
+            return AddFaceResult(resultCode, algorithm.addedFaces(), algorithm.removedFaces());
         }
 
         void BrushGeometry::initializeWithBounds(const BBox3& bounds) {
@@ -156,39 +188,6 @@ namespace TrenchBroom {
             assert(back->isClosed());
             assert(left->isClosed());
             assert(right->isClosed());
-        }
-
-        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFace::List& faces) {
-            AddFaceResult totalResult(BrushIsSplit);
-            
-            BrushFace::List::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace::Ptr face = *it;
-                const AddFaceResult result = addFace(face);
-                if (result.resultCode == BrushIsNull)
-                    return AddFaceResult(BrushIsNull);
-                totalResult.append(result);
-            }
-            
-            return totalResult;
-        }
-        
-        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace::Ptr face) {
-            IntersectBrushGeometryWithFace algorithm(*this, face);
-            const AddFaceResultCode resultCode = algorithm.execute();
-            switch (resultCode) {
-                case BrushIsNull:
-                    break;
-                case FaceIsRedundant:
-                    break;
-                case BrushIsSplit:
-                    m_vertices = algorithm.vertices();
-                    m_edges = algorithm.edges();
-                    m_sides = algorithm.sides();
-                    break;
-            }
-            
-            return AddFaceResult(resultCode, algorithm.addedFaces(), algorithm.removedFaces());
         }
     }
 }

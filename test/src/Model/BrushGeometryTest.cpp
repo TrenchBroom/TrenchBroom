@@ -33,7 +33,7 @@ namespace TrenchBroom {
             const FloatType s = 8192.0;
             const Vec3 worldSize2(s, s, s);
             const BBox3 worldBounds(-worldSize2, worldSize2);
-            const BrushGeometry geometry(worldBounds, BrushFace::EmptyList);
+            const BrushGeometry geometry(worldBounds);
             
             const BrushVertex::List& vertices = geometry.vertices();
             const BrushEdge::List& edges = geometry.edges();
@@ -151,7 +151,11 @@ namespace TrenchBroom {
             const FloatType s = 8192.0;
             const Vec3 worldSize2(s, s, s);
             const BBox3 worldBounds(-worldSize2, worldSize2);
-            const BrushGeometry geometry(worldBounds, faces);
+            BrushGeometry geometry(worldBounds);
+            const BrushGeometry::AddFaceResult result = geometry.addFaces(faces);
+            ASSERT_EQ(BrushGeometry::BrushIsSplit, result.resultCode);
+            ASSERT_EQ(6u, result.addedFaces.size());
+            ASSERT_TRUE(result.droppedFaces.empty());
             
             const BrushVertex::List& vertices = geometry.vertices();
             const BrushEdge::List& edges = geometry.edges();

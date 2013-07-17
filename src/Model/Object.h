@@ -49,8 +49,8 @@ namespace TrenchBroom {
             Type type() const;
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             bool selected() const;
-            void select();
-            void deselect();
+            virtual bool select();
+            virtual bool deselect();
             bool partiallySelected() const;
             void incChildSelectionCount();
             void decChildSelectionCount();
