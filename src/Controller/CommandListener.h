@@ -31,8 +31,12 @@ namespace TrenchBroom {
             typedef CommandListener* Ptr;
             typedef std::vector<Ptr> List;
             
+            virtual void commandDo(Command::Ptr command) = 0;
             virtual void commandDone(Command::Ptr command) = 0;
+            virtual void commandDoFailed(Command::Ptr command) = 0;
+            virtual void commandUndo(Command::Ptr command) = 0;
             virtual void commandUndone(Command::Ptr command) = 0;
+            virtual void commandUndoFailed(Command::Ptr command) = 0;
         };
     }
 }

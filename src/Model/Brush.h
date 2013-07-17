@@ -22,9 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Controller/Picker.h"
 #include "Model/BrushFace.h"
 #include "Model/Object.h"
+#include "Model/Picker.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
 
-            static const Controller::Hit::HitType BrushHit;
+            static const Hit::HitType BrushHit;
         private:
             BrushFace::List m_faces;
             BrushGeometry* m_geometry;
@@ -52,12 +52,22 @@ namespace TrenchBroom {
             ~Brush();
             
             BBox3 bounds() const;
-            void pick(const Ray3& ray, Controller::PickResult& result);
+            void pick(const Ray3& ray, PickResult& result);
             
             const BrushFace::List& faces() const;
 
             template <class Operator, class Filter>
-            void eachBrushFace(Operator& op, Filter& filter) {
+            void eachBrushFace(const Operator& op, const Filter& filter) {
+                BrushFace::List::const_iterator it, end;
+                for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                    BrushFace::Ptr face = *it;
+                    if (filter(face))
+                        op(face);
+                }
+            }
+            
+            template <class Operator, class Filter>
+            void eachBrushFace(Operator& op, const Filter& filter) {
                 BrushFace::List::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                     BrushFace::Ptr face = *it;

@@ -65,6 +65,10 @@ namespace TrenchBroom {
             const Mat4x4f& viewMatrix() const;
             
             Ray3f viewRay() const;
+            Ray3f pickRay(const int x, const int y) const;
+            
+            Vec3f project(const Vec3f& point) const;
+            Vec3f unproject(const float x, const float y, const float depth) const;
             
             void setFov(const float fov);
             void setNearPlane(const float nearPlane);

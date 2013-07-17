@@ -127,5 +127,21 @@ namespace TrenchBroom {
             m_scrollX = scrollX;
             m_scrollY = scrollY;
         }
+
+        const Ray3f& InputState::pickRay() const {
+            return m_pickRay;
+        }
+        
+        void InputState::setPickRay(const Ray3f& pickRay) {
+            m_pickRay = pickRay;
+        }
+
+        Model::PickResult& InputState::pickResult() const {
+            return m_pickResult;
+        }
+
+        void InputState::setPickResult(Model::PickResult& pickResult) {
+            m_pickResult = pickResult;
+        }
     }
 }

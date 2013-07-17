@@ -40,31 +40,40 @@ namespace TrenchBroom {
             SetFaceTexture(Model::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::BrushFace::Ptr face) {
+            inline void operator()(Model::BrushFace::Ptr face) const {
                 const String& textureName = face->textureName();
                 Model::Texture::Ptr texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };
         
-        struct SetFaceTextureFilter {
-            inline bool operator()(Model::Entity::Ptr entity) {
+        class AddToPicker {
+        private:
+            Model::Picker& m_picker;
+        public:
+            AddToPicker(Model::Picker& picker) :
+            m_picker(picker) {}
+            
+            inline void operator()(Model::Object::Ptr object) const {
+                m_picker.addObject(object);
+            }
+        };
+        
+        struct MatchAllFilter {
+            inline bool operator()(Model::Entity::Ptr entity) const {
                 return true;
             }
             
-            inline bool operator()(Model::Brush::Ptr brush) {
+            inline bool operator()(Model::Brush::Ptr brush) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushFace::Ptr face) {
+            inline bool operator()(Model::BrushFace::Ptr face) const {
                 return true;
             }
         };
         
-        MapDocument::MapDocument() :
-        CachingLogger(),
-        m_path(""),
-        m_modificationCount(0) {}
+        const BBox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         
         MapDocument::Ptr MapDocument::newMapDocument() {
             return MapDocument::Ptr(new MapDocument());
@@ -108,25 +117,30 @@ namespace TrenchBroom {
             m_modificationCount = 0;
         }
 
-        void MapDocument::newDocument(Model::Game::Ptr game) {
+        void MapDocument::newDocument(const BBox3& worldBounds, Model::Game::Ptr game) {
             assert(game != NULL);
             info("Creating new document");
 
+            m_worldBounds = worldBounds;
             m_game = game;
             m_map = Model::Map::newMap();
             m_textureManager.reset(m_game);
+            m_picker = Model::Picker(m_worldBounds);
             
             setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
         }
         
-        void MapDocument::openDocument(Model::Game::Ptr game, const IO::Path& path) {
+        void MapDocument::openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path) {
             assert(game != NULL);
             info("Opening document document " + path.asString());
 
-            m_map = game->loadMap(path);
+            m_worldBounds = worldBounds;
             m_game = game;
+            m_map = m_game->loadMap(worldBounds, path);
             m_textureManager.reset(m_game);
+            m_picker = Model::Picker(m_worldBounds);
+            m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
             
             setDocumentPath(path);
             clearModificationCount();
@@ -146,6 +160,24 @@ namespace TrenchBroom {
             m_textureManager.commitChanges();
         }
 
+        void MapDocument::commandDo(Controller::Command::Ptr command) {}
+        void MapDocument::commandDone(Controller::Command::Ptr command) {}
+        void MapDocument::commandDoFailed(Controller::Command::Ptr command) {}
+        void MapDocument::commandUndo(Controller::Command::Ptr command) {}
+        void MapDocument::commandUndone(Controller::Command::Ptr command) {}
+        void MapDocument::commandUndoFailed(Controller::Command::Ptr command) {}
+
+        Model::PickResult MapDocument::pick(const Ray3& ray) {
+            return m_picker.pick(ray);
+        }
+
+        MapDocument::MapDocument() :
+        CachingLogger(),
+        m_worldBounds(DefaultWorldBounds),
+        m_path(""),
+        m_picker(m_worldBounds),
+        m_modificationCount(0) {}
+        
         void MapDocument::loadAndUpdateTextures() {
             loadTextures();
             updateTextures();
@@ -174,9 +206,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateTextures() {
-            SetFaceTexture op(m_textureManager);
-            SetFaceTextureFilter filter;
-            m_map->eachBrushFace(op, filter);
+            m_map->eachBrushFace(SetFaceTexture(m_textureManager), MatchAllFilter());
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

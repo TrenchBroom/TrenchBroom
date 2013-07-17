@@ -26,30 +26,37 @@
 
 namespace TrenchBroom {
     namespace View {
+        bool CameraToolHitFilter::matches(const Model::Hit& hit) const {
+            return true;
+        }
+
         CameraTool::CameraTool(BaseTool* next, Renderer::Camera& camera) :
         Tool(next),
         m_camera(camera),
         m_orbit(false) {}
         
         void CameraTool::doScroll(const InputState& inputState) {
-            if (move(inputState)) {
-                if (m_orbit) {
-                    const Plane3f orbitPlane(m_camera.direction(), m_orbitCenter);
-                    const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
-                    const float distance = std::min(inputState.scrollY() * moveSpeed(), maxDistance);
-                    m_camera.moveBy(distance * m_camera.direction());
-                } else {
-                    // PreferenceManager prefs = PreferenceManager::instance();
-                    // const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : camera.direction();
-                    const Vec3f moveDirection = m_camera.direction();
-                    const float distance = inputState.scrollY() * moveSpeed();
-                    m_camera.moveBy(distance * moveDirection);
-                }
+            if (m_orbit) {
+                const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
+                const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
+                const float distance = std::min(inputState.scrollY() * moveSpeed(), maxDistance);
+                m_camera.moveBy(distance * m_camera.direction());
+            } else if (move(inputState)) {
+                PreferenceManager prefs = PreferenceManager::instance();
+                const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : m_camera.direction();
+                const float distance = inputState.scrollY() * moveSpeed();
+                m_camera.moveBy(distance * moveDirection);
             }
         }
 
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
+                Model::PickResult::FirstHit firstHit = inputState.pickResult().firstHit(m_hitFilter, false);
+                if (firstHit.matches) {
+                    m_orbit = true;
+                    m_orbitCenter = firstHit.hit.hitPoint();
+                }
+                return true;
             } else if (look(inputState)) {
                 return true;
             } else if (pan(inputState)) {
@@ -60,6 +67,10 @@ namespace TrenchBroom {
         
         bool CameraTool::doMouseDrag(const InputState& inputState) {
             if (m_orbit) {
+                const float hAngle = inputState.mouseDX() * lookSpeedH();
+                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                m_camera.orbit(m_orbitCenter, hAngle, vAngle);
+                return true;
             } else if (look(inputState)) {
                 const float hAngle = inputState.mouseDX() * lookSpeedH();
                 const float vAngle = inputState.mouseDY() * lookSpeedV();

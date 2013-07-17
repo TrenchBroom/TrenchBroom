@@ -100,6 +100,10 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMouseMotion(wxMouseEvent& event) {
+            m_inputState.setPickRay(m_camera.pickRay(event.GetX(), event.GetY()));
+            Model::PickResult pickResult = m_document->pick(m_inputState.pickRay());
+            m_inputState.setPickResult(pickResult);
+            
             if (m_drag) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
                 m_toolChain->mouseDrag(m_inputState);
@@ -165,12 +169,24 @@ namespace TrenchBroom {
             m_camera.setViewport(viewport);
         }
         
+        void MapView::commandDo(Controller::Command::Ptr command) {
+        }
+
         void MapView::commandDone(Controller::Command::Ptr command) {
             m_renderer.commandDone(command);
         }
         
+        void MapView::commandDoFailed(Controller::Command::Ptr command) {
+        }
+        
+        void MapView::commandUndo(Controller::Command::Ptr command) {
+        }
+
         void MapView::commandUndone(Controller::Command::Ptr command) {
             m_renderer.commandUndone(command);
+        }
+
+        void MapView::commandUndoFailed(Controller::Command::Ptr command) {
         }
 
         void MapView::createTools() {

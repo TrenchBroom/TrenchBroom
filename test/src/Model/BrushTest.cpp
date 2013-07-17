@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "Controller/Picker.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -81,16 +81,16 @@ namespace TrenchBroom {
 
             Brush::Ptr brush = Brush::newBrush(worldBounds, faces);
             
-            Controller::PickResult pickResult1;
+            PickResult pickResult1;
             brush->pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::PosY), pickResult1);
             ASSERT_EQ(1u, pickResult1.allHits().size());
             
-            Controller::Hit hit1 = pickResult1.allHits().front();
+            Hit hit1 = pickResult1.allHits().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
             BrushFace::Ptr face1 = hit1.object<BrushFace::Ptr>();
             ASSERT_EQ(front, face1);
             
-            Controller::PickResult pickResult2;
+            PickResult pickResult2;
             brush->pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::NegY), pickResult2);
             ASSERT_TRUE(pickResult2.allHits().empty());
         }

@@ -22,13 +22,13 @@
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
-#include "Controller/Pickable.h"
+#include "Model/Pickable.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Object : public Controller::Pickable {
+        class Object : public Pickable {
         public:
             typedef std::tr1::shared_ptr<Object> Ptr;
             typedef std::vector<Ptr> List;

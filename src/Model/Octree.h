@@ -22,11 +22,12 @@
 
 #include "VecMath.h"
 #include "Exceptions.h"
+#include "SharedPointer.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Controller {
+    namespace Model {
         template <typename F, typename T>
         class OctreeNode {
         private:
@@ -164,17 +165,13 @@ namespace TrenchBroom {
         public:
             typedef std::vector<T> List;
         private:
+            typedef std::tr1::shared_ptr<OctreeNode<F,T> > NodePtr;
             BBox<F,3> m_bounds;
-            OctreeNode<F,T>* m_root;
+            NodePtr m_root;
         public:
             Octree(const BBox<F,3>& bounds, const F minSize) :
             m_bounds(bounds),
             m_root(new OctreeNode<F,T>(bounds, minSize)) {}
-            
-            ~Octree() {
-                delete m_root;
-                m_root = NULL;
-            }
             
             inline void addObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))

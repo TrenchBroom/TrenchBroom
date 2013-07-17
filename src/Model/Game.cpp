@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Ptr Game::loadMap(const IO::Path& path) const {
-            return doLoadMap(path);
+        Map::Ptr Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
+            return doLoadMap(worldBounds, path);
         }
 
         IO::Path::List Game::extractTexturePaths(Map::Ptr map) const {

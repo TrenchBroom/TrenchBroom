@@ -21,12 +21,12 @@
 
 #include "Exceptions.h"
 #include "VecMath.h"
-#include "Controller/Octree.h"
+#include "Model/Octree.h"
 #include "Model/Object.h"
 #include "Model/Brush.h"
 
 namespace TrenchBroom {
-    namespace Controller {
+    namespace Model {
         TEST(OctreeTest, insertObject) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;

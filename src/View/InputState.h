@@ -20,7 +20,9 @@
 #ifndef __TrenchBroom__InputState__
 #define __TrenchBroom__InputState__
 
-#include <iostream>
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -51,6 +53,8 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
+            Ray3f m_pickRay;
+            mutable Model::PickResult m_pickResult;
         public:
             InputState();
             InputState(const int mouseX, const int mouseY);
@@ -77,6 +81,11 @@ namespace TrenchBroom {
             void clearMouseButtons();
             void mouseMove(const int mouseX, const int mouseY);
             void scroll(const float scrollX, const float scrollY);
+
+            const Ray3f& pickRay() const;
+            void setPickRay(const Ray3f& pickRay);
+            Model::PickResult& pickResult() const;
+            void setPickResult(Model::PickResult& pickResult);
         };
     }
 }

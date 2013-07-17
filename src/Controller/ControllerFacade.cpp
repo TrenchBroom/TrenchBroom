@@ -33,13 +33,13 @@ namespace TrenchBroom {
             m_commandProcessor.removeCommandListener(listener);
         }
 
-        bool ControllerFacade::newDocument(View::MapDocument::Ptr document, Model::Game::Ptr game) {
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(document, game));
+        bool ControllerFacade::newDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game) {
+            Command::Ptr command = Command::Ptr(new NewDocumentCommand(document, worldBounds, game));
             return m_commandProcessor.submitCommand(command);
         }
         
-        bool ControllerFacade::openDocument(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path) {
-            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(document, game, path));
+        bool ControllerFacade::openDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path) {
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(document, worldBounds, game, path));
             if (m_commandProcessor.submitCommand(command)) {
                 View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
                 if (app != NULL)

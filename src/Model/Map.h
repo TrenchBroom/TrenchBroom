@@ -42,9 +42,53 @@ namespace TrenchBroom {
             const Entity::List& entities() const;
             void addEntity(Entity::Ptr entity);
             Entity::Ptr worldspawn();
+
+            template <class Operator, class Filter>
+            inline void eachObject(const Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity)) {
+                        op(entity);
+                        entity->eachBrush(op, filter);
+                    }
+                }
+            }
             
             template <class Operator, class Filter>
-            inline void eachBrush(Operator& op, Filter& filter) {
+            inline void eachObject(Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity)) {
+                        op(entity);
+                        entity->eachBrush(op, filter);
+                    }
+                }
+            }
+            
+            template <class Operator, class Filter>
+            inline void eachEntity(const Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity))
+                        op(entity);
+                }
+            }
+            
+            template <class Operator, class Filter>
+            inline void eachEntity(Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity))
+                        op(entity);
+                }
+            }
+            
+            template <class Operator, class Filter>
+            inline void eachBrush(const Operator& op, const Filter& filter) {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
@@ -54,7 +98,27 @@ namespace TrenchBroom {
             }
             
             template <class Operator, class Filter>
-            inline void eachBrushFace(Operator& op, Filter& filter) {
+            inline void eachBrush(Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity))
+                        entity->eachBrush(op, filter);
+                }
+            }
+            
+            template <class Operator, class Filter>
+            inline void eachBrushFace(const Operator& op, const Filter& filter) {
+                Entity::List::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    Entity::Ptr entity = *it;
+                    if (filter(entity))
+                        entity->eachBrushFace(op, filter);
+                }
+            }
+
+            template <class Operator, class Filter>
+            inline void eachBrushFace(Operator& op, const Filter& filter) {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;

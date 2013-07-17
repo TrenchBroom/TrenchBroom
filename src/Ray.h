@@ -39,6 +39,12 @@ public:
     origin(i_origin),
     direction(i_direction) {}
 
+    template <typename U>
+    inline operator Ray<U,S>() const {
+        return Ray<U,S>(static_cast<Vec<U,S> >(origin),
+                        static_cast<Vec<U,S> >(direction));
+    }
+
     inline const Vec<T,S> pointAtDistance(const T distance) const {
         return origin + direction * distance;
     }

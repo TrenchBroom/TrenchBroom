@@ -39,8 +39,12 @@ namespace TrenchBroom {
         
         class MockListener : public CommandListener {
         public:
+            MOCK_METHOD1(commandDo, void(Command::Ptr));
             MOCK_METHOD1(commandDone, void(Command::Ptr));
+            MOCK_METHOD1(commandDoFailed, void(Command::Ptr));
+            MOCK_METHOD1(commandUndo, void(Command::Ptr));
             MOCK_METHOD1(commandUndone, void(Command::Ptr));
+            MOCK_METHOD1(commandUndoFailed, void(Command::Ptr));
         };
         
         TEST(CommandProcessorTest, submitAndDontStoreCommand) {
@@ -419,6 +423,7 @@ namespace TrenchBroom {
             MockListener listener;
             proc.addCommandListener(&listener);
 
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test")))));
             EXPECT_CALL(*cmd, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test")))));
             
@@ -436,8 +441,11 @@ namespace TrenchBroom {
             MockListener listener;
             proc.addCommandListener(&listener);
 
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test2")))));
             EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
             
@@ -458,30 +466,51 @@ namespace TrenchBroom {
             MockListener listener;
             proc.addCommandListener(&listener);
 
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test2")))));
             EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test3")))));
             EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test4")))));
             EXPECT_CALL(*cmd4, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
             
+            EXPECT_CALL(listener, commandUndo(Pointee(Property(&MockCommand::name, StrEq("test4")))));
             EXPECT_CALL(*cmd4, doPerformUndo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
+
+            EXPECT_CALL(listener, commandUndo(Pointee(Property(&MockCommand::name, StrEq("test3")))));
             EXPECT_CALL(*cmd3, doPerformUndo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            
+            EXPECT_CALL(listener, commandUndo(Pointee(Property(&MockCommand::name, StrEq("test2")))));
             EXPECT_CALL(*cmd2, doPerformUndo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            
+            EXPECT_CALL(listener, commandUndo(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd1, doPerformUndo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandUndone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test2")))));
             EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test2")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test3")))));
             EXPECT_CALL(*cmd3, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test3")))));
+            
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test4")))));
             EXPECT_CALL(*cmd4, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test4")))));
             
@@ -511,6 +540,7 @@ namespace TrenchBroom {
             MockListener listener;
             proc.addCommandListener(&listener);
             
+            EXPECT_CALL(listener, commandDo(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd1, doPerformDo()).WillOnce(Return(true));
             EXPECT_CALL(listener, commandDone(Pointee(Property(&MockCommand::name, StrEq("test1")))));
             EXPECT_CALL(*cmd2, doPerformDo()).WillOnce(Return(true));

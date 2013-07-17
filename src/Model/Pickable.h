@@ -25,7 +25,7 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace Controller {
+    namespace Model {
         class PickResult;
         
         class Pickable {

@@ -45,11 +45,11 @@ namespace TrenchBroom {
         m_logger(logger),
         m_palette(palettePath()) {}
         
-        Map::Ptr QuakeGame::doLoadMap(const IO::Path& path) const {
+        Map::Ptr QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             IO::QuakeMapParser parser(file->begin(), file->end(), m_logger);
-            return parser.parseMap(WorldBounds);
+            return parser.parseMap(worldBounds);
         }
 
         IO::Path::List QuakeGame::doExtractTexturePaths(Map::Ptr map) const {

@@ -30,11 +30,13 @@ namespace TrenchBroom {
         TEST(NewDocumentCommandTest, newDocumentInEmptyDocument) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
+            
+            const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGame::Ptr game = Model::MockGame::newGame();
             
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
             
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
+            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(IO::Path("unnamed.map"), doc->path());
@@ -45,17 +47,18 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
 
-            const IO::Path path("data/Controller/NewDocumentCommandTest/Cube.map");
+            const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGame::Ptr game = Model::MockGame::newGame();
+            const IO::Path path("data/Controller/NewDocumentCommandTest/Cube.map");
 
             Model::Map::Ptr map = Model::Map::newMap();
-            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
-            doc->openDocument(game, path);
+            doc->openDocument(worldBounds, game, path);
             
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, game));
+            Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(IO::Path("unnamed.map"), doc->path());

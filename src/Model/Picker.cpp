@@ -24,7 +24,7 @@
 #include <algorithm>
 
 namespace TrenchBroom {
-    namespace Controller {
+    namespace Model {
         Hit::HitType Hit::freeHitType() {
             static HitType currentType = 1;
             const HitType result = currentType;
@@ -109,6 +109,33 @@ namespace TrenchBroom {
         
         void PickResult::sortHits() {
             std::sort(m_hits.begin(), m_hits.end(), CompareHits());
+        }
+
+        Picker::Picker(const BBox<FloatType, 3>& worldBounds) :
+        m_octree(worldBounds, static_cast<FloatType>(64.0f)) {}
+
+        void Picker::addObject(Pickable::Ptr object) {
+            m_octree.addObject(object->bounds(), object);
+        }
+        
+        void Picker::addObjects(const Pickable::List& objects) {
+            Pickable::List::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Pickable::Ptr object = *it;
+                addObject(object);
+            }
+        }
+        
+        void Picker::removeObject(Pickable::Ptr object) {
+            m_octree.removeObject(object->bounds(), object);
+        }
+        
+        void Picker::removeObjects(const Pickable::List& objects) {
+            Pickable::List::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Pickable::Ptr object = *it;
+                removeObject(object);
+            }
         }
 
         PickResult Picker::pick(const Ray3& ray) {

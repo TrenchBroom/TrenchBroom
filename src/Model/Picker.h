@@ -22,18 +22,14 @@
 
 #include "VecMath.h"
 #include "Holder.h"
-#include "Controller/Octree.h"
-#include "Controller/Pickable.h"
+#include "Model/Octree.h"
+#include "Model/Pickable.h"
 
 #include <limits>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Filter;
-    }
-    
-    namespace Controller {
         class Hit {
         public:
             typedef unsigned long HitType;
@@ -98,6 +94,13 @@ namespace TrenchBroom {
         private:
             Octree<FloatType, Pickable::Ptr> m_octree;
         public:
+            Picker(const BBox<FloatType, 3>& worldBounds);
+            
+            void addObject(Pickable::Ptr object);
+            void addObjects(const Pickable::List& objects);
+            void removeObject(Pickable::Ptr object);
+            void removeObjects(const Pickable::List& objects);
+            
             PickResult pick(const Ray3& ray);
         };
     }

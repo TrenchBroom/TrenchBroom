@@ -22,10 +22,10 @@
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
-#include "Controller/Picker.h"
 #include "Model/Brush.h"
 #include "Model/EntityProperties.h"
 #include "Model/Object.h"
+#include "Model/Picker.h"
 
 #include <vector>
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             typedef std::vector<Entity::Ptr> List;
             static const List EmptyList;
             
-            static const Controller::Hit::HitType EntityHit;
+            static const Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
             
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             static Entity::Ptr newEntity();
             
             BBox3 bounds() const;
-            void pick(const Ray3& ray, Controller::PickResult& result);
+            void pick(const Ray3& ray, PickResult& result);
             
             const EntityProperty::List& properties() const;
             bool hasProperty(const PropertyKey& key) const;
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void removeBrush(Brush::Ptr brush);
 
             template <class Operator, class Filter>
-            inline void eachBrush(Operator& op, Filter& filter) {
+            inline void eachBrush(const Operator& op, const Filter& filter) {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                     Brush::Ptr brush = *it;
@@ -73,7 +73,27 @@ namespace TrenchBroom {
             }
 
             template <class Operator, class Filter>
-            inline void eachBrushFace(Operator& op, Filter& filter) {
+            inline void eachBrush(Operator& op, const Filter& filter) {
+                Brush::List::const_iterator it, end;
+                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
+                    Brush::Ptr brush = *it;
+                    if (filter(brush))
+                        op(brush);
+                }
+            }
+
+            template <class Operator, class Filter>
+            inline void eachBrushFace(const Operator& op, const Filter& filter) {
+                Brush::List::const_iterator it, end;
+                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
+                    Brush::Ptr brush = *it;
+                    if (filter(brush))
+                        brush->eachBrushFace(op, filter);
+                }
+            }
+
+            template <class Operator, class Filter>
+            inline void eachBrushFace(Operator& op, const Filter& filter) {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                     Brush::Ptr brush = *it;

@@ -20,11 +20,15 @@
 #ifndef __TrenchBroom__MapDocument__
 #define __TrenchBroom__MapDocument__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Controller/Command.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/Picker.h"
 #include "Model/TextureManager.h"
 #include "View/CachingLogger.h"
 
@@ -35,13 +39,16 @@ namespace TrenchBroom {
         class MapDocument : public CachingLogger {
         public:
             typedef std::tr1::shared_ptr<MapDocument> Ptr;
+            static const BBox3 DefaultWorldBounds;
         private:
             typedef std::tr1::weak_ptr<MapDocument> WkPtr;
             
+            BBox3 m_worldBounds;
             IO::Path m_path;
             Model::Game::Ptr m_game;
             Model::Map::Ptr m_map;
             Model::TextureManager m_textureManager;
+            Model::Picker m_picker;
             
             size_t m_modificationCount;
         public:
@@ -59,12 +66,21 @@ namespace TrenchBroom {
             void decModificationCount();
             void clearModificationCount();
             
-            void newDocument(Model::Game::Ptr game);
-            void openDocument(Model::Game::Ptr game, const IO::Path& path);
+            void newDocument(const BBox3& worldBounds, Model::Game::Ptr game);
+            void openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
             void commitPendingRenderStateChanges();
+
+            void commandDo(Controller::Command::Ptr command);
+            void commandDone(Controller::Command::Ptr command);
+            void commandDoFailed(Controller::Command::Ptr command);
+            void commandUndo(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
+            void commandUndoFailed(Controller::Command::Ptr command);
+
+            Model::PickResult pick(const Ray3& ray);
         private:
             MapDocument();
             

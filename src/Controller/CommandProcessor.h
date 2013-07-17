@@ -36,8 +36,12 @@ namespace TrenchBroom {
             void addCommandListener(CommandListener::Ptr listener);
             void removeCommandListener(CommandListener::Ptr listener);
 
-            void doCommandListeners(Command::Ptr command);
-            void undoCommandListeners(Command::Ptr command);
+            void commandDo(Command::Ptr command);
+            void commandDone(Command::Ptr command);
+            void commandDoFailed(Command::Ptr command);
+            void commandUndo(Command::Ptr command);
+            void commandUndone(Command::Ptr command);
+            void commandUndoFailed(Command::Ptr command);
         };
         
         class CommandGroup : public Command {

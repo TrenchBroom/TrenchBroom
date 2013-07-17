@@ -31,16 +31,17 @@ namespace TrenchBroom {
         TEST(OpenDocumentCommandTest, openDocumentInEmptyDocument) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
 
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            const BBox3d worldBounds(-8192.0, 8192.0);
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
             Model::Map::Ptr map = Model::Map::newMap();
-            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
-            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path));
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, worldBounds, game, path));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(path, doc->path());
@@ -51,22 +52,23 @@ namespace TrenchBroom {
         TEST(OpenDocumentCommandTest, openDocumentInExistingDocument) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
             
             View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            const BBox3d worldBounds(-8192.0, 8192.0);
+            Model::MockGame::Ptr game = Model::MockGame::newGame();
             const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");
             const IO::Path path2("data/Controller/OpenDocumentCommandTest/Cube.map");
 
             Model::Map::Ptr map1 = Model::Map::newMap();
             Model::Map::Ptr map2 = Model::Map::newMap();
-            EXPECT_CALL(*game, doLoadMap(path1)).WillOnce(Return(map1));
+            EXPECT_CALL(*game, doLoadMap(worldBounds, path1)).WillOnce(Return(map1));
             EXPECT_CALL(*game, doExtractTexturePaths(map1)).WillOnce(Return(IO::Path::List()));
-            EXPECT_CALL(*game, doLoadMap(path2)).WillOnce(Return(map2));
+            EXPECT_CALL(*game, doLoadMap(worldBounds, path2)).WillOnce(Return(map2));
             EXPECT_CALL(*game, doExtractTexturePaths(map2)).WillOnce(Return(IO::Path::List()));
 
-            doc->openDocument(game, path1);
+            doc->openDocument(worldBounds, game, path1);
             
-            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, game, path2));
+            Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, worldBounds, game, path2));
             ASSERT_FALSE(command->undoable());
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(path2, doc->path());

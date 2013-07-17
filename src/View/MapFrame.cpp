@@ -115,13 +115,13 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::Game::Ptr game) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.newDocument(m_document, game);
+            return m_controller.newDocument(m_document, MapDocument::DefaultWorldBounds, game);
         }
         
         bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.openDocument(m_document, game, path);
+            return m_controller.openDocument(m_document, MapDocument::DefaultWorldBounds, game, path);
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
@@ -147,6 +147,10 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::commandDo(Controller::Command::Ptr command) {
+            m_mapView->commandDo(command);
+        }
+
         void MapFrame::commandDone(Controller::Command::Ptr command) {
             if (command->type() == Controller::NewDocumentCommand::Type ||
                 command->type() == Controller::OpenDocumentCommand::Type)
@@ -154,8 +158,20 @@ namespace TrenchBroom {
             m_mapView->commandDone(command);
         }
         
+        void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
+            m_mapView->commandDoFailed(command);
+        }
+        
+        void MapFrame::commandUndo(Controller::Command::Ptr command) {
+            m_mapView->commandUndo(command);
+        }
+
         void MapFrame::commandUndone(Controller::Command::Ptr command) {
             m_mapView->commandUndone(command);
+        }
+
+        void MapFrame::commandUndoFailed(Controller::Command::Ptr command) {
+            m_mapView->commandUndoFailed(command);
         }
 
         void MapFrame::createGui() {

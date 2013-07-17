@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapFrame__
 
 #include "Controller/ControllerFacade.h"
+#include "Controller/Command.h"
 #include "Controller/CommandListener.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
@@ -62,8 +63,12 @@ namespace TrenchBroom {
             void OnFileClose(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
             
+            void commandDo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
+            void commandDoFailed(Controller::Command::Ptr command);
+            void commandUndo(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
+            void commandUndoFailed(Controller::Command::Ptr command);
 
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:

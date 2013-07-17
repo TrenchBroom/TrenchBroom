@@ -51,15 +51,15 @@ namespace TrenchBroom {
         };
         
         struct BuildBrushFaceMeshFilter {
-            inline bool operator()(Model::Entity::Ptr entity) {
+            inline bool operator()(Model::Entity::Ptr entity) const {
                 return true;
             }
             
-            inline bool operator()(Model::Brush::Ptr brush) {
+            inline bool operator()(Model::Brush::Ptr brush) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushFace::Ptr face) {
+            inline bool operator()(Model::BrushFace::Ptr face) const {
                 return true;
             }
         };

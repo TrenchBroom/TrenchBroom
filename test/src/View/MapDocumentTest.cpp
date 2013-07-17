@@ -32,10 +32,12 @@ namespace TrenchBroom {
         TEST(MapDocumentTest, newDocument) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
+
+            const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGame::Ptr game = Model::MockGame::newGame();
 
             MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->newDocument(game);
+            document->newDocument(worldBounds, game);
             
             ASSERT_EQ(IO::Path("unnamed.map"), document->path());
             ASSERT_EQ(String("unnamed.map"), document->filename());
@@ -45,16 +47,17 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            const IO::Path path("data/View/FrameManager/TestDoc1.map");
+            const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGame::Ptr game = Model::MockGame::newGame();
+            const IO::Path path("data/View/FrameManager/TestDoc1.map");
             
             Model::Map::Ptr map = Model::Map::newMap();
-            EXPECT_CALL(*game, doLoadMap(path)).WillOnce(Return(map));
+            EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
             
             MapDocument::Ptr document = MapDocument::newMapDocument();
-            document->openDocument(game, path);
+            document->openDocument(worldBounds, game, path);
             
             ASSERT_EQ(path, document->path());
             ASSERT_EQ(String("TestDoc1.map"), document->filename());

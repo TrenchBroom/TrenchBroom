@@ -66,8 +66,12 @@ namespace TrenchBroom {
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
 
+            void commandDo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
+            void commandDoFailed(Controller::Command::Ptr command);
+            void commandUndo(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
+            void commandUndoFailed(Controller::Command::Ptr command);
         private:
             void createTools();
             void deleteTools();

@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__NewDocumentCommand__
 #define __TrenchBroom__NewDocumentCommand__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "SharedPointer.h"
 #include "Controller/Command.h"
 #include "Model/Game.h"
@@ -34,9 +36,10 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<NewDocumentCommand> Ptr;
         private:
             View::MapDocument::Ptr m_document;
+            BBox3 m_worldBounds;
             Model::Game::Ptr m_game;
         public:
-            NewDocumentCommand(View::MapDocument::Ptr document, Model::Game::Ptr game);
+            NewDocumentCommand(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game);
             
             Model::Map::Ptr map() const;
         private:

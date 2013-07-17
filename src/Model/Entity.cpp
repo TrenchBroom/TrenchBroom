@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         const String Entity::DefaultPropertyValue = "";
         const Entity::List Entity::EmptyList = Entity::List();
-        const Controller::Hit::HitType Entity::EntityHit = Controller::Hit::freeHitType();
+        const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         
         Entity::Entity() :
         Object(OTEntity) {}
@@ -39,13 +39,13 @@ namespace TrenchBroom {
             return BBox3(); // TODO implement this
         }
 
-        void Entity::pick(const Ray3& ray, Controller::PickResult& result) {
+        void Entity::pick(const Ray3& ray, PickResult& result) {
             const BBox3 myBounds = bounds();
             if (!myBounds.contains(ray.origin)) {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math<FloatType>::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    const Controller::Hit hit(EntityHit, distance, hitPoint, sharedFromThis());
+                    Hit hit(EntityHit, distance, hitPoint, sharedFromThis());
                     result.addHit(hit);
                 }
             }

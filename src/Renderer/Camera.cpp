@@ -109,6 +109,34 @@ namespace TrenchBroom {
             return Ray3f(m_position, m_direction);
         }
 
+        Ray3f Camera::pickRay(const int x, const int y) const {
+            const Vec3f direction = (unproject(x, y, 0.5f) - m_position).normalized();
+            return Ray3f(m_position, direction);
+        }
+
+        Vec3f Camera::project(const Vec3f& point) const {
+            if (!m_valid)
+                validateMatrices();
+            
+            Vec3f win = m_matrix * point;
+            win[0] = m_viewport.x + m_viewport.width *(win.x() + 1.0f)/2.0f;
+            win[1] = m_viewport.y + m_viewport.height*(win.y() + 1.0f)/2.0f;
+            win[2] = (win.z() + 1.0f)/2.0f;
+            return win;
+        }
+
+        Vec3f Camera::unproject(const float x, const float y, const float depth) const {
+            if (!m_valid)
+                validateMatrices();
+            
+            Vec3f normalized;
+            normalized[0] = 2.0f*(x - m_viewport.x)/m_viewport.width  - 1.0f;
+            normalized[1] = 2.0f*(m_viewport.height - y - m_viewport.y)/m_viewport.height - 1.0f;
+            normalized[2] = 2.0f*depth - 1.0f;
+            
+            return m_invertedMatrix * normalized;
+        }
+
         void Camera::setFov(const float fov) {
             assert(fov > 0.0f);
             m_fov = fov;

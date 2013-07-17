@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__ControllerFacade__
 #define __TrenchBroom__ControllerFacade__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "Controller/CommandProcessor.h"
 #include "Controller/CommandListener.h"
 #include "Model/Game.h"
@@ -40,8 +42,8 @@ namespace TrenchBroom {
             void addCommandListener(CommandListener::Ptr listener);
             void removeCommandListener(CommandListener::Ptr listener);
 
-            bool newDocument(View::MapDocument::Ptr document, Model::Game::Ptr game);
-            bool openDocument(View::MapDocument::Ptr document, Model::Game::Ptr game, const IO::Path& path);
+            bool newDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game);
+            bool openDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
         };
     }
 }

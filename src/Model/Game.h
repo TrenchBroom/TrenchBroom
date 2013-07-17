@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Game_h
 #define TrenchBroom_Game_h
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "SharedPointer.h"
 #include "IO/Path.h"
 #include "Model/Map.h"
@@ -33,14 +35,14 @@ namespace TrenchBroom {
         public:
             virtual ~Game();
             
-            Map::Ptr loadMap(const IO::Path& path) const;
+            Map::Ptr loadMap(const BBox3& worldBounds, const IO::Path& path) const;
             IO::Path::List extractTexturePaths(Map::Ptr map) const;
             TextureCollection::Ptr loadTextureCollection(const IO::Path& path) const;
             void uploadTextureCollection(TextureCollection::Ptr collection) const;
         protected:
             Game();
         private:
-            virtual Map::Ptr doLoadMap(const IO::Path& path) const = 0;
+            virtual Map::Ptr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
             virtual IO::Path::List doExtractTexturePaths(Map::Ptr map) const = 0;
             virtual TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const = 0;
             virtual void doUploadTextureCollection(TextureCollection::Ptr collection) const = 0;
