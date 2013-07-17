@@ -32,8 +32,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceGeometry;
+        class Brush;
         class BrushFace;
+        class BrushFaceGeometry;
         
         class TextureCoordinateSystem {
         private:
@@ -82,6 +83,7 @@ namespace TrenchBroom {
             typedef Renderer::Mesh<Texture::Ptr, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
+            Brush* m_parent;
             BrushFace::Points m_points;
             Plane3 m_boundary;
             String m_textureName;
@@ -92,14 +94,16 @@ namespace TrenchBroom {
             float m_yScale;
             size_t m_lineNumber;
             size_t m_lineCount;
+            bool m_selected;
             
             Texture::Ptr m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
-        private:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
             static BrushFace::Ptr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
+            
+            Brush* parent() const;
+            void setParent(Brush* parent);
             
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
@@ -122,9 +126,14 @@ namespace TrenchBroom {
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);
             
+            bool selected() const;
+            void select();
+            void deselect();
+
             void addToMesh(Mesh& mesh) const;
             FloatType intersectWithRay(const Ray3& ray) const;
         private:
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };
     }

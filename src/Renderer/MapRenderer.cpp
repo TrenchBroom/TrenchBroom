@@ -25,7 +25,9 @@
 #include "Controller/OpenDocumentCommand.h"
 #include "GL/GL.h"
 #include "Model/Brush.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceGeometry.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
@@ -37,16 +39,41 @@
 namespace TrenchBroom {
     namespace Renderer {
         struct BuildBrushEdges {
-            VertexSpecs::P3::Vertex::List vertices;
+            VertexSpecs::P3::Vertex::List unselectedVertices;
+            VertexSpecs::P3::Vertex::List selectedVertices;
             inline void operator()(Model::Brush::Ptr brush) {
-                brush->addEdges(vertices);
+                if (brush->selected()) {
+                    brush->addEdges(selectedVertices);
+                } else if (!brush->partiallySelected()) {
+                    brush->addEdges(unselectedVertices);
+                } else {
+                    const Model::BrushEdge::List& edges = brush->edges();
+                    Model::BrushEdge::List::const_iterator it, end;
+                    for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                        Model::BrushEdge* edge = *it;
+                        Model::BrushFace::Ptr left = edge->left()->face();
+                        Model::BrushFace::Ptr right = edge->right()->face();
+                        if (left->selected() || right->selected()) {
+                            selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
+                            selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
+                        } else {
+                            unselectedVertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
+                            unselectedVertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
+                        }
+                    }
+                }
             }
         };
         
         struct BuildBrushFaceMesh {
-            Model::BrushFace::Mesh mesh;
-            inline void operator()(Model::BrushFace::Ptr face) {
-                face->addToMesh(mesh);
+            Model::BrushFace::Mesh unselectedMesh;
+            Model::BrushFace::Mesh selectedMesh;
+
+            inline void operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) {
+                if (brush->selected() || face->selected())
+                    face->addToMesh(selectedMesh);
+                else
+                    face->addToMesh(unselectedMesh);
             }
         };
         
@@ -59,7 +86,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            inline bool operator()(Model::BrushFace::Ptr face) const {
+            inline bool operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) const {
                 return true;
             }
         };
@@ -148,10 +175,12 @@ namespace TrenchBroom {
             SetVboState vboState(m_geometryVbo);
             vboState.active();
             m_brushRenderer.render(context);
+            m_selectedBrushRenderer.render(context);
         }
 
         void MapRenderer::clearState() {
             m_brushRenderer = BrushRenderer();
+            m_selectedBrushRenderer = BrushRenderer();
         }
 
         void MapRenderer::loadMap(Model::Map::Ptr map) {
@@ -163,7 +192,8 @@ namespace TrenchBroom {
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
             
-            m_brushRenderer = BrushRenderer(m_geometryVbo, buildFaces.mesh, buildEdges.vertices);
+            m_brushRenderer = BrushRenderer(m_geometryVbo, buildFaces.unselectedMesh, buildEdges.unselectedVertices);
+            m_selectedBrushRenderer = BrushRenderer(m_geometryVbo, buildFaces.selectedMesh, buildEdges.selectedVertices);
         }
     }
 }

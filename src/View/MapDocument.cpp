@@ -40,7 +40,7 @@ namespace TrenchBroom {
             SetFaceTexture(Model::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::BrushFace::Ptr face) const {
+            inline void operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) const {
                 const String& textureName = face->textureName();
                 Model::Texture::Ptr texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            inline bool operator()(Model::BrushFace::Ptr face) const {
+            inline bool operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) const {
                 return true;
             }
         };

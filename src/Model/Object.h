@@ -41,12 +41,19 @@ namespace TrenchBroom {
             Type m_type;
             size_t m_lineNumber;
             size_t m_lineCount;
+            bool m_selected;
+            size_t m_childSelectionCount;
         public:
             virtual ~Object();
             
             Type type() const;
-
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            bool selected() const;
+            void select();
+            void deselect();
+            bool partiallySelected() const;
+            void incChildSelectionCount();
+            void decChildSelectionCount();
         protected:
             Object(const Type type);
         };

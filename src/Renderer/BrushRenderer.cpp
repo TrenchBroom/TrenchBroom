@@ -26,15 +26,18 @@
 namespace TrenchBroom {
     namespace Renderer {
         BrushRenderer::BrushRenderer() :
-        m_grayScale(false) {}
+        m_grayScale(false),
+        m_edgeDepthTesting(true) {}
         
         BrushRenderer::BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges) :
         m_grayScale(false),
+        m_edgeDepthTesting(true),
         m_faceRenderer(vbo, faces, faceColor()),
         m_edgeRenderer(vbo, edges, edgeColor()) {}
         
         BrushRenderer::BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges) :
         m_grayScale(false),
+        m_edgeDepthTesting(true),
         m_faceRenderer(vbo, faces, faceColor()),
         m_edgeRenderer(vbo, edges) {}
         
@@ -42,11 +45,20 @@ namespace TrenchBroom {
             m_grayScale = grayScale;
         }
 
+        void BrushRenderer::setEdgeDepthTesting(const bool edgeDepthTesting) {
+            m_edgeDepthTesting = edgeDepthTesting;
+        }
+
         void BrushRenderer::render(RenderContext& context) {
             m_faceRenderer.render(context, m_grayScale);
+            
+            if (!m_edgeDepthTesting)
+                glDisable(GL_DEPTH_TEST);
             glSetEdgeOffset(0.02f);
             m_edgeRenderer.render(context);
             glResetEdgeOffset();
+            if (!m_edgeDepthTesting)
+                glEnable(GL_DEPTH_TEST);
         }
 
         Color BrushRenderer::faceColor() {

@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "VecMath.h"
+#include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 
@@ -100,15 +101,27 @@ namespace TrenchBroom {
         const String BrushFace::NoTextureName = "__TB_empty";
         const BrushFace::List BrushFace::EmptyList = BrushFace::List();
         
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
-        m_textureName(textureName),
-        m_side(NULL) {
-            m_textureCoordinateSystem.setFace(this);
-            setPoints(point0, point1, point2);
-        }
-        
         BrushFace::Ptr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
             return BrushFace::Ptr(new BrushFace(point0, point1, point2, textureName));
+        }
+
+        Brush* BrushFace::parent() const {
+            return m_parent;
+        }
+        
+        void BrushFace::setParent(Brush* parent) {
+            if (m_parent == parent)
+                return;
+            
+            if (m_parent != NULL) {
+                if (m_selected)
+                    m_parent->decChildSelectionCount();
+            }
+            m_parent = parent;
+            if (m_parent != NULL) {
+                if (m_selected)
+                    m_parent->incChildSelectionCount();
+            }
         }
 
         const BrushFace::Points& BrushFace::points() const {
@@ -199,6 +212,26 @@ namespace TrenchBroom {
             m_side = side;
         }
         
+        bool BrushFace::selected() const {
+            return m_selected;
+        }
+        
+        void BrushFace::select() {
+            if (m_selected)
+                return;
+            m_selected = true;
+            if (m_parent != NULL)
+                m_parent->incChildSelectionCount();
+        }
+        
+        void BrushFace::deselect() {
+            if (!m_selected)
+                return;
+            m_selected = false;
+            if (m_parent != NULL)
+                m_parent->decChildSelectionCount();
+        }
+
         void BrushFace::addToMesh(Mesh& mesh) const {
             assert(m_side != NULL);
             
@@ -289,6 +322,22 @@ namespace TrenchBroom {
             return dist;
         }
 
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
+        m_parent(NULL),
+        m_textureName(textureName),
+        m_xOffset(0.0f),
+        m_yOffset(0.0f),
+        m_rotation(0.0f),
+        m_xScale(1.0f),
+        m_yScale(1.0f),
+        m_lineNumber(0),
+        m_lineCount(0),
+        m_selected(false),
+        m_side(NULL) {
+            m_textureCoordinateSystem.setFace(this);
+            setPoints(point0, point1, point2);
+        }
+        
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;

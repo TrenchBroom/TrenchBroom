@@ -67,6 +67,10 @@ namespace TrenchBroom {
             return m_faces;
         }
 
+        const BrushEdge::List& Brush::edges() const {
+            return m_geometry->edges();
+        }
+
         void Brush::addEdges(Vertex::List& vertices) const {
             const BrushEdge::List edges = m_geometry->edges();
             BrushEdge::List::const_iterator it, end;

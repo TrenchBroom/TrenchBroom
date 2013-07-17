@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
@@ -55,24 +56,27 @@ namespace TrenchBroom {
             void pick(const Ray3& ray, PickResult& result);
             
             const BrushFace::List& faces() const;
+            const BrushEdge::List& edges() const;
 
             template <class Operator, class Filter>
             void eachBrushFace(const Operator& op, const Filter& filter) {
+                Ptr thisPtr = sharedFromThis();
                 BrushFace::List::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                     BrushFace::Ptr face = *it;
-                    if (filter(face))
-                        op(face);
+                    if (filter(thisPtr, face))
+                        op(thisPtr, face);
                 }
             }
             
             template <class Operator, class Filter>
             void eachBrushFace(Operator& op, const Filter& filter) {
+                Ptr thisPtr = sharedFromThis();
                 BrushFace::List::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                     BrushFace::Ptr face = *it;
-                    if (filter(face))
-                        op(face);
+                    if (filter(thisPtr, face))
+                        op(thisPtr, face);
                 }
             }
             

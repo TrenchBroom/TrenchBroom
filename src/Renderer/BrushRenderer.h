@@ -31,6 +31,7 @@ namespace TrenchBroom {
         class BrushRenderer {
         private:
             bool m_grayScale;
+            bool m_edgeDepthTesting;
             FaceRenderer m_faceRenderer;
             EdgeRenderer m_edgeRenderer;
         public:
@@ -39,6 +40,7 @@ namespace TrenchBroom {
             BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
             
             void setGrayScale(const bool grayScale);
+            void setEdgeDepthTesting(const bool edgeDepthTesting);
             
             void render(RenderContext& context);
         private:

@@ -28,9 +28,35 @@ namespace TrenchBroom {
             m_lineCount = lineCount;
         }
 
+        bool Object::selected() const {
+            return m_selected;
+        }
+        
+        void Object::select() {
+            m_selected = true;
+        }
+        
+        void Object::deselect() {
+            m_selected = false;
+        }
+
+        bool Object::partiallySelected() const {
+            return m_childSelectionCount > 0;
+        }
+        
+        void Object::incChildSelectionCount() {
+            ++m_childSelectionCount;
+        }
+        
+        void Object::decChildSelectionCount() {
+            --m_childSelectionCount;
+        }
+
         Object::Object(const Type type) :
         m_type(type),
         m_lineNumber(0),
-        m_lineCount(0) {}
+        m_lineCount(0),
+        m_selected(false),
+        m_childSelectionCount(0) {}
     }
 }

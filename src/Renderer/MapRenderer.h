@@ -34,6 +34,7 @@ namespace TrenchBroom {
             Vbo m_auxVbo;
             Vbo m_geometryVbo;
             BrushRenderer m_brushRenderer;
+            BrushRenderer m_selectedBrushRenderer;
         public:
             MapRenderer();
             
