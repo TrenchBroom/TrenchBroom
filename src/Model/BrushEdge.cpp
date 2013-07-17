@@ -147,6 +147,14 @@ namespace TrenchBroom {
             std::swap(m_start, m_end);
         }
 
+        void BrushEdge::setLeftNull() {
+            m_left = NULL;
+        }
+        
+        void BrushEdge::setRightNull() {
+            m_right = NULL;
+        }
+
         const BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) const {
             if (side == m_right)
                 return m_start;

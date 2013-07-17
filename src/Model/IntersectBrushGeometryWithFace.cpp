@@ -150,6 +150,7 @@ namespace TrenchBroom {
                         if (undecidedEdge != NULL) {
                             if (undecidedEdge->right() == side)
                                 undecidedEdge->flip();
+                            undecidedEdge->setRightNull();
                             m_newSideEdges.push_back(undecidedEdge);
                         }
                         m_remainingSides.push_back(side);

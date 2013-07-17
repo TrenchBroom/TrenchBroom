@@ -69,6 +69,8 @@ namespace TrenchBroom {
             BrushVertex* split(const Plane3& plane);
             
             void flip();
+            void setLeftNull();
+            void setRightNull();
             
             const BrushVertex* start(const BrushFaceGeometry* side) const;
             BrushVertex* start(const BrushFaceGeometry* side);
