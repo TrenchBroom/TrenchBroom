@@ -20,7 +20,9 @@
 #ifndef __TrenchBroom__Entity__
 #define __TrenchBroom__Entity__
 
+#include "TrenchBroom.h"
 #include "SharedPointer.h"
+#include "Controller/Picker.h"
 #include "Model/Brush.h"
 #include "Model/EntityProperties.h"
 #include "Model/Object.h"
@@ -29,11 +31,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity : public Object {
+        class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
         public:
             typedef std::tr1::shared_ptr<Entity> Ptr;
             typedef std::vector<Entity::Ptr> List;
             static const List EmptyList;
+            
+            static const Controller::Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
             
@@ -45,6 +49,7 @@ namespace TrenchBroom {
             static Entity::Ptr newEntity();
             
             BBox3 bounds() const;
+            void pick(const Ray3& ray, Controller::PickResult& result);
             
             const EntityProperty::List& properties() const;
             bool hasProperty(const PropertyKey& key) const;
@@ -76,6 +81,8 @@ namespace TrenchBroom {
                         brush->eachBrushFace(op, filter);
                 }
             }
+        private:
+            Ptr sharedFromThis();
         };
     }
 }

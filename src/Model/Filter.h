@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2012 Kristian Duske
+ Copyright (C) 2010-2013 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,23 +17,20 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VecMath_h
-#define TrenchBroom_VecMath_h
+#ifndef __TrenchBroom__Filter__
+#define __TrenchBroom__Filter__
 
-#ifdef max
-#undef max
-#endif
+#include "Model/Brush.h"
+#include "Model/Entity.h"
 
-#ifdef min
-#undef min
-#endif
+namespace TrenchBroom {
+    namespace Model {
+        class Filter {
+        public:
+            bool passes(Entity::Ptr entity) const;
+            bool passes(Brush::Ptr brush) const;
+        };
+    }
+}
 
-#include "BBox.h"
-#include "Line.h"
-#include "Mat.h"
-#include "Plane.h"
-#include "Quat.h"
-#include "Vec.h"
-#include "CoordinatePlane.h"
-
-#endif
+#endif /* defined(__TrenchBroom__Filter__) */

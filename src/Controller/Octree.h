@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__Octree__
 #define __TrenchBroom__Octree__
 
-#include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Exceptions.h"
 
@@ -28,17 +27,17 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        template <typename T>
+        template <typename F, typename T>
         class OctreeNode {
         private:
             typedef std::vector<T> List;
             
-            BBox3f m_bounds;
-            float m_minSize;
+            BBox<F,3> m_bounds;
+            F m_minSize;
             OctreeNode* m_children[8];
             List m_objects;
         public:
-            OctreeNode(const BBox3f& bounds, const float minSize) :
+            OctreeNode(const BBox<F,3>& bounds, const F minSize) :
             m_bounds(bounds),
             m_minSize(minSize) {
                 for (size_t i = 0; i < 8; ++i)
@@ -54,11 +53,11 @@ namespace TrenchBroom {
                 }
             }
             
-            inline bool contains(const BBox3f& bounds) const {
+            inline bool contains(const BBox<F,3>& bounds) const {
                 return m_bounds.contains(bounds);
             }
             
-            inline bool containsObject(const BBox3f& bounds, T object) const {
+            inline bool containsObject(const BBox<F,3>& bounds, T object) const {
                 assert(contains(bounds));
                 for (size_t i = 0; i < 8; ++i) {
                     if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
@@ -70,7 +69,7 @@ namespace TrenchBroom {
                 return it != m_objects.end();
             }
             
-            inline bool addObject(const BBox3f& bounds, T object) {
+            inline bool addObject(const BBox<F,3>& bounds, T object) {
                 assert(contains(bounds));
                 
                 const Vec3f size = m_bounds.size();
@@ -79,9 +78,9 @@ namespace TrenchBroom {
                         if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
                             return m_children[i]->addObject(bounds, object);
                         } else {
-                            const BBox3f childBounds = octant(i);
+                            const BBox<F,3> childBounds = octant(i);
                             if (childBounds.contains(bounds)) {
-                                OctreeNode<T>* child = new OctreeNode<T>(childBounds, m_minSize);
+                                OctreeNode<F,T>* child = new OctreeNode<F,T>(childBounds, m_minSize);
                                 try {
                                     const bool success = child->addObject(bounds, object);
                                     m_children[i] = child;
@@ -99,7 +98,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            inline bool removeObject(const BBox3f& bounds, T object) {
+            inline bool removeObject(const BBox<F,3>& bounds, T object) {
                 assert(contains(bounds));
                 for (size_t i = 0; i < 8; ++i) {
                     if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
@@ -114,8 +113,8 @@ namespace TrenchBroom {
                 return true;
             }
 
-            inline void findObjects(const Ray3f& ray, List& result) const {
-                const float distance = m_bounds.intersectWithRay(ray);
+            inline void findObjects(const Ray<F,3>& ray, List& result) const {
+                const F distance = m_bounds.intersectWithRay(ray);
                 if (Mathf::isnan(distance))
                     return;
                 
@@ -125,79 +124,79 @@ namespace TrenchBroom {
                 result.insert(result.end(), m_objects.begin(), m_objects.end());
             }
         private:
-            inline BBox3f octant(const size_t index) const {
+            inline BBox<F,3> octant(const size_t index) const {
                 const Vec3f& min = m_bounds.min;
                 const Vec3f& max = m_bounds.max;
                 const Vec3f mid = (min + max) / 2.0f;
                 switch (index) {
                     case 0: // xyz +++
-                        return BBox3f(mid, max);
+                        return BBox<F,3>(mid, max);
                     case 1: // xyz -++
-                        return BBox3f(Vec3f(min.x(), mid.y(), mid.z()),
+                        return BBox<F,3>(Vec3f(min.x(), mid.y(), mid.z()),
                                       Vec3f(mid.x(), max.y(), max.z()));
                     case 2: // xyz +-+
-                        return BBox3f(Vec3f(mid.x(), min.y(), mid.z()),
+                        return BBox<F,3>(Vec3f(mid.x(), min.y(), mid.z()),
                                       Vec3f(max.x(), mid.y(), max.z()));
                     case 3: // xyz --+
-                        return BBox3f(Vec3f(min.x(), min.y(), mid.z()),
+                        return BBox<F,3>(Vec3f(min.x(), min.y(), mid.z()),
                                       Vec3f(mid.x(), mid.y(), max.z()));
                     case 4: // xyz ++-
-                        return BBox3f(Vec3f(mid.x(), mid.y(), min.z()),
+                        return BBox<F,3>(Vec3f(mid.x(), mid.y(), min.z()),
                                       Vec3f(max.x(), max.y(), mid.z()));
                     case 5: // xyz -+-
-                        return BBox3f(Vec3f(min.x(), mid.y(), min.z()),
+                        return BBox<F,3>(Vec3f(min.x(), mid.y(), min.z()),
                                       Vec3f(mid.x(), max.y(), mid.z()));
                     case 6: // xyz +--
-                        return BBox3f(Vec3f(mid.x(), min.y(), min.z()),
+                        return BBox<F,3>(Vec3f(mid.x(), min.y(), min.z()),
                                       Vec3f(max.x(), mid.y(), mid.z()));
                     case 7: // xyz ---
-                        return BBox3f(Vec3f(min.x(), min.y(), min.z()),
+                        return BBox<F,3>(Vec3f(min.x(), min.y(), min.z()),
                                       Vec3f(mid.x(), mid.y(), mid.z()));
                     default:
                         assert(false);
-                        return BBox3f();
+                        return BBox<F,3>();
                 }
             }
         };
         
-        template <typename T>
+        template <typename F, typename T>
         class Octree {
         public:
             typedef std::vector<T> List;
         private:
-            BBox3f m_bounds;
-            OctreeNode<T>* m_root;
+            BBox<F,3> m_bounds;
+            OctreeNode<F,T>* m_root;
         public:
-            Octree(const BBox3f& bounds, const float minSize) :
+            Octree(const BBox<F,3>& bounds, const F minSize) :
             m_bounds(bounds),
-            m_root(new OctreeNode<T>(bounds, minSize)) {}
+            m_root(new OctreeNode<F,T>(bounds, minSize)) {}
             
             ~Octree() {
                 delete m_root;
                 m_root = NULL;
             }
             
-            inline void addObject(const BBox3f& bounds, T object) {
+            inline void addObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
                 if (!m_root->addObject(bounds, object))
                     throw OctreeException("Unknown error when inserting into octree");
             }
             
-            inline void removeObject(const BBox3f& bounds, T object) {
+            inline void removeObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
                 if (!m_root->removeObject(bounds, object))
                     throw OctreeException("Cannot find object in octree");
             }
             
-            inline bool containsObject(const BBox3f& bounds, T object) const {
+            inline bool containsObject(const BBox<F,3>& bounds, T object) const {
                 if (!m_root->contains(bounds))
                     return false;
                 return m_root->containsObject(bounds, object);
             }
             
-            inline List findObjects(const Ray3f& ray) const {
+            inline List findObjects(const Ray<F,3>& ray) const {
                 List result;
                 m_root->findObjects(ray, result);
                 return result;

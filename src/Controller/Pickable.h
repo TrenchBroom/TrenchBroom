@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,40 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Object__
-#define __TrenchBroom__Object__
+#ifndef TrenchBroom_Pickable_h
+#define TrenchBroom_Pickable_h
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
-#include "Controller/Pickable.h"
-
-#include <vector>
+#include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Object : public Controller::Pickable {
+    namespace Controller {
+        class PickResult;
+        
+        class Pickable {
         public:
-            typedef std::tr1::shared_ptr<Object> Ptr;
+            typedef std::tr1::shared_ptr<Pickable> Ptr;
             typedef std::vector<Ptr> List;
             
-            typedef enum {
-                OTEntity,
-                OTBrush
-            } Type;
-        private:
-            Type m_type;
-            size_t m_lineNumber;
-            size_t m_lineCount;
-        public:
-            virtual ~Object();
-            
-            Type type() const;
-
-            void setFilePosition(const size_t lineNumber, const size_t lineCount);
-        protected:
-            Object(const Type type);
+            virtual ~Pickable() {}
+            virtual BBox3 bounds() const = 0;
+            virtual void pick(const Ray3& ray, PickResult& result) = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Object__) */
+#endif

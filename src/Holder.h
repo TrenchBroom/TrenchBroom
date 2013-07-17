@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2012 Kristian Duske
+ Copyright (C) 2010-2013 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,23 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VecMath_h
-#define TrenchBroom_VecMath_h
+#ifndef TrenchBroom_Holder_h
+#define TrenchBroom_Holder_h
 
-#ifdef max
-#undef max
-#endif
+#include "SharedPointer.h"
 
-#ifdef min
-#undef min
-#endif
+class BaseHolder {
+public:
+    typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+    virtual ~BaseHolder() {}
+};
 
-#include "BBox.h"
-#include "Line.h"
-#include "Mat.h"
-#include "Plane.h"
-#include "Quat.h"
-#include "Vec.h"
-#include "CoordinatePlane.h"
+template <typename T>
+class Holder : public BaseHolder {
+private:
+    T m_object;
+public:
+    static BaseHolder::Ptr newHolder(T object) {
+        return BaseHolder::Ptr(new Holder(object));
+    }
+    
+    inline T object() const {
+        return m_object;
+    }
+private:
+    Holder(T object) :
+    m_object(object) {}
+    
+};
 
 #endif

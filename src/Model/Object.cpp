@@ -27,5 +27,10 @@ namespace TrenchBroom {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
         }
+
+        Object::Object(const Type type) :
+        m_type(type),
+        m_lineNumber(0),
+        m_lineCount(0) {}
     }
 }

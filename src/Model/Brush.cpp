@@ -26,8 +26,10 @@
 namespace TrenchBroom {
     namespace Model {
         const Brush::List Brush::EmptyList = Brush::List();
+        const Controller::Hit::HitType Brush::BrushHit = Controller::Hit::freeHitType();
 
         Brush::Brush(const BBox3& worldBounds, const BrushFace::List& faces) :
+        Object(OTBrush),
         m_faces(faces),
         m_geometry(NULL) {
             rebuildGeometry(worldBounds);
@@ -47,6 +49,20 @@ namespace TrenchBroom {
             return m_geometry->bounds();
         }
 
+        void Brush::pick(const Ray3& ray, Controller::PickResult& result) {
+            BrushFace::List::iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace::Ptr face = *it;
+                const FloatType distance = face->intersectWithRay(ray);
+                if (!Math<FloatType>::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    Controller::Hit hit(BrushHit, distance, hitPoint, face);
+                    result.addHit(hit);
+                    break;
+                }
+            }
+        }
+
         const BrushFace::List& Brush::faces() const {
             return m_faces;
         }
@@ -59,6 +75,10 @@ namespace TrenchBroom {
                 vertices.push_back(Vertex(edge->start()->position()));
                 vertices.push_back(Vertex(edge->end()->position()));
             }
+        }
+
+        Brush::Ptr Brush::sharedFromThis() {
+            return shared_from_this();
         }
 
         void Brush::rebuildGeometry(const BBox3& worldBounds) {

@@ -122,7 +122,8 @@ namespace TrenchBroom {
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);
             
-            void addToMesh(Mesh& mesh);
+            void addToMesh(Mesh& mesh) const;
+            FloatType intersectWithRay(const Ray3& ray) const;
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };

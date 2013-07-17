@@ -30,7 +30,7 @@ namespace TrenchBroom {
         TEST(OctreeTest, insertObject) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;
-            Octree<int> octree(bounds, minSize);
+            Octree<float,int> octree(bounds, minSize);
             
             const int a = 1;
             const BBox3f aBounds(1.0f, 2.0f);
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         TEST(OctreeTest, insertTooLargeObject) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;
-            Octree<int> octree(bounds, minSize);
+            Octree<float,int> octree(bounds, minSize);
             
             const int a = 1;
             const BBox3f aBounds(-129.0f, 2.0f);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         TEST(OctreeTest, removeExistingObject) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;
-            Octree<int> octree(bounds, minSize);
+            Octree<float,int> octree(bounds, minSize);
             
             const int a = 1;
             const BBox3f aBounds(1.0f, 2.0f);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         TEST(OctreeTest, removeNonExistingObject) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;
-            Octree<int> octree(bounds, minSize);
+            Octree<float,int> octree(bounds, minSize);
             
             const int a = 1;
             const int b = 2;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         TEST(OctreeTest, removeObjectWithWrongBounds) {
             const BBox3f bounds(-128.0f, +128.0f);
             const float minSize = 32.0f;
-            Octree<int> octree(bounds, minSize);
+            Octree<float,int> octree(bounds, minSize);
             
             const int a = 1;
             const BBox3f aBounds(1.0f, 2.0f);

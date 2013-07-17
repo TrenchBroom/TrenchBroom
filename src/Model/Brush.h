@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Controller/Picker.h"
 #include "Model/BrushFace.h"
 #include "Model/Object.h"
 #include "Renderer/VertexSpec.h"
@@ -32,13 +33,15 @@ namespace TrenchBroom {
     namespace Model {
         class BrushGeometry;
         
-        class Brush : public Object {
+        class Brush : public Object, public std::tr1::enable_shared_from_this<Brush> {
         public:
             typedef std::tr1::shared_ptr<Brush> Ptr;
             typedef std::vector<Brush::Ptr> List;
             static const List EmptyList;
             typedef Renderer::VertexSpecs::P3 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
+
+            static const Controller::Hit::HitType BrushHit;
         private:
             BrushFace::List m_faces;
             BrushGeometry* m_geometry;
@@ -49,6 +52,7 @@ namespace TrenchBroom {
             ~Brush();
             
             BBox3 bounds() const;
+            void pick(const Ray3& ray, Controller::PickResult& result);
             
             const BrushFace::List& faces() const;
 
@@ -64,6 +68,7 @@ namespace TrenchBroom {
             
             void addEdges(Vertex::List& vertices) const;
         private:
+            Ptr sharedFromThis();
             void rebuildGeometry(const BBox3& worldBounds);
         };
     }
