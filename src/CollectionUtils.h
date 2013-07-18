@@ -119,6 +119,14 @@ namespace VectorUtils {
                 return true;
         return false;
     }
+    
+    template <typename T1, typename T2, typename R>
+    inline void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
+        result.clear();
+        result.reserve(vec1.size() + vec2.size());
+        result.insert(result.end(), vec1.begin(), vec1.end());
+        result.insert(result.end(), vec2.begin(), vec2.end());
+    }
 }
 
 namespace MapUtils {

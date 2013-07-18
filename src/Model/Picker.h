@@ -58,7 +58,7 @@ namespace TrenchBroom {
             const Vec3f& hitPoint() const;
             
             template <typename T>
-            inline T object() {
+            inline T object() const {
                 return static_cast<Holder<T>*>(m_holder.get())->object();
             }
         };
@@ -82,8 +82,8 @@ namespace TrenchBroom {
                 bool operator() (const Hit& left, const Hit& right) const;
             };
         public:
-            FirstHit firstHit(HitFilter& filter, const bool ignoreOccluders) const;
-            Hit::List hits(HitFilter& filter) const;
+            FirstHit firstHit(const HitFilter& filter, const bool ignoreOccluders) const;
+            Hit::List hits(const HitFilter& filter) const;
             Hit::List allHits() const;
             
             void addHit(const Hit& hit);

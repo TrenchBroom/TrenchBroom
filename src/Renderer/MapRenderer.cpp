@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/SelectionCommand.h"
 #include "GL/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
@@ -114,10 +115,21 @@ namespace TrenchBroom {
                 Controller::OpenDocumentCommand::Ptr openDocumentCommand = Controller::Command::cast<Controller::OpenDocumentCommand>(command);
                 Model::Map::Ptr map = openDocumentCommand->map();
                 loadMap(map);
+            } else if (command->type() == Controller::SelectionCommand::Type) {
+                clearState();
+                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+                Model::Map::Ptr map = selectionCommand->map();
+                loadMap(map);
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
+            if (command->type() == Controller::SelectionCommand::Type) {
+                clearState();
+                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+                Model::Map::Ptr map = selectionCommand->map();
+                loadMap(map);
+            }
         }
 
         void MapRenderer::setupGL(RenderContext& context) {

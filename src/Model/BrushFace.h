@@ -83,7 +83,9 @@ namespace TrenchBroom {
             typedef Renderer::Mesh<Texture::Ptr, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
-            Brush* m_parent;
+            typedef std::tr1::weak_ptr<Brush> ParentPtr;
+            
+            ParentPtr m_parent;
             BrushFace::Points m_points;
             Plane3 m_boundary;
             String m_textureName;
@@ -102,8 +104,8 @@ namespace TrenchBroom {
         public:
             static BrushFace::Ptr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
             
-            Brush* parent() const;
-            void setParent(Brush* parent);
+            Brush::Ptr parent() const;
+            void setParent(Brush::Ptr parent);
             
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;

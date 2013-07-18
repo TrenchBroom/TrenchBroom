@@ -193,6 +193,8 @@ namespace TrenchBroom {
                 removeFreeBlock(next);
                 previous->mergeWithSuccessor();
                 previous->mergeWithSuccessor();
+                if (m_lastBlock == next)
+                    m_lastBlock = previous;
                 delete block;
                 delete next;
                 insertFreeBlock(previous);

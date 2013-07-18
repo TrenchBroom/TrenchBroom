@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 face->setTexture(texture);
             }
         };
-        
+
         class AddToPicker {
         private:
             Model::Picker& m_picker;
@@ -124,6 +124,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_map = Model::Map::newMap();
+            m_selection = Model::Selection(m_map.get());
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             
@@ -138,6 +139,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_map = m_game->loadMap(worldBounds, path);
+            m_selection = Model::Selection(m_map.get());
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
@@ -156,6 +158,46 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        Model::Object::List MapDocument::selectedObjects() const {
+            return m_selection.selectedObjects();
+        }
+
+        Model::Entity::List MapDocument::selectedEntities() const {
+            return m_selection.selectedEntities();
+        }
+        
+        Model::Brush::List MapDocument::selectedBrushes() const {
+            return m_selection.selectedBrushes();
+        }
+        
+        Model::BrushFace::List MapDocument::selectedFaces() const {
+            return m_selection.selectedFaces();
+        }
+        
+        void MapDocument::selectObjects(const Model::Object::List& objects) {
+            m_selection.selectObjects(objects);
+        }
+        
+        void MapDocument::deselectObjects(const Model::Object::List& objects) {
+            m_selection.deselectObjects(objects);
+        }
+        
+        void MapDocument::selectAllObjects() {
+            m_selection.selectAllObjects();
+        }
+        
+        void MapDocument::selectFaces(const Model::BrushFace::List& faces) {
+            m_selection.selectFaces(faces);
+        }
+        
+        void MapDocument::deselectFaces(const Model::BrushFace::List& faces) {
+            m_selection.deselectFaces(faces);
+        }
+
+        void MapDocument::deselectAll() {
+            m_selection.deselectAll();
+        }
+
         void MapDocument::commitPendingRenderStateChanges() {
             m_textureManager.commitChanges();
         }

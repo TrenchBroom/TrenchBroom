@@ -24,7 +24,9 @@
 #include "VecMath.h"
 #include "Controller/CommandProcessor.h"
 #include "Controller/CommandListener.h"
+#include "Model/BrushFace.h"
 #include "Model/Game.h"
+#include "Model/Object.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -37,13 +39,24 @@ namespace TrenchBroom {
         
         class ControllerFacade {
         private:
+            View::MapDocument::Ptr m_document;
             CommandProcessor m_commandProcessor;
         public:
+            void setDocument(View::MapDocument::Ptr document);
+            
             void addCommandListener(CommandListener::Ptr listener);
             void removeCommandListener(CommandListener::Ptr listener);
 
-            bool newDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game);
-            bool openDocument(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
+            bool newDocument(const BBox3& worldBounds, Model::Game::Ptr game);
+            bool openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
+            
+            bool selectObject(Model::Object::Ptr object);
+            bool deselectAllAndSelectObject(Model::Object::Ptr object);
+            bool deselectObject(Model::Object::Ptr object);
+            bool selectFace(Model::BrushFace::Ptr face);
+            bool deselectAllAndSelectFace(Model::BrushFace::Ptr face);
+            bool deselectFace(Model::BrushFace::Ptr face);
+            bool deselectAll();
         };
     }
 }

@@ -30,6 +30,12 @@ namespace TrenchBroom {
             bool passes(Entity::Ptr entity) const;
             bool passes(Brush::Ptr brush) const;
         };
+        
+        class SelectedFilter {
+        public:
+            bool passes(Entity::Ptr entity) const;
+            bool passes(Brush::Ptr brush) const;
+        };
     }
 }
 

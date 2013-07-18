@@ -92,8 +92,7 @@ namespace TrenchBroom {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
-                    if (filter(entity))
-                        entity->eachBrush(op, filter);
+                    entity->eachBrush(op, filter);
                 }
             }
             
@@ -102,8 +101,7 @@ namespace TrenchBroom {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
-                    if (filter(entity))
-                        entity->eachBrush(op, filter);
+                    entity->eachBrush(op, filter);
                 }
             }
             
@@ -112,8 +110,7 @@ namespace TrenchBroom {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
-                    if (filter(entity))
-                        entity->eachBrushFace(op, filter);
+                    entity->eachBrushFace(op, filter);
                 }
             }
 
@@ -122,8 +119,7 @@ namespace TrenchBroom {
                 Entity::List::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     Entity::Ptr entity = *it;
-                    if (filter(entity))
-                        entity->eachBrushFace(op, filter);
+                    entity->eachBrushFace(op, filter);
                 }
             }
         private:

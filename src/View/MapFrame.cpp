@@ -58,6 +58,7 @@ namespace TrenchBroom {
         void MapFrame::Create(FrameManager* frameManager, MapDocument::Ptr document) {
             m_frameManager = frameManager;
             m_document = document;
+            m_controller.setDocument(m_document);
             m_controller.addCommandListener(this);
             
             createMenuBar();
@@ -115,13 +116,13 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::Game::Ptr game) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.newDocument(m_document, MapDocument::DefaultWorldBounds, game);
+            return m_controller.newDocument(MapDocument::DefaultWorldBounds, game);
         }
         
         bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.openDocument(m_document, MapDocument::DefaultWorldBounds, game, path);
+            return m_controller.openDocument(MapDocument::DefaultWorldBounds, game, path);
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
@@ -194,7 +195,7 @@ namespace TrenchBroom {
                                              );
             
             m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, m_console, m_document);
+            m_mapView = new MapView(container, m_console, m_document, m_controller);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);

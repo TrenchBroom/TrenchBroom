@@ -32,6 +32,7 @@ namespace TrenchBroom {
         public:
             typedef std::tr1::shared_ptr<Object> Ptr;
             typedef std::vector<Ptr> List;
+            static const List EmptyList;
             
             typedef enum {
                 OTEntity,

@@ -23,18 +23,20 @@
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
 #include "View/CameraTool.h"
+#include "View/SelectionTool.h"
 #include "View/Logger.h"
 
 #include <wx/dcclient.h>
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document, Controller::ControllerFacade& controller) :
         wxGLCanvas(parent, wxID_ANY, attribs()),
         m_logger(logger),
         m_initialized(false),
         m_glContext(new wxGLContext(this)),
         m_document(document),
+        m_controller(controller),
         m_drag(false),
         m_cameraTool(NULL),
         m_toolChain(NULL) {
@@ -191,13 +193,16 @@ namespace TrenchBroom {
 
         void MapView::createTools() {
             m_cameraTool = new CameraTool(NULL, m_camera);
-            m_toolChain = m_cameraTool;
+            m_selectionTool = new SelectionTool(m_cameraTool, m_controller);
+            m_toolChain = m_selectionTool;
         }
         
         void MapView::deleteTools() {
             m_toolChain = NULL;
             delete m_cameraTool;
             m_cameraTool = NULL;
+            delete m_selectionTool;
+            m_selectionTool = NULL;
         }
 
         void MapView::bindEvents() {

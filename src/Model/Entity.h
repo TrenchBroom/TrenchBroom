@@ -87,8 +87,7 @@ namespace TrenchBroom {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                     Brush::Ptr brush = *it;
-                    if (filter(brush))
-                        brush->eachBrushFace(op, filter);
+                    brush->eachBrushFace(op, filter);
                 }
             }
 
@@ -97,8 +96,7 @@ namespace TrenchBroom {
                 Brush::List::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                     Brush::Ptr brush = *it;
-                    if (filter(brush))
-                        brush->eachBrushFace(op, filter);
+                    brush->eachBrushFace(op, filter);
                 }
             }
         private:

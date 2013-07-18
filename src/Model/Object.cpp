@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const Object::List Object::EmptyList = Object::List();
+        
         Object::~Object() {}
 
         void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {

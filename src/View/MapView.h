@@ -33,9 +33,14 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class ControllerFacade;
+    }
+    
     namespace View {
         class BaseTool;
         class CameraTool;
+        class SelectionTool;
         class Logger;
         
         class MapView : public wxGLCanvas {
@@ -45,6 +50,7 @@ namespace TrenchBroom {
             wxGLContext* m_glContext;
             
             View::MapDocument::Ptr m_document;
+            Controller::ControllerFacade& m_controller;
             Renderer::Camera m_camera;
             Renderer::MapRenderer m_renderer;
             Renderer::ShaderManager m_shaderManager;
@@ -53,9 +59,10 @@ namespace TrenchBroom {
             bool m_drag;
             wxPoint m_clickPos;
             CameraTool* m_cameraTool;
+            SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document, Controller::ControllerFacade& controller);
             ~MapView();
             
             void OnMouseButton(wxMouseEvent& event);

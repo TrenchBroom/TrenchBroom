@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return left.distance() < right.distance();
         }
         
-        PickResult::FirstHit PickResult::firstHit(HitFilter& filter, const bool ignoreOccluders) const {
+        PickResult::FirstHit PickResult::firstHit(const HitFilter& filter, const bool ignoreOccluders) const {
             if (!m_hits.empty()) {
                 Hit::List::const_iterator it = m_hits.begin();
                 Hit::List::const_iterator end = m_hits.end();
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             return FirstHit(false, Hit::NoHit);
         }
         
-        Hit::List PickResult::hits(HitFilter& filter) const {
+        Hit::List PickResult::hits(const HitFilter& filter) const {
             Hit::List result;
             Hit::List::const_iterator it, end;
             for (it = m_hits.begin(), end = m_hits.end(); it != end; ++it) {

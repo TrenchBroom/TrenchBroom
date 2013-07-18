@@ -26,9 +26,14 @@
 #include "StringUtils.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/Object.h"
 #include "Model/Picker.h"
+#include "Model/Selection.h"
 #include "Model/TextureManager.h"
 #include "View/CachingLogger.h"
 
@@ -47,6 +52,7 @@ namespace TrenchBroom {
             IO::Path m_path;
             Model::Game::Ptr m_game;
             Model::Map::Ptr m_map;
+            Model::Selection m_selection;
             Model::TextureManager m_textureManager;
             Model::Picker m_picker;
             
@@ -70,6 +76,17 @@ namespace TrenchBroom {
             void openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
+            
+            Model::Object::List selectedObjects() const;
+            Model::Entity::List selectedEntities() const;
+            Model::Brush::List selectedBrushes() const;
+            Model::BrushFace::List selectedFaces() const;
+            void selectObjects(const Model::Object::List& objects);
+            void deselectObjects(const Model::Object::List& objects);
+            void selectAllObjects();
+            void selectFaces(const Model::BrushFace::List& faces);
+            void deselectFaces(const Model::BrushFace::List& faces);
+            void deselectAll();
             
             void commitPendingRenderStateChanges();
 
