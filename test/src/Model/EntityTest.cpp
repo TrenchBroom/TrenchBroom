@@ -113,5 +113,44 @@ namespace TrenchBroom {
             const Brush::List& brushes = entity->brushes();
             ASSERT_TRUE(brushes.empty());
         }
+        
+        TEST(EntityTest, partialSelectionAfterAdd) {
+            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
+                                    Vec3( 4096.0,  4096.0,  4096.0));
+            Entity::Ptr entity = Entity::newEntity();
+            Brush::Ptr brush1 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            Brush::Ptr brush2 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            entity->addBrush(brush1);
+            entity->addBrush(brush2);
+            ASSERT_FALSE(entity->partiallySelected());
+            brush1->select();
+            ASSERT_TRUE(entity->partiallySelected());
+            brush2->select();
+            ASSERT_TRUE(entity->partiallySelected());
+            brush1->deselect();
+            ASSERT_TRUE(entity->partiallySelected());
+            brush2->deselect();
+            ASSERT_FALSE(entity->partiallySelected());
+        }
+        
+        TEST(EntityTest, partialSelectionBeforeAdd) {
+            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
+                                    Vec3( 4096.0,  4096.0,  4096.0));
+            Entity::Ptr entity = Entity::newEntity();
+            Brush::Ptr brush1 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            Brush::Ptr brush2 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            brush1->select();
+            entity->addBrush(brush1);
+            entity->addBrush(brush2);
+            ASSERT_TRUE(entity->partiallySelected());
+            brush2->select();
+            ASSERT_TRUE(entity->partiallySelected());
+            brush2->deselect();
+            ASSERT_TRUE(entity->partiallySelected());
+            entity->removeBrush(brush2);
+            ASSERT_TRUE(entity->partiallySelected());
+            entity->removeBrush(brush1);
+            ASSERT_FALSE(entity->partiallySelected());
+        }
     }
 }
