@@ -19,18 +19,20 @@
 
 #include "OpenDocumentCommand.h"
 
+#include "View/MapDocument.h"
+
 namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType OpenDocumentCommand::Type = Command::freeType();
         
-        OpenDocumentCommand::OpenDocumentCommand(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path) :
+        OpenDocumentCommand::OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) :
         Command(Type, "Open Document", false),
         m_document(document),
         m_worldBounds(worldBounds),
         m_game(game),
         m_path(path) {}
         
-        Model::Map::Ptr OpenDocumentCommand::map() const {
+        Model::MapPtr OpenDocumentCommand::map() const {
             return m_document->map();
         }
 

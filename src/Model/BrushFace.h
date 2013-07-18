@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Model/Texture.h"
+#include "Model/ModelTypes.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
 
@@ -73,19 +73,12 @@ namespace TrenchBroom {
              */
             typedef Vec3 Points[3];
             
-            typedef std::tr1::shared_ptr<BrushFace> Ptr;
-            typedef std::tr1::weak_ptr<BrushFace> WkPtr;
-            typedef std::vector<BrushFace::Ptr> List;
-            static const List EmptyList;
-
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<Texture::Ptr, VertexSpec> Mesh;
+            typedef Renderer::Mesh<TexturePtr, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
-            typedef std::tr1::weak_ptr<Brush> ParentPtr;
-            
-            ParentPtr m_parent;
+            Brush* m_parent;
             BrushFace::Points m_points;
             Plane3 m_boundary;
             String m_textureName;
@@ -98,20 +91,20 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
-            Texture::Ptr m_texture;
+            TexturePtr m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
         public:
-            static BrushFace::Ptr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
+            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
             
-            Brush::Ptr parent() const;
-            void setParent(Brush::Ptr parent);
+            Brush* parent() const;
+            void setParent(Brush* parent);
             
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
             
             const String& textureName() const;
-            Texture::Ptr texture() const;
+            TexturePtr texture() const;
             const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;
@@ -119,7 +112,7 @@ namespace TrenchBroom {
             float xScale() const;
             float yScale() const;
             
-            void setTexture(Texture::Ptr texture);
+            void setTexture(TexturePtr texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);

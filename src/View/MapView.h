@@ -26,7 +26,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/ShaderManager.h"
 #include "View/InputState.h"
-#include "View/MapDocument.h"
+#include "View/ViewTypes.h"
 
 #include <vector>
 #include <wx/event.h>
@@ -49,20 +49,20 @@ namespace TrenchBroom {
             bool m_initialized;
             wxGLContext* m_glContext;
             
-            View::MapDocument::Ptr m_document;
+            View::MapDocumentPtr m_document;
             Controller::ControllerFacade& m_controller;
             Renderer::Camera m_camera;
             Renderer::MapRenderer m_renderer;
             Renderer::ShaderManager m_shaderManager;
             
             InputState m_inputState;
-            bool m_drag;
             wxPoint m_clickPos;
             CameraTool* m_cameraTool;
             SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
+            BaseTool* m_dragReceiver;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document, Controller::ControllerFacade& controller);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller);
             ~MapView();
             
             void OnMouseButton(wxMouseEvent& event);

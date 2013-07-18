@@ -22,9 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushEdge.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,10 +39,10 @@ namespace TrenchBroom {
             template <typename T>
             struct Result {
                 T resultCode;
-                BrushFace::List addedFaces;
-                BrushFace::List droppedFaces;
+                BrushFaceList addedFaces;
+                BrushFaceList droppedFaces;
                 
-                Result(const T i_resultCode, const BrushFace::List& i_addedFaces = BrushFace::EmptyList, const BrushFace::List& i_droppedFaces = BrushFace::EmptyList) :
+                Result(const T i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList) :
                 resultCode(i_resultCode),
                 addedFaces(i_addedFaces),
                 droppedFaces(i_droppedFaces) {}
@@ -67,8 +67,8 @@ namespace TrenchBroom {
             const BrushEdge::List& edges() const;
             const BrushFaceGeometry::List& sides() const;
 
-            AddFaceResult addFaces(const BrushFace::List& faces);
-            AddFaceResult addFace(BrushFace::Ptr face);
+            AddFaceResult addFaces(const BrushFaceList& faces);
+            AddFaceResult addFace(BrushFacePtr face);
         private:
             void initializeWithBounds(const BBox3& bounds);
         };

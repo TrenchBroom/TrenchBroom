@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Model/BrushGeometryAlgorithm.h"
 #include "Model/BrushGeometry.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
 
         class IntersectBrushGeometryWithFace : public BrushGeometryAlgorithm<BrushGeometry::AddFaceResultCode> {
         private:
-            BrushFace::Ptr m_face;
+            BrushFacePtr m_face;
             BrushVertex::List m_remainingVertices;
             BrushVertex::List m_droppedVertices;
             BrushEdge::List m_remainingEdges;
@@ -42,7 +43,7 @@ namespace TrenchBroom {
             BrushFaceGeometry::List m_remainingSides;
             BrushFaceGeometry::List m_droppedSides;
         public:
-            IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace::Ptr face);
+            IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFacePtr face);
             
             inline const BrushVertex::List& vertices() const {
                 return m_remainingVertices;

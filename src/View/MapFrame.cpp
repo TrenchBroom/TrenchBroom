@@ -26,6 +26,7 @@
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/FrameManager.h"
+#include "View/MapDocument.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/NavBar.h"
@@ -46,7 +47,7 @@ namespace TrenchBroom {
         m_navBar(NULL),
         m_mapView(NULL) {}
 
-        MapFrame::MapFrame(FrameManager* frameManager, MapDocument::Ptr document) :
+        MapFrame::MapFrame(FrameManager* frameManager, MapDocumentPtr document) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
         m_console(NULL),
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             Create(frameManager, document);
         }
 
-        void MapFrame::Create(FrameManager* frameManager, MapDocument::Ptr document) {
+        void MapFrame::Create(FrameManager* frameManager, MapDocumentPtr document) {
             m_frameManager = frameManager;
             m_document = document;
             m_controller.setDocument(m_document);
@@ -113,13 +114,13 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapFrame::newDocument(Model::Game::Ptr game) {
+        bool MapFrame::newDocument(Model::GamePtr game) {
             if (!confirmOrDiscardChanges())
                 return false;
             return m_controller.newDocument(MapDocument::DefaultWorldBounds, game);
         }
         
-        bool MapFrame::openDocument(Model::Game::Ptr game, const IO::Path& path) {
+        bool MapFrame::openDocument(Model::GamePtr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
             return m_controller.openDocument(MapDocument::DefaultWorldBounds, game, path);

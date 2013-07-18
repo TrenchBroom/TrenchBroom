@@ -20,6 +20,7 @@
 #include "FrameManager.h"
 
 #include "Exceptions.h"
+#include "View/MapDocument.h"
 #include "View/MapFrame.h"
 
 #include <cassert>
@@ -67,14 +68,14 @@ namespace TrenchBroom {
         MapFrame* FrameManager::createOrReuseFrame() {
             assert(!m_singleFrame || m_frames.size() <= 1);
             if (!m_singleFrame || m_frames.empty()) {
-                MapDocument::Ptr document = MapDocument::newMapDocument();
+                MapDocumentPtr document = MapDocument::newMapDocument();
                 MapFrame* frame = createFrame(document);
                 m_frames.push_back(frame);
             }
             return m_frames.back();
         }
 
-        MapFrame* FrameManager::createFrame(MapDocument::Ptr document) {
+        MapFrame* FrameManager::createFrame(MapDocumentPtr document) {
             MapFrame* frame = new MapFrame(this, document);
             frame->positionOnScreen(m_topFrame);
             frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);

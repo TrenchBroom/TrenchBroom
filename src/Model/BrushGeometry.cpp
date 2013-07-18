@@ -57,12 +57,12 @@ namespace TrenchBroom {
             return m_sides;
         }
         
-        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFace::List& faces) {
+        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
             AddFaceResult totalResult(BrushIsSplit);
             
-            BrushFace::List::const_iterator it, end;
+            BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace::Ptr face = *it;
+                BrushFacePtr face = *it;
                 const AddFaceResult result = addFace(face);
                 if (result.resultCode == BrushIsNull)
                     return AddFaceResult(BrushIsNull);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             return totalResult;
         }
         
-        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace::Ptr face) {
+        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFacePtr face) {
             IntersectBrushGeometryWithFace algorithm(*this, face);
             const AddFaceResultCode resultCode = algorithm.execute();
             switch (resultCode) {

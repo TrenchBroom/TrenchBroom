@@ -24,9 +24,8 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Controller/Command.h"
-#include "Model/Game.h"
-#include "Model/Map.h"
-#include "View/MapDocument.h"
+#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -35,13 +34,13 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<NewDocumentCommand> Ptr;
         private:
-            View::MapDocument::Ptr m_document;
+            View::MapDocumentPtr m_document;
             BBox3 m_worldBounds;
-            Model::Game::Ptr m_game;
+            Model::GamePtr m_game;
         public:
-            NewDocumentCommand(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game);
+            NewDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game);
             
-            Model::Map::Ptr map() const;
+            Model::MapPtr map() const;
         private:
             bool doPerformDo();
         };

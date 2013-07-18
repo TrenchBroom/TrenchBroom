@@ -24,6 +24,7 @@
 #include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/EntityProperties.h"
+#include "Model/ModelTypes.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
 
@@ -33,20 +34,16 @@ namespace TrenchBroom {
     namespace Model {
         class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
         public:
-            typedef std::tr1::shared_ptr<Entity> Ptr;
-            typedef std::vector<Entity::Ptr> List;
-            static const List EmptyList;
-            
             static const Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
             
             EntityProperties m_properties;
-            Brush::List m_brushes;
+            BrushList m_brushes;
             
             Entity();
         public:
-            static Entity::Ptr newEntity();
+            static EntityPtr newEntity();
             
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
@@ -58,15 +55,15 @@ namespace TrenchBroom {
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             
-            const Brush::List& brushes() const;
-            void addBrush(Brush::Ptr brush);
-            void removeBrush(Brush::Ptr brush);
+            const BrushList& brushes() const;
+            void addBrush(BrushPtr brush);
+            void removeBrush(BrushPtr brush);
 
             template <class Operator, class Filter>
             inline void eachBrush(const Operator& op, const Filter& filter) {
-                Brush::List::const_iterator it, end;
+                BrushList::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush::Ptr brush = *it;
+                    BrushPtr brush = *it;
                     if (filter(brush))
                         op(brush);
                 }
@@ -74,9 +71,9 @@ namespace TrenchBroom {
 
             template <class Operator, class Filter>
             inline void eachBrush(Operator& op, const Filter& filter) {
-                Brush::List::const_iterator it, end;
+                BrushList::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush::Ptr brush = *it;
+                    BrushPtr brush = *it;
                     if (filter(brush))
                         op(brush);
                 }
@@ -84,23 +81,23 @@ namespace TrenchBroom {
 
             template <class Operator, class Filter>
             inline void eachBrushFace(const Operator& op, const Filter& filter) {
-                Brush::List::const_iterator it, end;
+                BrushList::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush::Ptr brush = *it;
+                    BrushPtr brush = *it;
                     brush->eachBrushFace(op, filter);
                 }
             }
 
             template <class Operator, class Filter>
             inline void eachBrushFace(Operator& op, const Filter& filter) {
-                Brush::List::const_iterator it, end;
+                BrushList::const_iterator it, end;
                 for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush::Ptr brush = *it;
+                    BrushPtr brush = *it;
                     brush->eachBrushFace(op, filter);
                 }
             }
         private:
-            Ptr sharedFromThis();
+            EntityPtr sharedFromThis();
         };
     }
 }

@@ -24,16 +24,9 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/Entity.h"
-#include "Model/Map.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Map;
-    }
-    
     namespace View {
         class Logger;
     }
@@ -68,9 +61,7 @@ namespace TrenchBroom {
             private:
                 bool m_deterministic;
             public:
-                PlaneWeightOrder(const bool deterministic) :
-                m_deterministic(deterministic) {}
-                
+                PlaneWeightOrder(const bool deterministic);
                 template <typename T, size_t S>
                 inline bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
                     int result = lhs.normal.weight() - rhs.normal.weight();
@@ -84,12 +75,8 @@ namespace TrenchBroom {
             private:
                 const PlaneWeightOrder& m_planeOrder;
             public:
-                FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
-                m_planeOrder(planeOrder) {}
-                
-                inline bool operator()(const Model::BrushFace::Ptr lhs, const Model::BrushFace::Ptr rhs) const {
-                    return m_planeOrder(lhs->boundary(), rhs->boundary());
-                }
+                FaceWeightOrder(const PlaneWeightOrder& planeOrder);
+                bool operator()(const Model::BrushFacePtr lhs, const Model::BrushFacePtr rhs) const;
             };
 
             View::Logger* m_logger;
@@ -100,14 +87,14 @@ namespace TrenchBroom {
             QuakeMapParser(const String& str, View::Logger* logger = NULL);
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
-            Model::Map::Ptr doParseMap(const BBox3& worldBounds);
+            Model::MapPtr doParseMap(const BBox3& worldBounds);
             
-            Model::Entity::Ptr parseEntity(const BBox3& worldBounds);
-            Model::Brush::Ptr parseBrush(const BBox3& worldBounds);
-            Model::BrushFace::Ptr parseFace(const BBox3& worldBounds);
+            Model::EntityPtr parseEntity(const BBox3& worldBounds);
+            Model::BrushPtr parseBrush(const BBox3& worldBounds);
+            Model::BrushFacePtr parseFace(const BBox3& worldBounds);
             const Vec3 parseVector();
             
-            Model::Brush::Ptr createBrush(const BBox3& worldBounds, const Model::BrushFace::List faces, const size_t firstLine, const size_t lineCount) const;
+            Model::BrushPtr createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
         };
     }
 }

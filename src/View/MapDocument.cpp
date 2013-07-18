@@ -20,9 +20,9 @@
 #include "MapDocument.h"
 
 #include "IO/FileSystem.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/Game.h"
+#include "Model/Map.h"
 #include "View/Logger.h"
 #include "View/MapFrame.h"
 
@@ -40,9 +40,9 @@ namespace TrenchBroom {
             SetFaceTexture(Model::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) const {
+            inline void operator()(Model::BrushPtr brush, Model::BrushFacePtr face) const {
                 const String& textureName = face->textureName();
-                Model::Texture::Ptr texture = m_textureManager.texture(textureName);
+                Model::TexturePtr texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };
@@ -54,29 +54,29 @@ namespace TrenchBroom {
             AddToPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline void operator()(Model::Object::Ptr object) const {
+            inline void operator()(Model::ObjectPtr object) const {
                 m_picker.addObject(object);
             }
         };
         
         struct MatchAllFilter {
-            inline bool operator()(Model::Entity::Ptr entity) const {
+            inline bool operator()(Model::EntityPtr entity) const {
                 return true;
             }
             
-            inline bool operator()(Model::Brush::Ptr brush) const {
+            inline bool operator()(Model::BrushPtr brush) const {
                 return true;
             }
             
-            inline bool operator()(Model::Brush::Ptr brush, Model::BrushFace::Ptr face) const {
+            inline bool operator()(Model::BrushPtr brush, Model::BrushFacePtr face) const {
                 return true;
             }
         };
         
         const BBox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         
-        MapDocument::Ptr MapDocument::newMapDocument() {
-            return MapDocument::Ptr(new MapDocument());
+        MapDocumentPtr MapDocument::newMapDocument() {
+            return MapDocumentPtr(new MapDocument());
         }
 
         MapDocument::~MapDocument() {
@@ -92,11 +92,11 @@ namespace TrenchBroom {
             return  m_path.lastComponent();
         }
         
-        Model::Game::Ptr MapDocument::game() const {
+        Model::GamePtr MapDocument::game() const {
             return m_game;
         }
         
-        Model::Map::Ptr MapDocument::map() const {
+        Model::MapPtr MapDocument::map() const {
             return m_map;
         }
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_modificationCount = 0;
         }
 
-        void MapDocument::newDocument(const BBox3& worldBounds, Model::Game::Ptr game) {
+        void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
             assert(game != NULL);
             info("Creating new document");
 
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             clearModificationCount();
         }
         
-        void MapDocument::openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path) {
+        void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             assert(game != NULL);
             info("Opening document document " + path.asString());
 
@@ -158,27 +158,27 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
-        Model::Object::List MapDocument::selectedObjects() const {
+        Model::ObjectList MapDocument::selectedObjects() const {
             return m_selection.selectedObjects();
         }
 
-        Model::Entity::List MapDocument::selectedEntities() const {
+        Model::EntityList MapDocument::selectedEntities() const {
             return m_selection.selectedEntities();
         }
         
-        Model::Brush::List MapDocument::selectedBrushes() const {
+        Model::BrushList MapDocument::selectedBrushes() const {
             return m_selection.selectedBrushes();
         }
         
-        Model::BrushFace::List MapDocument::selectedFaces() const {
+        Model::BrushFaceList MapDocument::selectedFaces() const {
             return m_selection.selectedFaces();
         }
         
-        void MapDocument::selectObjects(const Model::Object::List& objects) {
+        void MapDocument::selectObjects(const Model::ObjectList& objects) {
             m_selection.selectObjects(objects);
         }
         
-        void MapDocument::deselectObjects(const Model::Object::List& objects) {
+        void MapDocument::deselectObjects(const Model::ObjectList& objects) {
             m_selection.deselectObjects(objects);
         }
         
@@ -186,11 +186,11 @@ namespace TrenchBroom {
             m_selection.selectAllObjects();
         }
         
-        void MapDocument::selectFaces(const Model::BrushFace::List& faces) {
+        void MapDocument::selectFaces(const Model::BrushFaceList& faces) {
             m_selection.selectFaces(faces);
         }
         
-        void MapDocument::deselectFaces(const Model::BrushFace::List& faces) {
+        void MapDocument::deselectFaces(const Model::BrushFaceList& faces) {
             m_selection.deselectFaces(faces);
         }
 

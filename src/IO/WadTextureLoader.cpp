@@ -23,6 +23,7 @@
 #include "Exceptions.h"
 #include "GL/GL.h"
 #include "IO/Wad.h"
+#include "Model/ModelTypes.h"
 #include "Model/Texture.h"
 #include "Model/TextureCollection.h"
 
@@ -31,12 +32,12 @@ namespace TrenchBroom {
         WadTextureLoader::WadTextureLoader(const Model::Palette& palette) :
         m_palette(palette) {}
 
-        Model::TextureCollection::Ptr WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Model::TextureCollectionPtr WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
-            Model::Texture::List textures;
+            Model::TextureList textures;
             textures.reserve(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             return Model::TextureCollection::newTextureCollection(path, textures);
         }
 
-        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollection::Ptr collection) {
+        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollectionPtr collection) {
             Model::Palette::TextureBuffer buffer;
             buffer.resize(InitialBufferSize);
             Color averageColor;
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             Wad wad(path);
 
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
-            const Model::Texture::List& textures = collection->textures();
+            const Model::TextureList& textures = collection->textures();
             
             if (mipEntries.size() != textures.size())
                 throw WadException("Found different number of textures in " + path.asString() + " while uploading mip data");
@@ -73,7 +74,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
-                const Model::Texture::Ptr texture = textures[i];
+                const Model::TexturePtr texture = textures[i];
                 assert(entry.name() == texture->name());
                 
                 const GLuint textureId = textureIds[i];

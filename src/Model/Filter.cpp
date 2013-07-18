@@ -21,11 +21,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        bool Filter::passes(Entity::Ptr entity) const {
+        bool Filter::passes(EntityPtr entity) const {
             return true;
         }
         
-        bool Filter::passes(Brush::Ptr brush) const {
+        bool Filter::passes(BrushPtr brush) const {
             return true;
         }
     }

@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
+#include "Model/ModelTypes.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
 #include "Renderer/VertexSpec.h"
@@ -37,19 +38,16 @@ namespace TrenchBroom {
         
         class Brush : public Object, public std::tr1::enable_shared_from_this<Brush> {
         public:
-            typedef std::tr1::shared_ptr<Brush> Ptr;
-            typedef std::vector<Brush::Ptr> List;
-            static const List EmptyList;
             typedef Renderer::VertexSpecs::P3 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
 
             static const Hit::HitType BrushHit;
         private:
             Entity* m_parent;
-            BrushFace::List m_faces;
+            BrushFaceList m_faces;
             BrushGeometry* m_geometry;
         public:
-            static Brush::Ptr newBrush(const BBox3& worldBounds, const BrushFace::List& faces);
+            static BrushPtr newBrush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
             
             Entity* parent() const;
@@ -61,15 +59,15 @@ namespace TrenchBroom {
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
-            const BrushFace::List& faces() const;
+            const BrushFaceList& faces() const;
             const BrushEdge::List& edges() const;
 
             template <class Operator, class Filter>
             void eachBrushFace(const Operator& op, const Filter& filter) {
-                Ptr thisPtr = sharedFromThis();
-                BrushFace::List::const_iterator it, end;
+                BrushPtr thisPtr = sharedFromThis();
+                BrushFaceList::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFace::Ptr face = *it;
+                    BrushFacePtr face = *it;
                     if (filter(thisPtr, face))
                         op(thisPtr, face);
                 }
@@ -77,10 +75,10 @@ namespace TrenchBroom {
             
             template <class Operator, class Filter>
             void eachBrushFace(Operator& op, const Filter& filter) {
-                Ptr thisPtr = sharedFromThis();
-                BrushFace::List::const_iterator it, end;
+                BrushPtr thisPtr = sharedFromThis();
+                BrushFaceList::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFace::Ptr face = *it;
+                    BrushFacePtr face = *it;
                     if (filter(thisPtr, face))
                         op(thisPtr, face);
                 }
@@ -88,11 +86,11 @@ namespace TrenchBroom {
             
             void addEdges(Vertex::List& vertices) const;
         private:
-            Brush(const BBox3& worldBounds, const BrushFace::List& faces);
-            Ptr sharedFromThis();
-            void rebuildGeometry(const BBox3& worldBounds, const BrushFace::List& faces);
-            void addFaces(const BrushFace::List& faces);
-            void addFace(BrushFace::Ptr face);
+            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            BrushPtr sharedFromThis();
+            void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
+            void addFaces(const BrushFaceList& faces);
+            void addFace(BrushFacePtr face);
             void removeAllFaces();
         };
     }

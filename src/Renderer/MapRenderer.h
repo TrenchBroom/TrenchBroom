@@ -21,7 +21,7 @@
 #define __TrenchBroom__MapRenderer__
 
 #include "Controller/Command.h"
-#include "Model/Map.h"
+#include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Vbo.h"
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             void renderCoordinateSystem(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void clearState();
-            void loadMap(Model::Map::Ptr map);
+            void loadMap(Model::MapPtr map);
         };
     }
 }

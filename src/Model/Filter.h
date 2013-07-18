@@ -20,21 +20,14 @@
 #ifndef __TrenchBroom__Filter__
 #define __TrenchBroom__Filter__
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Filter {
         public:
-            bool passes(Entity::Ptr entity) const;
-            bool passes(Brush::Ptr brush) const;
-        };
-        
-        class SelectedFilter {
-        public:
-            bool passes(Entity::Ptr entity) const;
-            bool passes(Brush::Ptr brush) const;
+            bool passes(EntityPtr entity) const;
+            bool passes(BrushPtr brush) const;
         };
     }
 }

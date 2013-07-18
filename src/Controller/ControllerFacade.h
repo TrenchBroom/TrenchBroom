@@ -24,10 +24,8 @@
 #include "VecMath.h"
 #include "Controller/CommandProcessor.h"
 #include "Controller/CommandListener.h"
-#include "Model/BrushFace.h"
-#include "Model/Game.h"
-#include "Model/Object.h"
-#include "View/MapDocument.h"
+#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,23 +37,23 @@ namespace TrenchBroom {
         
         class ControllerFacade {
         private:
-            View::MapDocument::Ptr m_document;
+            View::MapDocumentPtr m_document;
             CommandProcessor m_commandProcessor;
         public:
-            void setDocument(View::MapDocument::Ptr document);
+            void setDocument(View::MapDocumentPtr document);
             
             void addCommandListener(CommandListener::Ptr listener);
             void removeCommandListener(CommandListener::Ptr listener);
 
-            bool newDocument(const BBox3& worldBounds, Model::Game::Ptr game);
-            bool openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
+            bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
+            bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
-            bool selectObject(Model::Object::Ptr object);
-            bool deselectAllAndSelectObject(Model::Object::Ptr object);
-            bool deselectObject(Model::Object::Ptr object);
-            bool selectFace(Model::BrushFace::Ptr face);
-            bool deselectAllAndSelectFace(Model::BrushFace::Ptr face);
-            bool deselectFace(Model::BrushFace::Ptr face);
+            bool selectObject(Model::ObjectPtr object);
+            bool deselectAllAndSelectObject(Model::ObjectPtr object);
+            bool deselectObject(Model::ObjectPtr object);
+            bool selectFace(Model::BrushFacePtr face);
+            bool deselectAllAndSelectFace(Model::BrushFacePtr face);
+            bool deselectFace(Model::BrushFacePtr face);
             bool deselectAll();
         };
     }

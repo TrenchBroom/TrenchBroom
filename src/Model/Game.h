@@ -24,28 +24,25 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "IO/Path.h"
-#include "Model/Map.h"
-#include "Model/TextureCollection.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Game {
         public:
-            typedef std::tr1::shared_ptr<Game> Ptr;
-        public:
             virtual ~Game();
             
-            Map::Ptr loadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            IO::Path::List extractTexturePaths(Map::Ptr map) const;
-            TextureCollection::Ptr loadTextureCollection(const IO::Path& path) const;
-            void uploadTextureCollection(TextureCollection::Ptr collection) const;
+            MapPtr loadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            IO::Path::List extractTexturePaths(MapPtr map) const;
+            TextureCollectionPtr loadTextureCollection(const IO::Path& path) const;
+            void uploadTextureCollection(TextureCollectionPtr collection) const;
         protected:
             Game();
         private:
-            virtual Map::Ptr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
-            virtual IO::Path::List doExtractTexturePaths(Map::Ptr map) const = 0;
-            virtual TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const = 0;
-            virtual void doUploadTextureCollection(TextureCollection::Ptr collection) const = 0;
+            virtual MapPtr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
+            virtual IO::Path::List doExtractTexturePaths(MapPtr map) const = 0;
+            virtual TextureCollectionPtr doLoadTextureCollection(const IO::Path& path) const = 0;
+            virtual void doUploadTextureCollection(TextureCollectionPtr collection) const = 0;
         };
     }
 }

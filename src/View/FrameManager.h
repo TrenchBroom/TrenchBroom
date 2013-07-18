@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__FrameManager__
 #define __TrenchBroom__FrameManager__
 
-#include "View/MapDocument.h"
+#include "View/ViewTypes.h"
 
 #include <vector>
 
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void OnFrameActivate(wxActivateEvent& event);
         private:
             MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(MapDocument::Ptr document);
+            MapFrame* createFrame(MapDocumentPtr document);
             void removeAndDestroyFrame(MapFrame* frame);
             
             friend class MapFrame;

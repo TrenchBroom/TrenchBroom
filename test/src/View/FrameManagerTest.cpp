@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
+#include "GL/GL.h"
 #include "IO/Path.h"
 #include "Model/QuakeGame.h"
 #include "View/FrameManager.h"

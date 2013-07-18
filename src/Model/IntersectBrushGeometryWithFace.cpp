@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace::Ptr face) :
+        IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFacePtr face) :
         BrushGeometryAlgorithm(geometry),
         m_face(face) {}
         

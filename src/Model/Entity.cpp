@@ -20,19 +20,17 @@
 #include "Entity.h"
 
 #include "CollectionUtils.h"
-#include "Model/Brush.h"
 
 namespace TrenchBroom {
     namespace Model {
         const String Entity::DefaultPropertyValue = "";
-        const Entity::List Entity::EmptyList = Entity::List();
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         
         Entity::Entity() :
         Object(OTEntity) {}
 
-        Entity::Ptr Entity::newEntity() {
-            return Entity::Ptr(new Entity());
+        EntityPtr Entity::newEntity() {
+            return EntityPtr(new Entity());
         }
 
         BBox3 Entity::bounds() const {
@@ -74,23 +72,23 @@ namespace TrenchBroom {
             return property(PropertyKeys::Classname, defaultClassname);
         }
 
-        const Brush::List& Entity::brushes() const {
+        const BrushList& Entity::brushes() const {
             return m_brushes;
         }
 
-        void Entity::addBrush(Brush::Ptr brush) {
+        void Entity::addBrush(BrushPtr brush) {
             assert(brush->parent() == NULL);
             m_brushes.push_back(brush);
             brush->setParent(this);
         }
 
-        void Entity::removeBrush(Brush::Ptr brush) {
+        void Entity::removeBrush(BrushPtr brush) {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
         }
 
-        Entity::Ptr Entity::sharedFromThis() {
+        EntityPtr Entity::sharedFromThis() {
             return shared_from_this();
         }
     }

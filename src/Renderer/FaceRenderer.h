@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "Model/BrushFace.h"
-#include "Model/Texture.h"
+#include "Model/ModelTypes.h"
 #include "Renderer/VertexArray.h"
 
 #include <map>
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         
         class FaceRenderer {
         private:
-            typedef std::map<Model::Texture::Ptr, VertexArray> VertexArrayMap;
+            typedef std::map<Model::TexturePtr, VertexArray> VertexArrayMap;
             
             VertexArrayMap m_arrays;
             Color m_faceColor;

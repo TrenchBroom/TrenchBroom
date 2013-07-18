@@ -22,16 +22,16 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/Map.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
         class MapParser {
         public:
             virtual ~MapParser();
-            Model::Map::Ptr parseMap(const BBox3& worldBounds);
+            Model::MapPtr parseMap(const BBox3& worldBounds);
         private:
-            virtual Model::Map::Ptr doParseMap(const BBox3& worldBounds) = 0;
+            virtual Model::MapPtr doParseMap(const BBox3& worldBounds) = 0;
         };
     }
 }

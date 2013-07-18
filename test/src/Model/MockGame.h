@@ -30,16 +30,19 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class MockGame;
+        typedef std::tr1::shared_ptr<MockGame> MockGamePtr;
+        
         class MockGame : public Game {
         public:
-            typedef std::tr1::shared_ptr<MockGame> Ptr;
-            static Ptr newGame();
+            static MockGamePtr newGame();
 
-            MOCK_CONST_METHOD2(doLoadMap, Map::Ptr(const BBox3&, const IO::Path&));
-            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(Map::Ptr));
-            MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollection::Ptr(const IO::Path&));
-            MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollection::Ptr));
+            MOCK_CONST_METHOD2(doLoadMap, MapPtr(const BBox3&, const IO::Path&));
+            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(MapPtr));
+            MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollectionPtr(const IO::Path&));
+            MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollectionPtr));
         };
+        
     }
 }
 

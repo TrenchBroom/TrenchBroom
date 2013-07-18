@@ -23,9 +23,9 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/BrushEdge.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,10 +44,10 @@ namespace TrenchBroom {
         private:
             BrushVertex::List m_vertices;
             BrushEdge::List m_edges;
-            BrushFace::Ptr m_face;
+            BrushFacePtr m_face;
         public:
-            BrushFace::Ptr face() const;
-            void setFace(BrushFace::Ptr face);
+            BrushFacePtr face() const;
+            void setFace(BrushFacePtr face);
             const BrushVertex::List& vertices() const;
             const BrushEdge::List& edges() const;
             

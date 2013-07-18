@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(EntityTest, hasProperty) {
-            Entity::Ptr entity = Entity::newEntity();
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             entity->addOrUpdateProperty(key, value);
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, getProperty) {
-            Entity::Ptr entity = Entity::newEntity();
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
             const PropertyValue value("value");
@@ -48,12 +48,12 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, addProperty) {
-            Entity::Ptr entity = Entity::newEntity();
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             
             entity->addOrUpdateProperty(key, value);
-
+            
             const EntityProperty::List& properties = entity->properties();
             ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, updateProperty) {
-            Entity::Ptr entity = Entity::newEntity();
+            EntityPtr entity = Entity::newEntity();
             const PropertyKey key("key");
             const PropertyValue value("value");
             const PropertyValue newValue("value");
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, getClassname) {
-            Entity::Ptr entity = Entity::newEntity();
+            EntityPtr entity = Entity::newEntity();
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
             
@@ -87,16 +87,16 @@ namespace TrenchBroom {
             ASSERT_EQ(classname, entity->classname());
             ASSERT_EQ(classname, entity->classname(defaultClassname));
         }
-
+        
         TEST(EntityTest, addBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity::Ptr entity = Entity::newEntity();
-            Brush::Ptr brush = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             
             entity->addBrush(brush);
-
-            const Brush::List& brushes = entity->brushes();
+            
+            const BrushList& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
             ASSERT_EQ(brush, brushes[0]);
         }
@@ -104,22 +104,22 @@ namespace TrenchBroom {
         TEST(EntityTest, removeBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity::Ptr entity = Entity::newEntity();
-            Brush::Ptr brush = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             entity->addBrush(brush);
-
+            
             entity->removeBrush(brush);
             
-            const Brush::List& brushes = entity->brushes();
+            const BrushList& brushes = entity->brushes();
             ASSERT_TRUE(brushes.empty());
         }
         
         TEST(EntityTest, partialSelectionAfterAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity::Ptr entity = Entity::newEntity();
-            Brush::Ptr brush1 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
-            Brush::Ptr brush2 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush1 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            BrushPtr brush2 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             entity->addBrush(brush1);
             entity->addBrush(brush2);
             ASSERT_FALSE(entity->partiallySelected());
@@ -136,9 +136,9 @@ namespace TrenchBroom {
         TEST(EntityTest, partialSelectionBeforeAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity::Ptr entity = Entity::newEntity();
-            Brush::Ptr brush1 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
-            Brush::Ptr brush2 = Brush::newBrush(worldBounds, BrushFace::EmptyList);
+            EntityPtr entity = Entity::newEntity();
+            BrushPtr brush1 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            BrushPtr brush2 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
             brush1->select();
             entity->addBrush(brush1);
             entity->addBrush(brush2);

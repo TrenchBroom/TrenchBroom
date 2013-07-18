@@ -26,11 +26,12 @@
 #include "IO/WadTextureLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Map.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Game::Ptr QuakeGame::newGame(View::Logger* logger) {
-            return Ptr(new QuakeGame(logger));
+        GamePtr QuakeGame::newGame(View::Logger* logger) {
+            return GamePtr(new QuakeGame(logger));
         }
 
         const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
@@ -45,17 +46,17 @@ namespace TrenchBroom {
         m_logger(logger),
         m_palette(palettePath()) {}
         
-        Map::Ptr QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
+        MapPtr QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             IO::QuakeMapParser parser(file->begin(), file->end(), m_logger);
             return parser.parseMap(worldBounds);
         }
 
-        IO::Path::List QuakeGame::doExtractTexturePaths(Map::Ptr map) const {
+        IO::Path::List QuakeGame::doExtractTexturePaths(MapPtr map) const {
             IO::Path::List paths;
             
-            Entity::Ptr worldspawn = map->worldspawn();
+            EntityPtr worldspawn = map->worldspawn();
             if (worldspawn == NULL)
                 return paths;
             
@@ -76,12 +77,12 @@ namespace TrenchBroom {
             return paths;
         }
 
-        TextureCollection::Ptr QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
+        TextureCollectionPtr QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
 
-        void QuakeGame::doUploadTextureCollection(TextureCollection::Ptr collection) const {
+        void QuakeGame::doUploadTextureCollection(TextureCollectionPtr collection) const {
             IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
         }

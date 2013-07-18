@@ -24,8 +24,8 @@
 #include "Controller/Command.h"
 #include "Controller/CommandListener.h"
 #include "IO/Path.h"
-#include "Model/Game.h"
-#include "View/MapDocument.h"
+#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 #include <wx/frame.h>
 
@@ -41,22 +41,22 @@ namespace TrenchBroom {
         private:
             FrameManager* m_frameManager;
             Controller::ControllerFacade m_controller;
-            MapDocument::Ptr m_document;
+            MapDocumentPtr m_document;
 
             Console* m_console;
             NavBar* m_navBar;
             MapView* m_mapView;
         public:
             MapFrame();
-            MapFrame(FrameManager* frameManager, MapDocument::Ptr document);
-            void Create(FrameManager* frameManager, MapDocument::Ptr document);
+            MapFrame(FrameManager* frameManager, MapDocumentPtr document);
+            void Create(FrameManager* frameManager, MapDocumentPtr document);
             ~MapFrame();
             
             Logger* logger() const;
             void positionOnScreen(wxFrame* reference);
             
-            bool newDocument(Model::Game::Ptr game);
-            bool openDocument(Model::Game::Ptr game, const IO::Path& path);
+            bool newDocument(Model::GamePtr game);
+            bool openDocument(Model::GamePtr game, const IO::Path& path);
             
             void OnClose(wxCloseEvent& event);
             

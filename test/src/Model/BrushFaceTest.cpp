@@ -32,7 +32,7 @@ namespace TrenchBroom {
             const Vec3 point1(1.f,  0.0, 4.0);
             const Vec3 point2(0.0, -1.0, 4.0);
             
-            BrushFace::Ptr face = BrushFace::newBrushFace(point0, point1, point2);
+            BrushFacePtr face = BrushFace::newBrushFace(point0, point1, point2);
             ASSERT_VEC_EQ(point0, face->points()[0]);
             ASSERT_VEC_EQ(point1, face->points()[1]);
             ASSERT_VEC_EQ(point2, face->points()[2]);

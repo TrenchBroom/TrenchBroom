@@ -21,7 +21,7 @@
 #define TrenchBroom_BrushGeometryAlgorithm_h
 
 #include "CollectionUtils.h"
-#include "Model/BrushFace.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,8 +30,8 @@ namespace TrenchBroom {
         template <typename R>
         class BrushGeometryAlgorithm {
         private:
-            BrushFace::List m_addedFaces;
-            BrushFace::List m_removedFaces;
+            BrushFaceList m_addedFaces;
+            BrushFaceList m_removedFaces;
             BrushGeometry& m_geometry;
         public:
             BrushGeometryAlgorithm(BrushGeometry& geometry) :
@@ -43,23 +43,23 @@ namespace TrenchBroom {
                 return doExecute(m_geometry);
             }
             
-            inline const BrushFace::List& addedFaces() const {
+            inline const BrushFaceList& addedFaces() const {
                 return m_addedFaces;
             }
             
-            inline const BrushFace::List& removedFaces() const {
+            inline const BrushFaceList& removedFaces() const {
                 return m_removedFaces;
             }
         protected:
-            inline void addFace(const BrushFace::Ptr face) {
-                BrushFace::List::iterator it = VectorUtils::find(m_removedFaces, face);
+            inline void addFace(const BrushFacePtr face) {
+                BrushFaceList::iterator it = VectorUtils::find(m_removedFaces, face);
                 if (it != m_removedFaces.end())
                     m_removedFaces.erase(it);
                 m_addedFaces.push_back(face);
             }
             
-            inline void removeFace(const BrushFace::Ptr face) {
-                BrushFace::List::iterator it = VectorUtils::find(m_addedFaces, face);
+            inline void removeFace(const BrushFacePtr face) {
+                BrushFaceList::iterator it = VectorUtils::find(m_addedFaces, face);
                 if (it != m_addedFaces.end()) {
                     m_addedFaces.erase(it);
                 } else {

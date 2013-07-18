@@ -21,8 +21,7 @@
 #define __TrenchBroom__TextureManager__
 
 #include "IO/Path.h"
-#include "Model/Game.h"
-#include "Model/TextureCollection.h"
+#include "Model/ModelTypes.h"
 
 #include <map>
 
@@ -30,13 +29,13 @@ namespace TrenchBroom {
     namespace Model {
         class TextureManager {
         private:
-            typedef std::map<IO::Path, TextureCollection::Ptr> TextureCollectionMap;
-            typedef std::pair<IO::Path, TextureCollection::Ptr> TextureCollectionMapEntry;
-            typedef std::map<String, Texture::Ptr> TextureMap;
+            typedef std::map<IO::Path, TextureCollectionPtr> TextureCollectionMap;
+            typedef std::pair<IO::Path, TextureCollectionPtr> TextureCollectionMapEntry;
+            typedef std::map<String, TexturePtr> TextureMap;
             
-            Game::Ptr m_game;
+            GamePtr m_game;
             
-            TextureCollection::List m_collections;
+            TextureCollectionList m_collections;
             TextureCollectionMap m_collectionsByPath;
             TextureCollectionMap m_toUpload;
             TextureCollectionMap m_toRemove;
@@ -47,13 +46,13 @@ namespace TrenchBroom {
             void addTextureCollections(const IO::Path::List& paths);
             void removeTextureCollection(const size_t index);
             
-            void reset(Game::Ptr game);
+            void reset(GamePtr game);
             void commitChanges();
             
-            Texture::Ptr texture(const String& name) const;
+            TexturePtr texture(const String& name) const;
         private:
-            void doAddTextureCollection(const IO::Path& path, TextureCollection::List& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove) const;
-            void doAddTextureCollection(TextureCollection::Ptr collection, TextureCollection::List& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) const;
+            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove);
+            void doAddTextureCollection(TextureCollectionPtr collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
             void updateTextures();
         };
     }

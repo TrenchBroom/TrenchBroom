@@ -26,11 +26,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Brush::List Brush::EmptyList = Brush::List();
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
 
-        Brush::Ptr Brush::newBrush(const BBox3& worldBounds, const BrushFace::List& faces) {
-            return Brush::Ptr(new Brush(worldBounds, faces));
+        BrushPtr Brush::newBrush(const BBox3& worldBounds, const BrushFaceList& faces) {
+            return BrushPtr(new Brush(worldBounds, faces));
         }
         
         Brush::~Brush() {
@@ -79,9 +78,9 @@ namespace TrenchBroom {
         }
 
         void Brush::pick(const Ray3& ray, PickResult& result) {
-            BrushFace::List::iterator it, end;
+            BrushFaceList::iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace::Ptr face = *it;
+                BrushFacePtr face = *it;
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math<FloatType>::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
@@ -92,7 +91,7 @@ namespace TrenchBroom {
             }
         }
 
-        const BrushFace::List& Brush::faces() const {
+        const BrushFaceList& Brush::faces() const {
             return m_faces;
         }
 
@@ -110,18 +109,18 @@ namespace TrenchBroom {
             }
         }
 
-        Brush::Brush(const BBox3& worldBounds, const BrushFace::List& faces) :
+        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         Object(OTBrush),
         m_parent(NULL),
         m_geometry(NULL) {
             rebuildGeometry(worldBounds, faces);
         }
         
-        Brush::Ptr Brush::sharedFromThis() {
+        BrushPtr Brush::sharedFromThis() {
             return shared_from_this();
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFace::List& faces) {
+        void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
@@ -130,22 +129,22 @@ namespace TrenchBroom {
             addFaces(result.addedFaces);
         }
 
-        void Brush::addFaces(const BrushFace::List& faces) {
-            BrushFace::List::const_iterator it, end;
+        void Brush::addFaces(const BrushFaceList& faces) {
+            BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace::Ptr face = *it;
+                BrushFacePtr face = *it;
                 addFace(face);
             }
         }
         
-        void Brush::addFace(BrushFace::Ptr face) {
+        void Brush::addFace(BrushFacePtr face) {
             m_faces.push_back(face);
             face->setParent(this);
         }
         
         void Brush::removeAllFaces() {
             while (!m_faces.empty()) {
-                BrushFace::Ptr face = m_faces.back();
+                BrushFacePtr face = m_faces.back();
                 m_faces.pop_back();
                 face->setParent(NULL);
             }

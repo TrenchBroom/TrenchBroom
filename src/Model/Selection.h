@@ -20,9 +20,7 @@
 #ifndef __TrenchBroom__Selection__
 #define __TrenchBroom__Selection__
 
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,15 +32,15 @@ namespace TrenchBroom {
         public:
             Selection(Map* map = NULL);
 
-            Object::List selectedObjects() const;
-            Entity::List selectedEntities() const;
-            Brush::List selectedBrushes() const;
-            BrushFace::List selectedFaces() const;
-            void selectObjects(const Object::List& objects);
-            void deselectObjects(const Object::List& objects);
+            ObjectList selectedObjects() const;
+            EntityList selectedEntities() const;
+            BrushList selectedBrushes() const;
+            BrushFaceList selectedFaces() const;
+            void selectObjects(const ObjectList& objects);
+            void deselectObjects(const ObjectList& objects);
             void selectAllObjects();
-            void selectFaces(const BrushFace::List& faces);
-            void deselectFaces(const BrushFace::List& faces);
+            void selectFaces(const BrushFaceList& faces);
+            void deselectFaces(const BrushFaceList& faces);
             void deselectAll();
         private:
             void deselectAllObjects();

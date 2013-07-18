@@ -25,9 +25,8 @@
 #include "SharedPointer.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
-#include "Model/Game.h"
-#include "Model/Map.h"
-#include "View/MapDocument.h"
+#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -36,14 +35,14 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<OpenDocumentCommand> Ptr;
         private:
-            View::MapDocument::Ptr m_document;
+            View::MapDocumentPtr m_document;
             BBox3 m_worldBounds;
-            Model::Game::Ptr m_game;
+            Model::GamePtr m_game;
             IO::Path m_path;
         public:
-            OpenDocumentCommand(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path);
+            OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
-            Model::Map::Ptr map() const;
+            Model::MapPtr map() const;
         private:
             bool doPerformDo();
         };

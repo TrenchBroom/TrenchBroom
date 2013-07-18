@@ -22,27 +22,23 @@
 
 #include "StringUtils.h"
 #include "IO/Path.h"
-#include "Model/Texture.h"
-#include "SharedPointer.h"
+#include "Model/ModelTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class TextureCollection {
-        public:
-            typedef std::tr1::shared_ptr<TextureCollection> Ptr;
-            typedef std::vector<Ptr> List;
         private:
             IO::Path m_path;
-            Texture::List m_textures;
+            TextureList m_textures;
         public:
-            static Ptr newTextureCollection(const IO::Path& path, const Texture::List& textures);
+            static TextureCollectionPtr newTextureCollection(const IO::Path& path, const TextureList& textures);
             
             const IO::Path& path() const;
-            const Texture::List& textures() const;
+            const TextureList& textures() const;
         private:
-            TextureCollection(const IO::Path& path, const Texture::List& textures);
+            TextureCollection(const IO::Path& path, const TextureList& textures);
         };
         
     }

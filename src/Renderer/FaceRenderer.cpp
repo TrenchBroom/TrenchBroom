@@ -86,7 +86,7 @@ namespace TrenchBroom {
         void FaceRenderer::renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture) {
             VertexArrayMap::iterator it, end;
             for (it = arrays.begin(), end = arrays.end(); it != end; ++it) {
-                Model::Texture::Ptr texture = it->first;
+                Model::TexturePtr texture = it->first;
                 VertexArray& array = it->second;
                 
                 if (texture != NULL) {

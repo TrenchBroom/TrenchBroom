@@ -121,26 +121,26 @@ namespace TrenchBroom {
         TEST(BrushGeometryTest, buildCuboid) {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
             
-            BrushFace::Ptr top = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
+            BrushFacePtr top = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
                                                        Vec3(0.0, 1.0, cuboid.max.z()),
                                                        Vec3(1.0, 0.0, cuboid.max.z()));
-            BrushFace::Ptr bottom = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
+            BrushFacePtr bottom = BrushFace::newBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
                                                           Vec3(1.0, 0.0, cuboid.min.z()),
                                                           Vec3(0.0, 1.0, cuboid.min.z()));
-            BrushFace::Ptr front = BrushFace::newBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
+            BrushFacePtr front = BrushFace::newBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
                                                          Vec3(1.0, cuboid.min.y(),  0.0),
                                                          Vec3(0.0, cuboid.min.y(), -1.0));
-            BrushFace::Ptr back = BrushFace::newBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
+            BrushFacePtr back = BrushFace::newBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
                                                         Vec3(-1.0, cuboid.max.y(),  0.0),
                                                         Vec3( 0.0, cuboid.max.y(), -1.0));
-            BrushFace::Ptr left = BrushFace::newBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
+            BrushFacePtr left = BrushFace::newBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
                                                         Vec3(cuboid.min.x(), -1.0,  0.0),
                                                         Vec3(cuboid.min.x(),  0.0, -1.0));
-            BrushFace::Ptr right = BrushFace::newBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
+            BrushFacePtr right = BrushFace::newBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
                                                          Vec3(cuboid.max.x(), 1.0,  0.0),
                                                          Vec3(cuboid.max.x(), 0.0, -1.0));
             
-            BrushFace::List faces;
+            BrushFaceList faces;
             faces.push_back(top);
             faces.push_back(bottom);
             faces.push_back(front);

@@ -22,7 +22,7 @@
 
 #include "IO/TextureLoader.h"
 #include "Model/Palette.h"
-#include "Model/TextureCollection.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -37,8 +37,8 @@ namespace TrenchBroom {
         private:
             static const size_t InitialBufferSize = 3 * 512 * 512;
             
-            Model::TextureCollection::Ptr doLoadTextureCollection(const Path& path);
-            void doUploadTextureCollection(Model::TextureCollection::Ptr collection);
+            Model::TextureCollectionPtr doLoadTextureCollection(const Path& path);
+            void doUploadTextureCollection(Model::TextureCollectionPtr collection);
         };
     }
 }

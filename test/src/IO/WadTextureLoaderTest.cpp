@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline void assertTexture(const String& name, const size_t width, const size_t height, Model::Texture::Ptr texture) {
+        inline void assertTexture(const String& name, const size_t width, const size_t height, Model::TexturePtr texture) {
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
@@ -65,9 +65,9 @@ namespace TrenchBroom {
             WadTextureLoader loader(palette);
             
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
-            Model::TextureCollection::Ptr collection = loader.loadTextureCollection(wadPath);
+            Model::TextureCollectionPtr collection = loader.loadTextureCollection(wadPath);
             
-            const Model::Texture::List& textures = collection->textures();
+            const Model::TextureList& textures = collection->textures();
             ASSERT_EQ(21u, textures.size());
             assertTexture("cr8_czg_1",          64,  64, textures[ 0]);
             assertTexture("cr8_czg_2",          64,  64, textures[ 1]);

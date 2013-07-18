@@ -17,26 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureLoader_h
-#define TrenchBroom_TextureLoader_h
+#ifndef TrenchBroom_ViewTypes_h
+#define TrenchBroom_ViewTypes_h
 
 #include "SharedPointer.h"
-#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-        
-        class TextureLoader {
-        public:
-            virtual ~TextureLoader();
-            
-            Model::TextureCollectionPtr loadTextureCollection(const Path& path);
-            void uploadTextureCollection(Model::TextureCollectionPtr collection);
-        private:
-            virtual Model::TextureCollectionPtr doLoadTextureCollection(const Path& path) = 0;
-            virtual void doUploadTextureCollection(Model::TextureCollectionPtr collection) = 0;
-        };
+    namespace View {
+        class MapDocument;
+        typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
     }
 }
 

@@ -24,6 +24,7 @@
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "GL/GL.h"
+#include "Model/ModelTypes.h"
 
 #include <cassert>
 #include <vector>
@@ -31,9 +32,6 @@
 namespace TrenchBroom {
     namespace Model {
         class Texture {
-        public:
-            typedef std::tr1::shared_ptr<Texture> Ptr;
-            typedef std::vector<Ptr> List;
         private:
             GLuint m_textureId;
             Color m_averageColor;
@@ -43,7 +41,7 @@ namespace TrenchBroom {
             size_t m_usageCount;
             bool m_overridden;
         public:
-            static Ptr newTexture(const String& name, const size_t width, const size_t height);
+            static TexturePtr newTexture(const String& name, const size_t width, const size_t height);
             ~Texture();
 
             GLuint textureId() const;

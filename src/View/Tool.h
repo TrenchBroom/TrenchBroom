@@ -71,7 +71,7 @@ namespace TrenchBroom {
             virtual void scroll(const InputState& inputState) = 0;
             virtual void mouseMove(const InputState& inputState) = 0;
             
-            virtual bool startMouseDrag(const InputState& inputState) = 0;
+            virtual BaseTool* startMouseDrag(const InputState& inputState) = 0;
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
@@ -121,12 +121,12 @@ namespace TrenchBroom {
                     m_next->mouseMove(inputState);
             }
 
-            inline bool startMouseDrag(const InputState& inputState) {
+            inline BaseTool* startMouseDrag(const InputState& inputState) {
                 if (static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState))
-                    return true;
+                    return this;
                 if (m_next != NULL)
                     return m_next->startMouseDrag(inputState);
-                return false;
+                return NULL;
             }
             
             inline bool mouseDrag(const InputState& inputState) {

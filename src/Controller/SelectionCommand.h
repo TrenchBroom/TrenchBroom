@@ -23,10 +23,8 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
-#include "Model/BrushFace.h"
-#include "Model/Object.h"
-#include "Model/Map.h"
-#include "View/MapDocument.h"
+#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -46,21 +44,21 @@ namespace TrenchBroom {
                 STAll
             } SelectTarget;
         private:
-            View::MapDocument::Ptr m_document;
+            View::MapDocumentPtr m_document;
             SelectCommand m_command;
             SelectTarget m_target;
             
-            Model::Object::List m_objects;
-            Model::BrushFace::List m_faces;
+            Model::ObjectList m_objects;
+            Model::BrushFaceList m_faces;
 
-            Model::Object::List m_previouslySelectedObjects;
-            Model::BrushFace::List m_previouslySelectedFaces;
+            Model::ObjectList m_previouslySelectedObjects;
+            Model::BrushFaceList m_previouslySelectedFaces;
         public:
-            SelectionCommand(View::MapDocument::Ptr document, const SelectCommand command, const SelectTarget target, const Model::Object::List& objects, const Model::BrushFace::List& faces);
+            SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             
-            Model::Map::Ptr map() const;
+            Model::MapPtr map() const;
         private:
-            static String makeName(const SelectCommand command, const SelectTarget target, const Model::Object::List& objects, const Model::BrushFace::List& faces);
+            static String makeName(const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();
             bool doPerformUndo();
         };

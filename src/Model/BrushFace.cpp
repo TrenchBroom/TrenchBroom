@@ -24,6 +24,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
+#include "Model/Texture.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate();
             
-            Texture::Ptr texture = m_face->texture();
+            TexturePtr texture = m_face->texture();
             const size_t width = texture != NULL ? texture->width() : 1;
             const size_t height = texture != NULL ? texture->height() : 1;
             
@@ -99,10 +100,9 @@ namespace TrenchBroom {
         }
         
         const String BrushFace::NoTextureName = "__TB_empty";
-        const BrushFace::List BrushFace::EmptyList = BrushFace::List();
         
-        BrushFace::Ptr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
-            return BrushFace::Ptr(new BrushFace(point0, point1, point2, textureName));
+        BrushFacePtr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            return BrushFacePtr(new BrushFace(point0, point1, point2, textureName));
         }
 
         Brush* BrushFace::parent() const {
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             return m_textureName;
         }
         
-        Texture::Ptr BrushFace::texture() const {
+        TexturePtr BrushFace::texture() const {
             return m_texture;
         }
 
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
-        void BrushFace::setTexture(Texture::Ptr texture) {
+        void BrushFace::setTexture(TexturePtr texture) {
             if (m_texture != NULL)
                 m_texture->decUsageCount();
             m_texture = texture;

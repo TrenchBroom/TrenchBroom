@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         bool EmptyPolicy::doMouseDrag(const InputState& inputState) {
-            return false;
+            return true;
         }
 
         void EmptyPolicy::doEndMouseDrag(const InputState& inputState) {

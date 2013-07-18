@@ -25,21 +25,22 @@
 #include "View/CameraTool.h"
 #include "View/SelectionTool.h"
 #include "View/Logger.h"
+#include "View/MapDocument.h"
 
 #include <wx/dcclient.h>
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocument::Ptr document, Controller::ControllerFacade& controller) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller) :
         wxGLCanvas(parent, wxID_ANY, attribs()),
         m_logger(logger),
         m_initialized(false),
         m_glContext(new wxGLContext(this)),
         m_document(document),
         m_controller(controller),
-        m_drag(false),
         m_cameraTool(NULL),
-        m_toolChain(NULL) {
+        m_toolChain(NULL),
+        m_dragReceiver(NULL) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
@@ -61,9 +62,9 @@ namespace TrenchBroom {
                 m_inputState.mouseDown(MouseButtons::MBLeft);
                 m_toolChain->mouseDown(m_inputState);
             } else if (event.LeftUp()) {
-                if (m_drag) {
+                if (m_dragReceiver != NULL) {
                     m_toolChain->endMouseDrag(m_inputState);
-                    m_drag = false;
+                    m_dragReceiver = NULL;
                 }
                 m_toolChain->mouseUp(m_inputState);
                 m_inputState.mouseUp(MouseButtons::MBLeft);
@@ -75,9 +76,9 @@ namespace TrenchBroom {
                 m_inputState.mouseDown(MouseButtons::MBMiddle);
                 m_toolChain->mouseDown(m_inputState);
             } else if (event.MiddleUp()) {
-                if (m_drag) {
+                if (m_dragReceiver != NULL) {
                     m_toolChain->endMouseDrag(m_inputState);
-                    m_drag = false;
+                    m_dragReceiver = NULL;
                 }
                 m_toolChain->mouseUp(m_inputState);
                 m_inputState.mouseUp(MouseButtons::MBMiddle);
@@ -89,9 +90,9 @@ namespace TrenchBroom {
                 m_inputState.mouseDown(MouseButtons::MBRight);
                 m_toolChain->mouseDown(m_inputState);
             } else if (event.RightUp()) {
-                if (m_drag) {
+                if (m_dragReceiver != NULL) {
                     m_toolChain->endMouseDrag(m_inputState);
-                    m_drag = false;
+                    m_dragReceiver = NULL;
                 }
                 m_toolChain->mouseUp(m_inputState);
                 m_inputState.mouseUp(MouseButtons::MBRight);
@@ -106,21 +107,22 @@ namespace TrenchBroom {
             Model::PickResult pickResult = m_document->pick(m_inputState.pickRay());
             m_inputState.setPickResult(pickResult);
             
-            if (m_drag) {
+            if (m_dragReceiver != NULL) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
-                m_toolChain->mouseDrag(m_inputState);
+                m_dragReceiver->mouseDrag(m_inputState);
             } else {
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
                     (std::abs(event.GetX() - m_clickPos.x) > 1 ||
                      std::abs(event.GetY() - m_clickPos.y) > 1)) {
-                        m_drag = true;
-                        m_toolChain->startMouseDrag(m_inputState);
-                        m_inputState.mouseMove(event.GetX(), event.GetY());
-                        m_toolChain->mouseDrag(m_inputState);
-                    } else {
-                        m_inputState.mouseMove(event.GetX(), event.GetY());
-                        m_toolChain->mouseMove(m_inputState);
+                        m_dragReceiver = m_toolChain->startMouseDrag(m_inputState);
                     }
+                if (m_dragReceiver != NULL) {
+                    m_inputState.mouseMove(event.GetX(), event.GetY());
+                    m_toolChain->mouseDrag(m_inputState);
+                } else {
+                    m_inputState.mouseMove(event.GetX(), event.GetY());
+                    m_toolChain->mouseMove(m_inputState);
+                }
             }
             Refresh();
         }
@@ -136,10 +138,10 @@ namespace TrenchBroom {
         }
 
         void MapView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            if (m_drag) {
+            if (m_dragReceiver != NULL) {
                 m_toolChain->cancelMouseDrag(m_inputState);
                 m_inputState.clearMouseButtons();
-                m_drag = false;
+                m_dragReceiver = NULL;
             }
             Refresh();
         }

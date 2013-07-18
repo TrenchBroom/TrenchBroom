@@ -32,12 +32,12 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
 
-            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             const BBox3d worldBounds(-8192.0, 8192.0);
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
-            Model::Map::Ptr map = Model::Map::newMap();
+            Model::MapPtr map = Model::Map::newMap();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
@@ -53,14 +53,14 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             const BBox3d worldBounds(-8192.0, 8192.0);
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");
             const IO::Path path2("data/Controller/OpenDocumentCommandTest/Cube.map");
 
-            Model::Map::Ptr map1 = Model::Map::newMap();
-            Model::Map::Ptr map2 = Model::Map::newMap();
+            Model::MapPtr map1 = Model::Map::newMap();
+            Model::MapPtr map2 = Model::Map::newMap();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path1)).WillOnce(Return(map1));
             EXPECT_CALL(*game, doExtractTexturePaths(map1)).WillOnce(Return(IO::Path::List()));
             EXPECT_CALL(*game, doLoadMap(worldBounds, path2)).WillOnce(Return(map2));

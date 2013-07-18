@@ -21,7 +21,7 @@
 #define __TrenchBroom__QuakeGame__
 
 #include "Model/Game.h"
-#include "Model/Map.h"
+#include "Model/ModelTypes.h"
 #include "Model/Palette.h"
 #include "VecMath.h"
 
@@ -36,16 +36,16 @@ namespace TrenchBroom {
             View::Logger* m_logger;
             Model::Palette m_palette;
         public:
-            static Ptr newGame(View::Logger* logger = NULL);
+            static GamePtr newGame(View::Logger* logger = NULL);
         private:
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
             QuakeGame(View::Logger* logger);
             
-            Map::Ptr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            IO::Path::List doExtractTexturePaths(Map::Ptr map) const;
-            TextureCollection::Ptr doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(TextureCollection::Ptr collection) const;
+            MapPtr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            IO::Path::List doExtractTexturePaths(MapPtr map) const;
+            TextureCollectionPtr doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(TextureCollectionPtr collection) const;
         };
     }
 }

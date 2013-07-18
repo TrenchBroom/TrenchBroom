@@ -21,19 +21,19 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TextureCollection::Ptr TextureCollection::newTextureCollection(const IO::Path& path, const Texture::List& textures) {
-            return Ptr(new TextureCollection(path, textures));
+        TextureCollectionPtr TextureCollection::newTextureCollection(const IO::Path& path, const TextureList& textures) {
+            return TextureCollectionPtr(new TextureCollection(path, textures));
         }
 
         const IO::Path& TextureCollection::path() const {
             return m_path;
         }
         
-        const Texture::List& TextureCollection::textures() const {
+        const TextureList& TextureCollection::textures() const {
             return m_textures;
         }
 
-        TextureCollection::TextureCollection(const IO::Path& path, const Texture::List& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
         m_path(path),
         m_textures(textures) {}
     }

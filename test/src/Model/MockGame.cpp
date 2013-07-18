@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MockGame::Ptr MockGame::newGame() {
-            return MockGame::Ptr(new MockGame());
+        MockGamePtr MockGame::newGame() {
+            return MockGamePtr(new MockGame());
         }
     }
 }

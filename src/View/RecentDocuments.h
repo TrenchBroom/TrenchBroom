@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__RecentDocuments__
 #define __TrenchBroom__RecentDocuments__
 
+#include "CollectionUtils.h"
 #include "IO/Path.h"
 
 #include <vector>

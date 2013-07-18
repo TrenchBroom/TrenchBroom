@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Texture::Ptr Texture::newTexture(const String& name, const size_t width, const size_t height) {
-            return Ptr(new Texture(name, width, height));
+        TexturePtr Texture::newTexture(const String& name, const size_t width, const size_t height) {
+            return TexturePtr(new Texture(name, width, height));
         }
 
         Texture::~Texture() {

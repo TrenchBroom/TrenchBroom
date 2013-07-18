@@ -20,43 +20,42 @@
 #include "Map.h"
 
 #include "CollectionUtils.h"
-#include "Model/Entity.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map() :
-        m_worldspawn(Entity::Ptr()) {}
-        
-        Map::Ptr Map::newMap() {
-            return Ptr(new Map());
+        MapPtr Map::newMap() {
+            return MapPtr(new Map());
         }
 
         Map::~Map() {
-            m_worldspawn = Entity::Ptr();
+            m_worldspawn = EntityPtr();
         }
 
-        const Entity::List& Map::entities() const {
+        const EntityList& Map::entities() const {
             return m_entities;
         }
 
-        void Map::addEntity(Entity::Ptr entity) {
+        void Map::addEntity(EntityPtr entity) {
             m_entities.push_back(entity);
         }
 
-        Entity::Ptr Map::worldspawn() {
+        EntityPtr Map::worldspawn() {
             if (m_worldspawn == NULL)
                 m_worldspawn = findWorldspawn();
             return m_worldspawn;
         }
         
-        Entity::Ptr Map::findWorldspawn() const {
-            Entity::List::const_iterator it, end;
+        Map::Map() :
+        m_worldspawn(EntityPtr()) {}
+        
+        EntityPtr Map::findWorldspawn() const {
+            EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                Entity::Ptr entity = *it;
+                EntityPtr entity = *it;
                 if (entity->classname() == PropertyValues::WorldspawnClassname)
                     return entity;
             }
-            return Entity::Ptr();
+            return EntityPtr();
         }
     }
 }

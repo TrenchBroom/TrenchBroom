@@ -19,13 +19,15 @@
 
 #include "SelectionCommand.h"
 
+#include "View/MapDocument.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::SelectionCommand(View::MapDocument::Ptr document, const SelectCommand command, const SelectTarget target, const Model::Object::List& objects, const Model::BrushFace::List& faces) :
+        SelectionCommand::SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces) :
         Command(Type, makeName(command, target, objects, faces), true),
         m_document(document),
         m_command(command),
@@ -33,7 +35,7 @@ namespace TrenchBroom {
         m_objects(objects),
         m_faces(faces) {}
 
-        String SelectionCommand::makeName(const SelectCommand command, const SelectTarget target, const Model::Object::List& objects, const Model::BrushFace::List& faces) {
+        String SelectionCommand::makeName(const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces) {
             StringStream result;
             switch (command) {
                 case SCSelect:
@@ -57,7 +59,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        Model::Map::Ptr SelectionCommand::map() const {
+        Model::MapPtr SelectionCommand::map() const {
             return m_document->map();
         }
 

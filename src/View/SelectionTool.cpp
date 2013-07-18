@@ -58,7 +58,7 @@ namespace TrenchBroom {
             if (faces) {
                 const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(BrushHitFilter(), true);
                 if (first.matches) {
-                    Model::BrushFace::Ptr face = first.hit.object<Model::BrushFace::Ptr>();
+                    Model::BrushFacePtr face = first.hit.object<Model::BrushFacePtr>();
                     if (multi) {
                         if (face->selected()) {
                             m_controller.deselectFace(face);
@@ -74,11 +74,7 @@ namespace TrenchBroom {
             } else {
                 const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(ObjectHitFilter(), false);
                 if (first.matches) {
-                    Model::Object::Ptr object;
-                    if (first.hit.type() == Model::Entity::EntityHit)
-                        object = first.hit.object<Model::Object::Ptr>();
-                    else
-                        object = first.hit.object<Model::BrushFace::
+                    Model::ObjectPtr object;
                     if (multi) {
                         if (object->selected()) {
                             m_controller.deselectObject(object);
@@ -105,7 +101,7 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::doMouseDrag(const InputState& inputState) {
-            return true;
+            return false;
         }
         
         void SelectionTool::doEndMouseDrag(const InputState& inputState) {

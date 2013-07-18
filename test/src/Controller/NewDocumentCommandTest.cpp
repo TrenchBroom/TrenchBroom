@@ -32,9 +32,9 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
             
             const BBox3d worldBounds(-8192.0, 8192.0);
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            Model::MockGamePtr game = Model::MockGame::newGame();
             
-            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));
             ASSERT_FALSE(command->undoable());
@@ -48,14 +48,14 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
 
             const BBox3d worldBounds(-8192.0, 8192.0);
-            Model::MockGame::Ptr game = Model::MockGame::newGame();
+            Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/NewDocumentCommandTest/Cube.map");
 
-            Model::Map::Ptr map = Model::Map::newMap();
+            Model::MapPtr map = Model::Map::newMap();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
-            View::MapDocument::Ptr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             doc->openDocument(worldBounds, game, path);
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));

@@ -22,13 +22,14 @@
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
+#include "View/ViewTypes.h"
 #include "TrenchBroomApp.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
-        void ControllerFacade::setDocument(View::MapDocument::Ptr document) {
+        void ControllerFacade::setDocument(View::MapDocumentPtr document) {
             assert(m_document == NULL);
             assert(document != NULL);
             m_document = document;
@@ -42,12 +43,12 @@ namespace TrenchBroom {
             m_commandProcessor.removeCommandListener(listener);
         }
 
-        bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::Game::Ptr game) {
+        bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(m_document, worldBounds, game));
             return m_commandProcessor.submitCommand(command);
         }
         
-        bool ControllerFacade::openDocument(const BBox3& worldBounds, Model::Game::Ptr game, const IO::Path& path) {
+        bool ControllerFacade::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(m_document, worldBounds, game, path));
             if (m_commandProcessor.submitCommand(command)) {
                 View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
@@ -58,18 +59,18 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ControllerFacade::selectObject(Model::Object::Ptr object) {
-            Model::Object::List objects;
+        bool ControllerFacade::selectObject(Model::ObjectPtr object) {
+            Model::ObjectList objects;
             objects.push_back(object);
-            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::BrushFace::EmptyList));
+            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::deselectAllAndSelectObject(Model::Object::Ptr object) {
-            Model::Object::List objects;
+        bool ControllerFacade::deselectAllAndSelectObject(Model::ObjectPtr object) {
+            Model::ObjectList objects;
             objects.push_back(object);
-            Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::BrushFace::EmptyList));
-            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::Object::EmptyList, Model::BrushFace::EmptyList));
+            Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
+            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             
             m_commandProcessor.beginUndoableGroup(selectCommand->name());
             m_commandProcessor.submitAndStoreCommand(deselectCommand);
@@ -78,25 +79,25 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ControllerFacade::deselectObject(Model::Object::Ptr object) {
-            Model::Object::List objects;
+        bool ControllerFacade::deselectObject(Model::ObjectPtr object) {
+            Model::ObjectList objects;
             objects.push_back(object);
-            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STObjects, objects, Model::BrushFace::EmptyList));
+            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::selectFace(Model::BrushFace::Ptr face) {
-            Model::BrushFace::List faces;
+        bool ControllerFacade::selectFace(Model::BrushFacePtr face) {
+            Model::BrushFaceList faces;
             faces.push_back(face);
-            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::Object::EmptyList, faces));
+            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace::Ptr face) {
-            Model::BrushFace::List faces;
+        bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFacePtr face) {
+            Model::BrushFaceList faces;
             faces.push_back(face);
-            Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::Object::EmptyList, faces));
-            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::Object::EmptyList, Model::BrushFace::EmptyList));
+            Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
+            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             
             m_commandProcessor.beginUndoableGroup(selectCommand->name());
             m_commandProcessor.submitAndStoreCommand(deselectCommand);
@@ -105,15 +106,15 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ControllerFacade::deselectFace(Model::BrushFace::Ptr face) {
-            Model::BrushFace::List faces;
+        bool ControllerFacade::deselectFace(Model::BrushFacePtr face) {
+            Model::BrushFaceList faces;
             faces.push_back(face);
-            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STFaces, Model::Object::EmptyList, faces));
+            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
         bool ControllerFacade::deselectAll() {
-            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::Object::EmptyList, Model::BrushFace::EmptyList));
+            Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(deselectCommand);
         }
     }

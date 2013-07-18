@@ -19,17 +19,19 @@
 
 #include "NewDocumentCommand.h"
 
+#include "View/MapDocument.h"
+
 namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType NewDocumentCommand::Type = Command::freeType();
 
-        NewDocumentCommand::NewDocumentCommand(View::MapDocument::Ptr document, const BBox3& worldBounds, Model::Game::Ptr game) :
+        NewDocumentCommand::NewDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game) :
         Command(Type, "New Document", false),
         m_document(document),
         m_worldBounds(worldBounds),
         m_game(game) {}
 
-        Model::Map::Ptr NewDocumentCommand::map() const {
+        Model::MapPtr NewDocumentCommand::map() const {
             return m_document->map();
         }
 
