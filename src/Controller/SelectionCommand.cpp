@@ -72,22 +72,26 @@ namespace TrenchBroom {
                     switch (m_target) {
                         case STObjects:
                             m_document->selectObjects(m_objects);
+                            break;
                         case STFaces:
                             m_document->selectFaces(m_faces);
                             break;
                         case STAll:
                             m_document->selectAllObjects();
+                            break;
                     }
                     break;
                 case SCDeselect:
                     switch (m_target) {
                         case STObjects:
                             m_document->deselectObjects(m_objects);
+                            break;
                         case STFaces:
                             m_document->deselectFaces(m_faces);
                             break;
                         case STAll:
                             m_document->deselectAll();
+                            break;
                     }
                     break;
             }

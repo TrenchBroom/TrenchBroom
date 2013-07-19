@@ -25,50 +25,69 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BrushRenderer::BrushRenderer() :
-        m_grayScale(false),
-        m_edgeDepthTesting(true) {}
-        
-        BrushRenderer::BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges) :
-        m_grayScale(false),
-        m_edgeDepthTesting(true),
-        m_faceRenderer(vbo, faces, faceColor()),
-        m_edgeRenderer(vbo, edges, edgeColor()) {}
-        
-        BrushRenderer::BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges) :
-        m_grayScale(false),
-        m_edgeDepthTesting(true),
-        m_faceRenderer(vbo, faces, faceColor()),
-        m_edgeRenderer(vbo, edges) {}
-        
-        void BrushRenderer::setGrayScale(const bool grayScale) {
-            m_grayScale = grayScale;
-        }
+        BrushRenderer::BrushRenderer(const Config config) :
+        m_config(config) {}
 
-        void BrushRenderer::setEdgeDepthTesting(const bool edgeDepthTesting) {
-            m_edgeDepthTesting = edgeDepthTesting;
+        void BrushRenderer::update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges) {
+            m_faceRenderer = FaceRenderer(vbo, faces, faceColor());
+            m_edgeRenderer = EdgeRenderer(vbo, edges);
         }
-
+        
+        void BrushRenderer::update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges) {
+            m_faceRenderer = FaceRenderer(vbo, faces, faceColor());
+            m_edgeRenderer = EdgeRenderer(vbo, edges);
+        }
+        
         void BrushRenderer::render(RenderContext& context) {
-            m_faceRenderer.render(context, m_grayScale);
+            if (m_config == BRSelected)
+                m_faceRenderer.render(context, grayScale(), tintColor());
+            else
+                m_faceRenderer.render(context, grayScale());
             
-            if (!m_edgeDepthTesting)
-                glDisable(GL_DEPTH_TEST);
             glSetEdgeOffset(0.02f);
+            if (m_config == BRSelected) {
+                glDisable(GL_DEPTH_TEST);
+                m_edgeRenderer.setColor(occludedEdgeColor());
+                m_edgeRenderer.render(context);
+                glEnable(GL_DEPTH_TEST);
+            }
+            m_edgeRenderer.setColor(edgeColor());
             m_edgeRenderer.render(context);
             glResetEdgeOffset();
-            if (!m_edgeDepthTesting)
-                glEnable(GL_DEPTH_TEST);
         }
 
-        Color BrushRenderer::faceColor() {
+        bool BrushRenderer::grayScale() const {
+            return false;
+        }
+        
+        const Color& BrushRenderer::faceColor() const {
             PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.getColor(Preferences::FaceColor);
         }
 
-        Color BrushRenderer::edgeColor() {
+        const Color& BrushRenderer::tintColor() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.getColor(Preferences::EdgeColor);
+            return prefs.getColor(Preferences::SelectedFaceColor);
+        }
+
+        const Color& BrushRenderer::edgeColor() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            switch (m_config) {
+                case BRUnselected:
+                    return prefs.getColor(Preferences::EdgeColor);
+                case BRSelected:
+                    return prefs.getColor(Preferences::SelectedEdgeColor);
+            }
+        }
+
+        const Color& BrushRenderer::occludedEdgeColor() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            switch (m_config) {
+                case BRUnselected:
+                    return prefs.getColor(Preferences::EdgeColor);
+                case BRSelected:
+                    return prefs.getColor(Preferences::OccludedSelectedEdgeColor);
+            }
         }
     }
 }

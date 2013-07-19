@@ -112,6 +112,7 @@ namespace TrenchBroom {
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
+        m_texture(NULL),
         m_side(NULL) {
             m_textureCoordinateSystem.setFace(this);
             setPoints(point0, point1, point2);

@@ -47,11 +47,11 @@ namespace TrenchBroom {
             BaseHolder::Ptr m_holder;
         public:
             template <typename T>
-            Hit(const HitType type, const float distance, const Vec3f& hitPoint, T object) :
+            Hit(const HitType type, const float distance, const Vec3f& hitPoint, T target) :
             m_type(type),
             m_distance(distance),
             m_hitPoint(hitPoint),
-            m_holder(Holder<T>::newHolder(object)) {}
+            m_holder(Holder<T>::newHolder(target)) {}
 
             HitType type() const;
             bool hasType(const HitType typeMask) const;
@@ -59,8 +59,8 @@ namespace TrenchBroom {
             const Vec3f& hitPoint() const;
             
             template <typename T>
-            inline T object() const {
-                return static_cast<Holder<T>*>(m_holder.get())->object();
+            inline T target() const {
+                return m_holder->object<T>();
             }
         };
         

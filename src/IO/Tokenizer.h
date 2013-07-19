@@ -204,7 +204,8 @@ namespace TrenchBroom {
             
             const char* readString(const char* begin, const String& delims) {
                 const char* c = begin;
-                while (!eof() && !isAnyOf(*(c = nextChar()), delims));
+                while (!eof() && c != NULL && !isAnyOf(*c, delims))
+                    c = nextChar();
                 if (!eof())
                     pushChar();
                 return c;

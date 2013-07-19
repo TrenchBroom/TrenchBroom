@@ -29,23 +29,28 @@ namespace TrenchBroom {
         class Vbo;
         
         class BrushRenderer {
+        public:
+            typedef enum {
+                BRUnselected,
+                BRSelected
+            } Config;
         private:
-            bool m_grayScale;
-            bool m_edgeDepthTesting;
+            Config m_config;
             FaceRenderer m_faceRenderer;
             EdgeRenderer m_edgeRenderer;
         public:
-            BrushRenderer();
-            BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
-            BrushRenderer(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
+            BrushRenderer(const Config config);
             
-            void setGrayScale(const bool grayScale);
-            void setEdgeDepthTesting(const bool edgeDepthTesting);
+            void update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
+            void update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
             
             void render(RenderContext& context);
         private:
-            static Color faceColor();
-            static Color edgeColor();
+            bool grayScale() const;
+            const Color& faceColor() const;
+            const Color& tintColor() const;
+            const Color& edgeColor() const;
+            const Color& occludedEdgeColor() const;
         };
     }
 }

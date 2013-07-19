@@ -94,7 +94,9 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFFF),
-        m_geometryVbo(0xFFFFF) {}
+        m_geometryVbo(0xFFFFF),
+        m_brushRenderer(BrushRenderer::BRUnselected),
+        m_selectedBrushRenderer(BrushRenderer::BRSelected) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -191,8 +193,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::clearState() {
-            m_brushRenderer = BrushRenderer();
-            m_selectedBrushRenderer = BrushRenderer();
+            m_brushRenderer = BrushRenderer(BrushRenderer::BRUnselected);
+            m_selectedBrushRenderer = BrushRenderer(BrushRenderer::BRSelected);
         }
 
         void MapRenderer::loadMap(Model::Map* map) {
@@ -204,8 +206,8 @@ namespace TrenchBroom {
             BuildBrushEdges buildEdges;
             map->eachBrush(buildEdges, filter);
             
-            m_brushRenderer = BrushRenderer(m_geometryVbo, buildFaces.unselectedMesh, buildEdges.unselectedVertices);
-            m_selectedBrushRenderer = BrushRenderer(m_geometryVbo, buildFaces.selectedMesh, buildEdges.selectedVertices);
+            m_brushRenderer.update(m_geometryVbo, buildFaces.unselectedMesh, buildEdges.unselectedVertices);
+            m_selectedBrushRenderer.update(m_geometryVbo, buildFaces.selectedMesh, buildEdges.selectedVertices);
         }
     }
 }

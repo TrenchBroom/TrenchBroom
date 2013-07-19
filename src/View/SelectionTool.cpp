@@ -24,6 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
+#include "Model/HitAdapter.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             if (faces) {
                 const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(BrushHitFilter(), true);
                 if (first.matches) {
-                    Model::BrushFace* face = first.hit.object<Model::BrushFace*>();
+                    Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
                         if (face->selected()) {
                             m_controller.deselectFace(face);
@@ -74,7 +75,7 @@ namespace TrenchBroom {
             } else {
                 const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(ObjectHitFilter(), false);
                 if (first.matches) {
-                    Model::Object* object;
+                    Model::Object* object = hitAsObject(first.hit);
                     if (multi) {
                         if (object->selected()) {
                             m_controller.deselectObject(object);

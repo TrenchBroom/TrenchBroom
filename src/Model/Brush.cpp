@@ -27,7 +27,6 @@
 namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
-
         
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         Object(OTBrush),

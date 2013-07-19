@@ -19,12 +19,17 @@
 
 #include "TextureManager.h"
 
+#include "CollectionUtils.h"
 #include "Model/Game.h"
 #include "Model/Texture.h"
 #include "Model/TextureCollection.h"
 
 namespace TrenchBroom {
     namespace Model {
+        TextureManager::~TextureManager() {
+            VectorUtils::clearAndDelete(m_collections);
+        }
+
         void TextureManager::addTextureCollection(const IO::Path& path) {
             assert(m_game != NULL);
             doAddTextureCollection(path, m_collections, m_collectionsByPath, m_toUpload, m_toRemove);
@@ -87,7 +92,7 @@ namespace TrenchBroom {
                 }
                 
                 m_toUpload.clear();
-                m_toRemove.clear();
+                MapUtils::clearAndDelete(m_toRemove);
             }
         }
 

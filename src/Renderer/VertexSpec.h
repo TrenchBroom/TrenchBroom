@@ -56,11 +56,8 @@ namespace TrenchBroom {
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                size_t offset = baseOffset;
-                A1::setup(0, Size, offset);
-                offset += A1::Size;
-                A2::setup(1, Size, offset);
-                offset += A2::Size;
+                A1::setup(0, Size, baseOffset);
+                A2::setup(1, Size, baseOffset + A1::Size);
             }
             
             static void cleanup() {
@@ -81,13 +78,9 @@ namespace TrenchBroom {
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                size_t offset = baseOffset;
-                A1::setup(0, Size, offset);
-                offset += A1::Size;
-                A2::setup(1, Size, offset);
-                offset += A2::Size;
-                A3::setup(2, Size, offset);
-                offset += A3::Size;
+                A1::setup(0, Size, baseOffset);
+                A2::setup(1, Size, baseOffset + A1::Size);
+                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
             }
             
             static void cleanup() {
@@ -109,15 +102,10 @@ namespace TrenchBroom {
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                size_t offset = baseOffset;
-                A1::setup(0, Size, offset);
-                offset += A1::Size;
-                A2::setup(1, Size, offset);
-                offset += A2::Size;
-                A3::setup(2, Size, offset);
-                offset += A3::Size;
-                A4::setup(3, Size, offset);
-                offset += A4::Size;
+                A1::setup(0, Size, baseOffset);
+                A2::setup(1, Size, baseOffset + A1::Size);
+                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
+                A4::setup(3, Size, baseOffset + A1::Size + A2::Size + A3::Size);
             }
             
             static void cleanup() {
@@ -140,17 +128,11 @@ namespace TrenchBroom {
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                size_t offset = baseOffset;
-                A1::setup(0, Size, offset);
-                offset += A1::Size;
-                A2::setup(1, Size, offset);
-                offset += A2::Size;
-                A3::setup(2, Size, offset);
-                offset += A3::Size;
-                A4::setup(3, Size, offset);
-                offset += A4::Size;
-                A5::setup(4, Size, offset);
-                offset += A5::Size;
+                A1::setup(0, Size, baseOffset);
+                A2::setup(1, Size, baseOffset + A1::Size);
+                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
+                A4::setup(3, Size, baseOffset + A1::Size + A2::Size + A3::Size);
+                A5::setup(4, Size, baseOffset + A1::Size + A2::Size + A3::Size + A4::Size);
             }
             
             static void cleanup() {

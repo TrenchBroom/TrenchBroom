@@ -27,15 +27,18 @@ namespace TrenchBroom {
     namespace Renderer {
         EdgeRenderer::EdgeRenderer() {}
         
-        EdgeRenderer::EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices, const Color& color) :
+        EdgeRenderer::EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices) :
         m_vertexArray(vbo, GL_LINES, vertices),
-        m_color(color),
         m_useColor(true) {}
         
         EdgeRenderer::EdgeRenderer(Vbo& vbo, const VertexSpecs::P3C4::Vertex::List& vertices) :
         m_vertexArray(vbo, GL_LINES, vertices),
         m_useColor(false) {}
         
+        void EdgeRenderer::setColor(const Color& color) {
+            m_color = color;
+        }
+
         void EdgeRenderer::render(RenderContext& context) {
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::EdgeShader);

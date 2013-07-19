@@ -44,6 +44,8 @@ namespace TrenchBroom {
             
             TextureMap m_texturesByName;
         public:
+            ~TextureManager();
+
             void addTextureCollection(const IO::Path& path);
             void addTextureCollections(const IO::Path::List& paths);
             void removeTextureCollection(const size_t index);

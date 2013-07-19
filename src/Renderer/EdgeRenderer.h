@@ -38,9 +38,11 @@ namespace TrenchBroom {
             bool m_useColor;
         public:
             EdgeRenderer();
-            EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices, const Color& color);
+            EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices);
             EdgeRenderer(Vbo& vbo, const VertexSpecs::P3C4::Vertex::List& vertices);
 
+            void setColor(const Color& color);
+            
             void render(RenderContext& context);
         };
     }

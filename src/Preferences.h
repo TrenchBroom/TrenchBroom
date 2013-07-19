@@ -31,7 +31,10 @@ namespace TrenchBroom {
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;
         extern Preference<Color> FaceColor;
+        extern Preference<Color> SelectedFaceColor;
         extern Preference<Color> EdgeColor;
+        extern Preference<Color> SelectedEdgeColor;
+        extern Preference<Color> OccludedSelectedEdgeColor;
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;

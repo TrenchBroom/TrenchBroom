@@ -26,7 +26,10 @@ namespace TrenchBroom {
         Preference<Color> YAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
         Preference<Color> ZAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
         Preference<Color> FaceColor = Preference<Color>("Renderer/Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
-        Preference<Color> EdgeColor = Preference<Color>("Renderer/Colors/Edges", Color(.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> SelectedFaceColor = Preference<Color>("Renderer/Colors/Selected faces", Color(0.6f,  0.35f, 0.35f, 1.0f));
+        Preference<Color> EdgeColor = Preference<Color>("Renderer/Colors/Edges", Color(0.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> SelectedEdgeColor = Preference<Color>("Renderer/Colors/Selected edges", Color(1.0f,  0.0f,  0.0f,  1.0f));
+        Preference<Color> OccludedSelectedEdgeColor = Preference<Color>("Renderer/Colors/Occluded selected edges", Color(1.0f,  0.0f,  0.0f,  0.5f));
 
         Preference<float> Brightness = Preference<float>("Renderer/Brightness", 1.0f);
         Preference<float> GridAlpha = Preference<float>("Renderer/Grid/Alpha", 0.5f);

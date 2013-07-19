@@ -22,10 +22,24 @@
 
 #include "SharedPointer.h"
 
+template <typename T> class Holder;
+
 class BaseHolder {
 public:
     typedef std::tr1::shared_ptr<BaseHolder> Ptr;
     virtual ~BaseHolder() {}
+    
+    template <typename T>
+    inline const T& object() const {
+        const Holder<T>& holder = static_cast<const Holder<T>&>(*this);
+        return holder.object();
+    }
+    
+    template <typename T>
+    inline T& object() {
+        Holder<T>& holder = static_cast<Holder<T>&>(*this);
+        return holder.object();
+    }
 };
 
 template <typename T>
@@ -33,17 +47,20 @@ class Holder : public BaseHolder {
 private:
     T m_object;
 public:
-    static BaseHolder::Ptr newHolder(T object) {
+    static BaseHolder::Ptr newHolder(const T& object) {
         return BaseHolder::Ptr(new Holder(object));
     }
+
+    inline T& object() {
+        return m_object;
+    }
     
-    inline T object() const {
+    inline const T& object() const {
         return m_object;
     }
 private:
-    Holder(T object) :
+    Holder(const T& object) :
     m_object(object) {}
-    
 };
 
 #endif
