@@ -94,6 +94,9 @@ namespace TrenchBroom {
             Texture* m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
+            
+            mutable Vertex::List m_cachedVertices;
+            mutable bool m_vertexCacheValid;
         public:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
 
@@ -129,6 +132,7 @@ namespace TrenchBroom {
             FloatType intersectWithRay(const Ray3& ray) const;
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            void validateVertexCache() const;
         };
     }
 }

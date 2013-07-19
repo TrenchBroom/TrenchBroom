@@ -117,6 +117,12 @@ namespace TrenchBroom {
                 m_currentSet->second.push_back(v2);
                 m_currentSet->second.push_back(v3);
             }
+            
+            inline void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
+                assert(m_currentType == Set);
+                typename VertexSpec::Vertex::List& setVertices = m_currentSet->second;
+                setVertices.insert(setVertices.end(), vertices.begin(), vertices.end());
+            }
 
             inline void endTriangleSet() {
                 assert(m_currentType == Set);

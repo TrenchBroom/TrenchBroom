@@ -83,6 +83,9 @@ namespace TrenchBroom {
         }
 
         void Brush::pick(const Ray3& ray, PickResult& result) {
+            if (Math<FloatType>::isnan(bounds().intersectWithRay(ray)))
+                return;
+            
             BrushFaceList::iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;

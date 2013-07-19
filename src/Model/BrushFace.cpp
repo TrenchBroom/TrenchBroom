@@ -113,7 +113,8 @@ namespace TrenchBroom {
         m_lineCount(0),
         m_selected(false),
         m_texture(NULL),
-        m_side(NULL) {
+        m_side(NULL),
+        m_vertexCacheValid(false) {
             m_textureCoordinateSystem.setFace(this);
             setPoints(point0, point1, point2);
         }
@@ -247,23 +248,11 @@ namespace TrenchBroom {
 
         void BrushFace::addToMesh(Mesh& mesh) const {
             assert(m_side != NULL);
+            if (!m_vertexCacheValid)
+                validateVertexCache();
             
             mesh.beginTriangleSet(m_texture);
-            
-            const BrushVertex::List& vertices = m_side->vertices();
-            for (size_t i = 1; i < vertices.size() - 1; i++) {
-                const Vertex v1(vertices[0]->position(),
-                                           m_boundary.normal,
-                                           m_textureCoordinateSystem.textureCoordinates(vertices[0]->position()));
-                const Vertex v2(vertices[i]->position(),
-                                           m_boundary.normal,
-                                           m_textureCoordinateSystem.textureCoordinates(vertices[i]->position()));
-                const Vertex v3(vertices[i+1]->position(),
-                                           m_boundary.normal,
-                                           m_textureCoordinateSystem.textureCoordinates(vertices[i+1]->position()));
-                mesh.addTriangleToSet(v1, v2, v3);
-            }
-            
+            mesh.addTrianglesToSet(m_cachedVertices);
             mesh.endTriangleSet();
         }
 
@@ -348,6 +337,26 @@ namespace TrenchBroom {
                 m_points[2].asString() << ")";
                 throw e;
             }
+        }
+
+        void BrushFace::validateVertexCache() const {
+            m_cachedVertices.clear();
+
+            const BrushVertex::List& vertices = m_side->vertices();
+            m_cachedVertices.reserve(3 * (vertices.size() - 2));
+            
+            for (size_t i = 1; i < vertices.size() - 1; i++) {
+                m_cachedVertices.push_back(Vertex(vertices[0]->position(),
+                                                  m_boundary.normal,
+                                                  m_textureCoordinateSystem.textureCoordinates(vertices[0]->position())));
+                m_cachedVertices.push_back(Vertex(vertices[i]->position(),
+                                                  m_boundary.normal,
+                                                  m_textureCoordinateSystem.textureCoordinates(vertices[i]->position())));
+                m_cachedVertices.push_back(Vertex(vertices[i+1]->position(),
+                                                  m_boundary.normal,
+                                                  m_textureCoordinateSystem.textureCoordinates(vertices[i+1]->position())));
+            }
+            m_vertexCacheValid = true;
         }
     }
 }
