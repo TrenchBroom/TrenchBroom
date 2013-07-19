@@ -27,11 +27,13 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Game;
+        
         class TextureManager {
         private:
-            typedef std::map<IO::Path, TextureCollectionPtr> TextureCollectionMap;
-            typedef std::pair<IO::Path, TextureCollectionPtr> TextureCollectionMapEntry;
-            typedef std::map<String, TexturePtr> TextureMap;
+            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
+            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
+            typedef std::map<String, Texture*> TextureMap;
             
             GamePtr m_game;
             
@@ -49,10 +51,10 @@ namespace TrenchBroom {
             void reset(GamePtr game);
             void commitChanges();
             
-            TexturePtr texture(const String& name) const;
+            Texture* texture(const String& name) const;
         private:
             void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove);
-            void doAddTextureCollection(TextureCollectionPtr collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
+            void doAddTextureCollection(TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
             void updateTextures();
         };
     }

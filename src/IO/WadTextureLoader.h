@@ -37,8 +37,8 @@ namespace TrenchBroom {
         private:
             static const size_t InitialBufferSize = 3 * 512 * 512;
             
-            Model::TextureCollectionPtr doLoadTextureCollection(const Path& path);
-            void doUploadTextureCollection(Model::TextureCollectionPtr collection);
+            Model::TextureCollection* doLoadTextureCollection(const Path& path);
+            void doUploadTextureCollection(Model::TextureCollection* collection);
         };
     }
 }

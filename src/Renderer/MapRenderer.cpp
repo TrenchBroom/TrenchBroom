@@ -42,7 +42,7 @@ namespace TrenchBroom {
         struct BuildBrushEdges {
             VertexSpecs::P3::Vertex::List unselectedVertices;
             VertexSpecs::P3::Vertex::List selectedVertices;
-            inline void operator()(Model::BrushPtr brush) {
+            inline void operator()(Model::Brush* brush) {
                 if (brush->selected()) {
                     brush->addEdges(selectedVertices);
                 } else if (!brush->partiallySelected()) {
@@ -52,8 +52,8 @@ namespace TrenchBroom {
                     Model::BrushEdge::List::const_iterator it, end;
                     for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                         Model::BrushEdge* edge = *it;
-                        Model::BrushFacePtr left = edge->left()->face();
-                        Model::BrushFacePtr right = edge->right()->face();
+                        Model::BrushFace* left = edge->left()->face();
+                        Model::BrushFace* right = edge->right()->face();
                         if (left->selected() || right->selected()) {
                             selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
                             selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             Model::BrushFace::Mesh unselectedMesh;
             Model::BrushFace::Mesh selectedMesh;
 
-            inline void operator()(Model::BrushPtr brush, Model::BrushFacePtr face) {
+            inline void operator()(Model::Brush* brush, Model::BrushFace* face) {
                 if (brush->selected() || face->selected())
                     face->addToMesh(selectedMesh);
                 else
@@ -79,15 +79,15 @@ namespace TrenchBroom {
         };
         
         struct BuildBrushFaceMeshFilter {
-            inline bool operator()(Model::EntityPtr entity) const {
+            inline bool operator()(Model::Entity* entity) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushPtr brush) const {
+            inline bool operator()(Model::Brush* brush) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushPtr brush, Model::BrushFacePtr face) const {
+            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 return true;
             }
         };
@@ -108,17 +108,17 @@ namespace TrenchBroom {
             if (command->type() == Controller::NewDocumentCommand::Type) {
                 clearState();
                 Controller::NewDocumentCommand::Ptr newDocumentCommand = Controller::Command::cast<Controller::NewDocumentCommand>(command);
-                Model::MapPtr map = newDocumentCommand->map();
+                Model::Map* map = newDocumentCommand->map();
                 loadMap(map);
             } else if (command->type() == Controller::OpenDocumentCommand::Type) {
                 clearState();
                 Controller::OpenDocumentCommand::Ptr openDocumentCommand = Controller::Command::cast<Controller::OpenDocumentCommand>(command);
-                Model::MapPtr map = openDocumentCommand->map();
+                Model::Map* map = openDocumentCommand->map();
                 loadMap(map);
             } else if (command->type() == Controller::SelectionCommand::Type) {
                 clearState();
                 Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                Model::MapPtr map = selectionCommand->map();
+                Model::Map* map = selectionCommand->map();
                 loadMap(map);
             }
         }
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             if (command->type() == Controller::SelectionCommand::Type) {
                 clearState();
                 Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                Model::MapPtr map = selectionCommand->map();
+                Model::Map* map = selectionCommand->map();
                 loadMap(map);
             }
         }
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             m_selectedBrushRenderer = BrushRenderer();
         }
 
-        void MapRenderer::loadMap(Model::MapPtr map) {
+        void MapRenderer::loadMap(Model::Map* map) {
             BuildBrushFaceMeshFilter filter;
 
             BuildBrushFaceMesh buildFaces;

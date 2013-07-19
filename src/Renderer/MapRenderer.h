@@ -26,6 +26,10 @@
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Map;
+    }
+    
     namespace Renderer {
         class RenderContext;
         
@@ -48,7 +52,7 @@ namespace TrenchBroom {
             void renderCoordinateSystem(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void clearState();
-            void loadMap(Model::MapPtr map);
+            void loadMap(Model::Map* map);
         };
     }
 }

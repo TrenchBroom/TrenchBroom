@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class BrushGeometry;
         class Entity;
         
-        class Brush : public Object, public std::tr1::enable_shared_from_this<Brush> {
+        class Brush : public Object {
         public:
             typedef Renderer::VertexSpecs::P3 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
         public:
-            static BrushPtr newBrush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
             
             Entity* parent() const;
@@ -64,34 +64,29 @@ namespace TrenchBroom {
 
             template <class Operator, class Filter>
             void eachBrushFace(const Operator& op, const Filter& filter) {
-                BrushPtr thisPtr = sharedFromThis();
                 BrushFaceList::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFacePtr face = *it;
-                    if (filter(thisPtr, face))
-                        op(thisPtr, face);
+                    BrushFace* face = *it;
+                    if (filter(this, face))
+                        op(this, face);
                 }
             }
             
             template <class Operator, class Filter>
             void eachBrushFace(Operator& op, const Filter& filter) {
-                BrushPtr thisPtr = sharedFromThis();
                 BrushFaceList::const_iterator it, end;
                 for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFacePtr face = *it;
-                    if (filter(thisPtr, face))
-                        op(thisPtr, face);
+                    BrushFace* face = *it;
+                    if (filter(this, face))
+                        op(this, face);
                 }
             }
             
             void addEdges(Vertex::List& vertices) const;
         private:
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
-            BrushPtr sharedFromThis();
             void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
             void addFaces(const BrushFaceList& faces);
-            void addFace(BrushFacePtr face);
-            void removeAllFaces();
+            void addFace(BrushFace* face);
         };
     }
 }

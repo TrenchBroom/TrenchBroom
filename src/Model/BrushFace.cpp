@@ -51,7 +51,7 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate();
             
-            TexturePtr texture = m_face->texture();
+            Texture* texture = m_face->texture();
             const size_t width = texture != NULL ? texture->width() : 1;
             const size_t height = texture != NULL ? texture->height() : 1;
             
@@ -101,10 +101,22 @@ namespace TrenchBroom {
         
         const String BrushFace::NoTextureName = "__TB_empty";
         
-        BrushFacePtr BrushFace::newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
-            return BrushFacePtr(new BrushFace(point0, point1, point2, textureName));
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
+        m_parent(NULL),
+        m_textureName(textureName),
+        m_xOffset(0.0f),
+        m_yOffset(0.0f),
+        m_rotation(0.0f),
+        m_xScale(1.0f),
+        m_yScale(1.0f),
+        m_lineNumber(0),
+        m_lineCount(0),
+        m_selected(false),
+        m_side(NULL) {
+            m_textureCoordinateSystem.setFace(this);
+            setPoints(point0, point1, point2);
         }
-
+        
         Brush* BrushFace::parent() const {
             return m_parent;
         }
@@ -139,7 +151,7 @@ namespace TrenchBroom {
             return m_textureName;
         }
         
-        TexturePtr BrushFace::texture() const {
+        Texture* BrushFace::texture() const {
             return m_texture;
         }
 
@@ -167,7 +179,7 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
-        void BrushFace::setTexture(TexturePtr texture) {
+        void BrushFace::setTexture(Texture* texture) {
             if (m_texture != NULL)
                 m_texture->decUsageCount();
             m_texture = texture;
@@ -322,22 +334,6 @@ namespace TrenchBroom {
             return dist;
         }
 
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
-        m_parent(NULL),
-        m_textureName(textureName),
-        m_xOffset(0.0f),
-        m_yOffset(0.0f),
-        m_rotation(0.0f),
-        m_xScale(1.0f),
-        m_yScale(1.0f),
-        m_lineNumber(0),
-        m_lineCount(0),
-        m_selected(false),
-        m_side(NULL) {
-            m_textureCoordinateSystem.setFace(this);
-            setPoints(point0, point1, point2);
-        }
-        
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;

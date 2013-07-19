@@ -68,7 +68,7 @@ namespace TrenchBroom {
             const BrushFaceGeometry::List& sides() const;
 
             AddFaceResult addFaces(const BrushFaceList& faces);
-            AddFaceResult addFace(BrushFacePtr face);
+            AddFaceResult addFace(BrushFace* face);
         private:
             void initializeWithBounds(const BBox3& bounds);
         };

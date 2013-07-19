@@ -75,7 +75,7 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<TexturePtr, VertexSpec> Mesh;
+            typedef Renderer::Mesh<Texture*, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
             Brush* m_parent;
@@ -91,12 +91,12 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
-            TexturePtr m_texture;
+            Texture* m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
         public:
-            static BrushFacePtr newBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
-            
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
+
             Brush* parent() const;
             void setParent(Brush* parent);
             
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             bool arePointsOnPlane(const Plane3& plane) const;
             
             const String& textureName() const;
-            TexturePtr texture() const;
+            Texture* texture() const;
             const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             float xScale() const;
             float yScale() const;
             
-            void setTexture(TexturePtr texture);
+            void setTexture(Texture* texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);
@@ -128,7 +128,6 @@ namespace TrenchBroom {
             void addToMesh(Mesh& mesh) const;
             FloatType intersectWithRay(const Ray3& ray) const;
         private:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         };
     }

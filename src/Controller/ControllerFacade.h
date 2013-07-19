@@ -32,6 +32,10 @@ namespace TrenchBroom {
         class Path;
     }
     
+    namespace Model {
+        class Game;
+    }
+    
     namespace Controller {
         class CommandProcessor;
         
@@ -48,12 +52,12 @@ namespace TrenchBroom {
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
-            bool selectObject(Model::ObjectPtr object);
-            bool deselectAllAndSelectObject(Model::ObjectPtr object);
-            bool deselectObject(Model::ObjectPtr object);
-            bool selectFace(Model::BrushFacePtr face);
-            bool deselectAllAndSelectFace(Model::BrushFacePtr face);
-            bool deselectFace(Model::BrushFacePtr face);
+            bool selectObject(Model::Object* object);
+            bool deselectAllAndSelectObject(Model::Object* object);
+            bool deselectObject(Model::Object* object);
+            bool selectFace(Model::BrushFace* face);
+            bool deselectAllAndSelectFace(Model::BrushFace* face);
+            bool deselectFace(Model::BrushFace* face);
             bool deselectAll();
         };
     }

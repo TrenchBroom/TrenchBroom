@@ -29,6 +29,11 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Game;
+        class Map;
+    }
+    
     namespace Controller {
         class OpenDocumentCommand : public Command {
         public:
@@ -42,7 +47,7 @@ namespace TrenchBroom {
         public:
             OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
-            Model::MapPtr map() const;
+            Model::Map* map() const;
         private:
             bool doPerformDo();
         };

@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace Model {
         class Filter {
         public:
-            bool passes(EntityPtr entity) const;
-            bool passes(BrushPtr brush) const;
+            bool passes(Entity* entity) const;
+            bool passes(Brush* brush) const;
         };
     }
 }

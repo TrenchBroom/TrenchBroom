@@ -20,16 +20,19 @@
 #ifndef __TrenchBroom__MockGame__
 #define __TrenchBroom__MockGame__
 
+#include <gmock/gmock.h>
+
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
-#include "Model/Map.h"
-#include "Model/TextureCollection.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Map;
+        
         class MockGame;
         typedef std::tr1::shared_ptr<MockGame> MockGamePtr;
         
@@ -37,10 +40,10 @@ namespace TrenchBroom {
         public:
             static MockGamePtr newGame();
 
-            MOCK_CONST_METHOD2(doLoadMap, MapPtr(const BBox3&, const IO::Path&));
-            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(MapPtr));
-            MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollectionPtr(const IO::Path&));
-            MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollectionPtr));
+            MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
+            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(Map*));
+            MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollection*(const IO::Path&));
+            MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollection*));
         };
         
     }

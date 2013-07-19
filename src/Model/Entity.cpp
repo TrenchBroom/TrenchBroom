@@ -29,8 +29,8 @@ namespace TrenchBroom {
         Entity::Entity() :
         Object(OTEntity) {}
 
-        EntityPtr Entity::newEntity() {
-            return EntityPtr(new Entity());
+        Entity::~Entity() {
+            VectorUtils::clearAndDelete(m_brushes);
         }
 
         BBox3 Entity::bounds() const {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math<FloatType>::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    Hit hit(EntityHit, distance, hitPoint, sharedFromThis());
+                    Hit hit(EntityHit, distance, hitPoint, this);
                     result.addHit(hit);
                 }
             }
@@ -76,20 +76,16 @@ namespace TrenchBroom {
             return m_brushes;
         }
 
-        void Entity::addBrush(BrushPtr brush) {
+        void Entity::addBrush(Brush* brush) {
             assert(brush->parent() == NULL);
             m_brushes.push_back(brush);
             brush->setParent(this);
         }
 
-        void Entity::removeBrush(BrushPtr brush) {
+        void Entity::removeBrush(Brush* brush) {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
-        }
-
-        EntityPtr Entity::sharedFromThis() {
-            return shared_from_this();
         }
     }
 }

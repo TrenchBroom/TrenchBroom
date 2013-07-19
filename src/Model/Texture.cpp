@@ -21,9 +21,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TexturePtr Texture::newTexture(const String& name, const size_t width, const size_t height) {
-            return TexturePtr(new Texture(name, width, height));
-        }
+        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        m_textureId(0),
+        m_name(name),
+        m_width(width),
+        m_height(height),
+        m_usageCount(0),
+        m_overridden(false) {}
 
         Texture::~Texture() {
             if (m_textureId != 0) {
@@ -89,13 +93,5 @@ namespace TrenchBroom {
         void Texture::deactivate() {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
-
-        Texture::Texture(const String& name, const size_t width, const size_t height) :
-        m_textureId(0),
-        m_name(name),
-        m_width(width),
-        m_height(height),
-        m_usageCount(0),
-        m_overridden(false) {}
     }
 }

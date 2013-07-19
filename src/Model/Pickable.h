@@ -30,9 +30,6 @@ namespace TrenchBroom {
         
         class Pickable {
         public:
-            typedef std::tr1::shared_ptr<Pickable> Ptr;
-            typedef std::vector<Ptr> List;
-            
             virtual ~Pickable() {}
             virtual BBox3 bounds() const = 0;
             virtual void pick(const Ray3& ray, PickResult& result) = 0;

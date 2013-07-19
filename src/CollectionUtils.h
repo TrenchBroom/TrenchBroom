@@ -103,7 +103,7 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline bool contains(std::vector<T>& vec, const T& item) {
+    inline bool contains(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item) != vec.end();
     }
     
@@ -126,6 +126,21 @@ namespace VectorUtils {
         result.reserve(vec1.size() + vec2.size());
         result.insert(result.end(), vec1.begin(), vec1.end());
         result.insert(result.end(), vec2.begin(), vec2.end());
+    }
+    
+    template <typename T>
+    inline std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
+        typedef std::vector<T> VecType;
+        typedef typename VecType::const_iterator VecIter;
+        
+        VecType result;
+        VecIter it, end;
+        for (it = vec1.begin(), end = vec1.end(); it != end; ++it) {
+            T elem = *it;
+            if (!VectorUtils::contains(vec2, elem))
+                result.push_back(elem);
+        }
+        return result;
     }
 }
 

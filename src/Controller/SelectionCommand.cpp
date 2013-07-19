@@ -59,7 +59,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        Model::MapPtr SelectionCommand::map() const {
+        Model::Map* SelectionCommand::map() const {
             return m_document->map();
         }
 

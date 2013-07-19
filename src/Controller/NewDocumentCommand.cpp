@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_worldBounds(worldBounds),
         m_game(game) {}
 
-        Model::MapPtr NewDocumentCommand::map() const {
+        Model::Map* NewDocumentCommand::map() const {
             return m_document->map();
         }
 

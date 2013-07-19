@@ -19,10 +19,17 @@
 
 #include "TextureCollection.h"
 
+#include "CollectionUtils.h"
+#include "Model/Texture.h"
+
 namespace TrenchBroom {
     namespace Model {
-        TextureCollectionPtr TextureCollection::newTextureCollection(const IO::Path& path, const TextureList& textures) {
-            return TextureCollectionPtr(new TextureCollection(path, textures));
+        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
+        m_path(path),
+        m_textures(textures) {}
+
+        TextureCollection::~TextureCollection() {
+            VectorUtils::clearAndDelete(m_textures);
         }
 
         const IO::Path& TextureCollection::path() const {
@@ -33,8 +40,5 @@ namespace TrenchBroom {
             return m_textures;
         }
 
-        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
-        m_path(path),
-        m_textures(textures) {}
     }
 }

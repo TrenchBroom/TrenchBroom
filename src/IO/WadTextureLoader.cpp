@@ -32,7 +32,7 @@ namespace TrenchBroom {
         WadTextureLoader::WadTextureLoader(const Model::Palette& palette) :
         m_palette(palette) {}
 
-        Model::TextureCollectionPtr WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Model::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
@@ -43,13 +43,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
                 const MipSize mipSize = wad.mipSize(entry);
-                textures.push_back(Model::Texture::newTexture(entry.name(), mipSize.width, mipSize.height));
+                textures.push_back(new Model::Texture(entry.name(), mipSize.width, mipSize.height));
             }
             
-            return Model::TextureCollection::newTextureCollection(path, textures);
+            return new Model::TextureCollection(path, textures);
         }
 
-        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollectionPtr collection) {
+        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollection* collection) {
             Model::Palette::TextureBuffer buffer;
             buffer.resize(InitialBufferSize);
             Color averageColor;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
-                const Model::TexturePtr texture = textures[i];
+                Model::Texture* texture = textures[i];
                 assert(entry.name() == texture->name());
                 
                 const GLuint textureId = textureIds[i];

@@ -23,11 +23,11 @@ namespace TrenchBroom {
     namespace IO {
         TextureLoader::~TextureLoader() {}
         
-        Model::TextureCollectionPtr TextureLoader::loadTextureCollection(const Path& path) {
+        Model::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
             return doLoadTextureCollection(path);
         }
 
-        void TextureLoader::uploadTextureCollection(Model::TextureCollectionPtr collection) {
+        void TextureLoader::uploadTextureCollection(Model::TextureCollection* collection) {
             doUploadTextureCollection(collection);
         }
     }

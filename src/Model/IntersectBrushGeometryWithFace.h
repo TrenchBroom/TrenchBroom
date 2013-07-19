@@ -34,7 +34,7 @@ namespace TrenchBroom {
 
         class IntersectBrushGeometryWithFace : public BrushGeometryAlgorithm<BrushGeometry::AddFaceResultCode> {
         private:
-            BrushFacePtr m_face;
+            BrushFace* m_face;
             BrushVertex::List m_remainingVertices;
             BrushVertex::List m_droppedVertices;
             BrushEdge::List m_remainingEdges;
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             BrushFaceGeometry::List m_remainingSides;
             BrushFaceGeometry::List m_droppedSides;
         public:
-            IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFacePtr face);
+            IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace* face);
             
             inline const BrushVertex::List& vertices() const {
                 return m_remainingVertices;

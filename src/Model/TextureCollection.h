@@ -33,12 +33,12 @@ namespace TrenchBroom {
             IO::Path m_path;
             TextureList m_textures;
         public:
-            static TextureCollectionPtr newTextureCollection(const IO::Path& path, const TextureList& textures);
-            
+            TextureCollection(const IO::Path& path, const TextureList& textures);
+            ~TextureCollection();
+
             const IO::Path& path() const;
             const TextureList& textures() const;
         private:
-            TextureCollection(const IO::Path& path, const TextureList& textures);
         };
         
     }

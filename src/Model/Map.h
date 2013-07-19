@@ -31,20 +31,20 @@ namespace TrenchBroom {
         class Map {
         private:
             EntityList m_entities;
-            EntityPtr m_worldspawn;
+            Entity* m_worldspawn;
         public:
-            static MapPtr newMap();
+            Map();
             ~Map();
             
             const EntityList& entities() const;
-            void addEntity(EntityPtr entity);
-            EntityPtr worldspawn();
+            void addEntity(Entity* entity);
+            Entity* worldspawn();
 
             template <class Operator, class Filter>
             inline void eachObject(const Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     if (filter(entity)) {
                         op(entity);
                         entity->eachBrush(op, filter);
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             inline void eachObject(Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     if (filter(entity)) {
                         op(entity);
                         entity->eachBrush(op, filter);
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             inline void eachEntity(const Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     if (filter(entity))
                         op(entity);
                 }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             inline void eachEntity(Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     if (filter(entity))
                         op(entity);
                 }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             inline void eachBrush(const Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     entity->eachBrush(op, filter);
                 }
             }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             inline void eachBrush(Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     entity->eachBrush(op, filter);
                 }
             }
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             inline void eachBrushFace(const Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     entity->eachBrushFace(op, filter);
                 }
             }
@@ -115,13 +115,12 @@ namespace TrenchBroom {
             inline void eachBrushFace(Operator& op, const Filter& filter) {
                 EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                    EntityPtr entity = *it;
+                    Entity* entity = *it;
                     entity->eachBrushFace(op, filter);
                 }
             }
         private:
-            Map();
-            EntityPtr findWorldspawn() const;
+            Entity* findWorldspawn() const;
         };
     }
 }

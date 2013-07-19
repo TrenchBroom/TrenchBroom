@@ -28,13 +28,19 @@ namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
 
-        BrushPtr Brush::newBrush(const BBox3& worldBounds, const BrushFaceList& faces) {
-            return BrushPtr(new Brush(worldBounds, faces));
-        }
         
+        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
+        Object(OTBrush),
+        m_parent(NULL),
+        m_geometry(NULL) {
+            rebuildGeometry(worldBounds, faces);
+        }
+
         Brush::~Brush() {
+            m_parent = NULL;
             delete m_geometry;
             m_geometry = NULL;
+            VectorUtils::clearAndDelete(m_faces);
         }
 
         Entity* Brush::parent() const {
@@ -80,7 +86,7 @@ namespace TrenchBroom {
         void Brush::pick(const Ray3& ray, PickResult& result) {
             BrushFaceList::iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFacePtr face = *it;
+                BrushFace* face = *it;
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math<FloatType>::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
@@ -108,46 +114,28 @@ namespace TrenchBroom {
                 vertices.push_back(Vertex(edge->end()->position()));
             }
         }
-
-        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
-        Object(OTBrush),
-        m_parent(NULL),
-        m_geometry(NULL) {
-            rebuildGeometry(worldBounds, faces);
-        }
         
-        BrushPtr Brush::sharedFromThis() {
-            return shared_from_this();
-        }
-
         void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
             
-            removeAllFaces();
+            BrushFaceList deleteFaces = VectorUtils::difference(m_faces, result.addedFaces);
+            VectorUtils::clearAndDelete(deleteFaces);
             addFaces(result.addedFaces);
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFacePtr face = *it;
+                BrushFace* face = *it;
                 addFace(face);
             }
         }
         
-        void Brush::addFace(BrushFacePtr face) {
+        void Brush::addFace(BrushFace* face) {
             m_faces.push_back(face);
             face->setParent(this);
-        }
-        
-        void Brush::removeAllFaces() {
-            while (!m_faces.empty()) {
-                BrushFacePtr face = m_faces.back();
-                m_faces.pop_back();
-                face->setParent(NULL);
-            }
         }
     }
 }

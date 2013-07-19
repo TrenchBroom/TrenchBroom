@@ -20,10 +20,11 @@
 #ifndef __TrenchBroom__Picker__
 #define __TrenchBroom__Picker__
 
+#include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Holder.h"
+#include "Model/ModelTypes.h"
 #include "Model/Octree.h"
-#include "Model/Pickable.h"
 
 #include <limits>
 #include <vector>
@@ -92,14 +93,14 @@ namespace TrenchBroom {
         
         class Picker {
         private:
-            Octree<FloatType, Pickable::Ptr> m_octree;
+            Octree<FloatType, Pickable*> m_octree;
         public:
             Picker(const BBox<FloatType, 3>& worldBounds);
             
-            void addObject(Pickable::Ptr object);
-            void addObjects(const Pickable::List& objects);
-            void removeObject(Pickable::Ptr object);
-            void removeObjects(const Pickable::List& objects);
+            void addObject(Pickable* object);
+            void addObjects(const PickableList& objects);
+            void removeObject(Pickable* object);
+            void removeObjects(const PickableList& objects);
             
             PickResult pick(const Ray3& ray);
         };

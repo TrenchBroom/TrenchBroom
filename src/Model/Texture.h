@@ -41,7 +41,7 @@ namespace TrenchBroom {
             size_t m_usageCount;
             bool m_overridden;
         public:
-            static TexturePtr newTexture(const String& name, const size_t width, const size_t height);
+            Texture(const String& name, const size_t width, const size_t height);
             ~Texture();
 
             GLuint textureId() const;
@@ -59,8 +59,6 @@ namespace TrenchBroom {
             
             void activate();
             void deactivate();
-        private:
-            Texture(const String& name, const size_t width, const size_t height);
         };
     }
 }

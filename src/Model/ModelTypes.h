@@ -26,35 +26,29 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
-        typedef std::tr1::shared_ptr<BrushFace> BrushFacePtr;
-        typedef std::vector<BrushFacePtr> BrushFaceList;
+        typedef std::vector<BrushFace*> BrushFaceList;
         static const BrushFaceList EmptyBrushFaceList;
         
         class Object;
-        typedef std::tr1::shared_ptr<Object> ObjectPtr;
-        typedef std::vector<ObjectPtr> ObjectList;
+        typedef std::vector<Object*> ObjectList;
         static const ObjectList EmptyObjectList;
         
         class Brush;
-        typedef std::tr1::shared_ptr<Brush> BrushPtr;
-        typedef std::vector<BrushPtr> BrushList;
+        typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList;
         
         class Entity;
-        typedef std::tr1::shared_ptr<Entity> EntityPtr;
-        typedef std::vector<EntityPtr> EntityList;
+        typedef std::vector<Entity*> EntityList;
         static const EntityList EmptyEntityList;
         
         class Texture;
-        typedef std::tr1::shared_ptr<Texture> TexturePtr;
-        typedef std::vector<TexturePtr> TextureList;
+        typedef std::vector<Texture*> TextureList;
         
         class TextureCollection;
-        typedef std::tr1::shared_ptr<TextureCollection> TextureCollectionPtr;
-        typedef std::vector<TextureCollectionPtr> TextureCollectionList;
+        typedef std::vector<TextureCollection*> TextureCollectionList;
         
-        class Map;
-        typedef std::tr1::shared_ptr<Map> MapPtr;
+        class Pickable;
+        typedef std::vector<Pickable*> PickableList;
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;

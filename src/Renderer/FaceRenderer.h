@@ -35,7 +35,7 @@ namespace TrenchBroom {
         
         class FaceRenderer {
         private:
-            typedef std::map<Model::TexturePtr, VertexArray> VertexArrayMap;
+            typedef std::map<Model::Texture*, VertexArray> VertexArrayMap;
             
             VertexArrayMap m_arrays;
             Color m_faceColor;

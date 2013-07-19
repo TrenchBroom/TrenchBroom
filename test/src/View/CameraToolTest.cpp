@@ -56,7 +56,7 @@ namespace TrenchBroom {
             CameraTool tool(NULL, camera);
 
             inputState.mouseDown(MouseButtons::MBRight);
-            ASSERT_NOT_NULL(tool.startMouseDrag(inputState));
+            ASSERT_FALSE(tool.startMouseDrag(inputState) == NULL);
             
             inputState.mouseMove(10, 0);
             ASSERT_TRUE(tool.mouseDrag(inputState));
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             CameraTool tool(NULL, camera);
             
             inputState.mouseDown(MouseButtons::MBMiddle);
-            ASSERT_NOT_NULL(tool.startMouseDrag(inputState));
+            ASSERT_FALSE(tool.startMouseDrag(inputState) == NULL);
             
             inputState.mouseMove(10, 10);
             ASSERT_TRUE(tool.mouseDrag(inputState));
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             SetTemporaryPreference<bool> setAltMove(Preferences::CameraEnableAltMove, true);
             inputState.mouseDown(MouseButtons::MBMiddle);
             inputState.modifierKeyDown(ModifierKeys::MKAlt);
-            ASSERT_NOT_NULL(tool.startMouseDrag(inputState));
+            ASSERT_FALSE(tool.startMouseDrag(inputState) == NULL);
             
             inputState.mouseMove(10, 10);
             ASSERT_TRUE(tool.mouseDrag(inputState));

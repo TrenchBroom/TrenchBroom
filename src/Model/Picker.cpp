@@ -20,6 +20,7 @@
 #include "Picker.h"
 
 #include "Model/Filter.h"
+#include "Model/Pickable.h"
 
 #include <algorithm>
 
@@ -114,36 +115,36 @@ namespace TrenchBroom {
         Picker::Picker(const BBox<FloatType, 3>& worldBounds) :
         m_octree(worldBounds, static_cast<FloatType>(64.0f)) {}
 
-        void Picker::addObject(Pickable::Ptr object) {
+        void Picker::addObject(Pickable* object) {
             m_octree.addObject(object->bounds(), object);
         }
         
-        void Picker::addObjects(const Pickable::List& objects) {
-            Pickable::List::const_iterator it, end;
+        void Picker::addObjects(const PickableList& objects) {
+            PickableList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Pickable::Ptr object = *it;
+                Pickable* object = *it;
                 addObject(object);
             }
         }
         
-        void Picker::removeObject(Pickable::Ptr object) {
+        void Picker::removeObject(Pickable* object) {
             m_octree.removeObject(object->bounds(), object);
         }
         
-        void Picker::removeObjects(const Pickable::List& objects) {
-            Pickable::List::const_iterator it, end;
+        void Picker::removeObjects(const PickableList& objects) {
+            PickableList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Pickable::Ptr object = *it;
+                Pickable* object = *it;
                 removeObject(object);
             }
         }
 
         PickResult Picker::pick(const Ray3& ray) {
             PickResult result;
-            const Pickable::List candidates = m_octree.findObjects(ray);
-            Pickable::List::const_iterator it, end;
+            const PickableList candidates = m_octree.findObjects(ray);
+            PickableList::const_iterator it, end;
             for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
-                Pickable::Ptr object = *it;
+                Pickable* object = *it;
                 object->pick(ray, result);
             }
             result.sortHits();

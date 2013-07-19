@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 const PlaneWeightOrder& m_planeOrder;
             public:
                 FaceWeightOrder(const PlaneWeightOrder& planeOrder);
-                bool operator()(const Model::BrushFacePtr lhs, const Model::BrushFacePtr rhs) const;
+                bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
             };
 
             View::Logger* m_logger;
@@ -87,14 +87,14 @@ namespace TrenchBroom {
             QuakeMapParser(const String& str, View::Logger* logger = NULL);
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
-            Model::MapPtr doParseMap(const BBox3& worldBounds);
+            Model::Map* doParseMap(const BBox3& worldBounds);
             
-            Model::EntityPtr parseEntity(const BBox3& worldBounds);
-            Model::BrushPtr parseBrush(const BBox3& worldBounds);
-            Model::BrushFacePtr parseFace(const BBox3& worldBounds);
+            Model::Entity* parseEntity(const BBox3& worldBounds);
+            Model::Brush* parseBrush(const BBox3& worldBounds);
+            Model::BrushFace* parseFace(const BBox3& worldBounds);
             const Vec3 parseVector();
             
-            Model::BrushPtr createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
+            Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
         };
     }
 }

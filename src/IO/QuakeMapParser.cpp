@@ -90,7 +90,7 @@ namespace TrenchBroom {
         QuakeMapParser::FaceWeightOrder::FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
         m_planeOrder(planeOrder) {}
 
-        bool QuakeMapParser::FaceWeightOrder::operator()(const Model::BrushFacePtr lhs, const Model::BrushFacePtr rhs) const  {
+        bool QuakeMapParser::FaceWeightOrder::operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const  {
             return m_planeOrder(lhs->boundary(), rhs->boundary());
         }
 
@@ -140,70 +140,80 @@ namespace TrenchBroom {
             return str.str();
         }
 
-        Model::MapPtr QuakeMapParser::doParseMap(const BBox3& worldBounds) {
-            Model::MapPtr map = Model::Map::newMap();
-            Model::EntityPtr entity = parseEntity(worldBounds);
-            while (entity != NULL) {
-                map->addEntity(entity);
-                entity = parseEntity(worldBounds);
+        Model::Map* QuakeMapParser::doParseMap(const BBox3& worldBounds) {
+            Model::Map* map = map = new Model::Map();
+            try {
+                Model::Entity* entity = parseEntity(worldBounds);
+                while (entity != NULL) {
+                    map->addEntity(entity);
+                    entity = parseEntity(worldBounds);
+                }
+                return map;
+            } catch (...) {
+                delete map;
+                throw;
             }
-            return map;
         }
 
-        Model::EntityPtr QuakeMapParser::parseEntity(const BBox3& worldBounds) {
+        Model::Entity* QuakeMapParser::parseEntity(const BBox3& worldBounds) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::EntityPtr();
+                return NULL;
             
             expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
             if (token.type() == QuakeMapToken::CBrace)
-                return Model::EntityPtr();
+                return NULL;
             
-            Model::EntityPtr entity = Model::Entity::newEntity();
+            Model::Entity* entity = new Model::Entity();
             const size_t firstLine = token.line();
             
-            while ((token = m_tokenizer.nextToken()).type() != QuakeMapToken::Eof) {
-                switch (token.type()) {
-                    case QuakeMapToken::String: {
-                        String key = token.data();
-                        expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
-                        String value = token.data();
-                        entity->addOrUpdateProperty(key, value);
-                        break;
-                    }
-                    case QuakeMapToken::OBrace: {
-                        m_tokenizer.pushToken(token);
-                        bool moreBrushes = true;
-                        while (moreBrushes) {
-                            Model::BrushPtr brush = parseBrush(worldBounds);
-                            if (brush != NULL)
-                                entity->addBrush(brush);
-                            expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
-                            moreBrushes = (token.type() == QuakeMapToken::OBrace);
-                            m_tokenizer.pushToken(token);
+            try {
+                while ((token = m_tokenizer.nextToken()).type() != QuakeMapToken::Eof) {
+                    switch (token.type()) {
+                        case QuakeMapToken::String: {
+                            String key = token.data();
+                            expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
+                            String value = token.data();
+                            entity->addOrUpdateProperty(key, value);
+                            break;
                         }
-                        break;
+                        case QuakeMapToken::OBrace: {
+                            m_tokenizer.pushToken(token);
+                            bool moreBrushes = true;
+                            while (moreBrushes) {
+                                Model::Brush* brush = parseBrush(worldBounds);
+                                if (brush != NULL)
+                                    entity->addBrush(brush);
+                                expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
+                                moreBrushes = (token.type() == QuakeMapToken::OBrace);
+                                m_tokenizer.pushToken(token);
+                            }
+                            break;
+                        }
+                        case QuakeMapToken::CBrace: {
+                            entity->setFilePosition(firstLine, token.line() - firstLine);
+                            return entity;
+                        }
+                        default:
+                            expect(QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
                     }
-                    case QuakeMapToken::CBrace: {
-                        entity->setFilePosition(firstLine, token.line() - firstLine);
-                        return entity;
-                    }
-                    default:
-                        expect(QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
                 }
+            } catch (...) {
+                delete entity;
+                throw;
             }
             
             return entity;
         }
         
-        Model::BrushPtr QuakeMapParser::parseBrush(const BBox3& worldBounds) {
+        Model::Brush* QuakeMapParser::parseBrush(const BBox3& worldBounds) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::BrushPtr();
+                return NULL;
             
             expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
             if (token.type() == QuakeMapToken::CBrace)
-                return Model::BrushPtr();
+                return NULL;
             
             const size_t firstLine = token.line();
             Model::BrushFaceList faces;
@@ -212,7 +222,7 @@ namespace TrenchBroom {
                 switch (token.type()) {
                     case QuakeMapToken::OParenthesis: {
                         m_tokenizer.pushToken(token);
-                        Model::BrushFacePtr face = parseFace(worldBounds);
+                        Model::BrushFace* face = parseFace(worldBounds);
                         if (face != NULL)
                             faces.push_back(face);
                         break;
@@ -226,15 +236,15 @@ namespace TrenchBroom {
                 }
             }
             
-            return Model::BrushPtr();
+            return NULL;
         }
         
-        Model::BrushFacePtr QuakeMapParser::parseFace(const BBox3& worldBounds) {
+        Model::BrushFace* QuakeMapParser::parseFace(const BBox3& worldBounds) {
             Vec3 p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::BrushFacePtr();
+                return NULL;
             
             expect(QuakeMapToken::OParenthesis, token);
             p1 = parseVector().corrected();
@@ -263,12 +273,12 @@ namespace TrenchBroom {
             yScale = token.toFloat<float>();
             
             if (crossed(p3 - p1, p2 - p1).null())
-                return Model::BrushFacePtr();
+                return NULL;
             
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
-            Model::BrushFacePtr face = Model::BrushFace::newBrushFace(p1, p2, p3, textureName);
+            Model::BrushFace* face = new Model::BrushFace(p1, p2, p3, textureName);
             face->setXOffset(xOffset);
             face->setYOffset(yOffset);
             face->setRotation(rotation);
@@ -290,21 +300,23 @@ namespace TrenchBroom {
             return vec;
         }
 
-        Model::BrushPtr QuakeMapParser::createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const {
+        Model::Brush* QuakeMapParser::createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const {
+            Model::Brush* brush = NULL;
             try {
                 // sort the faces by the weight of their plane normals like QBSP does
                 Model::BrushFaceList sortedFaces = faces;
                 std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
                 std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
 
-                Model::BrushPtr brush = Model::Brush::newBrush(worldBounds, sortedFaces);
+                brush = new Model::Brush(worldBounds, sortedFaces);
                 brush->setFilePosition(firstLine, lineCount);
-                return brush;
             } catch (GeometryException& e) {
                 if (m_logger != NULL)
                     m_logger->error("Error parsing brush at line %u: %s", firstLine, e.what());
-                return Model::BrushPtr();
+                delete brush;
+                brush = NULL;
             }
+            return brush;
         }
     }
 }

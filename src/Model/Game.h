@@ -28,21 +28,23 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Map;
+        
         class Game {
         public:
             virtual ~Game();
             
-            MapPtr loadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            IO::Path::List extractTexturePaths(MapPtr map) const;
-            TextureCollectionPtr loadTextureCollection(const IO::Path& path) const;
-            void uploadTextureCollection(TextureCollectionPtr collection) const;
+            Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            IO::Path::List extractTexturePaths(Map* map) const;
+            TextureCollection* loadTextureCollection(const IO::Path& path) const;
+            void uploadTextureCollection(TextureCollection* collection) const;
         protected:
             Game();
         private:
-            virtual MapPtr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
-            virtual IO::Path::List doExtractTexturePaths(MapPtr map) const = 0;
-            virtual TextureCollectionPtr doLoadTextureCollection(const IO::Path& path) const = 0;
-            virtual void doUploadTextureCollection(TextureCollectionPtr collection) const = 0;
+            virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
+            virtual IO::Path::List doExtractTexturePaths(Map* map) const = 0;
+            virtual TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
+            virtual void doUploadTextureCollection(TextureCollection* collection) const = 0;
         };
     }
 }

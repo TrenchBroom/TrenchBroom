@@ -27,6 +27,10 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Map;
+    }
+    
     namespace Controller {
         class SelectionCommand : public Command {
         public:
@@ -56,7 +60,7 @@ namespace TrenchBroom {
         public:
             SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             
-            Model::MapPtr map() const;
+            Model::Map* map() const;
         private:
             static String makeName(const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();

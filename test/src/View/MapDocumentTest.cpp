@@ -51,10 +51,9 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/View/FrameManager/TestDoc1.map");
             
-            Model::MapPtr map = Model::Map::newMap();
+            Model::Map* map = new Model::Map();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
-
             
             MapDocumentPtr document = MapDocument::newMapDocument();
             document->openDocument(worldBounds, game, path);

@@ -40,9 +40,9 @@ namespace TrenchBroom {
             SetFaceTexture(Model::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::BrushPtr brush, Model::BrushFacePtr face) const {
+            inline void operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
-                Model::TexturePtr texture = m_textureManager.texture(textureName);
+                Model::Texture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };
@@ -54,21 +54,21 @@ namespace TrenchBroom {
             AddToPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline void operator()(Model::ObjectPtr object) const {
+            inline void operator()(Model::Object* object) const {
                 m_picker.addObject(object);
             }
         };
         
         struct MatchAllFilter {
-            inline bool operator()(Model::EntityPtr entity) const {
+            inline bool operator()(Model::Entity* entity) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushPtr brush) const {
+            inline bool operator()(Model::Brush* brush) const {
                 return true;
             }
             
-            inline bool operator()(Model::BrushPtr brush, Model::BrushFacePtr face) const {
+            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 return true;
             }
         };
@@ -80,6 +80,8 @@ namespace TrenchBroom {
         }
 
         MapDocument::~MapDocument() {
+            delete m_map;
+            m_map = NULL;
         }
         
         const IO::Path& MapDocument::path() const {
@@ -96,7 +98,7 @@ namespace TrenchBroom {
             return m_game;
         }
         
-        Model::MapPtr MapDocument::map() const {
+        Model::Map* MapDocument::map() const {
             return m_map;
         }
 
@@ -123,8 +125,10 @@ namespace TrenchBroom {
 
             m_worldBounds = worldBounds;
             m_game = game;
-            m_map = Model::Map::newMap();
-            m_selection = Model::Selection(m_map.get());
+            delete m_map;
+            m_map = new Model::Map();
+
+            m_selection = Model::Selection(m_map);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             
@@ -138,8 +142,10 @@ namespace TrenchBroom {
 
             m_worldBounds = worldBounds;
             m_game = game;
+            delete m_map;
             m_map = m_game->loadMap(worldBounds, path);
-            m_selection = Model::Selection(m_map.get());
+            
+            m_selection = Model::Selection(m_map);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
@@ -217,6 +223,7 @@ namespace TrenchBroom {
         CachingLogger(),
         m_worldBounds(DefaultWorldBounds),
         m_path(""),
+        m_map(NULL),
         m_picker(m_worldBounds),
         m_modificationCount(0) {}
         

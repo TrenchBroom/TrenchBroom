@@ -46,7 +46,7 @@ namespace TrenchBroom {
             BBox3 m_worldBounds;
             IO::Path m_path;
             Model::GamePtr m_game;
-            Model::MapPtr m_map;
+            Model::Map* m_map;
             Model::Selection m_selection;
             Model::TextureManager m_textureManager;
             Model::Picker m_picker;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             String filename() const;
 
             Model::GamePtr game() const;
-            Model::MapPtr map() const;
+            Model::Map* map() const;
             
             bool modified() const;
             void incModificationCount();

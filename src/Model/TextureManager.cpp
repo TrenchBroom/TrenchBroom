@@ -60,7 +60,7 @@ namespace TrenchBroom {
             assert(index < m_collections.size());
             
             TextureCollectionList::iterator it = m_collections.begin() + index;
-            TextureCollectionPtr collection = *it;
+            TextureCollection* collection = *it;
             
             m_collections.erase(it);
             m_collectionsByPath.erase(collection->path());
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             if (m_game != NULL) {
                 TextureCollectionMap::iterator it, end;
                 for (it = m_toUpload.begin(), end = m_toUpload.end(); it != end; ++it) {
-                    TextureCollectionPtr collection = it->second;
+                    TextureCollection* collection = it->second;
                     m_game->uploadTextureCollection(collection);
                 }
                 
@@ -91,10 +91,10 @@ namespace TrenchBroom {
             }
         }
 
-        TexturePtr TextureManager::texture(const String& name) const {
+        Texture* TextureManager::texture(const String& name) const {
             TextureMap::const_iterator it = m_texturesByName.find(name);
             if (it == m_texturesByName.end())
-                return TexturePtr();
+                return NULL;
             return it->second;
         }
 
@@ -104,16 +104,16 @@ namespace TrenchBroom {
             
             TextureCollectionMap::iterator it = toRemove.find(path);
             if (it != toRemove.end()) {
-                TextureCollectionPtr collection = it->second;
+                TextureCollection* collection = it->second;
                 toRemove.erase(it);
                 doAddTextureCollection(collection, collections, collectionsByPath, toUpload);
             } else {
-                TextureCollectionPtr collection = m_game->loadTextureCollection(path);
+                TextureCollection* collection = m_game->loadTextureCollection(path);
                 doAddTextureCollection(collection, collections, collectionsByPath, toUpload);
             }
         }
 
-        void TextureManager::doAddTextureCollection(TextureCollectionPtr collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) {
+        void TextureManager::doAddTextureCollection(TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) {
             collectionsByPath.insert(TextureCollectionMapEntry(collection->path(), collection));
             collections.push_back(collection);
             toUpload.insert(TextureCollectionMapEntry(collection->path(), collection));
@@ -124,12 +124,12 @@ namespace TrenchBroom {
             
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
-                TextureCollectionPtr collection = *cIt;
+                TextureCollection* collection = *cIt;
                 const TextureList textures = collection->textures();
                 
                 TextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
-                    TexturePtr texture = *tIt;
+                    Texture* texture = *tIt;
                     m_texturesByName[texture->name()] = texture;
                 }
             }

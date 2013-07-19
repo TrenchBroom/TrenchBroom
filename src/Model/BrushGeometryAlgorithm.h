@@ -51,14 +51,14 @@ namespace TrenchBroom {
                 return m_removedFaces;
             }
         protected:
-            inline void addFace(const BrushFacePtr face) {
+            inline void addFace(BrushFace* face) {
                 BrushFaceList::iterator it = VectorUtils::find(m_removedFaces, face);
                 if (it != m_removedFaces.end())
                     m_removedFaces.erase(it);
                 m_addedFaces.push_back(face);
             }
             
-            inline void removeFace(const BrushFacePtr face) {
+            inline void removeFace(BrushFace* face) {
                 BrushFaceList::iterator it = VectorUtils::find(m_addedFaces, face);
                 if (it != m_addedFaces.end()) {
                     m_addedFaces.erase(it);

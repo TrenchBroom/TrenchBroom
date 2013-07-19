@@ -33,15 +33,15 @@ namespace TrenchBroom {
             BrushList brushes;
             BrushFaceList faces;
             
-            inline void operator()(EntityPtr entity) {
+            inline void operator()(Entity* entity) {
                 entities.push_back(entity);
             }
             
-            inline void operator()(BrushPtr brush) {
+            inline void operator()(Brush* brush) {
                 brushes.push_back(brush);
             }
             
-            inline void operator()(BrushPtr brush, BrushFacePtr face) {
+            inline void operator()(Brush* brush, BrushFace* face) {
                 faces.push_back(face);
             }
         };
@@ -53,21 +53,21 @@ namespace TrenchBroom {
             SetSelection(const bool select) :
             m_select(select) {}
             
-            inline void operator()(EntityPtr entity) const {
+            inline void operator()(Entity* entity) const {
                 if (m_select)
                     entity->select();
                 else
                     entity->deselect();
             }
             
-            inline void operator()(BrushPtr brush) const {
+            inline void operator()(Brush* brush) const {
                 if (m_select)
                     brush->select();
                 else
                     brush->deselect();
             }
             
-            inline void operator()(BrushPtr brush, BrushFacePtr face) const {
+            inline void operator()(Brush* brush, BrushFace* face) const {
                 if (m_select)
                     face->select();
                 else
@@ -76,45 +76,45 @@ namespace TrenchBroom {
         };
 
         struct MatchSelectedObjectsFilter {
-            inline bool operator()(EntityPtr entity) const {
+            inline bool operator()(Entity* entity) const {
                 return entity->selected();
             }
             
-            inline bool operator()(BrushPtr brush) const {
+            inline bool operator()(Brush* brush) const {
                 return brush->selected();
             }
         };
         
         struct MatchSelectedFacesFilter {
-            inline bool operator()(BrushPtr brush, BrushFacePtr face) const {
+            inline bool operator()(Brush* brush, BrushFace* face) const {
                 return face->selected();
             }
         };
 
         struct MatchSelectedFilter  {
-            inline bool operator()(EntityPtr entity) const {
+            inline bool operator()(Entity* entity) const {
                 return entity->selected();
             }
             
-            inline bool operator()(BrushPtr brush) const {
+            inline bool operator()(Brush* brush) const {
                 return brush->selected();
             }
 
-            inline bool operator()(BrushPtr brush, BrushFacePtr face) const {
+            inline bool operator()(Brush* brush, BrushFace* face) const {
                 return face->selected();
             }
         };
         
         struct MatchUnselectedFilter {
-            inline bool operator()(EntityPtr entity) const {
+            inline bool operator()(Entity* entity) const {
                 return !entity->selected();
             }
             
-            inline bool operator()(BrushPtr brush) const {
+            inline bool operator()(Brush* brush) const {
                 return !brush->selected();
             }
             
-            inline bool operator()(BrushPtr brush, BrushFacePtr face) const {
+            inline bool operator()(Brush* brush, BrushFace* face) const {
                 return !face->selected();
             }
         };
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             deselectAllFaces();
             ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                ObjectPtr object = *it;
+                Object* object = *it;
                 object->select();
             }
         }
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             
             ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                ObjectPtr object = *it;
+                Object* object = *it;
                 object->deselect();
             }
         }
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             deselectAllObjects();
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFacePtr face = *it;
+                BrushFace* face = *it;
                 face->select();
             }
         }
@@ -208,7 +208,7 @@ namespace TrenchBroom {
 
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFacePtr face = *it;
+                BrushFace* face = *it;
                 face->deselect();
             }
         }

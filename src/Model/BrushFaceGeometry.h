@@ -44,10 +44,10 @@ namespace TrenchBroom {
         private:
             BrushVertex::List m_vertices;
             BrushEdge::List m_edges;
-            BrushFacePtr m_face;
+            BrushFace* m_face;
         public:
-            BrushFacePtr face() const;
-            void setFace(BrushFacePtr face);
+            BrushFace* face() const;
+            void setFace(BrushFace* face);
             const BrushVertex::List& vertices() const;
             const BrushEdge::List& edges() const;
             

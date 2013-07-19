@@ -26,77 +26,77 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(EntityTest, hasProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
-            entity->addOrUpdateProperty(key, value);
+            entity.addOrUpdateProperty(key, value);
             
-            ASSERT_TRUE(entity->hasProperty("key"));
-            ASSERT_FALSE(entity->hasProperty("asfd"));
+            ASSERT_TRUE(entity.hasProperty("key"));
+            ASSERT_FALSE(entity.hasProperty("asfd"));
         }
         
         TEST(EntityTest, getProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity entity;
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
             const PropertyValue value("value");
             const PropertyValue defaultValue("default");
-            entity->addOrUpdateProperty(key, value);
+            entity.addOrUpdateProperty(key, value);
             
-            ASSERT_EQ(value, entity->property(key, defaultValue));
-            ASSERT_EQ(defaultValue, entity->property(key2, defaultValue));
+            ASSERT_EQ(value, entity.property(key, defaultValue));
+            ASSERT_EQ(defaultValue, entity.property(key2, defaultValue));
         }
         
         TEST(EntityTest, addProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
             
-            entity->addOrUpdateProperty(key, value);
+            entity.addOrUpdateProperty(key, value);
             
-            const EntityProperty::List& properties = entity->properties();
+            const EntityProperty::List& properties = entity.properties();
             ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(value, properties[0].value);
         }
         
         TEST(EntityTest, updateProperty) {
-            EntityPtr entity = Entity::newEntity();
+            Entity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
             const PropertyValue newValue("value");
-            entity->addOrUpdateProperty(key, value);
+            entity.addOrUpdateProperty(key, value);
             
-            entity->addOrUpdateProperty(key, newValue);
+            entity.addOrUpdateProperty(key, newValue);
             
-            const EntityProperty::List& properties = entity->properties();
+            const EntityProperty::List& properties = entity.properties();
             ASSERT_EQ(1u, properties.size());
             ASSERT_EQ(key, properties[0].key);
             ASSERT_EQ(newValue, properties[0].value);
         }
         
         TEST(EntityTest, getClassname) {
-            EntityPtr entity = Entity::newEntity();
+            Entity entity;
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
             
-            ASSERT_EQ(PropertyValues::NoClassname, entity->classname());
-            ASSERT_EQ(defaultClassname, entity->classname(defaultClassname));
+            ASSERT_EQ(PropertyValues::NoClassname, entity.classname());
+            ASSERT_EQ(defaultClassname, entity.classname(defaultClassname));
             
-            entity->addOrUpdateProperty(PropertyKeys::Classname, classname);
-            ASSERT_EQ(classname, entity->classname());
-            ASSERT_EQ(classname, entity->classname(defaultClassname));
+            entity.addOrUpdateProperty(PropertyKeys::Classname, classname);
+            ASSERT_EQ(classname, entity.classname());
+            ASSERT_EQ(classname, entity.classname(defaultClassname));
         }
         
         TEST(EntityTest, addBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            Entity entity;
+            Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
             
-            entity->addBrush(brush);
+            entity.addBrush(brush);
             
-            const BrushList& brushes = entity->brushes();
+            const BrushList& brushes = entity.brushes();
             ASSERT_EQ(1u, brushes.size());
             ASSERT_EQ(brush, brushes[0]);
         }
@@ -104,53 +104,53 @@ namespace TrenchBroom {
         TEST(EntityTest, removeBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush = Brush::newBrush(worldBounds, EmptyBrushFaceList);
-            entity->addBrush(brush);
+            Entity entity;
+            Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
+            entity.addBrush(brush);
             
-            entity->removeBrush(brush);
+            entity.removeBrush(brush);
             
-            const BrushList& brushes = entity->brushes();
+            const BrushList& brushes = entity.brushes();
             ASSERT_TRUE(brushes.empty());
         }
         
         TEST(EntityTest, partialSelectionAfterAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush1 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
-            BrushPtr brush2 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
-            entity->addBrush(brush1);
-            entity->addBrush(brush2);
-            ASSERT_FALSE(entity->partiallySelected());
+            Entity entity;
+            Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
+            entity.addBrush(brush1);
+            entity.addBrush(brush2);
+            ASSERT_FALSE(entity.partiallySelected());
             brush1->select();
-            ASSERT_TRUE(entity->partiallySelected());
+            ASSERT_TRUE(entity.partiallySelected());
             brush2->select();
-            ASSERT_TRUE(entity->partiallySelected());
+            ASSERT_TRUE(entity.partiallySelected());
             brush1->deselect();
-            ASSERT_TRUE(entity->partiallySelected());
+            ASSERT_TRUE(entity.partiallySelected());
             brush2->deselect();
-            ASSERT_FALSE(entity->partiallySelected());
+            ASSERT_FALSE(entity.partiallySelected());
         }
         
         TEST(EntityTest, partialSelectionBeforeAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            EntityPtr entity = Entity::newEntity();
-            BrushPtr brush1 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
-            BrushPtr brush2 = Brush::newBrush(worldBounds, EmptyBrushFaceList);
+            Entity entity;
+            Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
             brush1->select();
-            entity->addBrush(brush1);
-            entity->addBrush(brush2);
-            ASSERT_TRUE(entity->partiallySelected());
+            entity.addBrush(brush1);
+            entity.addBrush(brush2);
+            ASSERT_TRUE(entity.partiallySelected());
             brush2->select();
-            ASSERT_TRUE(entity->partiallySelected());
+            ASSERT_TRUE(entity.partiallySelected());
             brush2->deselect();
-            ASSERT_TRUE(entity->partiallySelected());
-            entity->removeBrush(brush2);
-            ASSERT_TRUE(entity->partiallySelected());
-            entity->removeBrush(brush1);
-            ASSERT_FALSE(entity->partiallySelected());
+            ASSERT_TRUE(entity.partiallySelected());
+            entity.removeBrush(brush2);
+            ASSERT_TRUE(entity.partiallySelected());
+            entity.removeBrush(brush1);
+            ASSERT_FALSE(entity.partiallySelected());
         }
     }
 }

@@ -38,14 +38,14 @@ namespace TrenchBroom {
         public:
             static GamePtr newGame(View::Logger* logger = NULL);
         private:
+            QuakeGame(View::Logger* logger);
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
-            QuakeGame(View::Logger* logger);
             
-            MapPtr doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            IO::Path::List doExtractTexturePaths(MapPtr map) const;
-            TextureCollectionPtr doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(TextureCollectionPtr collection) const;
+            Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            IO::Path::List doExtractTexturePaths(Map* map) const;
+            TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(TextureCollection* collection) const;
         };
     }
 }

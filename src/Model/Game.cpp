@@ -21,19 +21,19 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MapPtr Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
+        Map* Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
             return doLoadMap(worldBounds, path);
         }
 
-        IO::Path::List Game::extractTexturePaths(MapPtr map) const {
+        IO::Path::List Game::extractTexturePaths(Map* map) const {
             return doExtractTexturePaths(map);
         }
 
-        TextureCollectionPtr Game::loadTextureCollection(const IO::Path& path) const {
+        TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
             return doLoadTextureCollection(path);
         }
 
-        void Game::uploadTextureCollection(TextureCollectionPtr collection) const {
+        void Game::uploadTextureCollection(TextureCollection* collection) const {
             doUploadTextureCollection(collection);
         }
 

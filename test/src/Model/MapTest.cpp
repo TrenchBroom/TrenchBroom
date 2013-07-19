@@ -25,32 +25,31 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(MapTest, addEntity) {
-            MapPtr map = Map::newMap();
+            Map map;
+            Entity* entity = new Entity();
+            map.addEntity(entity);
             
-            EntityPtr entity = Entity::newEntity();
-            map->addEntity(entity);
-            
-            const EntityList& entities = map->entities();
+            const EntityList& entities = map.entities();
             ASSERT_EQ(1u, entities.size());
             ASSERT_EQ(entity, entities[0]);
         }
         
         TEST(MapTest, getNonExistingWorldspawn) {
-            MapPtr map = Map::newMap();
-            ASSERT_EQ(EntityPtr(), map->worldspawn());
+            Map map;
+            ASSERT_EQ(NULL, map.worldspawn());
 
-            EntityPtr worldspawn = Entity::newEntity();
-            map->addEntity(worldspawn);
-            ASSERT_EQ(EntityPtr(), map->worldspawn());
+            Entity* worldspawn = new Entity();
+            map.addEntity(worldspawn);
+            ASSERT_EQ(NULL, map.worldspawn());
         }
         
         TEST(MapTest, getExistingWorldspawn) {
-            MapPtr map = Map::newMap();
-            EntityPtr worldspawn = Entity::newEntity();
+            Map map;
+            Entity* worldspawn = new Entity();
             worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
-            map->addEntity(worldspawn);
+            map.addEntity(worldspawn);
             
-            ASSERT_EQ(worldspawn, map->worldspawn());
+            ASSERT_EQ(worldspawn, map.worldspawn());
         }
     }
 }

@@ -32,12 +32,12 @@ namespace TrenchBroom {
             const Vec3 point1(1.f,  0.0, 4.0);
             const Vec3 point2(0.0, -1.0, 4.0);
             
-            BrushFacePtr face = BrushFace::newBrushFace(point0, point1, point2);
-            ASSERT_VEC_EQ(point0, face->points()[0]);
-            ASSERT_VEC_EQ(point1, face->points()[1]);
-            ASSERT_VEC_EQ(point2, face->points()[2]);
-            ASSERT_VEC_EQ(Vec3::PosZ, face->boundary().normal);
-            ASSERT_EQ(4.0, face->boundary().distance);
+            BrushFace face(point0, point1, point2);
+            ASSERT_VEC_EQ(point0, face.points()[0]);
+            ASSERT_VEC_EQ(point1, face.points()[1]);
+            ASSERT_VEC_EQ(point2, face.points()[2]);
+            ASSERT_VEC_EQ(Vec3::PosZ, face.boundary().normal);
+            ASSERT_EQ(4.0, face.boundary().distance);
         }
         
         TEST(BrushFaceTest, constructWithColinearPoints) {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const Vec3 point1(1.f, 0.0, 4.0);
             const Vec3 point2(2.0, 0.0, 4.0);
             
-            ASSERT_THROW(BrushFace::newBrushFace(point0, point1, point2), GeometryException);
+            ASSERT_THROW(new BrushFace(point0, point1, point2), GeometryException);
         }
     }
 }
