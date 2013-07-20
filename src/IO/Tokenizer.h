@@ -89,9 +89,10 @@ namespace TrenchBroom {
                 if (eof())
                     return "";
                 
-                const char* startPos = m_cur;
-                const char* endPos = m_cur;
-                TokenType token = nextToken();
+                Token token = peekToken();
+                const char* startPos = token.begin();
+                const char* endPos = startPos;
+                token = nextToken();
                 while (token.type() != delimiterType && !eof()) {
                     endPos = m_cur;
                     token = nextToken();

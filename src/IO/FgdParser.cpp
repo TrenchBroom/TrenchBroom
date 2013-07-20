@@ -78,7 +78,8 @@ namespace TrenchBroom {
                                 return Token(FgdToken::Decimal, begin, end, offset(begin), startLine, startColumn);
                             
                             end = readString(begin, WordDelims);
-                            assert(end > begin);
+                            if (end == begin)
+                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                             return Token(FgdToken::Word, begin, end, offset(begin), startLine, startColumn);
                         }
                 }
@@ -617,17 +618,16 @@ namespace TrenchBroom {
         }
         
         Color FgdParser::parseColor() {
-            float r, g, b;
+            Color color;
             Token token;
             expect(FgdToken::OParenthesis, token = m_tokenizer.nextToken());
-            expect(FgdToken::Integer | FgdToken::Decimal, token = m_tokenizer.nextToken());
-            r = token.toFloat<float>() / 255.0f;
-            expect(FgdToken::Integer | FgdToken::Decimal, token = m_tokenizer.nextToken());
-            g = token.toFloat<float>() / 255.0f;
-            expect(FgdToken::Integer | FgdToken::Decimal, token = m_tokenizer.nextToken());
-            b = token.toFloat<float>() / 255.0f;
+            for (size_t i = 0; i < 3; i++) {
+                expect(FgdToken::Decimal | FgdToken::Integer, token = m_tokenizer.nextToken());
+                color[i] = token.toFloat<float>();
+            }
             expect(FgdToken::CParenthesis, token = m_tokenizer.nextToken());
-            return Color(r, g, b, 1.0f);
+            color[4] = 1.0f;
+            return color;
         }
     }
 }

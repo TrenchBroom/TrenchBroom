@@ -75,7 +75,8 @@ namespace TrenchBroom {
                                 return Token(QuakeMapToken::Decimal, begin, end, offset(begin), startLine, startColumn);
                             
                             end = readString(begin, Whitespace);
-                            assert(end > begin);
+                            if (end == begin)
+                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                             return Token(QuakeMapToken::String, begin, end, offset(begin), startLine, startColumn);
                         }
                     }

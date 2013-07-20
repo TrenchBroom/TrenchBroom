@@ -59,6 +59,10 @@ namespace TrenchBroom {
                 return m_type;
             }
             
+            const char* begin() const {
+                return m_begin;
+            }
+            
             const String data() const {
                 return String(m_begin, length());
             }

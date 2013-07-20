@@ -30,13 +30,7 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <map>
-
 namespace TrenchBroom {
-    namespace View {
-        class Logger;
-    }
-
     namespace IO {
         namespace FgdToken {
             typedef unsigned int Type;
