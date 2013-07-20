@@ -108,20 +108,46 @@ namespace TrenchBroom {
         DynamicModelDefinition::DynamicModelDefinition(const PropertyKey& pathKey, const PropertyKey& skinKey, const PropertyKey& frameKey) :
         m_pathKey(pathKey),
         m_skinKey(skinKey),
-        m_frameKey(frameKey) {}
+        m_frameKey(frameKey) {
+            assert(!m_pathKey.empty());
+        }
 
         bool DynamicModelDefinition::doMatches(const EntityProperties& properties) const {
+            const PropertyValue* pathValue = properties.property(m_pathKey);
+            if (pathValue == NULL || pathValue->empty())
+                return false;
+            if (!m_skinKey.empty()) {
+                const PropertyValue* skinValue = properties.property(m_skinKey);
+                if (skinValue == NULL || skinValue->empty())
+                    return false;
+            }
+            if (!m_frameKey.empty()) {
+                const PropertyValue* frameValue = properties.property(m_frameKey);
+                if (frameValue == NULL || frameValue->empty())
+                    return false;
+            }
             return true;
         }
         
         ModelSpecification DynamicModelDefinition::doModelSpecification(const EntityProperties& properties) const {
-            const PropertyValue pathValue = properties.safeProperty(m_pathKey, "");
-            const PropertyValue* skinValue = properties.property(m_skinKey);
-            const PropertyValue* frameValue = properties.property(m_frameKey);
-
-            const IO::Path path(pathValue);
-            const size_t skinIndex = skinValue != NULL ? std::atoi(skinValue->c_str()) : 0;
-            const size_t frameIndex = frameValue != NULL ? std::atoi(frameValue->c_str()) : 0;
+            const PropertyValue* pathValue = properties.property(m_pathKey);
+            assert(pathValue != NULL);
+            const IO::Path path(*pathValue);
+            
+            size_t skinIndex = 0;
+            if (!m_skinKey.empty()) {
+                const PropertyValue* skinValue = properties.property(m_skinKey);
+                assert(skinValue != NULL);
+                skinIndex = std::atoi(skinValue->c_str());
+            }
+            
+            size_t frameIndex = 0;
+            if (!m_frameKey.empty()) {
+                const PropertyValue* frameValue = properties.property(m_frameKey);
+                assert(frameValue != NULL);
+                frameIndex = std::atoi(frameValue->c_str());
+            }
+            
             return ModelSpecification(path, skinIndex, frameIndex);
         }
  }
