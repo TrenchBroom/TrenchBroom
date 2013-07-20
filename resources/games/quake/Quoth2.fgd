@@ -1,0 +1,1464 @@
+//
+// Quoth game definition file (.fgd)
+// for Worldcraft 1.6 and above
+//
+
+// Quoth additions by Preach(andrew.denner@btinternet.com)
+// From the base quake.fgd from CZG
+//
+// worldspawn
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+	message(string) : "Text on entering the world"
+	worldtype(choices) : "Ambience" : 0 =
+	[
+		0 : "Medieval"
+		1 : "Runic (metal)"
+		2 : "Present (base)"
+		3 : "Elder"
+	]
+	sounds(integer) : "CD track to play" : 1
+	light(integer) : "Ambient light"
+	_sunlight(integer) : "Sunlight"
+	_sun_mangle(string) : "Sun mangle (Yaw pitch roll)"
+	gravity(integer) : "Set gravity for this level (default 800)"
+	keep_keys(choices) : "Player retains keys between levels" : 0 =
+	[
+		0 : "Keys are lost, as usual"
+		1 : "Send keys to next map, don't get keys from previous map"
+		2 : "Get keys from previous map, don't send over to next map "
+		3 : "Send and get keys"
+	]
+	lose_items(choices) : "Player's inventory" : 0 =
+	[
+		0 : "Player keeps weapons, ammo and health"
+		1 : "Player is reset to shotgun, 25 shells, 100 health"
+	]
+	aflag(integer) : "Enable optimisations(see tutorial for details)"
+	sky(string) : "Set a skybox"
+	corpse_time(choices) : "Corpse removal delay" : 0 =
+	[
+		-1 : "Corpses stay"
+	]	
+]
+
+//
+// base marker definitions
+//
+
+@baseclass = Appearflags [
+	spawnflags(Flags) =
+	[
+		256 : "Not on Easy" : 0
+		512 : "Not on Normal" : 0
+		1024 : "Not on Hard" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+	quothflags(choices) : "Coopflags" : 0 =
+	[
+		0 : "no coop flags"
+		4096 : "Not in coop"
+		8192 : "Only in coop"
+	]
+]
+
+@baseclass = Targetname [ targetname(target_source) : "Name" ]
+@baseclass = Target [ 
+	target(target_destination) : "Target" 
+	killtarget(target_destination) : "Killtarget"
+]
+
+
+
+//
+// player starts, deathmatch, coop, teleport
+//
+
+@baseclass base(Appearflags) size(-16 -16 -24, 16 16 32) 
+	color(0 255 0) model(":progs/player.mdl") = PlayerClass []
+
+@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
+@PointClass base(PlayerClass) = info_player_coop : "Player cooperative start" []
+@PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
+@PointClass base(PlayerClass) = info_player_deathmatch : "DM start" []
+@PointClass size(-32 -32 0, 32 32 64) base(PlayerClass, Targetname) = info_teleport_destination : "Teleport destination" []
+@PointClass = info_null : "info_null (spotlight target)"
+[
+	targetname(target_source) : "Name" 
+]
+
+//info_notnull is not defined, to allow both Brush and Point entities to be created without issue
+
+@PointClass base(Appearflags) = info_intermission : "Intermission camera" 
+[
+	mangle(string) : "Mangle (Pitch Yaw Roll)"
+	message(string) : "Finale Text"
+]
+
+@baseclass = Deathtype [
+	deathtype(string) : "Obituary message"
+]
+//
+// items
+//
+@baseclass base(Target, Targetname) = Item
+[
+	message(string) : "Message"
+	ritem(choices) : "Respawning" : 0 =
+	[
+		0 : "Respawning off"
+		1 : "Respawning on"
+	]
+	respawndelay(integer) : "Respawn delay"
+	respawncount(integer) : "Respawn count"
+	
+]
+@baseclass size(0 0 0, 32 32 32) color(80 0 200) base(Item, Appearflags) = Ammo
+[
+	spawnflags(flags) = 
+	[
+		1 : "Large box" : 0
+	]
+]
+
+@PointClass 
+    base(Ammo) 
+    model(
+        ":maps/b_batt0.bsp", 
+        ":maps/b_batt1.bsp" spawnflags = 1
+    ) = 
+    item_cells : "Thunderbolt ammo" []
+    
+@PointClass 
+    size(0 0 0, 32 16 32) 
+    base(Ammo) 
+    model(
+        ":maps/b_rock0.bsp",
+        ":maps/b_rock1.bsp" spawnflags = 1
+    ) =
+    item_rockets : "Rockets" []
+
+@PointClass
+    base(Ammo)
+    model(
+        ":maps/b_shell0.bsp",
+        ":maps/b_shell1.bsp" spawnflags = 1
+    ) = item_shells : "Shells" []
+    
+@PointClass 
+    base(Ammo) 
+    model(
+        ":maps/b_nail0.bsp",
+        ":maps/b_nail1.bsp" spawnflags = 1
+    ) = item_spikes : "Perforator/Nailgun ammo" []
+
+@PointClass 
+    size(0 0 0, 32 32 16) 
+    base(Appearflags) 
+    model(
+        ":maps/b_bh25.bsp",
+        ":maps/b_bh10.bsp" spawnflags = 1,
+        ":maps/b_bh100.bsp" spawnflags = 2
+    ) =
+    item_health : "Health pak" 
+[
+	spawnflags(flags) = 
+	[
+		1 : "Rotten" : 0
+		2 : "Megahealth" : 0
+	]
+]
+
+@PointClass base(Item, Appearflags) model(":progs/suit.mdl") = 
+	item_artifact_envirosuit : "Environmental protection suit" []
+@PointClass base(Item, Appearflags) model(":progs/quaddama.mdl") = 
+	item_artifact_super_damage : "Quad damage" []
+@PointClass base(Item, Appearflags) model(":progs/invulner.mdl") = 
+	item_artifact_invulnerability : "Pentagram of Protection" []
+@PointClass base(Item, Appearflags) model(":progs/invisibl.mdl") = 
+	item_artifact_invisibility : "Ring of Shadows" []
+@PointClass base(Item, Appearflags) model(":progs/cross.mdl") = 
+	item_artifact_cross : "Cross of Deflection" []
+@PointClass base(Item, Appearflags) model(":progs/trinity.mdl") = 
+	item_artifact_trinity : "Trinity" []
+
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 2) = 
+	item_armorInv : "200% armor (Red)" []
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 1) = 
+	item_armor2 : "150% armor (Yellow)" []
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl") =
+	item_armor1 : "100% armor (Green)" []
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_s_key.mdl") = 
+	item_key1 : "Silver key" []
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_g_key.mdl") = 
+	item_key2 : "Gold key" []
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/end1.mdl") = 
+	item_sigil : "Sigil" 
+[
+	spawnflags(Flags) =
+	[
+		1 : "Episode 1" : 1
+		2 : "Episode 2" : 0
+		4 : "Episode 3" : 0
+		8 : "Episode 4" : 0
+	]
+]
+
+@PointClass base(Item, Appearflags) model(":progs/flashlight.mdl") = 
+	item_flashlight : "Flashlight" []
+
+//
+// weaponses
+//
+
+@baseclass size(-16 -16 0, 16 16 32) color(0 0 200) base(Item, Appearflags) = Weapon []
+
+@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Super shotgun" []
+@PointClass base(Weapon) model(":progs/g_nail.mdl") = weapon_nailgun : "Nailgun" []
+@PointClass base(Weapon) model(":progs/g_nail2.mdl") = weapon_supernailgun : "Perforator" []
+@PointClass base(Weapon) model(":progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade launcher" []
+@PointClass base(Weapon) model(":progs/g_rock2.mdl") = weapon_rocketlauncher : "Rocket launcher" []
+@PointClass base(Weapon) model(":progs/g_light.mdl") = weapon_lightning : "Thunderbolt" []
+@PointClass base(Weapon) model(":progs/v_ham.mdl") = weapon_hammer : "Warhammer" []
+@PointClass base(Weapon) model(":progs/v_lance.mdl") = weapon_plasmagun : "Plasma Gun" []
+@PointClass base(Weapon) model(":progs/v_bomb.mdl") = weapon_bomb : "The Bomb" []
+
+
+//
+// badasses
+//
+
+@baseclass base(Appearflags, Target, Targetname) color(220 0 0) = Monster 
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Ambush" : 0
+		32 : "Spawn Silently" : 0
+		64 : "Delay Spawn" : 0
+		128 : "Spawn Alert" : 0
+	]
+	spawndelay(choices) : "Spawn Delay" : 0 =
+	[
+		-1 : "Short random delay"
+	]
+	corpse_time(choices) : "Corpse removal delay" : 0 =
+	[
+		-1 : "Corpses stay"
+	]
+]
+
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl") = monster_army : "Grunt" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model(":progs/dog.mdl") = monster_dog : "Nasty Doggie" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre : "Ogre" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre_marksman : "Ogre marksman" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/knight.mdl") = monster_knight : "Knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/wizard.mdl") = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/demon.mdl") = monster_demon1 : "Fiend" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shambler.mdl") = monster_shambler : "Shambler" []
+@PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl") = monster_boss : "Chthon" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl") = monster_enforcer : "Enforcer" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 48) model(":progs/shalrath.mdl") = monster_shalrath : "Shalrath" []
+@PointClass base(Monster) size(32 32 48) model(":progs/tarbaby.mdl") = monster_tarbaby : "Tarbaby" []
+@PointClass base(Monster) size(32 32 48) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl") = monster_oldone : "Shub-Niggurath" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/zombie.mdl") = monster_zombie : "Zombie" 
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Crucified" : 0
+		2 : "Ambush" : 0
+	]
+]
+
+//quoth monsters
+
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/bob.mdl") = monster_bob : "Bob" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl" 1) = monster_army_rocket : "Rocketeer" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 1) = monster_defender: "Defender" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 2) = monster_pyro: "Pyro" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 3) = monster_eliminator: "Eliminator" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/scor.mdl") = monster_scourge: "Centroid" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/sentinel.mdl") = monster_sentinel: "Sentinel" 
+[
+	spawnflags(Flags) =
+	[
+		4 : "Nail sentinel" : 0
+	]
+]
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/edie.mdl") = monster_edie: "Edie" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl" 1) = monster_ogre_flak: "Flak Ogre" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/voreling.mdl", ":progs/voreling.mdl" 0 13 dangle = "1") = monster_voreling: "Voreling" 
+[
+	dangle(choices) : "Dangling" : 0 =
+	[
+		0 : "On floor"
+		1 : "On ceiling"
+	]
+]
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/polyp.mdl" 0 153, ":progs/polyp.mdl" startonground = "1") = monster_polyp: "Polyp" 
+[
+	startonground(choices) : "Starting pose" : 0 =
+	[
+		0 : "Flying"
+		1 : "On ground"
+	]
+]
+
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl") = monster_death_knight : "Death knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/dguard.mdl") = monster_death_guard : "Death guard" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl" 1) = monster_death_lord : "Death lord" []
+
+
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gaunt.mdl" 0 24, ":progs/gaunt.mdl" perch = "1") = monster_gaunt : "Gaunt" 
+[
+	perch(choices) : "Starting pose" : 0 =
+	[
+		0 : "Flying"
+		1 : "On ground"
+	]		
+]
+
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/drole.mdl") = monster_drole: "Drole" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gug.mdl") = monster_gug: "Gug" []
+@PointClass base(Monster) size(-64 -64 -448, 64 64 256) model(":progs/vermis.mdl" 0 52, ":progs/vermis.mdl" 0 2 coiled = "1") = monster_vermis: "Vermis" 
+[
+	coiled(choices) : "Starting pose" : 0 =
+	[
+		0 : "Full height"
+		1 : "Coiled up"
+	]
+	skin(choices) : "Skin effect" : 0 =
+	[
+		0 : "Regular"
+		1 : "Fades to black at tail"
+		2 : "Slime glow at tail"
+		3 : "Lava glow at tail"
+	]				
+]
+
+
+
+//
+// lights
+//
+@baseclass color(255 255 40) = Static [
+	spawnflags(Flags) =
+	[
+		1 : "Force Static" : 0
+		2 : "Force Dynamic" : 0
+	]
+]
+
+@baseclass color(255 255 40) = Grill [
+	spawnflags(Flags) =
+	[
+		1 : "Force Static" : 0  
+		2 : "Solid Blocking" : 0
+	]
+]
+
+@baseclass color(255 255 40) = Light [
+	light(integer) : "Brightness" : 300
+	wait(integer) : "Fade distance multiplier" : 1
+	delay(choices) : "Attenuation" =
+	[
+		0 : "Linear falloff (Default)"
+		1 : "Inverse distance falloff"
+		2 : "Inverse distance squared"
+		3 : "No falloff"
+	]
+	mangle(string) : "Spotlight angle"
+	style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+	]
+]
+
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) = 
+	light : "Invisible lightsource"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	]
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) = 
+	light_fluoro : "Fluorescent light"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	]
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) = 
+	light_fluorospark : "Sparking fluorescent light"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	]
+
+@PointClass size(-8 -8 -12, 8 8 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
+	light_flame_large_yellow : "Large yellow flame" []
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
+	light_flame_small_yellow : "Small yellow flame" 
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	]
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
+	light_flame_small_white : "Small white flame"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	]
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame.mdl") = 
+	light_torch_small_walltorch : "Small walltorch" []
+
+	// quoth lights
+	
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lightpost.mdl") = 
+	light_postlight : "Post light"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+		color(choices) : "Colour of light object" : 0 =
+		[
+			0 : "Yellow-white"
+			1 : "Blue-white"
+			2 : "Red"
+		]
+	]
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lighttube.mdl") = 
+	light_tubelight : "Tube light"
+	[
+		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+		color(choices) : "Colour of light object" : 0 =
+		[
+			0 : "Yellow-white"
+			1 : "Blue-white"
+			2 : "Red"
+		]
+	]
+	
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) = 
+	light_globe : "Globe light" 
+	[
+		color(choices) : "Colour of globe" : 0 =
+		[
+			0 : "Gold"
+			1 : "Red"
+			2 : "Green" 
+			3 : "Blue"
+			4 : "White"
+			5 : "Evile"
+			6 : "Evile zombie"
+		]	
+	]	
+	
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) = 
+	light_marsh : "Marsh lights" 
+	[
+		color(choices) : "Colour of globe" : 0 =
+		[
+			0 : "white ( default )" 
+			1 : "bluish white"
+			2 : "blue"
+			3 : "green"
+			4 : "orange" 
+			5 : "red"
+			6 : "purple"
+		]	
+	]
+
+
+@PointClass size(-8 -8 -48, 8 8 80) base(Light, Target, Targetname, Static) model(":progs/longtrch.mdl") = 
+	light_torch_long_walltorch : "Long wall torch" []
+@PointClass size(-8 -8 -16, 8 8 8) 
+	base(Light, Target, Targetname, Static) 
+	model(
+		":progs/brazshrt.mdl",
+		":progs/brazshrt.mdl" 1 skin = "1",
+		":progs/brazshrt.mdl" 2 skin = "2",
+		":progs/brazshrt.mdl" 3 skin = "3",
+		":progs/brazshrt.mdl" 4 skin = "4",
+		":progs/brazshrt.mdl" 5 skin = "5"
+	) = 
+	light_flame_brazier_short : "Short brazier" 
+	[
+		skin(choices) : "Texture" : 0 =
+		[
+			0 : "knave ( default ) "
+			1 : "rust "
+			2 : "redbrick "
+			3 : "copper "
+			4 : "altar "
+			5 : "wizmet"
+		]
+	]
+@PointClass size(-8 -8 -64, 8 8 8) 
+	base(Light, Target, Targetname, Static)
+	model(
+		":progs/braztall.mdl",
+		":progs/braztall.mdl" 1 skin = "1",
+		":progs/braztall.mdl" 2 skin = "2",
+		":progs/braztall.mdl" 3 skin = "3",
+		":progs/braztall.mdl" 4 skin = "4",
+		":progs/braztall.mdl" 5 skin = "5"
+	) = 
+	light_flame_brazier_tall : "Tall brazier" 
+	[
+		skin(choices) : "Texture" : 0 =
+		[
+			0 : "knave ( default ) "
+			1 : "rust "
+			2 : "redbrick "
+			3 : "copper "
+			4 : "altar "
+			5 : "wizmet"
+		]
+	]
+	
+@PointClass size(-8 -8 -8, 8 8 8) base(Static, Appearflags) = mapobject_custom: "Custom mapobject"
+	[
+		model(string) : "Model"
+		frame(integer) : "Frame"
+		skin(string) : "Skin"
+		mangle(string) : "Angles(overrides angle above)"
+		avelocity(string) : "Angular Velocity(for rotation)"
+	]
+	
+//  model(":progs/grill128.spr")
+@PointClass size(-8 -8 -8, 8 8 8) base(Grill, Appearflags) = mapobject_grill: "Custom grill mapobject"
+	[
+		model(string) : "Model"
+		frame(string) : "Frame"
+		mangle(string) : "Angles(overrides angle above)"
+	]
+	
+//  model(":progs/grill128.spr")
+@PointClass size(-8 -8 -8, 8 8 8) base(Grill, Appearflags) = mapobject_grill128: "128 unit grill mapobject"
+	[
+		frame(choices) : "Frame": 0 =
+		[
+			0 : "Red idbase grill"
+			1 : "Dark idbase grill"
+			2 : "Rusty idbase grill"
+			3 : "Pale idbase grill"
+			4 : "Large vent grid"
+			5 : "Large vent - horizontal bars"
+			6 : "Slimy brown floor grills"
+			7 : "Wizmet medium grid panels"
+			8 : "Wizmet fine grid panels"
+			9 : "Fury square floor panels"
+			10 : "Fury small floor panels"
+			11 : "Copper floor panels"
+			12 : "Copper floor grill"
+			13 : "Copper grill with warning trim"
+			14 : "Rusted diagonal wire mesh"
+			15 : "Beaten diagonal wire mesh"
+			16 : "Bright square wire mesh"
+			17 : "Stained square wire mesh"
+			18 : "Warning pattern wire mesh"
+			19 : "Rusted square wire mesh"
+			20 : "Knave steel strut pattern"
+			22 : "Knave gold strut pattern"
+			24 : "Knave rust strut pattern"
+			26 : "Knave red strut pattern"
+			28 : "Knave blue strut pattern"
+		]
+		
+		mangle(string) : "Angles(overrides angle above)" 
+	]		
+
+//  model(":progs/grill64.spr")
+@PointClass size(-8 -8 -8, 8 8 8) base(Grill, Appearflags) = mapobject_grill64: "64 unit grill mapobject"
+	[
+		frame(choices) : "Frame": 0 =
+		[
+			0 : "Red idbase grill"
+			1 : "Dark idbase grill"
+			2 : "Rusty idbase grill"
+			3 : "Pale idbase grill"
+			4 : "Small vent grid"
+			5 : "Small vent - horizontal bars"
+			6 : "Slimy brown floor grills"
+			7 : "Wizmet medium grid panels"
+			8 : "Wizmet fine grid panels"
+			9 : "Fury square floor panels"
+			10 : "Fury small floor panels"
+			11 : "Copper floor panels"
+			12 : "Copper floor grill"
+			13 : "Copper grill with warning trim"
+			14 : "Rusted diagonal wire mesh"
+			15 : "Beaten diagonal wire mesh"
+			16 : "Bright square wire mesh"
+			17 : "Stained square wire mesh"
+			18 : "Warning pattern wire mesh"
+			19 : "Rusted square wire mesh"
+			20 : "Knave steel strut pattern"
+			21 : "Knave steel pentagram"
+			22 : "Knave gold strut pattern"
+			23 : "Knave gold pentagram"
+			24 : "Knave rust strut pattern"
+			25 : "Knave rust pentagram"
+			26 : "Knave red strut pattern"
+			27 : "Knave red pentagram"
+			28 : "Knave blue strut pattern"
+			29 : "Knave blue pentagram"
+		]
+		mangle(string) : "Angles(overrides angle above)" 
+	]
+
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 40) model(":progs/corpse_imp.mdl" 7 9) = corpse_crucified1 : "Corpse(crucified)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 40) model(":progs/corpse_imp.mdl" 8 10) = corpse_crucified2 : "Corpse(crucified,headless)" []
+
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl") = corpse_lynched1 : "Corpse(lynched,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 1) = corpse_lynched2 : "Corpse(lynched)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 2 1) = corpse_lynched3 : "Corpse(lynched,eaten)" []
+
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl") = corpse_flayed1 : "Corpse(flayed,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 1) = corpse_flayed2 : "Corpse(flayed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 2 2) = corpse_flayed3 : "Corpse(flayed,eaten)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 1 1) = corpse_flayed4 : "Corpse(flayed,broken leg)" []
+
+
+@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl") = corpse_impaled_back1 : "Corpse(impaled in back,clothed)" []
+@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 1) = corpse_impaled_back2 : "Corpse(impaled in back)" []
+@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 2 1) = corpse_impaled_back3 : "Corpse(impaled in back,eaten)" []
+
+
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 0 2) = corpse_impaled_front1 : "Corpse(impaled in front,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 1 2) = corpse_impaled_front2 : "Corpse(impaled in front)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 3 3) = corpse_impaled_front3 : "Corpse(impaled in front,eaten)" []
+
+
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 0 4) =
+	corpse_impaled_horizontal1 : "Corpse(impaled horizontal,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 1 4) =
+	corpse_impaled_horizontal2 : "Corpse(impaled horizontal)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 4 5) =
+	corpse_impaled_horizontal3 : "Corpse(impaled horizontal,nibbled)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 5 6) =
+	corpse_impaled_horizontal4 : "Corpse(impaled horizontal,eaten)" []
+	
+
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 0 7) =
+	corpse_impaled_vertical1 : "Corpse(impaled vertical,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 1 7) =
+	corpse_impaled_vertical2 : "Corpse(impaled vertical)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 16) model(":progs/corpse_imp.mdl" 6 8) =
+	corpse_impaled_vertical3 : "Corpse(impaled vertical,eaten)" []
+
+	
+
+//
+// misc
+//
+
+@PointClass base(Appearflags, Name) = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags, Targetname) =
+	event_lightning : "Chthon's lightning" []
+@PointClass base(Appearflags) = misc_fireball : "Small fireball"
+	[ speed(integer) : "Speed" : 40 ]
+@PointClass size(0 0 0, 32 32 64) model(":maps/b_explob.bsp") = misc_explobox : "Large nuclear container" []
+@PointClass size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp") = misc_explobox2 : "Small nuclear container" []
+@PointClass size(-8 -8 -8, 8 8 8) model(":progs/teleport.mdl") = misc_teleporttrain : "Flying teleporter destination" []
+
+@PointClass size(0 0 0, 32 32 64) model(":progs/b_bio_l.bsp") = misc_biobox : "Large bio-waste container" []
+@PointClass size(0 0 0, 32 32 32) model(":progs/b_bio_s.bsp") = misc_biobox2 : "Small bio-waste container" []
+@PointClass size(0 0 0, 32 32 64) model(":progs/b_plas_l.bsp") = misc_plasmabox : "Large plasma container" []
+@PointClass size(0 0 0, 32 32 32) model(":progs/b_plas_s.bsp") = misc_plasmabox2 : "Small plasma container" []
+
+
+@SolidClass = func_illusionary : "Static model"  
+[
+]
+@PointClass = func_illusionary2 : "Static model"  
+[
+	frame(integer) : "Frame"
+	model(string) : "Model"
+]
+@PointClass base(Targetname) = trap_spikeshooter : "Triggered shooter" 
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Superspike" : 0
+		2 : "Laser" : 0
+	]
+]
+@PointClass base(trap_spikeshooter) = trap_shooter : "Continuous shooter" []
+
+// 
+// ambient sounds
+//
+
+@PointClass = ambient_drip : "Dripping sound" []
+@PointClass = ambient_drone : "Engine/machinery sound" []
+@PointClass = ambient_comp_hum : "Computer background sounds" []
+@PointClass = ambient_flouro_buzz : "Fluorescent buzzing sound" []
+@PointClass = ambient_light_buzz : "Buzzing sound from light" []
+@PointClass = ambient_suck_wind : "Wind sound" []
+@PointClass = ambient_swamp1 : "Frogs croaking" []
+@PointClass = ambient_swamp2 : "Frogs croaking B" []
+@PointClass = ambient_thunder : "Thunder sound" []
+@PointClass = ambient_generalpurpose : "Custom ambient sound" 
+	[
+		noise(string) : "Sound file to play"
+		speed(integer) : "Attenuation of sound" : 0
+		volume(integer) : "Volume (0 - 1)"
+	]
+@PointClass base(Targetname, Appearflags) = play_sound : "Hipnotic sound player"
+	[
+		noise(string) : "Sound file to play"
+		speed(choices) : "Attenuation of sound" : 0 = 
+		[
+			-1 : "No attenuation"
+			1  : "Normal"
+			2  : "Idle"
+			3  : "Static"
+		]
+		volume(integer) : "Volume (0 - 1)"
+		impulse(integer) : "Channel (0 - 7)"
+		wait(integer) : "Random time between sounds" : 20
+		delay(integer) : "Minimum time between sounds" : 2
+	]
+@PointClass base(Targetname, Appearflags) = play_sound_triggered : "Custom sound trigger"
+	[
+		noise(string) : "Sound file to play"
+		speed(integer) : "Attenuation of sound" : 0
+		volume(integer) : "Volume (0 - 1)"
+		impulse(integer) : "Channel"
+		wait(integer) : "Wait before retrigger" : 0
+	]
+
+@BaseClass = Command
+	[
+		spawnflags(Flags) =
+		[
+			2 : "Command only to activator" : 0
+			4 : "Set as 'onload command' on use" : 0
+		]
+	]
+@PointClass base(Appearflags,Targetname, Command) = info_command : "Target-fired command to clients"
+	[
+		message(string) : "Console command(terminate with \n)"
+	]
+@SolidClass base( Appearflags, Command) = trigger_command : "Trigger: Command to clients"
+	[
+		message(string) : "Console command(terminate with \n)"
+	]
+	
+@PointClass base( Appearflags) = info_command_spawn : "Command to clients on spawn"
+	[
+		message(string) : "Console command(terminate with \n)"
+	]
+
+@SolidClass base( Appearflags) = trigger_command_contact : "Trigger: Command on entry"
+	[
+		message(string) : "Console command(terminate with \n)"	
+		spawnflags(Flags) =
+		[
+			4 : "Set as 'onload command' on use" : 0
+		]
+	]
+@PointClass base (Appearflags,Targetname) = info_command_server : "Target-fired command to server"
+	[
+		message(string) : "Console command(terminate with \n)"
+	]
+		
+		
+@PointClass base (Appearflags, Targetname) = info_bomb : "Triggered explosion"[]
+
+// @PointClass base (Appearflags, Targetname) = info_effect_pulse : "Pulses of lights"
+//	[
+//		mangle(string) : "Angles (override)"
+//		speed(integer) : "Speed"
+//		wait(choices) : "Wait between pulses" =
+//		[
+//			-1 : "Does not refire"
+//		]
+//	]
+	
+@baseclass = Spawner 
+[
+	spawnclassname(string) : "Desired classname"
+	spawnfunction(string) : "Desired classname(must match above)"
+	count(integer): "Number of spawns"
+	awake(choices) : "Monster state on spawn" : 0 =
+	[
+		0 : "Idle"
+		1 : "Awake"
+	]
+]
+@PointClass base (Appearflags, Targetname, Spawner) = info_multispawn : "Spawn multiple monsters"
+[
+	wait(integer) : "Wait between spawns"
+]
+
+@PointClass base( Appearflags, Targetname, Spawner) = info_groupspawn : "Spawn monster group"
+[
+	lip(integer) : "Gap between monsters"
+	t_width(integer) : "Width of row"
+]
+
+@PointClass base (Appearflags, Targetname) = info_screenshake : "Earthquake event"
+[
+	ltime(integer) : "Duration of quake"
+	lip(integer) : "Frequency of shaking"
+	height(integer) : "Strength of quake" : 500
+	multiplier(integer) : "Strength multiplier" : 1
+	noise(string) : "Looping sound"
+	noise1(string) : "Ending sound"
+]
+
+
+@PointClass base (Appearflags, Target) = info_endgate : "Info endgate"
+[
+	mapindex(integer) : "Map index"
+	spawnflags(Flags) =
+		[
+			1 : "Inverse logic" : 0
+		]
+]
+@PointClass base (info_endgate) = info_mapgate : "Info mapgate" []
+
+@PointClass base (Appearflags, Targetname, Deathtype) = info_trap
+[
+	preset(choices) : "Preset" : 0 =
+	[
+		0 : "No preset"
+		1 : "Player Rockets"
+		2 : "Player Grenades"
+		3 : "Player Plasma"
+		4 : "Player Nails"
+		5 : "Player Super Nails"
+	]
+	target(string) : "Target to fire towards"
+	modelpath(string) : "Projectile model"
+	wait(integer) : "Wait between shots"
+	delay(integer) : "Delay for first shot" : 0
+	speed(integer) : "Projectile speed" : 600
+	mindamage(integer) : "Minimum projectile damage" : 20
+	maxdamage(integer) : "Maximum projectile damage"
+	dmg(integer) : "Radius of blast" : 0
+	duration(integer) : "Projectile fuse" : 5
+	style(choices) : "Projectile flight" : 0 =
+	[
+		0 : "Flying"
+		1 : "Ballistic (Explode on Impact)" 
+		2 : "Bounce (grenade)"
+	]
+	noise(string) : "Firing sound"
+	noise1(string) : "Impact sound"
+	noise2(string) : "Bounce sound(grenade only)"
+	tracking(choices) : "Projectile tracking" : 0 =
+		[
+			0 : "None"
+			1 : "Vore style"
+			2 : "Death Lord/Rocketeer style"
+		]
+	multiplier(integer) : "Func_breakable damage multiplier"
+	flashlight(choices) : "Projectile glow" : 0 =
+	[
+		0 : "Glow off"
+		1 : "Glow on"
+	]
+]
+
+@PointClass base (Appearflags, Targetname, Deathtype) = trap_lightning_triggered
+[
+	target(string) : "Target to fire towards"
+	duration(string) : "Beam duration" : "0.1" //daft thing doesn't have a sensible number class, so fractions are strings...
+	dmg(integer) : "Damage" : 30
+	noise(string) : "Firing sound"
+	style(choices) : "Beam type" : 0 =
+	[
+		0 : "Thinner beam"
+		1 : "Wider beam"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Boom" : 0
+	]
+]
+
+@baseclass = Breakable [
+	preset(choices): "Preset" : 0 =
+	[
+		0 : "Rock"
+		1 : "Wood"
+		2 : "Flesh"
+		3 : "Machine"
+		4 : "Glass"
+		5 : "Brick(8 unit)"
+		6 : "Brick(16 unit)"
+		7 : "Brick(32 unit)"
+		8 : "Metal"
+		9 : "Circuitboard"
+	]
+	ritem(choices): "Skin(rock.wood.glass.brick.metal)" =
+	[
+		0: "Ochre.Medi.Gray.Wiz.Cr8top"
+		1: "Moss.Driftwood.Dark.Cityochre.Cr8side"
+		2: "Cobalt.Rotten.Bone.Ctyred.panel"
+		3: "Black.Cord.Sepia.Ctycrack.Tech09"
+		4: "Earth.Pine.Brown.Ctygreen.Idbase"
+		5: "Grave.Red_wiz.Ale.IKBlue.Compbrown"
+		6: "Red.Dark_wiz.Bottle.P_blue.Compgrey"
+		7: "Grey.Crate.Green.Red.Sfloor"
+		8: "Rock3_7.=.Sun.Off-grey.Tech red"
+		9: "Rock3_8.=.Gold.Mayan.Speedbase"
+		10: "Mayan.=.Orange.Grey.Mmetal1_8"
+		11: "Knave.=.Blood.Eggshell.Wizmet"
+		12: "Azfloor.=.Crimson.=.Wizmet blue"
+		13: "'crete.=.Blue.=.Wizmet green"
+		14: "Ice. = .Sapphire. = .Dark copper"
+		15: "White. = . = . = .Light copper"
+		16: "=.=.=.=.Metal5_8"
+		17: "=.=.=.=.Metal4_5"
+		18: "=.=.=.=.Metal4_4"
+		19: "=.=.=.=.Metal2_4"
+		20: "=.=.=.=.Mmetal1_1"
+		21: "=.=.=.=.Cop1_3"
+		22: "=.=.=.=.Cop1_6"
+		23: "=.=.=.=.Metal1_2"
+		24: "=.=.=.=.Knave bronze"
+		25: "=.=.=.=.Knave rust"
+		26: "=.=.=.=.Weathered tin"
+		27: "=.=.=.=.Circuits(olive)"
+		28: "=.=.=.=.Circuits(sea-green)"
+	]
+	count(integer) : "Number of fragments"
+	health(integer) : "Health"
+	noise(choices) : "Breaking sound" =
+	[
+		"" : "Preset default"
+		"impact/wood_bk.wav" : "Wood crack"
+		"player/gib.wav" : "Player gib"
+		"impact/mach_bk.wav" : "Machine explosion"
+		"progs/glass.mdl" : "Glass shatter"
+		"impact/rockbrk.wav" : "Rock crumble"
+		"impact/metal_bk.wav" : "Metal shearing"
+	]
+	noise1(choices) : "Bounce sound 1" =
+	[
+		"" : "Preset default"
+		"impact/wood_i1.wav" : "Wood1"
+		"zombie/z_miss.wav" : "Flesh1"
+		"impact/glass_i1.wav" : "Glass1"
+		"impact/rock1.wav" : "Rock1"
+		"impact/metal_i1.wav" : "Metal1"
+	]
+	noise2(choices) : "Bounce sound 2" =
+	[
+		"" : "Preset default"
+		"impact/wood_i2.wav" : "Wood2"
+		"impact/gib_i2.wav": "Flesh2"
+		"impact/glass_i2.wav" : "Glass2"
+		"impact/rock2.wav" : "Rock2"
+		"impact/metal_i2.wav" : "Metal2"
+	]
+	noise3(choices) : "Bounce sound 3" =
+	[
+		"" : "Preset default"
+		"impact/wood_i3.wav" : "Wood3"
+		"impact/gib_i3.wav": "Flesh3"
+		"impact/glass_i3.wav" : "Glass3"
+		"impact/rock3.wav" : "Rock3"
+		"impact/metal_i3.wav" : "Metal3"
+	]
+	noise4(choices) : "Bounce sound 4" =
+	[
+		"" : "Preset default"
+		"impact/wood_i4.wav" : "Wood4"
+		"impact/gib_i4.wav": "Flesh4"
+		"impact/glass_i4.wav" : "Glass4"
+		"impact/rock4.wav" : "Rock4"
+		"impact/metal_i4.wav" : "Metal4"
+	]
+
+	modelpath(string) : "Custom rubble model"
+	rsize(integer) : "Minimum rubble frame"
+	t_width(integer) : "Maximum rubble frame"
+]
+
+
+@SolidClass base(Appearflags, Targetname, Breakable) = func_breakable : "Breakable object"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Explosion on death" : 0
+	]
+]
+
+@PointClass base(Appearflags, Targetname, Breakable) = info_rubble : "Spawn rubble"
+[
+]
+
+
+// 
+// moving things
+//
+
+
+@SolidClass base(Appearflags, Targetname, Target, Deathtype) = func_door : "Basic door" 
+[
+	speed(integer) : "Speed" : 100
+	sounds(choices) : "Sound" : 0 = 
+	[
+		0: "No sounds"
+		1: "Stone"
+		2: "Machine"
+		3: "Stone Chain"
+		4: "Screechy Metal"
+		5: "Custom sounds"
+	]
+	noise2(string) : "Move sound"
+ 	noise1(string) : "Stop sound"
+	wait(string) : "Delay before close" : "4"
+	lip(integer) : "Lip" : 8
+	dmg(integer) : "Damage inflicted when blocked" : 0
+	message(string) : "Message if triggered"
+	health(integer) : "Health (shoot open)" : 0
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+		4 : "Don't link" : 0
+		8 : "Gold Key required" : 0
+        16: "Silver Key required" : 0
+        32: "Toggle" : 0
+	]
+]
+
+@SolidClass base(Appearflags, Targetname, Target) = func_door_secret : "Triggered door" 
+[
+	t_width(integer) : "First move lenght"
+	t_length(integer) : "Second move lenght"
+	dmg(integer) : "Damage when blocked" : 2
+	wait(string) : "Time before close" : "2"
+	sounds(choices) : "Sounds" : 3 =
+	[
+		1: "Medieval"
+		2: "Metal"
+		3: "Base"
+	]
+	message(string) : "Message"
+	spawnflags(flags) = 
+	[
+		1 : "Open once only" : 0
+		2 : "Moves left first" : 0
+		4 : "Moves down first" : 0
+		8 : "Not shootable" : 0
+           16 : "Always shootable" : 0
+	]
+]
+
+@SolidClass base(Targetname, Appearflags) = func_wall : "Wall" []
+
+@SolidClass base(Targetname) = func_button : "Button" 
+[
+	speed(integer) : "Speed" : 40
+	lip(integer) : "Lip" : 4
+	target(target_source) : "Targetted object"
+	health(integer) : "Health (shootable if > 0)"
+	sounds(choices) : "Sounds" = 
+	[
+		0 : "Steam metal"
+		1 : "Wooden clunk"
+		2 : "Metallic clink"
+		3 : "In-out"
+	]
+	wait(string) : "Delay before reset" : "1"
+	delay(string) : "Delay before trigger"
+	message(string) : "Message" 
+]
+
+@SolidClass base(Targetname) = func_dm_only : "Teleporter that appears only in Deathmatch" []
+
+@SolidClass base(Targetname) = func_door_button
+[
+	bind(target_source) : "Name of door to bind to"
+]
+
+@SolidClass = func_group : "Group of brushes, ignored by engine" []
+
+@SolidClass base(Targetname, Deathtype) = func_train : "Moving platform" 
+[
+	sounds(choices) : "Sound" : 1 =
+	[
+		0: "None"
+		1: "Ratchet Metal"
+	]
+	speed(integer) : "Speed (units per second)" : 64
+	target(target_source) : "First stop target"
+	dmg(integer) : "Damage on crush" : 0
+	count(integer) : "Number of clones" : 0
+	spawnflags(Flags) =
+	[
+		1 : "Smooth" : 0
+		2 : "Blockable" : 0
+	]
+]
+
+@PointClass base(Targetname) size(16 16 16) = 
+	path_corner : "Moving platform stop"
+[
+	target(target_source) : "Next stop target"
+	wait(integer) : "Wait" : 0
+	event(target_source) : "Event to fire on arrival"
+	duration(integer) : "Movetime for next motion(if set)"
+	speed(integer) : "Speed for next motion(if set)"
+]
+
+@SolidClass base(Targetname, Deathtype) = func_togglewall : "Toggleable wall" 
+[
+	spawnflags(Flags) =
+	[
+		1 : "Starts off" : 0
+		2 : "Particles" : 0
+		4 : "Monsters ignore" : 0
+	]
+	dmg(integer) : "Contact damage"
+	wait(string) : "Wait between damage" : "0.5"
+	noise(string) : "Toggle off sound"
+	noise1(string) : "Toggle on sound"
+	noise2(string) : "Damage sound"
+	speed(integer) : "Particle speed" : 75
+	style(integer) : "Particle count" : 10
+	color(integer) : "Particle colour"
+	worldtype(choices) : "particle direction" : 0 =
+	[
+		0 : "Up"
+		1 : "Down"
+		2 : "East"
+		3 : "West"
+		4 : "North"
+		5 : "South"
+	]
+	
+]
+
+@SolidClass base(Targetname) = func_particlefield : "Creates a brief particle flash roughly the size of the defining brush each time it is triggered."
+[
+	cnt(integer) 			: "Index number of this func_particlefield"
+	random(integer)			: "Flash each field in the set randomly" : 0
+	color(integer) 			: "Particle color" : 192
+	count(integer) 			: "Particle density" : 2
+	dmg(integer) 			: "Contact damage"
+	noise(string) 			: "Toggle off sound"
+	event(target_source) 	: "Event to trigger"
+]
+
+@SolidClass base(Targetname) = func_plat : "Elevator" 
+[	
+	spawnflags(Flags) =
+	[
+		1 : "Low trigger" : 0
+	]
+	speed(integer) : "Speed" : 150
+	height(integer) : "Travel altitude (can be negative)" : 0
+	sounds(choices) : "Sound group" : 1 =
+	[
+		0: "None"
+		1: "Base fast"
+		2: "Chain Slow"
+	]
+]	
+
+@SolidClass = func_episodegate : "Episode Gate"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Episode 1" : 1
+		2 : "Episode 2" : 0
+		4 : "Episode 3" : 0
+		8 : "Episode 4" : 0
+	]
+]
+
+@SolidClass = func_bossgate : "Boss gate" []
+
+//
+// triggers
+//
+
+@baseclass base(Target, Targetname) = Trigger
+[
+	sounds(choices) : "Sound style" : 0 =
+	[
+		0 : "None"
+		1 : "Secret sound"
+		2 : "Beep beep"
+		3 : "Large switch"
+		4 : "Set message to text string"
+	]
+	delay(string) : "Delay before trigger" : "0"
+	message(string) : "Message (set sound too!)"
+	spawnflags(flags) = [ 2: "Broadcast message" : 0 ]
+	noise(string) : "Custom noise(set sounds 4)"
+]
+
+@SolidClass = trigger_changelevel : "Trigger: Change level"
+[
+	map(string) : "New map name"
+	target(target_destination) : "Target"
+	spawnflags(flags) =
+	[
+		1: "No Intermission" : 0
+	]
+]
+
+@SolidClass base(Trigger) = trigger_once : "Trigger: Activate once"
+[
+	health(integer) : "Health"
+	spawnflags(flags) = [ 1: "Entity only" : 0 ]
+]
+@SolidClass base(Trigger) = trigger_multiple : "Trigger: Activate multiple" 
+[
+	wait(string) : "Wait before reset" : "4"
+	health(integer) : "Health"
+	spawnflags(flags) = [ 1: "Entity only" : 0 ]
+]
+@SolidClass base(Trigger) = trigger_onlyregistered : "Trigger: Registered only" 
+[
+	spawnflags(flags) = [ 1: "Entity only" : 0 ]
+]
+@SolidClass base(Trigger) = trigger_secret : "Trigger: Secret" 
+[
+	sounds(choices) : "Sound style" : 1 =
+	[
+		0 : "None"
+		1 : "Secret sound"
+		2 : "Beep beep"
+		3 : "Large switch"
+		4 : "Set message to text string"
+	]
+	spawnflags(flags) = [ 1: "Entity only" : 0 ]
+]
+
+@SolidClass base(Target, Targetname) = trigger_teleport : "Trigger teleport" 
+[
+	spawnflags(Flags) =
+	[
+		1 : "Player only" : 0
+		2 : "Silent" : 0
+	]
+	onlymonster(choices) : "Limited to monsters?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	notelefrag(choices) : "Wait instead of telefrag?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	state(choices) : "Disable momentum" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+		
+]
+
+// need updates:
+
+@SolidClass = trigger_setskill : "Trigger set skill" 
+[
+	message(choices) : "Skill to change to" : 1 =
+	[
+        0 : "Easy"
+        1 : "Medium"
+        2 : "Hard"
+        3 : "Nightmare!"
+	]
+]
+@PointClass base(Trigger) = trigger_relay : "Trigger relay"
+[
+]
+@SolidClass base(Targetname) = trigger_monsterjump : "Trigger monster jump" 
+[
+	speed(integer) : "Jump Speed" : 200
+	height(integer) : "Jump Height" : 200
+]
+@SolidClass base(trigger_monsterjump) = trigger_drolejump : "Trigger drolejump"[]
+
+@PointClass base(Target, Targetname) = trigger_counter : "Trigger counter" 
+[
+	spawnflags(flags) = 
+	[
+		1: "No Message" : 0 
+		2: "Broadcast message" : 0
+	]
+	count(integer) : "Count before activation" : 2
+]
+@SolidClass base(Targetname) = trigger_push : "Trigger player push"
+[
+	spawnflags(flags) = [ 1: "Once Only" : 0 ]
+	speed(integer) : "Speed of push" : 1000
+]
+@SolidClass  base(Targetname, Deathtype) = trigger_hurt : "Trigger player hurt" 
+[
+	dmg(integer) : "Damage" : 5
+	wait(string) : "Frequency of damage" : "0.2"
+	message(string) : "Message"
+	cnt(integer) : "Count before deactivated"
+]
+@SolidClass base(Target) = trigger_damagethreshold : "Trigger damagethreshold"
+[
+	health(integer) : "Health"
+	spawnflags(flags) = 
+	[
+		1: "Multi Use" : 0 
+		2: "Invisible" : 0
+	]
+]
+@SolidClass = trigger_setgravity : "Trigger setgravity"
+[
+	gravity(integer) : "Gravity"
+]
+
+@SolidClass base(Deathtype) = trigger_void : "Trigger void"[]
+
+@SolidClass = trigger_ladder : "Trigger ladder"
+[
+	noise(string) : "Climbing noise"
+	noise1(string) : "Attach noise"
+]
+
+// Rotating entities
+
+@PointClass base(targetname) = info_rotate : "Info rotate" 
+[]
+
+@SolidClass = rotate_object : "Visible rotating object"
+[
+	target(target_destination) : "Target (an info_rotate)"
+	targetname(target_source) : "Name (for controller)"
+]
+
+@PointClass base(Targetname) = func_rotate_entity : "Simple rotating entity controller" 
+[
+	target(target_destination) : "Target (a rotate_object)"
+	rotate(string) : "Rotate speed (x y z)"
+	speed(string) : "Acceleration time"
+	spawnflags(flags) = 
+	[
+		1: "Toggle" : 0 
+		2: "Starts On" : 0
+	]
+	
+]
+
+@PointClass base(Targetname) = func_rotate_door : "Rotating door controller" 
+[
+	target(target_destination) : "Target (the rotate_object/movewalls)"
+	rotate(string) : "Rotate axes (x y z)"
+	angles(string) : "Rotate distance"
+	speed(string) : "Acceleration time"
+	sounds(choices) : "Sounds" : 3 =
+	[
+		1: "Medieval"
+		2: "Metal"
+		3: "Base"
+	]
+	spawnflags(flags) = 
+	[
+		1: "Stay open" : 0
+	]
+	
+]
+
+@SolidClass = func_movewall : "Func movewall"
+[
+	targetname(target_source) : "Name (to match rotate_object)"
+	spawnflags(flags) = 
+	[
+		1: "Visible" : 0
+		2: "Damage on touch" : 0
+		4: "Non solid" : 0
+	]
+]
+
+@PointClass base(Targetname) = path_rotate : "Rotate train path"
+[
+	spawnflags(flags) = 
+	[
+		1: "Rotation" : 0
+		2: "Angles" : 0
+		4: "Stop" : 0
+		8: "Stop rotate" : 0
+		16: "Damage" : 0
+		32: "Speed sets movetime" : 0
+		64: "Set damage" : 0
+	]
+	target(target_destination) : "Next path_rotate"
+	noise(string) : "Stop sound"
+	noise1(string) : "Start sound"
+	event(target_source) : "Event to trigger"
+	dmg(integer) : "Set train damage(set spawnflag too)"
+	rotate(string) : "Set rotate for next motion"
+	speed(choices) : "Speed(or movetime) for next motion" : 0 =
+	[
+		-1 : "jumps to next waypoints"
+	]
+	message(string) : "Message"
+	angles(string) : "Desired angle at this point"
+	wait(integer) : "Wait" : 0
+]
+
+@PointClass base(Targetname) = func_rotate_train : "Rotating train controller" 
+[
+	target(target_destination) : "Target (the rotate_object/movewalls)"
+	path(target_destination) : "First path entity"
+	speed(string) : "Initial speed"
+	dmg(string) : "Initial damage"
+	sounds(choices) : "Sound" : 1 =
+	[
+		0: "None"
+		1: "Ratchet Metal"
+	]
+	spawnflags(flags) = 
+	[
+		1: "Stay open" : 0
+	]
+	
+]
+
+
+//point versions
+@PointClass base(func_door) = func_door_point []
+@PointClass base(func_door_secret) = func_door_secret_point []
+@PointClass base(func_breakable) = func_breakable_point []
+@PointClass base(func_wall) = func_wall_point []
+@PointClass base(func_button) = func_button_point []
+@PointClass base(func_train) = func_train_point []
+@PointClass base(func_plat) = func_plat_point []
+@PointClass base(func_episodegate) = func_episodegate_point []
+@PointClass base(func_bossgate) = func_bossgate_point []
+@PointClass base(trigger_changelevel) = trigger_changelevel_point []
+@PointClass base(trigger_once) = trigger_once_point []
+@PointClass base(trigger_multiple) = trigger_multiple_point []
+@PointClass base(trigger_onlyregistered) = trigger_onlyregistered_point []
+@PointClass base(trigger_secret) = trigger_secret_point []
+@PointClass base(trigger_teleport) = trigger_teleport_point []
+@PointClass base(trigger_setskill) = trigger_setskill_point []
+@PointClass base(trigger_relay) = trigger_relay_point []
+@PointClass base(trigger_monsterjump) = trigger_monsterjump_point []
+@PointClass base(trigger_counter) = trigger_counter_point []
+@PointClass base(trigger_push) = trigger_push_point []
+@PointClass base(trigger_hurt) = trigger_hurt_point []
+@PointClass base(trigger_damagethreshold) = trigger_damagethreshold_point []
+@PointClass base(trigger_drolejump) = trigger_drolejump_point []
+@PointClass base(trigger_setgravity) = trigger_setgravity_point []
+@PointClass base(trigger_void) = trigger_void_point []
+@PointClass base(trigger_ladder) = trigger_ladder_point []
+@PointClass base(func_door_button) = func_door_button_point []
+@PointClass base(func_togglewall) = func_togglewall_point []
+@PointClass base(rotate_object) = rotate_object_point []
+@PointClass base(func_movewall) = func_movewall_point []
+@PointClass size(16 16 16) = misc_noisemaker : "Debug entity" []
+@PointClass size(16 16 16) = viewthing : "Fake player" []

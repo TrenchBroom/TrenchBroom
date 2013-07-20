@@ -37,7 +37,7 @@ static const StringList EmptyStringList;
 namespace StringUtils {
     struct CaseSensitiveCharCompare {
     public:
-        int operator()(char lhs, char rhs) const {
+        int operator()(const char& lhs, const char& rhs) const {
             return lhs - rhs;
         }
     };
@@ -49,7 +49,7 @@ namespace StringUtils {
         CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
         m_locale(loc) {}
         
-        int operator()(char lhs, char rhs) const {
+        int operator()(const char& lhs, const char& rhs) const {
             return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
         }
     };
@@ -59,7 +59,7 @@ namespace StringUtils {
     private:
         Cmp m_compare;
     public:
-        bool operator()(char lhs, char rhs) const {
+        bool operator()(const char& lhs, const char& rhs) const {
             return m_compare(lhs, rhs) == 0;
         }
     };
@@ -69,7 +69,7 @@ namespace StringUtils {
     private:
         Cmp m_compare;
     public:
-        bool operator()(char lhs, char rhs) const {
+        bool operator()(const char& lhs, const char& rhs) const {
             return m_compare(lhs, rhs) < 0;
         }
     };
@@ -78,15 +78,9 @@ namespace StringUtils {
     struct StringEqual {
     public:
         bool operator()(const String& lhs, const String& rhs) const {
-            typedef String::iterator::difference_type StringDiff;
-
-            String::const_iterator lhsEnd, rhsEnd;
-            const size_t minSize = std::min(lhs.size(), rhs.size());
-            StringDiff difference = static_cast<StringDiff>(minSize);
-            
-            std::advance(lhsEnd = lhs.begin(), difference);
-            std::advance(rhsEnd = rhs.begin(), difference);
-            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharEqual<Cmp>());
+            if (lhs.size() != rhs.size())
+                return false;
+            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), CharEqual<Cmp>());
         }
     };
     
@@ -177,6 +171,16 @@ namespace StringUtils {
     
     inline void sortCaseInsensitive(StringList& strs) {
         std::sort(strs.begin(), strs.end(), StringLess<CaseInsensitiveCharCompare>());
+    }
+    
+    inline bool caseSensitiveEqual(const String& str1, const String& str2) {
+        StringEqual<CaseSensitiveCharCompare> equality;
+        return equality(str1, str2);
+    }
+    
+    inline bool caseInsensitiveEqual(const String& str1, const String& str2) {
+        StringEqual<CaseInsensitiveCharCompare> equality;
+        return equality(str1, str2);
     }
 }
 

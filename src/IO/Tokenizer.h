@@ -219,10 +219,9 @@ namespace TrenchBroom {
             }
             
             void discardWhile(const String& allow) {
-                const char* c;
-                while (!eof() && isAnyOf(*(c = nextChar()), allow));
-                if (!eof())
-                    pushChar();
+                while (!eof() && isAnyOf(peekChar(), allow))
+                    nextChar();
+                // pushChar();
             }
             
             void discardUntil(const String& delims) {

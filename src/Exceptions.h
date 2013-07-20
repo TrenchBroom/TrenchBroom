@@ -52,24 +52,33 @@ namespace TrenchBroom {
     class GeometryException : public Exception {
     public:
         GeometryException() throw() {}
+        GeometryException(const String& str) throw() : Exception(str) {}
         ~GeometryException() throw() {}
     };
             
     class EntityPropertyException : public Exception {
     public:
         EntityPropertyException() throw() {}
+        EntityPropertyException(const String& str) throw() : Exception(str) {}
         ~EntityPropertyException() throw() {}
     };
 
     class ParserException : public Exception {
     public:
         ParserException() throw() {}
+        ParserException(const String& str) throw() : Exception(str) {}
+        ParserException(const size_t line, const size_t column, const String& str) throw() : Exception() {
+            *this << line;
+            *this << column;
+            *this << ": " << str;
+        }
         ~ParserException() throw() {}
     };
             
     class VboException : public Exception {
     public:
         VboException() throw() {}
+        VboException(const String& str) throw() : Exception(str) {}
         ~VboException() throw() {}
     };
             

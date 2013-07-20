@@ -32,6 +32,7 @@ namespace TrenchBroom {
         namespace PropertyKeys {
             extern const PropertyKey Classname;
             extern const PropertyKey Wad;
+            extern const PropertyKey Spawnflags;
         }
         
         namespace PropertyValues {
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue* property(const PropertyKey& key) const;
+            const PropertyValue safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const;
         private:
             EntityProperty::List::const_iterator findProperty(const PropertyKey& key) const;
             EntityProperty::List::iterator findProperty(const PropertyKey& key);

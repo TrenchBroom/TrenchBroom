@@ -102,6 +102,30 @@ namespace VectorUtils {
         return std::find(vec.begin(), vec.end(), item);
     }
     
+    template <typename T, class P>
+    inline T* findIf(const std::vector<T*>& vec, const P& predicate) {
+        typename std::vector<T*>::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+            return NULL;
+        return *it;
+    }
+    
+    template <typename T, class P>
+    inline const std::tr1::shared_ptr<T> findIf(const std::vector<std::tr1::shared_ptr<T> >& vec, const P& predicate) {
+        typename std::vector<std::tr1::shared_ptr<T> >::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+            return std::tr1::shared_ptr<T>();
+        return *it;
+    }
+    
+    template <typename T, class P>
+    inline const T* findIf(const std::vector<T>& vec, const P& predicate) {
+        typename std::vector<T>::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+            return NULL;
+        return &(*it);
+    }
+    
     template <typename T>
     inline bool contains(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item) != vec.end();

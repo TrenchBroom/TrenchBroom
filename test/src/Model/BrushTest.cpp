@@ -125,7 +125,7 @@ namespace TrenchBroom {
             
             Hit hit1 = pickResult1.allHits().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            BrushFace* face1 = hit1.object<BrushFace*>();
+            BrushFace* face1 = hit1.target<BrushFace*>();
             ASSERT_EQ(front, face1);
             
             PickResult pickResult2;

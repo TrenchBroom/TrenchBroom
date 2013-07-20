@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_ModelTypes_h
 #define TrenchBroom_ModelTypes_h
 
+#include "StringUtils.h"
 #include "SharedPointer.h"
+#include <map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -52,6 +54,19 @@ namespace TrenchBroom {
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;
+        
+        class EntityDefinition;
+        typedef std::vector<EntityDefinition*> EntityDefinitionList;
+        
+        class PropertyDefinition;
+        typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;
+        typedef std::vector<PropertyDefinitionPtr> PropertyDefinitionList;
+        typedef std::map<String, PropertyDefinitionPtr> PropertyDefinitionMap;
+        
+        class ModelDefinition;
+        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
+        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
+        static const ModelDefinitionList EmptyModelDefinitionList;
     }
 }
 

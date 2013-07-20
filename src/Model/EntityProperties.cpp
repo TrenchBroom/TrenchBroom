@@ -26,6 +26,7 @@ namespace TrenchBroom {
         namespace PropertyKeys {
             const PropertyKey Classname = "classname";
             const PropertyKey Wad = "wad";
+            const PropertyKey Spawnflags = "spawnflags";
         }
         
         namespace PropertyValues {
@@ -54,6 +55,13 @@ namespace TrenchBroom {
             if (it == m_properties.end())
                 return NULL;
             return &it->value;
+        }
+
+        const PropertyValue EntityProperties::safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const {
+            const PropertyValue* value = property(key);
+            if (value == NULL)
+                return defaultValue;
+            return *value;
         }
 
         EntityProperty::List::const_iterator EntityProperties::findProperty(const PropertyKey& key) const {
