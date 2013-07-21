@@ -626,7 +626,7 @@ namespace TrenchBroom {
                 color[i] = token.toFloat<float>();
             }
             expect(FgdToken::CParenthesis, token = m_tokenizer.nextToken());
-            color[4] = 1.0f;
+            color[3] = 1.0f;
             return color;
         }
     }

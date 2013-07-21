@@ -95,6 +95,7 @@ namespace TrenchBroom {
         MapRenderer::MapRenderer() :
         m_auxVbo(0xFFFFF),
         m_geometryVbo(0xFFFFF),
+        m_entityBoundsVbo(0xFFFFF),
         m_brushRenderer(BrushRenderer::BRUnselected),
         m_selectedBrushRenderer(BrushRenderer::BRSelected) {}
         
@@ -104,6 +105,7 @@ namespace TrenchBroom {
             clearBackground(context);
             renderCoordinateSystem(context);
             renderGeometry(context);
+            renderEntities(context);
         }
 
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
@@ -192,7 +194,18 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.render(context);
         }
 
+        void MapRenderer::renderEntities(RenderContext& context) {
+            SetVboState vboState(m_entityBoundsVbo);
+            if (!m_entityRenderer.boundsValid()) {
+                vboState.mapped();
+                m_entityRenderer.validateBounds(m_entityBoundsVbo);
+            }
+            vboState.active();
+            m_entityRenderer.render(context);
+        }
+
         void MapRenderer::clearState() {
+            m_entityRenderer.clear();
             m_brushRenderer = BrushRenderer(BrushRenderer::BRUnselected);
             m_selectedBrushRenderer = BrushRenderer(BrushRenderer::BRSelected);
         }
@@ -208,6 +221,8 @@ namespace TrenchBroom {
             
             m_brushRenderer.update(m_geometryVbo, buildFaces.unselectedMesh, buildEdges.unselectedVertices);
             m_selectedBrushRenderer.update(m_geometryVbo, buildFaces.selectedMesh, buildEdges.selectedVertices);
+            
+            m_entityRenderer.addEntities(map->entities());
         }
     }
 }

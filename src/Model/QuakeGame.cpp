@@ -20,21 +20,25 @@
 #include "QuakeGame.h"
 
 #include "StringUtils.h"
+#include "IO/DefParser.h"
 #include "IO/FileSystem.h"
+#include "IO/FgdParser.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/WadTextureLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/Map.h"
+#include "View/Logger.h"
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr QuakeGame::newGame(View::Logger* logger) {
-            return GamePtr(new QuakeGame(logger));
+        GamePtr QuakeGame::newGame(const Color& defaultEntityColor, View::Logger* logger) {
+            return GamePtr(new QuakeGame(defaultEntityColor, logger));
         }
 
-        QuakeGame::QuakeGame(View::Logger* logger) :
+        QuakeGame::QuakeGame(const Color& defaultEntityColor, View::Logger* logger) :
+        m_defaultEntityColor(defaultEntityColor),
         m_logger(logger),
         m_palette(palettePath()) {}
         
@@ -53,7 +57,7 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
 
-        IO::Path::List QuakeGame::doExtractTexturePaths(Map* map) const {
+        IO::Path::List QuakeGame::doExtractTexturePaths(const Map* map) const {
             IO::Path::List paths;
             
             Entity* worldspawn = map->worldspawn();
@@ -85,6 +89,52 @@ namespace TrenchBroom {
         void QuakeGame::doUploadTextureCollection(TextureCollection* collection) const {
             IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
+        }
+
+        EntityDefinitionList QuakeGame::doLoadEntityDefinitions(const IO::Path& path) const {
+            const String extension = path.extension();
+            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
+                IO::FileSystem fs;
+                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+                IO::FgdParser parser(file->begin(), file->end(), m_defaultEntityColor);
+                return parser.parseDefinitions();
+            }
+            if (StringUtils::caseInsensitiveEqual("def", extension)) {
+                IO::FileSystem fs;
+                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+                IO::DefParser parser(file->begin(), file->end(), m_defaultEntityColor);
+                return parser.parseDefinitions();
+            }
+            throw GameException("Unknown entity definition format: " + path.asString());
+        }
+
+        IO::Path QuakeGame::doDefaultEntityDefinitionFile() const {
+            IO::FileSystem fs;
+            return fs.resourceDirectory() + IO::Path("quake/Quake.fgd");
+        }
+
+        IO::Path QuakeGame::doExtractEntityDefinitionFile(const Map* map) const {
+            Entity* worldspawn = map->worldspawn();
+            if (worldspawn == NULL)
+                return defaultEntityDefinitionFile();
+            
+            const Model::PropertyValue& defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
+            if (defValue.empty())
+                return defaultEntityDefinitionFile();
+            
+            if (StringUtils::isPrefix(defValue, "external:"))
+                return IO::Path(defValue.substr(9));
+            if (StringUtils::isPrefix(defValue, "builtin:")) {
+                IO::FileSystem fs;
+                return fs.resourceDirectory() + IO::Path(defValue.substr(8));
+            }
+            
+            const IO::Path defPath(defValue);
+            if (defPath.isAbsolute())
+                return defPath;
+
+            IO::FileSystem fs;
+            return fs.resourceDirectory() + defPath;
         }
     }
 }

@@ -31,14 +31,14 @@ namespace TrenchBroom {
         class Map {
         private:
             EntityList m_entities;
-            Entity* m_worldspawn;
+            mutable Entity* m_worldspawn;
         public:
             Map();
             ~Map();
             
             const EntityList& entities() const;
             void addEntity(Entity* entity);
-            Entity* worldspawn();
+            Entity* worldspawn() const;
 
             template <class Operator, class Filter>
             inline void eachObject(const Operator& op, const Filter& filter) {

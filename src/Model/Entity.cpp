@@ -20,6 +20,7 @@
 #include "Entity.h"
 
 #include "CollectionUtils.h"
+#include "Model/EntityDefinition.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -27,14 +28,26 @@ namespace TrenchBroom {
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         
         Entity::Entity() :
-        Object(OTEntity) {}
+        Object(OTEntity),
+        m_definition(NULL) {}
 
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
         }
 
         BBox3 Entity::bounds() const {
-            return BBox3(); // TODO implement this
+            const EntityDefinition* def = definition();
+            if (def != NULL && def->type() == EntityDefinition::PointEntity) {
+                BBox3 bounds = static_cast<const PointEntityDefinition*>(def)->bounds();
+                bounds.translate(origin());
+                return bounds;
+            }
+            if (m_brushes.empty())
+                return BBox3(-8.0, +8.0);
+            BBox3 bounds = m_brushes[0]->bounds();
+            for (size_t i = 1; i < m_brushes.size(); ++i)
+                bounds.mergeWith(m_brushes[i]->bounds());
+            return bounds;
         }
 
         void Entity::pick(const Ray3& ray, PickResult& result) {
@@ -47,6 +60,18 @@ namespace TrenchBroom {
                     result.addHit(hit);
                 }
             }
+        }
+
+        EntityDefinition* Entity::definition() const {
+            return m_definition;
+        }
+        
+        void Entity::setDefinition(EntityDefinition* definition) {
+            if (m_definition != NULL)
+                m_definition->decUsageCount();
+            m_definition = definition;
+            if (m_definition != NULL)
+                m_definition->incUsageCount();
         }
 
         const EntityProperty::List& Entity::properties() const {
@@ -70,6 +95,13 @@ namespace TrenchBroom {
 
         const PropertyValue& Entity::classname(const PropertyValue& defaultClassname) const {
             return property(PropertyKeys::Classname, defaultClassname);
+        }
+
+        Vec3 Entity::origin() const {
+            const PropertyValue* value = m_properties.property(PropertyKeys::Origin);
+            if (value == NULL)
+                return Vec3();
+            return Vec3(*value);
         }
 
         const BrushList& Entity::brushes() const {

@@ -32,12 +32,15 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class EntityDefinition;
+        
         class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
         public:
             static const Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
             
+            EntityDefinition* m_definition;
             EntityProperties m_properties;
             BrushList m_brushes;
             
@@ -48,12 +51,16 @@ namespace TrenchBroom {
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
+            EntityDefinition* definition() const;
+            void setDefinition(EntityDefinition* definition);
+            
             const EntityProperty::List& properties() const;
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
+            Vec3 origin() const;
             
             const BrushList& brushes() const;
             void addBrush(Brush* brush);

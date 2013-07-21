@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/EntityRenderer.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -37,8 +38,10 @@ namespace TrenchBroom {
         private:
             Vbo m_auxVbo;
             Vbo m_geometryVbo;
+            Vbo m_entityBoundsVbo;
             BrushRenderer m_brushRenderer;
             BrushRenderer m_selectedBrushRenderer;
+            EntityRenderer m_entityRenderer;
         public:
             MapRenderer();
             
@@ -51,6 +54,7 @@ namespace TrenchBroom {
             void clearBackground(RenderContext& context);
             void renderCoordinateSystem(RenderContext& context);
             void renderGeometry(RenderContext& context);
+            void renderEntities(RenderContext& context);
             void clearState();
             void loadMap(Model::Map* map);
         };

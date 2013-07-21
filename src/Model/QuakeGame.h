@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__QuakeGame__
 #define __TrenchBroom__QuakeGame__
 
+#include "Color.h"
 #include "Model/Game.h"
 #include "Model/ModelTypes.h"
 #include "Model/Palette.h"
@@ -33,19 +34,23 @@ namespace TrenchBroom {
     namespace Model {
         class QuakeGame : public Game {
         private:
+            Color m_defaultEntityColor;
             View::Logger* m_logger;
             Model::Palette m_palette;
         public:
-            static GamePtr newGame(View::Logger* logger = NULL);
+            static GamePtr newGame(const Color& defaultEntityColor, View::Logger* logger = NULL);
         private:
-            QuakeGame(View::Logger* logger);
+            QuakeGame(const Color& defaultEntityColor, View::Logger* logger);
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
             
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            IO::Path::List doExtractTexturePaths(Map* map) const;
+            IO::Path::List doExtractTexturePaths(const Map* map) const;
             TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
             void doUploadTextureCollection(TextureCollection* collection) const;
+            EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
+            IO::Path doDefaultEntityDefinitionFile() const;
+            IO::Path doExtractEntityDefinitionFile(const Map* map) const;
         };
     }
 }

@@ -358,6 +358,46 @@ public:
      */
 };
 
+template <typename T, class Op>
+inline void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
+    const Vec<T,3> size = bbox.size();
+    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    
+    Vec<T,3> v1, v2;
+    
+    // top edges clockwise (viewed from above)
+    v1 = bbox.max; v2 = bbox.max - y;
+    op(v1, v2);
+    v1 = v2; v2 -= x;
+    op(v1, v2);
+    v1 = v2; v2 += y;
+    op(v1, v2);
+    v1 = v2; v2 += x;
+    op(v1, v2);
+    
+    // bottom edges clockwise (viewed from below)
+    v1 = bbox.min; v2 = bbox.min + x;
+    op(v1, v2);
+    v1 = v2; v2 += y;
+    op(v1, v2);
+    v1 = v2; v2 -= x;
+    op(v1, v2);
+    v1 = v2; v2 -= y;
+    op(v1, v2);
+    
+    // side edges clockwise (viewed from above
+    v1 = bbox.min; v2 = bbox.min + z;
+    op(v1, v2);
+    v1 += y; v2 += y;
+    op(v1, v2);
+    v1 += x; v2 += x;
+    op(v1, v2);
+    v1 -= y; v2 -= y;
+    op(v1, v2);
+}
+
 typedef BBox<float,3> BBox3f;
 typedef BBox<double,3> BBox3d;
 

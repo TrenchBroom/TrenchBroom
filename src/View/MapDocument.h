@@ -26,6 +26,7 @@
 #include "StringUtils.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
+#include "Model/EntityDefinitionManager.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
 #include "Model/Selection.h"
@@ -48,6 +49,7 @@ namespace TrenchBroom {
             Model::GamePtr m_game;
             Model::Map* m_map;
             Model::Selection m_selection;
+            Model::EntityDefinitionManager m_entityDefinitionManager;
             Model::TextureManager m_textureManager;
             Model::Picker m_picker;
             
@@ -96,9 +98,14 @@ namespace TrenchBroom {
         private:
             MapDocument();
             
+            void loadAndUpdateEntityDefinitions();
+            void loadEntityDefinitions();
+            void updateEntityDefinitions();
+
             void loadAndUpdateTextures();
             void loadTextures();
             void updateTextures();
+            
             void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);
         };

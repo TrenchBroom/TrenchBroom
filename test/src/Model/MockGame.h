@@ -41,9 +41,12 @@ namespace TrenchBroom {
             static MockGamePtr newGame();
 
             MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
-            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(Map*));
+            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(const Map*));
             MOCK_CONST_METHOD1(doLoadTextureCollection, TextureCollection*(const IO::Path&));
             MOCK_CONST_METHOD1(doUploadTextureCollection, void(TextureCollection*));
+            MOCK_CONST_METHOD1(doLoadEntityDefinitions, EntityDefinitionList(const IO::Path&));
+            MOCK_CONST_METHOD0(doDefaultEntityDefinitionFile, IO::Path());
+            MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, IO::Path(const Map* map));
         };
         
     }

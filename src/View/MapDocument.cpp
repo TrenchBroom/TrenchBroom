@@ -33,6 +33,19 @@
 
 namespace TrenchBroom {
     namespace View {
+        class SetEntityDefinition {
+        private:
+            Model::EntityDefinitionManager& m_definitionManager;
+        public:
+            SetEntityDefinition(Model::EntityDefinitionManager& definitionManager) :
+            m_definitionManager(definitionManager) {}
+            
+            inline void operator()(Model::Entity* entity) const {
+                Model::EntityDefinition* definition = m_definitionManager.definition(entity);
+                entity->setDefinition(definition);
+            }
+        };
+        
         class SetFaceTexture {
         private:
             Model::TextureManager& m_textureManager;
@@ -46,7 +59,7 @@ namespace TrenchBroom {
                 face->setTexture(texture);
             }
         };
-
+        
         class AddToPicker {
         private:
             Model::Picker& m_picker;
@@ -129,11 +142,13 @@ namespace TrenchBroom {
             m_map = new Model::Map();
 
             m_selection = Model::Selection(m_map);
+            m_entityDefinitionManager.clear();
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             
             setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
+            loadAndUpdateEntityDefinitions();
         }
         
         void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
@@ -146,12 +161,14 @@ namespace TrenchBroom {
             m_map = m_game->loadMap(worldBounds, path);
             
             m_selection = Model::Selection(m_map);
+            m_entityDefinitionManager.clear();
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
             
             setDocumentPath(path);
             clearModificationCount();
+            loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
         }
 
@@ -227,6 +244,21 @@ namespace TrenchBroom {
         m_picker(m_worldBounds),
         m_modificationCount(0) {}
         
+        void MapDocument::loadAndUpdateEntityDefinitions() {
+            loadEntityDefinitions();
+            updateEntityDefinitions();
+        }
+        
+        void MapDocument::loadEntityDefinitions() {
+            const IO::Path path = m_game->extractEntityDefinitionFile(m_map);
+            m_entityDefinitionManager.loadDefinitions(m_game, path);
+            info("Loaded entity definition file " + path.asString());
+        }
+        
+        void MapDocument::updateEntityDefinitions() {
+            m_map->eachEntity(SetEntityDefinition(m_entityDefinitionManager), MatchAllFilter());
+        }
+
         void MapDocument::loadAndUpdateTextures() {
             loadTextures();
             updateTextures();

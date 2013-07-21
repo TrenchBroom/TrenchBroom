@@ -35,6 +35,7 @@ namespace TrenchBroom {
         extern Preference<Color> EdgeColor;
         extern Preference<Color> SelectedEdgeColor;
         extern Preference<Color> OccludedSelectedEdgeColor;
+        extern Preference<Color> UndefinedEntityColor;
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;

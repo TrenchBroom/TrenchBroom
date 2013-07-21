@@ -123,6 +123,13 @@ namespace TrenchBroom {
         OctreeException(const String& str) throw() : Exception(str) {}
         ~OctreeException() throw() {}
     };
+            
+    class GameException : public Exception {
+    public:
+        GameException() throw() {}
+        GameException(const String& str) throw() : Exception(str) {}
+        ~GameException() throw() {}
+    };
 }
 
 #endif

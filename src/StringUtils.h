@@ -165,6 +165,18 @@ namespace StringUtils {
         return result.str();
     }
     
+    inline bool isPrefix(const String& str, const String& prefix) {
+        if (prefix.empty())
+            return true;
+        if (prefix.size() > str.size())
+            return false;
+        
+        for (size_t i = 0; i < prefix.size(); i++)
+            if (prefix[i] != str[i])
+                return false;
+        return true;
+    }
+    
     inline void sortCaseSensitive(StringList& strs) {
         std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
     }

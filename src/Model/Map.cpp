@@ -39,7 +39,7 @@ namespace TrenchBroom {
             m_entities.push_back(entity);
         }
 
-        Entity* Map::worldspawn() {
+        Entity* Map::worldspawn() const {
             if (m_worldspawn == NULL)
                 m_worldspawn = findWorldspawn();
             return m_worldspawn;
