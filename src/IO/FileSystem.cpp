@@ -197,5 +197,57 @@ namespace TrenchBroom {
             return appDirectory() + Path("Resources");
         }
 #endif
+
+#if defined __APPLE__
+        Path FileSystem::findFontFile(const String& fontName) const {
+            const IO::Path fontDirectoryPaths[2] = { IO::Path("/System/Library/Fonts/"), IO::Path("/Library/Fonts/") };
+            const String extensions[2] = {".ttf", ".ttc"};
+            
+            for (size_t i = 0; i < 2; i++) {
+                for (size_t j = 0; j < 2; j++) {
+                    const IO::Path fontPath = fontDirectoryPaths[i] + IO::Path(fontName + extensions[j]);
+                    if (exists(fontPath))
+                        return fontPath;
+                }
+            }
+            
+            return IO::Path("/System/Library/Fonts/LucidaGrande.ttc");
+        }
+#elif defined _WIN32
+        Path FileSystem::findFontFile(const String& fontName) const {
+			TCHAR uWindowsPathC[MAX_PATH] = L"";
+			DWORD numChars = GetWindowsDirectory(uWindowsPathC, MAX_PATH - 1);
+            
+			char windowsPathC[MAX_PATH];
+			WideCharToMultiByte(CP_ACP, 0, uWindowsPathC, numChars, windowsPathC, numChars, NULL, NULL);
+			windowsPathC[numChars] = 0;
+            
+            const IO::Path windowPath(String(windowsPathC));
+            
+			const String extensions[2] = {".ttf", ".ttc"};
+            const IO::Path fontDirectoryPath = windowsPath + IO::Path("Fonts");
+            
+			for (size_t i = 0; i < 2; i++) {
+                const IO::Path fontPath = fontDirectoryPath + IO::Path(fontName + extensions[i]);
+                if (exists(fontPath))
+                    return fontPath;
+			}
+            
+			return fontDirectoryPath + IO::Path("Arial.ttf");
+        }
+#elif define __linux__
+        Path FileSystem::findFontFile(const String& fontName) const {
+            const IO::Path fontDirectoryPath("/usr/share/fonts/truetype/");
+            const String extensions[2] = {".ttf", ".ttc"};
+            
+            for (size_t j = 0; j < 2; j++) {
+                const IO::Path fontPath = fontDirectoryPath + IO::Path(fontName + extensions[j]);
+                if (exists(fontPath))
+                    return fontPath;
+            }
+            
+            return resourceDirectory() + IO::Path("DejaVuSans.ttf");
+        }
+#endif
     }
 }

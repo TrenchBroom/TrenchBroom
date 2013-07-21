@@ -44,6 +44,30 @@ namespace TrenchBroom {
             void loadProjectionMatrix(const Mat4x4f& matrix);
             void loadModelViewMatrix(const Mat4x4f& matrix);
         };
+
+        class ReplaceTransformation {
+        protected:
+            Transformation& m_transformation;
+        public:
+            ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix = Mat4x4f::Identity);
+            ~ReplaceTransformation();
+        };
+        
+        class MultiplyModelMatrix {
+        protected:
+            Transformation& m_transformation;
+        public:
+            MultiplyModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
+            ~MultiplyModelMatrix();
+        };
+        
+        class ReplaceModelMatrix {
+        protected:
+            Transformation& m_transformation;
+        public:
+            ReplaceModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
+            ~ReplaceModelMatrix();
+        };
     }
 }
 

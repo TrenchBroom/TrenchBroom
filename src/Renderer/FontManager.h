@@ -17,32 +17,32 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexArray.h"
+#ifndef __TrenchBroom__FontManager__
+#define __TrenchBroom__FontManager__
 
-#include <cassert>
-#include <limits>
+#include "FreeType.h"
+#include "Renderer/FontDescriptor.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace Renderer {
-        void VertexArray::prepare() {
-            m_holder->setup();
-        }
-
-        void VertexArray::render() {
-            if (m_holder == NULL || m_holder->size() == 0)
-                return;
-
-            m_holder->setup();
-            const size_t primCount = m_indices.size();
-            if (primCount <= 1) {
-                glDrawArrays(m_primType, 0, static_cast<GLsizei>(m_holder->size()));
-            } else {
-                const GLint* indexArray = &m_indices[0];
-                const GLsizei* countArray = &m_counts[0];
-                glMultiDrawArrays(m_primType, indexArray, countArray, static_cast<GLint>(primCount));
-            }
-            m_holder->cleanup();
-        }
-
+        class TextureFont;
+        
+        class FontManager {
+        private:
+            typedef std::map<FontDescriptor, TextureFont*> FontCache;
+            
+            FT_Library m_library;
+            FontCache m_cache;
+        public:
+            FontManager();
+            ~FontManager();
+            
+            TextureFont* font(const FontDescriptor& fontDescriptor);
+            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize);
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__FontManager__) */

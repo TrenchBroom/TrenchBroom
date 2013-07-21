@@ -17,32 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexArray.h"
+#ifndef __TrenchBroom__FontDescriptor__
+#define __TrenchBroom__FontDescriptor__
 
-#include <cassert>
-#include <limits>
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        void VertexArray::prepare() {
-            m_holder->setup();
-        }
-
-        void VertexArray::render() {
-            if (m_holder == NULL || m_holder->size() == 0)
-                return;
-
-            m_holder->setup();
-            const size_t primCount = m_indices.size();
-            if (primCount <= 1) {
-                glDrawArrays(m_primType, 0, static_cast<GLsizei>(m_holder->size()));
-            } else {
-                const GLint* indexArray = &m_indices[0];
-                const GLsizei* countArray = &m_counts[0];
-                glMultiDrawArrays(m_primType, indexArray, countArray, static_cast<GLint>(primCount));
-            }
-            m_holder->cleanup();
-        }
-
+        class FontDescriptor {
+        private:
+            String m_name;
+            size_t m_size;
+            long m_nameHash;
+        public:
+            FontDescriptor(const String& name, const size_t size);
+            
+            int compare(const FontDescriptor& other) const;
+            bool operator< (const FontDescriptor& other) const;
+            
+            long nameHash() const;
+            const String& name() const;
+            size_t size() const;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__FontDescriptor__) */

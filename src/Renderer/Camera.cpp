@@ -114,6 +114,14 @@ namespace TrenchBroom {
             return Ray3f(m_position, direction);
         }
 
+        float Camera::distanceTo(const Vec3f& point) const {
+            return (point - m_position).length();
+        }
+        
+        float Camera::squaredDistanceTo(const Vec3f& point) const {
+            return (point - m_position).squaredLength();
+        }
+
         Vec3f Camera::project(const Vec3f& point) const {
             if (!m_valid)
                 validateMatrices();

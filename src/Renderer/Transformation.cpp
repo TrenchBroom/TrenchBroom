@@ -86,5 +86,32 @@ namespace TrenchBroom {
             glMatrixMode(GL_MODELVIEW);
             glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
         }
+
+        ReplaceTransformation::ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix) :
+        m_transformation(transformation) {
+            m_transformation.pushTransformation(projectionMatrix, viewMatrix, modelMatrix);
+        }
+        
+        ReplaceTransformation::~ReplaceTransformation() {
+            m_transformation.popTransformation();
+        }
+        
+        MultiplyModelMatrix::MultiplyModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix) :
+        m_transformation(transformation) {
+            m_transformation.pushModelMatrix(modelMatrix);
+        }
+        
+        MultiplyModelMatrix::~MultiplyModelMatrix() {
+            m_transformation.popModelMatrix();
+        }
+        
+        ReplaceModelMatrix::ReplaceModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix) :
+        m_transformation(transformation) {
+            m_transformation.replaceAndPushModelMatrix(modelMatrix);
+        }
+        
+        ReplaceModelMatrix::~ReplaceModelMatrix() {
+            m_transformation.popModelMatrix();
+        }
     }
 }

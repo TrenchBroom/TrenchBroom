@@ -170,6 +170,7 @@ namespace TrenchBroom {
                 assert(m_indices == m_counts);
             }
 
+            void prepare();
             void render();
         };
     }

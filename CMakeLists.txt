@@ -53,8 +53,22 @@ FILE(GLOB_RECURSE TEST_SOURCE
 
 # Library configuration
 SET(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
+SET(LIB_BIN_DIR ${LIB_DIR}/bin)
 SET(LIB_INCLUDE_DIR ${LIB_DIR}/include)
 SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
+
+# Configure freetype library
+IF(APPLE)
+	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "./lib/bin/osx" DOC "Freetype library")
+	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "./lib/include" DOC "Freetype includes")
+ELSE()
+	INCLUDE(FindFreetype)
+	IF(NOT FREETYPE_FOUND)
+  		FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype freetype6.dll PATHS "./lib/bin/win32" DOC "Freetype library")
+  		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "./lib/include" DOC "Freetype includes")
+	ENDIF(NOT FREETYPE_FOUND)
+ENDIF()
+INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 
 # Configure gtest library
 SET(LIB_GTEST_SOURCE_DIR "${LIB_SOURCE_DIR}/gtest")
@@ -124,7 +138,7 @@ IF(APPLE)
 ENDIF()
 
 ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${SOURCE})
-TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES} glew)
+TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES} glew ${FREETYPE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 IF(APPLE)
 	# Configure plist file

@@ -22,6 +22,7 @@
 
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/TextRenderer.h"
 
 #include <map>
 
