@@ -227,7 +227,7 @@ namespace TrenchBroom {
             expect(FgdToken::Colon | FgdToken::OBracket, token = m_tokenizer.nextToken());
             if (token.type() == FgdToken::Colon) {
                 expect(FgdToken::String, token = m_tokenizer.nextToken());
-                classInfo.setDescription(token.data());
+                classInfo.setDescription(StringUtils::trim(token.data()));
             } else {
                 m_tokenizer.pushToken(token);
             }

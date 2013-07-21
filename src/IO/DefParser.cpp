@@ -226,7 +226,7 @@ namespace TrenchBroom {
             classInfo.addPropertyDefinitions(properties);
             classInfo.addModelDefinitions(models);
             
-            classInfo.setDescription(parseDescription());
+            classInfo.setDescription(StringUtils::trim(parseDescription()));
             expect(DefToken::CDefinition, token = m_tokenizer.nextToken());
             
             if (classInfo.hasColor()) {

@@ -85,10 +85,10 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::EntityDefinition::BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("\nOnly used for the world entity. "
+            ASSERT_EQ(String("Only used for the world entity. "
                              "Set message to the level name. "
                              "Set sounds to the cd track to play. "
-                             "\"worldtype\"	type of world\n"), definition->description());
+                             "\"worldtype\"	type of world"), definition->description());
             
             const Model::PropertyDefinitionList& properties = definition->propertyDefinitions();
             ASSERT_EQ(1u, properties.size());
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::EntityDefinition::PointEntity, definition->type());
             ASSERT_EQ(String("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
-            ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"), definition->description());
+            ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
             
             Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(definition);
             ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
