@@ -54,7 +54,9 @@ namespace TrenchBroom {
 
         EntityRenderer::EntityRenderer(FontManager& fontManager) :
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
-        m_boundsValid(false) {}
+        m_boundsValid(false) {
+            m_classnameRenderer.setFadeDistance(500.0f);
+        }
         
         EntityRenderer::~EntityRenderer() {
             clear();
@@ -130,7 +132,9 @@ namespace TrenchBroom {
             glResetEdgeOffset();
             
             EntityClassnameFilter textFilter;
-            m_classnameRenderer.render(context, textFilter, Shaders::TextShader, Color(1.0f, 1.0f, 1.0f, 1.0f), Shaders::TextBackgroundShader, Color(0.5f, 0.5, 0.5, 0.5f));
+            m_classnameRenderer.render(context, textFilter,
+                                       Shaders::TextShader, classnameTextColor(),
+                                       Shaders::TextBackgroundShader, classnameBackgroundColor());
         }
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {
@@ -138,6 +142,16 @@ namespace TrenchBroom {
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             const size_t fontSize = static_cast<size_t>(prefs.getInt(Preferences::RendererFontSize));
             return fontManager.font(FontDescriptor(fontName, fontSize));
+        }
+
+        const Color& EntityRenderer::classnameTextColor() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.getColor(Preferences::InfoOverlayTextColor);
+        }
+        
+        const Color& EntityRenderer::classnameBackgroundColor() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.getColor(Preferences::InfoOverlayBackgroundColor);
         }
 
         SingleEntityRenderer* EntityRenderer::createRenderer(const Model::Entity* entity) const {

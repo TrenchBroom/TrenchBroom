@@ -37,6 +37,11 @@ namespace TrenchBroom {
         extern Preference<Color> OccludedSelectedEdgeColor;
         extern Preference<Color> UndefinedEntityColor;
         
+        extern Preference<Color> InfoOverlayTextColor;
+        extern Preference<Color> InfoOverlayBackgroundColor;
+        extern Preference<Color> SelectedInfoOverlayTextColor;
+        extern Preference<Color> SelectedInfoOverlayBackgroundColor;
+        
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
         extern Preference<bool> GridCheckerboard;

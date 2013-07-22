@@ -21,38 +21,43 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        Preference<Color> BackgroundColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> XAxisColor = Preference<Color>("Renderer/Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> YAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
-        Preference<Color> ZAxisColor = Preference<Color>("Renderer/Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
-        Preference<Color> FaceColor = Preference<Color>("Renderer/Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
-        Preference<Color> SelectedFaceColor = Preference<Color>("Renderer/Colors/Selected faces", Color(0.6f,  0.35f, 0.35f, 1.0f));
-        Preference<Color> EdgeColor = Preference<Color>("Renderer/Colors/Edges", Color(0.7f,  0.7f,  0.7f,  1.0f));
-        Preference<Color> SelectedEdgeColor = Preference<Color>("Renderer/Colors/Selected edges", Color(1.0f,  0.0f,  0.0f,  1.0f));
-        Preference<Color> OccludedSelectedEdgeColor = Preference<Color>("Renderer/Colors/Occluded selected edges", Color(1.0f,  0.0f,  0.0f,  0.5f));
-        Preference<Color> UndefinedEntityColor = Preference<Color>("Renderer/Colors/Undefined entity", Color(0.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> XAxisColor("Renderer/Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> YAxisColor("Renderer/Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));
+        Preference<Color> ZAxisColor("Renderer/Colors/Background", Color(0.0f, 0.0f, 1.0f, 1.0f));
+        Preference<Color> FaceColor("Renderer/Colors/Faces", Color(0.2f,  0.2f,  0.2f,  1.0f));
+        Preference<Color> SelectedFaceColor("Renderer/Colors/Selected faces", Color(0.6f,  0.35f, 0.35f, 1.0f));
+        Preference<Color> EdgeColor("Renderer/Colors/Edges", Color(0.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> SelectedEdgeColor("Renderer/Colors/Selected edges", Color(1.0f,  0.0f,  0.0f,  1.0f));
+        Preference<Color> OccludedSelectedEdgeColor("Renderer/Colors/Occluded selected edges", Color(1.0f,  0.0f,  0.0f,  0.5f));
+        Preference<Color> UndefinedEntityColor("Renderer/Colors/Undefined entity", Color(0.7f,  0.7f,  0.7f,  1.0f));
 
-        Preference<float> Brightness = Preference<float>("Renderer/Brightness", 1.0f);
-        Preference<float> GridAlpha = Preference<float>("Renderer/Grid/Alpha", 0.5f);
-        Preference<bool> GridCheckerboard = Preference<bool>("Renderer/Grid/Checkerboard", false);
-        Preference<bool> ShadeFaces = Preference<bool>("Renderer/ShadeFaces", true);
-        Preference<bool> UseFog = Preference<bool>("Renderer/UseFog", false);
+        Preference<Color> InfoOverlayTextColor("Renderer/Colors/Info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> InfoOverlayBackgroundColor("Renderer/Colors/Info overlay background", Color(0.0f, 0.0f, 0.0f, 0.6f));
+        Preference<Color> SelectedInfoOverlayTextColor("Renderer/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> SelectedInfoOverlayBackgroundColor("Renderer/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
+
+        Preference<float> Brightness("Renderer/Brightness", 1.0f);
+        Preference<float> GridAlpha("Renderer/Grid/Alpha", 0.5f);
+        Preference<bool> GridCheckerboard("Renderer/Grid/Checkerboard", false);
+        Preference<bool> ShadeFaces("Renderer/ShadeFaces", true);
+        Preference<bool> UseFog("Renderer/UseFog", false);
         
 #ifdef __APPLE__
-        Preference<String> RendererFontName = Preference<String>("Renderer/Font name", "LucidaGrande");
+        Preference<String> RendererFontName("Renderer/Font name", "LucidaGrande");
 #else
-        Preference<String> RendererFontName = Preference<String>("Renderer/Font name", "Arial");
+        Preference<String> RendererFontName("Renderer/Font name", "Arial");
 #endif
-        Preference<int> RendererFontSize = Preference<int>("Renderer/Font size", 13);
+        Preference<int> RendererFontSize("Renderer/Font size", 13);
 
-        Preference<float> CameraLookSpeed = Preference<float>("Controls/Camera/Look speed", 0.5f);
-        Preference<bool>  CameraLookInvertH = Preference<bool>("Controls/Camera/Invert horizontal look", false);
-        Preference<bool>  CameraLookInvertV = Preference<bool>("Controls/Camera/Invert vertical look", false);
-        Preference<float> CameraPanSpeed = Preference<float>("Controls/Camera/Pan speed", 0.5f);
-        Preference<bool>  CameraPanInvertH = Preference<bool>("Controls/Camera/Invert horizontal pan", false);
-        Preference<bool>  CameraPanInvertV = Preference<bool>("Controls/Camera/Invert vertical pan", false);
-        Preference<float> CameraMoveSpeed = Preference<float>("Controls/Camera/Move speed", 0.3f);
-        Preference<bool> CameraEnableAltMove = Preference<bool>("Controls/Camera/Use alt to move", false);
-        Preference<bool> CameraMoveInCursorDir = Preference<bool>("Controls/Camera/Move camera in cursor dir", false);
+        Preference<float> CameraLookSpeed("Controls/Camera/Look speed", 0.5f);
+        Preference<bool>  CameraLookInvertH("Controls/Camera/Invert horizontal look", false);
+        Preference<bool>  CameraLookInvertV("Controls/Camera/Invert vertical look", false);
+        Preference<float> CameraPanSpeed("Controls/Camera/Pan speed", 0.5f);
+        Preference<bool>  CameraPanInvertH("Controls/Camera/Invert horizontal pan", false);
+        Preference<bool>  CameraPanInvertV("Controls/Camera/Invert vertical pan", false);
+        Preference<float> CameraMoveSpeed("Controls/Camera/Move speed", 0.3f);
+        Preference<bool> CameraEnableAltMove("Controls/Camera/Use alt to move", false);
+        Preference<bool> CameraMoveInCursorDir("Controls/Camera/Move camera in cursor dir", false);
     }
 }

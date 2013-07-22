@@ -73,6 +73,8 @@ namespace TrenchBroom {
             void render(RenderContext& context);
         private:
             static TextureFont& font(FontManager& fontManager);
+            const Color& classnameTextColor() const;
+            const Color& classnameBackgroundColor() const;
             SingleEntityRenderer* createRenderer(const Model::Entity* entity) const;
             void invalidateBounds();
             void validateBounds();
