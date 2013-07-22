@@ -38,6 +38,13 @@ namespace TrenchBroom {
         Preference<bool> ShadeFaces = Preference<bool>("Renderer/ShadeFaces", true);
         Preference<bool> UseFog = Preference<bool>("Renderer/UseFog", false);
         
+#ifdef __APPLE__
+        Preference<String> RendererFontName = Preference<String>("Renderer/Font name", "LucidaGrande");
+#else
+        Preference<String> RendererFontName = Preference<String>("Renderer/Font name", "Arial");
+#endif
+        Preference<int> RendererFontSize = Preference<int>("Renderer/Font size", 13);
+
         Preference<float> CameraLookSpeed = Preference<float>("Controls/Camera/Look speed", 0.5f);
         Preference<bool>  CameraLookInvertH = Preference<bool>("Controls/Camera/Invert horizontal look", false);
         Preference<bool>  CameraLookInvertV = Preference<bool>("Controls/Camera/Invert vertical look", false);

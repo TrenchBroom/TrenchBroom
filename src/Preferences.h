@@ -43,6 +43,9 @@ namespace TrenchBroom {
         extern Preference<bool> ShadeFaces;
         extern Preference<bool> UseFog;
         
+        extern Preference<String> RendererFontName;
+        extern Preference<int> RendererFontSize;
+        
         extern Preference<float> CameraLookSpeed;
         extern Preference<bool> CameraLookInvertH;
         extern Preference<bool> CameraLookInvertV;

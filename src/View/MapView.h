@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
+#include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/ShaderManager.h"
 #include "View/InputState.h"
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             View::MapDocumentPtr m_document;
             Controller::ControllerFacade& m_controller;
             Renderer::Camera m_camera;
+            Renderer::FontManager m_fontManager;
             Renderer::MapRenderer m_renderer;
             Renderer::ShaderManager m_shaderManager;
             

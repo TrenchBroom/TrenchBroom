@@ -93,41 +93,49 @@ namespace TrenchBroom {
             typedef std::vector<GLsizei> CountArray;
         private:
             GLenum m_primType;
+            size_t m_vertexCount;
             BaseHolder::Ptr m_holder;
             IndexArray m_indices;
             CountArray m_counts;
         public:
             explicit VertexArray() :
-            m_primType(GL_INVALID_ENUM) {}
+            m_primType(GL_INVALID_ENUM),
+            m_vertexCount(0) {}
             
             template <typename A1>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))) {}
 
             template <typename A1, typename A2>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))) {}
             
             template <typename A1, typename A2, typename A3>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))) {}
 
             template <typename A1, typename A2, typename A3, typename A4>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))) {}
 
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))) {}
 
             template <typename A1>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
@@ -137,6 +145,7 @@ namespace TrenchBroom {
             template <typename A1, typename A2>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
@@ -146,6 +155,7 @@ namespace TrenchBroom {
             template <typename A1, typename A2, typename A3>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
@@ -155,6 +165,7 @@ namespace TrenchBroom {
             template <typename A1, typename A2, typename A3, typename A4>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
@@ -164,12 +175,15 @@ namespace TrenchBroom {
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
             explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices, const CountArray& counts) :
             m_primType(primType),
+            m_vertexCount(vertices.size()),
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
                 assert(m_indices == m_counts);
             }
 
+            size_t vertexCount() const;
+            
             void prepare();
             void render();
         };

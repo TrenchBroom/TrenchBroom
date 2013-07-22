@@ -21,6 +21,7 @@
 #define __TrenchBroom__EdgeRenderer__
 
 #include "Color.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
 
@@ -29,21 +30,28 @@
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
-        class Vbo;
         
         class EdgeRenderer {
         private:
+            Vbo::Ptr m_vbo;
             VertexArray m_vertexArray;
             Color m_color;
             bool m_useColor;
+            bool m_prepared;
         public:
             EdgeRenderer();
-            EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices);
-            EdgeRenderer(Vbo& vbo, const VertexSpecs::P3C4::Vertex::List& vertices);
+            EdgeRenderer(const VertexSpecs::P3::Vertex::List& vertices);
+            EdgeRenderer(const VertexSpecs::P3C4::Vertex::List& vertices);
+            EdgeRenderer(const EdgeRenderer& other);
+            EdgeRenderer& operator= (EdgeRenderer other);
+            
+            friend void swap(EdgeRenderer& left, EdgeRenderer& right);
 
             void setColor(const Color& color);
             
             void render(RenderContext& context);
+        private:
+            void prepare();
         };
     }
 }

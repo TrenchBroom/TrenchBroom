@@ -20,6 +20,11 @@
 #include "EntityRenderer.h"
 
 #include "CollectionUtils.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
+#include "Model/Entity.h"
+#include "Renderer/FontDescriptor.h"
+#include "Renderer/FontManager.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/SingleEntityRenderer.h"
@@ -29,18 +34,40 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRenderer::EntityRenderer() :
+        EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(const Model::Entity* entity) :
+        m_entity(entity) {}
+        
+        const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
+            Vec3f position = m_entity->bounds().center();
+            position[2] = m_entity->bounds().max.z();
+            position[2] += 2.0f;
+            return position;
+        }
+        
+        const Alignment::Type EntityRenderer::EntityClassnameAnchor::alignment() const {
+            return Alignment::Bottom;
+        }
+
+        bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const Key& entity) const {
+            return true;
+        }
+
+        EntityRenderer::EntityRenderer(FontManager& fontManager) :
+        m_classnameRenderer(ClassnameRenderer(font(fontManager))),
         m_boundsValid(false) {}
         
         EntityRenderer::~EntityRenderer() {
             clear();
         }
         
-        void EntityRenderer::addEntity(const Model::Entity* entity) {
+        void EntityRenderer::addEntity(Model::Entity* entity) {
             assert(entity != NULL);
+
             assert(m_renderers.count(entity) == 0);
             SingleEntityRenderer* renderer = createRenderer(entity);
             m_renderers[entity] = renderer;
+            m_classnameRenderer.addString(entity, entity->classname(), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
+            
             invalidateBounds();
         }
         
@@ -51,7 +78,7 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        void EntityRenderer::updateEntity(const Model::Entity* entity) {
+        void EntityRenderer::updateEntity(Model::Entity* entity) {
             assert(entity != NULL);
             
             Cache::iterator it = m_renderers.find(entity);
@@ -59,6 +86,8 @@ namespace TrenchBroom {
             
             delete it->second;
             it->second = createRenderer(entity);
+            
+            m_classnameRenderer.updateString(entity, entity->classname());
             invalidateBounds();
         }
         
@@ -68,7 +97,7 @@ namespace TrenchBroom {
                 updateEntity(*it);
         }
         
-        void EntityRenderer::removeEntity(const Model::Entity* entity) {
+        void EntityRenderer::removeEntity(Model::Entity* entity) {
             assert(entity != NULL);
             
             Cache::iterator it = m_renderers.find(entity);
@@ -76,6 +105,8 @@ namespace TrenchBroom {
             
             delete it->second;
             m_renderers.erase(it);
+            
+            m_classnameRenderer.removeString(entity);
             invalidateBounds();
         }
         
@@ -90,11 +121,34 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_renderers);
         }
 
-        bool EntityRenderer::boundsValid() const {
-            return m_boundsValid;
+        void EntityRenderer::render(RenderContext& context) {
+            if (!m_boundsValid)
+                validateBounds();
+            
+            glSetEdgeOffset(0.025f);
+            m_boundsRenderer.render(context);
+            glResetEdgeOffset();
+            
+            EntityClassnameFilter textFilter;
+            m_classnameRenderer.render(context, textFilter, Shaders::TextShader, Color(1.0f, 1.0f, 1.0f, 1.0f), Shaders::TextBackgroundShader, Color(0.5f, 0.5, 0.5, 0.5f));
         }
 
-        void EntityRenderer::validateBounds(Vbo& boundsVbo) {
+        TextureFont& EntityRenderer::font(FontManager& fontManager) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const String& fontName = prefs.getString(Preferences::RendererFontName);
+            const size_t fontSize = static_cast<size_t>(prefs.getInt(Preferences::RendererFontSize));
+            return fontManager.font(FontDescriptor(fontName, fontSize));
+        }
+
+        SingleEntityRenderer* EntityRenderer::createRenderer(const Model::Entity* entity) const {
+            return new SingleEntityRenderer(entity);
+        }
+
+        void EntityRenderer::invalidateBounds() {
+            m_boundsValid = false;
+        }
+
+        void EntityRenderer::validateBounds() {
             VertexSpecs::P3C4::Vertex::List vertices;
             vertices.reserve(24 * m_renderers.size());
             
@@ -104,23 +158,8 @@ namespace TrenchBroom {
                 renderer->getBoundsVertices(vertices);
             }
             
-            m_boundsRenderer = EdgeRenderer(boundsVbo, vertices);
+            m_boundsRenderer = EdgeRenderer(vertices);
             m_boundsValid = true;
-        }
-
-        void EntityRenderer::render(RenderContext& context) {
-            assert(m_boundsValid);
-            glSetEdgeOffset(0.025f);
-            m_boundsRenderer.render(context);
-            glResetEdgeOffset();
-        }
-
-        SingleEntityRenderer* EntityRenderer::createRenderer(const Model::Entity* entity) const {
-            return new SingleEntityRenderer(entity);
-        }
-
-        void EntityRenderer::invalidateBounds() {
-            m_boundsValid = false;
         }
     }
 }

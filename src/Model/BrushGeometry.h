@@ -58,6 +58,7 @@ namespace TrenchBroom {
             BrushVertex::List m_vertices;
             BrushEdge::List m_edges;
             BrushFaceGeometry::List m_sides;
+            BBox3 m_bounds;
         public:
             BrushGeometry(const BBox3& worldBounds);
             ~BrushGeometry();
@@ -68,9 +69,10 @@ namespace TrenchBroom {
             const BrushFaceGeometry::List& sides() const;
 
             AddFaceResult addFaces(const BrushFaceList& faces);
-            AddFaceResult addFace(BrushFace* face);
         private:
+            AddFaceResult addFace(BrushFace* face);
             void initializeWithBounds(const BBox3& bounds);
+            void updateBounds();
         };
     }
 }

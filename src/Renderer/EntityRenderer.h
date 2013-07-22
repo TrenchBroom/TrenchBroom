@@ -28,35 +28,54 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontManager;
         class RenderContext;
         class SingleEntityRenderer;
         class Vbo;
-        class VboBlock;
         
         class EntityRenderer {
         private:
-            typedef std::map<const Model::Entity*, SingleEntityRenderer*> Cache;
+            typedef Model::Entity* Key;
+            typedef std::map<Key, SingleEntityRenderer*> Cache;
+            typedef TextRenderer<Key> ClassnameRenderer;
+            
+            class EntityClassnameAnchor : public TextAnchor {
+            private:
+                const Model::Entity* m_entity;
+            protected:
+                inline const Vec3f basePosition() const;
+                inline const Alignment::Type alignment() const;
+            public:
+                EntityClassnameAnchor(const Model::Entity* entity);
+            };
+
+            class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
+            public:
+                bool stringVisible(RenderContext& context, const Key& entity) const;
+            };
+
             Cache m_renderers;
             EdgeRenderer m_boundsRenderer;
+            ClassnameRenderer m_classnameRenderer;
             bool m_boundsValid;
         public:
-            EntityRenderer();
+            EntityRenderer(FontManager& m_fontManager);
             ~EntityRenderer();
 
-            void addEntity(const Model::Entity* entity);
+            void addEntity(Model::Entity* entity);
             void addEntities(const Model::EntityList& entities);
-            void updateEntity(const Model::Entity* entity);
+            void updateEntity(Model::Entity* entity);
             void updateEntities(const Model::EntityList& entities);
-            void removeEntity(const Model::Entity* entity);
+            void removeEntity(Model::Entity* entity);
             void removeEntities(const Model::EntityList& entities);
             void clear();
             
-            bool boundsValid() const;
-            void validateBounds(Vbo& boundsVbo);
             void render(RenderContext& context);
         private:
+            static TextureFont& font(FontManager& fontManager);
             SingleEntityRenderer* createRenderer(const Model::Entity* entity) const;
             void invalidateBounds();
+            void validateBounds();
         };
     }
 }

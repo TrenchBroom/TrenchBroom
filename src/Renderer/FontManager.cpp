@@ -46,10 +46,10 @@ namespace TrenchBroom {
             }
         }
         
-        TextureFont* FontManager::font(const FontDescriptor& fontDescriptor) {
+        TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
             FontCache::iterator it = m_cache.lower_bound(fontDescriptor);
             if (it != m_cache.end() && it->first.compare(fontDescriptor) == 0)
-                return it->second;
+                return *it->second;
             
             IO::FileSystem fs;
             const IO::Path fontPath = fs.findFontFile(fontDescriptor.name());
@@ -68,17 +68,15 @@ namespace TrenchBroom {
             TextureFont* font = new TextureFont(face);
             m_cache.insert(it, std::make_pair(fontDescriptor, font));
             FT_Done_Face(face);
-            return font;
+            return *font;
         }
         
         FontDescriptor FontManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize) {
             FontDescriptor actualDescriptor = fontDescriptor;
-            TextureFont* actualFont = font(actualDescriptor);
-            Vec2f actualBounds = actualFont->measure(string);
+            Vec2f actualBounds = font(actualDescriptor).measure(string);
             while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
                 actualDescriptor = FontDescriptor(actualDescriptor.name(), actualDescriptor.size() - 1);
-                actualFont = font(actualDescriptor);
-                actualBounds = actualFont->measure(string);
+                actualBounds = font(actualDescriptor).measure(string);
             }
             return actualDescriptor;
         }

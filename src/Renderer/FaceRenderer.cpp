@@ -30,11 +30,35 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        FaceRenderer::FaceRenderer() {}
+        FaceRenderer::FaceRenderer() :
+        m_prepared(true) {}
         
-        FaceRenderer::FaceRenderer(Vbo& vbo, const Model::BrushFace::Mesh& mesh, const Color& faceColor) :
-        m_arrays(mesh.triangleSetArrays(vbo)),
-        m_faceColor(faceColor) {}
+        FaceRenderer::FaceRenderer(const Model::BrushFace::Mesh& mesh, const Color& faceColor) :
+        m_vbo(new Vbo(mesh.size())),
+        m_arrays(mesh.triangleSetArrays(*m_vbo)),
+        m_faceColor(faceColor),
+        m_prepared(false) {}
+
+        FaceRenderer::FaceRenderer(const FaceRenderer& other) {
+            m_arrays = other.m_arrays;
+            m_vbo = other.m_vbo;
+            m_faceColor = other.m_faceColor;
+            m_prepared = other.m_prepared;
+        }
+        
+        FaceRenderer& FaceRenderer::operator= (FaceRenderer other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+
+        void swap(FaceRenderer& left, FaceRenderer& right)  {
+            using std::swap;
+            swap(left.m_vbo, right.m_vbo);
+            swap(left.m_arrays, right.m_arrays);
+            swap(left.m_faceColor, right.m_faceColor);
+            swap(left.m_prepared, right.m_prepared);
+        }
 
         void FaceRenderer::render(RenderContext& context, const bool grayScale) {
             render(context, grayScale, NULL);
@@ -45,6 +69,14 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
+            if (m_arrays.empty())
+                return;
+            
+            SetVboState setVboState(*m_vbo);
+            setVboState.active();
+            if (!m_prepared)
+                prepare();
+            
             ShaderManager& shaderManager = context.shaderManager();
             ActiveShader shader(shaderManager, Shaders::FaceShader);
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -101,6 +133,19 @@ namespace TrenchBroom {
                     array.render();
                 }
             }
+        }
+
+        void FaceRenderer::prepare() {
+            assert(!m_prepared);
+            SetVboState setVboState(*m_vbo);
+            setVboState.mapped();
+            
+            VertexArrayMap::iterator it, end;
+            for (it = m_arrays.begin(), end = m_arrays.end(); it != end; ++it) {
+                VertexArray& array = it->second;
+                array.prepare();
+            }
+            m_prepared = true;
         }
     }
 }

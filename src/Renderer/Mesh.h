@@ -59,12 +59,18 @@ namespace TrenchBroom {
             typename TriangleSeriesMap::iterator m_currentStrip;
             
             CurrentTriangleType m_currentType;
+            size_t m_vertexCount;
         public:
             Mesh() :
             m_currentSet(m_triangleSets.end()),
             m_currentFan(m_triangleFans.end()),
             m_currentStrip(m_triangleStrips.end()),
-            m_currentType(Unset) {}
+            m_currentType(Unset),
+            m_vertexCount(0) {}
+            
+            inline const size_t size() const {
+                return m_vertexCount * VertexSpec::Size;
+            }
             
             inline const TriangleSetMap& triangleSets() const {
                 assert(m_currentType == Unset);
@@ -116,12 +122,14 @@ namespace TrenchBroom {
                 m_currentSet->second.push_back(v1);
                 m_currentSet->second.push_back(v2);
                 m_currentSet->second.push_back(v3);
+                m_vertexCount += 3;
             }
             
             inline void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
                 assert(m_currentType == Set);
                 typename VertexSpec::Vertex::List& setVertices = m_currentSet->second;
                 setVertices.insert(setVertices.end(), vertices.begin(), vertices.end());
+                m_vertexCount += vertices.size();
             }
 
             inline void endTriangleSet() {
@@ -141,6 +149,7 @@ namespace TrenchBroom {
             inline void addVertexToFan(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Fan);
                 m_currentFan->second.back().push_back(v);
+                ++m_vertexCount;
             }
             
             inline void endTriangleFan() {
@@ -160,6 +169,7 @@ namespace TrenchBroom {
             inline void addVertexToStrip(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Strip);
                 m_currentStrip->second.back().push_back(v);
+                ++m_vertexCount;
             }
 
             inline void endTriangleStrip() {

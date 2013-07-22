@@ -32,18 +32,18 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class FontManager;
         class RenderContext;
         
         class MapRenderer {
         private:
+            FontManager& m_fontManager;
             Vbo m_auxVbo;
-            Vbo m_geometryVbo;
-            Vbo m_entityBoundsVbo;
             BrushRenderer m_brushRenderer;
             BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_entityRenderer;
         public:
-            MapRenderer();
+            MapRenderer(FontManager& fontManager);
             
             void render(RenderContext& context);
 

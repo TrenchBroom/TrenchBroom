@@ -39,7 +39,7 @@ namespace TrenchBroom {
             FontManager();
             ~FontManager();
             
-            TextureFont* font(const FontDescriptor& fontDescriptor);
+            TextureFont& font(const FontDescriptor& fontDescriptor);
             FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize);
         };
     }

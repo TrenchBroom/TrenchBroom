@@ -38,6 +38,7 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this)),
         m_document(document),
         m_controller(controller),
+        m_renderer(m_fontManager),
         m_cameraTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL) {
@@ -171,6 +172,7 @@ namespace TrenchBroom {
             const wxSize clientSize = GetClientSize();
             const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
             m_camera.setViewport(viewport);
+            event.Skip();
         }
         
         void MapView::commandDo(Controller::Command::Ptr command) {

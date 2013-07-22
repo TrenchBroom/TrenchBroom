@@ -59,6 +59,8 @@ namespace TrenchBroom {
         };
         
         class Vbo {
+        public:
+            typedef std::tr1::shared_ptr<Vbo> Ptr;
         private:
             typedef std::vector<VboBlock*> VboBlockList;
             static const float GrowthFactor;
@@ -108,7 +110,7 @@ namespace TrenchBroom {
             inline size_t writeElement(const size_t address, const T& element) {
                 assert(isMapped());
                 const size_t size = sizeof(T);
-                assert(address + size < m_totalCapacity);
+                assert(address + size <= m_totalCapacity);
                 reinterpret_cast<T>(m_buffer + address) = element;
                 return size;
             }
@@ -117,7 +119,7 @@ namespace TrenchBroom {
             inline size_t writeElements(const size_t address, const std::vector<T>& elements) {
                 assert(isMapped());
                 const size_t size = elements.size() * sizeof(T);
-                assert(address + size < m_totalCapacity);
+                assert(address + size <= m_totalCapacity);
                 
                 typename std::vector<T>::const_iterator it, end;
                 for (it = elements.begin(), end = elements.end(); it != end; ++it)
@@ -129,7 +131,7 @@ namespace TrenchBroom {
             inline size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
                 assert(isMapped());
                 const size_t size = buffer.size() * sizeof(T);
-                assert(address + size < m_totalCapacity);
+                assert(address + size <= m_totalCapacity);
                 
                 const T* ptr = &(buffer[0]);
                 memcpy(m_buffer + address, ptr, size);

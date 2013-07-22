@@ -25,21 +25,56 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EdgeRenderer::EdgeRenderer() {}
+        EdgeRenderer::EdgeRenderer() :
+        m_prepared(true) {}
         
-        EdgeRenderer::EdgeRenderer(Vbo& vbo, const VertexSpecs::P3::Vertex::List& vertices) :
-        m_vertexArray(vbo, GL_LINES, vertices),
-        m_useColor(true) {}
+        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3::Vertex::List& vertices) :
+        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
+        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_useColor(true),
+        m_prepared(false) {}
         
-        EdgeRenderer::EdgeRenderer(Vbo& vbo, const VertexSpecs::P3C4::Vertex::List& vertices) :
-        m_vertexArray(vbo, GL_LINES, vertices),
-        m_useColor(false) {}
+        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3C4::Vertex::List& vertices) :
+        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
+        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_useColor(false),
+        m_prepared(false)  {}
         
+        EdgeRenderer::EdgeRenderer(const EdgeRenderer& other) {
+            m_vertexArray = other.m_vertexArray;
+            m_vbo = other.m_vbo;
+            m_color = other.m_color;
+            m_useColor = other.m_useColor;
+            m_prepared = other.m_prepared;
+        }
+        
+        EdgeRenderer& EdgeRenderer::operator= (EdgeRenderer other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+        
+        void swap(EdgeRenderer& left, EdgeRenderer& right) {
+            using std::swap;
+            swap(left.m_vbo, right.m_vbo);
+            swap(left.m_vertexArray, right.m_vertexArray);
+            swap(left.m_color, right.m_color);
+            swap(left.m_useColor, right.m_useColor);
+            swap(left.m_prepared, right.m_prepared);
+        }
+
         void EdgeRenderer::setColor(const Color& color) {
             m_color = color;
         }
 
         void EdgeRenderer::render(RenderContext& context) {
+            if (m_vertexArray.vertexCount() == 0)
+                return;
+            
+            SetVboState setVboState(*m_vbo);
+            setVboState.active();
+            if (!m_prepared)
+                prepare();
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::EdgeShader);
                 shader.set("Color", m_color);
@@ -48,6 +83,14 @@ namespace TrenchBroom {
                 ActiveShader shader(context.shaderManager(), Shaders::ColoredEdgeShader);
                 m_vertexArray.render();
             }
+        }
+        
+        void EdgeRenderer::prepare() {
+            assert(!m_prepared);
+            SetVboState setVboState(*m_vbo);
+            setVboState.mapped();
+            m_vertexArray.prepare();
+            m_prepared = true;
         }
     }
 }

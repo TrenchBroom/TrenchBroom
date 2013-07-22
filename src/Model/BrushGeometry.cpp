@@ -27,7 +27,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushGeometry::BrushGeometry(const BBox3& worldBounds) {
+        BrushGeometry::BrushGeometry(const BBox3& worldBounds) :
+        m_bounds(worldBounds) {
             initializeWithBounds(worldBounds);
         }
 
@@ -38,11 +39,7 @@ namespace TrenchBroom {
         }
 
         BBox3 BrushGeometry::bounds() const {
-            assert(m_vertices.size() > 0);
-            BBox3 bounds(m_vertices[0]->position(), m_vertices[0]->position());
-            for (size_t i = 1; i < m_vertices.size(); ++i)
-                bounds.mergeWith(m_vertices[i]->position());
-            return bounds;
+            return m_bounds;
         }
 
         const BrushVertex::List& BrushGeometry::vertices() const {
@@ -69,6 +66,7 @@ namespace TrenchBroom {
                 totalResult.append(result);
             }
             
+            updateBounds();
             return totalResult;
         }
         
@@ -188,6 +186,13 @@ namespace TrenchBroom {
             assert(back->isClosed());
             assert(left->isClosed());
             assert(right->isClosed());
+        }
+
+        void BrushGeometry::updateBounds() {
+            assert(m_vertices.size() > 0);
+            m_bounds = BBox3(m_vertices[0]->position(), m_vertices[0]->position());
+            for (size_t i = 1; i < m_vertices.size(); ++i)
+                m_bounds.mergeWith(m_vertices[i]->position());
         }
     }
 }

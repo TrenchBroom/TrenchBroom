@@ -41,8 +41,8 @@ namespace TrenchBroom {
         public:
             BrushRenderer(const Config config);
             
-            void update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
-            void update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
+            void update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
+            void update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
             
             void render(RenderContext& context);
         private:

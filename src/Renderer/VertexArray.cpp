@@ -24,6 +24,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        size_t VertexArray::vertexCount() const {
+            return m_vertexCount;
+        }
+
         void VertexArray::prepare() {
             m_holder->setup();
         }

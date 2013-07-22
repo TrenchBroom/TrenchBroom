@@ -47,7 +47,7 @@ namespace TrenchBroom {
         };
         
         template <typename A1>
-        const size_t VertexSpec1<A1>::Size = A1::Size;
+        const size_t VertexSpec1<A1>::Size = sizeof(VertexSpec1<A1>::Vertex);
 
         template <typename A1, typename A2>
         class VertexSpec2 {
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         };
         
         template <typename A1, typename A2>
-        const size_t VertexSpec2<A1, A2>::Size = A1::Size + A2::Size;
+        const size_t VertexSpec2<A1, A2>::Size = sizeof(VertexSpec2<A1, A2>::Vertex);
 
         template <typename A1, typename A2, typename A3>
         class VertexSpec3 {
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         };
         
         template <typename A1, typename A2, typename A3>
-        const size_t VertexSpec3<A1, A2, A3>::Size = A1::Size + A2::Size + A3::Size;
+        const size_t VertexSpec3<A1, A2, A3>::Size = sizeof(VertexSpec3<A1, A2, A3>::Vertex);
 
         template <typename A1, typename A2, typename A3, typename A4>
         class VertexSpec4 {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         };
         
         template <typename A1, typename A2, typename A3, typename A4>
-        const size_t VertexSpec4<A1, A2, A3, A4>::Size = A1::Size + A2::Size + A3::Size + A4::Size;
+        const size_t VertexSpec4<A1, A2, A3, A4>::Size = sizeof(VertexSpec4<A1, A2, A3, A4>::Vertex);
 
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
         class VertexSpec5 {
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         };
         
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
-        const size_t VertexSpec5<A1, A2, A3, A4, A5>::Size = A1::Size + A2::Size + A3::Size + A4::Size + A5::Size;
+        const size_t VertexSpec5<A1, A2, A3, A4, A5>::Size = sizeof(VertexSpec5<A1, A2, A3, A4, A5>::Vertex);
 
         namespace VertexSpecs {
             typedef VertexSpec1<AttributeSpecs::P3> P3;

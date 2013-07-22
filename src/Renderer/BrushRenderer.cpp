@@ -28,14 +28,14 @@ namespace TrenchBroom {
         BrushRenderer::BrushRenderer(const Config config) :
         m_config(config) {}
 
-        void BrushRenderer::update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges) {
-            m_faceRenderer = FaceRenderer(vbo, faces, faceColor());
-            m_edgeRenderer = EdgeRenderer(vbo, edges);
+        void BrushRenderer::update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges) {
+            m_faceRenderer = FaceRenderer(faces, faceColor());
+            m_edgeRenderer = EdgeRenderer(edges);
         }
         
-        void BrushRenderer::update(Vbo& vbo, const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges) {
-            m_faceRenderer = FaceRenderer(vbo, faces, faceColor());
-            m_edgeRenderer = EdgeRenderer(vbo, edges);
+        void BrushRenderer::update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges) {
+            m_faceRenderer = FaceRenderer(faces, faceColor());
+            m_edgeRenderer = EdgeRenderer(edges);
         }
         
         void BrushRenderer::render(RenderContext& context) {

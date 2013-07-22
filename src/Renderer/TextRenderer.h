@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Vertex.h"
@@ -166,39 +167,13 @@ namespace TrenchBroom {
             
             TextMap m_entries;
             Vbo m_vbo;
-            
-            inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
-                removeString(key);
-                m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
-            }
-            
-            EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) {
-                float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
-                EntryList result;
-                
-                typename TextMap::iterator it, end;
-                for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
-                    Key key = it->first;
-                    if (filter.stringVisible(context, key)) {
-                        const TextEntry& entry = it->second;
-                        const TextAnchor& anchor = entry.textAnchor();
-                        const Vec3f position = anchor.position();
-                        
-                        const float dist2 = context.camera().squaredDistanceTo(position);
-                        if (dist2 <= cutoff)
-                            result.push_back(entry);
-                    }
-                }
-                
-                return result;
-            }
         public:
             TextRenderer(TextureFont& font) :
             m_font(font),
             m_fadeDistance(100.0f),
             m_hInset(4.0f),
             m_vInset(4.0f),
-            m_vbo(GL_ARRAY_BUFFER, 0xFFFF) {}
+            m_vbo(0xFFFF) {}
             
             ~TextRenderer() {
                 clear();
@@ -221,7 +196,9 @@ namespace TrenchBroom {
                 typename TextMap::iterator it = m_entries.find(key);
                 if (it != m_entries.end()) {
                     TextEntry& entry = it->second;
-                    entry.setVertices(m_font.quads(string, true));
+                    const Vec2f::List vertices = m_font.quads(string, true);
+                    const Vec2f size = m_font.measure(string);
+                    entry.update(vertices, size);
                 }
             }
             
@@ -261,9 +238,6 @@ namespace TrenchBroom {
                 RectVertex::List rectVertices;
                 rectVertices.reserve( 3 * 16 * entries.size());
                 
-                Vec2f::List tempRect;
-                tempRect.reserve(3 * 16);
-                
                 typename EntryList::const_iterator it, end;
                 for (it = entries.begin(), end = entries.end(); it != end; ++it) {
                     const TextEntry& entry = *it;
@@ -272,14 +246,17 @@ namespace TrenchBroom {
                     const Vec3f offset = anchor.offset(context.camera(), size);
                     
                     const Vec2f::List& textVertices = entry.vertices();
-                    for (size_t j = 0; j < textVertices.size() / 2; j++) {
-                        const Vec2f& position = textVertices[2 * j];
+                    for (size_t j = 0; j < textVertices.size() / 2; ++j) {
+                        const Vec2f& position2 = textVertices[2 * j];
                         const Vec2f& texCoords = textVertices[2 * j + 1];
-                        fontVertices.push_back(FontVertex(position, texCoords));
+                        const Vec3f position3(position2.x() + offset.x(),
+                                              position2.y() + offset.y(),
+                                              -offset.z());
+                        fontVertices.push_back(FontVertex(position3, texCoords));
                     }
-                    
-                    roundedRect(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3, tempRect);
-                    for (size_t j = 0; j < tempRect.size(); j++) {
+
+                    const Vec2f::List tempRect = roundedRect(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
+                    for (size_t j = 0; j < tempRect.size(); ++j) {
                         const Vec2f& vertex = tempRect[j];
                         const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,
                                                      vertex.y() + offset.y() + size.y() / 2.0f,
@@ -289,7 +266,6 @@ namespace TrenchBroom {
                 }
                 
                 const Camera::Viewport& viewport = context.camera().viewport();
-                
                 const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
                                                        static_cast<float>(viewport.x),
                                                        static_cast<float>(viewport.height),
@@ -308,11 +284,13 @@ namespace TrenchBroom {
                 vboState.active();
                 
                 glDepthMask(GL_FALSE);
+                glDisable(GL_TEXTURE_2D);
                 
                 ActiveShader backgroundShader(context.shaderManager(), backgroundProgram);
                 backgroundShader.set("Color", backgroundColor);
                 rectArray.render();
                 
+                glEnable(GL_TEXTURE_2D);
                 ActiveShader textShader(context.shaderManager(), textProgram);
                 textShader.set("Color", textColor);
                 textShader.set("Texture", 0);
@@ -321,6 +299,32 @@ namespace TrenchBroom {
                 m_font.deactivate();
                 
                 glDepthMask(GL_TRUE);
+            }
+        private:
+            inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
+                removeString(key);
+                m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
+            }
+            
+            EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) {
+                float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+                EntryList result;
+                
+                typename TextMap::iterator it, end;
+                for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+                    Key key = it->first;
+                    if (filter.stringVisible(context, key)) {
+                        const TextEntry& entry = it->second;
+                        const TextAnchor& anchor = entry.textAnchor();
+                        const Vec3f position = anchor.position();
+                        
+                        const float dist2 = context.camera().squaredDistanceTo(position);
+                        if (dist2 <= cutoff)
+                            result.push_back(entry);
+                    }
+                }
+                
+                return result;
             }
         };
     }
