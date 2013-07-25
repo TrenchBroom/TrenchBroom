@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
+#include "Assets/AssetTypes.h"
 #include "Model/Brush.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
@@ -32,15 +33,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityDefinition;
-        
         class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
         public:
             static const Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
             
-            EntityDefinition* m_definition;
+            Assets::EntityDefinition* m_definition;
             EntityProperties m_properties;
             BrushList m_brushes;
             
@@ -51,8 +50,8 @@ namespace TrenchBroom {
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
-            EntityDefinition* definition() const;
-            void setDefinition(EntityDefinition* definition);
+            Assets::EntityDefinition* definition() const;
+            void setDefinition(Assets::EntityDefinition* definition);
             
             const EntityProperty::List& properties() const;
             bool hasProperty(const PropertyKey& key) const;

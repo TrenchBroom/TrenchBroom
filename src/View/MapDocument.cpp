@@ -35,27 +35,27 @@ namespace TrenchBroom {
     namespace View {
         class SetEntityDefinition {
         private:
-            Model::EntityDefinitionManager& m_definitionManager;
+            Assets::EntityDefinitionManager& m_definitionManager;
         public:
-            SetEntityDefinition(Model::EntityDefinitionManager& definitionManager) :
+            SetEntityDefinition(Assets::EntityDefinitionManager& definitionManager) :
             m_definitionManager(definitionManager) {}
             
             inline void operator()(Model::Entity* entity) const {
-                Model::EntityDefinition* definition = m_definitionManager.definition(entity);
+                Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
                 entity->setDefinition(definition);
             }
         };
         
         class SetFaceTexture {
         private:
-            Model::TextureManager& m_textureManager;
+            Assets::TextureManager& m_textureManager;
         public:
-            SetFaceTexture(Model::TextureManager& textureManager) :
+            SetFaceTexture(Assets::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
             inline void operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
-                Model::Texture* texture = m_textureManager.texture(textureName);
+                Assets::Texture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };

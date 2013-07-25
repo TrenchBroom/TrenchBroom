@@ -22,12 +22,12 @@
 
 #include "StringUtils.h"
 #include "IO/Path.h"
-#include "Model/ModelTypes.h"
+#include "Assets/AssetTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         class TextureCollection {
         private:
             IO::Path m_path;

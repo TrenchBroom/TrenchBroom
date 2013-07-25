@@ -22,7 +22,7 @@
 #include "GL/GL.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Model/Texture.h"
+#include "Assets/Texture.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderProgram.h"
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         void FaceRenderer::renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture) {
             VertexArrayMap::iterator it, end;
             for (it = arrays.begin(), end = arrays.end(); it != end; ++it) {
-                Model::Texture* texture = it->first;
+                Assets::Texture* texture = it->first;
                 VertexArray& array = it->second;
                 
                 if (texture != NULL) {

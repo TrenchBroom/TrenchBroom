@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityDefinitionManager__
 #define __TrenchBroom__EntityDefinitionManager__
 
+#include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
 
 #include <map>
@@ -29,7 +30,7 @@ namespace TrenchBroom {
         class Path;
     }
     
-    namespace Model {
+    namespace Assets {
         class EntityDefinitionManager {
         private:
             typedef std::map<String, EntityDefinition*> Cache;
@@ -39,11 +40,11 @@ namespace TrenchBroom {
         public:
             ~EntityDefinitionManager();
 
-            void loadDefinitions(GamePtr game, const IO::Path& path);
+            void loadDefinitions(Model::GamePtr game, const IO::Path& path);
             void clear();
             
-            EntityDefinition* definition(const Entity* entity) const;
-            EntityDefinition* definition(const String& classname) const;
+            EntityDefinition* definition(const Model::Entity* entity) const;
+            EntityDefinition* definition(const Model::PropertyValue& classname) const;
         private:
             void updateCache();
             void clearCache();

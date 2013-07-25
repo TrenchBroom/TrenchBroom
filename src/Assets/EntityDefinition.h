@@ -24,12 +24,12 @@
 #include "VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
-#include "Model/ModelTypes.h"
+#include "Assets/AssetTypes.h"
 #include "Model/EntityProperties.h"
-#include "Model/ModelDefinition.h"
+#include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         class PropertyDefinition;
         class FlagsPropertyDefinition;
         
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             
             const FlagsPropertyDefinition* spawnflags() const;
             const PropertyDefinitionList& propertyDefinitions() const;
-            const PropertyDefinition* propertyDefinition(const PropertyKey& propertyKey) const;
+            const PropertyDefinition* propertyDefinition(const Model::PropertyKey& propertyKey) const;
         protected:
             EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions);
         };
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             Type type() const;
             const BBox3& bounds() const;
-            ModelSpecification model(const EntityProperties& properties) const;
+            ModelSpecification model(const Model::EntityProperties& properties) const;
             const ModelDefinitionList& modelDefinitions() const;
         };
     

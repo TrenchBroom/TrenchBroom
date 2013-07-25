@@ -21,14 +21,12 @@
 #define __TrenchBroom__EntityProperties__
 
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        typedef String PropertyKey;
-        typedef String PropertyValue;
-        
         namespace PropertyKeys {
             extern const PropertyKey Classname;
             extern const PropertyKey Origin;

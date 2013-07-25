@@ -20,13 +20,13 @@
 #include "EntityDefinition.h"
 
 #include "CollectionUtils.h"
-#include "Model/PropertyDefinition.h"
+#include "Assets/PropertyDefinition.h"
 
 #include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         EntityDefinition::~EntityDefinition() {}
         
         const String& EntityDefinition::name() const {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         struct FindSpawnflagsDefinition {
             inline bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
                 return (propertyDefinition->type() == PropertyDefinition::FlagsProperty &&
-                        propertyDefinition->name() == PropertyKeys::Spawnflags);
+                        propertyDefinition->name() == Model::PropertyKeys::Spawnflags);
             }
         };
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return m_propertyDefinitions;
         }
 
-        const PropertyDefinition* EntityDefinition::propertyDefinition(const PropertyKey& propertyKey) const {
+        const PropertyDefinition* EntityDefinition::propertyDefinition(const Model::PropertyKey& propertyKey) const {
             return VectorUtils::findIf(m_propertyDefinitions, FindPropertyDefinitionByName(propertyKey)).get();
         }
 
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
-        ModelSpecification PointEntityDefinition::model(const EntityProperties& properties) const {
+        ModelSpecification PointEntityDefinition::model(const Model::EntityProperties& properties) const {
             ModelDefinitionList::const_iterator it, end;
             for (it = m_modelDefinitions.begin(), end = m_modelDefinitions.end(); it != end; ++it) {
                 ModelDefinitionPtr modelDefinition = *it;

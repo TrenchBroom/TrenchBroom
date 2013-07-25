@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Assets/AssetTypes.h"
 
 #include <map>
 
@@ -44,8 +44,8 @@ namespace TrenchBroom {
             bool m_hasColor;
             BBox3 m_size;
             bool m_hasSize;
-            Model::PropertyDefinitionMap m_properties;
-            Model::ModelDefinitionList m_models;
+            Assets::PropertyDefinitionMap m_properties;
+            Assets::ModelDefinitionList m_models;
         public:
             EntityDefinitionClassInfo();
             EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor);
@@ -59,23 +59,23 @@ namespace TrenchBroom {
             bool hasColor() const;
             const BBox3& size() const;
             bool hasSize() const;
-            Model::PropertyDefinitionList propertyList() const;
-            const Model::PropertyDefinitionMap& propertyMap() const;
-            const Model::ModelDefinitionList& models() const;
+            Assets::PropertyDefinitionList propertyList() const;
+            const Assets::PropertyDefinitionMap& propertyMap() const;
+            const Assets::ModelDefinitionList& models() const;
 
             void setName(const String& name);
             void setDescription(const String& description);
             void setColor(const Color& color);
             void setSize(const BBox3& size);
-            void addPropertyDefinition(Model::PropertyDefinitionPtr propertyDefinition);
-            void addPropertyDefinitions(const Model::PropertyDefinitionList& propertyDefinitions);
-            void addPropertyDefinitions(const Model::PropertyDefinitionMap& propertyDefinitions);
-            void addModelDefinition(Model::ModelDefinitionPtr modelDefinition);
-            void addModelDefinitions(const Model::ModelDefinitionList& modelDefinitions);
+            void addPropertyDefinition(Assets::PropertyDefinitionPtr propertyDefinition);
+            void addPropertyDefinitions(const Assets::PropertyDefinitionList& propertyDefinitions);
+            void addPropertyDefinitions(const Assets::PropertyDefinitionMap& propertyDefinitions);
+            void addModelDefinition(Assets::ModelDefinitionPtr modelDefinition);
+            void addModelDefinitions(const Assets::ModelDefinitionList& modelDefinitions);
         
             void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
         private:
-            static void mergeProperties(Model::PropertyDefinition* classProperty, const Model::PropertyDefinition* baseclassProperty);
+            static void mergeProperties(Assets::PropertyDefinition* classProperty, const Assets::PropertyDefinition* baseclassProperty);
         };
     }
 }

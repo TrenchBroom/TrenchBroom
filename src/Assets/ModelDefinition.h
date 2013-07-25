@@ -24,7 +24,7 @@
 #include "Model/EntityProperties.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         struct ModelSpecification {
             IO::Path path;
             size_t skinIndex;
@@ -37,43 +37,43 @@ namespace TrenchBroom {
         public:
             virtual ~ModelDefinition();
             
-            bool matches(const EntityProperties& properties) const;
-            ModelSpecification modelSpecification(const EntityProperties& properties) const;
+            bool matches(const Model::EntityProperties& properties) const;
+            ModelSpecification modelSpecification(const Model::EntityProperties& properties) const;
         protected:
             ModelDefinition();
         private:
-            virtual bool doMatches(const EntityProperties& properties) const = 0;
-            virtual ModelSpecification doModelSpecification(const EntityProperties& properties) const = 0;
+            virtual bool doMatches(const Model::EntityProperties& properties) const = 0;
+            virtual ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const = 0;
         };
         
         class StaticModelDefinitionMatcher {
         public:
             virtual ~StaticModelDefinitionMatcher();
-            bool matches(const EntityProperties& properties) const;
+            bool matches(const Model::EntityProperties& properties) const;
         protected:
             StaticModelDefinitionMatcher();
         private:
-            virtual bool doMatches(const EntityProperties& properties) const = 0;
+            virtual bool doMatches(const Model::EntityProperties& properties) const = 0;
         };
         
         class StaticModelDefinitionPropertyMatcher : public StaticModelDefinitionMatcher {
         private:
-            PropertyKey m_key;
-            PropertyValue m_value;
+            Model::PropertyKey m_key;
+            Model::PropertyValue m_value;
         public:
-            StaticModelDefinitionPropertyMatcher(const PropertyKey& key, const PropertyValue& value);
+            StaticModelDefinitionPropertyMatcher(const Model::PropertyKey& key, const Model::PropertyValue& value);
         private:
-            bool doMatches(const EntityProperties& properties) const;
+            bool doMatches(const Model::EntityProperties& properties) const;
         };
         
         class StaticModelDefinitionFlagMatcher : public StaticModelDefinitionMatcher {
         private:
-            PropertyKey m_key;
+            Model::PropertyKey m_key;
             int m_value;
         public:
-            StaticModelDefinitionFlagMatcher(const PropertyKey& key, const int value);
+            StaticModelDefinitionFlagMatcher(const Model::PropertyKey& key, const int value);
         private:
-            bool doMatches(const EntityProperties& properties) const;
+            bool doMatches(const Model::EntityProperties& properties) const;
         };
         
         
@@ -85,24 +85,24 @@ namespace TrenchBroom {
             StaticModelDefinitionMatcher* m_matcher;
         public:
             StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex);
-            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const PropertyKey& key, const PropertyValue& value);
-            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const PropertyKey& key, const int value);
+            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::PropertyKey& key, const Model::PropertyValue& value);
+            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::PropertyKey& key, const int value);
             ~StaticModelDefinition();
         private:
-            bool doMatches(const EntityProperties& properties) const;
-            ModelSpecification doModelSpecification(const EntityProperties& properties) const;
+            bool doMatches(const Model::EntityProperties& properties) const;
+            ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const;
         };
         
         class DynamicModelDefinition : public ModelDefinition {
         private:
-            PropertyKey m_pathKey;
-            PropertyKey m_skinKey;
-            PropertyKey m_frameKey;
+            Model::PropertyKey m_pathKey;
+            Model::PropertyKey m_skinKey;
+            Model::PropertyKey m_frameKey;
         public:
-            DynamicModelDefinition(const PropertyKey& pathKey, const PropertyKey& skinKey = "", const PropertyKey& frameKey = "");
+            DynamicModelDefinition(const Model::PropertyKey& pathKey, const Model::PropertyKey& skinKey = "", const Model::PropertyKey& frameKey = "");
         private:
-            bool doMatches(const EntityProperties& properties) const;
-            ModelSpecification doModelSpecification(const EntityProperties& properties) const;
+            bool doMatches(const Model::EntityProperties& properties) const;
+            ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const;
         };
     }
 }

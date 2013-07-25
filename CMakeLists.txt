@@ -159,7 +159,7 @@ ENDIF()
 
 # TrenchBroom-Test executable
 ADD_EXECUTABLE(TrenchBroom-Test ${SOURCE} ${TEST_SOURCE})
-TARGET_LINK_LIBRARIES(TrenchBroom-Test ${wxWidgets_LIBRARIES} gtest gmock)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test ${wxWidgets_LIBRARIES} gtest gmock ${FREETYPE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "TESTING")
 
 

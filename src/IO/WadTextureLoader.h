@@ -21,8 +21,7 @@
 #define __TrenchBroom__WadTextureLoader__
 
 #include "IO/TextureLoader.h"
-#include "Model/Palette.h"
-#include "Model/ModelTypes.h"
+#include "Assets/AssetTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -31,14 +30,14 @@ namespace TrenchBroom {
         
         class WadTextureLoader : public TextureLoader {
         private:
-            const Model::Palette& m_palette;
+            const Assets::Palette& m_palette;
         public:
-            WadTextureLoader(const Model::Palette& palette);
+            WadTextureLoader(const Assets::Palette& palette);
         private:
             static const size_t InitialBufferSize = 3 * 512 * 512;
             
-            Model::TextureCollection* doLoadTextureCollection(const Path& path);
-            void doUploadTextureCollection(Model::TextureCollection* collection);
+            Assets::TextureCollection* doLoadTextureCollection(const Path& path);
+            void doUploadTextureCollection(Assets::TextureCollection* collection);
         };
     }
 }

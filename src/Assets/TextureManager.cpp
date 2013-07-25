@@ -20,12 +20,12 @@
 #include "TextureManager.h"
 
 #include "CollectionUtils.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Model/Game.h"
-#include "Model/Texture.h"
-#include "Model/TextureCollection.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         TextureManager::~TextureManager() {
             VectorUtils::clearAndDelete(m_collections);
         }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             updateTextures();
         }
         
-        void TextureManager::reset(GamePtr game) {
+        void TextureManager::reset(Model::GamePtr game) {
             m_toRemove.insert(m_collectionsByPath.begin(), m_collectionsByPath.end());
             m_collections.clear();
             m_collectionsByPath.clear();

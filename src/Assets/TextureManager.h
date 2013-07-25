@@ -20,22 +20,21 @@
 #ifndef __TrenchBroom__TextureManager__
 #define __TrenchBroom__TextureManager__
 
-#include "IO/Path.h"
+#include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
+#include "IO/Path.h"
 
 #include <map>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Game;
-        
+    namespace Assets {
         class TextureManager {
         private:
             typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
             typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
             typedef std::map<String, Texture*> TextureMap;
             
-            GamePtr m_game;
+            Model::GamePtr m_game;
             
             TextureCollectionList m_collections;
             TextureCollectionMap m_collectionsByPath;
@@ -50,7 +49,7 @@ namespace TrenchBroom {
             void addTextureCollections(const IO::Path::List& paths);
             void removeTextureCollection(const size_t index);
             
-            void reset(GamePtr game);
+            void reset(Model::GamePtr game);
             void commitChanges();
             
             Texture* texture(const String& name) const;

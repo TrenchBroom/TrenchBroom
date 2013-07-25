@@ -20,19 +20,20 @@
 #include <gtest/gtest.h>
 
 #include "IO/Path.h"
+#include "Assets/AssetTypes.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
-#include "Model/ModelDefinition.h"
+#include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         TEST(ModelDefinitionTest, testStaticModelDefinition) {
             const IO::Path path("maps/shell.bsp");
             const size_t skinIndex = 1;
             const size_t frameIndex = 2;
             ModelDefinitionPtr definition = ModelDefinitionPtr(new StaticModelDefinition(path, skinIndex, frameIndex));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_TRUE(definition->matches(properties));
             
             const ModelSpecification spec = definition->modelSpecification(properties);
@@ -45,11 +46,11 @@ namespace TrenchBroom {
             const IO::Path path("maps/shell.bsp");
             const size_t skinIndex = 1;
             const size_t frameIndex = 2;
-            const PropertyKey key = "testKey";
-            const PropertyValue value = "testValue";
+            const Model::PropertyKey key = "testKey";
+            const Model::PropertyValue value = "testValue";
             ModelDefinitionPtr definition = ModelDefinitionPtr(new StaticModelDefinition(path, skinIndex, frameIndex, key, value));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
             properties.addOrUpdateProperty(key, "blah");
@@ -68,11 +69,11 @@ namespace TrenchBroom {
             const IO::Path path("maps/shell.bsp");
             const size_t skinIndex = 1;
             const size_t frameIndex = 2;
-            const PropertyKey key = "testKey";
+            const Model::PropertyKey key = "testKey";
             const int value = 4;
             ModelDefinitionPtr definition = ModelDefinitionPtr(new StaticModelDefinition(path, skinIndex, frameIndex, key, value));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
             properties.addOrUpdateProperty(key, "blah");
@@ -94,13 +95,13 @@ namespace TrenchBroom {
         }
         
         TEST(ModelDefinitionTest, testDynamicModelDefinition) {
-            const PropertyKey pathKey = "model";
-            const PropertyValue pathValue = "maps/shell.bsp";
+            const Model::PropertyKey pathKey = "model";
+            const Model::PropertyValue pathValue = "maps/shell.bsp";
             
             const IO::Path path(pathValue);
             ModelDefinitionPtr definition = ModelDefinitionPtr(new DynamicModelDefinition(pathKey));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
             properties.addOrUpdateProperty(pathKey, "");
@@ -116,17 +117,17 @@ namespace TrenchBroom {
         }
         
         TEST(ModelDefinitionTest, testDynamicModelDefinitionWithSkinKey) {
-            const PropertyKey pathKey = "model";
-            const PropertyValue pathValue = "maps/shell.bsp";
-            const PropertyKey skinKey = "skin";
-            const PropertyValue skinValue = "1";
+            const Model::PropertyKey pathKey = "model";
+            const Model::PropertyValue pathValue = "maps/shell.bsp";
+            const Model::PropertyKey skinKey = "skin";
+            const Model::PropertyValue skinValue = "1";
             
             const IO::Path path(pathValue);
             const size_t skinIndex = 1;
             
             ModelDefinitionPtr definition = ModelDefinitionPtr(new DynamicModelDefinition(pathKey, skinKey));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
             properties.addOrUpdateProperty(pathKey, pathValue);
@@ -145,12 +146,12 @@ namespace TrenchBroom {
         }
         
         TEST(ModelDefinitionTest, testDynamicModelDefinitionWithSkinAndFrameKey) {
-            const PropertyKey pathKey = "model";
-            const PropertyValue pathValue = "maps/shell.bsp";
-            const PropertyKey skinKey = "skin";
-            const PropertyValue skinValue = "1";
-            const PropertyKey frameKey = "frame";
-            const PropertyValue frameValue = "2";
+            const Model::PropertyKey pathKey = "model";
+            const Model::PropertyValue pathValue = "maps/shell.bsp";
+            const Model::PropertyKey skinKey = "skin";
+            const Model::PropertyValue skinValue = "1";
+            const Model::PropertyKey frameKey = "frame";
+            const Model::PropertyValue frameValue = "2";
             
             const IO::Path path(pathValue);
             const size_t skinIndex = 1;
@@ -158,7 +159,7 @@ namespace TrenchBroom {
             
             ModelDefinitionPtr definition = ModelDefinitionPtr(new DynamicModelDefinition(pathKey, skinKey, frameKey));
             
-            EntityProperties properties;
+            Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
             properties.addOrUpdateProperty(pathKey, pathValue);

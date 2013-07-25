@@ -27,7 +27,7 @@
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         class Palette {
         public:
             typedef std::vector<unsigned char> TextureBuffer;

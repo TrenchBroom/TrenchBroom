@@ -24,7 +24,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Entity.h"
-#include "Model/EntityDefinition.h"
+#include "Assets/EntityDefinition.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/VertexSpec.h"
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         }
 
         const Color& SingleEntityRenderer::boundsColor() const {
-            const Model::EntityDefinition* definition = m_entity->definition();
+            const Assets::EntityDefinition* definition = m_entity->definition();
             if (definition == NULL) {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 return prefs.getColor(Preferences::UndefinedEntityColor);

@@ -81,17 +81,17 @@ namespace TrenchBroom {
             return paths;
         }
 
-        TextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
 
-        void QuakeGame::doUploadTextureCollection(TextureCollection* collection) const {
+        void QuakeGame::doUploadTextureCollection(Assets::TextureCollection* collection) const {
             IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
         }
 
-        EntityDefinitionList QuakeGame::doLoadEntityDefinitions(const IO::Path& path) const {
+        Assets::EntityDefinitionList QuakeGame::doLoadEntityDefinitions(const IO::Path& path) const {
             const String extension = path.extension();
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 IO::FileSystem fs;

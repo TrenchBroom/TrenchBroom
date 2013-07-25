@@ -22,13 +22,13 @@
 
 #include "IO/Path.h"
 #include "IO/WadTextureLoader.h"
-#include "Model/Palette.h"
-#include "Model/Texture.h"
-#include "Model/TextureCollection.h"
+#include "Assets/Palette.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 
 namespace TrenchBroom {
     namespace IO {
-        inline void assertTexture(const String& name, const size_t width, const size_t height, Model::Texture* texture) {
+        inline void assertTexture(const String& name, const size_t width, const size_t height, Assets::Texture* texture) {
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
@@ -61,13 +61,13 @@ namespace TrenchBroom {
                 EXPECT_CALL(*GLMock, BindTexture(GL_TEXTURE_2D, 0));
             }
             
-            const Model::Palette palette(Path("data/palette.lmp"));
+            const Assets::Palette palette(Path("data/palette.lmp"));
             WadTextureLoader loader(palette);
             
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
-            Model::TextureCollection* collection = loader.loadTextureCollection(wadPath);
+            Assets::TextureCollection* collection = loader.loadTextureCollection(wadPath);
             
-            const Model::TextureList& textures = collection->textures();
+            const Assets::TextureList& textures = collection->textures();
             ASSERT_EQ(21u, textures.size());
             assertTexture("cr8_czg_1",          64,  64, textures[ 0]);
             assertTexture("cr8_czg_2",          64,  64, textures[ 1]);

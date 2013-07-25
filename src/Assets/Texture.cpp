@@ -20,7 +20,7 @@
 #include "Texture.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         Texture::Texture(const String& name, const size_t width, const size_t height) :
         m_textureId(0),
         m_name(name),

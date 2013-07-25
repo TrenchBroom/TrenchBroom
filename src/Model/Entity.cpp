@@ -20,7 +20,7 @@
 #include "Entity.h"
 
 #include "CollectionUtils.h"
-#include "Model/EntityDefinition.h"
+#include "Assets/EntityDefinition.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,9 +36,9 @@ namespace TrenchBroom {
         }
 
         BBox3 Entity::bounds() const {
-            const EntityDefinition* def = definition();
-            if (def != NULL && def->type() == EntityDefinition::PointEntity) {
-                BBox3 bounds = static_cast<const PointEntityDefinition*>(def)->bounds();
+            const Assets::EntityDefinition* def = definition();
+            if (def != NULL && def->type() == Assets::EntityDefinition::PointEntity) {
+                BBox3 bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
                 bounds.translate(origin());
                 return bounds;
             }
@@ -62,11 +62,11 @@ namespace TrenchBroom {
             }
         }
 
-        EntityDefinition* Entity::definition() const {
+        Assets::EntityDefinition* Entity::definition() const {
             return m_definition;
         }
         
-        void Entity::setDefinition(EntityDefinition* definition) {
+        void Entity::setDefinition(Assets::EntityDefinition* definition) {
             if (m_definition != NULL)
                 m_definition->decUsageCount();
             m_definition = definition;

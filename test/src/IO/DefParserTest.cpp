@@ -21,9 +21,10 @@
 
 #include "CollectionUtils.h"
 #include "IO/DefParser.h"
+#include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
-#include "Model/EntityDefinition.h"
-#include "Model/PropertyDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -78,11 +79,11 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_EQ(1u, definitions.size());
             
-            Model::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Model::EntityDefinition::BrushEntity, definition->type());
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Only used for the world entity. "
@@ -90,7 +91,7 @@ namespace TrenchBroom {
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
             
-            const Model::PropertyDefinitionList& properties = definition->propertyDefinitions();
+            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
             ASSERT_EQ(1u, properties.size());
             
             VectorUtils::clearAndDelete(definitions);
@@ -105,30 +106,30 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_EQ(1u, definitions.size());
             
-            Model::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Model::EntityDefinition::PointEntity, definition->type());
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
             ASSERT_EQ(String("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
             
-            Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(definition);
+            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
             ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
             
-            const Model::PropertyDefinitionList& properties = definition->propertyDefinitions();
+            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
             ASSERT_EQ(1u, properties.size()); // spawnflags
             
-            const Model::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Model::PropertyDefinition::FlagsProperty, property->type());
+            const Assets::PropertyDefinitionPtr property = properties[0];
+            ASSERT_EQ(Assets::PropertyDefinition::FlagsProperty, property->type());
             
-            const Model::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != NULL);
             ASSERT_EQ(0, spawnflags->defaultValue());
             
-            const Model::FlagsPropertyOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
             ASSERT_EQ(String("Crucified"), options[0].description());
@@ -176,25 +177,25 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_EQ(1u, definitions.size());
             
-            Model::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Model::EntityDefinition::PointEntity, definition->type());
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
             ASSERT_EQ(String("light"), definition->name());
             
-            const Model::PropertyDefinitionList& properties = definition->propertyDefinitions();
+            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
             ASSERT_EQ(2u, properties.size()); // spawn flags and style
             
-            Model::PropertyDefinitionPtr spawnflags = properties[0];
+            Assets::PropertyDefinitionPtr spawnflags = properties[0];
             ASSERT_EQ(Model::PropertyKeys::Spawnflags, spawnflags->name());
-            ASSERT_EQ(Model::PropertyDefinition::FlagsProperty, spawnflags->type());
+            ASSERT_EQ(Assets::PropertyDefinition::FlagsProperty, spawnflags->type());
 
-            Model::PropertyDefinitionPtr style = properties[1];
+            Assets::PropertyDefinitionPtr style = properties[1];
             ASSERT_EQ(String("style"), style->name());
-            ASSERT_EQ(Model::PropertyDefinition::ChoiceProperty, style->type());
+            ASSERT_EQ(Assets::PropertyDefinition::ChoiceProperty, style->type());
             
-            const Model::ChoicePropertyDefinition* choice = static_cast<const Model::ChoicePropertyDefinition*>(definition->propertyDefinition("style"));
+            const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(definition->propertyDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());
             
             VectorUtils::clearAndDelete(definitions);
@@ -218,14 +219,14 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_EQ(1u, definitions.size());
             
-            Model::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Model::EntityDefinition::PointEntity, definition->type());
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
             
-            const Model::ModelDefinitionList& models = static_cast<Model::PointEntityDefinition*>(definition)->modelDefinitions();
+            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
             ASSERT_EQ(2u, models.size());
         }
         
@@ -246,14 +247,14 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Model::EntityDefinitionList definitions = parser.parseDefinitions();
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
             ASSERT_EQ(1u, definitions.size());
             
-            Model::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Model::EntityDefinition::PointEntity, definition->type());
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
             
-            const Model::ModelDefinitionList& models = static_cast<Model::PointEntityDefinition*>(definition)->modelDefinitions();
+            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
             ASSERT_EQ(1u, models.size());
         }
     }

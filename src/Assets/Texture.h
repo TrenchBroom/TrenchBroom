@@ -30,7 +30,7 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         class Texture {
         private:
             GLuint m_textureId;

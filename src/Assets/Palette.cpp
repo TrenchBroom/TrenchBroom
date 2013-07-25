@@ -26,7 +26,7 @@
 #include <fstream>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         Palette::Palette(const IO::Path& path) {
             std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
             if (!stream.is_open())

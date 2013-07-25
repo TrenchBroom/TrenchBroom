@@ -21,10 +21,10 @@
 
 #include "Exceptions.h"
 #include "VecMath.h"
+#include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
-#include "Model/Texture.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate();
             
-            Texture* texture = m_face->texture();
+            Assets::Texture* texture = m_face->texture();
             const size_t width = texture != NULL ? texture->width() : 1;
             const size_t height = texture != NULL ? texture->height() : 1;
             
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             return m_textureName;
         }
         
-        Texture* BrushFace::texture() const {
+        Assets::Texture* BrushFace::texture() const {
             return m_texture;
         }
 
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
-        void BrushFace::setTexture(Texture* texture) {
+        void BrushFace::setTexture(Assets::Texture* texture) {
             if (m_texture != NULL)
                 m_texture->decUsageCount();
             m_texture = texture;

@@ -22,8 +22,9 @@
 
 #include "Color.h"
 #include "Model/Game.h"
+#include "Assets/AssetTypes.h"
+#include "Assets/Palette.h"
 #include "Model/ModelTypes.h"
-#include "Model/Palette.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         private:
             Color m_defaultEntityColor;
             View::Logger* m_logger;
-            Model::Palette m_palette;
+            Assets::Palette m_palette;
         public:
             static GamePtr newGame(const Color& defaultEntityColor, View::Logger* logger = NULL);
         private:
@@ -46,9 +47,9 @@ namespace TrenchBroom {
             
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
-            TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(TextureCollection* collection) const;
-            EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
+            Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(Assets::TextureCollection* collection) const;
+            Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path doDefaultEntityDefinitionFile() const;
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
         };

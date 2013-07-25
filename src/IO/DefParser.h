@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
+#include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
@@ -73,12 +74,12 @@ namespace TrenchBroom {
             DefParser(const String& str, const Color& defaultEntityColor);
         private:
             String tokenName(const DefToken::Type typeMask) const;
-            Model::EntityDefinitionList doParseDefinitions();
+            Assets::EntityDefinitionList doParseDefinitions();
             
-            Model::EntityDefinition* parseDefinition();
-            Model::PropertyDefinitionPtr parseSpawnflags();
-            void parseProperties(Model::PropertyDefinitionMap& properties, Model::ModelDefinitionList& modelDefinitions, StringList& superClasses);
-            bool parseProperty(Model::PropertyDefinitionMap& properties, Model::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            Assets::EntityDefinition* parseDefinition();
+            Assets::PropertyDefinitionPtr parseSpawnflags();
+            void parseProperties(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            bool parseProperty(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
             String parseDescription();
 
             Vec3 parseVector();

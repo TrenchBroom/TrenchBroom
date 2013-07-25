@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
-#include "Model/ModelTypes.h"
+#include "Assets/AssetTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class EntityDefinitionParser {
         public:
             virtual ~EntityDefinitionParser();
-            Model::EntityDefinitionList parseDefinitions();
+            Assets::EntityDefinitionList parseDefinitions();
         private:
-            virtual Model::EntityDefinitionList doParseDefinitions() = 0;
+            virtual Assets::EntityDefinitionList doParseDefinitions() = 0;
         };
     }
 }

@@ -24,13 +24,13 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Assets/EntityDefinitionManager.h"
+#include "Assets/TextureManager.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
-#include "Model/EntityDefinitionManager.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
 #include "Model/Selection.h"
-#include "Model/TextureManager.h"
 #include "View/CachingLogger.h"
 #include "View/ViewTypes.h"
 
@@ -49,8 +49,8 @@ namespace TrenchBroom {
             Model::GamePtr m_game;
             Model::Map* m_map;
             Model::Selection m_selection;
-            Model::EntityDefinitionManager m_entityDefinitionManager;
-            Model::TextureManager m_textureManager;
+            Assets::EntityDefinitionManager m_entityDefinitionManager;
+            Assets::TextureManager m_textureManager;
             Model::Picker m_picker;
             
             size_t m_modificationCount;

@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
@@ -75,7 +76,7 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<Texture*, VertexSpec> Mesh;
+            typedef Renderer::Mesh<Assets::Texture*, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
             Brush* m_parent;
@@ -91,7 +92,7 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
-            Texture* m_texture;
+            Assets::Texture* m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
             
@@ -107,7 +108,7 @@ namespace TrenchBroom {
             bool arePointsOnPlane(const Plane3& plane) const;
             
             const String& textureName() const;
-            Texture* texture() const;
+            Assets::Texture* texture() const;
             const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;
@@ -115,7 +116,7 @@ namespace TrenchBroom {
             float xScale() const;
             float yScale() const;
             
-            void setTexture(Texture* texture);
+            void setTexture(Assets::Texture* texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);

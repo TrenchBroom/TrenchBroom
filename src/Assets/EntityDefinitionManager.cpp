@@ -22,18 +22,18 @@
 #include "CollectionUtils.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Model/EntityDefinition.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/Game.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         EntityDefinitionManager::~EntityDefinitionManager() {
             clear();
         }
 
-        void EntityDefinitionManager::loadDefinitions(GamePtr game, const IO::Path& path) {
+        void EntityDefinitionManager::loadDefinitions(Model::GamePtr game, const IO::Path& path) {
             EntityDefinitionList newDefinitions = game->loadEntityDefinitions(path);
             VectorUtils::clearAndDelete(m_definitions);
             m_definitions = newDefinitions;
@@ -45,12 +45,12 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_definitions);
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Entity* entity) const {
+        EntityDefinition* EntityDefinitionManager::definition(const Model::Entity* entity) const {
             assert(entity != NULL);
-            return definition(entity->property(PropertyKeys::Classname));
+            return definition(entity->property(Model::PropertyKeys::Classname));
         }
         
-        EntityDefinition* EntityDefinitionManager::definition(const String& classname) const {
+        EntityDefinition* EntityDefinitionManager::definition(const Model::PropertyValue& classname) const {
             Cache::const_iterator it = m_cache.find(classname);
             if (it == m_cache.end())
                 return NULL;

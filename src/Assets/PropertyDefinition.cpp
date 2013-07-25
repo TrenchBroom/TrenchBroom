@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         PropertyDefinition::PropertyDefinition(const String& name, const Type type, const String& description) :
         m_name(name),
         m_type(type),

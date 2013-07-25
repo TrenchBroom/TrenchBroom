@@ -23,34 +23,34 @@
 #include "Exceptions.h"
 #include "GL/GL.h"
 #include "IO/Wad.h"
-#include "Model/ModelTypes.h"
-#include "Model/Texture.h"
-#include "Model/TextureCollection.h"
+#include "Assets/Palette.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 
 namespace TrenchBroom {
     namespace IO {
-        WadTextureLoader::WadTextureLoader(const Model::Palette& palette) :
+        WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
 
-        Model::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
-            Model::TextureList textures;
+            Assets::TextureList textures;
             textures.reserve(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
                 const MipSize mipSize = wad.mipSize(entry);
-                textures.push_back(new Model::Texture(entry.name(), mipSize.width, mipSize.height));
+                textures.push_back(new Assets::Texture(entry.name(), mipSize.width, mipSize.height));
             }
             
-            return new Model::TextureCollection(path, textures);
+            return new Assets::TextureCollection(path, textures);
         }
 
-        void WadTextureLoader::doUploadTextureCollection(Model::TextureCollection* collection) {
-            Model::Palette::TextureBuffer buffer;
+        void WadTextureLoader::doUploadTextureCollection(Assets::TextureCollection* collection) {
+            Assets::Palette::TextureBuffer buffer;
             buffer.resize(InitialBufferSize);
             Color averageColor;
             
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Wad wad(path);
 
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
-            const Model::TextureList& textures = collection->textures();
+            const Assets::TextureList& textures = collection->textures();
             
             if (mipEntries.size() != textures.size())
                 throw WadException("Found different number of textures in " + path.asString() + " while uploading mip data");
@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
-                Model::Texture* texture = textures[i];
+                Assets::Texture* texture = textures[i];
                 assert(entry.name() == texture->name());
                 
                 const GLuint textureId = textureIds[i];

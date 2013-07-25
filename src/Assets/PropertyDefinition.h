@@ -21,13 +21,13 @@
 #define __TrenchBroom__PropertyDefinition__
 
 #include "StringUtils.h"
-#include "EntityProperties.h"
+#include "Model/EntityProperties.h"
 #include "Exceptions.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         class PropertyDefinition {
         public:
             typedef enum {

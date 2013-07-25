@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Model::Map* map = new Model::Map();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Model::EntityDefinitionList()));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
 
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, worldBounds, game, path));
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             Model::Map* map2 = new Model::Map();
             EXPECT_CALL(*game, doLoadMap(worldBounds, path1)).WillOnce(Return(map1));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map1)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Model::EntityDefinitionList()));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doExtractTexturePaths(map1)).WillOnce(Return(IO::Path::List()));
             EXPECT_CALL(*game, doLoadMap(worldBounds, path2)).WillOnce(Return(map2));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map2)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Model::EntityDefinitionList()));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doExtractTexturePaths(map2)).WillOnce(Return(IO::Path::List()));
 
             doc->openDocument(worldBounds, game, path1);

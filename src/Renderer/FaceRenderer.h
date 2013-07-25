@@ -21,8 +21,8 @@
 #define __TrenchBroom__FaceRenderer__
 
 #include "Color.h"
+#include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         
         class FaceRenderer {
         private:
-            typedef std::map<Model::Texture*, VertexArray> VertexArrayMap;
+            typedef std::map<Assets::Texture*, VertexArray> VertexArrayMap;
             
             Vbo::Ptr m_vbo;
             VertexArrayMap m_arrays;

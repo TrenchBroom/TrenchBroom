@@ -20,10 +20,10 @@
 #include "TextureCollection.h"
 
 #include "CollectionUtils.h"
-#include "Model/Texture.h"
+#include "Assets/Texture.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Assets {
         TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
         m_path(path),
         m_textures(textures) {}

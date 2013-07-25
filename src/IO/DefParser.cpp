@@ -21,9 +21,9 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "Model/EntityDefinition.h"
-#include "Model/PropertyDefinition.h"
-#include "Model/ModelDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
+#include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,9 +32,9 @@ namespace TrenchBroom {
         
         DefTokenizer::DefTokenizer(const String& str) :
         Tokenizer(str) {}
-
+        
         const String DefTokenizer::WordDelims = " \t\n\r()[]{}?;,=";
-
+        
         DefTokenizer::Token DefTokenizer::emitToken() {
             while (!eof()) {
                 size_t startLine = line();
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             }
             return Token(DefToken::Eof, NULL, NULL, length(), line(), column());
         }
-
+        
         DefParser::DefParser(const char* begin, const char* end, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(DefTokenizer(begin, end)) {}
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         DefParser::DefParser(const String& str, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(DefTokenizer(str)) {}
-
+        
         String DefParser::tokenName(const DefToken::Type typeMask) const {
             StringList names;
             if ((typeMask & DefToken::Integer) != 0)
@@ -168,10 +168,10 @@ namespace TrenchBroom {
             return str.str();
         }
         
-        Model::EntityDefinitionList DefParser::doParseDefinitions() {
-            Model::EntityDefinitionList definitions;
+        Assets::EntityDefinitionList DefParser::doParseDefinitions() {
+            Assets::EntityDefinitionList definitions;
             try {
-                Model::EntityDefinition* definition = parseDefinition();
+                Assets::EntityDefinition* definition = parseDefinition();
                 while (definition != NULL) {
                     definitions.push_back(definition);
                     definition = parseDefinition();
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             }
         }
         
-        Model::EntityDefinition* DefParser::parseDefinition() {
+        Assets::EntityDefinition* DefParser::parseDefinition() {
             Token token = m_tokenizer.nextToken();
             while (token.type() != DefToken::Eof && token.type() != DefToken::ODefinition)
                 token = m_tokenizer.nextToken();
@@ -219,8 +219,8 @@ namespace TrenchBroom {
             
             expect(DefToken::Newline, token = m_tokenizer.nextToken());
             
-            Model::PropertyDefinitionMap properties;
-            Model::ModelDefinitionList models;
+            Assets::PropertyDefinitionMap properties;
+            Assets::ModelDefinitionList models;
             StringList superClasses;
             parseProperties(properties, models, superClasses);
             classInfo.addPropertyDefinitions(properties);
@@ -232,8 +232,8 @@ namespace TrenchBroom {
             if (classInfo.hasColor()) {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
-                    return new Model::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
-                return new Model::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.propertyList());
+                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
+                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.propertyList());
             }
             
             // base definition
@@ -241,8 +241,8 @@ namespace TrenchBroom {
             return parseDefinition();
         }
         
-        Model::PropertyDefinitionPtr DefParser::parseSpawnflags() {
-            Model::FlagsPropertyDefinition* definition = new Model::FlagsPropertyDefinition(Model::PropertyKeys::Spawnflags, "Spawnflags");
+        Assets::PropertyDefinitionPtr DefParser::parseSpawnflags() {
+            Assets::FlagsPropertyDefinition* definition = new Assets::FlagsPropertyDefinition(Model::PropertyKeys::Spawnflags, "Spawnflags");
             size_t numOptions = 0;
             
             try {
@@ -259,10 +259,10 @@ namespace TrenchBroom {
                 throw;
             }
             
-            return Model::PropertyDefinitionPtr(definition);
+            return Assets::PropertyDefinitionPtr(definition);
         }
         
-        void DefParser::parseProperties(Model::PropertyDefinitionMap& properties, Model::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        void DefParser::parseProperties(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
                 token = m_tokenizer.nextToken();
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool DefParser::parseProperty(Model::PropertyDefinitionMap& properties, Model::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        bool DefParser::parseProperty(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
             Token token;
             expect(DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
@@ -281,7 +281,7 @@ namespace TrenchBroom {
                 expect(DefToken::QuotedString, token = m_tokenizer.nextToken());
                 const String propertyName = token.data();
                 
-                Model::ChoicePropertyOption::List options;
+                Assets::ChoicePropertyOption::List options;
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
                 while (token.type() == DefToken::OParenthesis) {
@@ -290,14 +290,14 @@ namespace TrenchBroom {
                     expect(DefToken::Comma, token = nextTokenIgnoringNewlines());
                     expect(DefToken::QuotedString, token = nextTokenIgnoringNewlines());
                     const String value = token.data();
-                    options.push_back(Model::ChoicePropertyOption(key, value));
+                    options.push_back(Assets::ChoicePropertyOption(key, value));
                     
                     expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                     token = nextTokenIgnoringNewlines();
                 }
                 
                 expect(DefToken::CParenthesis, token);
-                properties[propertyName] = Model::PropertyDefinitionPtr(new Model::ChoicePropertyDefinition(propertyName, "", options));
+                properties[propertyName] = Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(propertyName, "", options));
             } else if (typeName == "model") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
@@ -330,26 +330,26 @@ namespace TrenchBroom {
                         expect(DefToken::QuotedString | DefToken::Integer, token = nextTokenIgnoringNewlines());
                         if (token.type() == DefToken::QuotedString) {
                             const String propertyValue = token.data();
-                            modelDefinitions.push_back(Model::ModelDefinitionPtr(new Model::StaticModelDefinition(modelPath,
-                                                                                                                  skinIndex,
-                                                                                                                  frameIndex,
-                                                                                                                  propertyKey, propertyValue)));
+                            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
+                                                                                                                    skinIndex,
+                                                                                                                    frameIndex,
+                                                                                                                    propertyKey, propertyValue)));
                         } else {
                             const int flagValue = token.toInteger<int>();
-                            modelDefinitions.push_back(Model::ModelDefinitionPtr(new Model::StaticModelDefinition(modelPath,
-                                                                                                                  skinIndex,
-                                                                                                                  frameIndex,
-                                                                                                                  propertyKey, flagValue)));
+                            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
+                                                                                                                    skinIndex,
+                                                                                                                    frameIndex,
+                                                                                                                    propertyKey, flagValue)));
                         }
                         expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                     } else {
-                        modelDefinitions.push_back(Model::ModelDefinitionPtr(new Model::StaticModelDefinition(modelPath,
-                                                                                                              skinIndex,
-                                                                                                              frameIndex)));
+                        modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
+                                                                                                                skinIndex,
+                                                                                                                frameIndex)));
                     }
                 } else if (token.type() == DefToken::Word) {
                     String pathKey, skinKey, frameKey;
-
+                    
                     if (!StringUtils::caseInsensitiveEqual("pathKey", token.data()))
                         throw ParserException(token.line(), token.column(), "Expected 'pathKey', but found '" + token.data() + "'");
                     
@@ -382,7 +382,7 @@ namespace TrenchBroom {
                     }
                     
                     expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                    modelDefinitions.push_back(Model::ModelDefinitionPtr(new Model::DynamicModelDefinition(pathKey, skinKey, frameKey)));
+                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
                 }
             } else if (typeName == "default") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
@@ -413,7 +413,7 @@ namespace TrenchBroom {
                 return "";
             return m_tokenizer.readRemainder(DefToken::CDefinition);
         }
-
+        
         Vec3 DefParser::parseVector() {
             Token token;
             Vec3f vec;

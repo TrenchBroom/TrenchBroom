@@ -29,15 +29,15 @@ namespace TrenchBroom {
             return doExtractTexturePaths(map);
         }
 
-        TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
             return doLoadTextureCollection(path);
         }
 
-        void Game::uploadTextureCollection(TextureCollection* collection) const {
+        void Game::uploadTextureCollection(Assets::TextureCollection* collection) const {
             doUploadTextureCollection(collection);
         }
 
-        EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
+        Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
             return doLoadEntityDefinitions(path);
         }
 

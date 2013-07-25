@@ -21,9 +21,9 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "Model/EntityDefinition.h"
-#include "Model/PropertyDefinition.h"
-#include "Model/ModelDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
+#include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         Tokenizer(str) {}
         
         const String FgdTokenizer::WordDelims = " \t\n\r()[]?;:,=";
-
+        
         FgdTokenizer::Token FgdTokenizer::emitToken() {
             while (!eof()) {
                 size_t startLine = line();
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             }
             return Token(FgdToken::Eof, NULL, NULL, length(), line(), column());
         }
-
+        
         FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(FgdTokenizer(begin, end)) {}
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         FgdParser::FgdParser(const String& str, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(FgdTokenizer(str)) {}
-
+        
         String FgdParser::tokenName(const FgdToken::Type typeMask) const {
             StringList names;
             if ((typeMask & FgdToken::Integer) != 0)
@@ -134,11 +134,11 @@ namespace TrenchBroom {
             str << " or " << names[names.size() - 1];
             return str.str();
         }
-
-        Model::EntityDefinitionList FgdParser::doParseDefinitions() {
-            Model::EntityDefinitionList definitions;
+        
+        Assets::EntityDefinitionList FgdParser::doParseDefinitions() {
+            Assets::EntityDefinitionList definitions;
             try {
-                Model::EntityDefinition* definition = parseDefinition();
+                Assets::EntityDefinition* definition = parseDefinition();
                 while (definition != NULL) {
                     definitions.push_back(definition);
                     definition = parseDefinition();
@@ -149,8 +149,8 @@ namespace TrenchBroom {
                 throw;
             }
         }
-
-        Model::EntityDefinition* FgdParser::parseDefinition() {
+        
+        Assets::EntityDefinition* FgdParser::parseDefinition() {
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Eof)
                 return NULL;
@@ -168,19 +168,19 @@ namespace TrenchBroom {
                 throw ParserException(token.line(), token.column(), "Unknown entity definition class " + classname);
             }
         }
-
-        Model::EntityDefinition* FgdParser::parseSolidClass() {
+        
+        Assets::EntityDefinition* FgdParser::parseSolidClass() {
             EntityDefinitionClassInfo classInfo = parseClass();
             if (classInfo.hasSize())
                 throw ParserException(classInfo.line(), classInfo.column(), "Solid entity definition must not have a size");
             if (!classInfo.models().empty())
                 throw ParserException(classInfo.line(), classInfo.column(), "Solid entity definition must not have model definitions");
-            return new Model::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.propertyList());
+            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.propertyList());
         }
         
-        Model::EntityDefinition* FgdParser::parsePointClass() {
+        Assets::EntityDefinition* FgdParser::parsePointClass() {
             EntityDefinitionClassInfo classInfo = parseClass();
-            return new Model::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
+            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
         }
         
         EntityDefinitionClassInfo FgdParser::parseBaseClass() {
@@ -189,7 +189,7 @@ namespace TrenchBroom {
                 throw ParserException(classInfo.line(), classInfo.column(), "Redefinition of base class " + classInfo.name());
             return classInfo;
         }
-
+        
         EntityDefinitionClassInfo FgdParser::parseClass() {
             Token token;
             expect(FgdToken::Word | FgdToken::Equality, token = m_tokenizer.nextToken());
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             classInfo.resolveBaseClasses(m_baseClasses, superClasses);
             return classInfo;
         }
-
+        
         StringList FgdParser::parseSuperClasses() {
             StringList superClasses;
             Token token;
@@ -253,8 +253,8 @@ namespace TrenchBroom {
             return superClasses;
         }
         
-        Model::ModelDefinitionList FgdParser::parseModels() {
-            Model::ModelDefinitionList result;
+        Assets::ModelDefinitionList FgdParser::parseModels() {
+            Assets::ModelDefinitionList result;
             Token token;
             expect(FgdToken::OParenthesis, token = m_tokenizer.nextToken());
             expect(FgdToken::String | FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Model::ModelDefinitionPtr FgdParser::parseStaticModel() {
+        Assets::ModelDefinitionPtr FgdParser::parseStaticModel() {
             Token token;
             expect(FgdToken::String, token = m_tokenizer.nextToken());
             const String pathStr = token.data();
@@ -304,18 +304,18 @@ namespace TrenchBroom {
                 expect(FgdToken::String | FgdToken::Integer, token = m_tokenizer.nextToken());
                 if (token.type() == FgdToken::String) {
                     const String propertyValue = token.data();
-                    return Model::ModelDefinitionPtr(new Model::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue));
+                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue));
                 } else {
                     const int flagValue = token.toInteger<int>();
-                    return Model::ModelDefinitionPtr(new Model::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue));
+                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue));
                 }
             } else {
                 m_tokenizer.pushToken(token);
-                return Model::ModelDefinitionPtr(new Model::StaticModelDefinition(path, skinIndex, frameIndex));
+                return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex));
             }
         }
         
-        Model::ModelDefinitionPtr FgdParser::parseDynamicModel() {
+        Assets::ModelDefinitionPtr FgdParser::parseDynamicModel() {
             Token token;
             String pathKey, skinKey, frameKey;
             
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             expect(FgdToken::Equality, token = m_tokenizer.nextToken());
             expect(FgdToken::String, token = m_tokenizer.nextToken());
             pathKey = token.data();
-
+            
             expect(FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
             if (token.type() == FgdToken::Word) {
                 if (!StringUtils::caseInsensitiveEqual("skinKey", token.data()))
@@ -335,7 +335,7 @@ namespace TrenchBroom {
                 expect(FgdToken::Equality, token = m_tokenizer.nextToken());
                 expect(FgdToken::String, token = m_tokenizer.nextToken());
                 skinKey = token.data();
-
+                
                 expect(FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
                 if (token.type() == FgdToken::Word) {
                     if (!StringUtils::caseInsensitiveEqual("frameKey", token.data()))
@@ -351,11 +351,11 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return Model::ModelDefinitionPtr(new Model::DynamicModelDefinition(pathKey, skinKey, frameKey));
+            return Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey));
         }
-
-        Model::PropertyDefinitionMap FgdParser::parseProperties() {
-            Model::PropertyDefinitionMap properties;
+        
+        Assets::PropertyDefinitionMap FgdParser::parseProperties() {
+            Assets::PropertyDefinitionMap properties;
             
             Token token;
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
@@ -406,7 +406,7 @@ namespace TrenchBroom {
             return properties;
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseTargetSourceProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseTargetSourceProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -415,10 +415,10 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Model::PropertyDefinitionPtr(new Model::PropertyDefinition(name, Model::PropertyDefinition::TargetSourceProperty, description));
+            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::TargetSourceProperty, description));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseTargetDestinationProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseTargetDestinationProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -427,10 +427,10 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Model::PropertyDefinitionPtr(new Model::PropertyDefinition(name, Model::PropertyDefinition::TargetDestinationProperty, description));
+            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::TargetDestinationProperty, description));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseStringProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseStringProperty(const String& name) {
             String description;
             String defaultValue;
             bool hasDefaultValue = false;
@@ -453,11 +453,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Model::PropertyDefinitionPtr(new Model::StringPropertyDefinition(name, description, defaultValue));
-            return Model::PropertyDefinitionPtr(new Model::StringPropertyDefinition(name, description));
+                return Assets::PropertyDefinitionPtr(new Assets::StringPropertyDefinition(name, description, defaultValue));
+            return Assets::PropertyDefinitionPtr(new Assets::StringPropertyDefinition(name, description));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseIntegerProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseIntegerProperty(const String& name) {
             String description;
             int defaultValue;
             bool hasDefaultValue = false;
@@ -480,11 +480,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Model::PropertyDefinitionPtr(new Model::IntegerPropertyDefinition(name, description, defaultValue));
-            return Model::PropertyDefinitionPtr(new Model::IntegerPropertyDefinition(name, description));
+                return Assets::PropertyDefinitionPtr(new Assets::IntegerPropertyDefinition(name, description, defaultValue));
+            return Assets::PropertyDefinitionPtr(new Assets::IntegerPropertyDefinition(name, description));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseFloatProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseFloatProperty(const String& name) {
             String description;
             float defaultValue;
             bool hasDefaultValue = false;
@@ -508,11 +508,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Model::PropertyDefinitionPtr(new Model::FloatPropertyDefinition(name, description, defaultValue));
-            return Model::PropertyDefinitionPtr(new Model::FloatPropertyDefinition(name, description));
+                return Assets::PropertyDefinitionPtr(new Assets::FloatPropertyDefinition(name, description, defaultValue));
+            return Assets::PropertyDefinitionPtr(new Assets::FloatPropertyDefinition(name, description));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseChoicesProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseChoicesProperty(const String& name) {
             String description;
             int defaultValue;
             bool hasDefaultValue = false;
@@ -536,23 +536,23 @@ namespace TrenchBroom {
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Model::ChoicePropertyOption::List options;
+            Assets::ChoicePropertyOption::List options;
             
             while (token.type() != FgdToken::CBracket) {
                 const String value = token.data();
                 expect(FgdToken::Colon, token = m_tokenizer.nextToken());
                 expect(FgdToken::String, token = m_tokenizer.nextToken());
                 const String caption = token.data();
-                options.push_back(Model::ChoicePropertyOption(value, caption));
+                options.push_back(Assets::ChoicePropertyOption(value, caption));
                 expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
             if (hasDefaultValue)
-                return Model::PropertyDefinitionPtr(new Model::ChoicePropertyDefinition(name, description, options, defaultValue));
-            return Model::PropertyDefinitionPtr(new Model::ChoicePropertyDefinition(name, description, options));
+                return Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(name, description, options, defaultValue));
+            return Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(name, description, options));
         }
         
-        Model::PropertyDefinitionPtr FgdParser::parseFlagsProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseFlagsProperty(const String& name) {
             String description;
             
             Token token;
@@ -565,7 +565,7 @@ namespace TrenchBroom {
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Model::FlagsPropertyDefinition* definition = new Model::FlagsPropertyDefinition(name, description);
+            Assets::FlagsPropertyDefinition* definition = new Assets::FlagsPropertyDefinition(name, description);
             
             while (token.type() != FgdToken::CBracket) {
                 const int value = token.toInteger<int>();
@@ -587,9 +587,9 @@ namespace TrenchBroom {
                 expect(FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
-            return Model::PropertyDefinitionPtr(definition);
+            return Assets::PropertyDefinitionPtr(definition);
         }
-
+        
         Vec3 FgdParser::parseVector() {
             Token token;
             Vec3f vec;

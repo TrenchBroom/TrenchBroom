@@ -27,6 +27,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        typedef String PropertyKey;
+        typedef String PropertyValue;
+
         class BrushFace;
         typedef std::vector<BrushFace*> BrushFaceList;
         static const BrushFaceList EmptyBrushFaceList;
@@ -43,30 +46,11 @@ namespace TrenchBroom {
         typedef std::vector<Entity*> EntityList;
         static const EntityList EmptyEntityList;
         
-        class Texture;
-        typedef std::vector<Texture*> TextureList;
-        
-        class TextureCollection;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
-        
         class Pickable;
         typedef std::vector<Pickable*> PickableList;
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;
-        
-        class EntityDefinition;
-        typedef std::vector<EntityDefinition*> EntityDefinitionList;
-        
-        class PropertyDefinition;
-        typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;
-        typedef std::vector<PropertyDefinitionPtr> PropertyDefinitionList;
-        typedef std::map<String, PropertyDefinitionPtr> PropertyDefinitionMap;
-        
-        class ModelDefinition;
-        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
-        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
-        static const ModelDefinitionList EmptyModelDefinitionList;
     }
 }
 

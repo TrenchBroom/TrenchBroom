@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
+#include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
@@ -69,25 +70,25 @@ namespace TrenchBroom {
             FgdParser(const String& str, const Color& defaultEntityColor);
         private:
             String tokenName(const FgdToken::Type typeMask) const;
-            Model::EntityDefinitionList doParseDefinitions();
+            Assets::EntityDefinitionList doParseDefinitions();
             
-            Model::EntityDefinition* parseDefinition();
-            Model::EntityDefinition* parseSolidClass();
-            Model::EntityDefinition* parsePointClass();
+            Assets::EntityDefinition* parseDefinition();
+            Assets::EntityDefinition* parseSolidClass();
+            Assets::EntityDefinition* parsePointClass();
             EntityDefinitionClassInfo parseBaseClass();
             EntityDefinitionClassInfo parseClass();
             StringList parseSuperClasses();
-            Model::ModelDefinitionList parseModels();
-            Model::ModelDefinitionPtr parseStaticModel();
-            Model::ModelDefinitionPtr parseDynamicModel();
-            Model::PropertyDefinitionMap parseProperties();
-            Model::PropertyDefinitionPtr parseTargetSourceProperty(const String& name);
-            Model::PropertyDefinitionPtr parseTargetDestinationProperty(const String& name);
-            Model::PropertyDefinitionPtr parseStringProperty(const String& name);
-            Model::PropertyDefinitionPtr parseIntegerProperty(const String& name);
-            Model::PropertyDefinitionPtr parseFloatProperty(const String& name);
-            Model::PropertyDefinitionPtr parseChoicesProperty(const String& name);
-            Model::PropertyDefinitionPtr parseFlagsProperty(const String& name);
+            Assets::ModelDefinitionList parseModels();
+            Assets::ModelDefinitionPtr parseStaticModel();
+            Assets::ModelDefinitionPtr parseDynamicModel();
+            Assets::PropertyDefinitionMap parseProperties();
+            Assets::PropertyDefinitionPtr parseTargetSourceProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseTargetDestinationProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseStringProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseIntegerProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseFloatProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseChoicesProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseFlagsProperty(const String& name);
             
             Vec3 parseVector();
             BBox3 parseSize();
