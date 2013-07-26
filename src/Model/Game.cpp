@@ -49,6 +49,10 @@ namespace TrenchBroom {
             return doExtractEntityDefinitionFile(map);
         }
 
+        Assets::EntityModelCollection* Game::loadModel(const Entity* entity) const {
+            return doLoadModel(entity);
+        }
+
         Game::Game() {}
 
         Game::~Game() {}

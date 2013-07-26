@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
         class Map;
         
         class Game {
@@ -36,22 +37,30 @@ namespace TrenchBroom {
             virtual ~Game();
             
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            
             IO::Path::List extractTexturePaths(const Map* map) const;
             Assets::TextureCollection* loadTextureCollection(const IO::Path& path) const;
             void uploadTextureCollection(Assets::TextureCollection* collection) const;
+            
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
             IO::Path defaultEntityDefinitionFile() const;
             IO::Path extractEntityDefinitionFile(const Map* map) const;
+            
+            Assets::EntityModelCollection* loadModel(const Entity* entity) const;
         protected:
             Game();
         private:
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
+            
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
             virtual Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
             virtual void doUploadTextureCollection(Assets::TextureCollection* collection) const = 0;
+            
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
             virtual IO::Path doDefaultEntityDefinitionFile() const = 0;
             virtual IO::Path doExtractEntityDefinitionFile(const Map* map) const = 0;
+
+            virtual Assets::EntityModelCollection* doLoadModel(const Entity* entity) const = 0;
         };
     }
 }

@@ -48,6 +48,11 @@ namespace TrenchBroom {
         typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
         typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
         static const ModelDefinitionList EmptyModelDefinitionList;
+        
+        class EntityModelCollection;
+        
+        class EntityModel;
+        typedef std::vector<EntityModel*> EntityModelList;
     }
 }
 
