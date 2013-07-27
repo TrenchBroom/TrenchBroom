@@ -20,6 +20,9 @@
 #include "MdlParser.h"
 
 #include "CollectionUtils.h"
+#include "Assets/AutoTexture.h"
+#include "Assets/MdlModel.h"
+#include "Assets/Palette.h"
 #include "IO/IOUtils.h"
 
 #include <cassert>
@@ -36,18 +39,183 @@ namespace TrenchBroom {
             static const unsigned int FrameVertexSize   = 0x4;
         }
 
-        MdlParser::Skin::~Skin() {
-            while (!pictures.empty()) delete [] pictures.back(); pictures.pop_back();
-        }
+        const Vec3f MdlParser::Normals[] = {
+            Vec3f(-0.525731f,  0.000000f,  0.850651f),
+            Vec3f(-0.442863f,  0.238856f,  0.864188f),
+            Vec3f(-0.295242f,  0.000000f,  0.955423f),
+            Vec3f(-0.309017f,  0.500000f,  0.809017f),
+            Vec3f(-0.162460f,  0.262866f,  0.951056f),
+            Vec3f(-0.000000f,  0.000000f,  1.000000f),
+            Vec3f(-0.000000f,  0.850651f,  0.525731f),
+            Vec3f(-0.147621f,  0.716567f,  0.681718f),
+            Vec3f(-0.147621f,  0.716567f,  0.681718f),
+            Vec3f(-0.000000f,  0.525731f,  0.850651f),
+            Vec3f(-0.309017f,  0.500000f,  0.809017f),
+            Vec3f(-0.525731f,  0.000000f,  0.850651f),
+            Vec3f(-0.295242f,  0.000000f,  0.955423f),
+            Vec3f(-0.442863f,  0.238856f,  0.864188f),
+            Vec3f(-0.162460f,  0.262866f,  0.951056f),
+            Vec3f(-0.681718f,  0.147621f,  0.716567f),
+            Vec3f(-0.809017f,  0.309017f,  0.500000f),
+            Vec3f(-0.587785f,  0.425325f,  0.688191f),
+            Vec3f(-0.850651f,  0.525731f,  0.000000f),
+            Vec3f(-0.864188f,  0.442863f,  0.238856f),
+            Vec3f(-0.716567f,  0.681718f,  0.147621f),
+            Vec3f(-0.688191f,  0.587785f,  0.425325f),
+            Vec3f(-0.500000f,  0.809017f,  0.309017f),
+            Vec3f(-0.238856f,  0.864188f,  0.442863f),
+            Vec3f(-0.425325f,  0.688191f,  0.587785f),
+            Vec3f(-0.716567f,  0.681718f, -0.147621f),
+            Vec3f(-0.500000f,  0.809017f, -0.309017f),
+            Vec3f(-0.525731f,  0.850651f,  0.000000f),
+            Vec3f(-0.000000f,  0.850651f, -0.525731f),
+            Vec3f(-0.238856f,  0.864188f, -0.442863f),
+            Vec3f(-0.000000f,  0.955423f, -0.295242f),
+            Vec3f(-0.262866f,  0.951056f, -0.162460f),
+            Vec3f(-0.000000f,  1.000000f,  0.000000f),
+            Vec3f(-0.000000f,  0.955423f,  0.295242f),
+            Vec3f(-0.262866f,  0.951056f,  0.162460f),
+            Vec3f(-0.238856f,  0.864188f,  0.442863f),
+            Vec3f(-0.262866f,  0.951056f,  0.162460f),
+            Vec3f(-0.500000f,  0.809017f,  0.309017f),
+            Vec3f(-0.238856f,  0.864188f, -0.442863f),
+            Vec3f(-0.262866f,  0.951056f, -0.162460f),
+            Vec3f(-0.500000f,  0.809017f, -0.309017f),
+            Vec3f(-0.850651f,  0.525731f,  0.000000f),
+            Vec3f(-0.716567f,  0.681718f,  0.147621f),
+            Vec3f(-0.716567f,  0.681718f, -0.147621f),
+            Vec3f(-0.525731f,  0.850651f,  0.000000f),
+            Vec3f(-0.425325f,  0.688191f,  0.587785f),
+            Vec3f(-0.864188f,  0.442863f,  0.238856f),
+            Vec3f(-0.688191f,  0.587785f,  0.425325f),
+            Vec3f(-0.809017f,  0.309017f,  0.500000f),
+            Vec3f(-0.681718f,  0.147621f,  0.716567f),
+            Vec3f(-0.587785f,  0.425325f,  0.688191f),
+            Vec3f(-0.955423f,  0.295242f,  0.000000f),
+            Vec3f( 1.000000f,  0.000000f,  0.000000f),
+            Vec3f(-0.951056f,  0.162460f,  0.262866f),
+            Vec3f(-0.850651f, -0.525731f,  0.000000f),
+            Vec3f(-0.955423f, -0.295242f,  0.000000f),
+            Vec3f(-0.864188f, -0.442863f,  0.238856f),
+            Vec3f(-0.951056f, -0.162460f,  0.262866f),
+            Vec3f(-0.809017f, -0.309017f,  0.500000f),
+            Vec3f(-0.681718f, -0.147621f,  0.716567f),
+            Vec3f(-0.850651f,  0.000000f,  0.525731f),
+            Vec3f(-0.864188f,  0.442863f, -0.238856f),
+            Vec3f(-0.809017f,  0.309017f, -0.500000f),
+            Vec3f(-0.951056f,  0.162460f, -0.262866f),
+            Vec3f(-0.525731f,  0.000000f, -0.850651f),
+            Vec3f(-0.681718f,  0.147621f, -0.716567f),
+            Vec3f(-0.681718f, -0.147621f, -0.716567f),
+            Vec3f(-0.850651f,  0.000000f, -0.525731f),
+            Vec3f(-0.809017f, -0.309017f, -0.500000f),
+            Vec3f(-0.864188f, -0.442863f, -0.238856f),
+            Vec3f(-0.951056f, -0.162460f, -0.262866f),
+            Vec3f(-0.147621f,  0.716567f, -0.681718f),
+            Vec3f(-0.309017f,  0.500000f, -0.809017f),
+            Vec3f(-0.425325f,  0.688191f, -0.587785f),
+            Vec3f(-0.442863f,  0.238856f, -0.864188f),
+            Vec3f(-0.587785f,  0.425325f, -0.688191f),
+            Vec3f(-0.688191f,  0.587785f, -0.425325f),
+            Vec3f(-0.147621f,  0.716567f, -0.681718f),
+            Vec3f(-0.309017f,  0.500000f, -0.809017f),
+            Vec3f(-0.000000f,  0.525731f, -0.850651f),
+            Vec3f(-0.525731f,  0.000000f, -0.850651f),
+            Vec3f(-0.442863f,  0.238856f, -0.864188f),
+            Vec3f(-0.295242f,  0.000000f, -0.955423f),
+            Vec3f(-0.162460f,  0.262866f, -0.951056f),
+            Vec3f(-0.000000f,  0.000000f, -1.000000f),
+            Vec3f(-0.295242f,  0.000000f, -0.955423f),
+            Vec3f(-0.162460f,  0.262866f, -0.951056f),
+            Vec3f(-0.442863f, -0.238856f, -0.864188f),
+            Vec3f(-0.309017f, -0.500000f, -0.809017f),
+            Vec3f(-0.162460f, -0.262866f, -0.951056f),
+            Vec3f(-0.000000f, -0.850651f, -0.525731f),
+            Vec3f(-0.147621f, -0.716567f, -0.681718f),
+            Vec3f(-0.147621f, -0.716567f, -0.681718f),
+            Vec3f(-0.000000f, -0.525731f, -0.850651f),
+            Vec3f(-0.309017f, -0.500000f, -0.809017f),
+            Vec3f(-0.442863f, -0.238856f, -0.864188f),
+            Vec3f(-0.162460f, -0.262866f, -0.951056f),
+            Vec3f(-0.238856f, -0.864188f, -0.442863f),
+            Vec3f(-0.500000f, -0.809017f, -0.309017f),
+            Vec3f(-0.425325f, -0.688191f, -0.587785f),
+            Vec3f(-0.716567f, -0.681718f, -0.147621f),
+            Vec3f(-0.688191f, -0.587785f, -0.425325f),
+            Vec3f(-0.587785f, -0.425325f, -0.688191f),
+            Vec3f(-0.000000f, -0.955423f, -0.295242f),
+            Vec3f(-0.000000f, -1.000000f,  0.000000f),
+            Vec3f(-0.262866f, -0.951056f, -0.162460f),
+            Vec3f(-0.000000f, -0.850651f,  0.525731f),
+            Vec3f(-0.000000f, -0.955423f,  0.295242f),
+            Vec3f(-0.238856f, -0.864188f,  0.442863f),
+            Vec3f(-0.262866f, -0.951056f,  0.162460f),
+            Vec3f(-0.500000f, -0.809017f,  0.309017f),
+            Vec3f(-0.716567f, -0.681718f,  0.147621f),
+            Vec3f(-0.525731f, -0.850651f,  0.000000f),
+            Vec3f(-0.238856f, -0.864188f, -0.442863f),
+            Vec3f(-0.500000f, -0.809017f, -0.309017f),
+            Vec3f(-0.262866f, -0.951056f, -0.162460f),
+            Vec3f(-0.850651f, -0.525731f,  0.000000f),
+            Vec3f(-0.716567f, -0.681718f, -0.147621f),
+            Vec3f(-0.716567f, -0.681718f,  0.147621f),
+            Vec3f(-0.525731f, -0.850651f,  0.000000f),
+            Vec3f(-0.500000f, -0.809017f,  0.309017f),
+            Vec3f(-0.238856f, -0.864188f,  0.442863f),
+            Vec3f(-0.262866f, -0.951056f,  0.162460f),
+            Vec3f(-0.864188f, -0.442863f,  0.238856f),
+            Vec3f(-0.809017f, -0.309017f,  0.500000f),
+            Vec3f(-0.688191f, -0.587785f,  0.425325f),
+            Vec3f(-0.681718f, -0.147621f,  0.716567f),
+            Vec3f(-0.442863f, -0.238856f,  0.864188f),
+            Vec3f(-0.587785f, -0.425325f,  0.688191f),
+            Vec3f(-0.309017f, -0.500000f,  0.809017f),
+            Vec3f(-0.147621f, -0.716567f,  0.681718f),
+            Vec3f(-0.425325f, -0.688191f,  0.587785f),
+            Vec3f(-0.162460f, -0.262866f,  0.951056f),
+            Vec3f(-0.442863f, -0.238856f,  0.864188f),
+            Vec3f(-0.162460f, -0.262866f,  0.951056f),
+            Vec3f(-0.309017f, -0.500000f,  0.809017f),
+            Vec3f(-0.147621f, -0.716567f,  0.681718f),
+            Vec3f(-0.000000f, -0.525731f,  0.850651f),
+            Vec3f(-0.425325f, -0.688191f,  0.587785f),
+            Vec3f(-0.587785f, -0.425325f,  0.688191f),
+            Vec3f(-0.688191f, -0.587785f,  0.425325f),
+            Vec3f(-0.955423f,  0.295242f,  0.000000f),
+            Vec3f(-0.951056f,  0.162460f,  0.262866f),
+            Vec3f(-1.000000f,  0.000000f,  0.000000f),
+            Vec3f(-0.850651f,  0.000000f,  0.525731f),
+            Vec3f(-0.955423f, -0.295242f,  0.000000f),
+            Vec3f(-0.951056f, -0.162460f,  0.262866f),
+            Vec3f(-0.864188f,  0.442863f, -0.238856f),
+            Vec3f(-0.951056f,  0.162460f, -0.262866f),
+            Vec3f(-0.809017f,  0.309017f, -0.500000f),
+            Vec3f(-0.864188f, -0.442863f, -0.238856f),
+            Vec3f(-0.951056f, -0.162460f, -0.262866f),
+            Vec3f(-0.809017f, -0.309017f, -0.500000f),
+            Vec3f(-0.681718f,  0.147621f, -0.716567f),
+            Vec3f(-0.681718f, -0.147621f, -0.716567f),
+            Vec3f(-0.850651f,  0.000000f, -0.525731f),
+            Vec3f(-0.688191f,  0.587785f, -0.425325f),
+            Vec3f(-0.587785f,  0.425325f, -0.688191f),
+            Vec3f(-0.425325f,  0.688191f, -0.587785f),
+            Vec3f(-0.425325f, -0.688191f, -0.587785f),
+            Vec3f(-0.587785f, -0.425325f, -0.688191f),
+            Vec3f(-0.688191f, -0.587785f, -0.425325f),
+        };
 
-        MdlParser::MdlParser(const String& name, const char* begin, const char* end) :
+        
+        MdlParser::MdlParser(const String& name, const char* begin, const char* end, Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
-        m_end(end) {
+        m_end(end),
+        m_palette(palette) {
             assert(begin < end);
         }
 
-        Assets::EntityModelCollection* MdlParser::doParseModel() {
+        Assets::EntityModel* MdlParser::doParseModel() {
+            Assets::MdlModel* model = new Assets::MdlModel(m_name);
+            
             const char* cursor = m_begin + MdlLayout::HeaderScale;
             const Vec3f scale = readVec3f(cursor);
             const Vec3f origin = readVec3f(cursor);
@@ -56,39 +224,155 @@ namespace TrenchBroom {
             const size_t skinCount = readSize<int32_t>(cursor);
             const size_t skinWidth = readSize<int32_t>(cursor);
             const size_t skinHeight = readSize<int32_t>(cursor);
-            const size_t skinSize = skinWidth * skinHeight;
-            SkinList skins;
-            skins.resize(skinCount);
-            
-            const size_t vertexCount = readSize<int32_t>(cursor);
-            const size_t triangleCount = readSize<int32_t>(cursor);
+            const size_t skinVertexCount = readSize<int32_t>(cursor);
+            const size_t skinTriangleCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
             
+            parseSkins(cursor, *model, skinCount, skinWidth, skinHeight);
+            const MdlSkinVertexList skinVertices = parseSkinVertices(cursor, skinVertexCount);
+            const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
+            parseFrames(cursor, *model, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+
+            return model;
+        }
+
+        void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height) {
+            const size_t size = width * height;
+            Buffer<char> indexedImage(size);
+            Color avgColor;
+
             cursor = m_begin + MdlLayout::Skins;
-            for (size_t i = 0; i < skinCount; ++i) {
+            for (size_t i = 0; i < count; ++i) {
                 const size_t skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
-                    char* picture = new char[skinSize];
-                    readBytes(cursor, picture, skinSize);
+                    Buffer<unsigned char> rgbImage(size * 3);
+                    readBytes(cursor, indexedImage.ptr(), size);
+                    m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
                     
-                    skins[i].pictures.push_back(picture);
+                    Assets::AutoTexture* texture = new Assets::AutoTexture(width, height, rgbImage);
+                    model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
-                    skins[i].pictures.reserve(pictureCount);
-                    skins[i].times.reserve(pictureCount);
                     const char* base = cursor;
-
+                    
+                    Assets::AutoTextureList textures;
+                    Assets::MdlTimeList times;
+                    textures.reserve(pictureCount);
+                    times.reserve(pictureCount);
+                    
                     for (size_t j = 0; j < pictureCount; ++j) {
                         cursor = base + j * sizeof(float);
-                        skins[i].times[j] = readFloat<float>(cursor);
-
-                        cursor = base + pictureCount * 4 + j * skinSize;
-                        char* picture = new char[skinSize];
-                        readBytes(cursor, picture, skinSize);
-                        skins[i].pictures[j] = picture;
+                        times.push_back(readFloat<float>(cursor));
+                        
+                        cursor = base + pictureCount * 4 + j * size;
+                        
+                        Buffer<unsigned char> rgbImage(size * 3);
+                        readBytes(cursor, indexedImage.ptr(), size);
+                        m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
+                        
+                        textures.push_back(new Assets::AutoTexture(width, height, rgbImage));
                     }
+                    
+                    model.addSkin(new Assets::MdlSkin(textures, times));
                 }
             }
+        }
+
+        MdlParser::MdlSkinVertexList MdlParser::parseSkinVertices(const char*& cursor, const size_t count) {
+            MdlSkinVertexList vertices(count);
+            for (size_t i = 0; i < count; ++i) {
+                vertices[i].onseam = readBool<int32_t>(cursor);
+                vertices[i].s = readInt<int32_t>(cursor);
+                vertices[i].t = readInt<int32_t>(cursor);
+            }
+            return vertices;
+        }
+
+        MdlParser::MdlSkinTriangleList MdlParser::parseSkinTriangles(const char*& cursor, const size_t count) {
+            MdlSkinTriangleList triangles(count);
+            for (size_t i = 0; i < count; ++i) {
+                triangles[i].front = readBool<int32_t>(cursor);
+                for (size_t j = 0; j < 3; ++j)
+                    triangles[i].vertices[i] = readSize<int32_t>(cursor);
+            }
+            return triangles;
+        }
+
+        void MdlParser::parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+            
+            for (size_t i = 0; i < count; ++i) {
+                const int type = readInt<int32_t>(cursor);
+                if (type == 0) { // single frame
+                    model.addFrame(parseFrame(cursor, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale));
+                } else { // frame group
+                    Assets::MdlFrameGroup* frameGroup = new Assets::MdlFrameGroup();
+                    
+                    const char* base = cursor;
+                    const size_t groupFrameCount = readSize<int32_t>(cursor);
+                    
+                    const char* timeCursor = base + MdlLayout::MultiFrameTimes;
+                    const char* frameCursor = base + MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+
+                    for (size_t j = 0; j < groupFrameCount; ++j) {
+                        const float time = readFloat<float>(timeCursor);
+                        Assets::MdlFrame* frame = parseFrame(frameCursor, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+                        frameGroup->addFrame(frame, time);
+                    }
+                    
+                    model.addFrame(frameGroup);
+                    cursor = frameCursor;
+                }
+            }
+        }
+
+        Assets::MdlFrame* MdlParser::parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+            char name[MdlLayout::SimpleFrameLength];
+            cursor += MdlLayout::SimpleFrameName;
+            readBytes(cursor, name, MdlLayout::SimpleFrameLength);
+            
+            PackedFrameVertexList packedVertices(skinVertices.size());
+            readBytes(cursor, reinterpret_cast<char*>(&packedVertices[0]), 4*skinVertices.size());
+            
+            Vec3f::List positions(skinVertices.size());
+            BBox3f bounds;
+            
+            positions[0] = unpackFrameVertex(packedVertices[0], origin, scale);
+            bounds.min = bounds.max = positions[0];
+            
+            for (size_t i = 1; i < skinVertices.size(); ++i) {
+                positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
+                bounds.mergeWith(positions[i]);
+            }
+            
+            Assets::MdlFrameVertexList frameTriangles;
+            frameTriangles.reserve(skinTriangles.size());
+            for (size_t i = 0; i < skinTriangles.size(); ++i) {
+                const MdlSkinTriangle& triangle = skinTriangles[i];
+                for (size_t j = 0; j < 3; ++j) {
+                    const size_t vertexIndex = triangle.vertices[j];
+                    const MdlSkinVertex& skinVertex = skinVertices[vertexIndex];
+                    const size_t normalIndex = static_cast<size_t>(packedVertices[vertexIndex].w());
+                    
+                    Vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
+                                     static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
+                    if (skinVertex.onseam && !triangle.front)
+                        texCoords[0] += 0.5f;
+                    
+                    frameTriangles.push_back(Assets::MdlFrameVertex(positions[vertexIndex],
+                                                                    Normals[normalIndex],
+                                                                    texCoords));
+                }
+            }
+            
+            assert(frameTriangles.size()%3 == 0);
+            return new Assets::MdlFrame(String(name, MdlLayout::SimpleFrameLength), frameTriangles, bounds);
+        }
+
+        Vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const Vec3f& origin, const Vec3f& scale) const {
+            Vec3f result;
+            for (size_t i = 0; i < 3; ++i)
+                result[i] = origin[i] + scale[i]*static_cast<float>(vertex[i]);
+            return result;
         }
     }
 }

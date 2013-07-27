@@ -30,9 +30,9 @@ namespace TrenchBroom {
     namespace Assets {
         class TextureManager {
         private:
-            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
-            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
-            typedef std::map<String, Texture*> TextureMap;
+            typedef std::map<IO::Path, FaceTextureCollection*> TextureCollectionMap;
+            typedef std::pair<IO::Path, FaceTextureCollection*> TextureCollectionMapEntry;
+            typedef std::map<String, FaceTexture*> TextureMap;
             
             Model::GamePtr m_game;
             
@@ -52,10 +52,10 @@ namespace TrenchBroom {
             void reset(Model::GamePtr game);
             void commitChanges();
             
-            Texture* texture(const String& name) const;
+            FaceTexture* texture(const String& name) const;
         private:
             void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove);
-            void doAddTextureCollection(TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
+            void doAddTextureCollection(FaceTextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
             void updateTextures();
         };
     }

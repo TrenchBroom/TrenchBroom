@@ -19,20 +19,21 @@
 
 #include "WadTextureLoader.h"
 
+#include "ByteBuffer.h"
 #include "Color.h"
 #include "Exceptions.h"
 #include "GL/GL.h"
 #include "IO/Wad.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/FaceTexture.h"
+#include "Assets/FaceTextureCollection.h"
 
 namespace TrenchBroom {
     namespace IO {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
 
-        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Assets::FaceTextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
@@ -43,15 +44,14 @@ namespace TrenchBroom {
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
                 const MipSize mipSize = wad.mipSize(entry);
-                textures.push_back(new Assets::Texture(entry.name(), mipSize.width, mipSize.height));
+                textures.push_back(new Assets::FaceTexture(entry.name(), mipSize.width, mipSize.height));
             }
             
-            return new Assets::TextureCollection(path, textures);
+            return new Assets::FaceTextureCollection(path, textures);
         }
 
-        void WadTextureLoader::doUploadTextureCollection(Assets::TextureCollection* collection) {
-            Assets::Palette::TextureBuffer buffer;
-            buffer.resize(InitialBufferSize);
+        void WadTextureLoader::doUploadTextureCollection(Assets::FaceTextureCollection* collection) {
+            Buffer<unsigned char> buffer(InitialBufferSize);
             Color averageColor;
             
             const IO::Path& path = collection->path();
@@ -74,8 +74,11 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
-                Assets::Texture* texture = textures[i];
+                Assets::FaceTexture* texture = textures[i];
                 assert(entry.name() == texture->name());
+                
+                if (texture->width() * texture->height() > buffer.size())
+                    buffer = Buffer<unsigned char>(texture->width() * texture->height());
                 
                 const GLuint textureId = textureIds[i];
                 texture->setTextureId(textureId);

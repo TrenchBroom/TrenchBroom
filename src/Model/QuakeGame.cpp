@@ -81,12 +81,12 @@ namespace TrenchBroom {
             return paths;
         }
 
-        Assets::TextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
+        Assets::FaceTextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
 
-        void QuakeGame::doUploadTextureCollection(Assets::TextureCollection* collection) const {
+        void QuakeGame::doUploadTextureCollection(Assets::FaceTextureCollection* collection) const {
             IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
         }
@@ -135,6 +135,11 @@ namespace TrenchBroom {
 
             IO::FileSystem fs;
             return fs.resourceDirectory() + defPath;
+        }
+
+        Assets::EntityModel* QuakeGame::doLoadModel(const IO::Path& path) const {
+            // search file system for model file under Quake path
+            // search pak files under Quake path
         }
     }
 }

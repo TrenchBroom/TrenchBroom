@@ -47,11 +47,14 @@ namespace TrenchBroom {
             
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
-            Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(Assets::TextureCollection* collection) const;
+            Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(Assets::FaceTextureCollection* collection) const;
+            
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path doDefaultEntityDefinitionFile() const;
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
+
+            Assets::EntityModel* doLoadModel(const IO::Path& path) const;
         };
     }
 }

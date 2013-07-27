@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "StringUtils.h"
+#include "ByteBuffer.h"
 #include "IO/Path.h"
 
 #include <cassert>
@@ -29,8 +30,6 @@
 namespace TrenchBroom {
     namespace Assets {
         class Palette {
-        public:
-            typedef std::vector<unsigned char> TextureBuffer;
         private:
             char* m_data;
             size_t m_size;
@@ -41,7 +40,8 @@ namespace TrenchBroom {
             
             void operator= (Palette other);
             
-            void indexedToRgb(const char* indexedImage, const size_t pixelCount, TextureBuffer& rgbImage, Color& averageColor) const;
+            void indexedToRgb(const Buffer<char>& indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const;
+            void indexedToRgb(const char* indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const;
         };
     }
 }

@@ -17,4 +17,32 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityModelCollection.h"
+#ifndef __TrenchBroom__FaceTextureCollection__
+#define __TrenchBroom__FaceTextureCollection__
+
+#include "StringUtils.h"
+#include "IO/Path.h"
+#include "Assets/AssetTypes.h"
+
+#include <vector>
+
+namespace TrenchBroom {
+    namespace Assets {
+        class FaceTextureCollection {
+        private:
+            IO::Path m_path;
+            TextureList m_textures;
+        public:
+            FaceTextureCollection(const IO::Path& path, const TextureList& textures);
+            ~FaceTextureCollection();
+
+            const IO::Path& path() const;
+            const TextureList& textures() const;
+        private:
+        };
+        
+    }
+}
+
+
+#endif /* defined(__TrenchBroom__FaceTextureCollection__) */

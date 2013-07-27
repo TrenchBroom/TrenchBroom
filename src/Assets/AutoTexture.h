@@ -17,32 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureCollection__
-#define __TrenchBroom__TextureCollection__
+#ifndef __TrenchBroom__AutoTexture__
+#define __TrenchBroom__AutoTexture__
 
-#include "StringUtils.h"
-#include "IO/Path.h"
-#include "Assets/AssetTypes.h"
+#include "GL/GL.h"
+#include "ByteBuffer.h"
+#include "SharedPointer.h"
+#include "Assets/Texture.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
-        class TextureCollection {
+        class AutoTexture : public Texture {
         private:
-            IO::Path m_path;
-            TextureList m_textures;
+            mutable GLuint m_textureId;
+            size_t m_width;
+            size_t m_height;
+            mutable Buffer<unsigned char> m_buffer;
         public:
-            TextureCollection(const IO::Path& path, const TextureList& textures);
-            ~TextureCollection();
-
-            const IO::Path& path() const;
-            const TextureList& textures() const;
+            AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>& buffer);
+            ~AutoTexture();
+            
+            void activate() const;
+            void deactivate() const;
         private:
+            void deleteBuffer() const;
         };
-        
     }
 }
 
-
-#endif /* defined(__TrenchBroom__TextureCollection__) */
+#endif /* defined(__TrenchBroom__AutoTexture__) */

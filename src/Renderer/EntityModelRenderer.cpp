@@ -17,30 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModelCollection__
-#define __TrenchBroom__EntityModelCollection__
+#include "EntityModelRenderer.h"
 
-#include "Assets/AssetTypes.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "Assets/Texture.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/ShaderManager.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
     namespace Renderer {
-        class EntityModelRenderer;
-    }
-    
-    namespace Assets {
-        class EntityModel;
-        class EntityModelCollection {
-        private:
-            EntityModelList m_models;
-            TextureList m_textures;
-        public:
-            Renderer::EntityModelRenderer* modelRenderer(const Model::Entity& entity) const;
-        };
+        void EntityModelRenderer::render(RenderContext& context, const Model::Entity& entity) {
+            VertexArrayMap::iterator it, end;
+            for (it = m_vertexArrays.begin(),  end = m_vertexArrays.end(); it != end; ++it) {
+                const Assets::Texture* texture = it->first;
+                VertexArray& vertexArray = it->second;
+                
+                texture->activate();
+                vertexArray.render();
+                texture->deactivate();
+            }
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__EntityModelCollection__) */

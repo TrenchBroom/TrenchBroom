@@ -36,7 +36,7 @@ namespace TrenchBroom {
         
         class FaceRenderer {
         private:
-            typedef std::map<Assets::Texture*, VertexArray> VertexArrayMap;
+            typedef std::map<Assets::FaceTexture*, VertexArray> VertexArrayMap;
             
             Vbo::Ptr m_vbo;
             VertexArrayMap m_arrays;

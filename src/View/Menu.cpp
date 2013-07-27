@@ -458,7 +458,7 @@ namespace TrenchBroom {
             clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCClipTool, "Perform Clip"));
             
             editMenu->addSeparator();
-            editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "Texture Lock"));
+            editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "FaceTexture Lock"));
 #ifdef __linux__ // escape key is not allowed as a menu accelerator on GTK
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditNavigateUp, KeyboardShortcut::SCAny, "Navigate Up"));
 #else

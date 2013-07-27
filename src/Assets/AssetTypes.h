@@ -30,11 +30,11 @@ namespace TrenchBroom {
     namespace Assets {
         class Palette;
         
-        class Texture;
-        typedef std::vector<Texture*> TextureList;
+        class FaceTexture;
+        typedef std::vector<FaceTexture*> TextureList;
         
-        class TextureCollection;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
+        class FaceTextureCollection;
+        typedef std::vector<FaceTextureCollection*> TextureCollectionList;
         
         class EntityDefinition;
         typedef std::vector<EntityDefinition*> EntityDefinitionList;
@@ -49,10 +49,11 @@ namespace TrenchBroom {
         typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
         static const ModelDefinitionList EmptyModelDefinitionList;
         
-        class EntityModelCollection;
-        
         class EntityModel;
         typedef std::vector<EntityModel*> EntityModelList;
+        
+        class AutoTexture;
+        typedef std::vector<AutoTexture*> AutoTextureList;
     }
 }
 

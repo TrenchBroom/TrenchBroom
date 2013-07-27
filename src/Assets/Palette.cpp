@@ -58,9 +58,11 @@ namespace TrenchBroom {
             delete[] m_data;
         }
 
-        void Palette::indexedToRgb(const char* indexedImage, const size_t pixelCount, TextureBuffer& rgbImage, Color& averageColor) const {
-            if (rgbImage.size() < pixelCount * 3)
-                rgbImage.resize(pixelCount * 3);
+        void Palette::indexedToRgb(const Buffer<char>& indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const {
+            indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
+        }
+
+        void Palette::indexedToRgb(const char* indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const {
             double avg[3];
             avg[0] = avg[1] = avg[2] = 0;
             for (size_t i = 0; i < pixelCount; ++i) {

@@ -72,6 +72,9 @@ namespace TrenchBroom {
             
             void render(RenderContext& context);
         private:
+            void renderBounds(RenderContext& context);
+            void renderClassnames(RenderContext& context);
+            void renderModels(RenderContext& context);
             static TextureFont& font(FontManager& fontManager);
             const Color& classnameTextColor() const;
             const Color& classnameBackgroundColor() const;

@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             inline void operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
-                Assets::Texture* texture = m_textureManager.texture(textureName);
+                Assets::FaceTexture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };

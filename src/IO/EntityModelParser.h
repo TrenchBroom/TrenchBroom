@@ -24,16 +24,16 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class EntityModelCollection;
+        class EntityModel;
     }
     
     namespace IO {
         class EntityModelParser {
         public:
             virtual ~EntityModelParser();
-            Assets::EntityModelCollection* parseModel();
+            Assets::EntityModel* parseModel();
         private:
-            virtual Assets::EntityModelCollection* doParseModel() = 0;
+            virtual Assets::EntityModel* doParseModel() = 0;
         };
     }
 }

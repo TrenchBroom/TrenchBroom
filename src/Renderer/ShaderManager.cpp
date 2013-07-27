@@ -51,8 +51,8 @@ namespace TrenchBroom {
             const ShaderConfig FaceShader = ShaderConfig("Face Shader Program", "Face.vertsh", "Face.fragsh");
             const ShaderConfig TextShader = ShaderConfig("Text Shader Program", "Text.vertsh", "Text.fragsh");
             const ShaderConfig TextBackgroundShader = ShaderConfig("Text Background Shader Program", "TextBackground.vertsh", "TextBackground.fragsh");
-            const ShaderConfig TextureBrowserShader = ShaderConfig("Texture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");
-            const ShaderConfig TextureBrowserBorderShader = ShaderConfig("Texture Browser Border Shader Program", "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
+            const ShaderConfig TextureBrowserShader = ShaderConfig("FaceTexture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");
+            const ShaderConfig TextureBrowserBorderShader = ShaderConfig("FaceTexture Browser Border Shader Program", "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
             const ShaderConfig BrowserGroupShader = ShaderConfig("Browser Group Shader Program", "BrowserGroup.vertsh", "BrowserGroup.fragsh");
             const ShaderConfig HandleShader = ShaderConfig("Handle Shader Program", "Handle.vertsh", "Handle.fragsh");
             const ShaderConfig PointHandleShader = ShaderConfig("Point Handle Shader Program", "PointHandle.vertsh", "Handle.fragsh");

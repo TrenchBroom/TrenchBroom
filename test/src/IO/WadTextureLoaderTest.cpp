@@ -23,12 +23,12 @@
 #include "IO/Path.h"
 #include "IO/WadTextureLoader.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/FaceTexture.h"
+#include "Assets/FaceTextureCollection.h"
 
 namespace TrenchBroom {
     namespace IO {
-        inline void assertTexture(const String& name, const size_t width, const size_t height, Assets::Texture* texture) {
+        inline void assertTexture(const String& name, const size_t width, const size_t height, Assets::FaceTexture* texture) {
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             WadTextureLoader loader(palette);
             
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
-            Assets::TextureCollection* collection = loader.loadTextureCollection(wadPath);
+            Assets::FaceTextureCollection* collection = loader.loadTextureCollection(wadPath);
             
             const Assets::TextureList& textures = collection->textures();
             ASSERT_EQ(21u, textures.size());

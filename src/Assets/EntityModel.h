@@ -23,10 +23,18 @@
 #include <iostream>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class EntityModelRenderer;
+        class Vbo;
+    }
+    
     namespace Assets {
         class EntityModel {
-        private:
         public:
+            virtual ~EntityModel();
+            Renderer::EntityModelRenderer* buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+        private:
+            virtual Renderer::EntityModelRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const = 0;
         };
     }
 }

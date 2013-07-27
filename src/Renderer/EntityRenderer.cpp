@@ -124,17 +124,40 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::render(RenderContext& context) {
+            renderBounds(context);
+            renderModels(context);
+            renderClassnames(context);
+        }
+
+        void EntityRenderer::renderBounds(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds();
             
             glSetEdgeOffset(0.025f);
             m_boundsRenderer.render(context);
             glResetEdgeOffset();
-            
+        }
+        
+        void EntityRenderer::renderClassnames(RenderContext& context) {
             EntityClassnameFilter textFilter;
             m_classnameRenderer.render(context, textFilter,
                                        Shaders::TextShader, classnameTextColor(),
                                        Shaders::TextBackgroundShader, classnameBackgroundColor());
+        }
+        
+        void EntityRenderer::renderModels(RenderContext& context) {
+            ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
+            
+            glEnable(GL_TEXTURE_2D);
+            glActiveTexture(GL_TEXTURE0);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+            shader.set("FaceTexture", 0);
+            shader.set("ApplyTinting", false);
+            shader.set("GrayScale", false);
+            
+            //...
         }
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {

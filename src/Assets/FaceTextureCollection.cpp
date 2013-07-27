@@ -17,31 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModelRendererBuilder__
-#define __TrenchBroom__EntityModelRendererBuilder__
+#include "FaceTextureCollection.h"
 
-#include <iostream>
+#include "CollectionUtils.h"
+#include "Assets/FaceTexture.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
-    namespace Renderer {
-        class EntityModelRenderer;
-    }
-    
     namespace Assets {
-        class EntityModel;
+        FaceTextureCollection::FaceTextureCollection(const IO::Path& path, const TextureList& textures) :
+        m_path(path),
+        m_textures(textures) {}
+
+        FaceTextureCollection::~FaceTextureCollection() {
+            VectorUtils::clearAndDelete(m_textures);
+        }
+
+        const IO::Path& FaceTextureCollection::path() const {
+            return m_path;
+        }
         
-        class EntityModelRendererBuilder {
-        public:
-            virtual ~EntityModelRendererBuilder();
-            Renderer::EntityModelRenderer* buildRenderer(const Model::Entity& entity, const Assets::EntityModel& entityModel) const;
-        private:
-            virtual Renderer::EntityModelRenderer* doBuildRenderer(const Model::Entity& entity, const Assets::EntityModel& entityModel) const = 0;
-        };
+        const TextureList& FaceTextureCollection::textures() const {
+            return m_textures;
+        }
+
     }
 }
-
-#endif /* defined(__TrenchBroom__EntityModelRendererBuilder__) */

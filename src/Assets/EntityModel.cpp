@@ -18,3 +18,13 @@
  */
 
 #include "EntityModel.h"
+
+namespace TrenchBroom {
+    namespace Assets {
+        EntityModel::~EntityModel() {}
+        
+        Renderer::EntityModelRenderer* EntityModel::buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
+            return doBuildRenderer(vbo, skinIndex, frameIndex);
+        }
+    }
+}

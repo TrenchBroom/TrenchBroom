@@ -20,45 +20,13 @@
 #ifndef __TrenchBroom__Texture__
 #define __TrenchBroom__Texture__
 
-#include "Color.h"
-#include "StringUtils.h"
-#include "SharedPointer.h"
-#include "GL/GL.h"
-#include "Model/ModelTypes.h"
-
-#include <cassert>
-#include <vector>
-
 namespace TrenchBroom {
     namespace Assets {
         class Texture {
-        private:
-            GLuint m_textureId;
-            Color m_averageColor;
-            String m_name;
-            size_t m_width;
-            size_t m_height;
-            size_t m_usageCount;
-            bool m_overridden;
         public:
-            Texture(const String& name, const size_t width, const size_t height);
-            ~Texture();
-
-            GLuint textureId() const;
-            void setTextureId(const GLuint textureId);
-            const Color& averageColor() const;
-            void setAverageColor(const Color& averageColor);
-            const String& name() const;
-            size_t width() const;
-            size_t height() const;
-            size_t usageCount() const;
-            void incUsageCount();
-            void decUsageCount();
-            bool isOverridden() const;
-            void setOverridden(const bool overridden);
-            
-            void activate();
-            void deactivate();
+            virtual ~Texture();
+            virtual void activate() const = 0;
+            virtual void deactivate() const = 0;
         };
     }
 }

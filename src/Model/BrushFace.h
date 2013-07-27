@@ -76,7 +76,7 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<Assets::Texture*, VertexSpec> Mesh;
+            typedef Renderer::Mesh<Assets::FaceTexture*, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
             Brush* m_parent;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
-            Assets::Texture* m_texture;
+            Assets::FaceTexture* m_texture;
             BrushFaceGeometry* m_side;
             TextureCoordinateSystem m_textureCoordinateSystem;
             
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             bool arePointsOnPlane(const Plane3& plane) const;
             
             const String& textureName() const;
-            Assets::Texture* texture() const;
+            Assets::FaceTexture* texture() const;
             const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             float xScale() const;
             float yScale() const;
             
-            void setTexture(Assets::Texture* texture);
+            void setTexture(Assets::FaceTexture* texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);
