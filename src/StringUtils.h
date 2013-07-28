@@ -202,6 +202,10 @@ namespace StringUtils {
             hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
         return hash;
     }
+    
+    inline String toLower(const String& str) {
+        return std::tolower(str, std::locale::classic());
+    }
 }
 
 #endif

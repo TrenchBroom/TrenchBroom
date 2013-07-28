@@ -37,8 +37,8 @@ namespace TrenchBroom {
         public:
             typedef std::tr1::shared_ptr<MappedFile> Ptr;
         private:
-            char* m_begin;
-            char* m_end;
+            const char* m_begin;
+            const char* m_end;
             size_t m_size;
         public:
             MappedFile();
@@ -48,7 +48,12 @@ namespace TrenchBroom {
             const char* begin() const;
             const char* end() const;
         protected:
-            void init(char* begin, char* end);
+            void init(const char* begin, const char* end);
+        };
+        
+        class MappedFileView : public MappedFile {
+        public:
+            MappedFileView(const char* begin, const char* end);
         };
 
 #ifdef _WIN32

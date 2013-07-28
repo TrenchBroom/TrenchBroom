@@ -57,13 +57,17 @@ namespace TrenchBroom {
             return m_end;
         }
 
-        void MappedFile::init(char* begin, char* end) {
+        void MappedFile::init(const char* begin, const char* end) {
             assert(m_begin == NULL && m_end == NULL);
             if (end < begin)
                 throw new FileSystemException("End of mapped file is before begin");
             m_begin = begin;
             m_end = end;
             m_size = static_cast<size_t>(m_end - m_begin);
+        }
+
+        MappedFileView::MappedFileView(const char* begin, const char* end) {
+            init(begin, end);
         }
 
 #ifdef _WIN32
