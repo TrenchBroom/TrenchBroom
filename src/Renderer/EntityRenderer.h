@@ -22,6 +22,7 @@
 
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/EntityModelRenderer.h"
 #include "Renderer/TextRenderer.h"
 
 #include <map>
@@ -57,6 +58,7 @@ namespace TrenchBroom {
             Cache m_renderers;
             EdgeRenderer m_boundsRenderer;
             ClassnameRenderer m_classnameRenderer;
+            EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
         public:
             EntityRenderer(FontManager& m_fontManager);

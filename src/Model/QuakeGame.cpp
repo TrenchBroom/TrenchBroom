@@ -23,6 +23,8 @@
 #include "IO/DefParser.h"
 #include "IO/FileSystem.h"
 #include "IO/FgdParser.h"
+#include "IO/GameFS.h"
+#include "IO/MdlParser.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/WadTextureLoader.h"
@@ -33,11 +35,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr QuakeGame::newGame(const Color& defaultEntityColor, View::Logger* logger) {
-            return GamePtr(new QuakeGame(defaultEntityColor, logger));
+        GamePtr QuakeGame::newGame(const IO::Path& quakePath, const Color& defaultEntityColor, View::Logger* logger) {
+            return GamePtr(new QuakeGame(quakePath, defaultEntityColor, logger));
         }
 
-        QuakeGame::QuakeGame(const Color& defaultEntityColor, View::Logger* logger) :
+        QuakeGame::QuakeGame(const IO::Path& quakePath, const Color& defaultEntityColor, View::Logger* logger) :
+        m_fs(quakePath, IO::Path("")),
         m_defaultEntityColor(defaultEntityColor),
         m_logger(logger),
         m_palette(palettePath()) {}
@@ -138,8 +141,17 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* QuakeGame::doLoadModel(const IO::Path& path) const {
-            // search file system for model file under Quake path
-            // search pak files under Quake path
+            IO::MappedFile::Ptr file = m_fs.findFile(path);
+            if (file == NULL)
+                return NULL;
+            m_logger->debug("Loading entity model " + path.asString());
+            
+            if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
+                IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), m_palette);
+                return parser.parseModel();
+            }
+            
+            return NULL;
         }
     }
 }

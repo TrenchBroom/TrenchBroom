@@ -21,6 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/ModelDefinition.h"
+#include "IO/Path.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -67,6 +69,8 @@ namespace TrenchBroom {
         }
         
         void Entity::setDefinition(Assets::EntityDefinition* definition) {
+            if (m_definition == definition)
+                return;
             if (m_definition != NULL)
                 m_definition->decUsageCount();
             m_definition = definition;
@@ -74,6 +78,21 @@ namespace TrenchBroom {
                 m_definition->incUsageCount();
         }
 
+        Assets::ModelSpecification Entity::modelSpecification() const {
+            if (m_definition == NULL || m_definition->type() != Assets::EntityDefinition::PointEntity)
+                return Assets::ModelSpecification();
+            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
+            return pointDefinition->model(m_properties);
+        }
+
+        Assets::EntityModel* Entity::model() const {
+            return m_model;
+        }
+        
+        void Entity::setModel(Assets::EntityModel* model) {
+            m_model = model;
+        }
+        
         const EntityProperty::List& Entity::properties() const {
             return m_properties.properties();
         }

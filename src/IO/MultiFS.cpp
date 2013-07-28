@@ -31,7 +31,7 @@ namespace TrenchBroom {
             m_fileSystems.push_back(fileSystem);
         }
 
-        const MappedFile::Ptr MultiFS::doFindFile(const Path& path) {
+        const MappedFile::Ptr MultiFS::doFindFile(const Path& path) const {
             FSList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 GameFS* fs = *it;

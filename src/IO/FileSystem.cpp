@@ -70,6 +70,33 @@ namespace TrenchBroom {
             return result;
         }
 
+        Path FileSystem::findCaseSensitivePath(const Path& path) {
+            if (path.isEmpty())
+                throw FileSystemException("Path is empty");
+            if (!path.isAbsolute())
+                throw FileSystemException(path.asString() + " is not absolute");
+            
+            if (exists(path))
+                return path;
+            
+            Path csPath(path.firstComponent());
+            Path rest = path.deleteFirstComponent();
+            if (rest.isEmpty())
+                return csPath;
+            
+            while (!rest.isEmpty()) {
+                if (!exists(csPath + rest.firstComponent())) {
+                    const Path::List content = directoryContents(csPath);
+                    const Path caseSensitiveEntry = findCaseSensitivePath(content, rest.firstComponent());
+                    if (caseSensitiveEntry.isEmpty())
+                        return Path("");
+                }
+                csPath = csPath + rest.firstComponent();
+                rest = rest.deleteFirstComponent();
+            }
+            return csPath;
+        }
+
         bool FileSystem::isDirectory(const Path& path) const {
             return ::wxDirExists(path.asString());
         }
@@ -78,7 +105,7 @@ namespace TrenchBroom {
             return ::wxFileExists(path.asString()) || ::wxDirExists(path.asString());
         }
 
-        Path::List FileSystem::directoryContents(const Path& path, const FileSystemFilter contentFilter, const String& namePattern) const {
+        Path::List FileSystem::directoryContents(const Path& path, const FileSystemFilter contentFilter, const String& extension) const {
             if (!isDirectory(path.asString())) {
                 FileSystemException e;
                 e << path.asString() << " does not exist or is not a directory";
@@ -108,11 +135,15 @@ namespace TrenchBroom {
             Path::List result;
             
             wxString filename;
-            if (dir.GetFirst(&filename, namePattern, flags)) {
-                result.push_back(Path(filename.ToStdString()));
-                
-                while (dir.GetNext(&filename))
+            const wxString wxExtension = wxString(extension).Lower();
+            if (dir.GetFirst(&filename, wxEmptyString, flags)) {
+                if (extension.empty() || filename.Lower().EndsWith(wxExtension))
                     result.push_back(Path(filename.ToStdString()));
+                
+                while (dir.GetNext(&filename)) {
+                    if (extension.empty() || filename.Lower().EndsWith(wxExtension))
+                        result.push_back(Path(filename.ToStdString()));
+                }
             }
             return result;
         }
@@ -249,5 +280,15 @@ namespace TrenchBroom {
             return resourceDirectory() + IO::Path("DejaVuSans.ttf");
         }
 #endif
+
+        Path FileSystem::findCaseSensitivePath(const Path::List& list, const Path& path) const {
+            Path::List::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it) {
+                const Path& entry = *it;
+                if (StringUtils::toLower(entry.asString()) == StringUtils::toLower(path.asString()))
+                    return entry;
+            }
+            return Path("");
+        }
     }
 }

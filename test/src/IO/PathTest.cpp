@@ -203,6 +203,21 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("/asdf/../..").makeCanonical(), PathException);
             ASSERT_EQ(Path("/asdf"), Path("/asdf/test/..").makeCanonical());
         }
+        
+        TEST(PathTest, operatorLT) {
+            ASSERT_FALSE(Path("") < Path(""));
+            ASSERT_FALSE(Path("/") < Path(""));
+            ASSERT_FALSE(Path("/") < Path("/"));
+            ASSERT_FALSE(Path("dir") < Path(""));
+            ASSERT_FALSE(Path("dir") < Path("dir"));
+            ASSERT_FALSE(Path("/dir") < Path("dir"));
+            ASSERT_FALSE(Path("/dir") < Path("/dir"));
+            ASSERT_TRUE(Path("dir") < Path("/dir"));
+            ASSERT_TRUE(Path("dir") < Path("dir/dir2"));
+            ASSERT_TRUE(Path("dir/dir") < Path("dir/dir2"));
+            ASSERT_FALSE(Path("dir/dir2") < Path("dir/dir2"));
+            ASSERT_FALSE(Path("dir/dir2/dir3") < Path("dir/dir2"));
+        }
 #endif
     }
 }

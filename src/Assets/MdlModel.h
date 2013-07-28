@@ -25,12 +25,13 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "Renderer/VertexSpec.h"
+#include "Renderer/Vertex.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class EntityModelRenderer;
+        class MeshRenderer;
         class Vbo;
     }
     
@@ -98,7 +99,7 @@ namespace TrenchBroom {
             void addSkin(MdlSkin* skin);
             void addFrame(MdlBaseFrame* frame);
         private:
-            Renderer::EntityModelRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
         };
     }
 }

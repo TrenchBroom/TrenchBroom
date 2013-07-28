@@ -23,10 +23,28 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        ModelSpecification::ModelSpecification() :
+        path(""),
+        skinIndex(0),
+        frameIndex(0) {}
+
         ModelSpecification::ModelSpecification(const IO::Path& i_path, const size_t i_skinIndex, const size_t i_frameIndex) :
         path(i_path),
         skinIndex(i_skinIndex),
         frameIndex(i_frameIndex) {}
+
+        bool ModelSpecification::operator< (const ModelSpecification& rhs) const {
+            const int pathCmp = path.compare(rhs.path);
+            if (pathCmp < 0)
+                return true;
+            if (pathCmp > 0)
+                return false;
+            if (skinIndex < rhs.skinIndex)
+                return true;
+            if (skinIndex > rhs.skinIndex)
+                return false;
+            return frameIndex < rhs.frameIndex;
+        }
 
         ModelDefinition::~ModelDefinition() {}
         

@@ -59,7 +59,8 @@ SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 
 # Configure freetype library
 IF(APPLE)
-	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "./lib/bin/osx" DOC "Freetype library")
+	# FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "./lib/bin/osx" DOC "Freetype library")
+	SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreetype.a" "${LIB_BIN_DIR}/osx/libbz2.a")
 	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "./lib/include" DOC "Freetype includes")
 ELSE()
 	INCLUDE(FindFreetype)

@@ -17,23 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFS__
-#define __TrenchBroom__GameFS__
+#ifndef __TrenchBroom__EntityModelManager__
+#define __TrenchBroom__EntityModelManager__
 
-#include "IO/FileSystem.h"
 #include "IO/Path.h"
+#include "Model/ModelTypes.h"
+
+#include <map>
+#include <set>
 
 namespace TrenchBroom {
-    namespace IO {
-        class GameFS {
-        public:
-            virtual ~GameFS();
-            
-            const MappedFile::Ptr findFile(const Path& path) const;
+    namespace Assets {
+        class EntityModel;
+        
+        class EntityModelManager {
         private:
-            virtual const MappedFile::Ptr doFindFile(const Path& path) const = 0;
+            typedef std::map<IO::Path, EntityModel*> Cache;
+            typedef std::set<IO::Path> Mismatches;
+
+            Model::GamePtr m_game;
+            mutable Cache m_models;
+            mutable Mismatches m_mismatches;
+        public:
+            ~EntityModelManager();
+            void clear();
+            void reset(Model::GamePtr game);
+            EntityModel* model(const IO::Path& path) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__GameFS__) */
+#endif /* defined(__TrenchBroom__EntityModelManager__) */

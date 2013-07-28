@@ -17,23 +17,19 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFS__
-#define __TrenchBroom__GameFS__
+#include <gtest/gtest.h>
 
-#include "IO/FileSystem.h"
+#include "IO/PakFS.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class GameFS {
-        public:
-            virtual ~GameFS();
+        TEST(PakFSTest, findFile) {
+            const Path pakPath("data/IO/Pak/pak3.pak");
+            const PakFS pak(pakPath);
             
-            const MappedFile::Ptr findFile(const Path& path) const;
-        private:
-            virtual const MappedFile::Ptr doFindFile(const Path& path) const = 0;
-        };
+            ASSERT_TRUE(pak.findFile(Path("gfx/palette.lmp")) != NULL);
+            ASSERT_TRUE(pak.findFile(Path("gfx/palette2.lmp")) == NULL);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__GameFS__) */

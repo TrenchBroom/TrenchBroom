@@ -25,6 +25,7 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Assets/EntityModelManager.h"
 #include "Assets/TextureManager.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
@@ -50,6 +51,7 @@ namespace TrenchBroom {
             Model::Map* m_map;
             Model::Selection m_selection;
             Assets::EntityDefinitionManager m_entityDefinitionManager;
+            Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
             Model::Picker m_picker;
             
@@ -101,6 +103,7 @@ namespace TrenchBroom {
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
             void updateEntityDefinitions();
+            void updateEntityModels();
 
             void loadAndUpdateTextures();
             void loadTextures();

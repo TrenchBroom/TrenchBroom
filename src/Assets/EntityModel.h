@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class EntityModelRenderer;
+        class MeshRenderer;
         class Vbo;
     }
     
@@ -32,9 +32,9 @@ namespace TrenchBroom {
         class EntityModel {
         public:
             virtual ~EntityModel();
-            Renderer::EntityModelRenderer* buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::MeshRenderer* buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
         private:
-            virtual Renderer::EntityModelRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const = 0;
         };
     }
 }

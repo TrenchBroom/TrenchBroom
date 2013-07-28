@@ -36,7 +36,7 @@ namespace TrenchBroom {
             ~MultiFS();
             void addFileSystem(GameFS* fileSystem);
         private:
-            const MappedFile::Ptr doFindFile(const Path& path);
+            const MappedFile::Ptr doFindFile(const Path& path) const;
         };
     }
 }

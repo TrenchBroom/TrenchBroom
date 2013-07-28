@@ -32,6 +32,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelManager;
+        struct ModelSpecification;
+    }
+    
     namespace Model {
         class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
         public:
@@ -40,6 +45,7 @@ namespace TrenchBroom {
             static const String DefaultPropertyValue;
             
             Assets::EntityDefinition* m_definition;
+            Assets::EntityModel* m_model;
             EntityProperties m_properties;
             BrushList m_brushes;
             
@@ -52,6 +58,10 @@ namespace TrenchBroom {
             
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
+            
+            Assets::ModelSpecification modelSpecification() const;
+            Assets::EntityModel* model() const;
+            void setModel(Assets::EntityModel* model);
             
             const EntityProperty::List& properties() const;
             bool hasProperty(const PropertyKey& key) const;

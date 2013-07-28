@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 #include "Assets/AutoTexture.h"
 #include "Assets/Texture.h"
-#include "Renderer/EntityModelRenderer.h"
+#include "Renderer/MeshRenderer.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             m_frames.push_back(frame);
         }
 
-        Renderer::EntityModelRenderer* MdlModel::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::MeshRenderer* MdlModel::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
                 return NULL;
             if (frameIndex >= m_frames.size())
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             mesh.addTrianglesToSet(frame->triangles());
             mesh.endTriangleSet();
             
-            return new Renderer::EntityModelRenderer(vbo, mesh);
+            return new Renderer::MeshRenderer(vbo, mesh);
         }
     }
 }

@@ -41,8 +41,9 @@ namespace TrenchBroom {
             readDirectory();
         }
 
-        const MappedFile::Ptr PakFS::doFindFile(const Path& path) {
-            PakDirectory::iterator it = m_directory.find(path);
+        const MappedFile::Ptr PakFS::doFindFile(const Path& path) const {
+            const IO::Path lcPath(StringUtils::toLower(path.asString()));
+            PakDirectory::const_iterator it = m_directory.find(lcPath);
             if (it == m_directory.end())
                 return MappedFile::Ptr();
             return it->second;
@@ -50,7 +51,8 @@ namespace TrenchBroom {
 
         void PakFS::readDirectory() {
             char magic[PakLayout::HeaderMagicLength];
-            char entryName[PakLayout::EntryNameLength];
+            char entryNameBuffer[PakLayout::EntryNameLength + 1];
+            entryNameBuffer[PakLayout::EntryNameLength] = 0;
             
             const char* cursor = m_file->begin() + PakLayout::HeaderAddress;
             readBytes(cursor, magic, PakLayout::HeaderMagicLength);
@@ -63,14 +65,17 @@ namespace TrenchBroom {
             cursor = m_file->begin() + directoryAddress;
             
             for (size_t i = 0; i < entryCount; ++i) {
-                readBytes(cursor, entryName, PakLayout::EntryNameLength);
+                readBytes(cursor, entryNameBuffer, PakLayout::EntryNameLength);
+                const String entryName(entryNameBuffer);
                 const size_t entryAddress = readSize<int32_t>(cursor);
                 const size_t entryLength = readSize<int32_t>(cursor);
                 assert(m_file->begin() + entryAddress + entryLength <= m_file->end());
                 
                 const char* entryBegin = m_file->begin() + entryAddress;
                 const char* entryEnd = entryBegin + entryLength;
-                m_directory[StringUtils::toLower(entryName)] = MappedFile::Ptr(new MappedFileView(entryBegin, entryEnd));
+                const IO::Path path(StringUtils::toLower(entryName));
+                
+                m_directory[path] = MappedFile::Ptr(new MappedFileView(entryBegin, entryEnd));
             }
         }
     }

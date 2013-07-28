@@ -205,7 +205,7 @@ namespace TrenchBroom {
         };
 
         
-        MdlParser::MdlParser(const String& name, const char* begin, const char* end, Assets::Palette& palette) :
+        MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -233,6 +233,7 @@ namespace TrenchBroom {
             const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
             parseFrames(cursor, *model, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
+            assert(cursor <= m_end);
             return model;
         }
 
@@ -293,7 +294,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 triangles[i].front = readBool<int32_t>(cursor);
                 for (size_t j = 0; j < 3; ++j)
-                    triangles[i].vertices[i] = readSize<int32_t>(cursor);
+                    triangles[i].vertices[j] = readSize<int32_t>(cursor);
             }
             return triangles;
         }
@@ -326,12 +327,15 @@ namespace TrenchBroom {
         }
 
         Assets::MdlFrame* MdlParser::parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
-            char name[MdlLayout::SimpleFrameLength];
+            char name[MdlLayout::SimpleFrameLength + 1];
+            name[MdlLayout::SimpleFrameLength] = 0;
             cursor += MdlLayout::SimpleFrameName;
             readBytes(cursor, name, MdlLayout::SimpleFrameLength);
             
             PackedFrameVertexList packedVertices(skinVertices.size());
-            readBytes(cursor, reinterpret_cast<char*>(&packedVertices[0]), 4*skinVertices.size());
+            for (size_t i = 0; i < skinVertices.size(); ++i)
+                for (size_t j = 0; j < 4; ++j)
+                    packedVertices[i][j] = *cursor++;
             
             Vec3f::List positions(skinVertices.size());
             BBox3f bounds;
@@ -365,7 +369,7 @@ namespace TrenchBroom {
             }
             
             assert(frameTriangles.size()%3 == 0);
-            return new Assets::MdlFrame(String(name, MdlLayout::SimpleFrameLength), frameTriangles, bounds);
+            return new Assets::MdlFrame(String(name), frameTriangles, bounds);
         }
 
         Vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const Vec3f& origin, const Vec3f& scale) const {

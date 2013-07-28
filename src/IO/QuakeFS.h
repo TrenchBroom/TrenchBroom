@@ -17,23 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFS__
-#define __TrenchBroom__GameFS__
+#ifndef __TrenchBroom__QuakeFS__
+#define __TrenchBroom__QuakeFS__
 
-#include "IO/FileSystem.h"
-#include "IO/Path.h"
+#include "IO/GameFS.h"
+#include "IO/MultiFS.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class GameFS {
-        public:
-            virtual ~GameFS();
-            
-            const MappedFile::Ptr findFile(const Path& path) const;
+        class Path;
+        
+        class QuakeFS : public GameFS {
         private:
-            virtual const MappedFile::Ptr doFindFile(const Path& path) const = 0;
+            MultiFS m_fs;
+        public:
+            QuakeFS(const Path& quakePath, const Path& mod);
+        private:
+            const MappedFile::Ptr doFindFile(const Path& path) const;
+            void addMod(const Path& quakePath, const Path& mod);
+            const Path::List findPakFiles(const Path& path);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__GameFS__) */
+#endif /* defined(__TrenchBroom__QuakeFS__) */

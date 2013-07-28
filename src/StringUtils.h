@@ -204,7 +204,9 @@ namespace StringUtils {
     }
     
     inline String toLower(const String& str) {
-        return std::tolower(str, std::locale::classic());
+        String result(str);
+        std::transform(result.begin(), result.end(), result.begin(), tolower);
+        return result;
     }
 }
 

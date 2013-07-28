@@ -19,6 +19,8 @@
 
 #include "MapDocument.h"
 
+#include "Assets/EntityDefinition.h"
+#include "Assets/ModelDefinition.h"
 #include "IO/FileSystem.h"
 #include "Model/BrushFace.h"
 #include "Model/Game.h"
@@ -43,6 +45,24 @@ namespace TrenchBroom {
             inline void operator()(Model::Entity* entity) const {
                 Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
                 entity->setDefinition(definition);
+            }
+        };
+        
+        class SetEntityModel {
+        private:
+            Assets::EntityModelManager& m_modelManager;
+        public:
+            SetEntityModel(Assets::EntityModelManager& modelManager) :
+            m_modelManager(modelManager) {}
+            
+            inline void operator()(Model::Entity* entity) const {
+                const Assets::ModelSpecification spec = entity->modelSpecification();
+                if (spec.path.isEmpty()) {
+                    entity->setModel(NULL);
+                } else {
+                    Assets::EntityModel* model = m_modelManager.model(spec.path);
+                    entity->setModel(model);
+                }
             }
         };
         
@@ -143,6 +163,7 @@ namespace TrenchBroom {
 
             m_selection = Model::Selection(m_map);
             m_entityDefinitionManager.clear();
+            m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             
@@ -162,6 +183,7 @@ namespace TrenchBroom {
             
             m_selection = Model::Selection(m_map);
             m_entityDefinitionManager.clear();
+            m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
             m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
@@ -247,6 +269,7 @@ namespace TrenchBroom {
         void MapDocument::loadAndUpdateEntityDefinitions() {
             loadEntityDefinitions();
             updateEntityDefinitions();
+            updateEntityModels();
         }
         
         void MapDocument::loadEntityDefinitions() {
@@ -257,6 +280,10 @@ namespace TrenchBroom {
         
         void MapDocument::updateEntityDefinitions() {
             m_map->eachEntity(SetEntityDefinition(m_entityDefinitionManager), MatchAllFilter());
+        }
+
+        void MapDocument::updateEntityModels() {
+            m_map->eachEntity(SetEntityModel(m_entityModelManager), MatchAllFilter());
         }
 
         void MapDocument::loadAndUpdateTextures() {

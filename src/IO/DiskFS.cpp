@@ -26,7 +26,7 @@ namespace TrenchBroom {
         DiskFS::DiskFS(const Path& basePath) :
         m_basePath(basePath) {}
         
-        const MappedFile::Ptr DiskFS::doFindFile(const Path& path) {
+        const MappedFile::Ptr DiskFS::doFindFile(const Path& path) const {
             const Path fullPath = m_basePath + path;
             FileSystem fs;
             if (!fs.exists(fullPath))

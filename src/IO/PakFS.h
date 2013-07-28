@@ -36,7 +36,7 @@ namespace TrenchBroom {
         public:
             PakFS(const Path& path);
         private:
-            const MappedFile::Ptr doFindFile(const Path& path);
+            const MappedFile::Ptr doFindFile(const Path& path) const;
             void readDirectory();
         };
     }

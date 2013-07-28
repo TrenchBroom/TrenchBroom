@@ -37,10 +37,11 @@ namespace TrenchBroom {
             Path findRootPath(const Path::List& rootPaths, const Path& relativePath);
             Path resolvePath(const Path::List& rootPaths, const Path& path);
             Path::List resolvePaths(const Path::List& rootPaths, const Path::List& paths);
+            Path findCaseSensitivePath(const Path& path);
             
             bool isDirectory(const Path& path) const;
             bool exists(const Path& path) const;
-            Path::List directoryContents(const Path& path, const FileSystemFilter contentFilter = FSBoth, const String& namePattern = "") const;
+            Path::List directoryContents(const Path& path, const FileSystemFilter contentFilter = FSBoth, const String& extension = "") const;
             
             void createDirectory(const Path& path) const;
             void deleteFile(const Path& path) const;
@@ -51,6 +52,8 @@ namespace TrenchBroom {
             Path logDirectory() const;
             Path resourceDirectory() const;
             Path findFontFile(const String& fontName) const;
+        private:
+            Path findCaseSensitivePath(const Path::List& list, const Path& path) const;
         };
     }
 }

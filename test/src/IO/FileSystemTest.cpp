@@ -59,10 +59,14 @@ namespace TrenchBroom {
                 assert(success);
                 success = wxMkdir(m_dir + "/anotherDir");
                 assert(success);
+                success = wxMkdir(m_dir + "/anotherDir/subDirTest");
+                assert(success);
                 
                 success = wxFile().Create(m_dir + "/test.txt");
                 assert(success);
                 success = wxFile().Create(m_dir + "/test2.map");
+                assert(success);
+                success = wxFile().Create(m_dir + "/anotherDir/subDirTest/test2.map");
                 assert(success);
             }
             
@@ -133,7 +137,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("dir2"), names[2]);
             names.clear();
 
-            contents = fs.directoryContents(Path(env.dir()), FileSystem::FSBoth, "*.txt");
+            contents = fs.directoryContents(Path(env.dir()), FileSystem::FSBoth, "txt");
             for (size_t i = 0; i < contents.size(); i++)
                 names.push_back(contents[i].asString());
             StringUtils::sortCaseSensitive(names);

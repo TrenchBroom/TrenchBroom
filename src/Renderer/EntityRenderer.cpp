@@ -69,6 +69,7 @@ namespace TrenchBroom {
             SingleEntityRenderer* renderer = createRenderer(entity);
             m_renderers[entity] = renderer;
             m_classnameRenderer.addString(entity, entity->classname(), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
+            m_modelRenderer.addEntity(entity);
             
             invalidateBounds();
         }
@@ -90,6 +91,7 @@ namespace TrenchBroom {
             it->second = createRenderer(entity);
             
             m_classnameRenderer.updateString(entity, entity->classname());
+            m_modelRenderer.updateEntity(entity);
             invalidateBounds();
         }
         
@@ -109,6 +111,7 @@ namespace TrenchBroom {
             m_renderers.erase(it);
             
             m_classnameRenderer.removeString(entity);
+            m_modelRenderer.removeEntity(entity);
             invalidateBounds();
         }
         
@@ -121,6 +124,8 @@ namespace TrenchBroom {
 
         void EntityRenderer::clear() {
             MapUtils::clearAndDelete(m_renderers);
+            m_classnameRenderer.clear();
+            m_modelRenderer.clear();
         }
 
         void EntityRenderer::render(RenderContext& context) {
@@ -146,18 +151,7 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderModels(RenderContext& context) {
-            ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
-            
-            glEnable(GL_TEXTURE_2D);
-            glActiveTexture(GL_TEXTURE0);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
-            shader.set("FaceTexture", 0);
-            shader.set("ApplyTinting", false);
-            shader.set("GrayScale", false);
-            
-            //...
+            m_modelRenderer.render(context);
         }
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {

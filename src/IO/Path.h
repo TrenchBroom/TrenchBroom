@@ -41,13 +41,17 @@ namespace TrenchBroom {
             Path(const String& path);
             
             Path operator+ (const Path& rhs) const;
+            int compare(const Path& rhs) const;
             bool operator== (const Path& rhs) const;
             bool operator< (const Path& rhs) const;
+            bool operator> (const Path& rhs) const;
             
             String asString() const;
             operator String() const;
             
             bool isEmpty() const;
+            String firstComponent() const;
+            Path deleteFirstComponent() const;
             String lastComponent() const;
             Path deleteLastComponent() const;
             const String extension() const;

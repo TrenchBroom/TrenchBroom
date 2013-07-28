@@ -55,15 +55,14 @@ namespace TrenchBroom {
             return Path(m_absolute, components);
         }
 
-        bool Path::operator== (const Path& rhs) const {
-            return (m_absolute == rhs.m_absolute &&
-                    m_components.size() == rhs.m_components.size() &&
-                    std::equal(m_components.begin(), m_components.end(), rhs.m_components.begin()));
-        }
-
-        bool Path::operator< (const Path& rhs) const {
+        int Path::compare(const Path& rhs) const {
+            if (!isAbsolute() && rhs.isAbsolute())
+                return -1;
+            if (isAbsolute() && !rhs.isAbsolute())
+                return 1;
+            
             const StringList& rcomps = rhs.m_components;
-
+            
             size_t i = 0;
             const size_t max = std::min(m_components.size(), rcomps.size());
             while (i < max) {
@@ -71,14 +70,30 @@ namespace TrenchBroom {
                 const String& rcomp = rcomps[i];
                 const int result = mcomp.compare(rcomp);
                 if (result < 0)
-                    return true;
+                    return -1;
                 if (result > 0)
-                    return false;
+                    return 1;
                 ++i;
             }
-            return false;
+            if (m_components.size() < rcomps.size())
+                return -1;
+            if (m_components.size() > rcomps.size())
+                return 1;
+            return 0;
         }
 
+        bool Path::operator== (const Path& rhs) const {
+            return compare(rhs) == 0;
+        }
+
+        bool Path::operator< (const Path& rhs) const {
+            return compare(rhs) < 0;
+        }
+
+        bool Path::operator> (const Path& rhs) const {
+            return compare(rhs) > 0;
+        }
+        
         String Path::asString() const {
             if (m_absolute)
 #ifdef _WIN32
@@ -97,6 +112,21 @@ namespace TrenchBroom {
             return !m_absolute && m_components.empty();
         }
 
+        String Path::firstComponent() const {
+            if (isEmpty())
+                throw PathException("Cannot return last component of empty path");
+            return m_components.front();
+        }
+
+        Path Path::deleteFirstComponent() const {
+            if (isEmpty())
+                throw PathException("Cannot delete last component of empty path");
+            StringList components;
+            components.reserve(m_components.size() - 1);
+            components.insert(components.begin(), m_components.begin() + 1, m_components.end());
+            return Path(false, components);
+        }
+
         String Path::lastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot return last component of empty path");
@@ -106,8 +136,9 @@ namespace TrenchBroom {
         Path Path::deleteLastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot delete last component of empty path");
-            StringList components = m_components;
-            components.pop_back();
+            StringList components;
+            components.reserve(m_components.size() - 1);
+            components.insert(components.begin(), m_components.begin(), m_components.end() - 1);
             return Path(m_absolute, components);
         }
 

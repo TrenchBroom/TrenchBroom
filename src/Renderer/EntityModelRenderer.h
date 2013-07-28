@@ -20,32 +20,45 @@
 #ifndef __TrenchBroom__EntityModelRenderer__
 #define __TrenchBroom__EntityModelRenderer__
 
-#include "Renderer/VertexSpec.h"
-#include "Renderer/Mesh.h"
+#include "Assets/ModelDefinition.h"
+#include "Model/ModelTypes.h"
+#include "Renderer/Vbo.h"
+
+#include <map>
+#include <set>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-    
     namespace Model {
         class Entity;
     }
     
     namespace Renderer {
+        class MeshRenderer;
         class RenderContext;
-        class VertexArray;
         
         class EntityModelRenderer {
         private:
-            typedef std::map<const Assets::Texture*, VertexArray> VertexArrayMap;
-            VertexArrayMap m_vertexArrays;
-        public:
-            template <typename VertexSpec>
-            EntityModelRenderer(Vbo& vbo, const Mesh<const Assets::Texture*, VertexSpec>& mesh) :
-            m_vertexArrays(mesh.triangleSetArrays(vbo)) {}
+            typedef std::map<Assets::ModelSpecification, MeshRenderer*> RendererCache;
+            typedef std::map<Model::Entity*, MeshRenderer*> EntityMap;
+            typedef std::set<Assets::ModelSpecification> MismatchCache;
             
-            void render(RenderContext& context, const Model::Entity& entity);
+            Vbo::Ptr m_vbo;
+            RendererCache m_renderers;
+            EntityMap m_entities;
+            MismatchCache m_mismatches;
+        public:
+            EntityModelRenderer();
+            ~EntityModelRenderer();
+            
+            void addEntity(Model::Entity* entity);
+            void addEntities(const Model::EntityList& entities);
+            void updateEntity(Model::Entity* entity);
+            void updateEntities(const Model::EntityList& entities);
+            void removeEntity(Model::Entity* entity);
+            void removeEntities(const Model::EntityList& entities);
+            void clear();
+            
+            void render(RenderContext& context);
         };
     }
 }

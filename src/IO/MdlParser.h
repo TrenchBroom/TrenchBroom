@@ -52,15 +52,15 @@ namespace TrenchBroom {
             
             typedef std::vector<MdlSkinVertex> MdlSkinVertexList;
             typedef std::vector<MdlSkinTriangle> MdlSkinTriangleList;
-            typedef Vec<unsigned char, 4> PackedFrameVertex;
+            typedef Vec<char, 4> PackedFrameVertex;
             typedef std::vector<PackedFrameVertex> PackedFrameVertexList;
             
             String m_name;
             const char* m_begin;
             const char* m_end;
-            Assets::Palette& m_palette;
+            const Assets::Palette& m_palette;
         public:
-            MdlParser(const String& name, const char* begin, const char* end, Assets::Palette& palette);
+            MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             Assets::EntityModel* doParseModel();
             

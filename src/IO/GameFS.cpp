@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace IO {
         GameFS::~GameFS() {}
         
-        const MappedFile::Ptr GameFS::findFile(const Path& path) {
+        const MappedFile::Ptr GameFS::findFile(const Path& path) const {
             return doFindFile(path);
         }
     }

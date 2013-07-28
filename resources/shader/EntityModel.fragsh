@@ -20,13 +20,13 @@
  */
 
 uniform float Brightness;
-uniform sampler2D FaceTexture;
+uniform sampler2D Texture;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
 
 void main() {
-    vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);
+    vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
     gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
     gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
     
