@@ -52,7 +52,7 @@ namespace TrenchBroom {
             
             typedef std::vector<MdlSkinVertex> MdlSkinVertexList;
             typedef std::vector<MdlSkinTriangle> MdlSkinTriangleList;
-            typedef Vec<char, 4> PackedFrameVertex;
+            typedef Vec<unsigned char, 4> PackedFrameVertex;
             typedef std::vector<PackedFrameVertex> PackedFrameVertexList;
             
             String m_name;

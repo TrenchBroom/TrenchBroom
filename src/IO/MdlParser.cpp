@@ -256,22 +256,19 @@ namespace TrenchBroom {
                     const size_t pictureCount = readSize<int32_t>(cursor);
                     const char* base = cursor;
                     
-                    Assets::AutoTextureList textures;
-                    Assets::MdlTimeList times;
-                    textures.reserve(pictureCount);
-                    times.reserve(pictureCount);
+                    Assets::AutoTextureList textures(pictureCount);
+                    Assets::MdlTimeList times(pictureCount);
                     
                     for (size_t j = 0; j < pictureCount; ++j) {
                         cursor = base + j * sizeof(float);
-                        times.push_back(readFloat<float>(cursor));
-                        
-                        cursor = base + pictureCount * 4 + j * size;
+                        times[j] = readFloat<float>(cursor);
                         
                         Buffer<unsigned char> rgbImage(size * 3);
+                        cursor = base + pictureCount * 4 + j * size;
                         readBytes(cursor, indexedImage.ptr(), size);
-                        m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
                         
-                        textures.push_back(new Assets::AutoTexture(width, height, rgbImage));
+                        m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
+                        textures[j] = new Assets::AutoTexture(width, height, rgbImage);
                     }
                     
                     model.addSkin(new Assets::MdlSkin(textures, times));
@@ -300,7 +297,6 @@ namespace TrenchBroom {
         }
 
         void MdlParser::parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
-            
             for (size_t i = 0; i < count; ++i) {
                 const int type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame
@@ -335,7 +331,7 @@ namespace TrenchBroom {
             PackedFrameVertexList packedVertices(skinVertices.size());
             for (size_t i = 0; i < skinVertices.size(); ++i)
                 for (size_t j = 0; j < 4; ++j)
-                    packedVertices[i][j] = *cursor++;
+                    packedVertices[i][j] = static_cast<unsigned char>(*cursor++);
             
             Vec3f::List positions(skinVertices.size());
             BBox3f bounds;
