@@ -511,28 +511,29 @@ inline const Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
 
 template <typename T>
 inline const Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
-    const T a = quat.r;
-    const T b = quat.v[0];
-    const T c = quat.v[1];
-    const T d = quat.v[2];
+    // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
+    
+    const T x = quat.v[0];
+    const T y = quat.v[1];
+    const T z = quat.v[2];
+    const T w = quat.r;
 
-    const T a2 = a * a;
-    const T b2 = b * b;
-    const T c2 = c * c;
-    const T d2 = d * d;
+    const T x2 = x*x;
+    const T y2 = y*y;
+    const T z2 = z*z;
 
     Mat<T,4,4> rotation;
-    rotation[0][0] = a2 + b2 - c2 - d2;
-    rotation[0][1] = static_cast<T>(2.0 * b * c + 2.0 * a * d);
-    rotation[0][2] = static_cast<T>(2.0 * b * d - 2.0 * a * c);
+    rotation[0][0] = static_cast<T>(1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
+    rotation[0][1] = static_cast<T>(2.0*(x*y + z*w));
+    rotation[0][2] = static_cast<T>(2.0*(x*z - y*w));
 
-    rotation[1][0] = static_cast<T>(2.0 * b * c - 2.0 * a * d);
-    rotation[1][1] = a2 - b2 + c2 - d2;
-    rotation[1][2] = static_cast<T>(2.0 * c * d + 2.0 * a * b);
+    rotation[1][0] = static_cast<T>(2.0*(x*y - z*w));
+    rotation[1][1] = static_cast<T>(1.0 - 2.0*(x2 + z2));//a2 - b2 + c2 - d2;
+    rotation[1][2] = static_cast<T>(2.0*(y*z + x*w));
 
-    rotation[2][0] = static_cast<T>(2.0 * b * d + 2.0 * a * c);
-    rotation[2][1] = static_cast<T>(2.0 * c * d - 2.0 * a * b);
-    rotation[2][2] = a2 - b2 - c2 + d2;
+    rotation[2][0] = static_cast<T>(2.0*(x*z + y*w));
+    rotation[2][1] = static_cast<T>(2.0*(y*z - x*w));
+    rotation[2][2] = static_cast<T>(1.0 - 2.0*(x2 + y2));// a2 - b2 - c2 + d2;
 
     return rotation;
 }

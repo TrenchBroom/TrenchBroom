@@ -31,7 +31,8 @@ namespace TrenchBroom {
         
         Entity::Entity() :
         Object(OTEntity),
-        m_definition(NULL) {}
+        m_definition(NULL),
+        m_model(NULL) {}
 
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
@@ -121,6 +122,10 @@ namespace TrenchBroom {
             if (value == NULL)
                 return Vec3();
             return Vec3(*value);
+        }
+
+        Quatf Entity::rotation() const {
+            return Quatf();
         }
 
         const BrushList& Entity::brushes() const {

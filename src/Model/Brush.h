@@ -87,6 +87,9 @@ namespace TrenchBroom {
             void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
+
+            Brush(const Brush& other);
+            Brush& operator=(const Brush& other);
         };
     }
 }

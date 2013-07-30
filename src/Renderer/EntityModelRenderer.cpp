@@ -118,7 +118,9 @@ namespace TrenchBroom {
                 MeshRenderer* renderer = it->second;
                 
                 const Vec3f position = entity->origin();
-                const Mat4x4f matrix = translationMatrix(position);// * rotationMatrix(rotation);
+                const Quatf rotation = entity->rotation();
+                
+                const Mat4x4f matrix = translationMatrix(position) * rotationMatrix(rotation);
                 
                 MultiplyModelMatrix multMatrix(context.transformation(), matrix);
                 renderer->render();

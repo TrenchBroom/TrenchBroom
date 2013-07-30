@@ -24,11 +24,17 @@
 namespace TrenchBroom {
     namespace Model {
         namespace PropertyKeys {
-            const PropertyKey Classname = "classname";
-            const PropertyKey Origin = "origin";
-            const PropertyKey Wad = "wad";
-            const PropertyKey Spawnflags = "spawnflags";
+            const PropertyKey Classname         = "classname";
+            const PropertyKey Origin            = "origin";
+            const PropertyKey Wad               = "wad";
+            const PropertyKey Spawnflags        = "spawnflags";
             const PropertyKey EntityDefinitions = "_def";
+            const PropertyKey Angle             = "angle";
+            const PropertyKey Angles            = "angles";
+            const PropertyKey Mangle            = "mangle";
+            const PropertyKey Target            = "target";
+            const PropertyKey Targetname        = "targetname";
+            const PropertyKey Killtarget        = "killtarget";
         }
         
         namespace PropertyValues {

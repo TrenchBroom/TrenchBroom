@@ -48,10 +48,9 @@ namespace TrenchBroom {
             Assets::EntityModel* m_model;
             EntityProperties m_properties;
             BrushList m_brushes;
-            
         public:
             Entity();
-            ~Entity();
+            virtual ~Entity();
             
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
@@ -70,6 +69,7 @@ namespace TrenchBroom {
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             Vec3 origin() const;
+            virtual Quatf rotation() const;
             
             const BrushList& brushes() const;
             void addBrush(Brush* brush);
@@ -111,6 +111,20 @@ namespace TrenchBroom {
                     Brush* brush = *it;
                     brush->eachBrushFace(op, filter);
                 }
+            }
+        private:
+            Entity(const Entity& other);
+            Entity& operator=(const Entity& other);
+        };
+        
+        template <class RotationPolicy>
+        class ConfigurableEntity : public Entity {
+        public:
+            ConfigurableEntity() :
+            Entity() {}
+            
+            Quatf rotation() const {
+                return RotationPolicy::getRotation(*this);
             }
         };
     }

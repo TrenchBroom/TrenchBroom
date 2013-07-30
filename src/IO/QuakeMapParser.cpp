@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/QuakeEntityRotator.h"
 #include "View/Logger.h"
 
 namespace TrenchBroom {
@@ -165,7 +166,7 @@ namespace TrenchBroom {
             if (token.type() == QuakeMapToken::CBrace)
                 return NULL;
             
-            Model::Entity* entity = new Model::Entity();
+            Model::Entity* entity = new Model::ConfigurableEntity<Model::QuakeEntityRotationPolicy>();
             const size_t firstLine = token.line();
             
             try {

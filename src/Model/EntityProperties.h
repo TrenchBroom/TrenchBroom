@@ -33,6 +33,12 @@ namespace TrenchBroom {
             extern const PropertyKey Wad;
             extern const PropertyKey Spawnflags;
             extern const PropertyKey EntityDefinitions;
+            extern const PropertyKey Angle;
+            extern const PropertyKey Angles;
+            extern const PropertyKey Mangle;
+            extern const PropertyKey Target;
+            extern const PropertyKey Targetname;
+            extern const PropertyKey Killtarget;
         }
         
         namespace PropertyValues {

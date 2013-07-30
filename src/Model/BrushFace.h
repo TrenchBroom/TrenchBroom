@@ -134,6 +134,9 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void validateVertexCache() const;
+
+            BrushFace(const BrushFace& other);
+            BrushFace& operator=(const BrushFace& other);
         };
     }
 }

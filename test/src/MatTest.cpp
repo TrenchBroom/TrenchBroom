@@ -25,6 +25,9 @@
 #include "TrenchBroom.h"
 #include "TestUtils.h"
 
+#include <cstdlib>
+#include <ctime>
+
 TEST(MatTest, nullMatrix) {
     const Mat4x4d& m = Mat4x4d::Null;
     for (size_t c = 0; c < 4; ++c) {
@@ -800,6 +803,17 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
     ASSERT_MAT_EQ(Mat4x4d::Rot90XCCW, rotationMatrix(Quatd(Vec3d::PosX, Mathd::radians(90.0))));
     ASSERT_MAT_EQ(Mat4x4d::Rot90YCCW, rotationMatrix(Quatd(Vec3d::PosY, Mathd::radians(90.0))));
     ASSERT_MAT_EQ(Mat4x4d::Rot90ZCCW, rotationMatrix(Quatd(Vec3d::PosZ, Mathd::radians(90.0))));
+
+    
+    std::srand(std::time(NULL));
+    for (size_t i = 0; i < 10; ++i) {
+        Vec3d axis;
+        for (size_t j = 0; j < 3; ++j)
+            axis[j] = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
+        axis.normalize();
+        const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*Mathd::Pi;
+        ASSERT_MAT_EQ(rotationMatrix(axis, angle), rotationMatrix(Quatd(axis, angle)));
+    }
 }
 
 TEST(MatTest, translationMatrix) {
