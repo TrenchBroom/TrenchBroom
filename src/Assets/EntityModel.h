@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__EntityModel__
 #define __TrenchBroom__EntityModel__
 
-#include <iostream>
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -33,8 +33,10 @@ namespace TrenchBroom {
         public:
             virtual ~EntityModel();
             Renderer::MeshRenderer* buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+            BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
         private:
             virtual Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
         };
     }
 }

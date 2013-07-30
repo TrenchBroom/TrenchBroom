@@ -117,8 +117,8 @@ namespace TrenchBroom {
         }
         
         ModelSpecification PointEntityDefinition::model(const Model::EntityProperties& properties) const {
-            ModelDefinitionList::const_iterator it, end;
-            for (it = m_modelDefinitions.begin(), end = m_modelDefinitions.end(); it != end; ++it) {
+            ModelDefinitionList::const_reverse_iterator it, end;
+            for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
                 ModelDefinitionPtr modelDefinition = *it;
                 if (modelDefinition->matches(properties))
                     return modelDefinition->modelSpecification(properties);

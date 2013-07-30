@@ -26,5 +26,9 @@ namespace TrenchBroom {
         Renderer::MeshRenderer* EntityModel::buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
             return doBuildRenderer(vbo, skinIndex, frameIndex);
         }
+
+        BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
+            return doGetBounds(skinIndex, frameIndex);
+        }
     }
 }

@@ -20,6 +20,7 @@
 #include "QuakeGame.h"
 
 #include "StringUtils.h"
+#include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/FileSystem.h"
 #include "IO/FgdParser.h"
@@ -144,11 +145,17 @@ namespace TrenchBroom {
             IO::MappedFile::Ptr file = m_fs.findFile(path);
             if (file == NULL)
                 return NULL;
-            m_logger->debug("Loading entity model " + path.asString());
             
             if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
+                m_logger->debug("Loading entity model " + path.asString());
                 IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), m_palette);
                 return parser.parseModel();
+            } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
+                m_logger->debug("Loading entity model " + path.asString());
+                IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), m_palette);
+                return parser.parseModel();
+            } else {
+                m_logger->error("Unknown model type " + path.asString());
             }
             
             return NULL;

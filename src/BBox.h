@@ -75,6 +75,13 @@ public:
         }
     }
     
+    BBox(const typename Vec<T,S>::List& vertices) {
+        assert(vertices.size() > 0);
+        min = max = vertices[0];
+        for (size_t i = 0; i < vertices.size(); ++i)
+            mergeWith(vertices[i]);
+    }
+    
     inline bool operator== (const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
     }

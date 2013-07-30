@@ -30,7 +30,7 @@ namespace TrenchBroom {
         Preference<Color> EdgeColor("Renderer/Colors/Edges", Color(0.7f,  0.7f,  0.7f,  1.0f));
         Preference<Color> SelectedEdgeColor("Renderer/Colors/Selected edges", Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> OccludedSelectedEdgeColor("Renderer/Colors/Occluded selected edges", Color(1.0f,  0.0f,  0.0f,  0.5f));
-        Preference<Color> UndefinedEntityColor("Renderer/Colors/Undefined entity", Color(0.7f,  0.7f,  0.7f,  1.0f));
+        Preference<Color> UndefinedEntityColor("Renderer/Colors/Undefined entity", Color(0.5f,  0.5f,  0.5f,  1.0f));
 
         Preference<Color> InfoOverlayTextColor("Renderer/Colors/Info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> InfoOverlayBackgroundColor("Renderer/Colors/Info overlay background", Color(0.0f, 0.0f, 0.0f, 0.6f));

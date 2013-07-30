@@ -488,7 +488,7 @@
 	) = 
 	light_flame_brazier_short : "Short brazier" 
 	[
-		skin(choices) : "FaceTexture" : 0 =
+		skin(choices) : "Texture" : 0 =
 		[
 			0 : "knave ( default ) "
 			1 : "rust "
@@ -510,7 +510,7 @@
 	) = 
 	light_flame_brazier_tall : "Tall brazier" 
 	[
-		skin(choices) : "FaceTexture" : 0 =
+		skin(choices) : "Texture" : 0 =
 		[
 			0 : "knave ( default ) "
 			1 : "rust "

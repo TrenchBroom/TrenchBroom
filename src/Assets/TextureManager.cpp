@@ -130,9 +130,9 @@ namespace TrenchBroom {
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
                 FaceTextureCollection* collection = *cIt;
-                const TextureList textures = collection->textures();
+                const FaceTextureList textures = collection->textures();
                 
-                TextureList::const_iterator tIt, tEnd;
+                FaceTextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
                     FaceTexture* texture = *tIt;
                     m_texturesByName[texture->name()] = texture;

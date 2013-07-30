@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const Path wadPath("data/IO/Wad/cr8_czg.wad");
             Assets::FaceTextureCollection* collection = loader.loadTextureCollection(wadPath);
             
-            const Assets::TextureList& textures = collection->textures();
+            const Assets::FaceTextureList& textures = collection->textures();
             ASSERT_EQ(21u, textures.size());
             assertTexture("cr8_czg_1",          64,  64, textures[ 0]);
             assertTexture("cr8_czg_2",          64,  64, textures[ 1]);

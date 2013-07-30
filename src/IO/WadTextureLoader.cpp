@@ -38,7 +38,7 @@ namespace TrenchBroom {
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
-            Assets::TextureList textures;
+            Assets::FaceTextureList textures;
             textures.reserve(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Wad wad(path);
 
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
-            const Assets::TextureList& textures = collection->textures();
+            const Assets::FaceTextureList& textures = collection->textures();
             
             if (mipEntries.size() != textures.size())
                 throw WadException("Found different number of textures in " + path.asString() + " while uploading mip data");

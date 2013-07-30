@@ -22,6 +22,8 @@
 #include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "Assets/ModelDefinition.h"
+#include "Assets/EntityModel.h"
 #include "Model/Entity.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
@@ -38,8 +40,15 @@ namespace TrenchBroom {
         m_entity(entity) {}
         
         const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
+            const Assets::EntityModel* model = m_entity->model();
             Vec3f position = m_entity->bounds().center();
             position[2] = m_entity->bounds().max.z();
+            if (model != NULL) {
+                const Assets::ModelSpecification spec = m_entity->modelSpecification();
+                const BBox3f modelBounds = model->bounds(spec.skinIndex, spec.frameIndex);
+                const Vec3f origin = m_entity->origin();
+                position[2] = std::max(position[2], modelBounds.max.z() + origin.z());
+            }
             position[2] += 2.0f;
             return position;
         }

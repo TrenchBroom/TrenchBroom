@@ -239,7 +239,6 @@ namespace TrenchBroom {
 
         void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height) {
             const size_t size = width * height;
-            Buffer<char> indexedImage(size);
             Color avgColor;
 
             cursor = m_begin + MdlLayout::Skins;
@@ -247,8 +246,8 @@ namespace TrenchBroom {
                 const size_t skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
                     Buffer<unsigned char> rgbImage(size * 3);
-                    readBytes(cursor, indexedImage.ptr(), size);
-                    m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
+                    m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                    cursor += size;
                     
                     Assets::AutoTexture* texture = new Assets::AutoTexture(width, height, rgbImage);
                     model.addSkin(new Assets::MdlSkin(texture));
@@ -265,9 +264,8 @@ namespace TrenchBroom {
                         
                         Buffer<unsigned char> rgbImage(size * 3);
                         cursor = base + pictureCount * 4 + j * size;
-                        readBytes(cursor, indexedImage.ptr(), size);
-                        
-                        m_palette.indexedToRgb(indexedImage, size, rgbImage, avgColor);
+                        m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                        cursor += size;
                         textures[j] = new Assets::AutoTexture(width, height, rgbImage);
                     }
                     
@@ -351,7 +349,7 @@ namespace TrenchBroom {
                 for (size_t j = 0; j < 3; ++j) {
                     const size_t vertexIndex = triangle.vertices[j];
                     const MdlSkinVertex& skinVertex = skinVertices[vertexIndex];
-                    const size_t normalIndex = static_cast<size_t>(packedVertices[vertexIndex].w());
+                    // const size_t normalIndex = static_cast<size_t>(packedVertices[vertexIndex].w());
                     
                     Vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
                                      static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
@@ -359,7 +357,6 @@ namespace TrenchBroom {
                         texCoords[0] += 0.5f;
                     
                     frameTriangles.push_back(Assets::MdlFrameVertex(positions[vertexIndex],
-                                                                    Normals[normalIndex],
                                                                     texCoords));
                 }
             }

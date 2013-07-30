@@ -31,13 +31,13 @@ namespace TrenchBroom {
         class FaceTextureCollection {
         private:
             IO::Path m_path;
-            TextureList m_textures;
+            FaceTextureList m_textures;
         public:
-            FaceTextureCollection(const IO::Path& path, const TextureList& textures);
+            FaceTextureCollection(const IO::Path& path, const FaceTextureList& textures);
             ~FaceTextureCollection();
 
             const IO::Path& path() const;
-            const TextureList& textures() const;
+            const FaceTextureList& textures() const;
         private:
         };
         

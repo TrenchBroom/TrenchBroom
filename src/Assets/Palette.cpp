@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         void Palette::indexedToRgb(const char* indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const {
             double avg[3];
-            avg[0] = avg[1] = avg[2] = 0;
+            avg[0] = avg[1] = avg[2] = 0.0;
             for (size_t i = 0; i < pixelCount; ++i) {
                 const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
                 assert(index < m_size);

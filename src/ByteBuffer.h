@@ -30,8 +30,9 @@ private:
     typedef std::vector<T> InternalBuffer;
     typedef std::tr1::shared_ptr<InternalBuffer> InternalBufferPtr;
     InternalBufferPtr m_buffer;
-    
 public:
+    typedef std::vector<Buffer<T> > List;
+    
     Buffer(const size_t size = 0) :
     m_buffer(new InternalBuffer()) {
         m_buffer->resize(size);

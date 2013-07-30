@@ -26,33 +26,61 @@ namespace TrenchBroom {
         AutoTexture::AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>& buffer) :
         m_textureId(0),
         m_width(width),
+        m_height(height) {
+            assert(m_width > 0);
+            assert(m_height > 0);
+            m_buffers.push_back(buffer);
+        }
+        
+        AutoTexture::AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>::List& buffers) :
+        m_textureId(0),
+        m_width(width),
         m_height(height),
-        m_buffer(buffer) {
+        m_buffers(buffers) {
             assert(m_width > 0);
             assert(m_height > 0);
         }
-        
+
         AutoTexture::~AutoTexture() {
-            deleteBuffer();
+            deleteBuffers();
             if (m_textureId != 0) {
                 glDeleteTextures(1, &m_textureId);
                 m_textureId = 0;
             }
         }
         
+        size_t AutoTexture::width() const {
+            return m_width;
+        }
+        
+        size_t AutoTexture::height() const {
+            return m_height;
+        }
+
         void AutoTexture::activate() const {
             if (m_textureId == 0) {
                 glGenTextures(1, &m_textureId);
                 glBindTexture(GL_TEXTURE_2D, m_textureId);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1));
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                             static_cast<GLsizei>(m_width),
-                             static_cast<GLsizei>(m_height),
-                             0, GL_RGB, GL_UNSIGNED_BYTE, m_buffer.ptr());
-                deleteBuffer();
+
+                size_t mipWidth = m_width;
+                size_t mipHeight = m_height;
+                size_t offset = 0;
+                for (size_t j = 0; j < m_buffers.size(); ++j) {
+                    const GLvoid* data = static_cast<GLvoid*>(m_buffers[j].ptr());
+                    glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
+                                 static_cast<GLsizei>(mipWidth),
+                                 static_cast<GLsizei>(mipHeight),
+                                 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                    offset += mipWidth * mipHeight;
+                    mipWidth /= 2;
+                    mipHeight /= 2;
+                }
+                deleteBuffers();
             } else {
                 glBindTexture(GL_TEXTURE_2D, m_textureId);
             }
@@ -62,8 +90,8 @@ namespace TrenchBroom {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        void AutoTexture::deleteBuffer() const {
-            m_buffer = Buffer<unsigned char>();
+        void AutoTexture::deleteBuffers() const {
+            m_buffers = Buffer<unsigned char>::List(0);
         }
     }
 }

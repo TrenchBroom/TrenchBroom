@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const AutoTexture* firstPicture() const;
         };
 
-        typedef Renderer::VertexSpecs::P3NT2::Vertex MdlFrameVertex;
+        typedef Renderer::VertexSpecs::P3T2::Vertex MdlFrameVertex;
         typedef MdlFrameVertex::List MdlFrameVertexList;
         
         class MdlFrame;
@@ -70,6 +70,7 @@ namespace TrenchBroom {
             MdlFrame(const String& name, const MdlFrameVertexList& triangles, const BBox3f& bounds);
             const MdlFrame* firstFrame() const;
             const MdlFrameVertexList& triangles() const;
+            BBox3f bounds() const;
         };
         
         class MdlFrameGroup : public MdlBaseFrame {
@@ -100,6 +101,7 @@ namespace TrenchBroom {
             void addFrame(MdlBaseFrame* frame);
         private:
             Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+            BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
         };
     }
 }

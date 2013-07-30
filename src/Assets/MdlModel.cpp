@@ -64,6 +64,10 @@ namespace TrenchBroom {
             return m_triangles;
         }
 
+        BBox3f MdlFrame::bounds() const {
+            return m_bounds;
+        }
+
         MdlFrameGroup::~MdlFrameGroup() {
             VectorUtils::clearAndDelete(m_frames);
         }
@@ -103,12 +107,19 @@ namespace TrenchBroom {
             const MdlSkin* skin = m_skins[skinIndex];
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
             
-            Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3NT2> mesh;
+            Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> mesh;
             mesh.beginTriangleSet(skin->firstPicture());
             mesh.addTrianglesToSet(frame->triangles());
             mesh.endTriangleSet();
             
             return new Renderer::MeshRenderer(vbo, mesh);
+        }
+
+        BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
+            if (frameIndex >= m_frames.size())
+                return BBox3f(-8.0f, 8.0f);
+            const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
+            return frame->bounds();
         }
     }
 }

@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        FaceTextureCollection::FaceTextureCollection(const IO::Path& path, const TextureList& textures) :
+        FaceTextureCollection::FaceTextureCollection(const IO::Path& path, const FaceTextureList& textures) :
         m_path(path),
         m_textures(textures) {}
 
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             return m_path;
         }
         
-        const TextureList& FaceTextureCollection::textures() const {
+        const FaceTextureList& FaceTextureCollection::textures() const {
             return m_textures;
         }
 
