@@ -112,8 +112,8 @@ namespace TrenchBroom {
             
             const ModelSpecification spec = definition->modelSpecification(properties);
             ASSERT_EQ(path, spec.path);
-            ASSERT_EQ(0, spec.skinIndex);
-            ASSERT_EQ(0, spec.frameIndex);
+            ASSERT_EQ(0u, spec.skinIndex);
+            ASSERT_EQ(0u, spec.frameIndex);
         }
         
         TEST(ModelDefinitionTest, testDynamicModelDefinitionWithSkinKey) {
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             const ModelSpecification spec = definition->modelSpecification(properties);
             ASSERT_EQ(path, spec.path);
             ASSERT_EQ(skinIndex, spec.skinIndex);
-            ASSERT_EQ(0, spec.frameIndex);
+            ASSERT_EQ(0u, spec.frameIndex);
         }
         
         TEST(ModelDefinitionTest, testDynamicModelDefinitionWithSkinAndFrameKey) {
