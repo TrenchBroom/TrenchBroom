@@ -153,6 +153,7 @@ namespace TrenchBroom {
             typedef VertexSpec1<AttributeSpecs::P3> P3;
             typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4> P3C4;
             typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::T02> P3T2;
+            typedef VertexSpec3<AttributeSpecs::P3, AttributeSpecs::T02, AttributeSpecs::C4> P3T2C4;
             typedef VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::T02> P3NT2;
         }
     }

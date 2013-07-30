@@ -56,7 +56,8 @@ namespace TrenchBroom {
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
             void clearState();
-            void loadMap(Model::Map* map);
+            void loadMap(Model::Map& map);
+            void updateGeometry(Model::Map& map);
         };
     }
 }

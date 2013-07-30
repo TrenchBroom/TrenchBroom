@@ -38,7 +38,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_vertices);
         }
 
-        BBox3 BrushGeometry::bounds() const {
+        const BBox3& BrushGeometry::bounds() const {
             return m_bounds;
         }
 

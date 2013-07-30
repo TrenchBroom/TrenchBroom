@@ -19,10 +19,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
+varying vec4 vertexColor;
 uniform sampler2D FaceTexture;
 
 void main() {
     vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);
-    gl_FragColor = vec4(Color.r, Color.g, Color.b, Color.a * texel.r);
+    gl_FragColor = vec4(vertexColor.r, vertexColor.g, vertexColor.b, vertexColor.a * texel.r);
 }

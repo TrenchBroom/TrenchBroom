@@ -114,7 +114,6 @@ namespace TrenchBroom {
         public:
             class TextRendererFilter {
             public:
-                TextRendererFilter() {}
                 virtual ~TextRendererFilter() {}
                 virtual bool stringVisible(RenderContext& context, const Key& key) const = 0;
             };
@@ -124,6 +123,13 @@ namespace TrenchBroom {
                 inline bool stringVisible(RenderContext& context, const Key& key) const {
                     return true;
                 }
+            };
+            
+            class TextColorProvider {
+            public:
+                virtual ~TextColorProvider() {}
+                virtual Color textColor(RenderContext& context, const Key& key) const = 0;
+                virtual Color backgroundColor(RenderContext& context, const Key& key) const = 0;
             };
             
         protected:
@@ -158,7 +164,7 @@ namespace TrenchBroom {
             
             typedef std::map<Key, TextEntry, Comparator> TextMap;
             typedef std::pair<Key, TextEntry> TextMapItem;
-            typedef std::vector<TextEntry> EntryList;
+            typedef std::vector<typename TextMap::iterator> EntryList;
             
             TextureFont& m_font;
             float m_fadeDistance;
@@ -223,7 +229,7 @@ namespace TrenchBroom {
                 m_fadeDistance = fadeDistance;
             }
             
-            void render(RenderContext& context, const TextRendererFilter& filter, const ShaderConfig& textProgram, const Color& textColor, const ShaderConfig& backgroundProgram, const Color& backgroundColor) {
+            void render(RenderContext& context, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
                 if (m_entries.empty())
                     return;
                 
@@ -231,16 +237,17 @@ namespace TrenchBroom {
                 if (entries.empty())
                     return;
 
-                typedef VertexSpecs::P3T2::Vertex FontVertex;
+                typedef VertexSpecs::P3T2C4::Vertex FontVertex;
                 FontVertex::List fontVertices;
                 
-                typedef VertexSpecs::P3::Vertex RectVertex;
+                typedef VertexSpecs::P3C4::Vertex RectVertex;
                 RectVertex::List rectVertices;
-                rectVertices.reserve( 3 * 16 * entries.size());
+                rectVertices.reserve(3 * 16 * entries.size());
                 
                 typename EntryList::const_iterator it, end;
                 for (it = entries.begin(), end = entries.end(); it != end; ++it) {
-                    const TextEntry& entry = *it;
+                    const Key& key = (*it)->first;
+                    const TextEntry& entry = (*it)->second;
                     const Vec2f& size = entry.size().rounded();
                     const TextAnchor& anchor = entry.textAnchor();
                     const Vec3f offset = anchor.offset(context.camera(), size);
@@ -252,7 +259,7 @@ namespace TrenchBroom {
                         const Vec3f position3(position2.x() + offset.x(),
                                               position2.y() + offset.y(),
                                               -offset.z());
-                        fontVertices.push_back(FontVertex(position3, texCoords));
+                        fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(context, key)));
                     }
 
                     const Vec2f::List tempRect = roundedRect(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
@@ -261,7 +268,7 @@ namespace TrenchBroom {
                         const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,
                                                      vertex.y() + offset.y() + size.y() / 2.0f,
                                                      -offset.z());
-                        rectVertices.push_back(RectVertex(position));
+                        rectVertices.push_back(RectVertex(position, colorProvider.backgroundColor(context, key)));
                     }
                 }
                 
@@ -287,12 +294,10 @@ namespace TrenchBroom {
                 glDisable(GL_TEXTURE_2D);
                 
                 ActiveShader backgroundShader(context.shaderManager(), backgroundProgram);
-                backgroundShader.set("Color", backgroundColor);
                 rectArray.render();
                 
                 glEnable(GL_TEXTURE_2D);
                 ActiveShader textShader(context.shaderManager(), textProgram);
-                textShader.set("Color", textColor);
                 textShader.set("FaceTexture", 0);
                 m_font.activate();
                 fontArray.render();
@@ -320,7 +325,7 @@ namespace TrenchBroom {
                         
                         const float dist2 = context.camera().squaredDistanceTo(position);
                         if (dist2 <= cutoff)
-                            result.push_back(entry);
+                            result.push_back(it);
                     }
                 }
                 

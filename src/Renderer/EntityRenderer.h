@@ -49,12 +49,19 @@ namespace TrenchBroom {
             public:
                 EntityClassnameAnchor(const Model::Entity* entity);
             };
-
+            
             class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
             public:
                 bool stringVisible(RenderContext& context, const Key& entity) const;
             };
 
+            class EntityClassnameColorProvider : public ClassnameRenderer::TextColorProvider {
+            private:
+            public:
+                Color textColor(RenderContext& context, const Key& entity) const;
+                Color backgroundColor(RenderContext& context, const Key& entity) const;
+            };
+            
             Cache m_renderers;
             EdgeRenderer m_boundsRenderer;
             ClassnameRenderer m_classnameRenderer;
@@ -71,6 +78,7 @@ namespace TrenchBroom {
             void removeEntity(Model::Entity* entity);
             void removeEntities(const Model::EntityList& entities);
             void clear();
+            void invalidateBounds();
             
             void render(RenderContext& context);
         private:
@@ -78,10 +86,7 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             static TextureFont& font(FontManager& fontManager);
-            const Color& classnameTextColor() const;
-            const Color& classnameBackgroundColor() const;
             SingleEntityRenderer* createRenderer(const Model::Entity* entity) const;
-            void invalidateBounds();
             void validateBounds();
         };
     }

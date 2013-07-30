@@ -106,7 +106,7 @@ namespace TrenchBroom {
             ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
             shader.set("ApplyTinting", false);
-//            shader.set("TintColor", m_tintColor);
+            shader.set("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
             
@@ -119,10 +119,10 @@ namespace TrenchBroom {
                 
                 const Vec3f position = entity->origin();
                 const Quatf rotation = entity->rotation();
-                
                 const Mat4x4f matrix = translationMatrix(position) * rotationMatrix(rotation);
-                
                 MultiplyModelMatrix multMatrix(context.transformation(), matrix);
+                
+                shader.set("ApplyTinting", entity->selected());
                 renderer->render();
             }
         }

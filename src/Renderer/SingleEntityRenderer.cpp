@@ -62,6 +62,10 @@ namespace TrenchBroom {
         }
 
         const Color& SingleEntityRenderer::boundsColor() const {
+            if (m_entity->selected()) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                return prefs.getColor(Preferences::SelectedEdgeColor);
+            }
             const Assets::EntityDefinition* definition = m_entity->definition();
             if (definition == NULL) {
                 PreferenceManager& prefs = PreferenceManager::instance();

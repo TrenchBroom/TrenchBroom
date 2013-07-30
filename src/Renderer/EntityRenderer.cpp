@@ -61,6 +61,20 @@ namespace TrenchBroom {
             return true;
         }
 
+        Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& context, const Key& entity) const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            if (entity->selected())
+                return prefs.getColor(Preferences::SelectedInfoOverlayTextColor);
+            return prefs.getColor(Preferences::InfoOverlayTextColor);
+        }
+        
+        Color EntityRenderer::EntityClassnameColorProvider::backgroundColor(RenderContext& context, const Key& entity) const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            if (entity->selected())
+                return prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor);
+            return prefs.getColor(Preferences::InfoOverlayBackgroundColor);
+        }
+
         EntityRenderer::EntityRenderer(FontManager& fontManager) :
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
         m_boundsValid(false) {
@@ -137,6 +151,10 @@ namespace TrenchBroom {
             m_modelRenderer.clear();
         }
 
+        void EntityRenderer::invalidateBounds() {
+            m_boundsValid = false;
+        }
+        
         void EntityRenderer::render(RenderContext& context) {
             renderBounds(context);
             renderModels(context);
@@ -154,9 +172,9 @@ namespace TrenchBroom {
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
             EntityClassnameFilter textFilter;
-            m_classnameRenderer.render(context, textFilter,
-                                       Shaders::TextShader, classnameTextColor(),
-                                       Shaders::TextBackgroundShader, classnameBackgroundColor());
+            EntityClassnameColorProvider colorProvider;
+            m_classnameRenderer.render(context, textFilter, colorProvider,
+                                       Shaders::TextShader, Shaders::TextBackgroundShader);
         }
         
         void EntityRenderer::renderModels(RenderContext& context) {
@@ -170,22 +188,8 @@ namespace TrenchBroom {
             return fontManager.font(FontDescriptor(fontName, fontSize));
         }
 
-        const Color& EntityRenderer::classnameTextColor() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.getColor(Preferences::InfoOverlayTextColor);
-        }
-        
-        const Color& EntityRenderer::classnameBackgroundColor() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.getColor(Preferences::InfoOverlayBackgroundColor);
-        }
-
         SingleEntityRenderer* EntityRenderer::createRenderer(const Model::Entity* entity) const {
             return new SingleEntityRenderer(entity);
-        }
-
-        void EntityRenderer::invalidateBounds() {
-            m_boundsValid = false;
         }
 
         void EntityRenderer::validateBounds() {

@@ -19,6 +19,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+varying vec4 vertexColor;
+
 void main(void) {
+    vertexColor = gl_Color;
     gl_Position = ftransform();
 }

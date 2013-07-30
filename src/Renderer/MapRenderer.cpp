@@ -113,26 +113,26 @@ namespace TrenchBroom {
                 clearState();
                 Controller::NewDocumentCommand::Ptr newDocumentCommand = Controller::Command::cast<Controller::NewDocumentCommand>(command);
                 Model::Map* map = newDocumentCommand->map();
-                loadMap(map);
+                loadMap(*map);
             } else if (command->type() == Controller::OpenDocumentCommand::Type) {
                 clearState();
                 Controller::OpenDocumentCommand::Ptr openDocumentCommand = Controller::Command::cast<Controller::OpenDocumentCommand>(command);
                 Model::Map* map = openDocumentCommand->map();
-                loadMap(map);
+                loadMap(*map);
             } else if (command->type() == Controller::SelectionCommand::Type) {
-                clearState();
                 Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
                 Model::Map* map = selectionCommand->map();
-                loadMap(map);
+                updateGeometry(*map);
+                m_entityRenderer.invalidateBounds();
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
             if (command->type() == Controller::SelectionCommand::Type) {
-                clearState();
                 Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
                 Model::Map* map = selectionCommand->map();
-                loadMap(map);
+                updateGeometry(*map);
+                m_entityRenderer.invalidateBounds();
             }
         }
 
@@ -202,19 +202,22 @@ namespace TrenchBroom {
             m_selectedBrushRenderer = BrushRenderer(BrushRenderer::BRSelected);
         }
 
-        void MapRenderer::loadMap(Model::Map* map) {
-            BuildBrushFaceMeshFilter filter;
+        void MapRenderer::loadMap(Model::Map& map) {
+            updateGeometry(map);
+            m_entityRenderer.addEntities(map.entities());
+        }
 
+        void MapRenderer::updateGeometry(Model::Map& map) {
+            BuildBrushFaceMeshFilter filter;
+            
             BuildBrushFaceMesh buildFaces;
-            map->eachBrushFace(buildFaces, filter);
+            map.eachBrushFace(buildFaces, filter);
             
             BuildBrushEdges buildEdges;
-            map->eachBrush(buildEdges, filter);
+            map.eachBrush(buildEdges, filter);
             
             m_brushRenderer.update(buildFaces.unselectedMesh, buildEdges.unselectedVertices);
             m_selectedBrushRenderer.update(buildFaces.selectedMesh, buildEdges.selectedVertices);
-            
-            m_entityRenderer.addEntities(map->entities());
         }
     }
 }

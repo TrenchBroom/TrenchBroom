@@ -63,7 +63,7 @@ namespace TrenchBroom {
             BrushGeometry(const BBox3& worldBounds);
             ~BrushGeometry();
             
-            BBox3 bounds() const;
+            const BBox3& bounds() const;
             const BrushVertex::List& vertices() const;
             const BrushEdge::List& edges() const;
             const BrushFaceGeometry::List& sides() const;

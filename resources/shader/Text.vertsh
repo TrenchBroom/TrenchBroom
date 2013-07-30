@@ -19,7 +19,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+varying vec4 vertexColor;
+
 void main(void) {
+    vertexColor = gl_Color;
     gl_Position = ftransform();
     gl_TexCoord[0] = gl_MultiTexCoord0;
 }
