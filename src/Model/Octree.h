@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
             inline void findObjects(const Ray<F,3>& ray, List& result) const {
                 const F distance = m_bounds.intersectWithRay(ray);
-                if (Mathf::isnan(distance))
+                if (Math<F>::isnan(distance))
                     return;
                 
                 for (size_t i = 0; i < 8; ++i)

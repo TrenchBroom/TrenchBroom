@@ -253,7 +253,7 @@ namespace TrenchBroom {
 			WideCharToMultiByte(CP_ACP, 0, uWindowsPathC, numChars, windowsPathC, numChars, NULL, NULL);
 			windowsPathC[numChars] = 0;
             
-            const IO::Path windowPath(String(windowsPathC));
+            const IO::Path windowsPath(String(windowsPathC, numChars));
             
 			const String extensions[2] = {".ttf", ".ttc"};
             const IO::Path fontDirectoryPath = windowsPath + IO::Path("Fonts");
@@ -266,7 +266,7 @@ namespace TrenchBroom {
             
 			return fontDirectoryPath + IO::Path("Arial.ttf");
         }
-#elif define __linux__
+#elif defined __linux__
         Path FileSystem::findFontFile(const String& fontName) const {
             const IO::Path fontDirectoryPath("/usr/share/fonts/truetype/");
             const String extensions[2] = {".ttf", ".ttc"};

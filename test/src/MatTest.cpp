@@ -805,7 +805,7 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
     ASSERT_MAT_EQ(Mat4x4d::Rot90ZCCW, rotationMatrix(Quatd(Vec3d::PosZ, Mathd::radians(90.0))));
 
     
-    std::srand(std::time(NULL));
+    std::srand(static_cast<unsigned int>(std::time(NULL)));
     for (size_t i = 0; i < 10; ++i) {
         Vec3d axis;
         for (size_t j = 0; j < 3; ++j)

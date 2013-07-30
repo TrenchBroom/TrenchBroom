@@ -73,20 +73,22 @@ namespace TrenchBroom {
         const Color& BrushRenderer::edgeColor() const {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (m_config) {
-                case BRUnselected:
-                    return prefs.getColor(Preferences::EdgeColor);
                 case BRSelected:
                     return prefs.getColor(Preferences::SelectedEdgeColor);
+                case BRUnselected:
+                default:
+                    return prefs.getColor(Preferences::EdgeColor);
             }
         }
 
         const Color& BrushRenderer::occludedEdgeColor() const {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (m_config) {
-                case BRUnselected:
-                    return prefs.getColor(Preferences::EdgeColor);
                 case BRSelected:
                     return prefs.getColor(Preferences::OccludedSelectedEdgeColor);
+                case BRUnselected:
+                default:
+                    return prefs.getColor(Preferences::EdgeColor);
             }
         }
     }

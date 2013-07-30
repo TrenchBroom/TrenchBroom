@@ -59,15 +59,14 @@ SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 
 # Configure freetype library
 IF(APPLE)
-	# FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "./lib/bin/osx" DOC "Freetype library")
 	SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreetype.a" "${LIB_BIN_DIR}/osx/libbz2.a")
-	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "./lib/include" DOC "Freetype includes")
+	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
 ELSE()
 	INCLUDE(FindFreetype)
-	IF(NOT FREETYPE_FOUND)
-  		FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype freetype6.dll PATHS "./lib/bin/win32" DOC "Freetype library")
-  		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "./lib/include" DOC "Freetype includes")
-	ENDIF(NOT FREETYPE_FOUND)
+	IF((NOT FREETYPE_FOUND) AND WIN32)
+  		SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/win32/freetype.lib" "${LIB_BIN_DIR}/win32/freetype6.dll")
+  		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+	ENDIF()
 ENDIF()
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 
@@ -167,3 +166,13 @@ SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "TESTING")
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" $<TARGET_FILE_DIR:TrenchBroom-Test>/data
 )
+
+IF(WIN32)
+	# Copy DLLs to app directory
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom>
+	)
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom-Test>
+	)
+ENDIF()

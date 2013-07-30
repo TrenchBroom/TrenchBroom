@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         Ray3f Camera::pickRay(const int x, const int y) const {
-            const Vec3f direction = (unproject(x, y, 0.5f) - m_position).normalized();
+            const Vec3f direction = (unproject(static_cast<float>(x), static_cast<float>(y), 0.5f) - m_position).normalized();
             return Ray3f(m_position, direction);
         }
 

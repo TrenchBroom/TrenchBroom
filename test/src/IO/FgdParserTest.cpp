@@ -372,7 +372,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("test2"), floatProperty2->name());
             ASSERT_EQ(String("Some test property with default"), floatProperty2->description());
             ASSERT_TRUE(floatProperty2->hasDefaultValue());
-            ASSERT_FLOAT_EQ(2.7, floatProperty2->defaultValue());
+            ASSERT_FLOAT_EQ(2.7f, floatProperty2->defaultValue());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -434,7 +434,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("worldtype2"), choiceProperty2->name());
             ASSERT_EQ(String("Ambience with default"), choiceProperty2->description());
             ASSERT_TRUE(choiceProperty2->hasDefaultValue());
-            ASSERT_FLOAT_EQ(1, choiceProperty2->defaultValue());
+            ASSERT_EQ(1u, choiceProperty2->defaultValue());
             
             const Assets::ChoicePropertyOption::List& options2 = choiceProperty1->options();
             ASSERT_EQ(3u, options2.size());

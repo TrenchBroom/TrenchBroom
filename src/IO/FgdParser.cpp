@@ -592,7 +592,7 @@ namespace TrenchBroom {
         
         Vec3 FgdParser::parseVector() {
             Token token;
-            Vec3f vec;
+            Vec3 vec;
             for (size_t i = 0; i < 3; i++) {
                 expect(FgdToken::Integer | FgdToken::Decimal, token = m_tokenizer.nextToken());
                 vec[i] = token.toFloat<double>();

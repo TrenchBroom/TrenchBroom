@@ -43,11 +43,11 @@ namespace TrenchBroom {
             return (m_type & typeMask) != 0;
         }
 
-        float Hit::distance() const {
+        FloatType Hit::distance() const {
             return m_distance;
         }
         
-        const Vec3f& Hit::hitPoint() const {
+        const Vec3& Hit::hitPoint() const {
             return m_hitPoint;
         }
 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                     if (filter.matches(first))
                         return FirstHit(true, first);
                     
-                    const float closest = (it++)->distance();
+                    const FloatType closest = (it++)->distance();
                     while (it != end) {
                         const Hit& hit = *it;
                         if (hit.distance() > closest)

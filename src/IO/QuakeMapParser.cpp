@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
 
         Model::Map* QuakeMapParser::doParseMap(const BBox3& worldBounds) {
-            Model::Map* map = map = new Model::Map();
+            Model::Map* map = new Model::Map();
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
