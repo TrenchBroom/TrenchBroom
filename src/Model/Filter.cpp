@@ -19,13 +19,38 @@
 
 #include "Filter.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
+#include "Model/EntityProperties.h"
+
 namespace TrenchBroom {
     namespace Model {
-        bool Filter::passes(Entity* entity) const {
+        bool Filter::visible(const Entity* entity) const {
+            if (entity->classname() == PropertyValues::WorldspawnClassname)
+                return false;
             return true;
         }
         
-        bool Filter::passes(Brush* brush) const {
+        bool Filter::visible(const Brush* brush) const {
+            return true;
+        }
+        
+        bool Filter::visible(const BrushFace* face) const {
+            return true;
+        }
+        
+        bool Filter::pickable(const Entity* entity) const {
+            if (entity->classname() == PropertyValues::WorldspawnClassname)
+                return false;
+            return true;
+        }
+        
+        bool Filter::pickable(const Brush* brush) const {
+            return true;
+        }
+        
+        bool Filter::pickable(const BrushFace* face) const {
             return true;
         }
     }

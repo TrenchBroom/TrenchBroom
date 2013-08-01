@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include <map>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,19 +33,20 @@ namespace TrenchBroom {
 
         class BrushFace;
         typedef std::vector<BrushFace*> BrushFaceList;
-        static const BrushFaceList EmptyBrushFaceList;
+        static const BrushFaceList EmptyBrushFaceList(0);
         
         class Object;
         typedef std::vector<Object*> ObjectList;
-        static const ObjectList EmptyObjectList;
+        static const ObjectList EmptyObjectList(0);
         
         class Brush;
         typedef std::vector<Brush*> BrushList;
-        static const BrushList EmptyBrushList;
+        static const BrushList EmptyBrushList(0);
         
         class Entity;
         typedef std::vector<Entity*> EntityList;
-        static const EntityList EmptyEntityList;
+        static const EntityList EmptyEntityList(0);
+        typedef std::set<Entity*> EntitySet;
         
         class Pickable;
         typedef std::vector<Pickable*> PickableList;

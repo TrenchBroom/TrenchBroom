@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this)),
         m_document(document),
         m_controller(controller),
-        m_renderer(m_fontManager),
+        m_renderer(m_fontManager, document->filter()),
         m_cameraTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL) {

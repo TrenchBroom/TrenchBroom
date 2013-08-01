@@ -17,23 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Filter__
-#define __TrenchBroom__Filter__
+#include "DefaultHitFilter.h"
 
-#include "Model/ModelTypes.h"
+#include "Model/Filter.h"
+#include "Model/Entity.h"
+#include "Model/Brush.h"
+#include "Model/BrushFAce.h"
+#include "Model/HitAdapter.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Filter {
-        public:
-            bool visible(const Entity* entity) const;
-            bool visible(const Brush* brush) const;
-            bool visible(const BrushFace* face) const;
-            bool pickable(const Entity* entity) const;
-            bool pickable(const Brush* brush) const;
-            bool pickable(const BrushFace* face) const;
-        };
+        DefaultHitFilter::DefaultHitFilter(Filter& filter) :
+        m_filter(filter) {}
+        
+        bool DefaultHitFilter::matches(const Hit& hit) const {
+            if (hit.type() == Entity::EntityHit)
+                return m_filter.pickable(hitAsEntity(hit));
+            if (hit.type() == Brush::BrushHit)
+                return m_filter.pickable(hitAsBrush(hit));
+            return false;
+        }
+        
     }
 }
-
-#endif /* defined(__TrenchBroom__Filter__) */

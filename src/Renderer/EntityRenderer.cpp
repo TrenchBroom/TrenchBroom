@@ -19,17 +19,20 @@
 
 #include "EntityRenderer.h"
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/Entity.h"
+#include "Model/Filter.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/SingleEntityRenderer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/VertexSpec.h"
@@ -57,8 +60,11 @@ namespace TrenchBroom {
             return Alignment::Bottom;
         }
 
+        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::Filter& filter) :
+        m_filter(filter) {}
+
         bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const Key& entity) const {
-            return true;
+            return m_filter.visible(entity);
         }
 
         Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& context, const Key& entity) const {
@@ -75,8 +81,10 @@ namespace TrenchBroom {
             return prefs.getColor(Preferences::InfoOverlayBackgroundColor);
         }
 
-        EntityRenderer::EntityRenderer(FontManager& fontManager) :
+        EntityRenderer::EntityRenderer(FontManager& fontManager, const Model::Filter& filter) :
+        m_filter(filter),
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
+        m_modelRenderer(m_filter),
         m_boundsValid(false) {
             m_classnameRenderer.setFadeDistance(500.0f);
         }
@@ -88,9 +96,8 @@ namespace TrenchBroom {
         void EntityRenderer::addEntity(Model::Entity* entity) {
             assert(entity != NULL);
 
-            assert(m_renderers.count(entity) == 0);
-            SingleEntityRenderer* renderer = createRenderer(entity);
-            m_renderers[entity] = renderer;
+            assert(m_entities.count(entity) == 0);
+            m_entities.insert(entity);
             m_classnameRenderer.addString(entity, entity->classname(), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
             m_modelRenderer.addEntity(entity);
             
@@ -106,12 +113,7 @@ namespace TrenchBroom {
         
         void EntityRenderer::updateEntity(Model::Entity* entity) {
             assert(entity != NULL);
-            
-            Cache::iterator it = m_renderers.find(entity);
-            assert(it != m_renderers.end());
-            
-            delete it->second;
-            it->second = createRenderer(entity);
+            assert(m_entities.count(entity) == 1);
             
             m_classnameRenderer.updateString(entity, entity->classname());
             m_modelRenderer.updateEntity(entity);
@@ -127,11 +129,9 @@ namespace TrenchBroom {
         void EntityRenderer::removeEntity(Model::Entity* entity) {
             assert(entity != NULL);
             
-            Cache::iterator it = m_renderers.find(entity);
-            assert(it != m_renderers.end());
-            
-            delete it->second;
-            m_renderers.erase(it);
+            Model::EntitySet::iterator it = m_entities.find(entity);
+            assert(it != m_entities.end());
+            m_entities.erase(it);
             
             m_classnameRenderer.removeString(entity);
             m_modelRenderer.removeEntity(entity);
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::clear() {
-            MapUtils::clearAndDelete(m_renderers);
+            m_entities.clear();
             m_classnameRenderer.clear();
             m_modelRenderer.clear();
         }
@@ -165,13 +165,24 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
             
+            PreferenceManager& prefs = PreferenceManager::instance();
+
             glSetEdgeOffset(0.025f);
             m_boundsRenderer.render(context);
+            
+            glSetEdgeOffset(0.03f);
+            glDisable(GL_DEPTH_TEST);
+            m_selectedBoundsRenderer.setColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+            m_selectedBoundsRenderer.render(context);
+
+            glEnable(GL_DEPTH_TEST);
+            m_selectedBoundsRenderer.setColor(prefs.getColor(Preferences::SelectedEdgeColor));
+            m_selectedBoundsRenderer.render(context);
             glResetEdgeOffset();
         }
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
-            EntityClassnameFilter textFilter;
+            EntityClassnameFilter textFilter(m_filter);
             EntityClassnameColorProvider colorProvider;
             m_classnameRenderer.render(context, textFilter, colorProvider,
                                        Shaders::TextShader, Shaders::TextBackgroundShader);
@@ -188,22 +199,64 @@ namespace TrenchBroom {
             return fontManager.font(FontDescriptor(fontName, fontSize));
         }
 
-        SingleEntityRenderer* EntityRenderer::createRenderer(const Model::Entity* entity) const {
-            return new SingleEntityRenderer(entity);
-        }
-
+        struct BuildColoredBoundsVertices {
+            VertexSpecs::P3C4::Vertex::List& vertices;
+            Color color;
+            
+            BuildColoredBoundsVertices(VertexSpecs::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            vertices(i_vertices),
+            color(i_color) {}
+            
+            inline void operator()(const Vec3& v1, const Vec3& v2) {
+                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
+            }
+        };
+        
+        struct BuildBoundsVertices {
+            VertexSpecs::P3::Vertex::List& vertices;
+            
+            BuildBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
+            vertices(i_vertices) {}
+            
+            inline void operator()(const Vec3& v1, const Vec3& v2) {
+                vertices.push_back(VertexSpecs::P3::Vertex(v1));
+                vertices.push_back(VertexSpecs::P3::Vertex(v2));
+            }
+        };
+        
         void EntityRenderer::validateBounds() {
             VertexSpecs::P3C4::Vertex::List vertices;
-            vertices.reserve(24 * m_renderers.size());
+            VertexSpecs::P3::Vertex::List selectedVertices;
+            vertices.reserve(24 * m_entities.size());
+            selectedVertices.reserve(24 * m_entities.size());
             
-            Cache::const_iterator it, end;
-            for (it = m_renderers.begin(), end = m_renderers.end(); it != end; ++it) {
-                const SingleEntityRenderer* renderer = it->second;
-                renderer->getBoundsVertices(vertices);
+            Model::EntitySet::const_iterator it, end;
+            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                if (m_filter.visible(entity)) {
+                    if (entity->selected()) {
+                        BuildBoundsVertices builder(selectedVertices);
+                        eachBBoxEdge(entity->bounds(), builder);
+                    } else {
+                        BuildColoredBoundsVertices builder(vertices, boundsColor(*entity));
+                        eachBBoxEdge(entity->bounds(), builder);
+                    }
+                }
             }
             
             m_boundsRenderer = EdgeRenderer(vertices);
+            m_selectedBoundsRenderer = EdgeRenderer(selectedVertices);
             m_boundsValid = true;
+        }
+
+        const Color& EntityRenderer::boundsColor(const Model::Entity& entity) const {
+            const Assets::EntityDefinition* definition = entity.definition();
+            if (definition == NULL) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                return prefs.getColor(Preferences::UndefinedEntityColor);
+            }
+            return definition->color();
         }
     }
 }

@@ -29,6 +29,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
@@ -79,25 +80,32 @@ namespace TrenchBroom {
         };
         
         struct BuildBrushFaceMeshFilter {
+        private:
+            const Model::Filter& m_filter;
+        public:
+            BuildBrushFaceMeshFilter(const Model::Filter& filter) :
+            m_filter(filter) {}
+            
             inline bool operator()(Model::Entity* entity) const {
-                return true;
+                return m_filter.visible(entity);
             }
             
             inline bool operator()(Model::Brush* brush) const {
-                return true;
+                return m_filter.visible(brush);
             }
             
             inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
-                return true;
+                return m_filter.visible(face);
             }
         };
         
-        MapRenderer::MapRenderer(FontManager& fontManager) :
+        MapRenderer::MapRenderer(FontManager& fontManager, const Model::Filter& filter) :
         m_fontManager(fontManager),
+        m_filter(filter),
         m_auxVbo(0xFFFFF),
         m_brushRenderer(BrushRenderer::BRUnselected),
         m_selectedBrushRenderer(BrushRenderer::BRSelected),
-        m_entityRenderer(m_fontManager) {}
+        m_entityRenderer(m_fontManager, m_filter) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -208,7 +216,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::updateGeometry(Model::Map& map) {
-            BuildBrushFaceMeshFilter filter;
+            BuildBrushFaceMeshFilter filter(m_filter);
             
             BuildBrushFaceMesh buildFaces;
             map.eachBrushFace(buildFaces, filter);

@@ -17,34 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SingleEntityRenderer__
-#define __TrenchBroom__SingleEntityRenderer__
+#ifndef __TrenchBroom__DefaultHitFilter__
+#define __TrenchBroom__DefaultHitFilter__
 
-#include "Color.h"
-#include "Renderer/VertexSpec.h"
+#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity;
-    }
-    
-    namespace Renderer {
-        class RenderContext;
-        class VboBlock;
+        class Filter;
         
-        class SingleEntityRenderer {
+        class DefaultHitFilter : public HitFilter {
         private:
-            const Model::Entity* m_entity;
+            Filter& m_filter;
         public:
-            SingleEntityRenderer(const Model::Entity* entity);
-
-            void getBoundsVertices(VertexSpecs::P3C4::Vertex::List& vertices) const;
-            void render(RenderContext& context);
-        private:
-            const Color& boundsColor() const;
+            DefaultHitFilter(Filter& filter);
+            bool matches(const Hit& hit) const;
         };
+        
+        
     }
 }
 
-
-#endif /* defined(__TrenchBroom__SingleEntityRenderer__) */
+#endif /* defined(__TrenchBroom__DefaultHitFilter__) */

@@ -122,23 +122,23 @@ namespace TrenchBroom {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
             
             BrushFace* top = new BrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
-                                                       Vec3(0.0, 1.0, cuboid.max.z()),
-                                                       Vec3(1.0, 0.0, cuboid.max.z()));
+                                           Vec3(0.0, 1.0, cuboid.max.z()),
+                                           Vec3(1.0, 0.0, cuboid.max.z()));
             BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
-                                                          Vec3(1.0, 0.0, cuboid.min.z()),
-                                                          Vec3(0.0, 1.0, cuboid.min.z()));
+                                              Vec3(1.0, 0.0, cuboid.min.z()),
+                                              Vec3(0.0, 1.0, cuboid.min.z()));
             BrushFace* front = new BrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
-                                                         Vec3(1.0, cuboid.min.y(),  0.0),
-                                                         Vec3(0.0, cuboid.min.y(), -1.0));
+                                             Vec3(1.0, cuboid.min.y(),  0.0),
+                                             Vec3(0.0, cuboid.min.y(), -1.0));
             BrushFace* back = new BrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
-                                                        Vec3(-1.0, cuboid.max.y(),  0.0),
-                                                        Vec3( 0.0, cuboid.max.y(), -1.0));
+                                            Vec3(-1.0, cuboid.max.y(),  0.0),
+                                            Vec3( 0.0, cuboid.max.y(), -1.0));
             BrushFace* left = new BrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
-                                                        Vec3(cuboid.min.x(), -1.0,  0.0),
-                                                        Vec3(cuboid.min.x(),  0.0, -1.0));
+                                            Vec3(cuboid.min.x(), -1.0,  0.0),
+                                            Vec3(cuboid.min.x(),  0.0, -1.0));
             BrushFace* right = new BrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
-                                                         Vec3(cuboid.max.x(), 1.0,  0.0),
-                                                         Vec3(cuboid.max.x(), 0.0, -1.0));
+                                             Vec3(cuboid.max.x(), 1.0,  0.0),
+                                             Vec3(cuboid.max.x(), 0.0, -1.0));
             
             BrushFaceList faces;
             faces.push_back(top);
@@ -148,11 +148,10 @@ namespace TrenchBroom {
             faces.push_back(left);
             faces.push_back(right);
             
-            const FloatType s = 8192.0;
-            const Vec3 worldSize2(s, s, s);
-            const BBox3 worldBounds(-worldSize2, worldSize2);
+            const BBox3 worldBounds(-8192.0, 8192.0);
             BrushGeometry geometry(worldBounds);
             const BrushGeometry::AddFaceResult result = geometry.addFaces(faces);
+            
             ASSERT_EQ(BrushGeometry::BrushIsSplit, result.resultCode);
             ASSERT_EQ(6u, result.addedFaces.size());
             ASSERT_TRUE(result.droppedFaces.empty());

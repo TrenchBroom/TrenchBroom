@@ -28,12 +28,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        inline BrushFace* hitAsFace(const Hit& hit) {
-            if (hit.type() == Brush::BrushHit)
-                return hit.target<BrushFace*>();
-            return NULL;
-        }
-
         inline Object* hitAsObject(const Hit& hit) {
             if (hit.type() == Entity::EntityHit)
                 return hit.target<Object*>();
@@ -41,6 +35,24 @@ namespace TrenchBroom {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->parent();
             }
+            return NULL;
+        }
+        
+        inline Entity* hitAsEntity(const Hit& hit) {
+            if (hit.type() == Entity::EntityHit)
+                return hit.target<Entity*>();
+            return NULL;
+        }
+        
+        inline Brush* hitAsBrush(const Hit& hit) {
+            if (hit.type() == Brush::BrushHit)
+                return hit.target<BrushFace*>()->parent();
+            return NULL;
+        }
+
+        inline BrushFace* hitAsFace(const Hit& hit) {
+            if (hit.type() == Brush::BrushHit)
+                return hit.target<BrushFace*>();
             return NULL;
         }
     }

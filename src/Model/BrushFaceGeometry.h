@@ -46,6 +46,9 @@ namespace TrenchBroom {
             BrushEdge::List m_edges;
             BrushFace* m_face;
         public:
+            BrushFaceGeometry();
+            ~BrushFaceGeometry();
+
             BrushFace* face() const;
             void setFace(BrushFace* face);
             const BrushVertex::List& vertices() const;

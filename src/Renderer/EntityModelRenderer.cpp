@@ -26,6 +26,7 @@
 #include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Model/Entity.h"
+#include "Model/Filter.h"
 #include "Renderer/MeshRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -33,7 +34,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityModelRenderer::EntityModelRenderer() :
+        EntityModelRenderer::EntityModelRenderer(const Model::Filter& filter) :
+        m_filter(filter),
         m_vbo(new Vbo(0xFFFFF)) {}
 
         EntityModelRenderer::~EntityModelRenderer() {
@@ -115,6 +117,9 @@ namespace TrenchBroom {
             setVboState.active();
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 Model::Entity* entity = it->first;
+                if (!m_filter.visible(entity))
+                    continue;
+                
                 MeshRenderer* renderer = it->second;
                 
                 const Vec3f position = entity->origin();

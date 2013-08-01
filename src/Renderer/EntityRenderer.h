@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityRenderer__
 #define __TrenchBroom__EntityRenderer__
 
+#include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
@@ -28,16 +29,18 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Filter;
+    }
+    
     namespace Renderer {
         class FontManager;
         class RenderContext;
-        class SingleEntityRenderer;
         class Vbo;
         
         class EntityRenderer {
         private:
             typedef Model::Entity* Key;
-            typedef std::map<Key, SingleEntityRenderer*> Cache;
             typedef TextRenderer<Key> ClassnameRenderer;
             
             class EntityClassnameAnchor : public TextAnchor {
@@ -51,7 +54,10 @@ namespace TrenchBroom {
             };
             
             class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
+            private:
+                const Model::Filter& m_filter;
             public:
+                EntityClassnameFilter(const Model::Filter& filter);
                 bool stringVisible(RenderContext& context, const Key& entity) const;
             };
 
@@ -62,13 +68,15 @@ namespace TrenchBroom {
                 Color backgroundColor(RenderContext& context, const Key& entity) const;
             };
             
-            Cache m_renderers;
+            const Model::Filter& m_filter;
+            Model::EntitySet m_entities;
             EdgeRenderer m_boundsRenderer;
+            EdgeRenderer m_selectedBoundsRenderer;
             ClassnameRenderer m_classnameRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
         public:
-            EntityRenderer(FontManager& m_fontManager);
+            EntityRenderer(FontManager& m_fontManager, const Model::Filter& filter);
             ~EntityRenderer();
 
             void addEntity(Model::Entity* entity);
@@ -86,8 +94,8 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             static TextureFont& font(FontManager& fontManager);
-            SingleEntityRenderer* createRenderer(const Model::Entity* entity) const;
             void validateBounds();
+            const Color& boundsColor(const Model::Entity& entity) const;
         };
     }
 }

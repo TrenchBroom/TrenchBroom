@@ -59,14 +59,15 @@ SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 
 # Configure freetype library
 IF(APPLE)
-	SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreetype.a" "${LIB_BIN_DIR}/osx/libbz2.a")
-	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+		# Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
+	  	# FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "${LIB_BIN_DIR}/osx" DOC "Freetype library")
+	  	SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreetype.a" "${LIB_BIN_DIR}/osx/libbz2.a")
+		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+ELSEIF(MSVC)
+	  	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES freetype6.dll freetype.lib PATHS "${LIB_BIN_DIR}/win32" DOC "Freetype library")
+	  	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
 ELSE()
-	INCLUDE(FindFreetype)
-	IF((NOT FREETYPE_FOUND) AND WIN32)
-  		SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/win32/freetype.lib" "${LIB_BIN_DIR}/win32/freetype6.dll")
-  		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
-	ENDIF()
+		INCLUDE(FindFreetype)
 ENDIF()
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 

@@ -28,6 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Filter;
         class Map;
     }
     
@@ -38,12 +39,13 @@ namespace TrenchBroom {
         class MapRenderer {
         private:
             FontManager& m_fontManager;
+            const Model::Filter& m_filter;
             Vbo m_auxVbo;
             BrushRenderer m_brushRenderer;
             BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_entityRenderer;
         public:
-            MapRenderer(FontManager& fontManager);
+            MapRenderer(FontManager& fontManager, const Model::Filter& filter);
             
             void render(RenderContext& context);
 

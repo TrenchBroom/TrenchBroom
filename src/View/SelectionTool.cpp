@@ -21,7 +21,9 @@
 
 #include "Controller/ControllerFacade.h"
 #include "Model/Brush.h"
+#include "Model/DefaultHitFilter.h"
 #include "Model/Entity.h"
+#include "Model/Filter.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
 #include "Model/HitAdapter.h"
@@ -30,18 +32,28 @@
 
 namespace TrenchBroom {
     namespace View {
-        class BrushHitFilter : public Model::HitFilter {
+        class BrushHitFilter : public Model::HitFilterChain {
         public:
+            BrushHitFilter(const Model::HitFilter& next) :
+            HitFilterChain(next) {}
+            
             inline bool matches(const Model::Hit& hit) const {
-                return hit.type() == Model::Brush::BrushHit;
+                if (hit.type() != Model::Brush::BrushHit)
+                    return false;
+                return nextMatches(hit);
             }
         };
 
-        class ObjectHitFilter : public Model::HitFilter {
+        class ObjectHitFilter : public Model::HitFilterChain {
         public:
+            ObjectHitFilter(const Model::HitFilter& next) :
+            HitFilterChain(next) {}
+            
             inline bool matches(const Model::Hit& hit) const {
-                return (hit.type() == Model::Entity::EntityHit ||
-                        hit.type() == Model::Brush::BrushHit);
+                if (hit.type() != Model::Entity::EntityHit &&
+                    hit.type() != Model::Brush::BrushHit)
+                    return false;
+                return nextMatches(hit);
             }
         };
 
@@ -56,8 +68,10 @@ namespace TrenchBroom {
             const bool multi = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
             const bool faces = inputState.modifierKeysDown(ModifierKeys::MKShift);
             
+            Model::Filter filter;
+            
             if (faces) {
-                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(BrushHitFilter(), true);
+                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(BrushHitFilter(Model::DefaultHitFilter(filter)), true);
                 if (first.matches) {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
@@ -73,7 +87,7 @@ namespace TrenchBroom {
                     m_controller.deselectAll();
                 }
             } else {
-                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(ObjectHitFilter(), false);
+                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(ObjectHitFilter(Model::DefaultHitFilter(filter)), true);
                 if (first.matches) {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {

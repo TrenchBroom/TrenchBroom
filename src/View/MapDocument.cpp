@@ -135,6 +135,10 @@ namespace TrenchBroom {
             return m_map;
         }
 
+        const Model::Filter& MapDocument::filter() const {
+            return m_filter;
+        }
+
         bool MapDocument::modified() const {
             return m_modificationCount > 0;
         }
