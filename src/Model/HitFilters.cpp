@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DefaultHitFilter.h"
+#include "HitFilters.h"
 
 #include "Model/Filter.h"
 #include "Model/Entity.h"
@@ -27,7 +27,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        DefaultHitFilter::DefaultHitFilter(Filter& filter) :
+        bool HitFilterChain::matches(const Hit& hit) const {
+            if (!m_filter->matches(hit))
+                return false;
+            return m_next->matches(hit);
+        }
+        
+        TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
+        m_typeMask(typeMask) {}
+        
+        bool TypedHitFilter::matches(const Hit& hit) const {
+            return (hit.type() & m_typeMask) != 0;
+        }
+
+        DefaultHitFilter::DefaultHitFilter(const Filter& filter) :
         m_filter(filter) {}
         
         bool DefaultHitFilter::matches(const Hit& hit) const {

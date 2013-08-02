@@ -31,16 +31,11 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        struct CameraToolHitFilter : public Model::HitFilter {
-            bool matches(const Model::Hit& hit) const;
-        };
-
         class CameraTool : public Tool<MousePolicy, MouseDragPolicy> {
         private:
             Renderer::Camera& m_camera;
             bool m_orbit;
             Vec3f m_orbitCenter;
-            CameraToolHitFilter m_hitFilter;
         public:
             CameraTool(BaseTool* next, Renderer::Camera& camera);
         private:

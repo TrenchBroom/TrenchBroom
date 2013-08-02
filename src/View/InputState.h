@@ -25,6 +25,10 @@
 #include "Model/Picker.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Filter;
+    }
+    
     namespace View {
         typedef unsigned int ModifierKeyState;
         
@@ -55,9 +59,10 @@ namespace TrenchBroom {
             float m_scrollY;
             Ray3f m_pickRay;
             mutable Model::PickResult m_pickResult;
+            const Model::Filter& m_filter;
         public:
-            InputState();
-            InputState(const int mouseX, const int mouseY);
+            InputState(const Model::Filter& filter);
+            InputState(const Model::Filter& filter, const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -86,6 +91,7 @@ namespace TrenchBroom {
             void setPickRay(const Ray3f& pickRay);
             Model::PickResult& pickResult() const;
             void setPickResult(Model::PickResult& pickResult);
+            const Model::Filter& filter() const;
         };
     }
 }

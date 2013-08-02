@@ -23,27 +23,29 @@
 
 namespace TrenchBroom {
     namespace View {
-        InputState::InputState() :
+        InputState::InputState(const Model::Filter& filter) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(0),
         m_mouseY(0),
         m_mouseDX(0),
         m_mouseDY(0),
         m_scrollX(0.0f),
-        m_scrollY(0.0f) {
+        m_scrollY(0.0f),
+        m_filter(filter) {
             const wxMouseState mouseState = wxGetMouseState();
             m_mouseX = mouseState.GetX();
             m_mouseY = mouseState.GetY();
         }
 
-        InputState::InputState(const int mouseX, const int mouseY) :
+        InputState::InputState(const Model::Filter& filter, const int mouseX, const int mouseY) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
         m_mouseY(mouseY),
         m_mouseDX(0),
         m_mouseDY(0),
         m_scrollX(0.0f),
-        m_scrollY(0.0f) {}
+        m_scrollY(0.0f),
+        m_filter(filter) {}
         
         InputState::~InputState() {}
 
@@ -142,6 +144,10 @@ namespace TrenchBroom {
 
         void InputState::setPickResult(Model::PickResult& pickResult) {
             m_pickResult = pickResult;
+        }
+
+        const Model::Filter& InputState::filter() const {
+            return m_filter;
         }
     }
 }

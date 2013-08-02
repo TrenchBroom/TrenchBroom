@@ -51,15 +51,6 @@ namespace TrenchBroom {
         }
 
         HitFilter::~HitFilter() {}
-
-        HitFilterChain::HitFilterChain(const HitFilter& next) :
-        m_next(next) {}
-        
-        HitFilterChain::~HitFilterChain() {}
-
-        bool HitFilterChain::nextMatches(const Hit& hit) const {
-            return m_next.matches(hit);
-        }
         
         PickResult::FirstHit::FirstHit(const bool i_matches, const Hit& i_hit) :
         matches(i_matches),

@@ -68,21 +68,8 @@ namespace TrenchBroom {
         
         class HitFilter {
         public:
-            ~HitFilter();
+            virtual ~HitFilter();
             virtual bool matches(const Hit& hit) const = 0;
-        };
-
-        class HitFilterChain : public HitFilter {
-        private:
-            const HitFilter& m_next;
-        public:
-            HitFilterChain(const HitFilter& next);
-            ~HitFilterChain();
-        protected:
-            bool nextMatches(const Hit& hit) const;
-        private:
-            HitFilterChain(const HitFilterChain& other);
-            HitFilterChain& operator=(const HitFilterChain& other);
         };
 
         class PickResult {
