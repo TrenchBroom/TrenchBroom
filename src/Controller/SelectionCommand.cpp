@@ -59,8 +59,8 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        Model::Map* SelectionCommand::map() const {
-            return m_document->map();
+        View::MapDocumentPtr SelectionCommand::document() const {
+            return m_document;
         }
 
         bool SelectionCommand::doPerformDo() {
@@ -71,26 +71,26 @@ namespace TrenchBroom {
                 case SCSelect:
                     switch (m_target) {
                         case STObjects:
-                            m_document->selectObjects(m_objects);
+                            m_lastResult = m_document->selectObjects(m_objects);
                             break;
                         case STFaces:
-                            m_document->selectFaces(m_faces);
+                            m_lastResult = m_document->selectFaces(m_faces);
                             break;
                         case STAll:
-                            m_document->selectAllObjects();
+                            m_lastResult = m_document->selectAllObjects();
                             break;
                     }
                     break;
                 case SCDeselect:
                     switch (m_target) {
                         case STObjects:
-                            m_document->deselectObjects(m_objects);
+                            m_lastResult = m_document->deselectObjects(m_objects);
                             break;
                         case STFaces:
-                            m_document->deselectFaces(m_faces);
+                            m_lastResult = m_document->deselectFaces(m_faces);
                             break;
                         case STAll:
-                            m_document->deselectAll();
+                            m_lastResult = m_document->deselectAll();
                             break;
                     }
                     break;
@@ -99,9 +99,9 @@ namespace TrenchBroom {
         }
         
         bool SelectionCommand::doPerformUndo() {
-            m_document->deselectAll();
-            m_document->selectObjects(m_previouslySelectedObjects);
-            m_document->selectFaces(m_previouslySelectedFaces);
+            m_lastResult = m_document->deselectAll();
+            m_lastResult += m_document->selectObjects(m_previouslySelectedObjects);
+            m_lastResult += m_document->selectFaces(m_previouslySelectedFaces);
             return true;
         }
     }

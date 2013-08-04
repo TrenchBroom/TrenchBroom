@@ -24,6 +24,7 @@
 #include "StringUtils.h"
 #include "Controller/Command.h"
 #include "Model/ModelTypes.h"
+#include "Model/SelectionResult.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -57,10 +58,13 @@ namespace TrenchBroom {
 
             Model::ObjectList m_previouslySelectedObjects;
             Model::BrushFaceList m_previouslySelectedFaces;
+            
+            Model::SelectionResult m_lastResult;
         public:
             SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             
-            Model::Map* map() const;
+            View::MapDocumentPtr document() const;
+            const Model::SelectionResult& lastResult() const;
         private:
             static String makeName(const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();

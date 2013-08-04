@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Map;
+        class SelectionResult;
         
         class Selection {
         private:
@@ -34,17 +35,20 @@ namespace TrenchBroom {
 
             ObjectList selectedObjects() const;
             EntityList selectedEntities() const;
+            EntityList unselectedEntities() const;
             BrushList selectedBrushes() const;
+            BrushList unselectedBrushes() const;
             BrushFaceList selectedFaces() const;
-            void selectObjects(const ObjectList& objects);
-            void deselectObjects(const ObjectList& objects);
-            void selectAllObjects();
-            void selectFaces(const BrushFaceList& faces);
-            void deselectFaces(const BrushFaceList& faces);
-            void deselectAll();
+            BrushFaceList unselectedFaces() const;
+            SelectionResult selectObjects(const ObjectList& objects);
+            SelectionResult deselectObjects(const ObjectList& objects);
+            SelectionResult selectAllObjects();
+            SelectionResult selectFaces(const BrushFaceList& faces);
+            SelectionResult deselectFaces(const BrushFaceList& faces);
+            SelectionResult deselectAll();
         private:
-            void deselectAllObjects();
-            void deselectAllFaces();
+            void deselectAllObjects(SelectionResult& result);
+            void deselectAllFaces(SelectionResult& result);
         };
     }
 }

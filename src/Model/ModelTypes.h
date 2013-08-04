@@ -34,10 +34,12 @@ namespace TrenchBroom {
         class BrushFace;
         typedef std::vector<BrushFace*> BrushFaceList;
         static const BrushFaceList EmptyBrushFaceList(0);
+        typedef std::set<BrushFace*> BrushFaceSet;
         
         class Object;
         typedef std::vector<Object*> ObjectList;
         static const ObjectList EmptyObjectList(0);
+        typedef std::set<Object*> ObjectSet;
         
         class Brush;
         typedef std::vector<Brush*> BrushList;

@@ -166,6 +166,22 @@ namespace VectorUtils {
         }
         return result;
     }
+    
+    template <typename T, typename Compare = std::less<T> >
+    inline void insertOrdered(std::vector<T>& vec, T& object) {
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
+        if (it == vec.end())
+            vec.push_back(object);
+        else
+            vec.insert(it, object);
+    }
+    
+    template <typename T, typename Compare = std::less<T> >
+    inline void removeOrdered(std::vector<T>& vec, T& object) {
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
+        if (it != vec.end() && *it == object)
+            vec.erase(it);
+    }
 }
 
 namespace MapUtils {

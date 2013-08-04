@@ -26,6 +26,7 @@
 #include "Model/Game.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
+#include "Model/SelectionResult.h"
 #include "View/Logger.h"
 #include "View/MapFrame.h"
 
@@ -202,36 +203,44 @@ namespace TrenchBroom {
             return m_selection.selectedEntities();
         }
         
+        Model::EntityList MapDocument::unselectedEntities() const {
+            return m_selection.unselectedEntities();
+        }
+
         Model::BrushList MapDocument::selectedBrushes() const {
             return m_selection.selectedBrushes();
         }
         
+        Model::BrushList MapDocument::unselectedBrushes() const {
+            return m_selection.unselectedBrushes();
+        }
+
         Model::BrushFaceList MapDocument::selectedFaces() const {
             return m_selection.selectedFaces();
         }
         
-        void MapDocument::selectObjects(const Model::ObjectList& objects) {
-            m_selection.selectObjects(objects);
+        Model::SelectionResult MapDocument::selectObjects(const Model::ObjectList& objects) {
+            return m_selection.selectObjects(objects);
         }
         
-        void MapDocument::deselectObjects(const Model::ObjectList& objects) {
-            m_selection.deselectObjects(objects);
+        Model::SelectionResult MapDocument::deselectObjects(const Model::ObjectList& objects) {
+            return m_selection.deselectObjects(objects);
         }
         
-        void MapDocument::selectAllObjects() {
-            m_selection.selectAllObjects();
+        Model::SelectionResult MapDocument::selectAllObjects() {
+            return m_selection.selectAllObjects();
         }
         
-        void MapDocument::selectFaces(const Model::BrushFaceList& faces) {
-            m_selection.selectFaces(faces);
+        Model::SelectionResult MapDocument::selectFaces(const Model::BrushFaceList& faces) {
+            return m_selection.selectFaces(faces);
         }
         
-        void MapDocument::deselectFaces(const Model::BrushFaceList& faces) {
-            m_selection.deselectFaces(faces);
+        Model::SelectionResult MapDocument::deselectFaces(const Model::BrushFaceList& faces) {
+            return m_selection.deselectFaces(faces);
         }
 
-        void MapDocument::deselectAll() {
-            m_selection.deselectAll();
+        Model::SelectionResult MapDocument::deselectAll() {
+            return m_selection.deselectAll();
         }
 
         void MapDocument::commitPendingRenderStateChanges() {

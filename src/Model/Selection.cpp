@@ -24,6 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
+#include "Model/SelectionResult.h"
 
 #include <cassert>
 
@@ -50,36 +51,66 @@ namespace TrenchBroom {
         class SetSelection {
         private:
             bool m_select;
+            SelectionResult& m_result;
         public:
-            SetSelection(const bool select) :
-            m_select(select) {}
+            SetSelection(const bool select, SelectionResult& result) :
+            m_select(select),
+            m_result(result) {}
             
             inline void operator()(Object* object) const {
-                if (m_select)
-                    object->select();
-                else
-                    object->deselect();
+                if (m_select) {
+                    if (!object->selected()) {
+                        object->select();
+                        m_result.addSelectedObject(object);
+                    }
+                } else {
+                    if (object->selected()) {
+                        object->deselect();
+                        m_result.addDeselectedObject(object);
+                    }
+                }
             }
 
             inline void operator()(Entity* entity) const {
-                if (m_select)
-                    entity->select();
-                else
-                    entity->deselect();
+                if (m_select) {
+                    if (!entity->selected()) {
+                        entity->select();
+                        m_result.addSelectedObject(entity);
+                    }
+                } else {
+                    if (entity->selected()) {
+                        entity->deselect();
+                        m_result.addDeselectedObject(entity);
+                    }
+                }
             }
             
             inline void operator()(Brush* brush) const {
-                if (m_select)
-                    brush->select();
-                else
-                    brush->deselect();
+                if (m_select) {
+                    if (!brush->selected()) {
+                        brush->select();
+                        m_result.addSelectedObject(brush);
+                    }
+                } else {
+                    if (brush->selected()) {
+                        brush->deselect();
+                        m_result.addDeselectedObject(brush);
+                    }
+                }
             }
             
             inline void operator()(Brush* brush, BrushFace* face) const {
-                if (m_select)
-                    face->select();
-                else
-                    face->deselect();
+                if (m_select) {
+                    if (!face->selected()) {
+                        face->select();
+                        m_result.addSelectedFace(face);
+                    }
+                } else {
+                    if (face->selected()) {
+                        face->deselect();
+                        m_result.addDeselectedFace(face);
+                    }
+                }
             }
         };
 
@@ -149,6 +180,14 @@ namespace TrenchBroom {
             return collect.entities;
         }
         
+        EntityList Selection::unselectedEntities() const {
+            assert(m_map != NULL);
+            
+            Collect collect;
+            eachEntity(*m_map, collect, MatchUnselectedFilter());
+            return collect.entities;
+        }
+
         BrushList Selection::selectedBrushes() const {
             assert(m_map != NULL);
             
@@ -157,6 +196,14 @@ namespace TrenchBroom {
             return collect.brushes;
         }
         
+        BrushList Selection::unselectedBrushes() const {
+            assert(m_map != NULL);
+            
+            Collect collect;
+            eachBrush(*m_map, collect, MatchUnselectedFilter());
+            return collect.brushes;
+        }
+
         BrushFaceList Selection::selectedFaces() const {
             assert(m_map != NULL);
             
@@ -165,61 +212,72 @@ namespace TrenchBroom {
             return collect.faces;
         }
         
-        void Selection::selectObjects(const ObjectList& objects) {
+        SelectionResult Selection::selectObjects(const ObjectList& objects) {
             assert(m_map != NULL);
-            if (objects.empty())
-                return;
+
+            SelectionResult result;
+            if (!objects.empty()) {
+                deselectAllFaces(result);
+                eachObject(objects, SetSelection(true, result), MatchAllFilter());
+            }
+            return result;
+        }
+        
+        SelectionResult Selection::deselectObjects(const ObjectList& objects) {
+            assert(m_map != NULL);
+            SelectionResult result;
+            if (!objects.empty())
+                eachObject(objects, SetSelection(false, result), MatchAllFilter());
+            return result;
+        }
+        
+        SelectionResult Selection::selectAllObjects() {
+            assert(m_map != NULL);
             
-            deselectAllFaces();
-            eachObject(objects, SetSelection(true), MatchAllFilter());
+            SelectionResult result;
+            eachObject(*m_map, SetSelection(true, result), MatchUnselectedFilter());
+            return result;
         }
         
-        void Selection::deselectObjects(const ObjectList& objects) {
-            assert(m_map != NULL);
-            if (objects.empty())
-                return;
-            eachObject(objects, SetSelection(false), MatchAllFilter());
-        }
-        
-        void Selection::selectAllObjects() {
+        SelectionResult Selection::selectFaces(const BrushFaceList& faces) {
             assert(m_map != NULL);
             
-            eachObject(*m_map, SetSelection(true), MatchUnselectedFilter());
+            SelectionResult result;
+            if (!faces.empty()) {
+                deselectAllObjects(result);
+                eachFace(faces, SetSelection(true, result), MatchAllFilter());
+            }
+            return result;
         }
         
-        void Selection::selectFaces(const BrushFaceList& faces) {
+        SelectionResult Selection::deselectFaces(const BrushFaceList& faces) {
             assert(m_map != NULL);
-            if (faces.empty())
-                return;
             
-            deselectAllObjects();
-            eachFace(faces, SetSelection(true), MatchAllFilter());
-        }
-        
-        void Selection::deselectFaces(const BrushFaceList& faces) {
-            assert(m_map != NULL);
-            if (faces.empty())
-                return;
-            eachFace(faces, SetSelection(false), MatchAllFilter());
+            SelectionResult result;
+            if (!faces.empty())
+                eachFace(faces, SetSelection(false, result), MatchAllFilter());
+            return result;
         }
 
-        void Selection::deselectAll() {
+        SelectionResult Selection::deselectAll() {
             assert(m_map != NULL);
             
-            deselectAllObjects();
-            deselectAllFaces();
+            SelectionResult result;
+            deselectAllObjects(result);
+            deselectAllFaces(result);
+            return result;
         }
 
-        void Selection::deselectAllObjects() {
+        void Selection::deselectAllObjects(SelectionResult& result) {
             assert(m_map != NULL);
             
-            eachObject(*m_map, SetSelection(false), MatchSelectedObjectsFilter());
+            eachObject(*m_map, SetSelection(false, result), MatchSelectedObjectsFilter());
         }
         
-        void Selection::deselectAllFaces() {
+        void Selection::deselectAllFaces(SelectionResult& result) {
             assert(m_map != NULL);
             
-            eachFace(*m_map, SetSelection(false), MatchSelectedFacesFilter());
+            eachFace(*m_map, SetSelection(false, result), MatchSelectedFacesFilter());
         }
     }
 }

@@ -50,12 +50,12 @@ namespace TrenchBroom {
             
             friend void swap(FaceRenderer& left, FaceRenderer& right);
 
-            void render(RenderContext& context, const bool grayScale);
-            void render(RenderContext& context, const bool grayScale, const Color& tintColor);
+            void render(RenderContext& context, const bool grayscale);
+            void render(RenderContext& context, const bool grayscale, const Color& tintColor);
 
         private:
             void prepare();
-            void render(RenderContext& context, bool grayScale, const Color* tintColor);
+            void render(RenderContext& context, bool grayscale, const Color* tintColor);
             void renderOpaqueFaces(ActiveShader& shader, const bool applyTexture);
             void renderTransparentFaces(ActiveShader& shader, const bool applyTexture);
             void renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture);

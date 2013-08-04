@@ -20,12 +20,14 @@
 #ifndef __TrenchBroom__BrushRenderer__
 #define __TrenchBroom__BrushRenderer__
 
+#include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushEdge;
         class Filter;
     }
     
@@ -34,37 +36,64 @@ namespace TrenchBroom {
         class Vbo;
         
         class BrushRenderer {
-        private:
-            const Model::Filter& m_filter;
-            bool m_unselectedValid;
-            bool m_selectedValid;
-            Model::BrushSet m_brushes;
-            FaceRenderer m_faceRenderer;
-            FaceRenderer m_selectedFaceRenderer;
-            EdgeRenderer m_edgeRenderer;
-            EdgeRenderer m_selectedEdgeRenderer;
         public:
-            BrushRenderer(const Model::Filter& filter);
+            struct Filter {
+                virtual ~Filter();
+                virtual bool operator()(const Model::Brush* brush) const = 0;
+                virtual bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const = 0;
+                virtual bool operator()(const Model::BrushEdge* edge) const = 0;
+            };
+        private:
+            Filter* m_filter;
+            Model::BrushList m_brushes;
+            FaceRenderer m_faceRenderer;
+            EdgeRenderer m_edgeRenderer;
+            bool m_valid;
             
-            void addBrush(Model::Brush* brush);
-            void addBrushes(const Model::BrushList& brushes);
-            void removeBrush(Model::Brush* brush);
-            void removeBrushes(const Model::BrushList& brushes);
-            void invalidateSelected();
-            void invalidateUnselected();
+            bool m_grayscale;
+            bool m_tintFaces;
+            bool m_renderOccludedEdges;
+            Color m_faceColor;
+            Color m_edgeColor;
+            Color m_tintColor;
+            Color m_occludedEdgeColor;
+        public:
+            template <typename FilterT>
+            BrushRenderer(const FilterT& filter) :
+            m_filter(new FilterT(filter)),
+            m_valid(false),
+            m_grayscale(false),
+            m_tintFaces(false),
+            m_renderOccludedEdges(false) {}
+            
+            ~BrushRenderer();
+
+            void setBrushes(const Model::BrushList& brushes);
             void invalidate();
             void clear();
             
             void render(RenderContext& context);
+
+            const Color& faceColor() const;
+            void setFaceColor(const Color& faceColor);
+            
+            const Color& edgeColor() const;
+            void setEdgeColor(const Color& edgeColor);
+
+            bool grayscale() const;
+            void setGrayscale(const bool grayscale);
+            
+            bool tintFaces() const;
+            void setTintFaces(const bool tintFaces);
+            const Color& tintColor() const;
+            void setTintColor(const Color& tintColor);
+            
+            bool renderOccludedEdges() const;
+            void setRenderOccludedEdges(const bool renderOccludedEdges);
+            const Color& occludedEdgeColor() const;
+            void setOccludedEdgeColor(const Color& occludedEdgeColor);
         private:
             void validate();
-            
-            bool grayScale() const;
-            const Color& faceColor() const;
-            const Color& tintColor() const;
-            const Color& edgeColor() const;
-            const Color& selectedEdgeColor() const;
-            const Color& occludedSelectedEdgeColor() const;
         };
     }
 }

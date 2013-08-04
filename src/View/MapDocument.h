@@ -37,6 +37,10 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class SelectionResult;
+    }
+    
     namespace View {
         class Logger;
 
@@ -81,14 +85,16 @@ namespace TrenchBroom {
             
             Model::ObjectList selectedObjects() const;
             Model::EntityList selectedEntities() const;
+            Model::EntityList unselectedEntities() const;
             Model::BrushList selectedBrushes() const;
+            Model::BrushList unselectedBrushes() const;
             Model::BrushFaceList selectedFaces() const;
-            void selectObjects(const Model::ObjectList& objects);
-            void deselectObjects(const Model::ObjectList& objects);
-            void selectAllObjects();
-            void selectFaces(const Model::BrushFaceList& faces);
-            void deselectFaces(const Model::BrushFaceList& faces);
-            void deselectAll();
+            Model::SelectionResult selectObjects(const Model::ObjectList& objects);
+            Model::SelectionResult deselectObjects(const Model::ObjectList& objects);
+            Model::SelectionResult selectAllObjects();
+            Model::SelectionResult selectFaces(const Model::BrushFaceList& faces);
+            Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
+            Model::SelectionResult deselectAll();
             
             void commitPendingRenderStateChanges();
 

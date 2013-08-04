@@ -60,15 +60,15 @@ namespace TrenchBroom {
             swap(left.m_prepared, right.m_prepared);
         }
 
-        void FaceRenderer::render(RenderContext& context, const bool grayScale) {
-            render(context, grayScale, NULL);
+        void FaceRenderer::render(RenderContext& context, const bool grayscale) {
+            render(context, grayscale, NULL);
         }
         
-        void FaceRenderer::render(RenderContext& context, const bool grayScale, const Color& tintColor) {
-            render(context, grayScale, &tintColor);
+        void FaceRenderer::render(RenderContext& context, const bool grayscale, const Color& tintColor) {
+            render(context, grayscale, &tintColor);
         }
 
-        void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
+        void FaceRenderer::render(RenderContext& context, bool grayscale, const Color* tintColor) {
             if (m_arrays.empty())
                 return;
             
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             shader.set("ApplyTinting", tintColor != NULL);
             if (tintColor != NULL)
                 shader.set("TintColor", *tintColor);
-            shader.set("GrayScale", grayScale);
+            shader.set("GrayScale", grayscale);
             shader.set("CameraPosition", context.camera().position());
             shader.set("ShadeFaces", prefs.getBool(Preferences::ShadeFaces));
             shader.set("UseFog", prefs.getBool(Preferences::UseFog));

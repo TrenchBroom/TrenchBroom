@@ -41,7 +41,8 @@ namespace TrenchBroom {
             FontManager& m_fontManager;
             const Model::Filter& m_filter;
             Vbo m_auxVbo;
-            BrushRenderer m_brushRenderer;
+            BrushRenderer m_unselectedBrushRenderer;
+            BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_entityRenderer;
         public:
             MapRenderer(FontManager& fontManager, const Model::Filter& filter);

@@ -329,7 +329,7 @@ namespace TrenchBroom {
         }
         
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushList& brushes, const Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushList& brushes, const Operator& op, const Filter& filter) {
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
@@ -338,7 +338,7 @@ namespace TrenchBroom {
         }
         
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushSet& brushes, const Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushSet& brushes, const Operator& op, const Filter& filter) {
             Model::BrushSet::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
@@ -347,7 +347,7 @@ namespace TrenchBroom {
         }
         
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushList& brushes, Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushList& brushes, Operator& op, const Filter& filter) {
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
@@ -356,7 +356,7 @@ namespace TrenchBroom {
         }
         
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushSet& brushes, Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushSet& brushes, Operator& op, const Filter& filter) {
             Model::BrushSet::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
@@ -366,12 +366,12 @@ namespace TrenchBroom {
 
         /* Operations for face collections */
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushFaceList& faces, const Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushFaceList& faces, const Operator& op, const Filter& filter) {
             eachFace(faces.begin(), faces.end(), op, filter);
         }
         
         template <class Operator, class Filter>
-        void eachFace(const Model::BrushFaceList& faces, Operator& op, const Filter& filter) {
+        inline void eachFace(const Model::BrushFaceList& faces, Operator& op, const Filter& filter) {
             eachFace(faces.begin(), faces.end(), op, filter);
         }
     }

@@ -31,21 +31,72 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
+#include "Model/SelectionResult.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        struct UnselectedBrushRendererFilter : public BrushRenderer::Filter {
+        private:
+            const Model::Filter& m_filter;
+        public:
+            UnselectedBrushRendererFilter(const Model::Filter& filter) :
+            m_filter(filter) {}
+            
+            bool operator()(const Model::Brush* brush) const {
+                return !brush->selected() && m_filter.visible(brush);
+            }
+            
+            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const {
+                return !face->selected() && m_filter.visible(face);
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                const Model::BrushFace* left = edge->left()->face();
+                const Model::BrushFace* right = edge->right()->face();
+                const Model::Brush* brush = left->parent();
+                return (!brush->selected() ||
+                        (!left->selected() && !right->selected()));
+            }
+        };
+        
+        struct SelectedBrushRendererFilter : public BrushRenderer::Filter {
+            const Model::Filter& m_filter;
+        public:
+            SelectedBrushRendererFilter(const Model::Filter& filter) :
+            m_filter(filter) {}
+            
+            bool operator()(const Model::Brush* brush) const {
+                return brush->selected() && m_filter.visible(brush);
+            }
+            
+            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const {
+                return (brush->selected() || face->selected()) && m_filter.visible(face);
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                const Model::BrushFace* left = edge->left()->face();
+                const Model::BrushFace* right = edge->right()->face();
+                const Model::Brush* brush = left->parent();
+                return (brush->selected() ||
+                        left->selected() || right->selected());
+            }
+        };
+        
         MapRenderer::MapRenderer(FontManager& fontManager, const Model::Filter& filter) :
         m_fontManager(fontManager),
         m_filter(filter),
         m_auxVbo(0xFFFFF),
-        m_brushRenderer(m_filter),
-        m_entityRenderer(m_fontManager, m_filter) {}
+        m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_filter)),
+        m_selectedBrushRenderer(SelectedBrushRendererFilter(m_filter)),
+        m_entityRenderer(m_fontManager, m_filter) {
+        }
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -68,14 +119,22 @@ namespace TrenchBroom {
                 Model::Map* map = openDocumentCommand->map();
                 loadMap(*map);
             } else if (command->type() == Controller::SelectionCommand::Type) {
-                m_brushRenderer.invalidate();
+                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+                View::MapDocumentPtr document = selectionCommand->document();
+                m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
+                m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
+
                 m_entityRenderer.invalidateBounds();
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
             if (command->type() == Controller::SelectionCommand::Type) {
-                m_brushRenderer.invalidate();
+                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+                View::MapDocumentPtr document = selectionCommand->document();
+                m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
+                m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
+
                 m_entityRenderer.invalidateBounds();
             }
         }
@@ -132,7 +191,20 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderGeometry(RenderContext& context) {
-            m_brushRenderer.render(context);
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            m_unselectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
+            m_unselectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::EdgeColor));
+            
+            m_selectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
+            m_selectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
+            m_selectedBrushRenderer.setTintFaces(true);
+            m_selectedBrushRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
+            m_selectedBrushRenderer.setRenderOccludedEdges(true);
+            m_selectedBrushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+
+            m_unselectedBrushRenderer.render(context);
+            m_selectedBrushRenderer.render(context);
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {
@@ -140,12 +212,13 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::clearState() {
-            m_brushRenderer.clear();
+            m_unselectedBrushRenderer.clear();
+            m_selectedBrushRenderer.clear();
             m_entityRenderer.clear();
         }
 
         void MapRenderer::loadMap(Model::Map& map) {
-            m_brushRenderer.addBrushes(map.brushes());
+            m_unselectedBrushRenderer.setBrushes(map.brushes());
             m_entityRenderer.addEntities(map.entities());
         }
     }
