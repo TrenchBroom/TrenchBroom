@@ -45,6 +45,17 @@ namespace TrenchBroom {
             return m_worldspawn;
         }
         
+        const BrushList Map::brushes() const {
+            BrushList brushes;
+            EntityList::const_iterator it, end;
+            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                const Entity* entity = *it;
+                const Model::BrushList& entityBrushes = entity->brushes();
+                brushes.insert(brushes.end(), entityBrushes.begin(), entityBrushes.end());
+            }
+            return brushes;
+        }
+
         Entity* Map::findWorldspawn() const {
             EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {

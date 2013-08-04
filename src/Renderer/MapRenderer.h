@@ -42,7 +42,6 @@ namespace TrenchBroom {
             const Model::Filter& m_filter;
             Vbo m_auxVbo;
             BrushRenderer m_brushRenderer;
-            BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_entityRenderer;
         public:
             MapRenderer(FontManager& fontManager, const Model::Filter& filter);
@@ -59,7 +58,6 @@ namespace TrenchBroom {
             void renderEntities(RenderContext& context);
             void clearState();
             void loadMap(Model::Map& map);
-            void updateGeometry(Model::Map& map);
         };
     }
 }

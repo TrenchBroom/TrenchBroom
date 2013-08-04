@@ -514,7 +514,7 @@ namespace TrenchBroom {
         
         Assets::PropertyDefinitionPtr FgdParser::parseChoicesProperty(const String& name) {
             String description;
-            int defaultValue;
+            int defaultValue = 0;
             bool hasDefaultValue = false;
             
             Token token;

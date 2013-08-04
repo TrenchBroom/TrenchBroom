@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class Console;
         class FrameManager;
+        class Inspector;
         class Logger;
         class MapView;
         class NavBar;
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             Console* m_console;
             NavBar* m_navBar;
             MapView* m_mapView;
+            Inspector* m_inspector;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentPtr document);

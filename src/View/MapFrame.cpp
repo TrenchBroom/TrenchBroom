@@ -26,6 +26,7 @@
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/FrameManager.h"
+#include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
@@ -204,9 +205,8 @@ namespace TrenchBroom {
             container->SetSizer(containerSizer);
             
             consoleSplitter->SplitHorizontally(container, m_console, -100);
-            wxPanel* inspector = new wxPanel(inspectorSplitter);
-            // m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
-            inspectorSplitter->SplitVertically(consoleSplitter, inspector, -350);
+            m_inspector = new Inspector(inspectorSplitter);
+            inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);

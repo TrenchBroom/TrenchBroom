@@ -167,7 +167,7 @@ namespace TrenchBroom {
             CFRelease(bundleUrl);
             
             StringStream result;
-            for (size_t i = 0; i < 1024; i++) {
+            for (size_t i = 0; i < 1024; ++i) {
                 UInt8 c = buffer[i];
                 if (c == 0)
                     break;
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             CFRelease(resourcePathUrl);
             
             StringStream result;
-            for (size_t i = 0; i < 1024; i++) {
+            for (size_t i = 0; i < 1024; ++i) {
                 UInt8 c = buffer[i];
                 if (c == 0)
                     break;
@@ -234,8 +234,8 @@ namespace TrenchBroom {
             const IO::Path fontDirectoryPaths[2] = { IO::Path("/System/Library/Fonts/"), IO::Path("/Library/Fonts/") };
             const String extensions[2] = {".ttf", ".ttc"};
             
-            for (size_t i = 0; i < 2; i++) {
-                for (size_t j = 0; j < 2; j++) {
+            for (size_t i = 0; i < 2; ++i) {
+                for (size_t j = 0; j < 2; ++j) {
                     const IO::Path fontPath = fontDirectoryPaths[i] + IO::Path(fontName + extensions[j]);
                     if (exists(fontPath))
                         return fontPath;
@@ -258,7 +258,7 @@ namespace TrenchBroom {
 			const String extensions[2] = {".ttf", ".ttc"};
             const IO::Path fontDirectoryPath = windowsPath + IO::Path("Fonts");
             
-			for (size_t i = 0; i < 2; i++) {
+			for (size_t i = 0; i < 2; ++i) {
                 const IO::Path fontPath = fontDirectoryPath + IO::Path(fontName + extensions[i]);
                 if (exists(fontPath))
                     return fontPath;
@@ -269,15 +269,18 @@ namespace TrenchBroom {
 #elif defined __linux__
         Path FileSystem::findFontFile(const String& fontName) const {
             const IO::Path fontDirectoryPath("/usr/share/fonts/truetype/");
+            const String fontNames[3] = {fontName, "DejaVuSans", "ttf-dejavu/DejaVuSans"};
             const String extensions[2] = {".ttf", ".ttc"};
             
-            for (size_t j = 0; j < 2; j++) {
-                const IO::Path fontPath = fontDirectoryPath + IO::Path(fontName + extensions[j]);
-                if (exists(fontPath))
-                    return fontPath;
+            for (size_t i = 0; i < 3; ++i) {
+                for (size_t j = 0; j < 2; ++j) {
+                    const IO::Path fontPath = fontDirectoryPath + IO::Path(fontNames[i] + extensions[j]);
+                    if (exists(fontPath))
+                        return fontPath;
+                }
             }
-            
-            return resourceDirectory() + IO::Path("DejaVuSans.ttf");
+
+            return IO::Path("");
         }
 #endif
 

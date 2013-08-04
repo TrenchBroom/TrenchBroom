@@ -17,34 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
+#ifndef __TrenchBroom__Inspector__
+#define __TrenchBroom__Inspector__
 
-#include "SharedPointer.h"
-#include "Model/Entity.h"
-#include "Model/ModelTypes.h"
+#include <wx/panel.h>
 
-#include <algorithm>
+class wxNotebook;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Map {
+    namespace View {
+        class EntityInspector;
+        class FaceInspector;
+        class ViewInspector;
+        
+        class Inspector : public wxPanel {
         private:
-            EntityList m_entities;
-            mutable Entity* m_worldspawn;
+            wxNotebook* m_notebook;
+            EntityInspector* m_entityInspector;
+            FaceInspector* m_faceInspector;
+            ViewInspector* m_viewInspector;
         public:
-            Map();
-            ~Map();
-            
-            const EntityList& entities() const;
-            void addEntity(Entity* entity);
-            Entity* worldspawn() const;
-            
-            const BrushList brushes() const;
-        private:
-            Entity* findWorldspawn() const;
+            Inspector(wxWindow* parent);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Map__) */
+#endif /* defined(__TrenchBroom__Inspector__) */

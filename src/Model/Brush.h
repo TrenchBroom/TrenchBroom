@@ -61,26 +61,6 @@ namespace TrenchBroom {
             
             const BrushFaceList& faces() const;
             const BrushEdge::List& edges() const;
-
-            template <class Operator, class Filter>
-            void eachBrushFace(const Operator& op, const Filter& filter) {
-                BrushFaceList::const_iterator it, end;
-                for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFace* face = *it;
-                    if (filter(this, face))
-                        op(this, face);
-                }
-            }
-            
-            template <class Operator, class Filter>
-            void eachBrushFace(Operator& op, const Filter& filter) {
-                BrushFaceList::const_iterator it, end;
-                for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                    BrushFace* face = *it;
-                    if (filter(this, face))
-                        op(this, face);
-                }
-            }
             
             void addEdges(Vertex::List& vertices) const;
         private:

@@ -23,6 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/ModelUtils.h"
 
 #include <cassert>
 
@@ -53,6 +54,13 @@ namespace TrenchBroom {
             SetSelection(const bool select) :
             m_select(select) {}
             
+            inline void operator()(Object* object) const {
+                if (m_select)
+                    object->select();
+                else
+                    object->deselect();
+            }
+
             inline void operator()(Entity* entity) const {
                 if (m_select)
                     entity->select();
@@ -126,7 +134,7 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             Collect collect;
-            m_map->eachObject(collect, MatchSelectedFilter());
+            eachObject(*m_map, collect, MatchSelectedFilter());
             
             ObjectList result;
             VectorUtils::concatenate(collect.entities, collect.brushes, result);
@@ -137,7 +145,7 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             Collect collect;
-            m_map->eachEntity(collect, MatchSelectedFilter());
+            eachEntity(*m_map, collect, MatchSelectedFilter());
             return collect.entities;
         }
         
@@ -145,7 +153,7 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             Collect collect;
-            m_map->eachBrush(collect, MatchSelectedFilter());
+            eachBrush(*m_map, collect, MatchSelectedFilter());
             return collect.brushes;
         }
         
@@ -153,7 +161,7 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             Collect collect;
-            m_map->eachBrushFace(collect, MatchSelectedFilter());
+            eachFace(*m_map, collect, MatchSelectedFilter());
             return collect.faces;
         }
         
@@ -163,29 +171,20 @@ namespace TrenchBroom {
                 return;
             
             deselectAllFaces();
-            ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                object->select();
-            }
+            eachObject(objects, SetSelection(true), MatchAllFilter());
         }
         
         void Selection::deselectObjects(const ObjectList& objects) {
             assert(m_map != NULL);
             if (objects.empty())
                 return;
-            
-            ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                object->deselect();
-            }
+            eachObject(objects, SetSelection(false), MatchAllFilter());
         }
         
         void Selection::selectAllObjects() {
             assert(m_map != NULL);
             
-            m_map->eachObject(SetSelection(true), MatchUnselectedFilter());
+            eachObject(*m_map, SetSelection(true), MatchUnselectedFilter());
         }
         
         void Selection::selectFaces(const BrushFaceList& faces) {
@@ -194,23 +193,14 @@ namespace TrenchBroom {
                 return;
             
             deselectAllObjects();
-            BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                face->select();
-            }
+            eachFace(faces, SetSelection(true), MatchAllFilter());
         }
         
         void Selection::deselectFaces(const BrushFaceList& faces) {
             assert(m_map != NULL);
             if (faces.empty())
                 return;
-
-            BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                face->deselect();
-            }
+            eachFace(faces, SetSelection(false), MatchAllFilter());
         }
 
         void Selection::deselectAll() {
@@ -223,13 +213,13 @@ namespace TrenchBroom {
         void Selection::deselectAllObjects() {
             assert(m_map != NULL);
             
-            m_map->eachObject(SetSelection(false), MatchSelectedObjectsFilter());
+            eachObject(*m_map, SetSelection(false), MatchSelectedObjectsFilter());
         }
         
         void Selection::deselectAllFaces() {
             assert(m_map != NULL);
             
-            m_map->eachBrushFace(SetSelection(false), MatchSelectedFacesFilter());
+            eachFace(*m_map, SetSelection(false), MatchSelectedFacesFilter());
         }
     }
 }

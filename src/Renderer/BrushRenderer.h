@@ -20,37 +20,51 @@
 #ifndef __TrenchBroom__BrushRenderer__
 #define __TrenchBroom__BrushRenderer__
 
+#include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Filter;
+    }
+    
     namespace Renderer {
         class RenderContext;
         class Vbo;
         
         class BrushRenderer {
-        public:
-            typedef enum {
-                BRUnselected,
-                BRSelected
-            } Config;
         private:
-            Config m_config;
+            const Model::Filter& m_filter;
+            bool m_unselectedValid;
+            bool m_selectedValid;
+            Model::BrushSet m_brushes;
             FaceRenderer m_faceRenderer;
+            FaceRenderer m_selectedFaceRenderer;
             EdgeRenderer m_edgeRenderer;
+            EdgeRenderer m_selectedEdgeRenderer;
         public:
-            BrushRenderer(const Config config);
+            BrushRenderer(const Model::Filter& filter);
             
-            void update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3::Vertex::List& edges);
-            void update(const Model::BrushFace::Mesh& faces, const VertexSpecs::P3C4::Vertex::List& edges);
+            void addBrush(Model::Brush* brush);
+            void addBrushes(const Model::BrushList& brushes);
+            void removeBrush(Model::Brush* brush);
+            void removeBrushes(const Model::BrushList& brushes);
+            void invalidateSelected();
+            void invalidateUnselected();
+            void invalidate();
+            void clear();
             
             void render(RenderContext& context);
         private:
+            void validate();
+            
             bool grayScale() const;
             const Color& faceColor() const;
             const Color& tintColor() const;
             const Color& edgeColor() const;
-            const Color& occludedEdgeColor() const;
+            const Color& selectedEdgeColor() const;
+            const Color& occludedSelectedEdgeColor() const;
         };
     }
 }

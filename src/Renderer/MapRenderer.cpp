@@ -40,71 +40,11 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct BuildBrushEdges {
-            VertexSpecs::P3::Vertex::List unselectedVertices;
-            VertexSpecs::P3::Vertex::List selectedVertices;
-            inline void operator()(Model::Brush* brush) {
-                if (brush->selected()) {
-                    brush->addEdges(selectedVertices);
-                } else if (!brush->partiallySelected()) {
-                    brush->addEdges(unselectedVertices);
-                } else {
-                    const Model::BrushEdge::List& edges = brush->edges();
-                    Model::BrushEdge::List::const_iterator it, end;
-                    for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                        Model::BrushEdge* edge = *it;
-                        Model::BrushFace* left = edge->left()->face();
-                        Model::BrushFace* right = edge->right()->face();
-                        if (left->selected() || right->selected()) {
-                            selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
-                            selectedVertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
-                        } else {
-                            unselectedVertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
-                            unselectedVertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
-                        }
-                    }
-                }
-            }
-        };
-        
-        struct BuildBrushFaceMesh {
-            Model::BrushFace::Mesh unselectedMesh;
-            Model::BrushFace::Mesh selectedMesh;
-
-            inline void operator()(Model::Brush* brush, Model::BrushFace* face) {
-                if (brush->selected() || face->selected())
-                    face->addToMesh(selectedMesh);
-                else
-                    face->addToMesh(unselectedMesh);
-            }
-        };
-        
-        struct BuildBrushFaceMeshFilter {
-        private:
-            const Model::Filter& m_filter;
-        public:
-            BuildBrushFaceMeshFilter(const Model::Filter& filter) :
-            m_filter(filter) {}
-            
-            inline bool operator()(Model::Entity* entity) const {
-                return m_filter.visible(entity);
-            }
-            
-            inline bool operator()(Model::Brush* brush) const {
-                return m_filter.visible(brush);
-            }
-            
-            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
-                return m_filter.visible(face);
-            }
-        };
-        
         MapRenderer::MapRenderer(FontManager& fontManager, const Model::Filter& filter) :
         m_fontManager(fontManager),
         m_filter(filter),
         m_auxVbo(0xFFFFF),
-        m_brushRenderer(BrushRenderer::BRUnselected),
-        m_selectedBrushRenderer(BrushRenderer::BRSelected),
+        m_brushRenderer(m_filter),
         m_entityRenderer(m_fontManager, m_filter) {}
         
         void MapRenderer::render(RenderContext& context) {
@@ -128,18 +68,14 @@ namespace TrenchBroom {
                 Model::Map* map = openDocumentCommand->map();
                 loadMap(*map);
             } else if (command->type() == Controller::SelectionCommand::Type) {
-                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                Model::Map* map = selectionCommand->map();
-                updateGeometry(*map);
+                m_brushRenderer.invalidate();
                 m_entityRenderer.invalidateBounds();
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
             if (command->type() == Controller::SelectionCommand::Type) {
-                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                Model::Map* map = selectionCommand->map();
-                updateGeometry(*map);
+                m_brushRenderer.invalidate();
                 m_entityRenderer.invalidateBounds();
             }
         }
@@ -197,7 +133,6 @@ namespace TrenchBroom {
 
         void MapRenderer::renderGeometry(RenderContext& context) {
             m_brushRenderer.render(context);
-            m_selectedBrushRenderer.render(context);
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {
@@ -205,27 +140,13 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::clearState() {
+            m_brushRenderer.clear();
             m_entityRenderer.clear();
-            m_brushRenderer = BrushRenderer(BrushRenderer::BRUnselected);
-            m_selectedBrushRenderer = BrushRenderer(BrushRenderer::BRSelected);
         }
 
         void MapRenderer::loadMap(Model::Map& map) {
-            updateGeometry(map);
+            m_brushRenderer.addBrushes(map.brushes());
             m_entityRenderer.addEntities(map.entities());
-        }
-
-        void MapRenderer::updateGeometry(Model::Map& map) {
-            BuildBrushFaceMeshFilter filter(m_filter);
-            
-            BuildBrushFaceMesh buildFaces;
-            map.eachBrushFace(buildFaces, filter);
-            
-            BuildBrushEdges buildEdges;
-            map.eachBrush(buildEdges, filter);
-            
-            m_brushRenderer.update(buildFaces.unselectedMesh, buildEdges.unselectedVertices);
-            m_selectedBrushRenderer.update(buildFaces.selectedMesh, buildEdges.selectedVertices);
         }
     }
 }

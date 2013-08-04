@@ -74,44 +74,6 @@ namespace TrenchBroom {
             const BrushList& brushes() const;
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
-
-            template <class Operator, class Filter>
-            inline void eachBrush(const Operator& op, const Filter& filter) {
-                BrushList::const_iterator it, end;
-                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush* brush = *it;
-                    if (filter(brush))
-                        op(brush);
-                }
-            }
-
-            template <class Operator, class Filter>
-            inline void eachBrush(Operator& op, const Filter& filter) {
-                BrushList::const_iterator it, end;
-                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush* brush = *it;
-                    if (filter(brush))
-                        op(brush);
-                }
-            }
-
-            template <class Operator, class Filter>
-            inline void eachBrushFace(const Operator& op, const Filter& filter) {
-                BrushList::const_iterator it, end;
-                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush* brush = *it;
-                    brush->eachBrushFace(op, filter);
-                }
-            }
-
-            template <class Operator, class Filter>
-            inline void eachBrushFace(Operator& op, const Filter& filter) {
-                BrushList::const_iterator it, end;
-                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
-                    Brush* brush = *it;
-                    brush->eachBrushFace(op, filter);
-                }
-            }
         private:
             Entity(const Entity& other);
             Entity& operator=(const Entity& other);

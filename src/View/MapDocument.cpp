@@ -25,6 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/ModelUtils.h"
 #include "View/Logger.h"
 #include "View/MapFrame.h"
 
@@ -89,20 +90,6 @@ namespace TrenchBroom {
             
             inline void operator()(Model::Object* object) const {
                 m_picker.addObject(object);
-            }
-        };
-        
-        struct MatchAllFilter {
-            inline bool operator()(Model::Entity* entity) const {
-                return true;
-            }
-            
-            inline bool operator()(Model::Brush* brush) const {
-                return true;
-            }
-            
-            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
-                return true;
             }
         };
         
@@ -190,7 +177,7 @@ namespace TrenchBroom {
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
-            m_map->eachObject(AddToPicker(m_picker), MatchAllFilter());
+            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAllFilter());
             
             setDocumentPath(path);
             clearModificationCount();
@@ -283,11 +270,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateEntityDefinitions() {
-            m_map->eachEntity(SetEntityDefinition(m_entityDefinitionManager), MatchAllFilter());
+            Model::eachEntity(*m_map, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
         }
 
         void MapDocument::updateEntityModels() {
-            m_map->eachEntity(SetEntityModel(m_entityModelManager), MatchAllFilter());
+            Model::eachEntity(*m_map, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
         }
 
         void MapDocument::loadAndUpdateTextures() {
@@ -318,7 +305,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateTextures() {
-            m_map->eachBrushFace(SetFaceTexture(m_textureManager), MatchAllFilter());
+            Model::eachFace(*m_map, SetFaceTexture(m_textureManager), Model::MatchAllFilter());
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

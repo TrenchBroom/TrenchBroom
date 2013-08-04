@@ -42,6 +42,7 @@ namespace TrenchBroom {
         class Brush;
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList(0);
+        typedef std::set<Brush*> BrushSet;
         
         class Entity;
         typedef std::vector<Entity*> EntityList;
