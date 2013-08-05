@@ -40,9 +40,25 @@ namespace TrenchBroom {
             inline bool operator()(Brush* brush) const {
                 return true;
             }
-
+            
             inline bool operator()(Brush* brush, BrushFace* face) const {
                 return true;
+            }
+        };
+        
+        template <class Container>
+        struct ExtractObjectByType {
+        private:
+            Object::Type m_type;
+        public:
+            Container result;
+
+            ExtractObjectByType(const Object::Type type) :
+            m_type(type) {}
+            
+            inline void operator()(Object* object) {
+                if (object->type() == m_type)
+                    result.insert(result.end(), static_cast<Entity*>(object));
             }
         };
         
@@ -64,6 +80,13 @@ namespace TrenchBroom {
                     op(object);
                 ++cur;
             }
+        }
+        
+        template <typename Output, typename Input>
+        inline Output extractEntities(const Input& objects) {
+            ExtractObjectByType<Output> extractor(Object::OTEntity);
+            eachObject(objects.begin(), objects.end(), extractor, MatchAllFilter());
+            return extractor.result;
         }
         
         template <typename Iter, class Operator, class Filter>
@@ -211,6 +234,16 @@ namespace TrenchBroom {
         
         template <class Operator, class Filter>
         inline void eachObject(const ObjectList& objects, Operator& op, const Filter& filter) {
+            eachObject(objects.begin(), objects.end(), op, filter);
+        }
+
+        template <class Operator, class Filter>
+        inline void eachObject(const ObjectSet& objects, const Operator& op, const Filter& filter) {
+            eachObject(objects.begin(), objects.end(), op, filter);
+        }
+        
+        template <class Operator, class Filter>
+        inline void eachObject(const ObjectSet& objects, Operator& op, const Filter& filter) {
             eachObject(objects.begin(), objects.end(), op, filter);
         }
 

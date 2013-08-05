@@ -31,6 +31,7 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
+#include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
@@ -95,8 +96,8 @@ namespace TrenchBroom {
         m_auxVbo(0xFFFFF),
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_filter)),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_filter)),
-        m_entityRenderer(m_fontManager, m_filter) {
-        }
+        m_unselectedEntityRenderer(m_fontManager, m_filter),
+        m_selectedEntityRenderer(m_fontManager, m_filter) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -119,23 +120,13 @@ namespace TrenchBroom {
                 Model::Map* map = openDocumentCommand->map();
                 loadMap(*map);
             } else if (command->type() == Controller::SelectionCommand::Type) {
-                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                View::MapDocumentPtr document = selectionCommand->document();
-                m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
-                m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
-
-                m_entityRenderer.invalidateBounds();
+                updateSelection(command);
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
             if (command->type() == Controller::SelectionCommand::Type) {
-                Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
-                View::MapDocumentPtr document = selectionCommand->document();
-                m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
-                m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
-
-                m_entityRenderer.invalidateBounds();
+                updateSelection(command);
             }
         }
 
@@ -208,18 +199,45 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {
-            m_entityRenderer.render(context);
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            m_unselectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::InfoOverlayTextColor));
+            m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            
+            m_selectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor));
+            m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer.setOverrideBoundsColor(true);
+            m_selectedEntityRenderer.setBoundsColor(prefs.getColor(Preferences::SelectedEdgeColor));
+            m_selectedEntityRenderer.setRenderOccludedBounds(true);
+            m_selectedEntityRenderer.setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+            
+            m_unselectedEntityRenderer.render(context);
+            m_selectedEntityRenderer.render(context);
         }
 
         void MapRenderer::clearState() {
             m_unselectedBrushRenderer.clear();
             m_selectedBrushRenderer.clear();
-            m_entityRenderer.clear();
+            m_unselectedEntityRenderer.clear();
+            m_selectedEntityRenderer.clear();
         }
 
         void MapRenderer::loadMap(Model::Map& map) {
             m_unselectedBrushRenderer.setBrushes(map.brushes());
-            m_entityRenderer.addEntities(map.entities());
+            m_unselectedEntityRenderer.addEntities(map.entities());
+        }
+
+        void MapRenderer::updateSelection(Controller::Command::Ptr command) {
+            Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+            View::MapDocumentPtr document = selectionCommand->document();
+            m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
+            m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
+            
+            const Model::SelectionResult& result = selectionCommand->lastResult();
+            m_unselectedEntityRenderer.removeEntities(Model::extractEntities<Model::EntitySet>(result.selectedObjects()));
+            m_unselectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
+            m_selectedEntityRenderer.removeEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
+            m_selectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.selectedObjects()));
         }
     }
 }

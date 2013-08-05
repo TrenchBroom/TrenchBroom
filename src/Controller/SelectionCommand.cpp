@@ -63,6 +63,10 @@ namespace TrenchBroom {
             return m_document;
         }
 
+        const Model::SelectionResult& SelectionCommand::lastResult() const {
+            return m_lastResult;
+        }
+
         bool SelectionCommand::doPerformDo() {
             m_previouslySelectedObjects = m_document->selectedObjects();
             m_previouslySelectedFaces = m_document->selectedFaces();

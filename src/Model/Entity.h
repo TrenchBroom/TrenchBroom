@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
+#include "Allocator.h"
 #include "Assets/AssetTypes.h"
 #include "Model/Brush.h"
 #include "Model/EntityProperties.h"
@@ -38,7 +39,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class Entity : public Object, public std::tr1::enable_shared_from_this<Entity> {
+        class Entity : public Object, public Allocator<Entity> {
         public:
             static const Hit::HitType EntityHit;
         private:

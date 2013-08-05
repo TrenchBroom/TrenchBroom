@@ -20,15 +20,16 @@
 #ifndef __TrenchBroom__BrushVertex__
 #define __TrenchBroom__BrushVertex__
 
-#include "VecMath.h"
 #include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Allocator.h"
 #include "Model/BrushVertex.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushVertex {
+        class BrushVertex : public Allocator<BrushVertex> {
         public:
             typedef std::vector<BrushVertex*> List;
             static const List EmptyList;

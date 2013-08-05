@@ -24,6 +24,7 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/TextRenderer.h"
 
 #include <map>
@@ -63,7 +64,11 @@ namespace TrenchBroom {
 
             class EntityClassnameColorProvider : public ClassnameRenderer::TextColorProvider {
             private:
+                const Color& m_textColor;
+                const Color& m_backgroundColor;
             public:
+                EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor);
+                
                 Color textColor(RenderContext& context, const Key& entity) const;
                 Color backgroundColor(RenderContext& context, const Key& entity) const;
             };
@@ -71,30 +76,70 @@ namespace TrenchBroom {
             const Model::Filter& m_filter;
             Model::EntitySet m_entities;
             EdgeRenderer m_boundsRenderer;
-            EdgeRenderer m_selectedBoundsRenderer;
             ClassnameRenderer m_classnameRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
+            
+            Color m_overlayTextColor;
+            Color m_overlayBackgroundColor;
+            bool m_overrideBoundsColor;
+            Color m_boundsColor;
+            bool m_renderOccludedBounds;
+            Color m_occludedBoundsColor;
         public:
             EntityRenderer(FontManager& m_fontManager, const Model::Filter& filter);
             ~EntityRenderer();
 
             void addEntity(Model::Entity* entity);
-            void addEntities(const Model::EntityList& entities);
             void updateEntity(Model::Entity* entity);
-            void updateEntities(const Model::EntityList& entities);
             void removeEntity(Model::Entity* entity);
-            void removeEntities(const Model::EntityList& entities);
             void clear();
-            void invalidateBounds();
+
+            template <typename Collection>
+            void addEntities(const Collection& entities) {
+                typename Collection::const_iterator it, end;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                    addEntity(*it);
+            }
+            template <typename Collection>
+            void updateEntities(const Collection& entities) {
+                typename Collection::const_iterator it, end;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                    updateEntity(*it);
+            }
+            
+            template <typename Collection>
+            void removeEntities(const Collection& entities) {
+                typename Collection::const_iterator it, end;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                    removeEntity(*it);
+            }
+            
             
             void render(RenderContext& context);
+            
+            const Color& overlayTextColor() const;
+            void setOverlayTextColor(const Color& overlayTextColor);
+            const Color& overlayBackgroundColor() const;
+            void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+            
+            bool overrideBoundsColor() const;
+            void setOverrideBoundsColor(const bool overrideBoundsColor);
+            const Color& boundsColor() const;
+            void setBoundsColor(const Color& boundsColor);
+            
+            bool renderOccludedBounds() const;
+            void setRenderOccludedBounds(const bool renderOccludedBounds);
+            const Color& occludedBoundsColor() const;
+            void setOccludedBoundsColor(const Color& occludedBoundsColor);
         private:
             void renderBounds(RenderContext& context);
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             static TextureFont& font(FontManager& fontManager);
+            void invalidateBounds();
             void validateBounds();
+            
             const Color& boundsColor(const Model::Entity& entity) const;
         };
     }

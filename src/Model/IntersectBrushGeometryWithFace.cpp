@@ -32,6 +32,10 @@ namespace TrenchBroom {
         BrushGeometryAlgorithm(geometry),
         m_face(face) {
             assert(m_face != NULL);
+            m_remainingVertices.reserve(24);
+            m_droppedVertices.reserve(24);
+            m_remainingEdges.reserve(32);
+            m_droppedEdges.reserve(32);
         }
         
         BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {

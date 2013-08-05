@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Allocator.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelTypes.h"
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         class BrushGeometry;
         class Entity;
         
-        class Brush : public Object {
+        class Brush : public Object, public Allocator<Brush> {
         public:
             typedef Renderer::VertexSpecs::P3 VertexSpec;
             typedef VertexSpec::Vertex Vertex;

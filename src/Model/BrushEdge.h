@@ -22,7 +22,7 @@
 
 #include "VecMath.h"
 #include "TrenchBroom.h"
-#include "BrushEdge.h"
+#include "Allocator.h"
 
 #include <vector>
 
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class BrushVertex;
         class BrushFaceGeometry;
         
-        class BrushEdge {
+        class BrushEdge : public Allocator<BrushEdge> {
         public:
             typedef std::vector<BrushEdge*> List;
             static const List EmptyList;

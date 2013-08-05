@@ -67,25 +67,25 @@ namespace TrenchBroom {
             return m_filter.visible(entity);
         }
 
+        EntityRenderer::EntityClassnameColorProvider::EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor) :
+        m_textColor(textColor),
+        m_backgroundColor(backgroundColor) {}
+
         Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& context, const Key& entity) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (entity->selected())
-                return prefs.getColor(Preferences::SelectedInfoOverlayTextColor);
-            return prefs.getColor(Preferences::InfoOverlayTextColor);
+            return m_textColor;
         }
         
         Color EntityRenderer::EntityClassnameColorProvider::backgroundColor(RenderContext& context, const Key& entity) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (entity->selected())
-                return prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor);
-            return prefs.getColor(Preferences::InfoOverlayBackgroundColor);
+            return m_backgroundColor;
         }
 
         EntityRenderer::EntityRenderer(FontManager& fontManager, const Model::Filter& filter) :
         m_filter(filter),
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
         m_modelRenderer(m_filter),
-        m_boundsValid(false) {
+        m_boundsValid(false),
+        m_overrideBoundsColor(false),
+        m_renderOccludedBounds(false){
             m_classnameRenderer.setFadeDistance(500.0f);
         }
         
@@ -104,13 +104,6 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        void EntityRenderer::addEntities(const Model::EntityList& entities) {
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                addEntity(*it);
-            invalidateBounds();
-        }
-        
         void EntityRenderer::updateEntity(Model::Entity* entity) {
             assert(entity != NULL);
             assert(m_entities.count(entity) == 1);
@@ -118,12 +111,6 @@ namespace TrenchBroom {
             m_classnameRenderer.updateString(entity, entity->classname());
             m_modelRenderer.updateEntity(entity);
             invalidateBounds();
-        }
-        
-        void EntityRenderer::updateEntities(const Model::EntityList& entities) {
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                updateEntity(*it);
         }
         
         void EntityRenderer::removeEntity(Model::Entity* entity) {
@@ -138,52 +125,94 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        void EntityRenderer::removeEntities(const Model::EntityList& entities) {
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                removeEntity(*it);
-            invalidateBounds();
-        }
-
         void EntityRenderer::clear() {
             m_entities.clear();
             m_classnameRenderer.clear();
             m_modelRenderer.clear();
         }
 
-        void EntityRenderer::invalidateBounds() {
-            m_boundsValid = false;
-        }
-        
         void EntityRenderer::render(RenderContext& context) {
             renderBounds(context);
             renderModels(context);
             renderClassnames(context);
         }
 
+        const Color& EntityRenderer::overlayTextColor() const {
+            return m_overlayTextColor;
+        }
+        
+        void EntityRenderer::setOverlayTextColor(const Color& overlayTextColor) {
+            m_overlayTextColor = overlayTextColor;
+        }
+        
+        const Color& EntityRenderer::overlayBackgroundColor() const {
+            return m_overlayBackgroundColor;
+        }
+        
+        void EntityRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
+            m_overlayBackgroundColor = overlayBackgroundColor;
+        }
+        
+        bool EntityRenderer::overrideBoundsColor() const {
+            return m_overrideBoundsColor;
+        }
+        
+        void EntityRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
+            m_overrideBoundsColor = overrideBoundsColor;
+        }
+        
+        const Color& EntityRenderer::boundsColor() const {
+            return m_boundsColor;
+        }
+        
+        void EntityRenderer::setBoundsColor(const Color& boundsColor) {
+            m_boundsColor = boundsColor;
+        }
+        
+        bool EntityRenderer::renderOccludedBounds() const {
+            return m_renderOccludedBounds;
+        }
+        
+        void EntityRenderer::setRenderOccludedBounds(const bool renderOccludedBounds) {
+            if (m_renderOccludedBounds == renderOccludedBounds)
+                return;
+            m_renderOccludedBounds = renderOccludedBounds;
+            invalidateBounds();
+        }
+        
+        const Color& EntityRenderer::occludedBoundsColor() const {
+            return m_occludedBoundsColor;
+        }
+        
+        void EntityRenderer::setOccludedBoundsColor(const Color& occludedBoundsColor) {
+            if (m_occludedBoundsColor == occludedBoundsColor)
+                return;
+            m_occludedBoundsColor = occludedBoundsColor;
+            invalidateBounds();
+        }
+
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds();
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-
-            glSetEdgeOffset(0.025f);
-            m_boundsRenderer.render(context);
+            if (renderOccludedBounds()) {
+                glDisable(GL_DEPTH_TEST);
+                if (overrideBoundsColor())
+                    m_boundsRenderer.setColor(occludedBoundsColor());
+                m_boundsRenderer.render(context);
+                glEnable(GL_DEPTH_TEST);
+            }
             
-            glSetEdgeOffset(0.03f);
-            glDisable(GL_DEPTH_TEST);
-            m_selectedBoundsRenderer.setColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-            m_selectedBoundsRenderer.render(context);
-
-            glEnable(GL_DEPTH_TEST);
-            m_selectedBoundsRenderer.setColor(prefs.getColor(Preferences::SelectedEdgeColor));
-            m_selectedBoundsRenderer.render(context);
+            glSetEdgeOffset(0.025f);
+            if (overrideBoundsColor())
+                m_boundsRenderer.setColor(boundsColor());
+            m_boundsRenderer.render(context);
             glResetEdgeOffset();
         }
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
             EntityClassnameFilter textFilter(m_filter);
-            EntityClassnameColorProvider colorProvider;
+            EntityClassnameColorProvider colorProvider(overlayTextColor(), overlayBackgroundColor());
             m_classnameRenderer.render(context, textFilter, colorProvider,
                                        Shaders::TextShader, Shaders::TextBackgroundShader);
         }
@@ -225,37 +254,47 @@ namespace TrenchBroom {
             }
         };
         
+        void EntityRenderer::invalidateBounds() {
+            m_boundsValid = false;
+        }
+        
         void EntityRenderer::validateBounds() {
-            VertexSpecs::P3C4::Vertex::List vertices;
-            VertexSpecs::P3::Vertex::List selectedVertices;
-            vertices.reserve(24 * m_entities.size());
-            selectedVertices.reserve(24 * m_entities.size());
-            
-            Model::EntitySet::const_iterator it, end;
-            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                const Model::Entity* entity = *it;
-                if (m_filter.visible(entity)) {
-                    if (entity->selected()) {
-                        BuildBoundsVertices builder(selectedVertices);
-                        eachBBoxEdge(entity->bounds(), builder);
-                    } else {
+            if (m_overrideBoundsColor) {
+                VertexSpecs::P3::Vertex::List vertices;
+                vertices.reserve(24 * m_entities.size());
+
+                BuildBoundsVertices builder(vertices);
+                Model::EntitySet::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    const Model::Entity* entity = *it;
+                    if (m_filter.visible(entity))
+                            eachBBoxEdge(entity->bounds(), builder);
+                }
+                
+                m_boundsRenderer = EdgeRenderer(vertices);
+            } else {
+                VertexSpecs::P3C4::Vertex::List vertices;
+                vertices.reserve(24 * m_entities.size());
+
+                Model::EntitySet::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    const Model::Entity* entity = *it;
+                    if (m_filter.visible(entity)) {
                         BuildColoredBoundsVertices builder(vertices, boundsColor(*entity));
                         eachBBoxEdge(entity->bounds(), builder);
                     }
                 }
+
+                m_boundsRenderer = EdgeRenderer(vertices);
             }
             
-            m_boundsRenderer = EdgeRenderer(vertices);
-            m_selectedBoundsRenderer = EdgeRenderer(selectedVertices);
             m_boundsValid = true;
         }
 
         const Color& EntityRenderer::boundsColor(const Model::Entity& entity) const {
             const Assets::EntityDefinition* definition = entity.definition();
-            if (definition == NULL) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                return prefs.getColor(Preferences::UndefinedEntityColor);
-            }
+            if (definition == NULL)
+                return boundsColor();
             return definition->color();
         }
     }

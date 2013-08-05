@@ -31,7 +31,10 @@ namespace TrenchBroom {
         const BrushFaceGeometry::List BrushFaceGeometry::EmptyList = BrushFaceGeometry::List();
 
         BrushFaceGeometry::BrushFaceGeometry() :
-        m_face(NULL) {}
+        m_face(NULL) {
+            m_vertices.reserve(8);
+            m_edges.reserve(8);
+        }
 
         BrushFaceGeometry::~BrushFaceGeometry() {
             m_face = NULL;

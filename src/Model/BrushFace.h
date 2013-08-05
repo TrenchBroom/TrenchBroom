@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Allocator.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
@@ -60,7 +61,7 @@ namespace TrenchBroom {
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const;
         };
 
-        class BrushFace {
+        class BrushFace : public Allocator<BrushFace> {
         public:
             /*
              * The order of points, when looking from outside the face:
