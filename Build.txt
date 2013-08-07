@@ -1,0 +1,22 @@
+====== Windows ======
+You'll need Visual Studio (only tested with 2010).
+
+- Get the binary build of wxWidgets 2.9.4 for your platform from
+  http://sourceforge.net/projects/wxwindows/files/2.9.4/binaries/
+
+  - For 32bit builds, you need the following files:
+    - wxWidgets-2.9.4_Headers.7z
+    - wxMSW-2.9.4-vc100_Dev.7z
+    - wxMSW-2.9.4_vc100_ReleaseDLL.7z
+    - wxMSW-2.9.4_vc100_ReleasePDB.7z
+
+  - Unpack all files into the same directory so that "include" and "lib" directories are at the same level after unpacking.
+  - Set a new environment variable WXWIN=C:\wxWidgets-2.9.4 (replace the path with the path where you unpacked wxWidgets).
+  - If you want to run the binaries without using the installer, add %WXWIN% to your path. 
+- Download and install CMake for Windows (www.cmake.org)
+- Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
+- Create a new directory, e.g. "build", and change into it.
+- Run the following two commands
+  cmake .. -DCMAKE_BUILD_TYPE=Release
+  cmake --build . --config Release
+  You can replace "Release" with "Debug" if you want to create a debug build.

@@ -28,6 +28,7 @@
 #include "View/MapDocument.h"
 
 #include <wx/dcclient.h>
+#include <wx/settings.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,6 +46,13 @@ namespace TrenchBroom {
         m_dragReceiver(NULL) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+
+            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+            const float r = static_cast<float>(color.Red()) / 0xFF;
+            const float g = static_cast<float>(color.Green()) / 0xFF;
+            const float b = static_cast<float>(color.Blue()) / 0xFF;
+            const float a = 1.0f;
+            m_renderer.setFocusColor(Color(r, g, b, a));
 
             createTools();
             bindEvents();
@@ -102,6 +110,7 @@ namespace TrenchBroom {
                     ReleaseMouse();
             }
             Refresh();
+            event.Skip();
         }
         
         void MapView::OnMouseMotion(wxMouseEvent& event) {
@@ -127,6 +136,7 @@ namespace TrenchBroom {
                 }
             }
             Refresh();
+            event.Skip();
         }
         
         void MapView::OnMouseWheel(wxMouseEvent& event) {
@@ -137,6 +147,7 @@ namespace TrenchBroom {
                 m_inputState.scroll(0.0f, delta);
             m_toolChain->scroll(m_inputState);
             Refresh();
+            event.Skip();
         }
 
         void MapView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
@@ -146,6 +157,17 @@ namespace TrenchBroom {
                 m_dragReceiver = NULL;
             }
             Refresh();
+            event.Skip();
+        }
+
+        void MapView::OnSetFocus(wxFocusEvent& event) {
+            Refresh();
+            event.Skip();
+        }
+        
+        void MapView::OnKillFocus(wxFocusEvent& event) {
+            Refresh();
+            event.Skip();
         }
 
         void MapView::OnPaint(wxPaintEvent& event) {
@@ -161,6 +183,7 @@ namespace TrenchBroom {
 
                 m_document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
+                    m_renderer.setHasFocus(HasFocus());
                     Renderer::RenderContext context(m_camera, m_shaderManager);
                     m_renderer.render(context);
                 }
@@ -228,6 +251,8 @@ namespace TrenchBroom {
             Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseButton, this);
             Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
             Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
+            Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
+            Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
             Bind(wxEVT_SIZE, &MapView::OnSize, this);

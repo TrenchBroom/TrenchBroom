@@ -71,6 +71,8 @@ namespace TrenchBroom {
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+            void OnSetFocus(wxFocusEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);

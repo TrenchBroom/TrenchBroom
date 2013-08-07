@@ -97,7 +97,8 @@ namespace TrenchBroom {
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_filter)),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_filter)),
         m_unselectedEntityRenderer(m_fontManager, m_filter),
-        m_selectedEntityRenderer(m_fontManager, m_filter) {}
+        m_selectedEntityRenderer(m_fontManager, m_filter),
+        m_hasFocus(false) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -106,8 +107,18 @@ namespace TrenchBroom {
             renderCoordinateSystem(context);
             renderGeometry(context);
             renderEntities(context);
+            if (m_hasFocus)
+                renderFocusRect(context);
+        }
+        
+        void MapRenderer::setHasFocus(const bool hasFocus) {
+            m_hasFocus = hasFocus;
         }
 
+        void MapRenderer::setFocusColor(const Color& focusColor) {
+            m_focusColor = focusColor;
+        }
+        
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
             if (command->type() == Controller::NewDocumentCommand::Type) {
                 clearState();
@@ -213,6 +224,53 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.render(context);
             m_selectedEntityRenderer.render(context);
+        }
+
+        void MapRenderer::renderFocusRect(RenderContext& context) {
+            const Color& outer = m_focusColor;
+            const Color inner(m_focusColor, 0.7f);
+            const float w = static_cast<float>(context.camera().viewport().width);
+            const float h = static_cast<float>(context.camera().viewport().height);
+            const float t = 2.0f;
+            
+            typedef VertexSpecs::P3C4::Vertex Vertex;
+            Vertex::List vertices;
+            vertices.reserve(16);
+            
+            // top
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
+            
+            // right
+            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
+            
+            // bottom
+            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
+            
+            // left
+            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
+            
+            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
+
+            VertexArray array(m_auxVbo, GL_QUADS, vertices);
+            SetVboState setVboState(m_auxVbo);
+            setVboState.active();
+            
+            glDisable(GL_DEPTH_TEST);
+            array.render();
+            glEnable(GL_DEPTH_TEST);
         }
 
         void MapRenderer::clearState() {

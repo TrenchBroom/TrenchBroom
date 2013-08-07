@@ -167,6 +167,7 @@ namespace VectorUtils {
         return result;
     }
     
+    /*
     template <typename T, typename Compare = std::less<T> >
     inline void insertOrdered(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
@@ -182,6 +183,7 @@ namespace VectorUtils {
         if (it != vec.end() && *it == object)
             vec.erase(it);
     }
+     */
 }
 
 namespace MapUtils {

@@ -30,6 +30,9 @@ public:
     Color(const float r, const float g, const float b, const float a) :
     Vec<float, 4>(r, g, b, a) {}
     
+    Color(const Color& color, const float a) :
+    Vec<float, 4>(color.r(), color.g(), color.b(), a) {}
+    
     Color(const std::string& str) :
     Vec<float, 4>(str) {}
     
