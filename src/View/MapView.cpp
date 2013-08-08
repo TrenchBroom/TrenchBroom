@@ -43,7 +43,8 @@ namespace TrenchBroom {
         m_inputState(document->filter()),
         m_cameraTool(NULL),
         m_toolChain(NULL),
-        m_dragReceiver(NULL) {
+        m_dragReceiver(NULL),
+        m_ignoreNextClick(false){
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
@@ -66,6 +67,18 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMouseButton(wxMouseEvent& event) {
+            if (m_ignoreNextClick && (event.LeftDown() || event.LeftUp())) {
+                if (event.LeftUp())
+                    m_ignoreNextClick = false;
+                event.Skip();
+                return;
+            }
+            
+            if (event.ButtonDown())
+                m_logger->info("button down");
+            else if (event.ButtonUp())
+                m_logger->info("button up");
+            
             if (event.LeftDown()) {
                 CaptureMouse();
                 m_clickPos = event.GetPosition();
@@ -151,21 +164,24 @@ namespace TrenchBroom {
         }
 
         void MapView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            if (m_dragReceiver != NULL) {
-                m_toolChain->cancelMouseDrag(m_inputState);
-                m_inputState.clearMouseButtons();
-                m_dragReceiver = NULL;
-            }
+            m_logger->info("capture lost");
+            cancelCurrentDrag();
             Refresh();
             event.Skip();
         }
 
         void MapView::OnSetFocus(wxFocusEvent& event) {
+            m_logger->info("set focus");
             Refresh();
             event.Skip();
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
+            m_logger->info("kill focus");
+            cancelCurrentDrag();
+            if (GetCapture() == this)
+                ReleaseMouse();
+            m_ignoreNextClick = true;
             Refresh();
             event.Skip();
         }
@@ -231,6 +247,14 @@ namespace TrenchBroom {
             m_cameraTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
+        }
+
+        void MapView::cancelCurrentDrag() {
+            if (m_dragReceiver != NULL) {
+                m_toolChain->cancelMouseDrag(m_inputState);
+                m_inputState.clearMouseButtons();
+                m_dragReceiver = NULL;
+            }
         }
 
         void MapView::bindEvents() {

@@ -63,6 +63,8 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;
+            
+            bool m_ignoreNextClick;
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller);
             ~MapView();
@@ -86,6 +88,7 @@ namespace TrenchBroom {
         private:
             void createTools();
             void deleteTools();
+            void cancelCurrentDrag();
             void bindEvents();
             void initializeGL();
             

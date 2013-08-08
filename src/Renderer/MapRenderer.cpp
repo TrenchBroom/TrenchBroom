@@ -231,7 +231,7 @@ namespace TrenchBroom {
             const Color inner(m_focusColor, 0.7f);
             const float w = static_cast<float>(context.camera().viewport().width);
             const float h = static_cast<float>(context.camera().viewport().height);
-            const float t = 2.0f;
+            const float t = 3.0f;
             
             typedef VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
