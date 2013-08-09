@@ -39,6 +39,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const wxEventType MapFrame::EVT_REBUILD_MENU = wxNewEventType();
+
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
         MapFrame::MapFrame() :
@@ -46,14 +48,16 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
-        m_mapView(NULL) {}
+        m_mapView(NULL),
+        m_menuNeedsRebuilding(false) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentPtr document) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
         m_console(NULL),
         m_navBar(NULL),
-        m_mapView(NULL) {
+        m_mapView(NULL),
+        m_menuNeedsRebuilding(false) {
             Create(frameManager, document);
         }
 
@@ -63,8 +67,8 @@ namespace TrenchBroom {
             m_controller.setDocument(m_document);
             m_controller.addCommandListener(this);
             
-            createMenuBar();
             createGui();
+            createMenuBar(false);
             updateTitle();
             m_document->setParentLogger(m_console);
 
@@ -82,6 +86,10 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+            Bind(EVT_REBUILD_MENU, &MapFrame::OnRebuildMenu, this);
+            
+            m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
+            m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
         }
 
         MapFrame::~MapFrame() {
@@ -150,6 +158,23 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnMapViewSetFocus(wxFocusEvent& event) {
+            m_menuNeedsRebuilding = true;
+            event.Skip();
+        }
+        
+        void MapFrame::OnMapViewKillFocus(wxFocusEvent& event) {
+            m_menuNeedsRebuilding = true;
+            event.Skip();
+        }
+
+        void MapFrame::OnRebuildMenu(wxEvent& event) {
+            if (m_menuNeedsRebuilding) {
+                updateMenuBar(m_mapView->HasFocus());
+                m_menuNeedsRebuilding = false;
+            }
+        }
+
         void MapFrame::commandDo(Controller::Command::Ptr command) {
             m_mapView->commandDo(command);
         }
@@ -213,13 +238,22 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
         }
         
-        void MapFrame::createMenuBar() {
-            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
+        void MapFrame::createMenuBar(const bool showModifiers) {
+            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), showModifiers);
             SetMenuBar(menuBar);
             
             View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
             if (app != NULL)
                 app->addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
+        }
+        
+        void MapFrame::updateMenuBar(const bool showModifiers) {
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
+            if (app != NULL)
+                app->removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(oldMenuBar));
+            createMenuBar(showModifiers);
+            delete oldMenuBar;
         }
 
         void MapFrame::updateTitle() {

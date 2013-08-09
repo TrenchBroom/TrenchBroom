@@ -39,6 +39,8 @@ namespace TrenchBroom {
         class NavBar;
         
         class MapFrame : public wxFrame, public Controller::CommandListener {
+        public:
+            static const wxEventType EVT_REBUILD_MENU;
         private:
             FrameManager* m_frameManager;
             Controller::ControllerFacade m_controller;
@@ -48,6 +50,7 @@ namespace TrenchBroom {
             NavBar* m_navBar;
             MapView* m_mapView;
             Inspector* m_inspector;
+            bool m_menuNeedsRebuilding;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentPtr document);
@@ -64,6 +67,9 @@ namespace TrenchBroom {
             
             void OnFileClose(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
+            void OnMapViewSetFocus(wxFocusEvent& event);
+            void OnMapViewKillFocus(wxFocusEvent& event);
+            void OnRebuildMenu(wxEvent& event);
             
             void commandDo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
@@ -75,7 +81,8 @@ namespace TrenchBroom {
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:
             void createGui();
-            void createMenuBar();
+            void createMenuBar(const bool showModifiers);
+            void updateMenuBar(const bool showModifiers);
             void updateTitle();
 
             bool confirmOrDiscardChanges();

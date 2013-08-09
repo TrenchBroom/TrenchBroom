@@ -141,6 +141,51 @@ namespace TrenchBroom {
                 ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
             }
         }
+        
+        int TrenchBroomApp::FilterEvent(wxEvent& event) {
+            /*
+             Because the Ubuntu window manager will unfocus the map view when a menu is opened, we track all SET_FOCUS
+             events here and send a separate event if any control other than the map view receives the focus. This event
+             will be added to the event queue here and then dispatched directly to the map frame containing the focused
+             control once it is filtered here, too.
+             */
+            
+            if (event.GetEventObject() != NULL) {
+                if (event.GetEventType() == wxEVT_SET_FOCUS) {
+                    wxObject* object = event.GetEventObject();
+                    wxWindow* window = wxDynamicCast(object, wxWindow);
+                    if (window != NULL) {
+                        // find the frame containing the focused control
+                        wxFrame* frame = wxDynamicCast(window, wxFrame);
+                        wxWindow* parent = window->GetParent();
+                        while (frame == NULL && parent != NULL) {
+                            frame = wxDynamicCast(parent, wxFrame);
+                            parent = parent->GetParent();
+                        }
+
+                        /*
+                         If we found a frame, then send a command event to the frame that will cause it to rebuild its
+                         menu. The frame must keep track of whether the menu actually needs to be rebuilt (only if the
+                         map view previously had focus and just lost it or vice versa).
+                         Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the 
+                         focus states!
+                         */
+                        if (frame != NULL) {
+                            wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENU);
+                            buildMenuEvent.SetClientData(event.GetEventObject());
+                            buildMenuEvent.SetEventObject(frame);
+                            buildMenuEvent.SetId(event.GetId());
+                            AddPendingEvent(buildMenuEvent);
+                        }
+                    }
+                } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENU) {
+                    wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
+                    frame->ProcessWindowEventLocally(event);
+                    return 1;
+                }
+            }
+            return wxApp::FilterEvent(event);
+        }
 
 #ifdef __APPLE__
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {

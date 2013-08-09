@@ -20,3 +20,44 @@ You'll need Visual Studio (only tested with 2010).
   cmake .. -DCMAKE_BUILD_TYPE=Release
   cmake --build . --config Release
   You can replace "Release" with "Debug" if you want to create a debug build.
+
+
+====== Linux ======
+Dependencies
+Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
+- g++ GNU c++ compiler
+- GTK2 and development packages: libgtk2.0-dev (GTK3 will NOT work)
+- OpenGL and GLU development headers (Mesa OpenGL development packages)
+  freeglut3, freeglut3-dev, mesa-common-dev
+- X11 video mode extension library: libxxf86vm-dev
+- If you have a debian-based distribution, install them with this command:
+  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev mesa-common-dev libxxf86vm-dev
+Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
+http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
+- Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
+
+wxWidgets
+- Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
+- Move the unpacked directory someplace where you want to keep it.
+- Open a terminal and change into the wxwidgets directory.
+- Create two directories: build-release and build-debug (don't rename those!)
+- Change into wxwidgets/build-release
+- Run 
+  ../configure --disable-shared --with-opengl --with-gtk=2
+- Run make
+- Run sudo make install
+- Change into wxwidgets/build-debug
+- Run 
+  ../configure --enable-debug --disable-shared --with-opengl --with-gtk=2
+- Run make
+- Run sudo make install
+
+CMake
+- Install CMake using your package manager: sudo apt-get install cmake
+
+- Open a terminal and change into the directory where you unpacked the TrenchBroom sources
+- Create a new directory, e.g. "build", and change into it.
+- Run the following two commands
+  cmake .. -DCMAKE_BUILD_TYPE=Release
+  cmake --build .
+  You can replace "Release" with "Debug" if you want to create a debug build.

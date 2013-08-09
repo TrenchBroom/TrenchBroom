@@ -74,11 +74,6 @@ namespace TrenchBroom {
                 return;
             }
             
-            if (event.ButtonDown())
-                m_logger->info("button down");
-            else if (event.ButtonUp())
-                m_logger->info("button up");
-            
             if (event.LeftDown()) {
                 CaptureMouse();
                 m_clickPos = event.GetPosition();
@@ -164,20 +159,17 @@ namespace TrenchBroom {
         }
 
         void MapView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            m_logger->info("capture lost");
             cancelCurrentDrag();
             Refresh();
             event.Skip();
         }
 
         void MapView::OnSetFocus(wxFocusEvent& event) {
-            m_logger->info("set focus");
             Refresh();
             event.Skip();
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
-            m_logger->info("kill focus");
             cancelCurrentDrag();
             if (GetCapture() == this)
                 ReleaseMouse();
