@@ -317,5 +317,33 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
         }
+        
+        TEST(QuakeMapParserTest, parseValveBrush) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 \n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 \n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 0 -1 0 ] 0 1 1 \n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 0 -1 0 ] 0 1 1 \n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1 \n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::Map* map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(1u, entities.size());
+            
+            const Model::Entity* entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::BrushList& brushes = entity->brushes();
+            ASSERT_EQ(1u, brushes.size());
+        }
     }
 }

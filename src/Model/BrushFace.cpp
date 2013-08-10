@@ -28,15 +28,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Vec2f TextureCoordinateSystem::textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t width, const size_t height) const {
-            
-            const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
-            const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
-            const float x = static_cast<float>((point.dot(xAxis * safeXScale) + xOffset) / width);
-            const float y = static_cast<float>((point.dot(yAxis * safeYScale) + yOffset) / height);
-            return Vec2f(x, y);
-        }
-        
         const String BrushFace::NoTextureName = "__TB_empty";
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
@@ -140,7 +131,7 @@ namespace TrenchBroom {
         
         void BrushFace::setRotation(const float rotation) {
             m_rotation = rotation;
-            m_textureCoordSystem = textureCoordinateSystem(m_boundary.normal, m_rotation);
+            updateTextureCoordinateSystem(m_boundary.normal, m_rotation);
         }
         
         void BrushFace::setXScale(const float xScale) {
@@ -285,22 +276,22 @@ namespace TrenchBroom {
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordSystem.textureCoordinates(vertices[0]->position(),
-                                                                                          m_xOffset, m_yOffset,
-                                                                                          m_xScale, m_yScale,
-                                                                                          textureWidth, textureHeight)));
+                                                  textureCoordinates(vertices[0]->position(),
+                                                                     m_xOffset, m_yOffset,
+                                                                     m_xScale, m_yScale,
+                                                                     textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordSystem.textureCoordinates(vertices[i]->position(),
-                                                                                          m_xOffset, m_yOffset,
-                                                                                          m_xScale, m_yScale,
-                                                                                          textureWidth, textureHeight)));
+                                                  textureCoordinates(vertices[i]->position(),
+                                                                     m_xOffset, m_yOffset,
+                                                                     m_xScale, m_yScale,
+                                                                     textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i+1]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordSystem.textureCoordinates(vertices[i+1]->position(),
-                                                                                          m_xOffset, m_yOffset,
-                                                                                          m_xScale, m_yScale,
-                                                                                          textureWidth, textureHeight)));
+                                                  textureCoordinates(vertices[i+1]->position(),
+                                                                     m_xOffset, m_yOffset,
+                                                                     m_xScale, m_yScale,
+                                                                     textureWidth, textureHeight)));
             }
             m_vertexCacheValid = true;
         }

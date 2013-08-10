@@ -52,9 +52,15 @@ namespace TrenchBroom {
                     const PropertyValue angleValue = entity.property(info.property);
                     const Vec3f angles = angleValue.empty() ? Vec3f::Null : Vec3f(angleValue);
                     
-                    const Quatf zRotation(Vec3f::PosZ, Mathf::radians( angles.x()));
-                    const Quatf yRotation(Vec3f::PosY, Mathf::radians(-angles.y()));
-                    return zRotation * yRotation;
+                    // yaw / pitch
+                    // const Quatf zRotation(Vec3f::PosZ, Mathf::radians( angles.x()));
+                    // const Quatf yRotation(Vec3f::PosY, Mathf::radians(-angles.y()));
+                    
+                    // pitch / yaw / roll
+                    const Quatf pitch(Vec3f::PosY, Mathf::radians(angles.x()));
+                    const Quatf yaw(Vec3f::PosZ, Mathf::radians(angles.y()));
+                    const Quatf roll(Vec3f::PosX, Mathf::radians(angles.z()));
+                    return pitch * yaw * roll;
                 }
                 default:
                     return Quatf(Vec3f::PosZ, 0.0f);

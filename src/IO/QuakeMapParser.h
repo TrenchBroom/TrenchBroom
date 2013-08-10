@@ -78,9 +78,16 @@ namespace TrenchBroom {
                 FaceWeightOrder(const PlaneWeightOrder& planeOrder);
                 bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
             };
+                    
+            typedef enum {
+                MFUnknown,
+                MFStandard,
+                MFValve
+            } MapFormat;
 
             View::Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
+            MapFormat m_format;
             typedef QuakeMapTokenizer::Token Token;
         public:
             QuakeMapParser(const char* begin, const char* end, View::Logger* logger = NULL);
@@ -92,7 +99,8 @@ namespace TrenchBroom {
             Model::Entity* parseEntity(const BBox3& worldBounds);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);
-            const Vec3 parseVector();
+            MapFormat detectFormat(const Token& token);
+            Vec3 parseVector();
             
             Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
         };

@@ -38,14 +38,7 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushFaceGeometry;
         
-        struct TextureCoordinateSystem {
-            Vec3 xAxis;
-            Vec3 yAxis;
-            
-            Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t width, const size_t height) const;
-        };
-        
-        class BrushFace : public Allocator<BrushFace> {
+        class BrushFace {
         public:
             /*
              * The order of points, when looking from outside the face:
@@ -79,8 +72,6 @@ namespace TrenchBroom {
             
             Assets::FaceTexture* m_texture;
             BrushFaceGeometry* m_side;
-            
-            TextureCoordinateSystem m_textureCoordSystem;
             
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
@@ -123,20 +114,35 @@ namespace TrenchBroom {
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void validateVertexCache() const;
 
-            virtual TextureCoordinateSystem textureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
+            virtual void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
+            virtual Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const = 0;
 
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };
         
-        template <class TexCoordPolicy>
-        class ConfigurableBrushFace : public BrushFace {
+        template <class TexCoordSystem>
+        class ConfigurableBrushFace : public BrushFace, public Allocator<ConfigurableBrushFace<TexCoordSystem> > {
+        private:
+            TexCoordSystem m_coordSystem;
         public:
             ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName) :
             BrushFace(point0, point1, point2, textureName) {}
+
+            ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const Vec3& textureXAxis, const Vec3& textureYAxis, const Vec3& normal, const float rotation, const String& textureName = NoTextureName) :
+            BrushFace(point0, point1, point2, textureName),
+            m_coordSystem(textureXAxis, textureYAxis, normal, rotation) {}
         private:
-            inline TextureCoordinateSystem textureCoordinateSystem(const Vec3& normal, const float rotation) {
-                return TexCoordPolicy::textureCoordinateSystem(normal, rotation);
+            inline void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) {
+                m_coordSystem.update(normal, rotation);
+            }
+            
+            inline Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const {
+                const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
+                const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
+                const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() * safeXScale) + xOffset) / textureWidth);
+                const float y = static_cast<float>((point.dot(m_coordSystem.yAxis() * safeYScale) + yOffset) / textureHeight);
+                return Vec2f(x, y);
             }
         };
     }

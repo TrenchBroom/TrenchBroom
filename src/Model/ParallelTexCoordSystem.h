@@ -17,27 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeTexCoordPolicy__
-#define __TrenchBroom__QuakeTexCoordPolicy__
+#ifndef __TrenchBroom__ParallelTexCoordSystem__
+#define __TrenchBroom__ParallelTexCoordSystem__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
-        struct TextureCoordinateSystem;
-        
-        class QuakeTexCoordPolicy {
+        class ParallelTexCoordSystem {
         private:
-            static const Vec3 BaseAxes[];
+            Vec3 m_initialXAxis;
+            Vec3 m_initialYAxis;
+            Vec3 m_xAxis;
+            Vec3 m_yAxis;
         public:
-            static TextureCoordinateSystem textureCoordinateSystem(const Vec3& normal, const float rotation);
-        private:
-            static void axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex);
-            static void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex);
+            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation);
+            void update(const Vec3& normal, const float rotation);
+            const Vec3& xAxis() const;
+            const Vec3& yAxis() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeTexCoordPolicy__) */
+#endif /* defined(__TrenchBroom__ParallelTexCoordSystem__) */

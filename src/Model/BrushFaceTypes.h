@@ -21,11 +21,13 @@
 #define TrenchBroom_BrushFaceTypes_h
 
 #include "Model/BrushFace.h"
-#include "Model/QuakeTexCoordPolicy.h"
+#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParallelTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
-        typedef ConfigurableBrushFace<QuakeTexCoordPolicy> QuakeBrushFace;
+        typedef ConfigurableBrushFace<ParaxialTexCoordSystem> QuakeBrushFace;
+        typedef ConfigurableBrushFace<ParallelTexCoordSystem> ValveBrushFace;
     }
 }
 

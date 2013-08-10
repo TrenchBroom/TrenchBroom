@@ -39,7 +39,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class Entity : public Object, public Allocator<Entity> {
+        class Entity : public Object {
         public:
             static const Hit::HitType EntityHit;
         private:
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         };
         
         template <class RotationPolicy>
-        class ConfigurableEntity : public Entity {
+        class ConfigurableEntity : public Entity, public Allocator<ConfigurableEntity<RotationPolicy> > {
         public:
             ConfigurableEntity() :
             Entity() {}

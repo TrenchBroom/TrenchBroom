@@ -17,13 +17,13 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QuakeTexCoordPolicy.h"
+#include "ParaxialTexCoordSystem.h"
 
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const Vec3 QuakeTexCoordPolicy::BaseAxes[] = {
+        const Vec3 ParaxialTexCoordSystem::BaseAxes[] = {
             Vec3( 0.0,  0.0,  1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
             Vec3( 0.0,  0.0, -1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
             Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
@@ -32,15 +32,21 @@ namespace TrenchBroom {
             Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
 
-        TextureCoordinateSystem QuakeTexCoordPolicy::textureCoordinateSystem(const Vec3& normal, const float rotation) {
-            TextureCoordinateSystem system;
+        const Vec3& ParaxialTexCoordSystem::xAxis() const {
+            return m_xAxis;
+        }
+        
+        const Vec3& ParaxialTexCoordSystem::yAxis() const {
+            return m_yAxis;
+        }
+        
+        void ParaxialTexCoordSystem::update(const Vec3& normal, const float rotation) {
             size_t planeNormIndex, faceNormIndex;
-            axesAndIndices(normal, system.xAxis, system.yAxis, planeNormIndex, faceNormIndex);
-            rotateAxes(system.xAxis, system.yAxis, Math<FloatType>::radians(rotation), planeNormIndex);
-            return system;
+            axesAndIndices(normal, m_xAxis, m_yAxis, planeNormIndex, faceNormIndex);
+            rotateAxes(m_xAxis, m_yAxis, Math<FloatType>::radians(rotation), planeNormIndex);
         }
 
-        void QuakeTexCoordPolicy::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) {
+        void ParaxialTexCoordSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
@@ -57,7 +63,7 @@ namespace TrenchBroom {
             faceNormIndex = bestIndex * 3;
         }
         
-        void QuakeTexCoordPolicy::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex)  {
+        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const {
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             const Quat3 rot(BaseAxes[planeNormIndex], planeNormIndex == 12 ? -angle : angle);
             xAxis = rot * xAxis;

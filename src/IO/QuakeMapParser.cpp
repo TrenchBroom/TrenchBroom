@@ -26,7 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotator.h"
-#include "Model/QuakeTexCoordPolicy.h"
+#include "Model/ParaxialTexCoordSystem.h"
 #include "View/Logger.h"
 
 namespace TrenchBroom {
@@ -100,11 +100,13 @@ namespace TrenchBroom {
 
         QuakeMapParser::QuakeMapParser(const char* begin, const char* end, View::Logger* logger) :
         m_logger(logger),
-        m_tokenizer(QuakeMapTokenizer(begin, end)) {}
+        m_tokenizer(QuakeMapTokenizer(begin, end)),
+        m_format(MFUnknown) {}
                     
         QuakeMapParser::QuakeMapParser(const String& str, View::Logger* logger) :
         m_logger(logger),
-        m_tokenizer(QuakeMapTokenizer(str)) {}
+        m_tokenizer(QuakeMapTokenizer(str)),
+        m_format(MFUnknown) {}
         
         String QuakeMapParser::tokenName(const QuakeMapToken::Type typeMask) const {
             StringList names;
@@ -244,31 +246,53 @@ namespace TrenchBroom {
         }
         
         Model::BrushFace* QuakeMapParser::parseFace(const BBox3& worldBounds) {
-            Vec3 p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
+            Vec3 texAxisX, texAxisY;
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
                 return NULL;
             
             expect(QuakeMapToken::OParenthesis, token);
-            p1 = parseVector().corrected();
+            const Vec3 p1 = parseVector().corrected();
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            p2 = parseVector().corrected();
+            const Vec3 p2 = parseVector().corrected();
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            p3 = parseVector().corrected();
+            const Vec3 p3 = parseVector().corrected();
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             
             expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
             String textureName = token.data();
+            if (textureName == Model::BrushFace::NoTextureName)
+                textureName = "";
             
-            token = m_tokenizer.nextToken();
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token);
-            xOffset = token.toFloat<float>();
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            yOffset = token.toFloat<float>();
+            const Vec3 normal = crossed(p3 - p1, p2 - p1).normalized();
+            if (normal.null())
+                return NULL;
             
+            if (m_format == MFUnknown)
+                m_format = detectFormat(m_tokenizer.peekToken());
+            
+            if (m_format == MFStandard) {
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
+                xOffset = token.toFloat<float>();
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
+                yOffset = token.toFloat<float>();
+            } else {
+                expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
+                texAxisX = parseVector();
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
+                xOffset = token.toFloat<float>();
+                expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
+
+                expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
+                texAxisY = parseVector();
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
+                yOffset = token.toFloat<float>();
+                expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
+            }
+
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             rotation = token.toFloat<float>();
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
@@ -276,13 +300,12 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat<float>();
             
-            if (crossed(p3 - p1, p2 - p1).null())
-                return NULL;
-            
-            if (textureName == Model::BrushFace::NoTextureName)
-                textureName = "";
-            
-            Model::BrushFace* face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
+            Model::BrushFace* face = NULL;
+            if (m_format == MFStandard)
+                face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
+            else
+                face = new Model::ValveBrushFace(p1, p2, p3, texAxisX, texAxisY, normal, rotation, textureName);
+
             face->setXOffset(xOffset);
             face->setYOffset(yOffset);
             face->setRotation(rotation);
@@ -292,8 +315,16 @@ namespace TrenchBroom {
             
             return face;
         }
+        
+        QuakeMapParser::MapFormat QuakeMapParser::detectFormat(const Token& token) {
+            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token);
+            if (token.type() == QuakeMapToken::OBracket)
+                return MFValve;
+            return MFStandard;
+        }
 
-        const Vec3 QuakeMapParser::parseVector() {
+
+        Vec3 QuakeMapParser::parseVector() {
             Token token;
             Vec3 vec;
             
