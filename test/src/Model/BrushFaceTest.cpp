@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceTypes.h"
 #include "TrenchBroom.h"
 #include "Exceptions.h"
 #include "VecMath.h"
@@ -32,7 +32,7 @@ namespace TrenchBroom {
             const Vec3 point1(1.f,  0.0, 4.0);
             const Vec3 point2(0.0, -1.0, 4.0);
             
-            BrushFace face(point0, point1, point2);
+            QuakeBrushFace face(point0, point1, point2);
             ASSERT_VEC_EQ(point0, face.points()[0]);
             ASSERT_VEC_EQ(point1, face.points()[1]);
             ASSERT_VEC_EQ(point2, face.points()[2]);
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const Vec3 point1(1.f, 0.0, 4.0);
             const Vec3 point2(2.0, 0.0, 4.0);
             
-            ASSERT_THROW(new BrushFace(point0, point1, point2), GeometryException);
+            ASSERT_THROW(new QuakeBrushFace(point0, point1, point2), GeometryException);
         }
     }
 }

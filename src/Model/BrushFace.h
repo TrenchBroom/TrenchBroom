@@ -38,29 +38,13 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushFaceGeometry;
         
-        class TextureCoordinateSystem {
-        private:
-            static const Vec3 BaseAxes[];
+        struct TextureCoordinateSystem {
+            Vec3 xAxis;
+            Vec3 yAxis;
             
-            BrushFace* m_face;
-            mutable bool m_valid;
-            mutable size_t m_texPlaneNormIndex;
-            mutable size_t m_texFaceNormIndex;
-            mutable Vec3 m_texAxisX;
-            mutable Vec3 m_texAxisY;
-            mutable Vec3 m_scaledTexAxisX;
-            mutable Vec3 m_scaledTexAxisY;
-        public:
-            TextureCoordinateSystem();
-            void setFace(BrushFace* face);
-            Vec2f textureCoordinates(const Vec3& vertex) const;
-            void invalidate();
-        private:
-            void validate() const;
-            void axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const;
-            void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const;
+            Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t width, const size_t height) const;
         };
-
+        
         class BrushFace : public Allocator<BrushFace> {
         public:
             /*
@@ -95,13 +79,16 @@ namespace TrenchBroom {
             
             Assets::FaceTexture* m_texture;
             BrushFaceGeometry* m_side;
-            TextureCoordinateSystem m_textureCoordinateSystem;
+            
+            TextureCoordinateSystem m_textureCoordSystem;
             
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
+        protected:
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName);
-
+            virtual ~BrushFace();
+            
             Brush* parent() const;
             void setParent(Brush* parent);
             
@@ -136,8 +123,21 @@ namespace TrenchBroom {
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void validateVertexCache() const;
 
+            virtual TextureCoordinateSystem textureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
+
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
+        };
+        
+        template <class TexCoordPolicy>
+        class ConfigurableBrushFace : public BrushFace {
+        public:
+            ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName) :
+            BrushFace(point0, point1, point2, textureName) {}
+        private:
+            inline TextureCoordinateSystem textureCoordinateSystem(const Vec3& normal, const float rotation) {
+                return TexCoordPolicy::textureCoordinateSystem(normal, rotation);
+            }
         };
     }
 }

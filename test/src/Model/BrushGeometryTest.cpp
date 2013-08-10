@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceTypes.h"
 #include "Model/BrushVertex.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
@@ -121,24 +122,24 @@ namespace TrenchBroom {
         TEST(BrushGeometryTest, buildCuboid) {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
             
-            BrushFace* top = new BrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
-                                           Vec3(0.0, 1.0, cuboid.max.z()),
-                                           Vec3(1.0, 0.0, cuboid.max.z()));
-            BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
-                                              Vec3(1.0, 0.0, cuboid.min.z()),
-                                              Vec3(0.0, 1.0, cuboid.min.z()));
-            BrushFace* front = new BrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
-                                             Vec3(1.0, cuboid.min.y(),  0.0),
-                                             Vec3(0.0, cuboid.min.y(), -1.0));
-            BrushFace* back = new BrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
-                                            Vec3(-1.0, cuboid.max.y(),  0.0),
-                                            Vec3( 0.0, cuboid.max.y(), -1.0));
-            BrushFace* left = new BrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
-                                            Vec3(cuboid.min.x(), -1.0,  0.0),
-                                            Vec3(cuboid.min.x(),  0.0, -1.0));
-            BrushFace* right = new BrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
-                                             Vec3(cuboid.max.x(), 1.0,  0.0),
-                                             Vec3(cuboid.max.x(), 0.0, -1.0));
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
+                                                Vec3(0.0, 1.0, cuboid.max.z()),
+                                                Vec3(1.0, 0.0, cuboid.max.z()));
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
+                                                   Vec3(1.0, 0.0, cuboid.min.z()),
+                                                   Vec3(0.0, 1.0, cuboid.min.z()));
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
+                                                  Vec3(1.0, cuboid.min.y(),  0.0),
+                                                  Vec3(0.0, cuboid.min.y(), -1.0));
+            BrushFace* back = new QuakeBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
+                                                 Vec3(-1.0, cuboid.max.y(),  0.0),
+                                                 Vec3( 0.0, cuboid.max.y(), -1.0));
+            BrushFace* left = new QuakeBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
+                                                 Vec3(cuboid.min.x(), -1.0,  0.0),
+                                                 Vec3(cuboid.min.x(),  0.0, -1.0));
+            BrushFace* right = new QuakeBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
+                                                  Vec3(cuboid.max.x(), 1.0,  0.0),
+                                                  Vec3(cuboid.max.x(), 0.0, -1.0));
             
             BrushFaceList faces;
             faces.push_back(top);

@@ -22,9 +22,11 @@
 #include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceTypes.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotator.h"
+#include "Model/QuakeTexCoordPolicy.h"
 #include "View/Logger.h"
 
 namespace TrenchBroom {
@@ -280,7 +282,7 @@ namespace TrenchBroom {
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
-            Model::BrushFace* face = new Model::BrushFace(p1, p2, p3, textureName);
+            Model::BrushFace* face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
             face->setXOffset(xOffset);
             face->setYOffset(yOffset);
             face->setRotation(rotation);

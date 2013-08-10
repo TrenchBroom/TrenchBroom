@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceTypes.h"
 #include "Model/Picker.h"
 
 namespace TrenchBroom {
@@ -30,13 +31,13 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             BrushFaceList faces;
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
+            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                     Vec3(1.0, 0.0, 0.0),
                                                     Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
+            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                     Vec3(1.0, 0.0, 0.0),
                                                     Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new BrushFace(Vec3(0.0, 0.0, 0.0),
+            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                     Vec3(1.0, 0.0, 0.0),
                                                     Vec3(0.0, 1.0, 0.0)));
             
@@ -51,22 +52,22 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                           Vec3(0.0, 1.0, 0.0),
                                                           Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new BrushFace(Vec3(16.0, 0.0, 0.0),
+            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
                                                            Vec3(16.0, 0.0, 1.0),
                                                            Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                            Vec3(0.0, 0.0, 1.0),
                                                            Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new BrushFace(Vec3(0.0, 16.0, 0.0),
+            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
                                                           Vec3(1.0, 16.0, 0.0),
                                                           Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new BrushFace(Vec3(0.0, 0.0, 16.0),
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
                                                          Vec3(0.0, 1.0, 16.0),
                                                          Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                             Vec3(1.0, 0.0, 0.0),
                                                             Vec3(0.0, 1.0, 0.0));
             
@@ -90,22 +91,22 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                           Vec3(0.0, 1.0, 0.0),
                                                           Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new BrushFace(Vec3(16.0, 0.0, 0.0),
+            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
                                                            Vec3(16.0, 0.0, 1.0),
                                                            Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                            Vec3(0.0, 0.0, 1.0),
                                                            Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new BrushFace(Vec3(0.0, 16.0, 0.0),
+            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
                                                           Vec3(1.0, 16.0, 0.0),
                                                           Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new BrushFace(Vec3(0.0, 0.0, 16.0),
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
                                                          Vec3(0.0, 1.0, 16.0),
                                                          Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                             Vec3(1.0, 0.0, 0.0),
                                                             Vec3(0.0, 1.0, 0.0));
             
@@ -138,22 +139,22 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                           Vec3(0.0, 1.0, 0.0),
                                                           Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new BrushFace(Vec3(16.0, 0.0, 0.0),
+            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
                                                            Vec3(16.0, 0.0, 1.0),
                                                            Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                            Vec3(0.0, 0.0, 1.0),
                                                            Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new BrushFace(Vec3(0.0, 16.0, 0.0),
+            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
                                                           Vec3(1.0, 16.0, 0.0),
                                                           Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new BrushFace(Vec3(0.0, 0.0, 16.0),
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
                                                          Vec3(0.0, 1.0, 16.0),
                                                          Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                             Vec3(1.0, 0.0, 0.0),
                                                             Vec3(0.0, 1.0, 0.0));
             
@@ -181,22 +182,22 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                           Vec3(0.0, 1.0, 0.0),
                                                           Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new BrushFace(Vec3(16.0, 0.0, 0.0),
+            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
                                                            Vec3(16.0, 0.0, 1.0),
                                                            Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                            Vec3(0.0, 0.0, 1.0),
                                                            Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new BrushFace(Vec3(0.0, 16.0, 0.0),
+            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
                                                           Vec3(1.0, 16.0, 0.0),
                                                           Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new BrushFace(Vec3(0.0, 0.0, 16.0),
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
                                                          Vec3(0.0, 1.0, 16.0),
                                                          Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new BrushFace(Vec3(0.0, 0.0, 0.0),
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
                                                             Vec3(1.0, 0.0, 0.0),
                                                             Vec3(0.0, 1.0, 0.0));
             

@@ -28,75 +28,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Vec3 TextureCoordinateSystem::BaseAxes[] = {
-            Vec3( 0.0,  0.0,  1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
-            Vec3( 0.0,  0.0, -1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
-            Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3(-1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3( 0.0,  1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-        };
-        
-        TextureCoordinateSystem::TextureCoordinateSystem() :
-        m_face(NULL),
-        m_valid(false) {}
-        
-        void TextureCoordinateSystem::setFace(BrushFace* face) {
-            assert(m_face == NULL);
-            assert(face != NULL);
-            m_face = face;
-        }
-
-        Vec2f TextureCoordinateSystem::textureCoordinates(const Vec3& vertex) const {
-            if (!m_valid)
-                validate();
+        Vec2f TextureCoordinateSystem::textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t width, const size_t height) const {
             
-            Assets::FaceTexture* texture = m_face->texture();
-            const size_t width = texture != NULL ? texture->width() : 1;
-            const size_t height = texture != NULL ? texture->height() : 1;
-            
-            const float x = static_cast<float>((vertex.dot(m_scaledTexAxisX) + m_face->xOffset()) / width);
-            const float y = static_cast<float>((vertex.dot(m_scaledTexAxisY) + m_face->yOffset()) / height);
+            const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
+            const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
+            const float x = static_cast<float>((point.dot(xAxis * safeXScale) + xOffset) / width);
+            const float y = static_cast<float>((point.dot(yAxis * safeYScale) + yOffset) / height);
             return Vec2f(x, y);
-        }
-        
-        void TextureCoordinateSystem::invalidate() {
-            m_valid = false;
-        }
-        
-        void TextureCoordinateSystem::validate() const {
-            const Vec3& normal = m_face->boundary().normal;
-            
-            axesAndIndices(normal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
-            rotateAxes(m_texAxisX, m_texAxisY, Math<FloatType>::radians(m_face->rotation()), m_texPlaneNormIndex);
-            m_scaledTexAxisX = m_texAxisX / (m_face->xScale() == 0.0f ? 1.0f : m_face->xScale());
-            m_scaledTexAxisY = m_texAxisY / (m_face->yScale() == 0.0f ? 1.0f : m_face->yScale());
-            
-            m_valid = true;
-        }
-        
-        void TextureCoordinateSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const {
-            size_t bestIndex = 0;
-            FloatType bestDot = static_cast<FloatType>(0.0);
-            for (size_t i = 0; i < 6; ++i) {
-                const FloatType dot = normal.dot(BaseAxes[i * 3]);
-                if (dot > bestDot) { // no need to use -altaxis for qbsp
-                    bestDot = dot;
-                    bestIndex = i;
-                }
-            }
-            
-            xAxis = BaseAxes[bestIndex * 3 + 1];
-            yAxis = BaseAxes[bestIndex * 3 + 2];
-            planeNormIndex = (bestIndex / 2) * 6;
-            faceNormIndex = bestIndex * 3;
-        }
-        
-        void TextureCoordinateSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const  {
-            // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            const Quat3 rot(BaseAxes[planeNormIndex], planeNormIndex == 12 ? -angle : angle);
-            xAxis = rot * xAxis;
-            yAxis = rot * yAxis;
         }
         
         const String BrushFace::NoTextureName = "__TB_empty";
@@ -115,9 +53,10 @@ namespace TrenchBroom {
         m_texture(NULL),
         m_side(NULL),
         m_vertexCacheValid(false) {
-            m_textureCoordinateSystem.setFace(this);
             setPoints(point0, point1, point2);
         }
+        
+        BrushFace::~BrushFace() {}
         
         Brush* BrushFace::parent() const {
             return m_parent;
@@ -137,18 +76,18 @@ namespace TrenchBroom {
                     m_parent->incChildSelectionCount();
             }
         }
-
+        
         const BrushFace::Points& BrushFace::points() const {
             return m_points;
         }
-
+        
         bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
                 if (plane.pointStatus(m_points[i]) != PointStatus::PSInside)
                     return false;
             return true;
         }
-
+        
         const String& BrushFace::textureName() const {
             return m_textureName;
         }
@@ -156,7 +95,7 @@ namespace TrenchBroom {
         Assets::FaceTexture* BrushFace::texture() const {
             return m_texture;
         }
-
+        
         const Plane3& BrushFace::boundary() const {
             return m_boundary;
         }
@@ -189,32 +128,27 @@ namespace TrenchBroom {
                 m_textureName = m_texture->name();
                 m_texture->incUsageCount();
             }
-            m_textureCoordinateSystem.invalidate();
         }
-
+        
         void BrushFace::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_textureCoordinateSystem.invalidate();
         }
         
         void BrushFace::setYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_textureCoordinateSystem.invalidate();
         }
         
         void BrushFace::setRotation(const float rotation) {
             m_rotation = rotation;
-            m_textureCoordinateSystem.invalidate();
+            m_textureCoordSystem = textureCoordinateSystem(m_boundary.normal, m_rotation);
         }
         
         void BrushFace::setXScale(const float xScale) {
             m_xScale = xScale;
-            m_textureCoordinateSystem.invalidate();
         }
         
         void BrushFace::setYScale(const float yScale) {
             m_yScale = yScale;
-            m_textureCoordinateSystem.invalidate();
         }
         
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
@@ -245,7 +179,7 @@ namespace TrenchBroom {
             if (m_parent != NULL)
                 m_parent->decChildSelectionCount();
         }
-
+        
         void BrushFace::addToMesh(Mesh& mesh) const {
             assert(m_side != NULL);
             if (!m_vertexCacheValid)
@@ -255,7 +189,7 @@ namespace TrenchBroom {
             mesh.addTrianglesToSet(m_cachedVertices);
             mesh.endTriangleSet();
         }
-
+        
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
             assert(m_side != NULL);
             
@@ -266,7 +200,7 @@ namespace TrenchBroom {
             const FloatType dist = m_boundary.intersectWithRay(ray);
             if (Math<FloatType>::isnan(dist))
                 return Math<FloatType>::nan();
-
+            
             const size_t axis = m_boundary.normal.firstComponent();
             const Vec3 hit = ray.pointAtDistance(dist);
             const Vec3 projectedHit = swizzle(hit, axis);
@@ -323,7 +257,7 @@ namespace TrenchBroom {
                 return Math<FloatType>::nan();
             return dist;
         }
-
+        
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
@@ -338,23 +272,35 @@ namespace TrenchBroom {
                 throw e;
             }
         }
-
+        
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
-
+            
+            const size_t textureWidth = m_texture != NULL ? m_texture->width() : 1;
+            const size_t textureHeight = m_texture != NULL ? m_texture->height() : 1;
+            
             const BrushVertex::List& vertices = m_side->vertices();
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
             
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordinateSystem.textureCoordinates(vertices[0]->position())));
+                                                  m_textureCoordSystem.textureCoordinates(vertices[0]->position(),
+                                                                                          m_xOffset, m_yOffset,
+                                                                                          m_xScale, m_yScale,
+                                                                                          textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordinateSystem.textureCoordinates(vertices[i]->position())));
+                                                  m_textureCoordSystem.textureCoordinates(vertices[i]->position(),
+                                                                                          m_xOffset, m_yOffset,
+                                                                                          m_xScale, m_yScale,
+                                                                                          textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i+1]->position(),
                                                   m_boundary.normal,
-                                                  m_textureCoordinateSystem.textureCoordinates(vertices[i+1]->position())));
+                                                  m_textureCoordSystem.textureCoordinates(vertices[i+1]->position(),
+                                                                                          m_xOffset, m_yOffset,
+                                                                                          m_xScale, m_yScale,
+                                                                                          textureWidth, textureHeight)));
             }
             m_vertexCacheValid = true;
         }

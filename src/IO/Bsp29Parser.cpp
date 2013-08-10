@@ -62,7 +62,7 @@ namespace TrenchBroom {
         Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
-        m_end(end),
+        // m_end(end),
         m_palette(palette) {}
         
         Assets::EntityModel* Bsp29Parser::doParseModel() {
