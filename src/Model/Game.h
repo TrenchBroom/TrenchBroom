@@ -33,8 +33,16 @@ namespace TrenchBroom {
         
         class Game {
         public:
-            virtual ~Game();
+            static const String GameNames[];
+            static const size_t GameCount;
+
+            static GamePtr game(const String& gameName);
+            static GamePtr game(const size_t gameIndex);
             
+            static GamePtr detectGame(const IO::Path& path);
+            static StringList gameList();
+            
+            virtual ~Game();
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
             
             IO::Path::List extractTexturePaths(const Map* map) const;

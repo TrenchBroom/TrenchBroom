@@ -31,6 +31,7 @@ namespace TrenchBroom {
             extern const PropertyKey Classname;
             extern const PropertyKey Origin;
             extern const PropertyKey Wad;
+            extern const PropertyKey Wal;
             extern const PropertyKey Spawnflags;
             extern const PropertyKey EntityDefinitions;
             extern const PropertyKey Angle;

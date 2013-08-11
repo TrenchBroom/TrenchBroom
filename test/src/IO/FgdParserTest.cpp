@@ -58,6 +58,24 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
         
+        TEST(FgdParserTest, parseEmptyFlagDescription) {
+            const String file =
+            "@PointClass color(0 255 0) size(-2 -2 -12, 2 2 12) = light_mine1 : \"Dusty fluorescent light fixture\"\n"
+            "[\n"
+            "    spawnflags(Flags) =\n"
+            "    [\n"
+            "        1 : \"\" : 0\n"
+            "    ]\n"
+            "]\n"
+            "// 0221 - changed inheritance from \"light\" to \"light_min1\"\n";
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+            
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            ASSERT_EQ(1u, definitions.size());
+            VectorUtils::clearAndDelete(definitions);
+        }
+        
         TEST(FgdParserTest, parseSolidClass) {
             const String file =
             "@SolidClass = worldspawn : \"World entity\"\n"

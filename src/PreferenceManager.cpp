@@ -20,14 +20,6 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    PreferenceManager::PreferenceManager() {
-#if defined __APPLE__
-        m_saveInstantly = true;
-#else
-        m_saveInstantly = false;
-#endif
-    }
-    
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder) {
         UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
         if (it == m_unsavedPreferences.end())
@@ -156,5 +148,13 @@ namespace TrenchBroom {
             preference.save(wxConfig::Get());
         else
             markAsUnsaved(&preference, new ValueHolder<View::KeyboardShortcut>(previousValue));
+    }
+
+    PreferenceManager::PreferenceManager() {
+#if defined __APPLE__
+        m_saveInstantly = true;
+#else
+        m_saveInstantly = false;
+#endif
     }
 }

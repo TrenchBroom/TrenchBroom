@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 const float distance = std::min(inputState.scrollY() * moveSpeed(), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                PreferenceManager prefs = PreferenceManager::instance();
+                PreferenceManager& prefs = PreferenceManager::instance();
                 const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : m_camera.direction();
                 const float distance = inputState.scrollY() * moveSpeed();
                 m_camera.moveBy(distance * moveDirection);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 m_camera.rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
-                PreferenceManager prefs = PreferenceManager::instance();
+                PreferenceManager& prefs = PreferenceManager::instance();
                 const bool altMove = prefs.getBool(Preferences::CameraEnableAltMove);
                 Vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         float CameraTool::lookSpeedH() const {
-            PreferenceManager prefs = PreferenceManager::instance();
+            PreferenceManager& prefs = PreferenceManager::instance();
             float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;
             if (prefs.getBool(Preferences::CameraLookInvertH))
                 speed *= -1.0f;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
         
         float CameraTool::lookSpeedV() const {
-            PreferenceManager prefs = PreferenceManager::instance();
+            PreferenceManager& prefs = PreferenceManager::instance();
             float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;
             if (prefs.getBool(Preferences::CameraLookInvertV))
                 speed *= -1.0f;
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
         
         float CameraTool::panSpeedH() const {
-            PreferenceManager prefs = PreferenceManager::instance();
+            PreferenceManager& prefs = PreferenceManager::instance();
             float speed = prefs.getFloat(Preferences::CameraPanSpeed);
             if (prefs.getBool(Preferences::CameraPanInvertH))
                 speed *= -1.0f;
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
         
         float CameraTool::panSpeedV() const {
-            PreferenceManager prefs = PreferenceManager::instance();
+            PreferenceManager& prefs = PreferenceManager::instance();
             float speed = prefs.getFloat(Preferences::CameraPanSpeed);
             if (prefs.getBool(Preferences::CameraPanInvertV))
                 speed *= -1.0f;
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
         
         float CameraTool::moveSpeed() const {
-            PreferenceManager prefs = PreferenceManager::instance();
+            PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.getFloat(Preferences::CameraMoveSpeed) * 20.0f;
         }
     }

@@ -21,6 +21,14 @@
 
 namespace TrenchBroom {
     namespace Preferences {
+#ifdef __APPLE__
+        Preference<String> QuakePath("QuakePath", "/Applications/Quake");
+        Preference<String> Quake2Path("Quake2Path", "/Applications/Quake2");
+#else
+        Preference<String> QuakePath("QuakePath", "");
+        Preference<String> Quake2Path("Quake2Path", "");
+#endif
+
         Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> XAxisColor("Renderer/Colors/Background", Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> YAxisColor("Renderer/Colors/Background", Color(0.0f, 1.0f, 0.0f, 1.0f));

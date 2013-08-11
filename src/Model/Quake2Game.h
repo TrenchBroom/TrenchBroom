@@ -17,24 +17,19 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeGame__
-#define __TrenchBroom__QuakeGame__
+#ifndef __TrenchBroom__Quake2Game__
+#define __TrenchBroom__Quake2Game__
 
 #include "Color.h"
 #include "Model/Game.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Palette.h"
 #include "IO/QuakeFS.h"
-#include "Model/ModelTypes.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class Logger;
-    }
-    
     namespace Model {
-        class QuakeGame : public Game {
+        class Quake2Game : public Game {
         private:
             IO::QuakeFS m_fs;
             Color m_defaultEntityColor;
@@ -42,8 +37,8 @@ namespace TrenchBroom {
         public:
             static GamePtr newGame(const IO::Path& gamePath, const Color& defaultEntityColor);
         private:
-            QuakeGame(const IO::Path& gamePath, const Color& defaultEntityColor);
-
+            Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor);
+            
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
             
@@ -55,10 +50,10 @@ namespace TrenchBroom {
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path doDefaultEntityDefinitionFile() const;
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
-
+            
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeGame__) */
+#endif /* defined(__TrenchBroom__Quake2Game__) */

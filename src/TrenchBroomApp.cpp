@@ -22,12 +22,13 @@
 #include <clocale>
 
 #include "IO/Path.h"
-#include "Model/QuakeGame.h"
+#include "Model/Game.h"
 #include "View/CommandIds.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/Menu.h"
 
+#include <wx/choicdlg.h>
 #include <wx/filedlg.h>
 
 #ifndef TESTING
@@ -145,7 +146,7 @@ namespace TrenchBroom {
         int TrenchBroomApp::FilterEvent(wxEvent& event) {
             /*
              Because the Ubuntu window manager will unfocus the map view when a menu is opened, we track all SET_FOCUS
-             events here and send a separate event if any control other than the map view receives the focus. This event
+             events here and send a separate event if any control other than the map view receives the focus. An event
              will be added to the event queue here and then dispatched directly to the map frame containing the focused
              control once it is filtered here, too.
              */
@@ -216,7 +217,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::MacNewFile() {
             newDocument();
-        }
+        }        
         
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
             wxArrayString::const_iterator it, end;
@@ -237,23 +238,44 @@ namespace TrenchBroom {
         
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = m_frameManager->newFrame();
-            const IO::Path quakePath("/Applications/Quake");
-            Model::GamePtr game = Model::QuakeGame::newGame(quakePath, Color(1.0f, 1.0f, 1.0f, 1.0f), frame->logger());
+            Model::GamePtr game = detectGame();
+            if (game == NULL)
+                return false;
             return frame != NULL && frame->newDocument(game);
         }
         
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             MapFrame* frame = m_frameManager->newFrame();
             try {
-                const IO::Path quakePath("/Applications/Quake");
-                Model::GamePtr game = Model::QuakeGame::newGame(quakePath, Color(1.0f, 1.0f, 1.0f, 1.0f), frame->logger());
                 const IO::Path path(pathStr);
+                Model::GamePtr game = detectGame(path);
+                if (game == NULL)
+                    return false;
                 return frame != NULL && frame->openDocument(game, path);
             } catch (...) {
                 if (frame != NULL)
                     frame->Close();
                 return false;
             }
+        }
+        
+        Model::GamePtr TrenchBroomApp::detectGame(const IO::Path& path) {
+            Model::GamePtr game = Model::Game::detectGame(path);
+            if (game != NULL)
+                return game;
+            
+            wxArrayString gameNames;
+            for (size_t i = 0; i < Model::Game::GameCount; ++i)
+                gameNames.Add(Model::Game::GameNames[i]);
+            wxSingleChoiceDialog chooseGameDialog(NULL, _T("Please select a game"), _T("TrenchBroom"), gameNames, (void**)NULL, wxDEFAULT_DIALOG_STYLE | wxOK | wxCENTRE);
+            chooseGameDialog.SetSize(280, 200);
+            chooseGameDialog.Center();
+            if (chooseGameDialog.ShowModal() != wxID_OK)
+                return Model::GamePtr();
+            const int selection = chooseGameDialog.GetSelection();
+            if (selection < 0 || selection >= Model::Game::GameCount)
+                return Model::GamePtr();
+            return Model::Game::game(static_cast<size_t>(selection));
         }
     }
 }

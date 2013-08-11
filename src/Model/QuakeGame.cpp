@@ -21,9 +21,7 @@
 
 #include "StringUtils.h"
 #include "IO/Bsp29Parser.h"
-#include "IO/DefParser.h"
 #include "IO/FileSystem.h"
-#include "IO/FgdParser.h"
 #include "IO/GameFS.h"
 #include "IO/MdlParser.h"
 #include "IO/Path.h"
@@ -31,19 +29,18 @@
 #include "IO/WadTextureLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/GameUtils.h"
 #include "Model/Map.h"
-#include "View/Logger.h"
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr QuakeGame::newGame(const IO::Path& quakePath, const Color& defaultEntityColor, View::Logger* logger) {
-            return GamePtr(new QuakeGame(quakePath, defaultEntityColor, logger));
+        GamePtr QuakeGame::newGame(const IO::Path& gamePath, const Color& defaultEntityColor) {
+            return GamePtr(new QuakeGame(gamePath, defaultEntityColor));
         }
 
-        QuakeGame::QuakeGame(const IO::Path& quakePath, const Color& defaultEntityColor, View::Logger* logger) :
-        m_fs(quakePath, IO::Path("")),
+        QuakeGame::QuakeGame(const IO::Path& gamePath, const Color& defaultEntityColor) :
+        m_fs(gamePath, IO::Path("")),
         m_defaultEntityColor(defaultEntityColor),
-        m_logger(logger),
         m_palette(palettePath()) {}
         
         const BBox3 QuakeGame::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
@@ -57,32 +54,13 @@ namespace TrenchBroom {
         Map* QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
-            IO::QuakeMapParser parser(file->begin(), file->end(), m_logger);
+            IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(worldBounds);
         }
 
         IO::Path::List QuakeGame::doExtractTexturePaths(const Map* map) const {
-            IO::Path::List paths;
-            
-            Entity* worldspawn = map->worldspawn();
-            if (worldspawn == NULL)
-                return paths;
-            
-            const Model::PropertyValue& wadValue = worldspawn->property(Model::PropertyKeys::Wad);
-            if (wadValue.empty())
-                return paths;
-            
-            const StringList pathStrs = StringUtils::split(wadValue, ';');
-            StringList::const_iterator it, end;
-            for (it = pathStrs.begin(), end = pathStrs.end(); it != end; ++it) {
-                const String pathStr = StringUtils::trim(*it);
-                if (!pathStr.empty()) {
-                    const IO::Path path(pathStr);
-                    paths.push_back(path);
-                }
-            }
-            
-            return paths;
+            using TrenchBroom::Model::extractTexturePaths;
+            return extractTexturePaths(map, Model::PropertyKeys::Wad);
         }
 
         Assets::FaceTextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
@@ -96,20 +74,8 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionList QuakeGame::doLoadEntityDefinitions(const IO::Path& path) const {
-            const String extension = path.extension();
-            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
-                IO::FileSystem fs;
-                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
-                IO::FgdParser parser(file->begin(), file->end(), m_defaultEntityColor);
-                return parser.parseDefinitions();
-            }
-            if (StringUtils::caseInsensitiveEqual("def", extension)) {
-                IO::FileSystem fs;
-                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
-                IO::DefParser parser(file->begin(), file->end(), m_defaultEntityColor);
-                return parser.parseDefinitions();
-            }
-            throw GameException("Unknown entity definition format: " + path.asString());
+            using TrenchBroom::Model::loadEntityDefinitions;
+            return loadEntityDefinitions(path, m_defaultEntityColor);
         }
 
         IO::Path QuakeGame::doDefaultEntityDefinitionFile() const {
@@ -118,27 +84,8 @@ namespace TrenchBroom {
         }
 
         IO::Path QuakeGame::doExtractEntityDefinitionFile(const Map* map) const {
-            Entity* worldspawn = map->worldspawn();
-            if (worldspawn == NULL)
-                return defaultEntityDefinitionFile();
-            
-            const Model::PropertyValue& defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
-            if (defValue.empty())
-                return defaultEntityDefinitionFile();
-            
-            if (StringUtils::isPrefix(defValue, "external:"))
-                return IO::Path(defValue.substr(9));
-            if (StringUtils::isPrefix(defValue, "builtin:")) {
-                IO::FileSystem fs;
-                return fs.resourceDirectory() + IO::Path(defValue.substr(8));
-            }
-            
-            const IO::Path defPath(defValue);
-            if (defPath.isAbsolute())
-                return defPath;
-
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + defPath;
+            using TrenchBroom::Model::extractEntityDefinitionFile;
+            return extractEntityDefinitionFile(map, defaultEntityDefinitionFile());
         }
 
         Assets::EntityModel* QuakeGame::doLoadModel(const IO::Path& path) const {
@@ -147,15 +94,13 @@ namespace TrenchBroom {
                 return NULL;
             
             if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
-                m_logger->debug("Loading entity model " + path.asString());
                 IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), m_palette);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
-                m_logger->debug("Loading entity model " + path.asString());
                 IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), m_palette);
                 return parser.parseModel();
             } else {
-                m_logger->error("Unknown model type " + path.asString());
+                throw GameException("Unknown model type " + path.asString());
             }
             
             return NULL;

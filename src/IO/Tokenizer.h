@@ -214,7 +214,8 @@ namespace TrenchBroom {
             
             const char* readQuotedString(const char* begin) {
                 const char* c = begin;
-                while (!eof() && *(c = nextChar()) != '"');
+                while (!eof() && *c != '"')
+                    c = nextChar();
                 errorIfEof();
                 return c;
             }

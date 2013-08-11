@@ -20,16 +20,14 @@
 #ifndef __TrenchBroom__TrenchBroomApp__
 #define __TrenchBroom__TrenchBroomApp__
 
+#include "IO/Path.h"
+#include "Model/ModelTypes.h"
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
 
 #include <wx/wx.h>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    
     namespace View {
         class TrenchBroomApp : public wxApp {
         private:
@@ -66,6 +64,7 @@ namespace TrenchBroom {
             static bool useSDI();
             bool newDocument();
             bool openDocument(const String& pathStr);
+            static Model::GamePtr detectGame(const IO::Path& path = IO::Path(""));
         };
     }
 }

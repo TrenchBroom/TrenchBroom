@@ -130,12 +130,16 @@ namespace TrenchBroom {
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
                 FaceTextureCollection* collection = *cIt;
+                const String collectionName = collection->path().lastComponent();
                 const FaceTextureList textures = collection->textures();
                 
                 FaceTextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
                     FaceTexture* texture = *tIt;
                     m_texturesByName[texture->name()] = texture;
+
+                    // to find texture names such as baseq2/blah:
+                    m_texturesByName[collectionName + "/" + texture->name()] = texture;
                 }
             }
         }

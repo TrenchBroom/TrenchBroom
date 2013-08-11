@@ -27,6 +27,7 @@ namespace TrenchBroom {
             const PropertyKey Classname         = "classname";
             const PropertyKey Origin            = "origin";
             const PropertyKey Wad               = "wad";
+            const PropertyKey Wal               = "_textures";
             const PropertyKey Spawnflags        = "spawnflags";
             const PropertyKey EntityDefinitions = "_def";
             const PropertyKey Angle             = "angle";

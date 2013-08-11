@@ -35,8 +35,6 @@ namespace TrenchBroom {
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
         
-        PreferenceManager();
-        
         void markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder);
     public:
         inline static PreferenceManager& instance() {
@@ -64,6 +62,11 @@ namespace TrenchBroom {
         
         const View::KeyboardShortcut& getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const;
         void setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value);
+    private:
+        PreferenceManager();
+        
+        PreferenceManager(const PreferenceManager& other);
+        PreferenceManager& operator= (const PreferenceManager& other);
     };
     
     template <typename T>

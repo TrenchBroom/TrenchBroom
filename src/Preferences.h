@@ -26,6 +26,9 @@
 
 namespace TrenchBroom {
     namespace Preferences {
+        extern Preference<String> QuakePath;
+        extern Preference<String> Quake2Path;
+        
         extern Preference<Color> BackgroundColor;
         extern Preference<Color> XAxisColor;
         extern Preference<Color> YAxisColor;
