@@ -65,11 +65,11 @@ namespace TrenchBroom {
             
             const size_t textureCount = mipEntries.size();
             
-            glEnable(GL_TEXTURE_2D);
             
             typedef std::vector<GLuint> TextureIdList;
             TextureIdList textureIds;
             textureIds.resize(textureCount);
+            glEnable(GL_TEXTURE_2D);
             glGenTextures(textureCount, &textureIds[0]);
 
             for (size_t i = 0; i < textureCount; ++i) {

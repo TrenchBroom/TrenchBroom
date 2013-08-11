@@ -19,8 +19,13 @@
 
 #include "WalTextureLoader.h"
 
+#include "Color.h"
+#include "ByteBuffer.h"
+#include "Exceptions.h"
+#include "StringUtils.h"
 #include "Assets/FaceTexture.h"
 #include "Assets/FaceTextureCollection.h"
+#include "Assets/Palette.h"
 #include "IO/IOUtils.h"
 
 #include <algorithm>
@@ -62,6 +67,67 @@ namespace TrenchBroom {
         }
 
         void WalTextureLoader::doUploadTextureCollection(Assets::FaceTextureCollection* collection) {
+            Buffer<unsigned char> buffer(3 * 512 * 512);
+            FileSystem fs;
+            Color averageColor;
+            
+            const IO::Path& collectionPath = collection->path();
+            const Assets::FaceTextureList& textures = collection->textures();
+            const size_t textureCount = textures.size();
+            
+            typedef std::vector<GLuint> TextureIdList;
+            TextureIdList textureIds;
+            textureIds.resize(textureCount);
+            glEnable(GL_TEXTURE_2D);
+            glGenTextures(textureCount, &textureIds[0]);
+            
+            for (size_t i = 0; i < textureCount; ++i) {
+                Assets::FaceTexture* texture = textures[i];
+                const String translatedTextureName = translateTextureName(texture->name());
+                const Path& texturePath = collectionPath + IO::Path(translatedTextureName + ".wal");
+                
+                if (!fs.exists(texturePath)) {
+                    glDeleteTextures(textureCount, &textureIds[0]);
+                    throw FileSystemException("Cannot find wal texture: " + texture->name() + ".wal");
+                }
+                
+                if (texture->width() * texture->height() > buffer.size())
+                    buffer = Buffer<unsigned char>(texture->width() * texture->height());
+                
+                const GLuint textureId = textureIds[i];
+                texture->setTextureId(textureId);
+                
+                glBindTexture(GL_TEXTURE_2D, textureId);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER , GL_NEAREST_MIPMAP_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                
+                MappedFile::Ptr file = fs.mapFile(texturePath, std::ios::in);
+                const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
+
+                for (size_t j = 0; j < 4; ++j) {
+                    const size_t divisor = 1 << j;
+                    const size_t offset = IO::readSize<int32_t>(offsetCursor);
+                    const char* mipCursor = file->begin() + offset;
+                    const size_t pixelCount = texture->width() * texture->height() / (divisor * divisor);
+                    
+                    m_palette.indexedToRgb(mipCursor, pixelCount, buffer, averageColor);
+                    if (j == 0)
+                        texture->setAverageColor(averageColor);
+                    
+                    glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
+                                 static_cast<GLsizei>(texture->width() / divisor),
+                                 static_cast<GLsizei>(texture->height() / divisor),
+                                 0, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
+                }
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+        }
+
+        String WalTextureLoader::translateTextureName(const String& textureName) {
+            return StringUtils::replaceChars(textureName, "*", "#");
         }
     }
 }

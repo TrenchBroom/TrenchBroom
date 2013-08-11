@@ -37,6 +37,7 @@ namespace TrenchBroom {
             Assets::FaceTextureCollection* doLoadTextureCollection(const Path& path);
             Assets::FaceTexture* readTexture(MappedFile::Ptr file);
             void doUploadTextureCollection(Assets::FaceTextureCollection* collection);
+            static String translateTextureName(const String& textureName);
         };
     }
 }

@@ -208,6 +208,18 @@ namespace StringUtils {
         std::transform(result.begin(), result.end(), result.begin(), tolower);
         return result;
     }
+    
+    inline String replaceChars(const String& str, const String& needles, const String& replacements) {
+        if (needles.size() != replacements.size() || needles.empty() || str.empty())
+            return str;
+        
+        String result = str;
+        for (size_t i = 0; i < needles.size(); ++i) {
+            if (result[i] == needles[i])
+                result[i] = replacements[i];
+        }
+        return result;
+    }
 }
 
 #endif
