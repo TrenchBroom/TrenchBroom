@@ -62,7 +62,7 @@ namespace TrenchBroom {
             
         private:
             static bool useSDI();
-            bool newDocument();
+            bool newDocument(Model::GamePtr game = Model::GamePtr());
             bool openDocument(const String& pathStr);
             static Model::GamePtr detectGame(const IO::Path& path = IO::Path(""));
         };

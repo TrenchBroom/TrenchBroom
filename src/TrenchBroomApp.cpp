@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 const wxString filename = wxApp::argv[1];
                 return openDocument(filename.ToStdString());
             } else {
-                return newDocument();
+                return newDocument(Model::Game::game(0));
             }
 #endif
             return true;
@@ -216,7 +216,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::MacNewFile() {
-            newDocument();
+            newDocument(Model::Game::game(0));
         }        
         
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
@@ -236,9 +236,10 @@ namespace TrenchBroom {
 #endif
         }
         
-        bool TrenchBroomApp::newDocument() {
+        bool TrenchBroomApp::newDocument(Model::GamePtr game) {
             MapFrame* frame = m_frameManager->newFrame();
-            Model::GamePtr game = detectGame();
+            if (game == NULL)
+                game = detectGame();
             if (game == NULL)
                 return false;
             return frame != NULL && frame->newDocument(game);
