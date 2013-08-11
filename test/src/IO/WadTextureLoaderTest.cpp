@@ -18,7 +18,6 @@
  */
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "IO/Path.h"
 #include "IO/WadTextureLoader.h"
@@ -35,32 +34,6 @@ namespace TrenchBroom {
         }
         
         TEST(WadTextureLoaderTest, testLoadWad) {
-            using namespace testing;
-            InSequence forceInSequenceMockCalls;
-            std::srand(static_cast<unsigned int>(std::time(NULL)));
-            
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
-
-            typedef std::vector<GLuint> TextureIdList;
-            TextureIdList mockIds;
-            for (size_t i = 0; i < 21; ++i)
-                mockIds.push_back(i);
-            
-            EXPECT_CALL(*GLMock, Enable(GL_TEXTURE_2D));
-            EXPECT_CALL(*GLMock, GenTextures(21,_)).WillOnce(SetArrayArgument<1>(mockIds.begin(), mockIds.end()));
-            
-            for (size_t i = 0; i < 21; ++i) {
-                EXPECT_CALL(*GLMock, BindTexture(GL_TEXTURE_2D, mockIds[i]));
-                EXPECT_CALL(*GLMock, TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST));
-                EXPECT_CALL(*GLMock, TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST));
-                EXPECT_CALL(*GLMock, TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-                EXPECT_CALL(*GLMock, TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-                for (size_t j = 0; j < 4; j++)
-                    EXPECT_CALL(*GLMock, TexImage2D(GL_TEXTURE_2D, j, GL_RGBA, _, _, 0, GL_RGB, GL_UNSIGNED_BYTE, _));
-                EXPECT_CALL(*GLMock, BindTexture(GL_TEXTURE_2D, 0));
-            }
-            
             const Assets::Palette palette(Path("data/palette.lmp"));
             WadTextureLoader loader(palette);
             
@@ -90,6 +63,8 @@ namespace TrenchBroom {
             assertTexture("bongs2",            128, 128, textures[18]);
             assertTexture("blowjob_machine",   128, 128, textures[19]);
             assertTexture("lasthopeofhuman",   128, 128, textures[20]);
+            
+            delete collection;
         }
     }
 }

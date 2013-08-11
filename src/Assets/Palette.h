@@ -42,6 +42,9 @@ namespace TrenchBroom {
             
             void indexedToRgb(const Buffer<char>& indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const;
             void indexedToRgb(const char* indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const;
+        private:
+            void loadLmpPalette(const IO::Path& path);
+            void loadPcxPalette(const IO::Path& path);
         };
     }
 }

@@ -20,6 +20,7 @@
 #include "Palette.h"
 
 #include "Exceptions.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <cstring>
@@ -28,17 +29,12 @@
 namespace TrenchBroom {
     namespace Assets {
         Palette::Palette(const IO::Path& path) {
-            std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
-            if (!stream.is_open())
-                throw FileSystemException("Cannot load palette " + path.asString());
-
-            stream.seekg(0, std::ios::end);
-            m_size = static_cast<size_t>(stream.tellg());
-            stream.seekg(0, std::ios::beg);
-            m_data = new char[m_size];
-
-            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
-            stream.close();
+            if (StringUtils::caseInsensitiveEqual(path.extension(), "lmp"))
+                loadLmpPalette(path);
+            else if (StringUtils::caseInsensitiveEqual(path.extension(), "pcx"))
+                loadPcxPalette(path);
+            else
+                throw FileSystemException("Unknown palette format " + path.asString());
         }
 
         Palette::Palette(const Palette& other) :
@@ -78,6 +74,36 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
             averageColor[3] = 1.0f;
+        }
+
+        void Palette::loadLmpPalette(const IO::Path& path) {
+            std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
+            if (!stream.is_open())
+                throw FileSystemException("Cannot load palette " + path.asString());
+            
+            stream.seekg(0, std::ios::end);
+            m_size = static_cast<size_t>(stream.tellg());
+            stream.seekg(0, std::ios::beg);
+            m_data = new char[m_size];
+            
+            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
+        }
+        
+        void Palette::loadPcxPalette(const IO::Path& path) {
+            std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
+            if (!stream.is_open())
+                throw FileSystemException("Cannot load palette " + path.asString());
+            
+            m_size = 768;
+            stream.seekg(m_size + 1, std::ios::end);
+            
+            char magic;
+            stream >> magic;
+            // if (magic != 0x0C)
+               // throw FileSystemException("Cannot load palette " + path.asString());
+            
+            m_data = new char[m_size];
+            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
         }
     }
 }
