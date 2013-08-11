@@ -38,6 +38,9 @@ namespace TrenchBroom {
         m_rotation(0.0f),
         m_xScale(1.0f),
         m_yScale(1.0f),
+        m_surfaceContents(0),
+        m_surfaceFlags(0),
+        m_surfaceValue(0.0f),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
@@ -111,6 +114,18 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
+        size_t BrushFace::surfaceContents() const {
+            return m_surfaceContents;
+        }
+        
+        size_t BrushFace::surfaceFlags() const {
+            return m_surfaceFlags;
+        }
+        
+        float BrushFace::surfaceValue() const {
+            return m_surfaceValue;
+        }
+
         void BrushFace::setTexture(Assets::FaceTexture* texture) {
             if (m_texture != NULL)
                 m_texture->decUsageCount();
@@ -142,6 +157,18 @@ namespace TrenchBroom {
             m_yScale = yScale;
         }
         
+        void BrushFace::setSurfaceContents(const size_t surfaceContents) {
+            m_surfaceContents = surfaceContents;
+        }
+        
+        void BrushFace::setSurfaceFlags(const size_t surfaceFlags) {
+            m_surfaceFlags = surfaceFlags;
+        }
+        
+        void BrushFace::setSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+        }
+
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;

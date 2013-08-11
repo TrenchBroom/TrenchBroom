@@ -66,6 +66,9 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
+            size_t m_surfaceContents;
+            size_t m_surfaceFlags;
+            float m_surfaceValue;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -94,6 +97,9 @@ namespace TrenchBroom {
             float rotation() const;
             float xScale() const;
             float yScale() const;
+            size_t surfaceContents() const;
+            size_t surfaceFlags() const;
+            float surfaceValue() const;
             
             void setTexture(Assets::FaceTexture* texture);
             void setXOffset(const float xOffset);
@@ -101,6 +107,9 @@ namespace TrenchBroom {
             void setRotation(const float rotation);
             void setXScale(const float xScale);
             void setYScale(const float yScale);
+            void setSurfaceContents(const size_t surfaceContents);
+            void setSurfaceFlags(const size_t surfaceFlags);
+            void setSurfaceValue(const float surfaceValue);
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);
             

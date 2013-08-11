@@ -345,5 +345,33 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
         }
+
+        TEST(QuakeMapParserTest, parseQuake2Brush) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1 0 0 0\n"
+                              "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                              "( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                              "( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                              "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::Map* map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(1u, entities.size());
+            
+            const Model::Entity* entity = entities.front();
+            ASSERT_TRUE(entity->hasProperty(Model::PropertyKeys::Classname));
+            ASSERT_EQ(Model::PropertyValues::WorldspawnClassname, entity->property(Model::PropertyKeys::Classname));
+            
+            const Model::BrushList& brushes = entity->brushes();
+            ASSERT_EQ(1u, brushes.size());
+        }
     }
 }

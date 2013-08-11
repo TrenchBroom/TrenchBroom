@@ -57,9 +57,9 @@ namespace TrenchBroom {
                     // const Quatf yRotation(Vec3f::PosY, Mathf::radians(-angles.y()));
                     
                     // pitch / yaw / roll
-                    const Quatf pitch(Vec3f::PosY, Mathf::radians(angles.x()));
-                    const Quatf yaw(Vec3f::PosZ, Mathf::radians(angles.y()));
-                    const Quatf roll(Vec3f::PosX, Mathf::radians(angles.z()));
+                    const Quatf pitch(  Vec3f::PosY, Mathf::radians(angles.x()));
+                    const Quatf yaw(    Vec3f::PosZ, Mathf::radians(angles.y()));
+                    const Quatf roll(   Vec3f::PosX, Mathf::radians(angles.z()));
                     return pitch * yaw * roll;
                 }
                 default:

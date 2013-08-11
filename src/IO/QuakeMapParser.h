@@ -81,7 +81,8 @@ namespace TrenchBroom {
                     
             typedef enum {
                 MFUnknown,
-                MFStandard,
+                MFQuake,
+                MFQuake2,
                 MFValve
             } MapFormat;
 
@@ -99,7 +100,8 @@ namespace TrenchBroom {
             Model::Entity* parseEntity(const BBox3& worldBounds);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);
-            MapFormat detectFormat(const Token& token);
+            bool detectValve(const Token& token) const;
+            bool detectQuake2(const Token& token) const;
             Vec3 parseVector();
             
             Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
