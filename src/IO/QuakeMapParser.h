@@ -27,9 +27,7 @@
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class Logger;
-    }
+    class Logger;
     
     namespace IO {
         namespace QuakeMapToken {
@@ -83,25 +81,25 @@ namespace TrenchBroom {
                 MFUnknown,
                 MFQuake,
                 MFQuake2,
-                MFValve
+                MFValve,
+                MFHexen2
             } MapFormat;
 
-            View::Logger* m_logger;
+            Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
             MapFormat m_format;
             typedef QuakeMapTokenizer::Token Token;
         public:
-            QuakeMapParser(const char* begin, const char* end, View::Logger* logger = NULL);
-            QuakeMapParser(const String& str, View::Logger* logger = NULL);
+            QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
+            QuakeMapParser(const String& str, Logger* logger = NULL);
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
             Model::Map* doParseMap(const BBox3& worldBounds);
             
+            MapFormat detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);
-            bool detectValve(const Token& token) const;
-            bool detectQuake2(const Token& token) const;
             Vec3 parseVector();
             
             Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;

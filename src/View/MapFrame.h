@@ -30,11 +30,12 @@
 #include <wx/frame.h>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace View {
         class Console;
         class FrameManager;
         class Inspector;
-        class Logger;
         class MapView;
         class NavBar;
         

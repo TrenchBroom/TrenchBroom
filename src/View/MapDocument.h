@@ -37,13 +37,13 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Model {
         class SelectionResult;
     }
     
     namespace View {
-        class Logger;
-
         class MapDocument : public CachingLogger {
         public:
             static const BBox3 DefaultWorldBounds;

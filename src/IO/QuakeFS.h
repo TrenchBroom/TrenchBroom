@@ -31,7 +31,7 @@ namespace TrenchBroom {
         private:
             MultiFS m_fs;
         public:
-            QuakeFS(const Path& quakePath, const Path& mod);
+            QuakeFS(const Path& quakePath, const Path& base, const Path& mod = Path(""));
         private:
             const MappedFile::Ptr doFindFile(const Path& path) const;
             void addMod(const Path& quakePath, const Path& mod);

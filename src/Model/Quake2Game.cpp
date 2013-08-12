@@ -30,7 +30,7 @@ namespace TrenchBroom {
         }
         
         Quake2Game::Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor) :
-        m_fs(gamePath, IO::Path("")),
+        m_fs(gamePath, IO::Path("baseq2")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
         

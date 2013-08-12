@@ -34,6 +34,8 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Controller {
         class ControllerFacade;
     }
@@ -42,7 +44,6 @@ namespace TrenchBroom {
         class BaseTool;
         class CameraTool;
         class SelectionTool;
-        class Logger;
         
         class MapView : public wxGLCanvas {
         private:

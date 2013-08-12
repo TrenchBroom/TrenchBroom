@@ -101,6 +101,12 @@ namespace TrenchBroom {
                 pushToken(token);
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
+
+            void reset() {
+                m_line = 1;
+                m_column = 1;
+                m_cur = m_begin;
+            }
         protected:
             size_t line() const {
                 return m_line;
@@ -229,12 +235,6 @@ namespace TrenchBroom {
             void discardUntil(const String& delims) {
                 const char* c;
                 while (!eof() && !isAnyOf(*(c = nextChar()), delims));
-            }
-            
-            void reset() {
-                m_line = 1;
-                m_column = 1;
-                m_cur = m_begin;
             }
             
             void error(const char c) const {

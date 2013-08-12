@@ -21,7 +21,7 @@
 #define __TrenchBroom__CachingLogger__
 
 #include "StringUtils.h"
-#include "View/Logger.h"
+#include "Logger.h"
 
 #include <vector>
 

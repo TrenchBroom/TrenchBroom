@@ -23,9 +23,11 @@
 #include "Exceptions.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
+#include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/FgdParser.h"
 #include "IO/FileSystem.h"
+#include "IO/MdlParser.h"
 #include "IO/Path.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
@@ -96,6 +98,24 @@ namespace TrenchBroom {
             
             IO::FileSystem fs;
             return fs.resourceDirectory() + defPath;
+        }
+        
+        inline static Assets::EntityModel* loadModel(const IO::GameFS& gameFs, const Assets::Palette& palette, const IO::Path& path) {
+            IO::MappedFile::Ptr file = gameFs.findFile(path);
+            if (file == NULL)
+                return NULL;
+            
+            if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
+                IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), palette);
+                return parser.parseModel();
+            } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
+                IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), palette);
+                return parser.parseModel();
+            } else {
+                throw GameException("Unknown model type " + path.asString());
+            }
+            
+            return NULL;
         }
     }
 }

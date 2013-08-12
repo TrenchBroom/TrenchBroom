@@ -20,11 +20,11 @@
 #include "MapView.h"
 
 #include "Exceptions.h"
+#include "Logger.h"
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
 #include "View/CameraTool.h"
 #include "View/SelectionTool.h"
-#include "View/Logger.h"
 #include "View/MapDocument.h"
 
 #include <wx/dcclient.h>

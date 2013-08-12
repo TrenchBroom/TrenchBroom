@@ -23,30 +23,28 @@
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class Logger {
-        public:
-            virtual ~Logger();
-            
-            typedef enum {
-                LLDebug,
-                LLInfo,
-                LLWarn,
-                LLError
-            } LogLevel;
-
-            void debug(const String& message);
-            void debug(const char* format, ...);
-            void info(const String& message);
-            void info(const char* format, ...);
-            void warn(const String& message);
-            void warn(const char* format, ...);
-            void error(const String& message);
-            void error(const char* format, ...);
-
-            virtual void log(const LogLevel level, const String& message) = 0;
-        };
-    }
+    class Logger {
+    public:
+        virtual ~Logger();
+        
+        typedef enum {
+            LLDebug,
+            LLInfo,
+            LLWarn,
+            LLError
+        } LogLevel;
+        
+        void debug(const String& message);
+        void debug(const char* format, ...);
+        void info(const String& message);
+        void info(const char* format, ...);
+        void warn(const String& message);
+        void warn(const char* format, ...);
+        void error(const String& message);
+        void error(const char* format, ...);
+        
+        virtual void log(const LogLevel level, const String& message) = 0;
+    };
 }
 
 #endif /* defined(__TrenchBroom__Logger__) */

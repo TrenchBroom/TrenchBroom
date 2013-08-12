@@ -25,11 +25,12 @@
 #include "IO/IOUtils.h"
 #include "Model/QuakeGame.h"
 #include "Model/Quake2Game.h"
+#include "Model/Hexen2Game.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const String Game::GameNames[] = {"Quake", "Quake 2"};
-        const size_t Game::GameCount = 2;
+        const String Game::GameNames[] = {"Quake", "Quake 2", "Hexen 2"};
+        const size_t Game::GameCount = 3;
         
         GamePtr Game::game(const String& gameName) {
             for (size_t i = 0; i < GameCount; ++i)
@@ -45,6 +46,8 @@ namespace TrenchBroom {
                     return QuakeGame::newGame(prefs.getString(Preferences::QuakePath), prefs.getColor(Preferences::UndefinedEntityColor));
                 case 1:
                     return Quake2Game::newGame(prefs.getString(Preferences::Quake2Path), prefs.getColor(Preferences::UndefinedEntityColor));
+                case 2:
+                    return Hexen2Game::newGame(prefs.getString(Preferences::Hexen2Path), prefs.getColor(Preferences::UndefinedEntityColor));
                 default:
                     return GamePtr();
             }

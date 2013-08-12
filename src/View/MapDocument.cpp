@@ -19,6 +19,7 @@
 
 #include "MapDocument.h"
 
+#include "Logger.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/FileSystem.h"
@@ -27,7 +28,6 @@
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
-#include "View/Logger.h"
 #include "View/MapFrame.h"
 
 #include <cassert>

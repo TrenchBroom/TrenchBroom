@@ -27,10 +27,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        QuakeFS::QuakeFS(const Path& quakePath, const Path& mod) {
+        QuakeFS::QuakeFS(const Path& quakePath, const Path& base, const Path& mod) {
             FileSystem fs;
             if (!quakePath.isEmpty() && fs.exists(quakePath)) {
-                addMod(quakePath, Path("id1"));
+                addMod(quakePath, base);
                 if (!mod.isEmpty())
                     addMod(quakePath, mod);
             }
