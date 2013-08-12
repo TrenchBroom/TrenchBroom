@@ -128,6 +128,18 @@ namespace TrenchBroom {
             return m_filter;
         }
 
+        Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
+            return m_entityDefinitionManager;
+        }
+        
+        Assets::EntityModelManager& MapDocument::entityModelManager() {
+            return m_entityModelManager;
+        }
+        
+        Assets::TextureManager& MapDocument::textureManager() {
+            return m_textureManager;
+        }
+
         bool MapDocument::modified() const {
             return m_modificationCount > 0;
         }

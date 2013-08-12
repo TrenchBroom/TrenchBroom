@@ -239,7 +239,7 @@ namespace TrenchBroom {
             container->SetSizer(containerSizer);
             
             consoleSplitter->SplitHorizontally(container, m_console, -100);
-            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller);
+            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources());
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

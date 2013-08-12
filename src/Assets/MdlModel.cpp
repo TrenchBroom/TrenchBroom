@@ -68,6 +68,25 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
+        BBox3f MdlFrame::transformedBounds(const Mat4x4f& transformation) const {
+            if (m_triangles.empty())
+                return BBox3f(-8.0f, 8.0f);
+            
+            MdlFrameVertexList::const_iterator it = m_triangles.begin();
+            MdlFrameVertexList::const_iterator end = m_triangles.end();
+            
+            BBox3f bounds;
+            bounds.min = bounds.max = transformation * it->v1;
+            ++it;
+            
+            while (it != end) {
+                bounds.mergeWith(transformation * it->v1);
+                ++it;
+            }
+            
+            return bounds;
+        }
+
         MdlFrameGroup::~MdlFrameGroup() {
             VectorUtils::clearAndDelete(m_frames);
         }
@@ -120,6 +139,13 @@ namespace TrenchBroom {
                 return BBox3f(-8.0f, 8.0f);
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
             return frame->bounds();
+        }
+
+        BBox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+            if (frameIndex >= m_frames.size())
+                return BBox3f(-8.0f, 8.0f);
+            const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
+            return frame->transformedBounds(transformation);
         }
     }
 }

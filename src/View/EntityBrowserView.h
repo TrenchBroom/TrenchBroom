@@ -1,0 +1,95 @@
+/*
+ Copyright (C) 2010-2012 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef __TrenchBroom__EntityBrowserView__
+#define __TrenchBroom__EntityBrowserView__
+
+#include "VecMath.h"
+#include "Assets/EntityDefinitionManager.h"
+#include "Renderer/Vbo.h"
+#include "View/CellView.h"
+#include "View/ViewTypes.h"
+
+namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelManager;
+        class PointEntityDefinition;
+    }
+    
+    namespace Renderer {
+        class FontDescriptor;
+        class MeshRenderer;
+        class RenderResources;
+    }
+    
+    namespace View {
+        
+        typedef String EntityGroupData;
+        
+        class EntityCellData {
+        public:
+            Assets::PointEntityDefinition* entityDefinition;
+            Renderer::MeshRenderer* modelRenderer;
+            Renderer::FontDescriptor fontDescriptor;
+            BBox3f bounds;
+            
+            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, Renderer::MeshRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
+        };
+
+        class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
+        private:
+            typedef std::map<Renderer::FontDescriptor, Vec2f::List> StringMap;
+
+            Renderer::RenderResources& m_resources;
+            Assets::EntityDefinitionManager& m_entityDefinitionManager;
+            Assets::EntityModelManager& m_entityModelManager;
+            Quatf m_rotation;
+            
+            bool m_group;
+            bool m_hideUnused;
+            Assets::EntityDefinitionManager::SortOrder m_sortOrder;
+            String m_filterText;
+            
+            Renderer::Vbo m_vbo;
+        public:
+            EntityBrowserView(wxWindow* parent, wxWindowID windowId,
+                              wxScrollBar* scrollBar,
+                              Renderer::RenderResources& resources,
+                              Assets::EntityDefinitionManager& entityDefinitionManager,
+                              Assets::EntityModelManager& entityModelManager);
+            ~EntityBrowserView();
+            
+            void setSortOrder(const Assets::EntityDefinitionManager::SortOrder sortOrder);
+            void setGroup(const bool group);
+            void setHideUnused(const bool hideUnused);
+            void setFilterText(const String& filterText);
+        private:
+            void doInitLayout(Layout& layout);
+            void doReloadLayout(Layout& layout);
+            void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
+            void doClear();
+            void doRender(Layout& layout, const float y, const float height);
+            void collectStringVertices(Layout& layout, const float y, const float height, StringMap& stringVertices, size_t& visibleGroupCount, size_t& visibleItemCount);
+            void renderBounds(Layout& layout, const float y, const float height);
+            Mat4x4f boundsTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
+        };
+    }
+}
+
+#endif /* defined(__TrenchBroom__EntityBrowserView__) */

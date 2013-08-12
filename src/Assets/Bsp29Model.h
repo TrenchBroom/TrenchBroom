@@ -48,6 +48,7 @@ namespace TrenchBroom {
                 
                 AutoTexture* texture() const;
                 Renderer::VertexSpecs::P3T2::Vertex::List vertices() const;
+                const Vec3f::List& vertexPositions() const;
             };
             typedef std::vector<Face> FaceList;
         private:
@@ -55,6 +56,8 @@ namespace TrenchBroom {
                 FaceList faces;
                 BBox3f bounds;
                 SubModel(const FaceList& i_faces, const BBox3f& i_bounds);
+                
+                BBox3f transformedBounds(const Mat4x4f& transformation) const;
             };
 
             typedef std::vector<SubModel> SubModelList;
@@ -67,6 +70,7 @@ namespace TrenchBroom {
         private:
             Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
+            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
         };
     }
 }

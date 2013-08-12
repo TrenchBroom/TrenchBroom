@@ -42,6 +42,9 @@ namespace TrenchBroom {
         }
         
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
+            if (path.isEmpty())
+                return NULL;
+            
             Cache::const_iterator it = m_models.find(path);
             if (it != m_models.end())
                 return it->second;

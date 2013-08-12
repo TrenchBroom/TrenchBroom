@@ -20,15 +20,27 @@
 #include "EntityDefinitionManager.h"
 
 #include "CollectionUtils.h"
+#include "StringUtils.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Assets/EntityDefinition.h"
 #include "Model/Game.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Assets {
+        bool EntityDefinitionManager::CompareByName::operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+            if (m_shortName)
+                return left->shortName() < right->shortName();
+            return left->name() < right->name();
+        }
+
+        inline bool EntityDefinitionManager::CompareByUsage::operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+            if (left->usageCount() == right->usageCount())
+                return left->name() < right->name();
+            return left->usageCount() > right->usageCount();
+        }
+
         EntityDefinitionManager::~EntityDefinitionManager() {
             clear();
         }
@@ -56,6 +68,57 @@ namespace TrenchBroom {
                 return NULL;
             return it->second;
         }
+
+        EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const SortOrder order) const {
+            EntityDefinitionList result;
+            EntityDefinitionList::const_iterator it, end;
+            for (it = m_definitions.begin(), end = m_definitions.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                if (definition->type() == type)
+                    result.push_back(definition);
+            }
+            if (order == Usage)
+                std::sort(result.begin(), result.end(), CompareByUsage());
+            else
+                std::sort(result.begin(), result.end(), CompareByName(false));
+            return result;
+        }
+        
+        EntityDefinitionManager::EntityDefinitionGroups EntityDefinitionManager::groups(const EntityDefinition::Type type, const SortOrder order) const {
+            EntityDefinitionGroups groups;
+            EntityDefinitionList list = definitions(type, order);
+            EntityDefinitionList ungrouped;
+            
+            EntityDefinitionList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                const String groupName = definition->groupName();
+                if (groupName.empty())
+                    ungrouped.push_back(definition);
+                else
+                    groups[groupName].push_back(definition);
+            }
+            
+            for (it = ungrouped.begin(), end = ungrouped.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                const String shortName = StringUtils::capitalize(definition->shortName());
+                EntityDefinitionGroups::iterator groupIt = groups.find(shortName);
+                if (groupIt == groups.end())
+                    groups["Misc"].push_back(definition);
+                else
+                    groupIt->second.push_back(definition);
+            }
+            
+            EntityDefinitionGroups::iterator groupIt, groupEnd;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                EntityDefinitionList& definitions = groupIt->second;
+                if (order == Usage)
+                    std::sort(definitions.begin(), definitions.end(), CompareByUsage());
+                else
+                    std::sort(definitions.begin(), definitions.end(), CompareByName(true));
+            }
+            
+            return groups;            }
 
         void EntityDefinitionManager::updateCache() {
             clearCache();

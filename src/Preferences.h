@@ -55,6 +55,8 @@ namespace TrenchBroom {
         extern Preference<String> RendererFontName;
         extern Preference<int> RendererFontSize;
         
+        extern Preference<int> EntityBrowserFontSize;
+        
         extern Preference<float> CameraLookSpeed;
         extern Preference<bool> CameraLookInvertH;
         extern Preference<bool> CameraLookInvertV;

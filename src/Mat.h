@@ -554,7 +554,7 @@ inline const Mat<T,S+1,S+1> scalingMatrix(const Vec<T,S>& factors) {
     return scaling;
 }
 
-template <typename T, size_t S>
+template <size_t S, typename T>
 inline const Mat<T,S,S> scalingMatrix(const T f) {
     Mat<T,S,S> scaling;
     for (size_t i = 0; i < S-1; i++)

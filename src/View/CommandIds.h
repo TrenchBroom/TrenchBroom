@@ -129,18 +129,6 @@ namespace TrenchBroom {
                 const int FileRecentDocuments                = Lowest + 190;
                 const int Highest                            = Lowest + 200;
             }
-            namespace EntityInspector {
-                static const int Lowest                             = Menu::Highest + 1;
-                static const int EntityBrowserSortOrderChoiceId     = Lowest +   1;
-                static const int EntityBrowserGroupButtonId         = Lowest +   2;
-                static const int EntityBrowserUsedButtonId          = Lowest +   3;
-                static const int EntityBrowserFilterBoxId           = Lowest +   4;
-                static const int EntityBrowserId                    = Lowest +   5;
-                static const int EntityPropertyViewId               = Lowest +   6;
-                static const int AddEntityPropertyButtonId          = Lowest +   7;
-                static const int RemoveEntityPropertiesButtonId     = Lowest +   8;
-                static const int Highest                            = Lowest +  99;
-            }
         }
     }
 }

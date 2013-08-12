@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,22 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityModel.h"
+#include "RenderResources.h"
 
 namespace TrenchBroom {
-    namespace Assets {
-        EntityModel::~EntityModel() {}
+    namespace Renderer {
+        RenderResources::RenderResources(const GLAttribs& glAttribs, wxGLContext* sharedContext) :
+        m_glAttribs(glAttribs),
+        m_sharedContext(sharedContext) {}
         
-        Renderer::MeshRenderer* EntityModel::buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
-            return doBuildRenderer(vbo, skinIndex, frameIndex);
+        const RenderResources::GLAttribs& RenderResources::glAttribs() const {
+            return m_glAttribs;
         }
-
-        BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
-            return doGetBounds(skinIndex, frameIndex);
+        
+        wxGLContext* RenderResources::sharedContext() const {
+            return m_sharedContext;
         }
-
-        BBox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            return doGetTransformedBounds(skinIndex, frameIndex, transformation);
+        
+        FontManager& RenderResources::fontManager() {
+            return m_fontManager;
+        }
+        
+        ShaderManager& RenderResources::shaderManager() {
+            return m_shaderManager;
         }
     }
 }

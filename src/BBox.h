@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
+#include "Mat.h"
 #include "Plane.h"
+#include "Quat.h"
 #include "Vec.h"
 
 template <typename T, size_t S>
@@ -59,6 +61,11 @@ public:
     min(Vec<T,S>::Null),
     max(Vec<T,S>::Null) {}
     
+    template <typename U>
+    BBox(const BBox<U, S>& other) :
+    min(other.min),
+    max(other.max) {}
+    
     BBox(const Vec<T,S>& i_min, const Vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {}
@@ -82,6 +89,11 @@ public:
             mergeWith(vertices[i]);
     }
     
+    template <typename U>
+    inline operator BBox<U,S>() const {
+        return BBox<U,S>(min, max);
+    }
+
     inline bool operator== (const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
     }
@@ -153,50 +165,6 @@ public:
         return BBox<T,S>(*this).repair();
     }
 
-    /*
-    inline const Vec<T,S> vertex(const bool x, const bool y, const bool z) const {
-        Vec<T,3> vertex;
-        vertex[0] = x ? min[0] : max[0];
-        vertex[1] = y ? min[1] : max[1];
-        vertex[2] = z ? min[2] : max[2];
-        return vertex;
-    }
-    
-    inline const Vec<T,3> vertex(const size_t i) const {
-        switch (i) {
-            case 0:
-                return vertex(false, false, false);
-            case 1:
-                return vertex(false, false, true);
-            case 2:
-                return vertex(false, true, false);
-            case 3:
-                return vertex(false, true, true);
-            case 4:
-                return vertex(true, false, false);
-            case 5:
-                return vertex(true, false, true);
-            case 6:
-                return vertex(true, true, false);
-            case 7:
-                return vertex(true, true, true);
-        }
-        return Vec<T,3>::NaN;
-    }
-    
-    inline void vertices(typename Vec<T,3>::List& result) const {
-        result.resize(24);
-        result[ 0] = result[ 7] = result[16] = vertex(false, false, false);
-        result[ 1] = result[ 2] = result[20] = vertex(true , false, false);
-        result[ 3] = result[ 4] = result[22] = vertex(true , true , false);
-        result[ 5] = result[ 6] = result[18] = vertex(false, true , false);
-        result[ 8] = result[15] = result[17] = vertex(false, false, true );
-        result[ 9] = result[10] = result[21] = vertex(true , false, true );
-        result[11] = result[12] = result[23] = vertex(true , true , true );
-        result[13] = result[14] = result[19] = vertex(false, true , true );
-    }
-    */
-    
     inline bool contains(const Vec<T,S>& point) const {
         for (size_t i = 0; i < S; i++)
             if (point[i] < min[i] || point[i] > max[i])
@@ -288,81 +256,6 @@ public:
     inline const BBox<T,S> translated(const Vec<T,S>& delta) const {
         return BBox<T,S>(*this).translate(delta);
     }
-    
-    /*
-    inline BBox<T>& rotate(const Quat<T>& rotation) {
-        return *this = rotated(rotation);
-    }
-    
-    inline const BBox<T> rotated(const Quat<T>& rotation) const {
-        BBox<T> result;
-        result.min = result.max = rotation * vertex(false, false, false);
-        result.mergeWith(rotation * vertex(false, false, true ));
-        result.mergeWith(rotation * vertex(false, true , false));
-        result.mergeWith(rotation * vertex(false, true , true ));
-        result.mergeWith(rotation * vertex(true , false, false));
-        result.mergeWith(rotation * vertex(true , false, true ));
-        result.mergeWith(rotation * vertex(true , true , false));
-        result.mergeWith(rotation * vertex(true , true , true ));
-        return result;
-    }
-    
-    inline BBox<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
-        return *this = rotated(rotation, center);
-    }
-    
-    inline const BBox<T> rotated(const Quat<T>& rotation, const Vec<T,3>& center) const {
-        BBox<T> result;
-        result.min = result.max = rotation * (vertex(false, false, false) - center) + center;
-        result.mergeWith(rotation * (vertex(false, false, true ) - center) + center);
-        result.mergeWith(rotation * (vertex(false, true , false) - center) + center);
-        result.mergeWith(rotation * (vertex(false, true , true ) - center) + center);
-        result.mergeWith(rotation * (vertex(true , false, false) - center) + center);
-        result.mergeWith(rotation * (vertex(true , false, true ) - center) + center);
-        result.mergeWith(rotation * (vertex(true , true , false) - center) + center);
-        result.mergeWith(rotation * (vertex(true , true , true ) - center) + center);
-        return result;
-    }
-    
-    BBox<T>& transform(const Mat4f& transformation) {
-        return *this = transformed(transformation);
-    }
-    
-    const BBox<T> transformed(const Mat4f& transformation) const {
-        BBox<T> result;
-        result.min = result.max = transformation * vertex(false, false, false);
-        mergeWith(transformation * vertex(false, false, true ));
-        mergeWith(transformation * vertex(false, true , false));
-        mergeWith(transformation * vertex(false, true , true ));
-        mergeWith(transformation * vertex(true , false, false));
-        mergeWith(transformation * vertex(true , false, true ));
-        mergeWith(transformation * vertex(true , true , false));
-        mergeWith(transformation * vertex(true , true , true ));
-        return result;
-    }
-    
-    inline BBox<T>& flip(const Axis::Type axis) {
-        min.flip(axis);
-        max.flip(axis);
-        repair();
-        return *this;
-    }
-    
-    inline const BBox<T> flipped(const Axis::Type axis) const {
-        return BBox<T>(*this).flip(axis);
-    }
-    
-    inline BBox<T>& flip(const Axis::Type axis, const Vec<T,3>& center) {
-        min.flip(axis, center);
-        max.flip(axis, center);
-        repair();
-        return *this;
-    }
-    
-    inline const BBox<T> flipped(const Axis::Type axis, const Vec<T,3>& center) const {
-        return BBox<T>(*this).flip(axis, center);
-    }
-     */
 };
 
 template <typename T, class Op>
@@ -404,6 +297,81 @@ inline void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
     v1 -= y; v2 -= y;
     op(v1, v2);
 }
+
+template <typename T, class Op>
+inline void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
+    const Vec<T,3> size = bbox.size();
+    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    
+    // top vertices clockwise (viewed from above)
+    op(bbox.max);
+    op(bbox.max-y);
+    op(bbox.min+z);
+    op(bbox.max-x);
+    
+    // bottom vertices clockwise (viewed from below)
+    op(bbox.min);
+    op(bbox.min+x);
+    op(bbox.max-z);
+    op(bbox.min+y);
+}
+
+template <typename T>
+struct RotateBBox {
+    Quat<T> rotation;
+    bool first;
+    BBox<T,3> bbox;
+    
+    RotateBBox(const Quat<T>& i_rotation) :
+    rotation(i_rotation),
+    first(true) {}
+    
+    inline void operator()(const Vec<T,3>& vertex) {
+        if (first) {
+            bbox.min = bbox.max = rotation * vertex;
+            first = false;
+        } else {
+            bbox.mergeWith(rotation * vertex);
+        }
+    }
+};
+
+template <typename T>
+inline BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
+    RotateBBox<T> rotator(rotation);
+    eachBBoxVertex(bbox.translated(-center), rotator);
+    return rotator.bbox.translated(center);
+}
+
+template <typename T>
+struct TransformBBox {
+    Mat<T,4,4> transformation;
+    bool first;
+    BBox<T,3> bbox;
+    
+    TransformBBox(const Mat<T,4,4>& i_transformation) :
+    transformation(i_transformation),
+    first(true) {}
+    
+    inline void operator()(const Vec<T,3>& vertex) {
+        if (first) {
+            bbox.min = bbox.max = transformation * vertex;
+            first = false;
+        } else {
+            bbox.mergeWith(transformation * vertex);
+        }
+    }
+};
+
+template <typename T>
+inline BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Mat<T,4,4>& transformation) {
+    TransformBBox<T> transformator(transformation);
+    eachBBoxVertex(bbox, transformator);
+    return transformator.bbox;
+}
+
 
 typedef BBox<float,3> BBox3f;
 typedef BBox<double,3> BBox3d;

@@ -57,6 +57,10 @@ namespace TrenchBroom {
             return doModelSpecification(properties);
         }
 
+        ModelSpecification ModelDefinition::defaultModelSpecification() const {
+            return doDefaultModelSpecification();
+        }
+
         ModelDefinition::ModelDefinition() {}
 
         StaticModelDefinitionMatcher::~StaticModelDefinitionMatcher() {}
@@ -123,6 +127,10 @@ namespace TrenchBroom {
             return ModelSpecification(m_path, m_skinIndex, m_frameIndex);
         }
 
+        ModelSpecification StaticModelDefinition::doDefaultModelSpecification() const {
+            return ModelSpecification(m_path, m_skinIndex, m_frameIndex);
+        }
+        
         DynamicModelDefinition::DynamicModelDefinition(const Model::PropertyKey& pathKey, const Model::PropertyKey& skinKey, const Model::PropertyKey& frameKey) :
         m_pathKey(pathKey),
         m_skinKey(skinKey),
@@ -168,5 +176,9 @@ namespace TrenchBroom {
             
             return ModelSpecification(path, skinIndex, frameIndex);
         }
- }
+
+        ModelSpecification DynamicModelDefinition::doDefaultModelSpecification() const {
+            return ModelSpecification(IO::Path(""), 0, 0);
+        }
+    }
 }

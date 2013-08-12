@@ -32,6 +32,9 @@ namespace TrenchBroom {
         class ControllerFacade;
     }
     
+    namespace Renderer {
+        class RenderResources;
+    }
     namespace View {
         class EntityInspector;
         class FaceInspector;
@@ -44,7 +47,7 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
             ViewInspector* m_viewInspector;
         public:
-            Inspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller);
+            Inspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller, Renderer::RenderResources& resources);
 
             void update(Controller::Command::Ptr command);
         };

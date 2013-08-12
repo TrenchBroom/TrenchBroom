@@ -21,6 +21,7 @@
 #define __TrenchBroom__EntityDefinitionManager__
 
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
 
 #include <map>
@@ -32,7 +33,28 @@ namespace TrenchBroom {
     
     namespace Assets {
         class EntityDefinitionManager {
+        public:
+            enum SortOrder {
+                Name,
+                Usage
+            };
+
+            typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         private:
+            class CompareByName {
+            private:
+                bool m_shortName;
+            public:
+                CompareByName(bool shortName) :
+                m_shortName(shortName) {}
+                bool operator() (const EntityDefinition* left, const EntityDefinition* right) const;
+            };
+            
+            class CompareByUsage {
+            public:
+                bool operator() (const EntityDefinition* left, const EntityDefinition* right) const;
+            };
+
             typedef std::map<String, EntityDefinition*> Cache;
             EntityDefinitionList m_definitions;
             
@@ -45,6 +67,8 @@ namespace TrenchBroom {
             
             EntityDefinition* definition(const Model::Entity* entity) const;
             EntityDefinition* definition(const Model::PropertyValue& classname) const;
+            EntityDefinitionList definitions(const EntityDefinition::Type type, const SortOrder order = Name) const;
+            EntityDefinitionGroups groups(const EntityDefinition::Type type, const SortOrder order = Name) const;
         private:
             void updateCache();
             void clearCache();

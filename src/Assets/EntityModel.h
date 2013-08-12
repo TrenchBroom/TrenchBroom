@@ -34,9 +34,11 @@ namespace TrenchBroom {
             virtual ~EntityModel();
             Renderer::MeshRenderer* buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
             BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
+            BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
         private:
             virtual Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
         };
     }
 }

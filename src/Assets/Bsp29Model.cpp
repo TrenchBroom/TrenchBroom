@@ -55,9 +55,29 @@ namespace TrenchBroom {
             return result;
         }
 
+        const Vec3f::List& Bsp29Model::Face::vertexPositions() const {
+            return m_vertices;
+        }
+
         Bsp29Model::SubModel::SubModel(const FaceList& i_faces, const BBox3f& i_bounds) :
         faces(i_faces),
         bounds(i_bounds) {}
+
+        BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
+            BBox3f bounds;
+            bounds.min = bounds.max = faces.front().vertexPositions().front();
+            
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                const Bsp29Model::Face& face = *faceIt;
+                const Vec3f::List& vertices = face.vertexPositions();
+                Vec3f::List::const_iterator vIt, vEnd;
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt)
+                    bounds.mergeWith(*vIt);
+            }
+            
+            return bounds;
+        }
 
         Bsp29Model::Bsp29Model(const String& name) :
         m_name(name) {}
@@ -85,6 +105,11 @@ namespace TrenchBroom {
         BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
             const SubModel& model = m_subModels.front();
             return model.bounds;
+        }
+
+        BBox3f Bsp29Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+            const SubModel& model = m_subModels.front();
+            return model.transformedBounds(transformation);
         }
     }
 }

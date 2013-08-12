@@ -33,13 +33,14 @@
 namespace TrenchBroom {
     namespace View {
         MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller) :
-        wxGLCanvas(parent, wxID_ANY, attribs()),
+        wxGLCanvas(parent, wxID_ANY, &attribs().front()),
         m_logger(logger),
         m_initialized(false),
         m_glContext(new wxGLContext(this)),
         m_document(document),
         m_controller(controller),
-        m_renderer(m_fontManager, document->filter()),
+        m_renderResources(attribs(), m_glContext),
+        m_renderer(m_renderResources.fontManager(), document->filter()),
         m_inputState(document->filter()),
         m_cameraTool(NULL),
         m_toolChain(NULL),
@@ -66,6 +67,10 @@ namespace TrenchBroom {
             m_logger = NULL;
         }
         
+        Renderer::RenderResources& MapView::renderResources() {
+            return m_renderResources;
+        }
+
         void MapView::OnMouseButton(wxMouseEvent& event) {
             if (m_ignoreNextClick && (event.LeftDown() || event.LeftUp())) {
                 if (event.LeftUp())
@@ -187,12 +192,12 @@ namespace TrenchBroom {
                 initializeGL();
             
             if (SetCurrent(*m_glContext)) {
-                wxPaintDC(this);
+                wxPaintDC paintDC(this);
 
                 m_document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
                     m_renderer.setHasFocus(HasFocus());
-                    Renderer::RenderContext context(m_camera, m_shaderManager);
+                    Renderer::RenderContext context(m_camera, m_renderResources.shaderManager());
                     m_renderer.render(context);
                 }
                 SwapBuffers();
@@ -303,13 +308,11 @@ namespace TrenchBroom {
             m_initialized = true;
         }
         
-        const int* MapView::attribs() {
-            typedef std::vector<int> Attribs;
-
+        const Renderer::RenderResources::GLAttribs& MapView::attribs() {
             static bool initialized = false;
-            static Attribs attribs;
+            static Renderer::RenderResources::GLAttribs attribs;
             if (initialized)
-                return &attribs[0];
+                return attribs;
 
             int testAttribs[] =
             {
@@ -388,7 +391,7 @@ namespace TrenchBroom {
 
             assert(initialized);
             assert(!attribs.empty());
-            return &attribs[0];
+            return attribs;
         }
 
         int MapView::depthBits() {

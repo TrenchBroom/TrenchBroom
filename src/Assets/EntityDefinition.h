@@ -75,6 +75,7 @@ namespace TrenchBroom {
             Type type() const;
             const BBox3& bounds() const;
             ModelSpecification model(const Model::EntityProperties& properties) const;
+            ModelSpecification defaultModel() const;
             const ModelDefinitionList& modelDefinitions() const;
         };
     

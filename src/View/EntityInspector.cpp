@@ -26,6 +26,7 @@
 #include "Controller/SelectionCommand.h"
 #include "Model/EntityProperties.h"
 #include "View/CommandIds.h"
+#include "View/EntityBrowser.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
@@ -34,14 +35,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller) :
+        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)) {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->Add(createEntityBrowser(this), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
         }
 
@@ -148,7 +149,7 @@ namespace TrenchBroom {
             
             m_propertyTable = new EntityPropertyGridTable(m_document, m_controller);
             
-            m_propertyGrid = new wxGrid(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_propertyGrid = new wxGrid(propertyEditorPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_propertyGrid->Bind(wxEVT_SIZE, &EntityInspector::OnPropertyGridSize, this);
             m_propertyGrid->Bind(wxEVT_GRID_SELECT_CELL, &EntityInspector::OnPropertyGridSelectCell, this);
             m_propertyGrid->SetTable(m_propertyTable, true, wxGrid::wxGridSelectRows);
@@ -182,8 +183,8 @@ namespace TrenchBroom {
             propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
              */
             
-            m_addPropertyButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::AddEntityPropertyButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_removePropertiesButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::RemoveEntityPropertiesButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_addPropertyButton = new wxButton(propertyEditorPanel, wxID_ANY, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_removePropertiesButton = new wxButton(propertyEditorPanel, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             
             m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityInspector::OnAddPropertyPressed, this);
             m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityInspector::OnUpdatePropertyViewOrAddPropertiesButton, this);
@@ -211,10 +212,12 @@ namespace TrenchBroom {
         }
         
         void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
         }
 
-        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent) {
-            return new wxPanel(parent);
+        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
+            m_entityBrowser = new EntityBrowser(this, wxID_ANY, resources, m_document);
+            return m_entityBrowser;
         }
     }
 }

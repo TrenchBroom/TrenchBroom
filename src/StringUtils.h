@@ -177,6 +177,14 @@ namespace StringUtils {
         return true;
     }
     
+    inline bool containsCaseSensitive(const String& haystack, const String& needle) {
+        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>()) != haystack.end();
+    }
+
+    inline bool containsCaseInsensitive(const String& haystack, const String& needle) {
+        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),  CharEqual<CaseInsensitiveCharCompare>()) != haystack.end();
+    }
+    
     inline void sortCaseSensitive(StringList& strs) {
         std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
     }
@@ -219,6 +227,26 @@ namespace StringUtils {
                 result[i] = replacements[i];
         }
         return result;
+    }
+
+    inline String capitalize(String str) {
+        StringStream buffer;
+        bool initial = true;
+        for (unsigned int i = 0; i < str.size(); i++) {
+            char c = str[i];
+            if (c == ' ' || c == '\n' || c == '\t' || c == '\r') {
+                initial = true;
+                buffer << c;
+            } else if (initial) {
+                char d = static_cast<char>(toupper(c));
+                buffer << d;
+                initial = false;
+            } else {
+                buffer << c;
+                initial = false;
+            }
+        }
+        return buffer.str();
     }
 }
 

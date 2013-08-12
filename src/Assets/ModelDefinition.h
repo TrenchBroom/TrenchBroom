@@ -41,11 +41,13 @@ namespace TrenchBroom {
             
             bool matches(const Model::EntityProperties& properties) const;
             ModelSpecification modelSpecification(const Model::EntityProperties& properties) const;
+            ModelSpecification defaultModelSpecification() const;
         protected:
             ModelDefinition();
         private:
             virtual bool doMatches(const Model::EntityProperties& properties) const = 0;
             virtual ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const = 0;
+            virtual ModelSpecification doDefaultModelSpecification() const = 0;
         };
         
         class StaticModelDefinitionMatcher {
@@ -93,6 +95,7 @@ namespace TrenchBroom {
         private:
             bool doMatches(const Model::EntityProperties& properties) const;
             ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const;
+            ModelSpecification doDefaultModelSpecification() const;
         };
         
         class DynamicModelDefinition : public ModelDefinition {
@@ -105,6 +108,7 @@ namespace TrenchBroom {
         private:
             bool doMatches(const Model::EntityProperties& properties) const;
             ModelSpecification doModelSpecification(const Model::EntityProperties& properties) const;
+            ModelSpecification doDefaultModelSpecification() const;
         };
     }
 }

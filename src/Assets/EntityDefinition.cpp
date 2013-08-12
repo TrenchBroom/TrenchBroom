@@ -126,6 +126,12 @@ namespace TrenchBroom {
             return ModelSpecification(IO::Path(""), 0, 0);
         }
 
+        ModelSpecification PointEntityDefinition::defaultModel() const {
+            if (m_modelDefinitions.empty())
+                return ModelSpecification(IO::Path(""), 0, 0);
+            return m_modelDefinitions.front()->defaultModelSpecification();
+        }
+
         const ModelDefinitionList& PointEntityDefinition::modelDefinitions() const {
             return m_modelDefinitions;
         }

@@ -31,7 +31,12 @@ namespace TrenchBroom {
         class ControllerFacade;
     }
     
+    namespace Renderer {
+        class RenderResources;
+    }
+    
     namespace View {
+        class EntityBrowser;
         class EntityPropertyGridTable;
         
         class EntityInspector : public wxPanel {
@@ -44,8 +49,10 @@ namespace TrenchBroom {
             wxGridCellCoords m_lastHoveredCell;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
+            
+            EntityBrowser* m_entityBrowser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller);
+            EntityInspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller, Renderer::RenderResources& resources);
 
             void update(Controller::Command::Ptr command);
             
@@ -62,7 +69,7 @@ namespace TrenchBroom {
             void updatePropertyGrid();
             void updateEntityBrowser();
             wxWindow* createPropertyEditor(wxWindow* parent);
-            wxWindow* createEntityBrowser(wxWindow* parent);
+            wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
         };
     }
 }

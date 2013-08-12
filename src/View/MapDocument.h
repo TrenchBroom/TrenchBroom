@@ -72,6 +72,9 @@ namespace TrenchBroom {
             Model::GamePtr game() const;
             Model::Map* map() const;
             const Model::Filter& filter() const;
+            Assets::EntityDefinitionManager& entityDefinitionManager();
+            Assets::EntityModelManager& entityModelManager();
+            Assets::TextureManager& textureManager();
             
             bool modified() const;
             void incModificationCount();

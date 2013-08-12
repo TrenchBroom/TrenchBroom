@@ -23,9 +23,8 @@
 #include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
-#include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
-#include "Renderer/ShaderManager.h"
+#include "Renderer/RenderResources.h"
 #include "View/InputState.h"
 #include "View/ViewTypes.h"
 
@@ -54,9 +53,8 @@ namespace TrenchBroom {
             View::MapDocumentPtr m_document;
             Controller::ControllerFacade& m_controller;
             Renderer::Camera m_camera;
-            Renderer::FontManager m_fontManager;
+            Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
-            Renderer::ShaderManager m_shaderManager;
             
             InputState m_inputState;
             wxPoint m_clickPos;
@@ -69,6 +67,8 @@ namespace TrenchBroom {
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller);
             ~MapView();
+            
+            Renderer::RenderResources& renderResources();
             
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             void bindEvents();
             void initializeGL();
             
-            static const int* attribs();
+            static const Renderer::RenderResources::GLAttribs& attribs();
             static int depthBits();
             static bool multisample();
         };
