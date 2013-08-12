@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "IO/FileSystem.h"
 #include "Model/BrushFace.h"
 #include "Model/Game.h"
@@ -178,12 +179,13 @@ namespace TrenchBroom {
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
             m_picker = Model::Picker(m_worldBounds);
-            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAllFilter());
             
             setDocumentPath(path);
             clearModificationCount();
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
+            
+            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAllFilter());
         }
 
         void MapDocument::saveDocument() {
@@ -203,6 +205,10 @@ namespace TrenchBroom {
             return m_selection.selectedEntities();
         }
         
+        Model::EntityList MapDocument::allSelectedEntities() const {
+            return m_selection.allSelectedEntities();
+        }
+
         Model::EntityList MapDocument::unselectedEntities() const {
             return m_selection.unselectedEntities();
         }
@@ -247,12 +253,41 @@ namespace TrenchBroom {
             m_textureManager.commitChanges();
         }
 
-        void MapDocument::commandDo(Controller::Command::Ptr command) {}
-        void MapDocument::commandDone(Controller::Command::Ptr command) {}
-        void MapDocument::commandDoFailed(Controller::Command::Ptr command) {}
-        void MapDocument::commandUndo(Controller::Command::Ptr command) {}
-        void MapDocument::commandUndone(Controller::Command::Ptr command) {}
-        void MapDocument::commandUndoFailed(Controller::Command::Ptr command) {}
+        void MapDocument::commandDo(Controller::Command::Ptr command) {
+            m_picker.removeObjects(command->affectedObjects());
+        }
+        
+        void MapDocument::commandDone(Controller::Command::Ptr command) {
+            m_picker.addObjects(command->affectedObjects());
+            
+            if (command->type() == Controller::EntityPropertyCommand::Type) {
+                const Model::EntityList entities = command->affectedEntities();
+                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
+                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
+            }
+        }
+        
+        void MapDocument::commandDoFailed(Controller::Command::Ptr command) {
+            m_picker.addObjects(command->affectedObjects());
+        }
+        
+        void MapDocument::commandUndo(Controller::Command::Ptr command) {
+            m_picker.removeObjects(command->affectedObjects());
+        }
+        
+        void MapDocument::commandUndone(Controller::Command::Ptr command) {
+            m_picker.addObjects(command->affectedObjects());
+
+            if (command->type() == Controller::EntityPropertyCommand::Type) {
+                const Model::EntityList entities = command->affectedEntities();
+                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
+                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
+            }
+        }
+        
+        void MapDocument::commandUndoFailed(Controller::Command::Ptr command) {
+            m_picker.addObjects(command->affectedObjects());
+        }
 
         Model::PickResult MapDocument::pick(const Ray3& ray) {
             return m_picker.pick(ray);

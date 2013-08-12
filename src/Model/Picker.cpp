@@ -120,26 +120,10 @@ namespace TrenchBroom {
             m_octree.addObject(object->bounds(), object);
         }
         
-        void Picker::addObjects(const PickableList& objects) {
-            PickableList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Pickable* object = *it;
-                addObject(object);
-            }
-        }
-        
         void Picker::removeObject(Pickable* object) {
             m_octree.removeObject(object->bounds(), object);
         }
         
-        void Picker::removeObjects(const PickableList& objects) {
-            PickableList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Pickable* object = *it;
-                removeObject(object);
-            }
-        }
-
         PickResult Picker::pick(const Ray3& ray) {
             PickResult result;
             const PickableList candidates = m_octree.findObjects(ray);

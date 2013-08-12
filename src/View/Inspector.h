@@ -20,11 +20,18 @@
 #ifndef __TrenchBroom__Inspector__
 #define __TrenchBroom__Inspector__
 
+#include "Controller/Command.h"
+#include "View/ViewTypes.h"
+
 #include <wx/panel.h>
 
 class wxNotebook;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class ControllerFacade;
+    }
+    
     namespace View {
         class EntityInspector;
         class FaceInspector;
@@ -37,7 +44,9 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
             ViewInspector* m_viewInspector;
         public:
-            Inspector(wxWindow* parent);
+            Inspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller);
+
+            void update(Controller::Command::Ptr command);
         };
     }
 }

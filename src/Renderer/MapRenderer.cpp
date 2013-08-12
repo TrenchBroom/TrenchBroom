@@ -21,6 +21,7 @@
 
 #include "Color.h"
 #include "Preferences.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
@@ -120,24 +121,30 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
-            if (command->type() == Controller::NewDocumentCommand::Type) {
+            using namespace Controller;
+            if (command->type() == NewDocumentCommand::Type) {
                 clearState();
-                Controller::NewDocumentCommand::Ptr newDocumentCommand = Controller::Command::cast<Controller::NewDocumentCommand>(command);
+                NewDocumentCommand::Ptr newDocumentCommand = Command::cast<NewDocumentCommand>(command);
                 Model::Map* map = newDocumentCommand->map();
                 loadMap(*map);
-            } else if (command->type() == Controller::OpenDocumentCommand::Type) {
+            } else if (command->type() == OpenDocumentCommand::Type) {
                 clearState();
-                Controller::OpenDocumentCommand::Ptr openDocumentCommand = Controller::Command::cast<Controller::OpenDocumentCommand>(command);
+                OpenDocumentCommand::Ptr openDocumentCommand = Command::cast<OpenDocumentCommand>(command);
                 Model::Map* map = openDocumentCommand->map();
                 loadMap(*map);
-            } else if (command->type() == Controller::SelectionCommand::Type) {
+            } else if (command->type() == SelectionCommand::Type) {
                 updateSelection(command);
+            } else if (command->type() == EntityPropertyCommand::Type) {
+                updateEntities(command);
             }
         }
         
         void MapRenderer::commandUndone(Controller::Command::Ptr command) {
-            if (command->type() == Controller::SelectionCommand::Type) {
+            using namespace Controller;
+            if (command->type() == SelectionCommand::Type) {
                 updateSelection(command);
+            } else if (command->type() == EntityPropertyCommand::Type) {
+                updateEntities(command);
             }
         }
 
@@ -296,6 +303,10 @@ namespace TrenchBroom {
             m_unselectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
             m_selectedEntityRenderer.removeEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
             m_selectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.selectedObjects()));
+        }
+        
+        void MapRenderer::updateEntities(Controller::Command::Ptr command) {
+            m_selectedEntityRenderer.updateEntities(command->affectedEntities());
         }
     }
 }

@@ -32,6 +32,7 @@ namespace TrenchBroom {
             extern const PropertyKey Origin;
             extern const PropertyKey Wad;
             extern const PropertyKey Wal;
+            extern const PropertyKey Mod;
             extern const PropertyKey Spawnflags;
             extern const PropertyKey EntityDefinitions;
             extern const PropertyKey Angle;
@@ -47,6 +48,10 @@ namespace TrenchBroom {
             extern const PropertyValue NoClassname;
         }
 
+        bool isPropertyKeyMutable(const PropertyKey& key);
+        bool isPropertyValueMutable(const PropertyKey& key);
+        
+        
         struct EntityProperty {
             typedef std::vector<EntityProperty> List;
 
@@ -65,7 +70,10 @@ namespace TrenchBroom {
         public:
             const EntityProperty::List& properties() const;
             
+            void setProperties(const EntityProperty::List& properties);
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
+            void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
+            void removeProperty(const PropertyKey& key);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue* property(const PropertyKey& key) const;
             const PropertyValue safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const;

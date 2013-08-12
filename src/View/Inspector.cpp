@@ -28,10 +28,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(wxWindow* parent) :
+        Inspector::Inspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller) :
         wxPanel(parent) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
-            m_entityInspector = new EntityInspector(m_notebook);
+            m_entityInspector = new EntityInspector(m_notebook, document, controller);
             m_faceInspector = new FaceInspector(m_notebook);
             m_viewInspector = new ViewInspector(m_notebook);
             
@@ -42,6 +42,10 @@ namespace TrenchBroom {
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
+        }
+
+        void Inspector::update(Controller::Command::Ptr command) {
+            m_entityInspector->update(command);
         }
     }
 }

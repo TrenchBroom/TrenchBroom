@@ -20,13 +20,49 @@
 #ifndef __TrenchBroom__EntityInspector__
 #define __TrenchBroom__EntityInspector__
 
+#include "Controller/Command.h"
+#include "View/ViewTypes.h"
+
+#include <wx/grid.h>
 #include <wx/panel.h>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class ControllerFacade;
+    }
+    
     namespace View {
+        class EntityPropertyGridTable;
+        
         class EntityInspector : public wxPanel {
+        private:
+            MapDocumentPtr m_document;
+            Controller::ControllerFacade& m_controller;
+            
+            EntityPropertyGridTable* m_propertyTable;
+            wxGrid* m_propertyGrid;
+            wxGridCellCoords m_lastHoveredCell;
+            wxButton* m_addPropertyButton;
+            wxButton* m_removePropertiesButton;
         public:
-            EntityInspector(wxWindow* parent);
+            EntityInspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller);
+
+            void update(Controller::Command::Ptr command);
+            
+            void OnPropertyGridSize(wxSizeEvent& event);
+            void OnPropertyGridSelectCell(wxGridEvent& event);
+            void OnPropertyGridTab(wxGridEvent& event);
+            void OnPropertyGridMouseMove(wxMouseEvent& event);
+            
+            void OnAddPropertyPressed(wxCommandEvent& event);
+            void OnRemovePropertiesPressed(wxCommandEvent& event);
+            void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
+            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
+        private:
+            void updatePropertyGrid();
+            void updateEntityBrowser();
+            wxWindow* createPropertyEditor(wxWindow* parent);
+            wxWindow* createEntityBrowser(wxWindow* parent);
         };
     }
 }

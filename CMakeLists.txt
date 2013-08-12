@@ -31,7 +31,7 @@ ENDIF()
 SET(wxWidgets_USE_UNICODE)
 SET(wxWidgets_USE_UNIVERSAL)
 SET(wxWidgets_USE_LIBS)
-FIND_PACKAGE(wxWidgets REQUIRED gl core base)
+FIND_PACKAGE(wxWidgets REQUIRED gl core base adv)
 INCLUDE("${wxWidgets_USE_FILE}")
 
 # Remove QuickTime framework on OS X; it's not needed and produces a linker warning

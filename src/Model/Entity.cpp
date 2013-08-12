@@ -26,6 +26,14 @@
 
 namespace TrenchBroom {
     namespace Model {
+        EntitySnapshot::EntitySnapshot(Entity& entity) :
+        m_entity(&entity),
+        m_properties(m_entity->properties()) {}
+
+        void EntitySnapshot::restore() {
+            m_entity->setProperties(m_properties);
+        }
+
         const String Entity::DefaultPropertyValue = "";
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         
@@ -36,6 +44,10 @@ namespace TrenchBroom {
 
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
+        }
+
+        EntitySnapshot Entity::takeSnapshot() {
+            return EntitySnapshot(*this);
         }
 
         BBox3 Entity::bounds() const {
@@ -98,6 +110,10 @@ namespace TrenchBroom {
             return m_properties.properties();
         }
         
+        void Entity::setProperties(const EntityProperty::List& properties) {
+            m_properties.setProperties(properties);
+        }
+
         bool Entity::hasProperty(const PropertyKey& key) const {
             return m_properties.hasProperty(key);
         }
@@ -111,6 +127,14 @@ namespace TrenchBroom {
         
         void Entity::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
             m_properties.addOrUpdateProperty(key, value);
+        }
+
+        void Entity::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
+            m_properties.renameProperty(key, newKey);
+        }
+
+        void Entity::removeProperty(const PropertyKey& key) {
+            m_properties.removeProperty(key);
         }
 
         const PropertyValue& Entity::classname(const PropertyValue& defaultClassname) const {

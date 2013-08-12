@@ -52,6 +52,11 @@ namespace TrenchBroom {
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
+            void beginUndoableGroup(const String& name);
+            void beginOneShotGroup(const String& name);
+            void closeGroup();
+            void rollbackGroup();
+            
             bool selectObject(Model::Object* object);
             bool deselectAllAndSelectObject(Model::Object* object);
             bool deselectObject(Model::Object* object);
@@ -59,6 +64,10 @@ namespace TrenchBroom {
             bool deselectAllAndSelectFace(Model::BrushFace* face);
             bool deselectFace(Model::BrushFace* face);
             bool deselectAll();
+            
+            bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
+            bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
         };
     }
 }

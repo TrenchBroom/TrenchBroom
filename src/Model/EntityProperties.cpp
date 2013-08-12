@@ -28,6 +28,7 @@ namespace TrenchBroom {
             const PropertyKey Origin            = "origin";
             const PropertyKey Wad               = "wad";
             const PropertyKey Wal               = "_textures";
+            const PropertyKey Mod               = "_mod";
             const PropertyKey Spawnflags        = "spawnflags";
             const PropertyKey EntityDefinitions = "_def";
             const PropertyKey Angle             = "angle";
@@ -43,16 +44,62 @@ namespace TrenchBroom {
             const PropertyValue NoClassname         = "undefined";
         }
 
+        bool isPropertyKeyMutable(const PropertyKey& key) {
+            if (key == PropertyKeys::Mod)
+                return false;
+            if (key == PropertyKeys::EntityDefinitions)
+                return false;
+            if (key == PropertyKeys::Wad)
+                return false;
+            if (key == PropertyKeys::Wal)
+                return false;
+            return true;
+        }
+        
+        bool isPropertyValueMutable(const PropertyKey& key) {
+            if (key == PropertyKeys::Classname)
+                return false;
+            if (key == PropertyKeys::Origin)
+                return false;
+            if (key == PropertyKeys::Mod)
+                return false;
+            if (key == PropertyKeys::EntityDefinitions)
+                return false;
+            if (key == PropertyKeys::Wad)
+                return false;
+            if (key == PropertyKeys::Wal)
+                return false;
+            return true;
+        }
+
         const EntityProperty::List& EntityProperties::properties() const {
             return m_properties;
         }
         
+        void EntityProperties::setProperties(const EntityProperty::List& properties) {
+            m_properties = properties;
+        }
+
         void EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
             EntityProperty::List::iterator it = findProperty(key);
             if (it != m_properties.end())
                 it->value = value;
             else
                 m_properties.push_back(EntityProperty(key, value));
+        }
+
+        void EntityProperties::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
+            EntityProperty::List::iterator it = findProperty(key);
+            if (it == m_properties.end())
+                return;
+            it->key = newKey;
+        }
+
+        void EntityProperties::removeProperty(const PropertyKey& key) {
+            EntityProperty::List::iterator it = findProperty(key);
+            if (it == m_properties.end())
+                return;
+            m_properties.erase(it);
         }
 
         bool EntityProperties::hasProperty(const PropertyKey& key) const {

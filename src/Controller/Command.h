@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 
 #include <vector>
 
@@ -47,6 +48,10 @@ namespace TrenchBroom {
             bool performDo();
             bool performUndo();
             
+            const Model::ObjectList affectedObjects() const;
+            const Model::EntityList affectedEntities() const;
+            const Model::BrushList affectedBrushes() const;
+            
             template <class T>
             static std::tr1::shared_ptr<T> cast(Ptr& command) {
                 return std::tr1::static_pointer_cast<T>(command);
@@ -54,6 +59,9 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
+            virtual const Model::ObjectList doAffectedObjects() const;
+            virtual const Model::EntityList doAffectedEntities() const;
+            virtual const Model::BrushList doAffectedBrushes() const;
         };
     }
 }

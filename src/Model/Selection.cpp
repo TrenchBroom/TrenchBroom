@@ -144,6 +144,16 @@ namespace TrenchBroom {
             }
         };
         
+        struct MatchPartiallySelectedFilter  {
+            inline bool operator()(Entity* entity) const {
+                return entity->selected() || entity->partiallySelected();
+            }
+            
+            inline bool operator()(Brush* brush) const {
+                return brush->selected() || brush->partiallySelected();
+            }
+        };
+        
         struct MatchUnselectedFilter {
             inline bool operator()(Entity* entity) const {
                 return !entity->selected();
@@ -162,7 +172,8 @@ namespace TrenchBroom {
         m_map(map) {}
 
         ObjectList Selection::selectedObjects() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyObjectList;
             
             Collect collect;
             eachObject(*m_map, collect, MatchSelectedFilter());
@@ -173,15 +184,26 @@ namespace TrenchBroom {
         }
         
         EntityList Selection::selectedEntities() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyEntityList;
             
             Collect collect;
             eachEntity(*m_map, collect, MatchSelectedFilter());
             return collect.entities;
         }
         
+        EntityList Selection::allSelectedEntities() const {
+            if (m_map == NULL)
+                return EmptyEntityList;
+            
+            Collect collect;
+            eachEntity(*m_map, collect, MatchPartiallySelectedFilter());
+            return collect.entities;
+        }
+
         EntityList Selection::unselectedEntities() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyEntityList;
             
             Collect collect;
             eachEntity(*m_map, collect, MatchUnselectedFilter());
@@ -189,7 +211,8 @@ namespace TrenchBroom {
         }
 
         BrushList Selection::selectedBrushes() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyBrushList;
             
             Collect collect;
             eachBrush(*m_map, collect, MatchSelectedFilter());
@@ -197,7 +220,8 @@ namespace TrenchBroom {
         }
         
         BrushList Selection::unselectedBrushes() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyBrushList;
             
             Collect collect;
             eachBrush(*m_map, collect, MatchUnselectedFilter());
@@ -205,7 +229,8 @@ namespace TrenchBroom {
         }
 
         BrushFaceList Selection::selectedFaces() const {
-            assert(m_map != NULL);
+            if (m_map == NULL)
+                return EmptyBrushFaceList;
             
             Collect collect;
             eachFace(*m_map, collect, MatchSelectedFilter());

@@ -39,6 +39,16 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class Entity;
+        class EntitySnapshot {
+        private:
+            Entity* m_entity;
+            EntityProperty::List m_properties;
+        public:
+            EntitySnapshot(Entity& entity);
+            void restore();
+        };
+        
         class Entity : public Object {
         public:
             static const Hit::HitType EntityHit;
@@ -53,6 +63,8 @@ namespace TrenchBroom {
             Entity();
             virtual ~Entity();
             
+            EntitySnapshot takeSnapshot();
+            
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
@@ -64,9 +76,12 @@ namespace TrenchBroom {
             void setModel(Assets::EntityModel* model);
             
             const EntityProperty::List& properties() const;
+            void setProperties(const EntityProperty::List& properties);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
+            void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
+            void removeProperty(const PropertyKey& key);
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             Vec3 origin() const;

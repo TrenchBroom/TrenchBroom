@@ -167,6 +167,15 @@ namespace VectorUtils {
         return result;
     }
     
+    template <typename O, typename I>
+    inline std::vector<O> cast(const std::vector<I>& input) {
+        std::vector<O> output;
+        typename std::vector<I>::const_iterator it, end;
+        for (it = input.begin(), end = input.end(); it != end; ++it)
+            output.push_back(static_cast<O>(*it));
+        return output;
+    }
+    
     /*
     template <typename T, typename Compare = std::less<T> >
     inline void insertOrdered(std::vector<T>& vec, T& object) {

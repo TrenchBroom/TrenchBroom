@@ -29,7 +29,9 @@
 namespace TrenchBroom {
     namespace Model {
         typedef String PropertyKey;
+        typedef std::vector<PropertyKey> PropertyKeyList;
         typedef String PropertyValue;
+        typedef std::vector<PropertyValue> PropertyValueList;
 
         class BrushFace;
         typedef std::vector<BrushFace*> BrushFaceList;

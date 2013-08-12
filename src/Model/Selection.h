@@ -35,6 +35,7 @@ namespace TrenchBroom {
 
             ObjectList selectedObjects() const;
             EntityList selectedEntities() const;
+            EntityList allSelectedEntities() const;
             EntityList unselectedEntities() const;
             BrushList selectedBrushes() const;
             BrushList unselectedBrushes() const;

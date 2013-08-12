@@ -101,9 +101,25 @@ namespace TrenchBroom {
             Picker(const BBox<FloatType, 3>& worldBounds);
             
             void addObject(Pickable* object);
-            void addObjects(const PickableList& objects);
             void removeObject(Pickable* object);
-            void removeObjects(const PickableList& objects);
+
+            template <typename Object>
+            inline void addObjects(const std::vector<Object>& objects) {
+                typename std::vector<Object>::const_iterator it, end;
+                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                    const Object& object = *it;
+                    addObject(object);
+                }
+            }
+            
+            template <typename Object>
+            void removeObjects(const std::vector<Object>& objects) {
+                typename std::vector<Object>::const_iterator it, end;
+                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                    const Object& object = *it;
+                    removeObject(object);
+                }
+            }
             
             PickResult pick(const Ray3& ray);
         };

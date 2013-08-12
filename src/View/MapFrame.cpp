@@ -176,29 +176,38 @@ namespace TrenchBroom {
         }
 
         void MapFrame::commandDo(Controller::Command::Ptr command) {
+            m_document->commandDo(command);
             m_mapView->commandDo(command);
         }
 
         void MapFrame::commandDone(Controller::Command::Ptr command) {
+            m_document->commandDone(command);
+            m_mapView->commandDone(command);
+            m_inspector->update(command);
+
             if (command->type() == Controller::NewDocumentCommand::Type ||
                 command->type() == Controller::OpenDocumentCommand::Type)
                 updateTitle();
-            m_mapView->commandDone(command);
         }
         
         void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
+            m_document->commandDoFailed(command);
             m_mapView->commandDoFailed(command);
         }
         
         void MapFrame::commandUndo(Controller::Command::Ptr command) {
+            m_document->commandUndo(command);
             m_mapView->commandUndo(command);
         }
 
         void MapFrame::commandUndone(Controller::Command::Ptr command) {
+            m_document->commandUndone(command);
             m_mapView->commandUndone(command);
+            m_inspector->update(command);
         }
 
         void MapFrame::commandUndoFailed(Controller::Command::Ptr command) {
+            m_document->commandUndoFailed(command);
             m_mapView->commandUndoFailed(command);
         }
 
@@ -230,7 +239,7 @@ namespace TrenchBroom {
             container->SetSizer(containerSizer);
             
             consoleSplitter->SplitHorizontally(container, m_console, -100);
-            m_inspector = new Inspector(inspectorSplitter);
+            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller);
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

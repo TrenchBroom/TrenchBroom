@@ -19,6 +19,7 @@
 
 #include "ControllerFacade.h"
 
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
@@ -57,6 +58,22 @@ namespace TrenchBroom {
                 return true;
             }
             return false;
+        }
+
+        void ControllerFacade::beginUndoableGroup(const String& name) {
+            m_commandProcessor.beginUndoableGroup(name);
+        }
+        
+        void ControllerFacade::beginOneShotGroup(const String& name) {
+            m_commandProcessor.beginOneShotGroup(name);
+        }
+        
+        void ControllerFacade::closeGroup() {
+            m_commandProcessor.closeGroup();
+        }
+
+        void ControllerFacade::rollbackGroup() {
+            m_commandProcessor.undoGroup();
         }
 
         bool ControllerFacade::selectObject(Model::Object* object) {
@@ -116,6 +133,21 @@ namespace TrenchBroom {
         bool ControllerFacade::deselectAll() {
             Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(deselectCommand);
+        }
+
+        bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
+            Command::Ptr command = EntityPropertyCommand::renameEntityProperty(m_document, entities, oldKey, newKey, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
+            Command::Ptr command = EntityPropertyCommand::setEntityProperty(m_document, entities, key, newValue, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
+            Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
     }
 }

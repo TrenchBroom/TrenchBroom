@@ -77,7 +77,7 @@ namespace TrenchBroom {
             void incModificationCount();
             void decModificationCount();
             void clearModificationCount();
-            
+
             void newDocument(const BBox3& worldBounds, Model::GamePtr game);
             void openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void saveDocument();
@@ -85,6 +85,7 @@ namespace TrenchBroom {
             
             Model::ObjectList selectedObjects() const;
             Model::EntityList selectedEntities() const;
+            Model::EntityList allSelectedEntities() const;
             Model::EntityList unselectedEntities() const;
             Model::BrushList selectedBrushes() const;
             Model::BrushList unselectedBrushes() const;

@@ -212,9 +212,11 @@ namespace TrenchBroom {
 
         void MapView::commandDone(Controller::Command::Ptr command) {
             m_renderer.commandDone(command);
+            Refresh();
         }
         
         void MapView::commandDoFailed(Controller::Command::Ptr command) {
+            Refresh();
         }
         
         void MapView::commandUndo(Controller::Command::Ptr command) {
@@ -222,9 +224,11 @@ namespace TrenchBroom {
 
         void MapView::commandUndone(Controller::Command::Ptr command) {
             m_renderer.commandUndone(command);
+            Refresh();
         }
 
         void MapView::commandUndoFailed(Controller::Command::Ptr command) {
+            Refresh();
         }
 
         void MapView::createTools() {
