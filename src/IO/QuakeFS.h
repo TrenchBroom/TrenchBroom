@@ -34,6 +34,7 @@ namespace TrenchBroom {
             QuakeFS(const Path& quakePath, const Path& base, const Path& mod = Path(""));
         private:
             const MappedFile::Ptr doFindFile(const Path& path) const;
+            String doGetLocation() const;
             void addMod(const Path& quakePath, const Path& mod);
             const Path::List findPakFiles(const Path& path);
         };

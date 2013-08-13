@@ -137,6 +137,11 @@ namespace TrenchBroom {
                 m_currentType = Unset;
             }
             
+            inline void addTriangleFans(Key key, const TriangleSeries& fans) {
+                TriangleSeries& fansForKey = m_triangleFans[key];
+                fansForKey.insert(fansForKey.end(), fans.begin(), fans.end());
+            }
+            
             inline void beginTriangleFan(Key key) {
                 assert(m_currentType == Unset);
                 m_currentType = Fan;
@@ -155,6 +160,11 @@ namespace TrenchBroom {
             inline void endTriangleFan() {
                 assert(m_currentType == Fan);
                 m_currentType = Unset;
+            }
+            
+            inline void addTriangleStrips(Key key, const TriangleSeries& strips) {
+                TriangleSeries& stripsForKey = m_triangleStrips[key];
+                stripsForKey.insert(stripsForKey.end(), strips.begin(), strips.end());
             }
             
             inline void beginTriangleStrip(Key key) {

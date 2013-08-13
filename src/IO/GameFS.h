@@ -30,8 +30,10 @@ namespace TrenchBroom {
             virtual ~GameFS();
             
             const MappedFile::Ptr findFile(const Path& path) const;
+            String location() const;
         private:
             virtual const MappedFile::Ptr doFindFile(const Path& path) const = 0;
+            virtual String doGetLocation() const = 0;
         };
     }
 }

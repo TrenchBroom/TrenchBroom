@@ -33,11 +33,12 @@ namespace TrenchBroom {
             static const String HeaderMagic       = "PACK";
         }
 
-        PakFS::PakFS(const Path& path) {
+        PakFS::PakFS(const Path& path) :
+        m_path(path) {
             FileSystem fs;
-            m_file = fs.mapFile(path, std::ios::in);
+            m_file = fs.mapFile(m_path, std::ios::in);
             if (m_file == NULL)
-                throw FileSystemException("Cannot open file " + path.asString());
+                throw FileSystemException("Cannot open file " + m_path.asString());
             readDirectory();
         }
 
@@ -47,6 +48,10 @@ namespace TrenchBroom {
             if (it == m_directory.end())
                 return MappedFile::Ptr();
             return it->second;
+        }
+
+        String PakFS::doGetLocation() const {
+            return m_path.asString();
         }
 
         void PakFS::readDirectory() {

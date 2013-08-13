@@ -28,6 +28,7 @@
 #include "IO/FgdParser.h"
 #include "IO/FileSystem.h"
 #include "IO/MdlParser.h"
+#include "IO/Md2Parser.h"
 #include "IO/Path.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
@@ -107,6 +108,9 @@ namespace TrenchBroom {
             
             if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
                 IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), palette);
+                return parser.parseModel();
+            } else if (StringUtils::caseInsensitiveEqual(path.extension(), "md2")) {
+                IO::Md2Parser parser(path.lastComponent(), file->begin(), file->end(), palette, gameFs, path.deleteLastComponent());
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
                 IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), palette);

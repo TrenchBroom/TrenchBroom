@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
 #include "View/ViewTypes.h"
 
@@ -36,6 +37,7 @@ namespace TrenchBroom {
         class FontDescriptor;
         class MeshRenderer;
         class RenderResources;
+        class Transformation;
     }
     
     namespace View {
@@ -54,7 +56,8 @@ namespace TrenchBroom {
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
         private:
-            typedef std::map<Renderer::FontDescriptor, Vec2f::List> StringMap;
+            typedef Renderer::VertexSpecs::P2T2::Vertex StringVertex;
+            typedef std::map<Renderer::FontDescriptor, StringVertex::List> StringMap;
 
             Renderer::RenderResources& m_resources;
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
@@ -85,9 +88,16 @@ namespace TrenchBroom {
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             void doClear();
             void doRender(Layout& layout, const float y, const float height);
-            void collectStringVertices(Layout& layout, const float y, const float height, StringMap& stringVertices, size_t& visibleGroupCount, size_t& visibleItemCount);
+
             void renderBounds(Layout& layout, const float y, const float height);
-            Mat4x4f boundsTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
+            void renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation);
+            void renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection);
+            void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);
+            void renderStrings(Layout& layout, const float y, const float height);
+            StringMap collectStringVertices(Layout& layout, const float y, const float height);
+            
+            
+            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
         };
     }
 }

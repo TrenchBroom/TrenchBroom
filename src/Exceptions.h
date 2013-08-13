@@ -96,11 +96,11 @@ namespace TrenchBroom {
         ~FileSystemException() throw() {}
     };
             
-    class WadException : public Exception {
+    class AssetException : public Exception {
     public:
-        WadException() throw() {}
-        WadException(const String& str) throw() : Exception(str) {}
-        ~WadException() throw() {}
+        AssetException() throw() {}
+        AssetException(const String& str) throw() : Exception(str) {}
+        ~AssetException() throw() {}
     };
         
     class CommandProcessorException : public Exception {
@@ -129,6 +129,13 @@ namespace TrenchBroom {
         GameException() throw() {}
         GameException(const String& str) throw() : Exception(str) {}
         ~GameException() throw() {}
+    };
+            
+    class ResourceNotFoundException : public Exception {
+    public:
+        ResourceNotFoundException() throw() {}
+        ResourceNotFoundException(const String& str) throw() : Exception(str) {}
+        ~ResourceNotFoundException() throw() {}
     };
 }
 

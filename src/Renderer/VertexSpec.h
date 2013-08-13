@@ -150,6 +150,8 @@ namespace TrenchBroom {
         const size_t VertexSpec5<A1, A2, A3, A4, A5>::Size = sizeof(VertexSpec5<A1, A2, A3, A4, A5>::Vertex);
 
         namespace VertexSpecs {
+            typedef VertexSpec1<AttributeSpecs::P2> P2;
+            typedef VertexSpec2<AttributeSpecs::P2, AttributeSpecs::T02> P2T2;
             typedef VertexSpec1<AttributeSpecs::P3> P3;
             typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4> P3C4;
             typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::T02> P3T2;

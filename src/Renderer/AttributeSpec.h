@@ -238,6 +238,7 @@ namespace TrenchBroom {
         };
         
         namespace AttributeSpecs {
+            typedef AttributeSpec<ATPosition, GL_FLOAT, 2> P2;
             typedef AttributeSpec<ATPosition, GL_FLOAT, 3> P3;
             typedef AttributeSpec<ATNormal, GL_FLOAT, 3> N;
             typedef AttributeSpec<ATTexCoord0, GL_FLOAT, 2> T02;

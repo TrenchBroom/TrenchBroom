@@ -61,7 +61,7 @@ namespace TrenchBroom {
             const Assets::FaceTextureList& textures = collection->textures();
             
             if (mipEntries.size() != textures.size())
-                throw WadException("Found different number of textures in " + path.asString() + " while uploading mip data");
+                throw AssetException("Found different number of textures in " + path.asString() + " while uploading mip data");
             
             const size_t textureCount = mipEntries.size();
             

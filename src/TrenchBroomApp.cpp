@@ -124,7 +124,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
-            newDocument();
+            newDocument(true);
         }
         
         void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
@@ -216,7 +216,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::MacNewFile() {
-            newDocument(Model::Game::game(0));
+            newDocument(false);
         }        
         
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
@@ -236,10 +236,13 @@ namespace TrenchBroom {
 #endif
         }
         
-        bool TrenchBroomApp::newDocument(Model::GamePtr game) {
+        bool TrenchBroomApp::newDocument(const bool queryGameType) {
             MapFrame* frame = m_frameManager->newFrame();
-            if (game == NULL)
-                game = detectGame();
+            Model::GamePtr game;
+            if (queryGameType)
+                game = detectGame(frame->logger());
+            else
+                game = Model::Game::game(0, frame->logger());
             if (game == NULL)
                 return false;
             return frame != NULL && frame->newDocument(game);
@@ -249,7 +252,7 @@ namespace TrenchBroom {
             MapFrame* frame = m_frameManager->newFrame();
             try {
                 const IO::Path path(pathStr);
-                Model::GamePtr game = detectGame(path);
+                Model::GamePtr game = detectGame(frame->logger(), path);
                 if (game == NULL)
                     return false;
                 return frame != NULL && frame->openDocument(game, path);
@@ -260,8 +263,8 @@ namespace TrenchBroom {
             }
         }
         
-        Model::GamePtr TrenchBroomApp::detectGame(const IO::Path& path) {
-            Model::GamePtr game = Model::Game::detectGame(path);
+        Model::GamePtr TrenchBroomApp::detectGame(Logger* logger, const IO::Path& path) {
+            Model::GamePtr game = Model::Game::detectGame(path, logger);
             if (game != NULL)
                 return game;
             
@@ -276,7 +279,7 @@ namespace TrenchBroom {
             const int selection = chooseGameDialog.GetSelection();
             if (selection < 0 || selection >= Model::Game::GameCount)
                 return Model::GamePtr();
-            return Model::Game::game(static_cast<size_t>(selection));
+            return Model::Game::game(static_cast<size_t>(selection), logger);
         }
     }
 }

@@ -18,6 +18,7 @@
  */
 
 #include "QuakeFS.h"
+#include "Exceptions.h"
 #include "IO/DiskFS.h"
 #include "IO/FileSystem.h"
 #include "IO/PakFS.h"
@@ -37,7 +38,14 @@ namespace TrenchBroom {
         }
         
         const MappedFile::Ptr QuakeFS::doFindFile(const Path& path) const {
-            return m_fs.findFile(path);
+            MappedFile::Ptr file = m_fs.findFile(path);
+            if (file == NULL)
+                throw ResourceNotFoundException("File not found: " + path.asString() + ", searched " + location());
+            return file;
+        }
+
+        String QuakeFS::doGetLocation() const {
+            return m_fs.location();
         }
 
         void QuakeFS::addMod(const Path& quakePath, const Path& mod) {

@@ -49,6 +49,18 @@ namespace TrenchBroom {
             inline bool operator==(const Vertex1<A1>& other) const {
                 return v1 == other.v1;
             }
+            
+            static List fromLists(const std::vector<typename A1::ElementType>& list,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1) {
+                List result;
+                size_t index1 = offset1;
+                for (size_t i = 0; i < count; ++i) {
+                    result.push_back(Vertex1(list[index1]));
+                    index1 += stride1;
+                }
+                return result;
+            }
         };
         
         template <typename A1, typename A2>
@@ -70,6 +82,21 @@ namespace TrenchBroom {
             inline bool operator==(const Vertex2<A1, A2>& other) const {
                 return (v1 == other.v1 &&
                         v2 == other.v2);
+            }
+            
+            static List fromLists(const std::vector<typename A1::ElementType>& list1,
+                                  const std::vector<typename A2::ElementType>& list2,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1) {
+                List result;
+                size_t index1 = offset1, index2 = offset2;
+                for (size_t i = 0; i < count; ++i) {
+                    result.push_back(Vertex2(list1[index1], list2[index2]));
+                    index1 += stride1;
+                    index2 += stride2;
+                }
+                return result;
             }
         };
         
@@ -96,6 +123,24 @@ namespace TrenchBroom {
                 return (v1 == other.v1 &&
                         v2 == other.v2 &&
                         v3 == other.v3);
+            }
+            
+            static List fromLists(const std::vector<typename A1::ElementType>& list1,
+                                  const std::vector<typename A2::ElementType>& list2,
+                                  const std::vector<typename A3::ElementType>& list3,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1) {
+                List result;
+                size_t index1 = offset1, index2 = offset2, index3 = offset3;
+                for (size_t i = 0; i < count; ++i) {
+                    result.push_back(Vertex3(list1[index1], list2[index2], list3[index3]));
+                    index1 += stride1;
+                    index2 += stride2;
+                    index3 += stride3;
+                }
+                return result;
             }
         };
         
@@ -126,6 +171,27 @@ namespace TrenchBroom {
                         v2 == other.v2 &&
                         v3 == other.v3 &&
                         v4 == other.v4);
+            }
+            
+            static List fromLists(const std::vector<typename A1::ElementType>& list1,
+                                  const std::vector<typename A2::ElementType>& list2,
+                                  const std::vector<typename A3::ElementType>& list3,
+                                  const std::vector<typename A4::ElementType>& list4,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1,
+                                  const size_t offset4 = 0, const size_t stride4 = 1) {
+                List result;
+                size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4;
+                for (size_t i = 0; i < count; ++i) {
+                    result.push_back(Vertex4(list1[index1], list2[index2], list3[index3], list4[index4]));
+                    index1 += stride1;
+                    index2 += stride2;
+                    index3 += stride3;
+                    index4 += stride4;
+                }
+                return result;
             }
         };
 
@@ -160,6 +226,30 @@ namespace TrenchBroom {
                         v3 == other.v3 &&
                         v4 == other.v4 &&
                         v5 == other.v5);
+            }
+            
+            static List fromLists(const std::vector<typename A1::ElementType>& list1,
+                                  const std::vector<typename A2::ElementType>& list2,
+                                  const std::vector<typename A3::ElementType>& list3,
+                                  const std::vector<typename A4::ElementType>& list4,
+                                  const std::vector<typename A5::ElementType>& list5,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1,
+                                  const size_t offset4 = 0, const size_t stride4 = 1,
+                                  const size_t offset5 = 0, const size_t stride5 = 1) {
+                List result;
+                size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4, index5 = offset5;
+                for (size_t i = 0; i < count; ++i) {
+                    result.push_back(Vertex5(list1[index1], list2[index2], list3[index3], list4[index4], list5[index5]));
+                    index1 += stride1;
+                    index2 += stride2;
+                    index3 += stride3;
+                    index4 += stride4;
+                    index5 += stride5;
+                }
+                return result;
             }
         };
     }

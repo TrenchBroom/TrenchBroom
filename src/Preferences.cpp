@@ -60,7 +60,9 @@ namespace TrenchBroom {
 #endif
         Preference<int> RendererFontSize("Renderer/Font size", 13);
 
-        Preference<int> EntityBrowserFontSize("Entity Browser/Font size", 13);
+        Preference<int> BrowserFontSize("Browser/Font size", 13);
+        Preference<Color> BrowserTextColor("Browser/Text color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> BrowserGroupBackgroundColor("Browser/Group background color", Color(0.5f, 0.5f, 0.5f, 0.5f));
 
         Preference<float> CameraLookSpeed("Controls/Camera/Look speed", 0.5f);
         Preference<bool>  CameraLookInvertH("Controls/Camera/Invert horizontal look", false);

@@ -25,11 +25,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr Hexen2Game::newGame(const IO::Path& gamePath, const Color& defaultEntityColor) {
-            return GamePtr(new Hexen2Game(gamePath, defaultEntityColor));
+        GamePtr Hexen2Game::newGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) {
+            return GamePtr(new Hexen2Game(gamePath, defaultEntityColor, logger));
         }
         
-        Hexen2Game::Hexen2Game(const IO::Path& gamePath, const Color& defaultEntityColor) :
+        Hexen2Game::Hexen2Game(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
+        Game(logger),
         m_fs(gamePath, IO::Path("data1")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}

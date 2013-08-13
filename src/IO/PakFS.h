@@ -31,12 +31,14 @@ namespace TrenchBroom {
         class PakFS : public GameFS {
         private:
             typedef std::map<Path, MappedFile::Ptr> PakDirectory;
+            Path m_path;
             MappedFile::Ptr m_file;
             PakDirectory m_directory;
         public:
             PakFS(const Path& path);
         private:
             const MappedFile::Ptr doFindFile(const Path& path) const;
+            String doGetLocation() const;
             void readDirectory();
         };
     }

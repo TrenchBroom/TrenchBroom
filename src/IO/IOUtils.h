@@ -26,6 +26,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <vector>
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -49,7 +50,19 @@ namespace TrenchBroom {
         }
         
         template <typename T>
+        inline T read(const char* const& cursor) {
+            T value;
+            memcpy(&value, cursor, sizeof(T));
+            return value;
+        }
+        
+        template <typename T>
         inline int readInt(const char*& cursor) {
+            return static_cast<int>(read<T>(cursor));
+        }
+        
+        template <typename T>
+        inline int readInt(const char* const& cursor) {
             return static_cast<int>(read<T>(cursor));
         }
         
@@ -59,12 +72,27 @@ namespace TrenchBroom {
         }
         
         template <typename T>
+        inline unsigned int readUnsignedInt(const char* const& cursor) {
+            return static_cast<unsigned int>(read<T>(cursor));
+        }
+        
+        template <typename T>
         inline size_t readSize(const char*& cursor) {
             return static_cast<size_t>(read<T>(cursor));
         }
         
         template <typename T>
+        inline size_t readSize(const char* const& cursor) {
+            return static_cast<size_t>(read<T>(cursor));
+        }
+
+        template <typename T>
         inline bool readBool(const char*& cursor) {
+            return read<T>(cursor) != 0;
+        }
+        
+        template <typename T>
+        inline bool readBool(const char* const& cursor) {
             return read<T>(cursor) != 0;
         }
         
@@ -73,7 +101,19 @@ namespace TrenchBroom {
             return static_cast<float>(read<T>(cursor));
         }
         
+        template <typename T>
+        inline float readFloat(const char* const& cursor) {
+            return static_cast<float>(read<T>(cursor));
+        }
+        
         inline Vec3f readVec3f(const char*& cursor) {
+            Vec3f value;
+            for (size_t i = 0; i < 3; i++)
+                value[i] = readFloat<float>(cursor);
+            return value;
+        }
+        
+        inline Vec3f readVec3f(const char* const& cursor) {
             Vec3f value;
             for (size_t i = 0; i < 3; i++)
                 value[i] = readFloat<float>(cursor);
@@ -85,9 +125,27 @@ namespace TrenchBroom {
             cursor += n;
         }
         
+        inline void readBytes(const char* const& cursor, char* buffer, size_t n) {
+            memcpy(buffer, cursor, n);
+        }
+        
         inline void readBytes(const char*& cursor, unsigned char* buffer, size_t n) {
             memcpy(buffer, cursor, n);
             cursor += n;
+        }
+        
+        inline void readBytes(const char* const& cursor, unsigned char* buffer, size_t n) {
+            memcpy(buffer, cursor, n);
+        }
+        
+        template <typename T>
+        inline void readVector(const char*& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
+            readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
+        }
+        
+        template <typename T>
+        inline void readVector(const char* const& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
+            readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
         }
     }
 }

@@ -28,6 +28,8 @@
 #include <wx/wx.h>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace View {
         class TrenchBroomApp : public wxApp {
         private:
@@ -62,9 +64,9 @@ namespace TrenchBroom {
             
         private:
             static bool useSDI();
-            bool newDocument(Model::GamePtr game = Model::GamePtr());
+            bool newDocument(const bool queryGameType);
             bool openDocument(const String& pathStr);
-            static Model::GamePtr detectGame(const IO::Path& path = IO::Path(""));
+            static Model::GamePtr detectGame(Logger* logger, const IO::Path& path = IO::Path(""));
         };
     }
 }

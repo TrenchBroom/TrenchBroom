@@ -49,6 +49,7 @@ namespace TrenchBroom {
             const ShaderConfig EdgeShader = ShaderConfig("Edge Shader Program", "Edge.vertsh", "Edge.fragsh");
             const ShaderConfig EntityModelShader = ShaderConfig("Entity Model Shader Program", "EntityModel.vertsh", "EntityModel.fragsh");
             const ShaderConfig FaceShader = ShaderConfig("Face Shader Program", "Face.vertsh", "Face.fragsh");
+            const ShaderConfig ColoredTextShader = ShaderConfig("Colored Text Shader Program", "ColoredText.vertsh", "Text.fragsh");
             const ShaderConfig TextShader = ShaderConfig("Text Shader Program", "Text.vertsh", "Text.fragsh");
             const ShaderConfig TextBackgroundShader = ShaderConfig("Text Background Shader Program", "TextBackground.vertsh", "TextBackground.fragsh");
             const ShaderConfig TextureBrowserShader = ShaderConfig("FaceTexture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");

@@ -26,5 +26,9 @@ namespace TrenchBroom {
         const MappedFile::Ptr GameFS::findFile(const Path& path) const {
             return doFindFile(path);
         }
+    
+        String GameFS::location() const {
+            return doGetLocation();
+        }
     }
 }

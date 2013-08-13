@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MultiFS__
 #define __TrenchBroom__MultiFS__
 
+#include "StringUtils.h"
 #include "IO/FileSystem.h"
 #include "IO/GameFS.h"
 #include "IO/Path.h"
@@ -37,6 +38,7 @@ namespace TrenchBroom {
             void addFileSystem(GameFS* fileSystem);
         private:
             const MappedFile::Ptr doFindFile(const Path& path) const;
+            String doGetLocation() const;
         };
     }
 }

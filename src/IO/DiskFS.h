@@ -31,6 +31,7 @@ namespace TrenchBroom {
             DiskFS(const Path& basePath);
         private:
             const MappedFile::Ptr doFindFile(const Path& path) const;
+            String doGetLocation() const;
         };
     }
 }

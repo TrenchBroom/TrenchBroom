@@ -1,5 +1,7 @@
+#version 120
+
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,25 +19,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DiskFS.h"
+varying vec4 vertexColor;
 
-#include "IO/FileSystem.h"
-
-namespace TrenchBroom {
-    namespace IO {
-        DiskFS::DiskFS(const Path& basePath) :
-        m_basePath(basePath) {}
-        
-        const MappedFile::Ptr DiskFS::doFindFile(const Path& path) const {
-            const Path fullPath = m_basePath + path;
-            FileSystem fs;
-            if (!fs.exists(fullPath))
-                return MappedFile::Ptr();
-            return fs.mapFile(fullPath, std::ios::in);
-        }
-
-        String DiskFS::doGetLocation() const {
-            return m_basePath.asString();
-        }
-    }
+void main(void) {
+    vertexColor = gl_Color;
+    gl_Position = ftransform();
+    gl_TexCoord[0] = gl_MultiTexCoord0;
 }

@@ -41,5 +41,23 @@ namespace TrenchBroom {
             }
             return MappedFile::Ptr();
         }
+
+        String MultiFS::doGetLocation() const {
+            if (m_fileSystems.empty())
+                return "";
+            
+            StringStream stream;
+            FSList::const_reverse_iterator it = m_fileSystems.rbegin();
+            const FSList::const_reverse_iterator end = m_fileSystems.rend();
+            
+            stream << (*it)->location();
+            ++it;
+            while (it != end) {
+                stream << "; " << (*it)->location();
+                ++it;
+            }
+            
+            return stream.str();
+        }
     }
 }

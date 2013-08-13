@@ -28,18 +28,22 @@
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Model {
         class Map;
         
         class Game {
+        private:
+            Logger* m_logger;
         public:
             static const String GameNames[];
             static const size_t GameCount;
 
-            static GamePtr game(const String& gameName);
-            static GamePtr game(const size_t gameIndex);
+            static GamePtr game(const String& gameName, Logger* logger);
+            static GamePtr game(const size_t gameIndex, Logger* logger);
             
-            static GamePtr detectGame(const IO::Path& path);
+            static GamePtr detectGame(const IO::Path& path, Logger* logger);
             static StringList gameList();
             
             virtual ~Game();
@@ -55,7 +59,7 @@ namespace TrenchBroom {
             
             Assets::EntityModel* loadModel(const IO::Path& path) const;
         protected:
-            Game();
+            Game(Logger* logger);
         private:
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
             

@@ -214,7 +214,7 @@ namespace TrenchBroom {
             EntityClassnameFilter textFilter(m_filter);
             EntityClassnameColorProvider colorProvider(overlayTextColor(), overlayBackgroundColor());
             m_classnameRenderer.render(context, textFilter, colorProvider,
-                                       Shaders::TextShader, Shaders::TextBackgroundShader);
+                                       Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
         }
         
         void EntityRenderer::renderModels(RenderContext& context) {

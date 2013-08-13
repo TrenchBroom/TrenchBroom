@@ -25,11 +25,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr Quake2Game::newGame(const IO::Path& gamePath, const Color& defaultEntityColor) {
-            return GamePtr(new Quake2Game(gamePath, defaultEntityColor));
+        GamePtr Quake2Game::newGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) {
+            return GamePtr(new Quake2Game(gamePath, defaultEntityColor, logger));
         }
         
-        Quake2Game::Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor) :
+        Quake2Game::Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
+        Game(logger),
         m_fs(gamePath, IO::Path("baseq2")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
@@ -80,7 +81,8 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Quake2Game::doLoadModel(const IO::Path& path) const {
-            return NULL;
+            using TrenchBroom::Model::loadModel;
+            return loadModel(m_fs, m_palette, path);
         }
     }
 }

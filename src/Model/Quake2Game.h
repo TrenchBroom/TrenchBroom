@@ -28,6 +28,8 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Model {
         class Quake2Game : public Game {
         private:
@@ -35,9 +37,9 @@ namespace TrenchBroom {
             Color m_defaultEntityColor;
             Assets::Palette m_palette;
         public:
-            static GamePtr newGame(const IO::Path& gamePath, const Color& defaultEntityColor);
+            static GamePtr newGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger);
         private:
-            Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor);
+            Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger = NULL);
             
             static const BBox3 WorldBounds;
             static IO::Path palettePath();

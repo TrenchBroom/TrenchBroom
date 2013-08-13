@@ -19,6 +19,8 @@
 
 #include "Game.h"
 
+#include "Exceptions.h"
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/FileSystem.h"
@@ -32,28 +34,32 @@ namespace TrenchBroom {
         const String Game::GameNames[] = {"Quake", "Quake 2", "Hexen 2"};
         const size_t Game::GameCount = 3;
         
-        GamePtr Game::game(const String& gameName) {
+        GamePtr Game::game(const String& gameName, Logger* logger) {
             for (size_t i = 0; i < GameCount; ++i)
                 if (gameName == GameNames[i])
-                    return game(i);
+                    return game(i, logger);
+            if (logger != NULL)
+                logger->error("Unknown game type: " + gameName);
             return GamePtr();
         }
         
-        GamePtr Game::game(const size_t gameIndex) {
+        GamePtr Game::game(const size_t gameIndex, Logger* logger) {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (gameIndex) {
                 case 0:
-                    return QuakeGame::newGame(prefs.getString(Preferences::QuakePath), prefs.getColor(Preferences::UndefinedEntityColor));
+                    return QuakeGame::newGame(prefs.getString(Preferences::QuakePath), prefs.getColor(Preferences::UndefinedEntityColor), logger);
                 case 1:
-                    return Quake2Game::newGame(prefs.getString(Preferences::Quake2Path), prefs.getColor(Preferences::UndefinedEntityColor));
+                    return Quake2Game::newGame(prefs.getString(Preferences::Quake2Path), prefs.getColor(Preferences::UndefinedEntityColor), logger);
                 case 2:
-                    return Hexen2Game::newGame(prefs.getString(Preferences::Hexen2Path), prefs.getColor(Preferences::UndefinedEntityColor));
+                    return Hexen2Game::newGame(prefs.getString(Preferences::Hexen2Path), prefs.getColor(Preferences::UndefinedEntityColor), logger);
                 default:
+                    if (logger != NULL)
+                        logger->error("Game index out of bounds: %i", gameIndex);
                     return GamePtr();
             }
         }
         
-        GamePtr Game::detectGame(const IO::Path& path) {
+        GamePtr Game::detectGame(const IO::Path& path, Logger* logger) {
             IO::FileSystem fs;
             if (!fs.exists(path) || fs.isDirectory(path))
                 return GamePtr();
@@ -83,7 +89,7 @@ namespace TrenchBroom {
                 name << *(cursor++);
 
             const String nameStr = StringUtils::trim(name.str());
-            return game(nameStr);
+            return game(nameStr, logger);
         }
         
         Map* Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
@@ -95,7 +101,13 @@ namespace TrenchBroom {
         }
 
         Assets::FaceTextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
-            return doLoadTextureCollection(path);
+            try {
+                return doLoadTextureCollection(path);
+            } catch (ResourceNotFoundException e) {
+                if (m_logger != NULL)
+                    m_logger->error(e.what());
+                return NULL;
+            }
         }
 
         void Game::uploadTextureCollection(Assets::FaceTextureCollection* collection) const {
@@ -103,7 +115,17 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
-            return doLoadEntityDefinitions(path);
+            try {
+                return doLoadEntityDefinitions(path);
+            } catch (ParserException e) {
+                if (m_logger != NULL)
+                    m_logger->error(e.what());
+                return Assets::EntityDefinitionList();
+            } catch (GameException e) {
+                if (m_logger != NULL)
+                    m_logger->error(e.what());
+                return Assets::EntityDefinitionList();
+            }
         }
 
         IO::Path Game::defaultEntityDefinitionFile() const {
@@ -115,10 +137,17 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Game::loadModel(const IO::Path& path) const {
-            return doLoadModel(path);
+            try {
+                return doLoadModel(path);
+            } catch (ResourceNotFoundException e) {
+                if (m_logger != NULL)
+                    m_logger->error(e.what());
+                return NULL;
+            }
         }
 
-        Game::Game() {}
+        Game::Game(Logger* logger) :
+        m_logger(logger) {}
 
         Game::~Game() {}
     }

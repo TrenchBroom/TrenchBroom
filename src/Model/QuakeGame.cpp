@@ -32,11 +32,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GamePtr QuakeGame::newGame(const IO::Path& gamePath, const Color& defaultEntityColor) {
-            return GamePtr(new QuakeGame(gamePath, defaultEntityColor));
+        GamePtr QuakeGame::newGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) {
+            return GamePtr(new QuakeGame(gamePath, defaultEntityColor, logger));
         }
 
-        QuakeGame::QuakeGame(const IO::Path& gamePath, const Color& defaultEntityColor) :
+        QuakeGame::QuakeGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
+        Game(logger),
         m_fs(gamePath, IO::Path("id1")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}

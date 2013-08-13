@@ -962,7 +962,7 @@
 @PointClass base(Weapons) = weapon_shotgun : "Shotgun" []
 @PointClass base(Weapons) = weapon_supershotgun : "Super shotgun" []
 @PointClass base(Weapons) = weapon_machinegun : "Machinegun" []
-@PointClass base(Weapons) = weapon_chaingun : "Chain gun" []
+@PointClass base(Weapons) model(":models/weapons/g_chain/tris.md2") = weapon_chaingun : "Chain gun" []
 @PointClass base(Weapons) = weapon_grenadelauncher : "Grenade launcher" []
 @PointClass base(Weapons) = weapon_rocketlauncher : "Rocket launcher" []
 @PointClass base(Weapons) = weapon_hyperblaster : "Hyperblaster" []
