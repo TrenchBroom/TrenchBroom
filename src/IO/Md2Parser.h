@@ -42,7 +42,7 @@ namespace TrenchBroom {
             static const int Version = 8;
             static const size_t SkinNameLength = 64;
             static const size_t FrameNameLength = 16;
-        };
+        }
 
         // see http://tfc.duke.free.fr/coding/md2-specs-en.html
         class Md2Parser : public EntityModelParser {
