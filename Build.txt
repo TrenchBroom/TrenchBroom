@@ -61,3 +61,35 @@ CMake
   cmake .. -DCMAKE_BUILD_TYPE=Release
   cmake --build .
   You can replace "Release" with "Debug" if you want to create a debug build.
+
+
+====== Mac OS X ======
+Build environment
+1. Get Xcode from the App Store
+
+2. Mac OS X SDKs
+- Get the Mac OS X 10.6 SDK (from an older Xcode version such as Xcode 3)
+- Copy it to /Developer/SDKs (or some other folder of your choosing)
+- Create a symbolic link inside /Applications/XCode.app:
+  - If you copied the 10.6 SDK to /Developer/SDKs:
+  - sudo ln -s /Developer/SDKs/MacOSX10.6.sdk/ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
+  - You may have to repeat this step whenever Xcode is updated.
+
+3. Dependencies
+- Install FreeImage (I used MacPorts, compiling from source does not seem to work)
+
+3. wxWidgets
+- Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
+- Move the unpacked directory someplace where you want to keep it.
+- Open a terminal and change into the wxwidgets directory.
+- Create two directories: build-release and build-debug (don't rename those!)
+- Change into wxwidgets/build-release
+- Run 
+  - If you copied the 10.6 SDK to /Developer/SDKs
+  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+- Run make, then sudo make install
+- Change into wxwidgets/build-debug
+- Run 
+  - If you copied the 10.6 SDK to /Developer/SDKs
+  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+- Run make, then sudo make install

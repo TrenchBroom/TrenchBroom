@@ -39,13 +39,18 @@ namespace TrenchBroom {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<Assets::AutoTexture*, VertexSpec> Mesh;
+            typedef Renderer::Mesh<const Assets::Texture*, VertexSpec> Mesh;
         private:
             struct Frame {
                 Mesh::TriangleSeries triangleFans;
                 Mesh::TriangleSeries triangleStrips;
+                BBox3f bounds;
                 
                 Frame(const Mesh::TriangleSeries& i_triangleFans, const Mesh::TriangleSeries& i_triangleStrips);
+                BBox3f transformedBounds(const Mat4x4f& transformation) const;
+            private:
+                void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series) const;
+                void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series, const Mat4x4f& transformation) const;
             };
             typedef std::vector<Frame> FrameList;
             

@@ -959,12 +959,12 @@
 // Weapons!
 //
 
-@PointClass base(Weapons) = weapon_shotgun : "Shotgun" []
-@PointClass base(Weapons) = weapon_supershotgun : "Super shotgun" []
-@PointClass base(Weapons) = weapon_machinegun : "Machinegun" []
+@PointClass base(Weapons) model(":models/weapons/g_shotg/tris.md2") = weapon_shotgun : "Shotgun" []
+@PointClass base(Weapons) model(":models/weapons/g_shotg2/tris.md2") = weapon_supershotgun : "Super shotgun" []
+@PointClass base(Weapons) model(":models/weapons/g_machn/tris.md2") = weapon_machinegun : "Machinegun" []
 @PointClass base(Weapons) model(":models/weapons/g_chain/tris.md2") = weapon_chaingun : "Chain gun" []
-@PointClass base(Weapons) = weapon_grenadelauncher : "Grenade launcher" []
-@PointClass base(Weapons) = weapon_rocketlauncher : "Rocket launcher" []
-@PointClass base(Weapons) = weapon_hyperblaster : "Hyperblaster" []
-@PointClass base(Weapons) = weapon_railgun : "Rail gun" []
-@PointClass base(Weapons) = weapon_bfg : "Big Freakin Gun!" []
+@PointClass base(Weapons) model(":models/weapons/g_launch/tris.md2") = weapon_grenadelauncher : "Grenade launcher" []
+@PointClass base(Weapons) model(":models/weapons/g_rocket/tris.md2") = weapon_rocketlauncher : "Rocket launcher" []
+@PointClass base(Weapons) model(":models/weapons/g_hyperb/tris.md2") = weapon_hyperblaster : "Hyperblaster" []
+@PointClass base(Weapons) model(":models/weapons/g_rail/tris.md2") = weapon_railgun : "Rail gun" []
+@PointClass base(Weapons) model(":models/weapons/g_bfg/tris.md2") = weapon_bfg : "Big Freakin Gun!" []

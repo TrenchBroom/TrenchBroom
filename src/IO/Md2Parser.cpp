@@ -20,8 +20,14 @@
 #include "Md2Parser.h"
 
 #include "Exceptions.h"
+#include "Assets/AutoTexture.h"
 #include "Assets/Md2Model.h"
+#include "Assets/Palette.h"
+#include "IO/GameFS.h"
+#include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
+#include "IO/MappedFile.h"
+#include "IO/Path.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
@@ -307,6 +313,19 @@ namespace TrenchBroom {
         }
 
         void Md2Parser::addSkinToModel(Assets::Md2Model& model, const Md2Skin& skin) {
+            const Path skinPath(String(skin.name));
+            MappedFile::Ptr file = m_fs.findFile(skinPath);
+            if (file != NULL) {
+                Color avgColor;
+                const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
+                
+                const Buffer<unsigned char>& indices = image.indices();
+                Buffer<unsigned char> rgbImage(indices.size() * 3);
+                m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
+                
+                Assets::AutoTexture* texture = new Assets::AutoTexture(image.width(), image.height(), rgbImage);
+                model.addSkin(texture);
+            }
         }
         
         void Md2Parser::addFrameToModel(Assets::Md2Model& model, const Md2Frame& frame, const Md2MeshList& meshes) {

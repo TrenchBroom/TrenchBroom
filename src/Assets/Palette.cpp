@@ -54,28 +54,6 @@ namespace TrenchBroom {
             delete[] m_data;
         }
 
-        void Palette::indexedToRgb(const Buffer<char>& indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const {
-            indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
-        }
-
-        void Palette::indexedToRgb(const char* indexedImage, const size_t pixelCount, Buffer<unsigned char>& rgbImage, Color& averageColor) const {
-            double avg[3];
-            avg[0] = avg[1] = avg[2] = 0.0;
-            for (size_t i = 0; i < pixelCount; ++i) {
-                const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
-                assert(index < m_size);
-                for (size_t j = 0; j < 3; ++j) {
-                    const size_t c = m_data[index * 3 + j];
-                    rgbImage[i * 3 + j] = c;
-                    avg[j] += static_cast<double>(c);
-                }
-            }
-            
-            for (size_t i = 0; i < 3; ++i)
-                averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
-            averageColor[3] = 1.0f;
-        }
-
         void Palette::loadLmpPalette(const IO::Path& path) {
             std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
             if (!stream.is_open())

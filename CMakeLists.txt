@@ -71,6 +71,30 @@ ELSE()
 ENDIF()
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 
+# Configure freeimage library
+IF(MSVC)
+	  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreeimage.a")
+		FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
+ELSE()
+	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h
+		/usr/include
+		/usr/local/include
+		/sw/include
+		/opt/local/include
+		DOC "The directory where FreeImage.h resides")
+	FIND_LIBRARY(FREEIMAGE_LIBRARIES
+		NAMES FreeImage freeimage libfreeimage
+		PATHS
+		/usr/lib64
+		/usr/lib
+		/usr/local/lib64
+		/usr/local/lib
+		/sw/lib
+		/opt/local/lib
+		DOC "The FreeImage library")
+ENDIF()
+INCLUDE_DIRECTORIES(${FREEIMAGE_INCLUDE_DIRS})
+
 # Configure gtest library
 SET(LIB_GTEST_SOURCE_DIR "${LIB_SOURCE_DIR}/gtest")
 SET(LIB_GTEST_SOURCE "${LIB_GTEST_SOURCE_DIR}/gtest-all.cc")
@@ -147,7 +171,7 @@ IF(APPLE)
 ENDIF()
 
 ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${SOURCE})
-TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES} glew ${FREETYPE_LIBRARIES})
+TARGET_LINK_LIBRARIES(TrenchBroom ${wxWidgets_LIBRARIES} glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 IF(APPLE)
 	# Configure plist file
@@ -168,7 +192,7 @@ ENDIF()
 
 # TrenchBroom-Test executable
 ADD_EXECUTABLE(TrenchBroom-Test ${SOURCE} ${TEST_SOURCE})
-TARGET_LINK_LIBRARIES(TrenchBroom-Test ${wxWidgets_LIBRARIES} gtest gmock ${FREETYPE_LIBRARIES})
+TARGET_LINK_LIBRARIES(TrenchBroom-Test ${wxWidgets_LIBRARIES} gtest gmock ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "TESTING")
 
 

@@ -44,6 +44,15 @@ namespace TrenchBroom {
                 m_vertices.push_back(vertex);
             }
             
+            inline void addVertices(const typename T::Vertex::List& vertices) {
+                m_vertices.insert(m_vertices.end(), vertices.begin(), vertices.end());
+            }
+            
+            inline void addPrimitive(const typename T::Vertex::List& vertices) {
+                addVertices(vertices);
+                endPrimitive();
+            }
+            
             inline void endPrimitive() {
                 m_indices.push_back(static_cast<GLint>(m_primStart));
                 m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));

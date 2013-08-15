@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             template <typename VertexSpec>
             MeshRenderer(Vbo& vbo, const Mesh<const Assets::Texture*, VertexSpec>& mesh) :
-            m_vertexArrays(mesh.triangleSetArrays(vbo)),
+            m_vertexArrays(mesh.triangleArrays(vbo)),
             m_prepared(false) {}
             
             void prepare();

@@ -137,6 +137,13 @@ namespace TrenchBroom {
         ResourceNotFoundException(const String& str) throw() : Exception(str) {}
         ~ResourceNotFoundException() throw() {}
     };
+            
+    class FileFormatException : public Exception {
+    public:
+        FileFormatException() throw() {}
+        FileFormatException(const String& str) throw() : Exception(str) {}
+        ~FileFormatException() throw() {}
+    };
 }
 
 #endif

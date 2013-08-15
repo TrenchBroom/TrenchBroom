@@ -21,6 +21,8 @@
 #define TrenchBroom_IOUtils_h
 
 #include "VecMath.h"
+#include "Exceptions.h"
+#include "ByteBuffer.h"
 
 #include <cassert>
 #include <cstring>

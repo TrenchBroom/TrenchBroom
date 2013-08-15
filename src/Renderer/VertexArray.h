@@ -139,7 +139,7 @@ namespace TrenchBroom {
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
-                assert(m_indices == m_counts);
+                assert(m_indices.size() == m_counts.size());
             }
             
             template <typename A1, typename A2>
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
-                assert(m_indices == m_counts);
+                assert(m_indices.size() == m_counts.size());
             }
             
             template <typename A1, typename A2, typename A3>
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
-                assert(m_indices == m_counts);
+                assert(m_indices.size() == m_counts.size());
             }
             
             template <typename A1, typename A2, typename A3, typename A4>
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
-                assert(m_indices == m_counts);
+                assert(m_indices.size() == m_counts.size());
             }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))),
             m_indices(indices),
             m_counts(counts) {
-                assert(m_indices == m_counts);
+                assert(m_indices.size() == m_counts.size());
             }
 
             size_t vertexCount() const;
