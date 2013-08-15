@@ -253,6 +253,8 @@ namespace TrenchBroom {
             shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
             shader.set("GrayScale", false);
             
+            glFrontFace(GL_CW);
+
             { // prepare all renderers
                 Renderer::SetVboState mapVbo(m_vbo);
                 mapVbo.mapped();
@@ -301,8 +303,10 @@ namespace TrenchBroom {
             Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
             
             glDisable(GL_DEPTH_TEST);
+            glFrontFace(GL_CCW);
             renderGroupTitleBackgrounds(layout, y, height);
             renderStrings(layout, y, height);
+            glFrontFace(GL_CW);
         }
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {

@@ -73,7 +73,7 @@ INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 
 # Configure freeimage library
 IF(MSVC)
-	  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreeimage.a")
+	  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/win32/FreeImage.lib")
 		FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
 ELSE()
 	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h

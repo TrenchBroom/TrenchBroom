@@ -139,6 +139,12 @@ namespace TrenchBroom {
                     wxPaintDC paintDC(this);
 
                     glEnable(GL_MULTISAMPLE);
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glEnable(GL_CULL_FACE);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
+                    glShadeModel(GL_SMOOTH);
 
                     glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

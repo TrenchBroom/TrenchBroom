@@ -38,6 +38,9 @@ namespace TrenchBroom {
         typedef std::tr1::shared_ptr<MockGame> MockGamePtr;
         
         class MockGame : public Game {
+        private:
+            MockGame() :
+            Game(NULL) {}
         public:
             static MockGamePtr newGame();
 

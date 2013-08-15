@@ -22,7 +22,6 @@
 
 #include "IO/TextureLoader.h"
 #include "Assets/AssetTypes.h"
-#include "IO/FileSystem.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,7 +34,7 @@ namespace TrenchBroom {
             WalTextureLoader(const Assets::Palette& palette);
         private:
             Assets::FaceTextureCollection* doLoadTextureCollection(const Path& path);
-            Assets::FaceTexture* readTexture(MappedFile::Ptr file);
+            Assets::FaceTexture* readTexture(const Path& path);
             void doUploadTextureCollection(Assets::FaceTextureCollection* collection);
             static String translateTextureName(const String& textureName);
         };

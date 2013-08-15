@@ -108,7 +108,7 @@ namespace TrenchBroom {
         }
         
         bool ImageLoaderImpl::hasPixels() const {
-            return static_cast<bool>(FreeImage_HasPixels(m_bitmap));
+            return static_cast<bool>(FreeImage_HasPixels(m_bitmap) == TRUE);
         }
         
         const Buffer<unsigned char>& ImageLoaderImpl::palette() const {
@@ -137,9 +137,9 @@ namespace TrenchBroom {
                 for (size_t y = 0; y < height(); ++y) {
                     for (size_t x = 0; x < width(); ++x) {
                         BYTE index = 0;
-                        const bool success = FreeImage_GetPixelIndex(m_bitmap, x, y, &index);
+                        const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
                         assert(success);
-                        m_indices[y * width() + x] = static_cast<unsigned char>(index);
+                        m_indices[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
                     }
                 }
                 
@@ -175,14 +175,15 @@ namespace TrenchBroom {
             
             for (size_t y = 0; y < height(); ++y) {
                 for (size_t x = 0; x < width(); ++x) {
-                    BYTE index = 0;
-                    const bool success = FreeImage_GetPixelIndex(m_bitmap, x, y, &index);
+                    BYTE paletteIndex = 0;
+                    const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
                     assert(success);
-                    assert(index < paletteSize());
+                    assert(paletteIndex < paletteSize());
                     
-                    m_pixels[(y * width() + x) * pSize + 0] = static_cast<unsigned char>(pal[index].rgbRed);
-                    m_pixels[(y * width() + x) * pSize + 1] = static_cast<unsigned char>(pal[index].rgbGreen);
-                    m_pixels[(y * width() + x) * pSize + 2] = static_cast<unsigned char>(pal[index].rgbBlue);
+                    const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+                    m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
+                    m_pixels[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
+                    m_pixels[pixelIndex + 2] = static_cast<unsigned char>(pal[paletteIndex].rgbBlue);
                 }
             }
         }
@@ -191,13 +192,15 @@ namespace TrenchBroom {
             for (size_t y = 0; y < height(); ++y) {
                 for (size_t x = 0; x < width(); ++x) {
                     RGBQUAD pixel;
-                    const bool success = FreeImage_GetPixelColor(m_bitmap, x, y, &pixel);
+                    const bool success = (FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
                     assert(success);
-                    m_pixels[(y * width() + x) * pSize + 0] = static_cast<unsigned char>(pixel.rgbRed);
-                    m_pixels[(y * width() + x) * pSize + 1] = static_cast<unsigned char>(pixel.rgbGreen);
-                    m_pixels[(y * width() + x) * pSize + 2] = static_cast<unsigned char>(pixel.rgbBlue);
+
+                    const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+                    m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
+                    m_pixels[pixelIndex + 1] = static_cast<unsigned char>(pixel.rgbGreen);
+                    m_pixels[pixelIndex + 2] = static_cast<unsigned char>(pixel.rgbBlue);
                     if (pSize > 3)
-                        m_pixels[(y * width() + x) * pSize + 3] = static_cast<unsigned char>(pixel.rgbReserved);
+                        m_pixels[pixelIndex + 3] = static_cast<unsigned char>(pixel.rgbReserved);
                 }
             }
         }

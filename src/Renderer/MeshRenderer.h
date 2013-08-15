@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MeshRenderer__
 #define __TrenchBroom__MeshRenderer__
 
+#include "Assets/Texture.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Mesh.h"
 
@@ -38,17 +39,39 @@ namespace TrenchBroom {
         
         class MeshRenderer {
         private:
-            typedef std::map<const Assets::Texture*, VertexArray> VertexArrayMap;
-            VertexArrayMap m_vertexArrays;
+            typedef MeshRenderData<const Assets::Texture*> RenderData;
+            RenderData::List m_renderData;
             bool m_prepared;
         public:
+            MeshRenderer();
+            
             template <typename VertexSpec>
             MeshRenderer(Vbo& vbo, const Mesh<const Assets::Texture*, VertexSpec>& mesh) :
-            m_vertexArrays(mesh.triangleArrays(vbo)),
+            m_renderData(mesh.renderData(vbo)),
             m_prepared(false) {}
+            
+            bool empty() const;
             
             void prepare();
             void render();
+
+            template <class MeshFunc>
+            void render(const MeshFunc& func) {
+                RenderData::List::iterator it, end;
+                for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
+                    RenderData& renderData = *it;
+                    const Assets::Texture* texture = renderData.key;
+                    
+                    if (texture != NULL)
+                        texture->activate();
+                    func(texture);
+                    renderData.triangles.render();
+                    renderData.triangleFans.render();
+                    renderData.triangleStrips.render();
+                    if (texture != NULL)
+                        texture->deactivate();
+                }
+            }
         };
     }
 }

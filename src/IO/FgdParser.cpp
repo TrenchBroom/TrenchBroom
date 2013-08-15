@@ -79,7 +79,7 @@ namespace TrenchBroom {
                             
                             end = readString(begin, WordDelims);
                             if (end == begin)
-                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                                throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
                             return Token(FgdToken::Word, begin, end, offset(begin), startLine, startColumn);
                         }
                 }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
                 m_baseClasses[baseClass.name()] = baseClass;
                 return parseDefinition();
             } else {
-                throw ParserException(token.line(), token.column(), "Unknown entity definition class " + classname);
+                throw ParserException(token.line(), token.column(), "Unknown entity definition class '" + classname + "'");
             }
         }
         
@@ -186,7 +186,7 @@ namespace TrenchBroom {
         EntityDefinitionClassInfo FgdParser::parseBaseClass() {
             EntityDefinitionClassInfo classInfo = parseClass();
             if (m_baseClasses.count(classInfo.name()) > 0)
-                throw ParserException(classInfo.line(), classInfo.column(), "Redefinition of base class " + classInfo.name());
+                throw ParserException(classInfo.line(), classInfo.column(), "Redefinition of base class '" + classInfo.name() + "'");
             return classInfo;
         }
         
@@ -216,7 +216,7 @@ namespace TrenchBroom {
                         throw ParserException(token.line(), token.column(), "Found multiple model properties");
                     classInfo.addModelDefinitions(parseModels());
                 } else {
-                    throw ParserException(token.line(), token.column(), "Unknown entity definition header property " + typeName);
+                    throw ParserException(token.line(), token.column(), "Unknown entity definition header property '" + typeName + "'");
                 }
                 expect(FgdToken::Equality | FgdToken::Word, token = m_tokenizer.nextToken());
             }
@@ -370,34 +370,34 @@ namespace TrenchBroom {
                 
                 if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseTargetSourceProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseTargetDestinationProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseStringProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "integer")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseIntegerProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "float")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseFloatProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "choices")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseChoicesProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "flags")) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
                     properties[propertyKey] = parseFlagsProperty(propertyKey);
                 } else {
-                    throw ParserException(token.line(), token.column(), "Unknown entity definition property " + typeName);
+                    throw ParserException(token.line(), token.column(), "Unknown entity definition property '" + typeName + "'");
                 }
                 
                 expect(FgdToken::Word | FgdToken::CBracket, token = m_tokenizer.nextToken());

@@ -137,9 +137,6 @@ namespace TrenchBroom {
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
                     FaceTexture* texture = *tIt;
                     m_texturesByName[texture->name()] = texture;
-
-                    // to find texture names such as baseq2/blah:
-                    m_texturesByName[collectionName + "/" + texture->name()] = texture;
                 }
             }
         }

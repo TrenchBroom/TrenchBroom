@@ -21,10 +21,14 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-#ifdef __APPLE__
+#if defined __APPLE__
         Preference<String> QuakePath("Quake Path", "/Applications/Quake");
         Preference<String> Quake2Path("Quake2 Path", "/Applications/Quake2");
         Preference<String> Hexen2Path("Hexen2 Path", "/Applications/Hexen2");
+#elif defined _WIN32
+        Preference<String> QuakePath("Quake Path", "C:\\Program Files (x86)\\Quake");
+        Preference<String> Quake2Path("Quake2 Path", "C:\\Program Files (x86)\\Quake2");
+        Preference<String> Hexen2Path("Hexen2 Path", "C:\\Program Files (x86)\\Hexen2");
 #else
         Preference<String> QuakePath("Quake Path", "");
         Preference<String> Quake2Path("Quake2 Path", "");
@@ -47,7 +51,7 @@ namespace TrenchBroom {
         Preference<Color> SelectedInfoOverlayTextColor("Renderer/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor("Renderer/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
 
-        Preference<float> Brightness("Renderer/Brightness", 1.0f);
+        Preference<float> Brightness("Renderer/Brightness", 1.4f);
         Preference<float> GridAlpha("Renderer/Grid/Alpha", 0.5f);
         Preference<bool> GridCheckerboard("Renderer/Grid/Checkerboard", false);
         Preference<bool> ShadeFaces("Renderer/ShadeFaces", true);

@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <map>
+#include <vector>
 
 // disable warnings about truncated names in MSVC:
 #ifdef _WIN32
@@ -35,13 +36,26 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        template <typename Key>
+        struct MeshRenderData {
+            Key key;
+            VertexArray triangles;
+            VertexArray triangleFans;
+            VertexArray triangleStrips;
+            
+            MeshRenderData(const Key& i_key) :
+            key(i_key) {}
+            
+            typedef std::vector<MeshRenderData<Key> > List;
+        };
+
         template <typename Key, class VertexSpec>
         class Mesh {
         public:
+            
             typedef std::vector<typename VertexSpec::Vertex::List> TriangleSeries;
             typedef std::map<Key, typename VertexSpec::Vertex::List> TriangleSetMap;
             typedef std::map<Key, TriangleSeries> TriangleSeriesMap;
-            typedef std::map<Key, VertexArray> VertexArrayMap;
         private:
             typedef enum {
                 Set,
@@ -49,7 +63,10 @@ namespace TrenchBroom {
                 Strip,
                 Unset
             } CurrentTriangleType;
+
+            typedef std::set<Key> KeySet;
             
+            KeySet m_keys;
             TriangleSetMap m_triangleSets;
             TriangleSeriesMap m_triangleFans;
             TriangleSeriesMap m_triangleStrips;
@@ -87,29 +104,39 @@ namespace TrenchBroom {
                 return m_triangleStrips;
             }
             
-            inline VertexArrayMap triangleSetArrays(Vbo& vbo) const {
-                VertexArrayMap result;
-                triangleSetArrays(vbo, m_triangleSets, result);
-                return result;
-            }
-            
-            inline VertexArrayMap triangleFanArrays(Vbo& vbo) const {
-                VertexArrayMap result;
-                triangleSeriesArrays(vbo, GL_TRIANGLE_FAN, m_triangleFans, result);
-                return result;
-            }
-            
-            inline VertexArrayMap triangleStripArrays(Vbo& vbo) const {
-                VertexArrayMap result;
-                triangleSeriesArrays(vbo, GL_TRIANGLE_STRIP, m_triangleStrips, result);
-                return result;
-            }
-            
-            inline VertexArrayMap triangleArrays(Vbo& vbo) const {
-                VertexArrayMap result;
-                triangleSetArrays(vbo, m_triangleSets, result);
-                triangleSeriesArrays(vbo, GL_TRIANGLE_FAN, m_triangleFans, result);
-                triangleSeriesArrays(vbo, GL_TRIANGLE_STRIP, m_triangleStrips, result);
+            inline typename MeshRenderData<Key>::List renderData(Vbo& vbo) const {
+                typename MeshRenderData<Key>::List result;
+                typename KeySet::const_iterator keyIt, keyEnd;
+                for (keyIt = m_keys.begin(), keyEnd = m_keys.end(); keyIt != keyEnd; ++keyIt) {
+                    const Key& key = *keyIt;
+                    typename TriangleSetMap::const_iterator setIt = m_triangleSets.find(key);
+                    typename TriangleSeriesMap::const_iterator fanIt = m_triangleFans.find(key);
+                    typename TriangleSeriesMap::const_iterator stripIt = m_triangleStrips.find(key);
+                    
+                    if (setIt == m_triangleSets.end() &&
+                        fanIt == m_triangleFans.end() &&
+                        stripIt == m_triangleStrips.end())
+                        continue;
+                    
+                    MeshRenderData<Key> renderData(key);
+                    
+                    if (setIt != m_triangleSets.end()) {
+                        const typename VertexSpec::Vertex::List& vertices = setIt->second;
+                        renderData.triangles = VertexArray(vbo, GL_TRIANGLES, vertices);
+                    }
+                    
+                    if (fanIt != m_triangleFans.end()) {
+                        const TriangleSeries& series = fanIt->second;
+                        renderData.triangleFans = triangleSeriesArray(vbo, GL_TRIANGLE_FAN, series);
+                    }
+                    
+                    if (stripIt != m_triangleStrips.end()) {
+                        const TriangleSeries& series = stripIt->second;
+                        renderData.triangleStrips = triangleSeriesArray(vbo, GL_TRIANGLE_STRIP, series);
+                    }
+                    
+                    result.push_back(renderData);
+                }
                 return result;
             }
             
@@ -119,6 +146,7 @@ namespace TrenchBroom {
                 
                 if (m_currentSet == m_triangleSets.end() || m_currentSet->first != key)
                     m_currentSet = MapUtils::findOrInsert(m_triangleSets, key);
+                m_keys.insert(key);
             }
             
             inline void addTriangleToSet(const typename VertexSpec::Vertex& v1,
@@ -152,6 +180,7 @@ namespace TrenchBroom {
                         fansForKey.push_back(vertices);
                         m_vertexCount += vertices.size();
                     }
+                    m_keys.insert(key);
                 }
             }
             
@@ -162,6 +191,7 @@ namespace TrenchBroom {
                 if (m_currentFan == m_triangleFans.end() || m_currentFan->first != key)
                     m_currentFan = MapUtils::findOrInsert(m_triangleFans, key);
                 m_currentFan->second.push_back(VertexSpec::Vertex::List());
+                m_keys.insert(key);
             }
             
             inline void addVertexToFan(const typename VertexSpec::Vertex& v) {
@@ -184,6 +214,7 @@ namespace TrenchBroom {
                         stripsForKey.push_back(vertices);
                         m_vertexCount += vertices.size();
                     }
+                    m_keys.insert(key);
                 }
             }
             
@@ -194,6 +225,7 @@ namespace TrenchBroom {
                 if (m_currentStrip == m_triangleStrips.end() || m_currentStrip->first != key)
                     m_currentStrip = MapUtils::findOrInsert(m_currentStrip, key);
                 m_currentStrip->second.push_back(VertexSpec::Vertex::List());
+                m_keys.insert(key);
             }
 
             inline void addVertexToStrip(const typename VertexSpec::Vertex& v) {
@@ -208,31 +240,15 @@ namespace TrenchBroom {
             }
 
         private:
-            inline void triangleSetArrays(Vbo& vbo, const TriangleSetMap& setMap, VertexArrayMap& result) const {
-                typename TriangleSetMap::const_iterator it, end;
-                for (it = setMap.begin(), end = setMap.end(); it != end; ++it) {
-                    const Key& key = it->first;
-                    const typename VertexSpec::Vertex::List& vertices = it->second;
-                    VertexArray array(vbo, GL_TRIANGLES, vertices);
-                    result.insert(std::make_pair(key, array));
+            inline VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, const TriangleSeries& series) const {
+                IndexedVertexList<VertexSpec> indexList;
+                typename TriangleSeries::const_iterator sIt, sEnd;
+                for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
+                    const typename VertexSpec::Vertex::List& vertices = *sIt;
+                    indexList.addPrimitive(vertices);
                 }
-            }
-            
-            inline void triangleSeriesArrays(Vbo& vbo, const GLenum primType, const TriangleSeriesMap seriesMap, VertexArrayMap& result) const {
-                typename TriangleSeriesMap::const_iterator mIt, mEnd;
-                for (mIt = seriesMap.begin(), mEnd = seriesMap.end(); mIt != mEnd; ++mIt) {
-                    const Key& key = mIt->first;
-                    const TriangleSeries& series = mIt->second;
-                    
-                    IndexedVertexList<VertexSpec> indexList;
-                    typename TriangleSeries::const_iterator sIt, sEnd;
-                    for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
-                        const typename VertexSpec::Vertex::List& vertices = *sIt;
-                        indexList.addPrimitive(vertices);
-                    }
-                    
-                    result.insert(std::make_pair(key, VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts())));
-                }
+                
+                return VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
             }
         };
     }

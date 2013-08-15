@@ -23,6 +23,7 @@
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
+#include "Renderer/MeshRenderer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 
@@ -36,10 +37,8 @@ namespace TrenchBroom {
         
         class FaceRenderer {
         private:
-            typedef std::map<Assets::FaceTexture*, VertexArray> VertexArrayMap;
-            
             Vbo::Ptr m_vbo;
-            VertexArrayMap m_arrays;
+            MeshRenderer m_meshRenderer;
             Color m_faceColor;
             bool m_prepared;
         public:
@@ -58,7 +57,6 @@ namespace TrenchBroom {
             void render(RenderContext& context, bool grayscale, const Color* tintColor);
             void renderOpaqueFaces(ActiveShader& shader, const bool applyTexture);
             void renderTransparentFaces(ActiveShader& shader, const bool applyTexture);
-            void renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture);
         };
 
         void swap(FaceRenderer& left, FaceRenderer& right);

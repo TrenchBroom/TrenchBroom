@@ -43,13 +43,13 @@ namespace TrenchBroom {
             
             const Assets::FaceTextureList& textures = collection->textures();
             ASSERT_EQ(7u, textures.size());
-            assertTexture("b_pv_v1a1",  128, 256, textures[0]);
-            assertTexture("b_pv_v1a2",  128, 256, textures[1]);
-            assertTexture("b_pv_v1a3",  128, 128, textures[2]);
-            assertTexture("b_rc_v16",   128, 128, textures[3]);
-            assertTexture("b_rc_v16w",  128, 128, textures[4]);
-            assertTexture("b_rc_v28",   128, 64,  textures[5]);
-            assertTexture("b_rc_v4",    128, 128, textures[6]);
+            assertTexture("rtz/b_pv_v1a1",  128, 256, textures[0]);
+            assertTexture("rtz/b_pv_v1a2",  128, 256, textures[1]);
+            assertTexture("rtz/b_pv_v1a3",  128, 128, textures[2]);
+            assertTexture("rtz/b_rc_v16",   128, 128, textures[3]);
+            assertTexture("rtz/b_rc_v16w",  128, 128, textures[4]);
+            assertTexture("rtz/b_rc_v28",   128, 64,  textures[5]);
+            assertTexture("rtz/b_rc_v4",    128, 128, textures[6]);
             delete collection;
         }
     }

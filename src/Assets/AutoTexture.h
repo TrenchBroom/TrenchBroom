@@ -34,14 +34,16 @@ namespace TrenchBroom {
             mutable GLuint m_textureId;
             size_t m_width;
             size_t m_height;
+            Color m_averageColor;
             mutable Buffer<unsigned char>::List m_buffers;
         public:
-            AutoTexture(const size_t width, const size_t height,const Buffer<unsigned char>& buffer);
-            AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>::List& buffers);
+            AutoTexture(const size_t width, const size_t height, const Color& averageColor, const Buffer<unsigned char>& buffer);
+            AutoTexture(const size_t width, const size_t height, const Color& averageColor, const Buffer<unsigned char>::List& buffers);
             ~AutoTexture();
             
             size_t width() const;
             size_t height() const;
+            const Color& averageColor() const;
             
             void activate() const;
             void deactivate() const;

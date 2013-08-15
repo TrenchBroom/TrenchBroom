@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 const wxString filename = wxApp::argv[1];
                 return openDocument(filename.ToStdString());
             } else {
-                return newDocument(Model::Game::game(0));
+                return newDocument(true);
             }
 #endif
             return true;
@@ -120,6 +120,8 @@ namespace TrenchBroom {
                 throw;
             } catch (std::exception& e) {
                 wxLogError(e.what());
+            } catch (...) {
+                wxLogError("Unhandled exception");
             }
         }
 
@@ -277,7 +279,7 @@ namespace TrenchBroom {
             if (chooseGameDialog.ShowModal() != wxID_OK)
                 return Model::GamePtr();
             const int selection = chooseGameDialog.GetSelection();
-            if (selection < 0 || selection >= Model::Game::GameCount)
+            if (selection < 0 || selection >= static_cast<int>(Model::Game::GameCount))
                 return Model::GamePtr();
             return Model::Game::game(static_cast<size_t>(selection), logger);
         }

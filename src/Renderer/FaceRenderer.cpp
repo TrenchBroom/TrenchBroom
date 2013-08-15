@@ -30,21 +30,41 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        struct SetShaderParms {
+            ActiveShader& shader;
+            bool applyTexture;
+            const Color& defaultColor;
+            
+            SetShaderParms(ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor) :
+            shader(i_shader),
+            applyTexture(i_applyTexture),
+            defaultColor(i_defaultColor) {}
+            
+            inline void operator()(const Assets::Texture* texture) const {
+                if (texture != NULL) {
+                    shader.set("ApplyTexture", applyTexture);
+                    shader.set("Color", texture->averageColor());
+                } else {
+                    shader.set("ApplyTexture", false);
+                    shader.set("Color", defaultColor);
+                }
+            }
+        };
+        
         FaceRenderer::FaceRenderer() :
         m_prepared(true) {}
         
         FaceRenderer::FaceRenderer(const Model::BrushFace::Mesh& mesh, const Color& faceColor) :
         m_vbo(new Vbo(mesh.size())),
-        m_arrays(mesh.triangleSetArrays(*m_vbo)),
+        m_meshRenderer(*m_vbo, mesh),
         m_faceColor(faceColor),
         m_prepared(false) {}
 
-        FaceRenderer::FaceRenderer(const FaceRenderer& other) {
-            m_arrays = other.m_arrays;
-            m_vbo = other.m_vbo;
-            m_faceColor = other.m_faceColor;
-            m_prepared = other.m_prepared;
-        }
+        FaceRenderer::FaceRenderer(const FaceRenderer& other) :
+        m_vbo(other.m_vbo),
+        m_meshRenderer(other.m_meshRenderer),
+        m_faceColor(other.m_faceColor),
+        m_prepared(other.m_prepared) {}
         
         FaceRenderer& FaceRenderer::operator= (FaceRenderer other) {
             using std::swap;
@@ -55,7 +75,7 @@ namespace TrenchBroom {
         void swap(FaceRenderer& left, FaceRenderer& right)  {
             using std::swap;
             swap(left.m_vbo, right.m_vbo);
-            swap(left.m_arrays, right.m_arrays);
+            swap(left.m_meshRenderer, right.m_meshRenderer);
             swap(left.m_faceColor, right.m_faceColor);
             swap(left.m_prepared, right.m_prepared);
         }
@@ -69,7 +89,7 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::render(RenderContext& context, bool grayscale, const Color* tintColor) {
-            if (m_arrays.empty())
+            if (m_meshRenderer.empty())
                 return;
             
             SetVboState setVboState(*m_vbo);
@@ -105,7 +125,7 @@ namespace TrenchBroom {
         }
         
         void FaceRenderer::renderOpaqueFaces(ActiveShader& shader, const bool applyTexture) {
-            renderFaces(m_arrays, shader, applyTexture);
+            m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
         }
         
         void FaceRenderer::renderTransparentFaces(ActiveShader& shader, const bool applyTexture) {
@@ -114,37 +134,12 @@ namespace TrenchBroom {
             glDepthMask(GL_TRUE);
              */
         }
-        
-        void FaceRenderer::renderFaces(VertexArrayMap& arrays, ActiveShader& shader, const bool applyTexture) {
-            VertexArrayMap::iterator it, end;
-            for (it = arrays.begin(), end = arrays.end(); it != end; ++it) {
-                Assets::FaceTexture* texture = it->first;
-                VertexArray& array = it->second;
-                
-                if (texture != NULL) {
-                    texture->activate();
-                    shader.set("ApplyTexture", applyTexture);
-                    shader.set("Color", texture->averageColor());
-                    array.render();
-                    texture->deactivate();
-                } else {
-                    shader.set("ApplyTexture", false);
-                    shader.set("Color", m_faceColor);
-                    array.render();
-                }
-            }
-        }
 
         void FaceRenderer::prepare() {
             assert(!m_prepared);
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();
-            
-            VertexArrayMap::iterator it, end;
-            for (it = m_arrays.begin(), end = m_arrays.end(); it != end; ++it) {
-                VertexArray& array = it->second;
-                array.prepare();
-            }
+            m_meshRenderer.prepare();
             m_prepared = true;
         }
     }

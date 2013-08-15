@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__Texture__
 #define __TrenchBroom__Texture__
 
-#include <iostream>
+#include "Color.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -29,6 +29,7 @@ namespace TrenchBroom {
             virtual ~Texture();
             virtual size_t width() const = 0;
             virtual size_t height() const = 0;
+            virtual const Color& averageColor() const = 0;
             virtual void activate() const = 0;
             virtual void deactivate() const = 0;
         };

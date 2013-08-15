@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<Assets::FaceTexture*, VertexSpec> Mesh;
+            typedef Renderer::Mesh<const Assets::Texture*, VertexSpec> Mesh;
             static const String NoTextureName;
         private:
             Brush* m_parent;

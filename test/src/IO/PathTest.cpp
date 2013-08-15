@@ -75,6 +75,16 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("c:\\this\\is\\a"), Path("c:\\this\\is\\a\\path.map").deleteLastComponent());
         }
         
+        TEST(PathTest, subPath) {
+            ASSERT_THROW(Path("").subPath(0, 0), PathException);
+            ASSERT_THROW(Path("test\\blah").subPath(1, 2), PathException);
+            ASSERT_EQ(Path("test\\blah"), Path("test\\blah").subPath(0, 2));
+            ASSERT_EQ(Path("test"), Path("test\\blah").subPath(0, 1));
+            ASSERT_EQ(Path("c:\\test\\blah"), Path("c:\\test\\blah").subPath(0, 3));
+            ASSERT_EQ(Path("c:\\test"), Path("c:\\test\\blah").subPath(0, 2));
+            ASSERT_EQ(Path("blah"), Path("test\\blah").subPath(1, 1));
+        }
+
         TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(String(""), Path("asdf").extension());
@@ -162,6 +172,16 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("/this/is/a"), Path("/this/is/a/path.map").deleteLastComponent());
+        }
+        
+        TEST(PathTest, subPath) {
+            ASSERT_THROW(Path("").subPath(0, 0), PathException);
+            ASSERT_THROW(Path("test/blah").subPath(1, 2), PathException);
+            ASSERT_EQ(Path("test/blah"), Path("test/blah").subPath(0, 2));
+            ASSERT_EQ(Path("test"), Path("test/blah").subPath(0, 1));
+            ASSERT_EQ(Path("/test/blah"), Path("/test/blah").subPath(0, 2));
+            ASSERT_EQ(Path("/test"), Path("/test/blah").subPath(0, 1));
+            ASSERT_EQ(Path("blah"), Path("test/blah").subPath(1, 1));
         }
         
         TEST(PathTest, getExtension) {

@@ -25,123 +25,129 @@
 #include "StringUtils.h"
 
 namespace TrenchBroom {
+    
     class Exception : public std::exception {
-    private:
+    protected:
         String m_msg;
     public:
         Exception() throw() {}
-        Exception(const String& str) throw() {
-            *this << str;
-        }
-        
-        ~Exception() throw() {}
-        
-        template <typename T>
-        Exception& operator<< (T value) {
-            StringStream stream;
-            stream << m_msg << value;
-            m_msg = stream.str();
-            return *this;
-        }
-        
+        Exception(const String& str) throw() : m_msg(str) {}
+        virtual ~Exception() throw() {}
+
         const char* what() const throw() {
             return m_msg.c_str();
         }
     };
     
-    class GeometryException : public Exception {
+    template <class C>
+    class ExceptionStream : public Exception {
+    public:
+        ExceptionStream() throw() {}
+        ExceptionStream(const String& str) throw() : Exception(str) {}
+        virtual ~ExceptionStream() throw() {}
+        
+        template <typename T>
+        C& operator<< (T value) {
+            StringStream stream;
+            stream << m_msg << value;
+            m_msg = stream.str();
+            return static_cast<C&>(*this);
+        }
+    };
+    
+    class GeometryException : public ExceptionStream<GeometryException> {
     public:
         GeometryException() throw() {}
-        GeometryException(const String& str) throw() : Exception(str) {}
+        GeometryException(const String& str) throw() : ExceptionStream(str) {}
         ~GeometryException() throw() {}
     };
             
-    class EntityPropertyException : public Exception {
+    class EntityPropertyException : public ExceptionStream<EntityPropertyException> {
     public:
         EntityPropertyException() throw() {}
-        EntityPropertyException(const String& str) throw() : Exception(str) {}
+        EntityPropertyException(const String& str) throw() : ExceptionStream(str) {}
         ~EntityPropertyException() throw() {}
     };
 
-    class ParserException : public Exception {
+    class ParserException : public ExceptionStream<ParserException> {
     public:
         ParserException() throw() {}
-        ParserException(const String& str) throw() : Exception(str) {}
-        ParserException(const size_t line, const size_t column, const String& str) throw() : Exception() {
-            *this << line;
-            *this << column;
-            *this << ": " << str;
+        ParserException(const String& str) throw() : ExceptionStream(str) {}
+        ParserException(const size_t line, const size_t column, const String& str = "") throw() : ExceptionStream() {
+            *this << "Line " << line;
+            *this << ", column " << column;
+            *this << " - " << str;
         }
         ~ParserException() throw() {}
     };
             
-    class VboException : public Exception {
+    class VboException : public ExceptionStream<VboException> {
     public:
         VboException() throw() {}
-        VboException(const String& str) throw() : Exception(str) {}
+        VboException(const String& str) throw() : ExceptionStream(str) {}
         ~VboException() throw() {}
     };
             
-    class PathException : public Exception {
+    class PathException : public ExceptionStream<PathException> {
     public:
         PathException() throw() {}
-        PathException(const String& str) throw() : Exception(str) {}
+        PathException(const String& str) throw() : ExceptionStream(str) {}
         ~PathException() throw() {}
     };
             
-    class FileSystemException : public Exception {
+    class FileSystemException : public ExceptionStream<FileSystemException> {
     public:
         FileSystemException() throw() {}
-        FileSystemException(const String& str) throw() : Exception(str) {}
+        FileSystemException(const String& str) throw() : ExceptionStream(str) {}
         ~FileSystemException() throw() {}
     };
             
-    class AssetException : public Exception {
+    class AssetException : public ExceptionStream<AssetException> {
     public:
         AssetException() throw() {}
-        AssetException(const String& str) throw() : Exception(str) {}
+        AssetException(const String& str) throw() : ExceptionStream(str) {}
         ~AssetException() throw() {}
     };
         
-    class CommandProcessorException : public Exception {
+    class CommandProcessorException : public ExceptionStream<CommandProcessorException> {
     public:
         CommandProcessorException() throw() {}
-        CommandProcessorException(const String& str) throw() : Exception(str) {}
+        CommandProcessorException(const String& str) throw() : ExceptionStream(str) {}
         ~CommandProcessorException() throw() {}
     };
 
-    class RenderException : public Exception {
+    class RenderException : public ExceptionStream<RenderException> {
     public:
         RenderException() throw() {}
-        RenderException(const String& str) throw() : Exception(str) {}
+        RenderException(const String& str) throw() : ExceptionStream(str) {}
         ~RenderException() throw() {}
     };
             
-    class OctreeException : public Exception {
+    class OctreeException : public ExceptionStream<OctreeException> {
     public:
         OctreeException() throw() {}
-        OctreeException(const String& str) throw() : Exception(str) {}
+        OctreeException(const String& str) throw() : ExceptionStream(str) {}
         ~OctreeException() throw() {}
     };
             
-    class GameException : public Exception {
+    class GameException : public ExceptionStream<GameException> {
     public:
         GameException() throw() {}
-        GameException(const String& str) throw() : Exception(str) {}
+        GameException(const String& str) throw() : ExceptionStream(str) {}
         ~GameException() throw() {}
     };
             
-    class ResourceNotFoundException : public Exception {
+    class ResourceNotFoundException : public ExceptionStream<ResourceNotFoundException> {
     public:
         ResourceNotFoundException() throw() {}
-        ResourceNotFoundException(const String& str) throw() : Exception(str) {}
+        ResourceNotFoundException(const String& str) throw() : ExceptionStream(str) {}
         ~ResourceNotFoundException() throw() {}
     };
             
-    class FileFormatException : public Exception {
+    class FileFormatException : public ExceptionStream<FileFormatException> {
     public:
         FileFormatException() throw() {}
-        FileFormatException(const String& str) throw() : Exception(str) {}
+        FileFormatException(const String& str) throw() : ExceptionStream(str) {}
         ~FileFormatException() throw() {}
     };
 }

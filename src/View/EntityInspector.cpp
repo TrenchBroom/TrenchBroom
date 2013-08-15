@@ -31,6 +31,7 @@
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 
+#include <wx/event.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {

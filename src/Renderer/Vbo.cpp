@@ -202,6 +202,8 @@ namespace TrenchBroom {
             } else if (previous != NULL && previous->isFree()) {
                 removeFreeBlock(previous);
                 previous->mergeWithSuccessor();
+                if (m_lastBlock == block)
+                    m_lastBlock = previous;
                 delete block;
                 insertFreeBlock(previous);
             } else if (next != NULL && next->isFree()) {

@@ -23,19 +23,21 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        AutoTexture::AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>& buffer) :
+        AutoTexture::AutoTexture(const size_t width, const size_t height, const Color& averageColor, const Buffer<unsigned char>& buffer) :
         m_textureId(0),
         m_width(width),
-        m_height(height) {
+        m_height(height),
+        m_averageColor(averageColor) {
             assert(m_width > 0);
             assert(m_height > 0);
             m_buffers.push_back(buffer);
         }
         
-        AutoTexture::AutoTexture(const size_t width, const size_t height, const Buffer<unsigned char>::List& buffers) :
+        AutoTexture::AutoTexture(const size_t width, const size_t height, const Color& averageColor, const Buffer<unsigned char>::List& buffers) :
         m_textureId(0),
         m_width(width),
         m_height(height),
+        m_averageColor(averageColor),
         m_buffers(buffers) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -55,6 +57,10 @@ namespace TrenchBroom {
         
         size_t AutoTexture::height() const {
             return m_height;
+        }
+
+        const Color& AutoTexture::averageColor() const {
+            return m_averageColor;
         }
 
         void AutoTexture::activate() const {

@@ -166,7 +166,7 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             glShadeModel(GL_SMOOTH);
-            // glResetEdgeOffset();
+            glResetEdgeOffset();
         }
 
         void MapRenderer::clearBackground(RenderContext& context) {

@@ -26,6 +26,8 @@
 #include <wx/grid.h>
 #include <wx/panel.h>
 
+class wxButton;
+
 namespace TrenchBroom {
     namespace Controller {
         class ControllerFacade;

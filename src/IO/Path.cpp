@@ -93,19 +93,15 @@ namespace TrenchBroom {
         bool Path::operator> (const Path& rhs) const {
             return compare(rhs) > 0;
         }
-        
-        String Path::asString() const {
+
+        String Path::asString(const char separator) const {
             if (m_absolute)
 #ifdef _WIN32
-                return StringUtils::join(m_components, Separator);
+                return StringUtils::join(m_components, separator);
 #else
-                return Separator + StringUtils::join(m_components, Separator);
+                return separator + StringUtils::join(m_components, separator);
 #endif
-            return StringUtils::join(m_components, Separator);
-        }
-
-        Path::operator String() const {
-            return asString();
+            return StringUtils::join(m_components, separator);
         }
 
         bool Path::isEmpty() const {
@@ -142,6 +138,29 @@ namespace TrenchBroom {
             return Path(m_absolute, components);
         }
 
+        Path Path::prefix(const size_t count) const {
+            return subPath(0, count);
+        }
+        
+        Path Path::suffix(const size_t count) const {
+            return subPath(m_components.size() - count, count);
+        }
+        
+        Path Path::subPath(const size_t index, const size_t count) const {
+            if (isEmpty())
+                throw PathException("Cannot get sub path of empty path");
+            if (index + count > m_components.size())
+                throw PathException("Sub path out of bounds");
+            if (count == 0)
+                return Path("");
+            
+            StringList::const_iterator begin = m_components.begin() + index;
+            StringList::const_iterator end = begin + count;
+            StringList newComponents(count);
+            std::copy(begin, end, newComponents.begin());
+            return Path(m_absolute && index == 0, newComponents);
+        }
+
         const String Path::extension() const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
@@ -150,6 +169,16 @@ namespace TrenchBroom {
             if (dotIndex == String::npos)
                 return "";
             return lastComponent.substr(dotIndex + 1);
+        }
+        
+        Path Path::deleteExtension() const {
+            if (isEmpty())
+                throw PathException("Cannot get extension of empty path");
+            const String& lastComponent = m_components.back();
+            const size_t dotIndex = lastComponent.rfind('.');
+            if (dotIndex == String::npos)
+                return *this;
+            return deleteLastComponent() + Path(lastComponent.substr(0, dotIndex));
         }
 
         Path Path::addExtension(const String& extension) const {

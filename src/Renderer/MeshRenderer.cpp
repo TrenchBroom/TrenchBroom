@@ -21,35 +21,37 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Assets/Texture.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        MeshRenderer::MeshRenderer() :
+        m_prepared(true) {}
+
+        bool MeshRenderer::empty() const {
+            return m_renderData.empty();
+        }
+
         void MeshRenderer::prepare() {
             if (m_prepared)
                 return;
             
-            VertexArrayMap::iterator it, end;
-            for (it = m_vertexArrays.begin(),  end = m_vertexArrays.end(); it != end; ++it) {
-                VertexArray& vertexArray = it->second;
-                vertexArray.prepare();
+            RenderData::List::iterator it, end;
+            for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
+                RenderData& renderData = *it;
+                renderData.triangles.prepare();
+                renderData.triangleFans.prepare();
+                renderData.triangleStrips.prepare();
             }
             
             m_prepared = true;
         }
 
+        struct NopFunc {
+            inline void operator()(const Assets::Texture* texture) const {}
+        };
+        
         void MeshRenderer::render() {
-            VertexArrayMap::iterator it, end;
-            for (it = m_vertexArrays.begin(),  end = m_vertexArrays.end(); it != end; ++it) {
-                const Assets::Texture* texture = it->first;
-                VertexArray& vertexArray = it->second;
-                
-                texture->activate();
-                vertexArray.render();
-                texture->deactivate();
-            }
+            render(NopFunc());
         }
     }
 }

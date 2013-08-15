@@ -121,7 +121,7 @@ namespace TrenchBroom {
                     textureBuffers.push_back(textureBuffer);
                 }
                 
-                textures.push_back(Assets::AutoTexturePtr(new Assets::AutoTexture(width, height, textureBuffers)));
+                textures.push_back(Assets::AutoTexturePtr(new Assets::AutoTexture(width, height, averageColor, textureBuffers)));
             }
             
             return textures;

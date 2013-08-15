@@ -249,7 +249,7 @@ namespace TrenchBroom {
                     m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
                     
-                    Assets::AutoTexture* texture = new Assets::AutoTexture(width, height, rgbImage);
+                    Assets::AutoTexture* texture = new Assets::AutoTexture(width, height, avgColor, rgbImage);
                     model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
@@ -266,7 +266,7 @@ namespace TrenchBroom {
                         cursor = base + pictureCount * 4 + j * size;
                         m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                         cursor += size;
-                        textures[j] = new Assets::AutoTexture(width, height, rgbImage);
+                        textures[j] = new Assets::AutoTexture(width, height, avgColor, rgbImage);
                     }
                     
                     model.addSkin(new Assets::MdlSkin(textures, times));

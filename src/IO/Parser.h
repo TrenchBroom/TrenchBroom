@@ -34,11 +34,8 @@ namespace TrenchBroom {
             virtual ~Parser() {}
         protected:
             void expect(const TokenType typeMask, const Token& token) const {
-                if ((token.type() & typeMask) == 0) {
-                    ParserException e;
-                    e << "Expected " << tokenName(typeMask) << ", but got " << tokenName(token.type()) << " at " << token.line() << "," << token.column();
-                    throw e;
-                }
+                if ((token.type() & typeMask) == 0)
+                    throw ParserException(token.line(), token.column()) << "Expected " << tokenName(typeMask) << ", but got " << tokenName(token.type());
             }
         private:
             virtual String tokenName(const TokenType typeMask) const = 0;

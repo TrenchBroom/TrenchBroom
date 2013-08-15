@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 throw FileSystemException("Cannot load palette " + path.asString());
             
             m_size = 768;
-            stream.seekg(-(m_size+1), std::ios::end);
+            stream.seekg(-(static_cast<std::iostream::off_type>(m_size+1)), std::ios::end);
             
             char magic;
             stream.get(magic);

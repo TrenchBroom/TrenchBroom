@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/FaceTextureCollection.h"
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 #include "Model/QuakeGame.h"
@@ -105,13 +106,18 @@ namespace TrenchBroom {
                 return doLoadTextureCollection(path);
             } catch (ResourceNotFoundException e) {
                 if (m_logger != NULL)
-                    m_logger->error(e.what());
+                    m_logger->error("Error loading texture collection %s: %s", path.asString().c_str(), e.what());
                 return NULL;
             }
         }
 
         void Game::uploadTextureCollection(Assets::FaceTextureCollection* collection) const {
-            doUploadTextureCollection(collection);
+            try {
+                doUploadTextureCollection(collection);
+            } catch (ResourceNotFoundException e) {
+                if (m_logger != NULL)
+                    m_logger->error("Error uploading texture collection %s: %s", collection->path().asString().c_str(), e.what());
+            }
         }
 
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
@@ -119,11 +125,11 @@ namespace TrenchBroom {
                 return doLoadEntityDefinitions(path);
             } catch (ParserException e) {
                 if (m_logger != NULL)
-                    m_logger->error(e.what());
+                    m_logger->error("Error loading entity definitions from %s: %s", path.asString().c_str(), e.what());
                 return Assets::EntityDefinitionList();
             } catch (GameException e) {
                 if (m_logger != NULL)
-                    m_logger->error(e.what());
+                    m_logger->error("Error loading entity definitions from %s: %s", path.asString().c_str(), e.what());
                 return Assets::EntityDefinitionList();
             }
         }
@@ -141,7 +147,7 @@ namespace TrenchBroom {
                 return doLoadModel(path);
             } catch (ResourceNotFoundException e) {
                 if (m_logger != NULL)
-                    m_logger->error(e.what());
+                    m_logger->error("Error loading model %s: %s", path.asString().c_str(), e.what());
                 return NULL;
             }
         }

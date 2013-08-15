@@ -26,6 +26,7 @@
 #include "Assets/FaceTexture.h"
 #include "Assets/FaceTextureCollection.h"
 #include "Assets/Palette.h"
+#include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 
 #include <algorithm>
@@ -46,23 +47,29 @@ namespace TrenchBroom {
             Path::List::const_iterator it, end;
             for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
                 const Path& texturePath = path + *it;
-                MappedFile::Ptr file = fs.mapFile(texturePath, std::ios::in);
-                Assets::FaceTexture* texture = readTexture(file);
+                Assets::FaceTexture* texture = readTexture(texturePath);
                 textures.push_back(texture);
             }
             
             return new Assets::FaceTextureCollection(path, textures);
         }
         
-        Assets::FaceTexture* WalTextureLoader::readTexture(MappedFile::Ptr file) {
+        Assets::FaceTexture* WalTextureLoader::readTexture(const IO::Path& path) {
+            FileSystem fs;
+            MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             const char* cursor = file->begin();
-            char textureName[33];
-            textureName[32] = 0;
-            readBytes(cursor, textureName, 32);
             
+            /*
+            char textureNameC[33];
+            textureNameC[32] = 0;
+            readBytes(cursor, textureNameC, 32);
+             */
+            
+            advance<char[32]>(cursor);
             const size_t width = readSize<uint32_t>(cursor);
             const size_t height = readSize<uint32_t>(cursor);
             
+            const String textureName = path.suffix(2).deleteExtension().asString('/');
             return new Assets::FaceTexture(textureName, width, height);
         }
 
@@ -84,11 +91,11 @@ namespace TrenchBroom {
             for (size_t i = 0; i < textureCount; ++i) {
                 Assets::FaceTexture* texture = textures[i];
                 const String translatedTextureName = translateTextureName(texture->name());
-                const Path& texturePath = collectionPath + IO::Path(translatedTextureName + ".wal");
+                const Path& texturePath = collectionPath + IO::Path(translatedTextureName + ".wal").lastComponent();
                 
                 if (!fs.exists(texturePath)) {
                     glDeleteTextures(textureCount, &textureIds[0]);
-                    throw FileSystemException("Cannot find wal texture: " + texture->name() + ".wal");
+                    throw ResourceNotFoundException("Cannot find wal texture: " + texture->name() + ".wal");
                 }
                 
                 if (texture->width() * texture->height() > buffer.size())
