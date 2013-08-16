@@ -35,8 +35,7 @@ namespace TrenchBroom {
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
         
-        const BBox3 Hexen2Game::WorldBounds = BBox3(Vec3(-16384.0, -16384.0, -16384.0),
-                                                    Vec3(+16384.0, +16384.0, +16384.0));
+        const BBox3 Hexen2Game::WorldBounds = BBox3(-8192.0, 8192.0);
         
         IO::Path Hexen2Game::palettePath() {
             IO::FileSystem fs;
