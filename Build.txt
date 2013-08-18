@@ -77,12 +77,14 @@ Build environment
   - You may have to repeat this step whenever Xcode is updated.
 
 3. Dependencies
-- Install FreeImage (I used MacPorts, compiling from source does not seem to work)
+- Install FreeImage. The easiest way is to use macports (macports.org)
+  sudo port install freeimage +universal
 
 3. wxWidgets
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
+- Apply the patches in TrenchBroom/patches/wxWidgets
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 

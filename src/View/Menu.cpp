@@ -54,6 +54,7 @@ namespace TrenchBroom {
         
         String ShortcutMenuItem::path() const {
             StringList components;
+            components.push_back(text());
             const MenuItemParent* p = parent();
             while (p != NULL) {
                 if (!p->text().empty())

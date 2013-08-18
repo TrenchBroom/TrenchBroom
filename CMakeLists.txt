@@ -61,7 +61,10 @@ SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 IF(APPLE)
 		# Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
 	  	# FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "${LIB_BIN_DIR}/osx" DOC "Freetype library")
-	  	SET(FREETYPE_LIBRARIES "${LIB_BIN_DIR}/osx/libfreetype.a" "${LIB_BIN_DIR}/osx/libbz2.a")
+	  	SET(FREETYPE_LIBRARIES 
+	  		"${LIB_BIN_DIR}/osx/libfreetype.a" 
+	  		"${LIB_BIN_DIR}/osx/libbz2.a" 
+	  		"${LIB_BIN_DIR}/osx/libz.a")
 		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
 ELSEIF(MSVC)
 	  	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES freetype6.dll freetype.lib PATHS "${LIB_BIN_DIR}/win32" DOC "Freetype library")
@@ -83,7 +86,7 @@ ELSE()
 		/opt/local/include
 		DOC "The directory where FreeImage.h resides")
 	FIND_LIBRARY(FREEIMAGE_LIBRARIES
-		NAMES FreeImage freeimage libfreeimage
+		NAMES FreeImage.a freeimage.a libfreeimage.a
 		PATHS
 		/usr/lib64
 		/usr/lib
