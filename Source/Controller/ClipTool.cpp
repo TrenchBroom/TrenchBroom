@@ -96,10 +96,13 @@ namespace TrenchBroom {
                         
                         const Vec3f normal = m_normals[0].size() == 1 ? m_normals[0][0] : (m_normals[0][0] + m_normals[0][1]) / 2.0f;
                         planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
-                        if (normal.firstComponent() == Axis::AZ)
-                            planePoints[2] = planePoints[0] + 128.0f * (view().camera().direction().firstComponent() != Axis::AZ ? view().camera().direction().firstAxis() : view().camera().up().firstAxis());
-                        else
+                        if (normal.firstComponent() == Axis::AZ) {
+                            Renderer::Camera& camera = view().camera();
+                            const Vec3f dir = camera.direction().firstComponent() != Axis::AZ ? camera.direction().firstAxis() : camera.direction().secondAxis();
+                            planePoints[2] = planePoints[0] + 128.0f * dir;
+                        } else {
                             planePoints[2] = planePoints[0] + 128.0f * normal.firstAxis();
+                        }
                     }
                 } else if (m_numPoints == 2) {
                     assert(!m_normals[0].empty());
