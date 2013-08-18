@@ -559,6 +559,7 @@ namespace TrenchBroom {
                 return static_cast<const Menu&>(*(it->second.get()));
             }
 
+            bool saveInstantly() const;
             PreferenceBase::Set saveChanges();
             PreferenceBase::Set discardChanges();
 

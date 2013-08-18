@@ -93,6 +93,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardGridCellEditor::HandleReturn(wxKeyEvent& event) {
+            event.Skip();
         }
 
         void KeyboardGridCellEditor::Reset() {
@@ -486,7 +487,10 @@ namespace TrenchBroom {
             int width = m_grid->GetClientSize().x;
             m_grid->AutoSizeColumn(0);
             m_grid->AutoSizeColumn(1);
-            m_grid->SetColSize(2, width - m_grid->GetColSize(0) - m_grid->GetColSize(1));
+            int colSize = width - m_grid->GetColSize(0) - m_grid->GetColSize(1);
+            if (colSize < -1 || colSize == 0)
+                colSize = -1;
+            m_grid->SetColSize(2, colSize);
             event.Skip();
         }
     }

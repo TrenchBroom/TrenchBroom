@@ -169,6 +169,7 @@ namespace TrenchBroom {
 
         String ShortcutMenuItem::path() const {
             StringList components;
+            components.push_back(text());
             const MenuItemParent* p = parent();
             while (p != NULL) {
                 if (!p->text().empty())
@@ -188,7 +189,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
             Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.getKeyboardShortcut(preference);
+            m_shortcut = prefs.getKeyboardShortcut(preference);
         }
 
         const String ShortcutMenuItem::longText() const {
@@ -442,6 +443,10 @@ namespace TrenchBroom {
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
             return menus;
+        }
+
+        bool PreferenceManager::saveInstantly() const {
+            return m_saveInstantly;
         }
 
         PreferenceBase::Set PreferenceManager::saveChanges() {

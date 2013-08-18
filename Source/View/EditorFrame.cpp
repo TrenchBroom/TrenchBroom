@@ -59,7 +59,6 @@ namespace TrenchBroom {
 
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
-        EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
         EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
@@ -300,14 +299,5 @@ namespace TrenchBroom {
             Model::MapDocument& document = m_documentViewHolder.document();
             document.GetDocumentManager()->CloseDocument(&document);
         }
-
-        void EditorFrame::OnMenuOpen(wxMenuEvent& event) {
-            // FIXME is this still necessaryß
-#ifdef _WIN32
-            wxMenu* menu = event.GetMenu();
-			menu->UpdateUI(&m_documentViewHolder.view());
-#endif
-            event.Skip();
-        }
-   }
+    }
 }

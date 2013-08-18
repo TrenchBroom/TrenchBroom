@@ -146,6 +146,7 @@ namespace TrenchBroom {
             const Preferences::PreferenceBase::Set changedPreferences = prefs.saveChanges();
             
             Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            preferenceChangeEvent.setMenuChanged(true);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
@@ -157,6 +158,7 @@ namespace TrenchBroom {
             const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
             
             Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+            preferenceChangeEvent.setMenuChanged(true);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
@@ -169,13 +171,14 @@ namespace TrenchBroom {
                 return;
             }
 
-#ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
-            
-            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
-#endif
+            if (!prefs.saveInstantly()) {
+                const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+                
+                Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+                preferenceChangeEvent.setMenuChanged(true);
+                static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+            }
 
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             event.Skip();
@@ -187,14 +190,15 @@ namespace TrenchBroom {
                 return;
             }
 
-#ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+            if (!prefs.saveInstantly()) {
+                const Preferences::PreferenceBase::Set changedPreferences = prefs.discardChanges();
+                
+                Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
+                preferenceChangeEvent.setMenuChanged(true);
+                static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
+            }
             
-            Controller::PreferenceChangeEvent preferenceChangeEvent(changedPreferences);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &preferenceChangeEvent);
-#endif
-
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
         }
