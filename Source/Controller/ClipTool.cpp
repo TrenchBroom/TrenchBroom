@@ -84,6 +84,7 @@ namespace TrenchBroom {
             
             Model::BrushList allFrontBrushes, allBackBrushes;
             
+            Renderer::Camera& camera = view().camera();
             Vec3f planePoints[3];
             bool validPlane = false;
             if (m_numPoints > 0) {
@@ -97,7 +98,6 @@ namespace TrenchBroom {
                         const Vec3f normal = m_normals[0].size() == 1 ? m_normals[0][0] : (m_normals[0][0] + m_normals[0][1]) / 2.0f;
                         planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
                         if (normal.firstComponent() == Axis::AZ) {
-                            Renderer::Camera& camera = view().camera();
                             const Vec3f dir = camera.direction().firstComponent() != Axis::AZ ? camera.direction().firstAxis() : camera.direction().secondAxis();
                             planePoints[2] = planePoints[0] + 128.0f * dir;
                         } else {
@@ -119,6 +119,19 @@ namespace TrenchBroom {
                     planePoints[0] = m_points[0].rounded();
                     planePoints[1] = m_points[1].rounded();
                     planePoints[2] = m_points[2].rounded();
+                }
+                
+                // make sure the plane's normal points towards the camera or to its left if the camera position is on the plane
+                if (validPlane) {
+                    Planef plane;
+                    plane.setPoints(planePoints[0], planePoints[1], planePoints[2]);
+                    if (plane.pointStatus(camera.position()) == PointStatus::PSInside) {
+                        if (plane.normal.dot(camera.right()) < 0.0f)
+                            std::swap(planePoints[1], planePoints[2]);
+                    } else {
+                        if (plane.normal.dot(camera.direction()) > 0.0f)
+                            std::swap(planePoints[1], planePoints[2]);
+                    }
                 }
             }
             
@@ -234,7 +247,6 @@ namespace TrenchBroom {
         bool ClipTool::handleActivate(InputState& inputState) {
             m_numPoints = 0;
             m_hitIndex = -1;
-            m_clipSide = CMFront;
             view().viewOptions().setRenderSelection(false);
             
             assert(m_frontBrushFigure == NULL);
