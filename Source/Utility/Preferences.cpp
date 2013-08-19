@@ -336,12 +336,12 @@ namespace TrenchBroom {
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
 #endif
             faceActionMenu.addSeparator();
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUpFine, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDownFine, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeftFine, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRightFine, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
             faceActionMenu.addSeparator();
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
 
