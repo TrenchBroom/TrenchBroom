@@ -57,6 +57,11 @@ public:
     Plane(const Vec<T,S>& i_anchor, const Vec<T,S>& i_normal) :
     distance(i_anchor.dot(i_normal)),
     normal(i_normal) {}
+            
+    template <typename U>
+    Plane(const Plane<U,S>& other) :
+    distance(static_cast<T>(other.distance)),
+    normal(other.normal) {}
     
     static const Plane<T,S> planeContainingVector(const Vec<T,S>& position, const Vec<T,S>& normalizedVector, const Vec<T,S>& viewPoint) {
         const Vec<T,S> diff = viewPoint - position;

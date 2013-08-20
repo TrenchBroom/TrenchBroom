@@ -56,9 +56,10 @@ namespace TrenchBroom {
             ExtractObjectByType(const Object::Type type) :
             m_type(type) {}
             
-            inline void operator()(Object* object) {
+            inline bool operator()(Object* object) {
                 if (object->type() == m_type)
                     result.insert(result.end(), static_cast<Entity*>(object));
+                return true;
             }
         };
         
@@ -67,7 +68,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Object* object = *cur;
                 if (filter(object))
-                    op(object);
+                    if (!op(object))
+                        return;
                 ++cur;
             }
         }
@@ -77,7 +79,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Object* object = *cur;
                 if (filter(object))
-                    op(object);
+                    if (!op(object))
+                        return;
                 ++cur;
             }
         }
@@ -94,7 +97,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Entity* entity = *cur;
                 if (filter(entity))
-                    op(entity);
+                    if (!op(entity))
+                        return;
                 ++cur;
             }
         }
@@ -104,7 +108,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Entity* entity = *cur;
                 if (filter(entity))
-                    op(entity);
+                    if (!op(entity))
+                        return;
                 ++cur;
             }
         }
@@ -114,7 +119,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Brush* brush = *cur;
                 if (filter(brush))
-                    op(brush);
+                    if (!op(brush))
+                        return;
                 ++cur;
             }
         }
@@ -124,7 +130,8 @@ namespace TrenchBroom {
             while (cur != end) {
                 Brush* brush = *cur;
                 if (filter(brush))
-                    op(brush);
+                    if (!op(brush))
+                        return;
                 ++cur;
             }
         }
@@ -135,7 +142,8 @@ namespace TrenchBroom {
                 BrushFace* face = *cur;
                 Brush* brush = face->parent();
                 if (filter(brush, face))
-                    op(brush, face);
+                    if (!op(brush, face))
+                        return;
                 ++cur;
             }
         }
@@ -146,7 +154,8 @@ namespace TrenchBroom {
                 BrushFace* face = *cur;
                 Brush* brush = face->parent();
                 if (filter(brush, face))
-                    op(brush, face);
+                    if (!op(brush, face))
+                        return;
                 ++cur;
             }
         }

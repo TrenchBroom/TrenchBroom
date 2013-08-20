@@ -61,11 +61,6 @@ public:
     min(Vec<T,S>::Null),
     max(Vec<T,S>::Null) {}
     
-    template <typename U>
-    BBox(const BBox<U, S>& other) :
-    min(other.min),
-    max(other.max) {}
-    
     BBox(const Vec<T,S>& i_min, const Vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {}
@@ -90,9 +85,9 @@ public:
     }
     
     template <typename U>
-    inline operator BBox<U,S>() const {
-        return BBox<U,S>(min, max);
-    }
+    BBox(const BBox<U,S>& other) :
+    min(other.min),
+    max(other.max) {}
 
     inline bool operator== (const BBox<T,S>& right) const {
         return min == right.min && max == right.max;

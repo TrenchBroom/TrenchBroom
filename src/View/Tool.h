@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_Tool_h
 #define TrenchBroom_Tool_h
 
-#include <iostream>
+#include "TrenchBroom.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -59,6 +60,28 @@ namespace TrenchBroom {
             virtual bool doMouseDrag(const InputState& inputState) = 0;
             virtual void doEndMouseDrag(const InputState& inputState) = 0;
             virtual void doCancelMouseDrag(const InputState& inputState) = 0;
+        };
+        
+        class PlaneDragPolicy {
+        private:
+            Plane3 m_plane;
+            Vec3 m_lastPoint;
+            Vec3 m_refPoint;
+        public:
+            virtual ~PlaneDragPolicy();
+            
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+            void resetPlane(const InputState& inputState);
+
+            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
+            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
+            virtual void doEndPlaneDrag(const InputState& inputState) = 0;
+            virtual void doCancelPlaneDrag(const InputState& inputState) = 0;
+
         };
         
         class BaseTool {

@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        InputState::InputState(const Model::Filter& filter) :
+        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(0),
         m_mouseY(0),
@@ -31,13 +31,14 @@ namespace TrenchBroom {
         m_mouseDY(0),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
-        m_filter(filter) {
+        m_filter(filter),
+        m_camera(camera) {
             const wxMouseState mouseState = wxGetMouseState();
             m_mouseX = mouseState.GetX();
             m_mouseY = mouseState.GetY();
         }
 
-        InputState::InputState(const Model::Filter& filter, const int mouseX, const int mouseY) :
+        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const int mouseX, const int mouseY) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
         m_mouseY(mouseY),
@@ -45,7 +46,8 @@ namespace TrenchBroom {
         m_mouseDY(0),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
-        m_filter(filter) {}
+        m_filter(filter),
+        m_camera(camera) {}
         
         InputState::~InputState() {}
 
@@ -130,11 +132,11 @@ namespace TrenchBroom {
             m_scrollY = scrollY;
         }
 
-        const Ray3f& InputState::pickRay() const {
+        const Ray3& InputState::pickRay() const {
             return m_pickRay;
         }
         
-        void InputState::setPickRay(const Ray3f& pickRay) {
+        void InputState::setPickRay(const Ray3& pickRay) {
             m_pickRay = pickRay;
         }
 
@@ -148,6 +150,10 @@ namespace TrenchBroom {
 
         const Model::Filter& InputState::filter() const {
             return m_filter;
+        }
+
+        const Renderer::Camera& InputState::camera() const {
+            return m_camera;
         }
     }
 }

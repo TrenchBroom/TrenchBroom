@@ -95,12 +95,11 @@ namespace TrenchBroom {
             
             String m_name;
             const char* m_begin;
-            const char* m_end;
+            /* const char* m_end; */
             const Assets::Palette& m_palette;
             const GameFS& m_fs;
-            const Path& m_textureBasePath;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFS& fs, const Path& textureBasePath);
+            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFS& fs);
         private:
             Assets::EntityModel* doParseModel();
             Md2SkinList parseSkins(const char* begin, const size_t skinCount);

@@ -152,79 +152,75 @@ public:
         }
     }
     
-    Vec(const T i_x) {
+    template <typename U>
+    Vec(const U i_x) {
         if (S > 0)
-            v[0] = i_x;
+            v[0] = static_cast<T>(i_x);
         for (size_t i = 1; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
             
-    Vec(const T i_x, const T i_y) {
+    template <typename U>
+    Vec(const U i_x, const U i_y) {
         if (S > 0)
-            v[0] = i_x;
+            v[0] = static_cast<T>(i_x);
         if (S > 1)
-            v[1] = i_y;
+            v[1] = static_cast<T>(i_y);
         for (size_t i = 2; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
-    Vec(const T i_x, const T i_y, const T i_z) {
+    template <typename U>
+    Vec(const U i_x, const U i_y, const U i_z) {
         if (S > 0)
-            v[0] = i_x;
+            v[0] = static_cast<T>(i_x);
         if (S > 1)
-            v[1] = i_y;
+            v[1] = static_cast<T>(i_y);
         if (S > 2)
-            v[2] = i_z;
+            v[2] = static_cast<T>(i_z);
         for (size_t i = 3; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
-    Vec(const T i_x, const T i_y, const T i_z, const T i_w) {
+    template <typename U>
+    Vec(const U i_x, const U i_y, const U i_z, const U i_w) {
         if (S > 0)
-            v[0] = i_x;
+            v[0] = static_cast<T>(i_x);
         if (S > 1)
-            v[1] = i_y;
+            v[1] = static_cast<T>(i_y);
         if (S > 2)
-            v[2] = i_z;
+            v[2] = static_cast<T>(i_z);
         if (S > 3)
-            v[3] = i_w;
+            v[3] = static_cast<T>(i_w);
         for (size_t i = 4; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
-    template <size_t O>
-    Vec(const Vec<T,O>& vec) {
+    template <typename U, size_t O>
+    Vec(const Vec<U,O>& vec) {
         for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = vec[i];
+            v[i] = static_cast<T>(vec[i]);
         for (size_t i = std::min(S,O); i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
-    template <size_t O>
-    Vec(const Vec<T,O>& vec, const T last) {
+    template <typename U, size_t O>
+    Vec(const Vec<U,O>& vec, const U last) {
         for (size_t i = 0; i < std::min(S-1,O); ++i)
-            v[i] = vec[i];
+            v[i] = static_cast<T>(vec[i]);
         for (size_t i = std::min(S-1, O); i < S-1; ++i)
             v[i] = static_cast<T>(0.0);
-        v[S-1] = last;
+        v[S-1] = static_cast<T>(last);
     }
     
-    template <size_t O>
-    Vec(const Vec<T,O>& vec, const T oneButLast, const T last) {
+    template <typename U, size_t O>
+    Vec(const Vec<U,O>& vec, const U oneButLast, const U last) {
         for (size_t i = 0; i < std::min(S-2,O); ++i)
-            v[i] = vec[i];
+            v[i] = static_cast<T>(vec[i]);
         for (size_t i = std::min(S-2, O); i < S-2; ++i)
             v[i] = static_cast<T>(0.0);
-        v[S-2] = oneButLast;
-        v[S-1] = last;
-    }
-    
-    template <typename U>
-    inline operator Vec<U,S>() const {
-        Vec<U,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = static_cast<U>(v[i]);
-        return result;
+        v[S-2] = static_cast<T>(oneButLast);
+        v[S-1] = static_cast<T>(last);
     }
     
     inline bool operator== (const Vec<T,S>& right) const {

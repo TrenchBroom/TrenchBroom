@@ -86,6 +86,9 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
+            bool hasSelectedObjects() const;
+            bool hasSelectedFaces() const;
+            bool hasSelection() const;
             Model::ObjectList selectedObjects() const;
             Model::EntityList selectedEntities() const;
             Model::EntityList allSelectedEntities() const;

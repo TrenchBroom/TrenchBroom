@@ -219,13 +219,12 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFS& fs, const Path& textureBasePath) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFS& fs) :
         m_name(name),
         m_begin(begin),
-        m_end(end),
+        /* m_end(end), */
         m_palette(palette),
-        m_fs(fs),
-        m_textureBasePath(textureBasePath) {}
+        m_fs(fs) {}
         
         Assets::EntityModel* Md2Parser::doParseModel() {
             const char* cursor = m_begin;

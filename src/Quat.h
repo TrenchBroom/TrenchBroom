@@ -46,6 +46,11 @@ public:
     Quat(const Vec<T,3>& axis, const T angle) {
         setRotation(axis, angle);
     }
+    
+    template <typename U>
+    Quat(const Quat<U>& other) :
+    r(static_cast<T>(other.r)),
+    v(other.v) {}
 
     inline const Quat<T> operator- () const {
         return Quat(-r, v);

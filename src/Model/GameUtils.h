@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), palette);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "md2")) {
-                IO::Md2Parser parser(path.lastComponent(), file->begin(), file->end(), palette, gameFs, path.deleteLastComponent());
+                IO::Md2Parser parser(path.lastComponent(), file->begin(), file->end(), palette, gameFs);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
                 IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), palette);

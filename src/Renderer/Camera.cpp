@@ -122,6 +122,14 @@ namespace TrenchBroom {
             return (point - m_position).squaredLength();
         }
 
+        Vec3f Camera::defaultPoint() const {
+            return defaultPoint(m_direction);
+        }
+        
+        Vec3f Camera::defaultPoint(const Vec3f& direction) const {
+            return m_position + 256.0f*direction;
+        }
+
         Vec3f Camera::project(const Vec3f& point) const {
             if (!m_valid)
                 validateMatrices();

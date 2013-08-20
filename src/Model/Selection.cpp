@@ -30,21 +30,43 @@
 
 namespace TrenchBroom {
     namespace Model {
+        struct Test {
+            bool hasSelectedObjects;
+            bool hasSelectedFaces;
+
+            Test() :
+            hasSelectedObjects(false),
+            hasSelectedFaces(false) {}
+            
+            inline bool operator()(Object* object) {
+                hasSelectedObjects = object->selected();
+                return !hasSelectedObjects;
+            }
+
+            inline bool operator()(Brush* brush, BrushFace* face) {
+                hasSelectedFaces = face->selected();
+                return !hasSelectedFaces;
+            }
+        };
+        
         struct Collect {
             EntityList entities;
             BrushList brushes;
             BrushFaceList faces;
             
-            inline void operator()(Entity* entity) {
+            inline bool operator()(Entity* entity) {
                 entities.push_back(entity);
+                return true;
             }
             
-            inline void operator()(Brush* brush) {
+            inline bool operator()(Brush* brush) {
                 brushes.push_back(brush);
+                return true;
             }
             
-            inline void operator()(Brush* brush, BrushFace* face) {
+            inline bool operator()(Brush* brush, BrushFace* face) {
                 faces.push_back(face);
+                return true;
             }
         };
         
@@ -57,7 +79,7 @@ namespace TrenchBroom {
             m_select(select),
             m_result(result) {}
             
-            inline void operator()(Object* object) const {
+            inline bool operator()(Object* object) const {
                 if (m_select) {
                     if (!object->selected()) {
                         object->select();
@@ -69,9 +91,10 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(object);
                     }
                 }
+                return true;
             }
 
-            inline void operator()(Entity* entity) const {
+            inline bool operator()(Entity* entity) const {
                 if (m_select) {
                     if (!entity->selected()) {
                         entity->select();
@@ -83,9 +106,10 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(entity);
                     }
                 }
+                return true;
             }
             
-            inline void operator()(Brush* brush) const {
+            inline bool operator()(Brush* brush) const {
                 if (m_select) {
                     if (!brush->selected()) {
                         brush->select();
@@ -97,9 +121,10 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(brush);
                     }
                 }
+                return true;
             }
             
-            inline void operator()(Brush* brush, BrushFace* face) const {
+            inline bool operator()(Brush* brush, BrushFace* face) const {
                 if (m_select) {
                     if (!face->selected()) {
                         face->select();
@@ -111,6 +136,7 @@ namespace TrenchBroom {
                         m_result.addDeselectedFace(face);
                     }
                 }
+                return true;
             }
         };
 
@@ -170,6 +196,38 @@ namespace TrenchBroom {
 
         Selection::Selection(Map* map) :
         m_map(map) {}
+
+        bool Selection::hasSelectedObjects() const {
+            if (m_map == NULL)
+                return false;
+            
+            Test test;
+            eachObject(*m_map, test, MatchSelectedFilter());
+            return test.hasSelectedObjects;
+        }
+        
+        bool Selection::hasSelectedFaces() const {
+            if (m_map == NULL)
+                return false;
+            
+            Test test;
+            eachFace(*m_map, test, MatchSelectedFilter());
+            return test.hasSelectedFaces;
+        }
+        
+        bool Selection::hasSelection() const {
+            if (m_map == NULL)
+                return false;
+            
+            Test test;
+            MatchSelectedFilter filter;
+            
+            eachObject(*m_map, test, filter);
+            if (test.hasSelectedObjects)
+                return true;
+            eachFace(*m_map, test, filter);
+            return test.hasSelectedFaces;
+        }
 
         ObjectList Selection::selectedObjects() const {
             if (m_map == NULL)

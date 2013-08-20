@@ -29,6 +29,10 @@ namespace TrenchBroom {
         class Filter;
     }
     
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
         typedef unsigned int ModifierKeyState;
         
@@ -57,12 +61,13 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
-            Ray3f m_pickRay;
+            Ray3 m_pickRay;
             mutable Model::PickResult m_pickResult;
             const Model::Filter& m_filter;
+            Renderer::Camera& m_camera;
         public:
-            InputState(const Model::Filter& filter);
-            InputState(const Model::Filter& filter, const int mouseX, const int mouseY);
+            InputState(const Model::Filter& filter, Renderer::Camera& camera);
+            InputState(const Model::Filter& filter, Renderer::Camera& camera, const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -87,11 +92,12 @@ namespace TrenchBroom {
             void mouseMove(const int mouseX, const int mouseY);
             void scroll(const float scrollX, const float scrollY);
 
-            const Ray3f& pickRay() const;
-            void setPickRay(const Ray3f& pickRay);
+            const Ray3& pickRay() const;
+            void setPickRay(const Ray3& pickRay);
             Model::PickResult& pickResult() const;
             void setPickResult(Model::PickResult& pickResult);
             const Model::Filter& filter() const;
+            const Renderer::Camera& camera() const;
         };
     }
 }

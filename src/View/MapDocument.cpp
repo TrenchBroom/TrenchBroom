@@ -45,9 +45,10 @@ namespace TrenchBroom {
             SetEntityDefinition(Assets::EntityDefinitionManager& definitionManager) :
             m_definitionManager(definitionManager) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            inline bool operator()(Model::Entity* entity) const {
                 Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
                 entity->setDefinition(definition);
+                return true;
             }
         };
         
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             SetEntityModel(Assets::EntityModelManager& modelManager) :
             m_modelManager(modelManager) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            inline bool operator()(Model::Entity* entity) const {
                 const Assets::ModelSpecification spec = entity->modelSpecification();
                 if (spec.path.isEmpty()) {
                     entity->setModel(NULL);
@@ -66,6 +67,7 @@ namespace TrenchBroom {
                     Assets::EntityModel* model = m_modelManager.model(spec.path);
                     entity->setModel(model);
                 }
+                return true;
             }
         };
         
@@ -76,10 +78,11 @@ namespace TrenchBroom {
             SetFaceTexture(Assets::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::Brush* brush, Model::BrushFace* face) const {
+            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
                 Assets::FaceTexture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
+                return true;
             }
         };
         
@@ -90,8 +93,9 @@ namespace TrenchBroom {
             AddToPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline void operator()(Model::Object* object) const {
+            inline bool operator()(Model::Object* object) const {
                 m_picker.addObject(object);
+                return true;
             }
         };
         
@@ -209,6 +213,18 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        bool MapDocument::hasSelectedObjects() const {
+            return m_selection.hasSelectedObjects();
+        }
+        
+        bool MapDocument::hasSelectedFaces() const {
+            return m_selection.hasSelectedFaces();
+        }
+        
+        bool MapDocument::hasSelection() const {
+            return m_selection.hasSelection();
+        }
+
         Model::ObjectList MapDocument::selectedObjects() const {
             return m_selection.selectedObjects();
         }

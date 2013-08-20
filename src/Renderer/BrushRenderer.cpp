@@ -39,7 +39,7 @@ namespace TrenchBroom {
             BuildBrushEdges(BrushRenderer::Filter& i_filter) :
             filter(i_filter) {}
             
-            inline void operator()(Model::Brush* brush) {
+            inline bool operator()(Model::Brush* brush) {
                 const Model::BrushEdge::List edges = brush->edges();
                 Model::BrushEdge::List::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
@@ -49,14 +49,16 @@ namespace TrenchBroom {
                         vertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
                     }
                 }
+                return true;
             }
         };
         
         struct BuildBrushFaceMesh {
             Model::BrushFace::Mesh mesh;
             
-            inline void operator()(Model::Brush* brush, Model::BrushFace* face) {
+            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) {
                 face->addToMesh(mesh);
+                return true;
             }
         };
         

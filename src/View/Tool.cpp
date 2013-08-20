@@ -19,6 +19,8 @@
 
 #include "Tool.h"
 
+#include "View/InputState.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -59,8 +61,6 @@ namespace TrenchBroom {
 
         MousePolicy::~MousePolicy() {}
 
-        MouseDragPolicy::~MouseDragPolicy() {}
-
         bool MousePolicy::doMouseDown(const InputState& inputState) {
             return false;
         }
@@ -78,6 +78,45 @@ namespace TrenchBroom {
         
         void MousePolicy::doMouseMove(const InputState& inputState) {}
 
+        MouseDragPolicy::~MouseDragPolicy() {}
+        
+        PlaneDragPolicy::~PlaneDragPolicy() {}
+        
+        bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
+            if (doStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
+                m_refPoint = m_lastPoint;
+                return true;
+            }
+            return false;
+        }
+        
+        bool PlaneDragPolicy::doMouseDrag(const InputState& inputState) {
+            const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
+            if (Math<FloatType>::isnan(distance))
+                return true;
+            
+            const Vec3 curPoint = inputState.pickRay().pointAtDistance(distance);
+            if (curPoint.equals(m_lastPoint))
+                return true;
+            
+            const bool result = doPlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
+            m_lastPoint = curPoint;
+            return result;
+        }
+        
+        void PlaneDragPolicy::doEndMouseDrag(const InputState& inputState) {
+            doEndPlaneDrag(inputState);
+        }
+        
+        void PlaneDragPolicy::doCancelMouseDrag(const InputState& inputState) {
+            doCancelPlaneDrag(inputState);
+        }
+        
+        void PlaneDragPolicy::resetPlane(const InputState& inputState) {
+            doResetPlane(inputState, m_plane, m_lastPoint);
+            m_refPoint = m_lastPoint;
+        }
+        
         BaseTool::~BaseTool() {}
     }
 }

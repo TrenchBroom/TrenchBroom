@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : m_camera.direction();
+                const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
                 const float distance = inputState.scrollY() * moveSpeed();
                 m_camera.moveBy(distance * moveDirection);
             }

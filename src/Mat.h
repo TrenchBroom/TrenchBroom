@@ -76,10 +76,12 @@ public:
             for (size_t r = 4; r < R; r++)
                 v[c][r] = static_cast<T>(0.0);
     }
-    
-    Mat<T,R,C>(const Mat<T,R,C>& other) {
+
+    template <typename U>
+    Mat<T,R,C>(const Mat<U,R,C>& other) {
         for (size_t c = 0; c < C; c++)
-            v[c] = other[c];
+            for (size_t r = 0; r < R; r++)
+                v[c][r] = static_cast<T>(other[c][r]);
     }
 
     inline Mat<T,R,C>& operator= (const Mat<T,R,C>& right) {

@@ -36,6 +36,11 @@ public:
     point(i_point),
     direction(i_direction) {}
     
+    template <typename U>
+    Line(const Line<U,S>& other) :
+    point(other.point),
+    direction(other.direction) {}
+    
     inline const Vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
     }

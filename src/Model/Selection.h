@@ -33,6 +33,9 @@ namespace TrenchBroom {
         public:
             Selection(Map* map = NULL);
 
+            bool hasSelectedObjects() const;
+            bool hasSelectedFaces() const;
+            bool hasSelection() const;
             ObjectList selectedObjects() const;
             EntityList selectedEntities() const;
             EntityList allSelectedEntities() const;
