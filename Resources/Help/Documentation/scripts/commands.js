@@ -62,6 +62,7 @@ menu_commands["Mac"]["edit_actions_snap_verts"]			= "Edit &raquo; Actions &raquo
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
 menu_commands["Mac"]["view_camera_move_to_next_pt"]		= "View &raquo; Camera &raquo; Move Camera to Next Point - &#x2325;+)";
 menu_commands["Mac"]["view_camera_move_to_prev_pt"]		= "View &raquo; Camera &raquo; Move Camera to Previous Point - &#x2325;-)";
+menu_commands["Mac"]["view_snap_to_grid"]				= "View &raquo; Grid &raquo; Snap to Grid - &#8984;&#8679;G";
 
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
@@ -108,6 +109,7 @@ menu_commands["Windows"]["edit_actions_snap_verts"]		= "Edit &raquo; Actions &ra
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 menu_commands["Windows"]["view_camera_move_to_next_pt"]	= "View &raquo; Camera &raquo; Move Camera to Next Point - Alt+(Plus (+))";
 menu_commands["Windows"]["view_camera_move_to_prev_pt"]	= "View &raquo; Camera &raquo; Move Camera to Previous Point - Alt+(Minus (-))";
+menu_commands["Windows"]["view_snap_to_grid"]			= "View &raquo; Grid &raquo; Snap to Grid - Ctrl+Shift+G";
 
 var keys = new Object();
 

@@ -19,19 +19,20 @@
 			<img src="images/move_objects_xy.jpg" width="600" height="553" alt="Moving Objects" id="move_objects" />
 			<div class="imagecaption">Moving objects with the mouse.</div>
 		</div>
-		<p>To move the selected objects horizontally using the mouse, <b>click and drag</b> the objects with the <b>left mouse button</b>. To move them vertically, hold the <script>print_key("Alt");</script> while dragging. The movement direction is indicated with little arrow heads next to the cursor.</p>
-		<p>If grid snapping is enabled, the objects are moved by multiples of the grid size.</p>
+		<p>To move the selected objects horizontally using the mouse, <b>click and drag</b> the objects with the <b>left mouse button</b>. To move them vertically, hold the <script>print_key("Alt");</script> while dragging. Note that while holding the <script>print_key("Alt");</script> key, the axis gizmo in the bottom left of the 3D view highlights the blue Z arrow to indicate movement is locked to that axis.</p>
+		<p>You can also toggle between horizontal direction locking with the <script>print_key("Tab");</script> key. The red and green axis arrows in the gizmo will become highlighted to indicate which direction movement is currently restricted to. Continue to cycle through the options with <script>print_key("Tab");</script> to unrestrict directional movement.</p>
+		<p>By default, Grid Snapping is on, and will restrict object movement to the grid size. If for some purpose you wish to turn this behavior off, choose <script>print_menu_command("view_snap_to_grid");</script>. Please note that the author of this document highly recommends <b>against</b> doing this for general editing, as it can only lead to trouble attempting to align brush faces and edges precisely.
 
 		<a name="rotating_objects"></a><h3>Rotating Objects</h3>
 		<p>There are two options for rotating objects. The first is to rotate the selected brushes by 90&deg; about the one of the axes of the coordinate system. The second is to rotate the selected objects freely using the mouse. In both cases, the center of the rotation is the center of the selected objects' bounding box. If grid snapping is enabled, the rotation center is snapped to the grid.</p>
 		<p>To rotate the selected objects by 90&deg; clockwise about one of the axes of the coordinate system, choose one of the rotation commands from the <b>Edit &raquo; Actions</b> menu or hit the appropriate keyboard shortcut. The following rotation commands are available:</p>
 		<ul>
-			<li><b>Rotate 90&deg; CW (<script>print_key("Up", "CmdCtrl");</script>)</b> - roll the selected objects clockwise about the closest axis of the camera direction by 90&deg;.</li>
-			<li><b>Rotate 90&deg; CCW (<script>print_key("Down", "CmdCtrl");</script>)</b> - roll the selected objects counter-clockwise about the closest axis of the camera direction by 90&deg;.</li>
-			<li><b>Rotate 90&deg; Left (<script>print_key("Left", "CmdCtrl");</script>)</b> - rotate the selected objects counter-clockwise about the Z axis by 90&deg;.</li>
-			<li><b>Rotate 90&deg; Right (<script>print_key("Right", "CmdCtrl");</script>)</b> - rotate the selected objects clockwise about the Z axis by 90&deg;.</li>
-			<li><b>Rotate 90&deg; Up (<script>print_key("PgUp", "CmdCtrl");</script>)</b> - rotate the selected objects clockwise about the closest axis of the camera right axis by 90&deg;.</li>
-			<li><b>Rotate 90&deg; Down (<script>print_key("PgDown", "CmdCtrl");</script>)</b> - rotate the selected objects counter-clockwise about the closest axis of the camera right axis by 90&deg;.</li>
+			<li><b>Rotate 90&deg; CW (<script>print_key("Up", "Alt");</script>)</b> - roll the selected objects clockwise about the closest axis of the camera direction by 90&deg;.</li>
+			<li><b>Rotate 90&deg; CCW (<script>print_key("Down", "Alt");</script>)</b> - roll the selected objects counter-clockwise about the closest axis of the camera direction by 90&deg;.</li>
+			<li><b>Rotate 90&deg; Left (<script>print_key("Left", "Alt");</script>)</b> - rotate the selected objects counter-clockwise about the Z axis by 90&deg;.</li>
+			<li><b>Rotate 90&deg; Right (<script>print_key("Right", "Alt");</script>)</b> - rotate the selected objects clockwise about the Z axis by 90&deg;.</li>
+			<li><b>Rotate 90&deg; Up (<script>print_key("PgUp", "Alt");</script>)</b> - rotate the selected objects clockwise about the closest axis of the camera right axis by 90&deg;.</li>
+			<li><b>Rotate 90&deg; Down (<script>print_key("PgDown", "Alt");</script>)</b> - rotate the selected objects counter-clockwise about the closest axis of the camera right axis by 90&deg;.</li>
 		</ul>
 		<br clear="all">
 		<p>Objects can also be rotated freely without any restriction as to the angle or axis of the rotation. To rotate the selected objects, activate the rotate tool by choosing <script>print_menu_command("edit_rotate_tool");</script>. You will see a rotate handle displayed approximately at the center of the bounding box of the selected objects.</p>
@@ -49,7 +50,7 @@
 		<p>The selected objects can be flipped (or mirrored) horizontally by choosing <script>print_menu_command("edit_flip_horizontally");</script> from the menu. To flip the selected objects vertically, choose <script>print_menu_command("edit_flip_vertically");</script> from the menu.</p>
 
 		<a name="deleting_objects"></a><h3>Deleting Objects</h3>
-		<p>To delete brushes or entities, select them in the 3D view and hit the <script>print_key("Delete");</script> key.</p>
+		<p>To delete brushes or entities, select them in the 3D view and hit the <script>print_key("Backspace");</script> key.</p>
 
 		<a name="using_the_entity_property_editor"></a><h3>Using the Entity Property Editor</h3>
 		<p>Each Quake entity has some properties associated with it. These properties control the appearance or the effect of an entity in the game. Each property has a key and a value. In TrenchBroom, these properties can be edited using property list in the entity inspector. The property list represents all properties of the selected entities.</p>
