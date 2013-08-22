@@ -30,34 +30,40 @@ namespace TrenchBroom {
     namespace Controller {
         class CameraMoveEvent : public wxEvent {
         protected:
-            float m_forward;
-            float m_right;
-            float m_up;
+            Vec3f m_delta;
         public:
             CameraMoveEvent();
             
             inline float forward() const {
-                return m_forward;
+                return m_delta[0];
             }
             
             inline void setForward(float forward) {
-                m_forward = forward;
+                m_delta[0] = forward;
             }
             
             inline float right() const {
-                return m_right;
+                return m_delta[1];
             }
             
             inline void setRight(float right) {
-                m_right = right;
+                m_delta[1] = right;
             }
             
             inline float up() const {
-                return m_up;
+                return m_delta[2];
             }
             
             inline void setUp(float up) {
-                m_up = up;
+                m_delta[2] = up;
+            }
+            
+            inline const Vec3f& delta() const {
+                return m_delta;
+            }
+            
+            inline void setDelta(const Vec3f& delta) {
+                m_delta = delta;
             }
             
             virtual wxEvent* Clone() const;
