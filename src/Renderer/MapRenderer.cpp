@@ -94,30 +94,16 @@ namespace TrenchBroom {
         MapRenderer::MapRenderer(FontManager& fontManager, const Model::Filter& filter) :
         m_fontManager(fontManager),
         m_filter(filter),
-        m_auxVbo(0xFFFFF),
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_filter)),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_filter)),
         m_unselectedEntityRenderer(m_fontManager, m_filter),
-        m_selectedEntityRenderer(m_fontManager, m_filter),
-        m_hasFocus(false) {}
+        m_selectedEntityRenderer(m_fontManager, m_filter) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
-            clearBackground(context);
-            renderCoordinateSystem(context);
             renderGeometry(context);
             renderEntities(context);
-            if (m_hasFocus)
-                renderFocusRect(context);
-        }
-        
-        void MapRenderer::setHasFocus(const bool hasFocus) {
-            m_hasFocus = hasFocus;
-        }
-
-        void MapRenderer::setFocusColor(const Color& focusColor) {
-            m_focusColor = focusColor;
         }
         
         void MapRenderer::commandDone(Controller::Command::Ptr command) {
@@ -149,54 +135,16 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
-            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
-            
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             glBindTexture(GL_TEXTURE_2D, 0);
             glDisable(GL_TEXTURE_2D);
-            
-            glEnable(GL_MULTISAMPLE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glFrontFace(GL_CW);
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
-            glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
-        }
-
-        void MapRenderer::clearBackground(RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-            glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        }
-        
-        void MapRenderer::renderCoordinateSystem(RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
-            const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
-            const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
-
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
-            
-            vertices.push_back(Vertex(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(Vertex(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
-            
-            VertexArray array(m_auxVbo, GL_LINES, vertices);
-            
-            SetVboState setVboState(m_auxVbo);
-            setVboState.active();
-            array.render();
         }
 
         void MapRenderer::renderGeometry(RenderContext& context) {
@@ -231,53 +179,6 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.render(context);
             m_selectedEntityRenderer.render(context);
-        }
-
-        void MapRenderer::renderFocusRect(RenderContext& context) {
-            const Color& outer = m_focusColor;
-            const Color inner(m_focusColor, 0.7f);
-            const float w = static_cast<float>(context.camera().viewport().width);
-            const float h = static_cast<float>(context.camera().viewport().height);
-            const float t = 3.0f;
-            
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
-            vertices.reserve(16);
-            
-            // top
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
-            
-            // right
-            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
-            
-            // bottom
-            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
-            
-            // left
-            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
-            
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
-            ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
-
-            VertexArray array(m_auxVbo, GL_QUADS, vertices);
-            SetVboState setVboState(m_auxVbo);
-            setVboState.active();
-            
-            glDisable(GL_DEPTH_TEST);
-            array.render();
-            glEnable(GL_DEPTH_TEST);
         }
 
         void MapRenderer::clearState() {

@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class CreateBrushTool : public Tool<EmptyPolicy, PlaneDragPolicy> {
+        class CreateBrushTool : public Tool<DefaultMousePolicy, PlaneDragPolicy, DefaultRenderPolicy> {
         private:
             MapDocumentPtr m_document;
             Vec3 m_initialPoint;

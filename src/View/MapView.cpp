@@ -22,7 +22,12 @@
 #include "Exceptions.h"
 #include "Logger.h"
 #include "Preferences.h"
+#include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "View/CameraTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
@@ -41,6 +46,7 @@ namespace TrenchBroom {
         m_controller(controller),
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_renderResources.fontManager(), document->filter()),
+        m_auxVbo(0xFFF),
         m_inputState(document->filter(), m_camera),
         m_cameraTool(NULL),
         m_toolChain(NULL),
@@ -54,7 +60,7 @@ namespace TrenchBroom {
             const float g = static_cast<float>(color.Green()) / 0xFF;
             const float b = static_cast<float>(color.Blue()) / 0xFF;
             const float a = 1.0f;
-            m_renderer.setFocusColor(Color(r, g, b, a));
+            m_focusColor = Color(r, g, b, a);
 
             createTools();
             bindEvents();
@@ -196,9 +202,13 @@ namespace TrenchBroom {
 
                 m_document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    m_renderer.setHasFocus(HasFocus());
                     Renderer::RenderContext context(m_camera, m_renderResources.shaderManager());
-                    m_renderer.render(context);
+                    setupGL(context);
+                    clearBackground(context);
+                    renderCoordinateSystem(context);
+                    renderMap(context);
+                    renderTools(context);
+                    renderFocusRect(context);
                 }
                 SwapBuffers();
             }
@@ -281,6 +291,104 @@ namespace TrenchBroom {
             
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
             Bind(wxEVT_SIZE, &MapView::OnSize, this);
+        }
+        
+        void MapView::setupGL(Renderer::RenderContext& context) {
+            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
+            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+            
+            glEnable(GL_MULTISAMPLE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glShadeModel(GL_SMOOTH);
+        }
+
+        void MapView::clearBackground(Renderer::RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+            glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+
+        void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
+            const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
+            const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
+            
+            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            Vertex::List vertices;
+            
+            vertices.push_back(Vertex(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(Vertex(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
+            
+            Renderer::VertexArray array(m_auxVbo, GL_LINES, vertices);
+            
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.active();
+            array.render();
+        }
+        
+        void MapView::renderMap(Renderer::RenderContext& context) {
+            m_renderer.render(context);
+        }
+        
+        void MapView::renderTools(Renderer::RenderContext& context) {
+            m_toolChain->render(m_inputState, context);
+        }
+
+        void MapView::renderFocusRect(Renderer::RenderContext& context) {
+            if (!HasFocus())
+                return;
+            
+            const Color& outer = m_focusColor;
+            const Color inner(m_focusColor, 0.7f);
+            const float w = static_cast<float>(context.camera().viewport().width);
+            const float h = static_cast<float>(context.camera().viewport().height);
+            const float t = 3.0f;
+            
+            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            Vertex::List vertices;
+            vertices.reserve(16);
+            
+            // top
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
+            
+            // right
+            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
+            
+            // bottom
+            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
+            
+            // left
+            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
+            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
+            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
+            
+            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            Renderer::ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
+            
+            Renderer::VertexArray array(m_auxVbo, GL_QUADS, vertices);
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.active();
+            
+            glDisable(GL_DEPTH_TEST);
+            array.render();
+            glEnable(GL_DEPTH_TEST);
         }
 
         void MapView::initializeGL() {

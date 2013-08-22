@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool : public Tool<MousePolicy, MouseDragPolicy> {
+        class CameraTool : public Tool<MousePolicy, MouseDragPolicy, DefaultRenderPolicy> {
         private:
             Renderer::Camera& m_camera;
             bool m_orbit;

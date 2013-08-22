@@ -25,61 +25,28 @@
 
 namespace TrenchBroom {
     namespace View {
-        bool EmptyPolicy::doMouseDown(const InputState& inputState) {
-            return false;
-        }
-        
-        bool EmptyPolicy::doMouseUp(const InputState& inputState) {
-            return false;
-        }
-
-        bool EmptyPolicy::doMouseDoubleClick(const InputState& inputState) {
-            return false;
-        }
-
-        bool EmptyPolicy::doScroll(const InputState& inputState) {
-            return false;
-        }
-
-        void EmptyPolicy::doMouseMove(const InputState& inputState) {
-        }
-        
-        bool EmptyPolicy::doStartMouseDrag(const InputState& inputState) {
-            return false;
-        }
-
-        bool EmptyPolicy::doMouseDrag(const InputState& inputState) {
-            return true;
-        }
-
-        void EmptyPolicy::doEndMouseDrag(const InputState& inputState) {
-        }
-
-        void EmptyPolicy::doCancelMouseDrag(const InputState& inputState) {
-        }
-
-
         MousePolicy::~MousePolicy() {}
-
-        bool MousePolicy::doMouseDown(const InputState& inputState) {
-            return false;
-        }
-        
-        bool MousePolicy::doMouseUp(const InputState& inputState) {
-            return false;
-        }
-        
-        bool MousePolicy::doMouseDoubleClick(const InputState& inputState) {
-            return false;
-        }
-        
-        void MousePolicy::doScroll(const InputState& inputState) {
-        }
-        
+        bool MousePolicy::doMouseDown(const InputState& inputState) { return false;}
+        bool MousePolicy::doMouseUp(const InputState& inputState) { return false; }
+        bool MousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
+        void MousePolicy::doScroll(const InputState& inputState) {}
         void MousePolicy::doMouseMove(const InputState& inputState) {}
+
+        DefaultMousePolicy::~DefaultMousePolicy() {}
+        bool DefaultMousePolicy::doMouseDown(const InputState& inputState) { return false; }
+        bool DefaultMousePolicy::doMouseUp(const InputState& inputState) { return false; }
+        bool DefaultMousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
+        void DefaultMousePolicy::doScroll(const InputState& inputState) {}
+        void DefaultMousePolicy::doMouseMove(const InputState& inputState) {}
 
         MouseDragPolicy::~MouseDragPolicy() {}
         
+        DefaultMouseDragPolicy::~DefaultMouseDragPolicy() {}
+        bool DefaultMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
+        bool DefaultMouseDragPolicy::doMouseDrag(const InputState& inputState) { return false; }
+        void DefaultMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
+        void DefaultMouseDragPolicy::doCancelMouseDrag(const InputState& inputState) {}
+
         PlaneDragPolicy::~PlaneDragPolicy() {}
         
         bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
@@ -117,6 +84,11 @@ namespace TrenchBroom {
             m_refPoint = m_lastPoint;
         }
         
+        RenderPolicy::~RenderPolicy() {}
+        
+        DefaultRenderPolicy::~DefaultRenderPolicy() {}
+        void DefaultRenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+
         BaseTool::~BaseTool() {}
     }
 }

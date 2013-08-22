@@ -24,22 +24,12 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class RenderContext;
+    }
+    
     namespace View {
         class InputState;
-        
-        class EmptyPolicy {
-        public:
-            bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            bool doScroll(const InputState& inputState);
-            void doMouseMove(const InputState& inputState);
-
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
-        };
         
         class MousePolicy {
         public:
@@ -52,6 +42,17 @@ namespace TrenchBroom {
             virtual void doMouseMove(const InputState& inputState);
         };
         
+        class DefaultMousePolicy {
+        public:
+            virtual ~DefaultMousePolicy();
+            
+            bool doMouseDown(const InputState& inputState);
+            bool doMouseUp(const InputState& inputState);
+            bool doMouseDoubleClick(const InputState& inputState);
+            void doScroll(const InputState& inputState);
+            void doMouseMove(const InputState& inputState);
+        };
+        
         class MouseDragPolicy {
         public:
             virtual ~MouseDragPolicy();
@@ -60,6 +61,15 @@ namespace TrenchBroom {
             virtual bool doMouseDrag(const InputState& inputState) = 0;
             virtual void doEndMouseDrag(const InputState& inputState) = 0;
             virtual void doCancelMouseDrag(const InputState& inputState) = 0;
+        };
+        
+        class DefaultMouseDragPolicy {
+            virtual ~DefaultMouseDragPolicy();
+            
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
         };
         
         class PlaneDragPolicy {
@@ -81,7 +91,18 @@ namespace TrenchBroom {
             virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void doEndPlaneDrag(const InputState& inputState) = 0;
             virtual void doCancelPlaneDrag(const InputState& inputState) = 0;
-
+        };
+        
+        class RenderPolicy {
+        public:
+            virtual ~RenderPolicy();
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
+        };
+        
+        class DefaultRenderPolicy {
+        public:
+            virtual ~DefaultRenderPolicy();
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const;
         };
         
         class BaseTool {
@@ -98,10 +119,12 @@ namespace TrenchBroom {
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
+            
+            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
         };
         
-        template <class MousePolicyType, class MouseDragPolicyType>
-        class Tool : public BaseTool, private MousePolicyType, private MouseDragPolicyType {
+        template <class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
+        class Tool : public BaseTool, private MousePolicyType, private MouseDragPolicyType, private RenderPolicyType {
         private:
             BaseTool* m_next;
         public:
@@ -170,6 +193,12 @@ namespace TrenchBroom {
                 static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
                 if (m_next != NULL)
                     m_next->cancelMouseDrag(inputState);
+            }
+            
+            inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                static_cast<const RenderPolicyType&>(*this).doRender(inputState, renderContext);
+                if (m_next != NULL)
+                    m_next->render(inputState, renderContext);
             }
         };
     }

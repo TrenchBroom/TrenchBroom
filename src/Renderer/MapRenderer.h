@@ -40,29 +40,21 @@ namespace TrenchBroom {
         private:
             FontManager& m_fontManager;
             const Model::Filter& m_filter;
-            Vbo m_auxVbo;
             BrushRenderer m_unselectedBrushRenderer;
             BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_unselectedEntityRenderer;
             EntityRenderer m_selectedEntityRenderer;
-            Color m_focusColor;
-            bool m_hasFocus;
         public:
             MapRenderer(FontManager& fontManager, const Model::Filter& filter);
             
             void render(RenderContext& context);
-            void setHasFocus(const bool hasFocus);
-            void setFocusColor(const Color& focusColor);
 
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
         private:
             void setupGL(RenderContext& context);
-            void clearBackground(RenderContext& context);
-            void renderCoordinateSystem(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
-            void renderFocusRect(RenderContext& context);
             void clearState();
             void loadMap(Model::Map& map);
             void updateSelection(Controller::Command::Ptr command);

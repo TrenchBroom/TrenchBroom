@@ -20,11 +20,13 @@
 #ifndef __TrenchBroom__MapView__
 #define __TrenchBroom__MapView__
 
+#include "Color.h"
 #include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
+#include "Renderer/Vbo.h"
 #include "View/InputState.h"
 #include "View/ViewTypes.h"
 
@@ -37,6 +39,10 @@ namespace TrenchBroom {
 
     namespace Controller {
         class ControllerFacade;
+    }
+    
+    namespace Renderer {
+        class RenderContext;
     }
     
     namespace View {
@@ -55,6 +61,9 @@ namespace TrenchBroom {
             Renderer::Camera m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
+            
+            Renderer::Vbo m_auxVbo;
+            Color m_focusColor;
             
             InputState m_inputState;
             wxPoint m_clickPos;
@@ -91,6 +100,14 @@ namespace TrenchBroom {
             void deleteTools();
             void cancelCurrentDrag();
             void bindEvents();
+            
+            void setupGL(Renderer::RenderContext& context);
+            void clearBackground(Renderer::RenderContext& context);
+            void renderCoordinateSystem(Renderer::RenderContext& context);
+            void renderMap(Renderer::RenderContext& context);
+            void renderTools(Renderer::RenderContext& context);
+            void renderFocusRect(Renderer::RenderContext& context);
+            
             void initializeGL();
             
             static const Renderer::RenderResources::GLAttribs& attribs();
