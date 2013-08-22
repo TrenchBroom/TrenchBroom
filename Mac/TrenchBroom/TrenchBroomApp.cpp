@@ -35,8 +35,8 @@ EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
 
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    wxMenu* fileMenu = AbstractApp::CreateFileMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateFileMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+    wxMenu* fileMenu = AbstractApp::CreateFileMenu(DefaultMenuSelector(), eventHandler, mapViewFocused);
 
     // these won't show up in the app menu if we don't add them here
     fileMenu->Append(wxID_ABOUT, wxT("About"));
@@ -54,13 +54,32 @@ bool TrenchBroomApp::OnInit() {
         SetExitOnFrameDelete(false);
         m_docManager->SetUseSDI(false);
         
-        wxMenuBar* menuBar = CreateMenuBar(this, NULL, false);
+        wxMenuBar* menuBar = CreateMenuBar(DefaultMenuSelector(), this, false);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;
     }
     
     return false;
+}
+
+void TrenchBroomApp::MacNewFile() {
+    if (m_docManager != NULL)
+        m_docManager->CreateNewDocument();
+}
+
+void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
+    if (m_docManager != NULL) {
+        for (size_t i = 0; i < filenames.size(); i++) {
+            const wxString& filename = filenames[i];
+            if (m_docManager->CreateDocument(filename)) {
+                wxString errorMessage = "Could not open file ";
+                errorMessage << filename;
+                wxMessageDialog dialog(NULL, errorMessage, wxT("Error"), wxCENTRE | wxICON_ERROR | wxOK);
+                dialog.ShowModal();
+            }
+        }
+    }
 }
 
 

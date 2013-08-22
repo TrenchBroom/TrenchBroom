@@ -30,11 +30,12 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
+        class Command;
+        
         class RotateObjectsTool : public Tool {
         protected:
             Vec3f m_axis;
-            int m_startX;
-            int m_startY;
+            wxPoint m_startPoint;
             bool m_invert;
             float m_angle;
             Vec3f m_center;
@@ -44,6 +45,7 @@ namespace TrenchBroom {
             
             void updateHandlePosition(InputState& inputState);
 
+            bool handleActivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
 
             void handlePick(InputState& inputState);
@@ -53,9 +55,7 @@ namespace TrenchBroom {
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
             
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
-            void handleGridChange(InputState& inputState);
+            void handleUpdate(const Command& command, InputState& inputState);
         public:
             RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness);
         };

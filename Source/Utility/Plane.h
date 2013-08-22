@@ -23,91 +23,91 @@
 #include "Utility/Line.h"
 #include "Utility/Quat.h"
 #include "Utility/Ray.h"
-#include "Utility/Vec3f.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
+        template <typename T>
         class Plane {
         public:
             class WeightOrder {
             private:
                 bool m_deterministic;
             public:
-                WeightOrder(bool deterministic) :
+                WeightOrder(const bool deterministic) :
                 m_deterministic(deterministic) {}
                 
-                inline bool operator()(const Plane& lhs, const Plane& rhs) const {
+                inline bool operator()(const Plane<T>& lhs, const Plane<T>& rhs) const {
                     int result = lhs.normal.weight() - rhs.normal.weight();
                     if (m_deterministic)
-                        result += static_cast<int>(1000.0f * (lhs.distance - lhs.distance));
+                        result += static_cast<int>(1000.0 * (lhs.distance - lhs.distance));
                     return result < 0;
                 }
             };
 
-            Vec3f normal;
-            float distance;
+            Vec<T,3> normal;
+            T distance;
             
-            Plane() : normal(Vec3f::Null), distance(0) {}
+            Plane() : normal(Vec<T,3>::Null), distance(0.0) {}
             
-            Plane(const Vec3f& i_normal, float i_distance) : normal(i_normal), distance(i_distance) {}
+            Plane(const Vec<T,3>& i_normal, const T i_distance) : normal(i_normal), distance(i_distance) {}
             
-            Plane(const Vec3f& i_normal, const Vec3f& i_anchor) : normal(i_normal), distance(i_anchor.dot(i_normal)) {}
+            Plane(const Vec<T,3>& i_normal, const Vec<T,3>& i_anchor) : normal(i_normal), distance(i_anchor.dot(i_normal)) {}
             
-            static const Plane horizontalDragPlane(const Vec3f& position) {
-                return Plane(Vec3f::PosZ, position);
+            static const Plane<T> horizontalDragPlane(const Vec<T,3>& position) {
+                return Plane<T>(Vec<T,3>::PosZ, position);
             }
             
-            static const Plane verticalDragPlane(const Vec3f& position, const Vec3f& direction) {
+            static const Plane<T> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
                 if (direction.firstComponent() != Axis::AZ)
-                    return Plane(direction.firstAxis(), position);
-                return Plane(direction.secondAxis(), position);
+                    return Plane<T>(direction.firstAxis(), position);
+                return Plane<T>(direction.secondAxis(), position);
             }
             
-            static const Plane orthogonalDragPlane(const Vec3f& position, const Vec3f& direction) {
-                return Plane(direction, position);
+            static const Plane<T> orthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+                return Plane<T>(direction, position);
             }
             
-            static const Plane alignedOrthogonalDragPlane(const Vec3f& position, const Vec3f& direction) {
-                return Plane(direction.firstAxis(), position);
+            static const Plane<T> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+                return Plane<T>(direction.firstAxis(), position);
             }
             
-            static const Plane planeContainingVector(const Vec3f& position, const Vec3f& normalizedVector, const Vec3f& viewPoint) {
-                Vec3f diff = viewPoint - position;
-                float f = diff.dot(normalizedVector);
-                Vec3f point = position + normalizedVector * f;
-                Vec3f normal = viewPoint - point;
+            static const Plane<T> planeContainingVector(const Vec<T,3>& position, const Vec<T,3>& normalizedVector, const Vec<T,3>& viewPoint) {
+                Vec<T,3> diff = viewPoint - position;
+                Vec<T,3> point = position + normalizedVector * diff.dot(normalizedVector);
+                Vec<T,3> normal = viewPoint - point;
                 normal.normalize();
                 return Plane(normal, position);
             }
             
-            inline bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
-                const Vec3f v1 = point3 - point1;
-                const Vec3f v2 = point2 - point1;
-                normal = v1.crossed(v2);
-                if (normal.equals(Vec3f::Null, Math::AlmostZero))
+            inline bool setPoints(const Vec<T,3>& point1, const Vec<T,3>& point2, const Vec<T,3>& point3) {
+                const Vec<T,3> v1 = point3 - point1;
+                const Vec<T,3> v2 = point2 - point1;
+                normal = crossed(v1, v2);
+                if (normal.equals(Vec<T,3>::Null, Math<T>::AlmostZero))
                     return false;
                 normal.normalize();
                 distance = point1.dot(normal);
                 return true;
             }
             
-            inline const Vec3f anchor() const {
+            inline const Vec<T,3> anchor() const {
                 return normal * distance;
             }
             
-            inline float intersectWithRay(const Ray& ray) const {
+            inline T intersectWithRay(const Ray<T>& ray) const {
                 return ray.intersectWithPlane(normal, anchor());
             }
             
-            inline float intersectWithLine(const Line& line) const {
-                float d = line.direction.dot(normal);
-                if (Math::zero(d))
-                    return Math::nan();
+            inline T intersectWithLine(const Line<T>& line) const {
+                const T d = line.direction.dot(normal);
+                if (Math<T>::zero(d))
+                    return Math<T>::nan();
                 return ((anchor() - line.point).dot(normal)) / d;
             }
             
-                    inline PointStatus::Type pointStatus(const Vec3f& point, const float epsilon = Math::PointStatusEpsilon) const {
-                const float dist = pointDistance(point);
+            inline PointStatus::Type pointStatus(const Vec<T,3>& point, const T epsilon = Math<T>::PointStatusEpsilon) const {
+                const T dist = pointDistance(point);
                 if (dist >  epsilon)
                     return PointStatus::PSAbove;
                 if (dist < -epsilon)
@@ -115,82 +115,61 @@ namespace TrenchBroom {
                 return PointStatus::PSInside;
             }
             
-            inline float pointDistance(const Vec3f& point) const {
+            inline T pointDistance(const Vec<T,3>& point) const {
                 return point.dot(normal) - distance;
             }
             
-            inline float x(float y, float z) const {
-                return (distance - normal.y * y - normal.z * z) / normal.x;
+            inline T x(const T y, const T z) const {
+                return (distance - normal.y() * y - normal.z() * z) / normal.x();
             }
             
-            inline float y(float x, float z) const {
-                return (distance - normal.x * x - normal.z * z) / normal.y;
+            inline T y(const T x, const T z) const {
+                return (distance - normal.x() * x - normal.z() * z) / normal.y();
             }
             
-            inline float z(float x, float y) const {
-                return (distance - normal.x * x - normal.y * y) / normal.z;
+            inline T z(const T x, const T y) const {
+                return (distance - normal.x() * x - normal.y() * y) / normal.z();
             }
                     
-            inline float z(const Vec2f& coords) const {
+            inline T z(const Vec<T,2>& coords) const {
                 return z(coords.x, coords.y);
             }
             
-            inline bool equals(const Plane& other) const {
-                return equals(other, Math::AlmostZero);
-            }
-            
-            inline bool equals(const Plane& other, float epsilon) const {
+            inline bool equals(const Plane<T>& other, const T epsilon = Math<T>::AlmostZero) const {
                 return normal.equals(other.normal, epsilon) && std::abs(distance - other.distance) < epsilon;
             }
-            
-            inline Plane& translate(const Vec3f& delta) {
-                distance = (anchor() + delta).dot(normal);
+                    
+            inline Plane<T>& transform(const Mat4f& pointTransform, const Mat4f& vectorTransform) {
+                const Vec<T,3> oldAnchor = anchor();
+                normal = vectorTransform * normal;
+                normal.normalize();
+                distance = (pointTransform * oldAnchor).dot(normal);
                 return *this;
             }
-            
-            inline const Plane translated(const Vec3f& delta) const {
-                return Plane(normal, (anchor() + delta).dot(normal));
+                    
+            inline Plane<T> transformed(const Mat4f& pointTransform, const Mat4f& vectorTransform) const {
+                return Plane<T>(*this).transform(pointTransform, vectorTransform);
             }
             
-            inline Plane& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
-                Vec3f oldAnchor = anchor();
-                normal.rotate90(axis, clockwise);
-                distance = (oldAnchor.rotated90(axis, center, clockwise)).dot(normal);
-                return *this;
-            }
-            
-            inline const Plane rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
-                return Plane(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
-            }
-            
-            inline Plane& rotate(const Quat& rotation, const Vec3f& center) {
-                Vec3f oldAnchor = anchor();
+            inline Plane<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
+                const Vec<T,3> oldAnchor = anchor();
                 normal = rotation * normal;
                 distance = (rotation * (oldAnchor - center) + center).dot(normal);
                 return *this;
             }
             
-            inline const Plane rotated(const Quat& rotation, const Vec3f& center) const {
-                Vec3f oldAnchor = anchor();
+            inline const Plane<T> rotated(const Quat<T>& rotation, const Vec<T,3>& center) const {
+                const Vec<T,3> oldAnchor = anchor();
                 return Plane(rotation * normal, rotation * (oldAnchor - center) + center);
             }
             
-            inline Plane& flip(Axis::Type axis, const Vec3f& center) {
-                Vec3f oldAnchor = anchor();
-                normal.flip(axis);
-                distance = oldAnchor.flip(axis, center).dot(normal);
-                return *this;
-            }
-            
-            inline const Plane flipped(Axis::Type axis, const Vec3f& center) const {
-                Vec3f oldAnchor = anchor();
-                return Plane(normal.flipped(axis), oldAnchor.flip(axis, center));
-            }
-            
-            inline Vec3f project(const Vec3f& v) const {
-                return v - v.dot(normal) * v.normalized();
+            inline Vec<T,3> project(const Vec<T,3>& v) const {
+                return v - v.dot(normal) * normal;
             }
         };
+                    
+        typedef Plane<float> Planef;
+        typedef Plane<double> Planed;
     }
 }
 

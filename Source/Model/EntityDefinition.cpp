@@ -82,7 +82,7 @@ namespace TrenchBroom {
         m_propertyDefinitions(propertyDefinitions) {
         }
         
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBoxf& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
         EntityDefinition(name, color, description, propertyDefinitions),
         m_bounds(bounds),
         m_modelDefinitions(modelDefinitions) {}

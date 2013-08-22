@@ -108,14 +108,14 @@ XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
-Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxbase295ud_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxbase295ud_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_adv_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_gl_vc100.pdb" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -188,10 +188,10 @@ XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
-Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_core_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_adv_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxbase295u_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_gl_vc100.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -238,39 +238,34 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ClipTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp" />
-    <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp" />
-    <ClCompile Include="..\..\Source\Controller\EntityDefinitionCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp" />
-    <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\FlyTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp" />
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveTexturesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\PreferenceChangeEvent.cpp" />
     <ClCompile Include="..\..\Source\Controller\RebuildBrushGeometryCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ReparentBrushesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ResizeBrushesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ResizeBrushesTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateHandle.cpp" />
-    <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp" />
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateTexturesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesTool.cpp" />
-    <ClCompile Include="..\..\Source\Controller\SetModCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SnapVerticesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp" />
-    <ClCompile Include="..\..\Source\Controller\TextureCollectionCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\TransformObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\VertexHandleManager.cpp" />
     <ClCompile Include="..\..\Source\GL\glew.c" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
@@ -306,8 +301,10 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\BspModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
     <ClCompile Include="..\..\Source\Renderer\CircleFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\CompassRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityLinkDecorator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRendererManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
@@ -317,11 +314,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\OverlayRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointGuideRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\PointTraceRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RingFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp" />
@@ -336,12 +334,10 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
+    <ClCompile Include="..\..\Source\Utility\ExecutableEvent.cpp" />
     <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
-    <ClCompile Include="..\..\Source\Utility\Mat3f.cpp" />
-    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
-    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AboutDialog.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp" />
@@ -378,7 +374,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp" />
     <ClCompile Include="..\..\Source\View\ViewInspector.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
-    <ClCompile Include="WinCapabilities.cpp" />
     <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -391,16 +386,13 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\Command.h" />
     <ClInclude Include="..\..\Source\Controller\ControllerUtils.h" />
     <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h" />
-    <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h" />
-    <ClInclude Include="..\..\Source\Controller\EntityDefinitionCommand.h" />
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h" />
-    <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\FlyTool.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h" />
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h" />
     <ClInclude Include="..\..\Source\Controller\MoveTexturesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveTool.h" />
@@ -408,28 +400,25 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h" />
+    <ClInclude Include="..\..\Source\Controller\PreferenceChangeEvent.h" />
     <ClInclude Include="..\..\Source\Controller\RebuildBrushGeometryCommand.h" />
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ReparentBrushesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ResizeBrushesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ResizeBrushesTool.h" />
     <ClInclude Include="..\..\Source\Controller\RotateHandle.h" />
-    <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h" />
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h" />
     <ClInclude Include="..\..\Source\Controller\RotateTexturesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesTool.h" />
-    <ClInclude Include="..\..\Source\Controller\SetModCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SnapVerticesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h" />
-    <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h" />
     <ClInclude Include="..\..\Source\Controller\Tool.h" />
+    <ClInclude Include="..\..\Source\Controller\TransformObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\VertexHandleManager.h" />
-    <ClInclude Include="..\..\Source\GL\Capabilities.h" />
     <ClInclude Include="..\..\Source\GL\glew.h" />
     <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
@@ -487,10 +476,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\BspModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Camera.h" />
     <ClInclude Include="..\..\Source\Renderer\CircleFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\CompassRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EdgeRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityLinkDecorator.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityModelRendererManager.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
@@ -504,11 +495,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h" />
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\OverlayRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />
     <ClInclude Include="..\..\Source\Renderer\PointGuideRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
-    <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\PointTraceRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h" />
@@ -538,6 +530,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
+    <ClInclude Include="..\..\Source\Utility\ExecutableEvent.h" />
     <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h" />
     <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
@@ -553,9 +546,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Quat.h" />
     <ClInclude Include="..\..\Source\Utility\Ray.h" />
     <ClInclude Include="..\..\Source\Utility\String.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec2f.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec3f.h" />
-    <ClInclude Include="..\..\Source\Utility\Vec4f.h" />
+    <ClInclude Include="..\..\Source\Utility\Vec.h" />
     <ClInclude Include="..\..\Source\Utility\VecMath.h" />
     <ClInclude Include="..\..\Source\View\AboutDialog.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />

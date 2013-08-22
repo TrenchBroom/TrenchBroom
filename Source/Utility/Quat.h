@@ -20,91 +20,96 @@
 #ifndef TrenchBroom_Quat_h
 #define TrenchBroom_Quat_h
 
-#include "Utility/Vec3f.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
+        template <typename T>
         class Quat {
         public:
-            float s;
-            Vec3f v;
+            T s;
+            Vec<T,3> v;
 
-            Quat() : s(0.0f), v(Vec3f::Null) {}
+            Quat() : s(0.0), v(Vec<T,3>::Null) {}
             
             /**
              * Creates a new quaternion that represent a clounter-clockwise rotation by the given angle (in radians) about
              * the given axis.
              */
-            Quat(float angle, const Vec3f& axis) {
+            Quat(const T angle, const Vec<T,3>& axis) {
                 setRotation(angle, axis);
             }
             
-            inline const Quat operator- () const {
+            inline const Quat<T> operator- () const {
                 return Quat(-s, v);
             }
 
-            inline const Quat operator* (float right) const {
+            inline const Quat<T> operator* (const T right) const {
                 return Quat(s * right, v);
             }
             
-            inline Quat& operator*= (float right) {
+            inline Quat<T>& operator*= (const T right) {
                 s *= right;
                 return *this;
             }
             
-            inline const Quat operator* (const Quat& right) const {
-                Quat result = *this;
+            inline const Quat<T> operator* (const Quat<T>& right) const {
+                Quat<T> result = *this;
                 return result *= right;
             }
             
-            inline const Vec3f operator* (const Vec3f& right) const {
-                Quat p;
-                p.s = 0.0f;
+            inline const Vec<T,3> operator* (const Vec<T,3>& right) const {
+                Quat<T> p;
+                p.s = 0.0;
                 p.v = right;
                 p = *this * p * conjugated();
                 return p.v;
             }
             
-            inline Quat& operator*= (const Quat& right) {
-                const float& t = right.s;
-                const Vec3f& w = right.v;
+            inline Quat<T>& operator*= (const Quat<T>& right) {
+                const T& t = right.s;
+                const Vec<T,3>& w = right.v;
                 
-                float nx = s * w.x + t * v.x + v.y * w.z - v.z * w.y;
-                float ny = s * w.y + t * v.y + v.z * w.x - v.x * w.z;
-                float nz = s * w.z + t * v.z + v.x * w.y - v.y * w.x;
+                const T nx = s * w.x() + t * v.x() + v.y() * w.z() - v.z() * w.y();
+                const T ny = s * w.y() + t * v.y() + v.z() * w.x() - v.x() * w.z();
+                const T nz = s * w.z() + t * v.z() + v.x() * w.y() - v.y() * w.x();
                 
                 s = s * t - (v.dot(w));
-                v.x = nx;
-                v.y = ny;
-                v.z = nz;
+                v[0] = nx;
+                v[1] = ny;
+                v[2] = nz;
                 return *this;
             }
             
-            inline Quat& setRotation(float angle, const Vec3f axis) {
-                s = std::cos(angle / 2.0f);
-                v = axis * std::sin(angle / 2.0f);
+            inline Quat<T>& setRotation(const T angle, const Vec3f axis) {
+                s = std::cos(angle / static_cast<T>(2.0));
+                v = axis * std::sin(angle / static_cast<T>(2.0));
                 return *this;
             }
 
-            inline Vec3f axis() const {
+            inline Vec<T,3> axis() const {
                 return v.normalized();
             }
             
-            inline Quat& conjugate() {
-                v *= -1.0f;
+            inline Quat<T>& conjugate() {
+                v = -v;
                 return *this;
             }
 
             inline const Quat conjugated() const {
-                Quat result;
+                Quat<T> result;
                 result.s = s;
-                result.v = v * -1.0f;
+                result.v = -v;
                 return result;
             }
         };
 
-        inline Quat operator*(float left, const Quat& right) {
-            return Quat(left * right.s, right.v);
+        typedef Quat<float> Quatf;
+        typedef Quat<double> Quatd;
+        
+        template <typename T>
+        inline Quat<T> operator*(const T left, const Quat<T>& right) {
+            return Quat<T>(left * right.s, right.v);
         }
     }
 }

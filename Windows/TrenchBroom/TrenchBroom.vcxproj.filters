@@ -87,9 +87,6 @@
     <ClCompile Include="..\..\Source\GL\glew.c">
       <Filter>Source Files\GL</Filter>
     </ClCompile>
-    <ClCompile Include="WinCapabilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp">
       <Filter>Source Files\Renderer\Shader</Filter>
     </ClCompile>
@@ -99,9 +96,6 @@
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\InputController.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -109,9 +103,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp">
@@ -127,12 +118,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp">
@@ -154,9 +139,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\TextureCollectionCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\AddObjectsCommand.cpp">
@@ -312,13 +294,7 @@
     <ClCompile Include="..\..\Source\Utility\Grid.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp">
@@ -417,9 +393,6 @@
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateHandle.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -435,14 +408,8 @@
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp">
       <Filter>Source Files\View\PropertyEditor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Model\PointFile.cpp">
       <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Mat3f.cpp">
-      <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveTool.cpp">
       <Filter>Source Files\Controller</Filter>
@@ -452,12 +419,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp">
       <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\EntityDefinitionCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SetModCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\View\PathDialog.cpp">
       <Filter>Source Files\View</Filter>
@@ -522,6 +483,30 @@
     <ClCompile Include="..\..\Source\View\NavBar.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\CompassRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\OverlayRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointTraceRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityLinkDecorator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\FlyTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\ExecutableEvent.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\TransformObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\PreferenceChangeEvent.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -532,9 +517,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
       <Filter>Header Files\Renderer\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GL\Capabilities.h">
-      <Filter>Header Files\GL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\GL\wglew.h">
       <Filter>Header Files\GL</Filter>
@@ -575,9 +557,6 @@
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Input.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -588,9 +567,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h">
@@ -614,12 +590,6 @@
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -639,9 +609,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Tool.h">
@@ -896,15 +863,6 @@
     <ClInclude Include="..\..\Source\Utility\String.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec2f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec3f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Vec4f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Utility\VecMath.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -1067,9 +1025,6 @@
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateHandle.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -1085,9 +1040,6 @@
     <ClInclude Include="..\..\Source\View\AngleEditor.h">
       <Filter>Header Files\View\PropertyEditor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Model\PointFile.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
@@ -1102,12 +1054,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h">
       <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\EntityDefinitionCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SetModCommand.h">
-      <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\PathDialog.h">
       <Filter>Header Files\View</Filter>
@@ -1192,6 +1138,33 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\NavBar.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\CompassRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\OverlayRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointTraceRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityLinkDecorator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\FlyTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\ExecutableEvent.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\Vec.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\TransformObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\PreferenceChangeEvent.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

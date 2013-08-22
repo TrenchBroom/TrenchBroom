@@ -26,7 +26,7 @@
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -121,14 +121,14 @@ namespace TrenchBroom {
                 return elementCount;
             }
             
-            inline Model::VertexHandleHit* pickHandle(const Ray& ray, const Vec3f& position, Model::HitType::Type type) const {
+            inline Model::VertexHandleHit* pickHandle(const Rayf& ray, const Vec3f& position, Model::HitType::Type type) const {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 float handleRadius = prefs.getFloat(Preferences::HandleRadius);
                 float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
 
                 float distance = ray.intersectWithSphere(position, 2.0f * handleRadius, scalingFactor, maxDistance);
-                if (!Math::isnan(distance)) {
+                if (!Math<float>::isnan(distance)) {
                     Vec3f hitPoint = ray.pointAtDistance(distance);
                     return new Model::VertexHandleHit(type, hitPoint, distance, position);
                 }
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             
             void deselectAll();
             
-            void pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const;
+            void pick(const Rayf& ray, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode);
             
             inline void freeRenderResources() {

@@ -35,7 +35,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {

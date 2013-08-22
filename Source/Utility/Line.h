@@ -20,25 +20,29 @@
 #ifndef TrenchBroom_Line_h
 #define TrenchBroom_Line_h
 
-#include "Utility/Vec3f.h"
+#include "Utility/Vec.h"
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
+        template <typename T>
         class Line {
         public:
-            Vec3f point;
-            Vec3f direction;
+            Vec<T,3> point;
+            Vec<T,3> direction;
 
-            Line() : point(Vec3f::Null), direction(Vec3f::Null) {}
+            Line() : point(Vec<T,3>::Null), direction(Vec<T,3>::Null) {}
             
-            Line(const Vec3f& i_point, const Vec3f& i_direction) : point(i_point), direction(i_direction) {}
+            Line(const Vec<T,3>& i_point, const Vec<T,3>& i_direction) : point(i_point), direction(i_direction) {}
             
-            inline const Vec3f pointAtDistance(float distance) const {
-                return Vec3f(point.x + direction.x * distance,
-                             point.y + direction.y * distance,
-                             point.z + direction.z * distance);
+            inline const Vec<T,3> pointAtDistance(const T distance) const {
+                return Vec<T,3>(point.x + direction.x * distance,
+                               point.y + direction.y * distance,
+                               point.z + direction.z * distance);
             }
         };
+        
+        typedef Line<float> Linef;
+        typedef Line<double> Lined;
     }
 }
 

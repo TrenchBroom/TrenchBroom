@@ -20,10 +20,13 @@
 #ifndef __TrenchBroom__MapGLCanvas__
 #define __TrenchBroom__MapGLCanvas__
 
+#include "Controller/Input.h"
+
 // glew must be included before glcanvas
 #include <GL/glew.h>
 #include <wx/dnd.h>
 #include <wx/glcanvas.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -37,6 +40,8 @@ namespace TrenchBroom {
     namespace Renderer {
         class Camera;
         class MapRenderer;
+        class OverlayRenderer;
+        class Vbo;
     }
     
     namespace Utility {
@@ -66,11 +71,14 @@ namespace TrenchBroom {
             DocumentViewHolder& m_documentViewHolder;
             
             wxGLContext* m_glContext;
+            Renderer::Vbo* m_vbo;
             Controller::InputController* m_inputController;
+            Renderer::OverlayRenderer* m_overlayRenderer;
+            
             bool m_hasFocus;
             bool m_ignoreNextClick;
 
-            bool HandleModifierKey(int keyCode, bool down);
+            bool handleModifierKey(int keyCode, bool down);
         public:
             MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
@@ -79,8 +87,13 @@ namespace TrenchBroom {
                 return *m_inputController;
             }
             
+            inline bool hasFocus() const {
+                return m_hasFocus;
+            }
+            
+            bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false);
+            
             void OnPaint(wxPaintEvent& event);
-
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
             void OnMouseLeftDown(wxMouseEvent& event);
@@ -95,8 +108,6 @@ namespace TrenchBroom {
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnIdle(wxIdleEvent& event);
 
             DECLARE_EVENT_TABLE()
         };

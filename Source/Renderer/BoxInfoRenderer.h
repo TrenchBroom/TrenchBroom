@@ -23,7 +23,7 @@
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,24 +37,45 @@ namespace TrenchBroom {
         
         class BoxInfoSizeTextAnchor : public Text::TextAnchor {
         private:
-            BBox m_bounds;
+            BBoxf m_bounds;
             Axis::Type m_axis;
-            Renderer::Camera* m_camera;
+            Renderer::Camera& m_camera;
         protected:
             const Vec3f basePosition() const;
             const Text::Alignment::Type alignment() const;
         public:
-            BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera);
+            BoxInfoSizeTextAnchor(const BBoxf& bounds, Axis::Type axis, Renderer::Camera& camera);
+        };
+        
+        class BoxInfoMinMaxTextAnchor : public Text::TextAnchor {
+        public:
+            typedef enum {
+                BoxMin,
+                BoxMax
+            } EMinMax;
+        private:
+            BBoxf m_bounds;
+            EMinMax m_minMax;
+            Renderer::Camera& m_camera;
+        protected:
+            const Vec3f basePosition() const;
+            const Text::Alignment::Type alignment() const;
+        public:
+            BoxInfoMinMaxTextAnchor(const BBoxf& bounds, EMinMax minMax, Renderer::Camera& camera);
         };
 
         class BoxInfoRenderer {
         private:
-            BBox m_bounds;
-            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>* m_textRenderer;
-            Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>::SimpleTextRendererFilter m_textFilter;
+            BBoxf m_bounds;
+            Text::TextRenderer<unsigned int>* m_textRenderer;
+            Text::TextRenderer<unsigned int>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
+            
+            // prevent copying
+            BoxInfoRenderer(const BoxInfoRenderer& other);
+            void operator= (const BoxInfoRenderer& other);
         public:
-            BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager);
+            BoxInfoRenderer(const BBoxf& bounds, Text::FontManager& fontManager);
             ~BoxInfoRenderer();
             
             void render(Vbo& vbo, RenderContext& context);

@@ -33,75 +33,75 @@
 namespace TrenchBroom {
     namespace Renderer {
         const Vec3f BoxInfoSizeTextAnchor::basePosition() const {
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
+            BBoxf::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
             Vec3f pos;
             const Vec3f half = m_bounds.size() / 2.0f;
             
             if (m_axis == Axis::AZ) {
-                if ((camPos.x == BBox::PointPosition::Less && camPos.y == BBox::PointPosition::Less) ||
-                    (camPos.x == BBox::PointPosition::Less && camPos.y == BBox::PointPosition::Within)) {
-                    pos.x = m_bounds.min.x;
-                    pos.y = m_bounds.max.y;
-                } else if ((camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Greater) ||
-                           (camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Greater)) {
-                    pos.x = m_bounds.max.x;
-                    pos.y = m_bounds.max.y;
-                } else if ((camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Greater) ||
-                           (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Within)) {
-                    pos.x = m_bounds.max.x;
-                    pos.y = m_bounds.min.y;
-                } else if ((camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Less) ||
-                           (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Less)) {
-                    pos.x = m_bounds.min.x;
-                    pos.y = m_bounds.min.y;
+                if ((camPos.x == BBoxf::PointPosition::Less && camPos.y == BBoxf::PointPosition::Less) ||
+                    (camPos.x == BBoxf::PointPosition::Less && camPos.y == BBoxf::PointPosition::Within)) {
+                    pos[0] = m_bounds.min.x();
+                    pos[1] = m_bounds.max.y();
+                } else if ((camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Greater) ||
+                           (camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Greater)) {
+                    pos[0] = m_bounds.max.x();
+                    pos[1] = m_bounds.max.y();
+                } else if ((camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Greater) ||
+                           (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Within)) {
+                    pos[0] = m_bounds.max.x();
+                    pos[1] = m_bounds.min.y();
+                } else if ((camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Less) ||
+                           (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Less)) {
+                    pos[0] = m_bounds.min.x();
+                    pos[1] = m_bounds.min.y();
                 }
                 
-                pos.z = m_bounds.min.z + half.z;
+                pos[2] = m_bounds.min.z() + half.z();
             } else {
                 if (m_axis == Axis::AX) {
-                    pos.x = m_bounds.min.x + half.x;
-                    if (       camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Less) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.min.y : m_bounds.max.y;
-                    } else if (camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Within) {
-                        pos.y = m_bounds.max.y;
-                    } else if (camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Greater) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.max.y : m_bounds.min.y;
-                    } else if (camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Greater) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.max.y : m_bounds.min.y;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Greater) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.max.y : m_bounds.min.y;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Within) {
-                        pos.y = m_bounds.min.y;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Less) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.min.y : m_bounds.max.y;
-                    } else if (camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Less) {
-                        pos.y = camPos.z == BBox::PointPosition::Within ? m_bounds.min.y : m_bounds.max.y;
+                    pos[0] = m_bounds.min.x() + half.x();
+                    if (       camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.y() : m_bounds.max.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Within) {
+                        pos[1] = m_bounds.max.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Within) {
+                        pos[1] = m_bounds.min.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.y() : m_bounds.max.y();
+                    } else if (camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[1] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.y() : m_bounds.max.y();
                     }
                 } else {
-                    pos.y = m_bounds.min.y + half.y;
-                    if (       camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Less) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.min.x : m_bounds.max.x;
-                    } else if (camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Within) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.min.x : m_bounds.max.x;
-                    } else if (camPos.x == BBox::PointPosition::Less    && camPos.y == BBox::PointPosition::Greater) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.min.x : m_bounds.max.x;
-                    } else if (camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Greater) {
-                        pos.x = m_bounds.max.x;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Greater) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.max.x : m_bounds.min.x;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Within) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.max.x : m_bounds.min.x;
-                    } else if (camPos.x == BBox::PointPosition::Greater && camPos.y == BBox::PointPosition::Less) {
-                        pos.x = camPos.z == BBox::PointPosition::Within ? m_bounds.max.x : m_bounds.min.x;
-                    } else if (camPos.x == BBox::PointPosition::Within  && camPos.y == BBox::PointPosition::Less) {
-                        pos.x = m_bounds.min.x;
+                    pos[1] = m_bounds.min.y() + half.y();
+                    if (       camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Within) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Less    && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[0] = m_bounds.max.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Greater) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Within) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Greater && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[0] = camPos.z == BBoxf::PointPosition::Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos.x == BBoxf::PointPosition::Within  && camPos.y == BBoxf::PointPosition::Less) {
+                        pos[0] = m_bounds.min.x();
                     }
                 }
                 
-                if (camPos.z == BBox::PointPosition::Less)
-                    pos.z = m_bounds.min.z;
+                if (camPos.z == BBoxf::PointPosition::Less)
+                    pos[2] = m_bounds.min.z();
                 else
-                    pos.z = m_bounds.max.z;
+                    pos[2] = m_bounds.max.z();
             }
             
             return pos;
@@ -111,18 +111,41 @@ namespace TrenchBroom {
             if (m_axis == Axis::AZ)
                 return Text::Alignment::Right;
 
-            BBox::PointPosition camPos = m_bounds.pointPosition(m_camera->position());
-            if (camPos.z == BBox::PointPosition::Less)
+            BBoxf::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
+            if (camPos.z == BBoxf::PointPosition::Less)
                 return Text::Alignment::Top;
             return Text::Alignment::Bottom;
         }
 
-        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(BBox& bounds, Axis::Type axis, Renderer::Camera& camera) :
-        m_bounds(bounds.expanded(2.0f)), // create a bit of a margin for the text label
+        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(const BBoxf& bounds, Axis::Type axis, Renderer::Camera& camera) :
+        m_bounds(bounds.expanded(1.0f)), // create a bit of a margin for the text label
         m_axis(axis),
-        m_camera(&camera) {}
+        m_camera(camera) {}
         
-        BoxInfoRenderer::BoxInfoRenderer(const BBox& bounds, Text::FontManager& fontManager) :
+        const Vec3f BoxInfoMinMaxTextAnchor::basePosition() const {
+            if (m_minMax == BoxMin)
+                return m_bounds.min;
+            return m_bounds.max;
+        }
+        
+        const Text::Alignment::Type BoxInfoMinMaxTextAnchor::alignment() const {
+            const BBoxf::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
+            if (m_minMax == BoxMin) {
+                if (camPos.y == BBoxf::PointPosition::Less || (camPos.y == BBoxf::PointPosition::Within && camPos.x != BBoxf::PointPosition::Less))
+                    return Text::Alignment::Top | Text::Alignment::Right;
+                return Text::Alignment::Top | Text::Alignment::Left;
+            }
+            if (camPos.y == BBoxf::PointPosition::Less || (camPos.y == BBoxf::PointPosition::Within && camPos.x != BBoxf::PointPosition::Less))
+                return Text::Alignment::Bottom | Text::Alignment::Left;
+            return Text::Alignment::Bottom | Text::Alignment::Right;
+        }
+
+        BoxInfoMinMaxTextAnchor::BoxInfoMinMaxTextAnchor(const BBoxf& bounds, EMinMax minMax, Renderer::Camera& camera) :
+        m_bounds(bounds.expanded(0.2f)),
+        m_minMax(minMax),
+        m_camera(camera) {}
+
+        BoxInfoRenderer::BoxInfoRenderer(const BBoxf& bounds, Text::FontManager& fontManager) :
         m_bounds(bounds),
         m_textRenderer(NULL),
         m_initialized(false) {
@@ -135,7 +158,7 @@ namespace TrenchBroom {
             Text::TexturedFont* font = fontManager.font(fontDescriptor);
             assert(font != NULL);
 
-            m_textRenderer = new Text::TextRenderer<Axis::Type, BoxInfoSizeTextAnchor>(*font);
+            m_textRenderer = new Text::TextRenderer<unsigned int>(*font);
             m_textRenderer->setFadeDistance(2000.0f);
         }
         
@@ -155,9 +178,17 @@ namespace TrenchBroom {
                     StringStream buffer;
                     buffer << labels[i] << ": " << size[i];
                     
-                    BoxInfoSizeTextAnchor anchor(m_bounds, i, context.camera());
-                    m_textRenderer->addString(i, buffer.str(), anchor);
+                    m_textRenderer->addString(i, buffer.str(), Text::TextAnchor::Ptr(new BoxInfoSizeTextAnchor(m_bounds, i, context.camera())));
                 }
+                
+                StringStream minBuffer;
+                minBuffer << "Min: " << m_bounds.min.asString();
+                m_textRenderer->addString(3, minBuffer.str(), Text::TextAnchor::Ptr(new BoxInfoMinMaxTextAnchor(m_bounds, BoxInfoMinMaxTextAnchor::BoxMin, context.camera())));
+                
+                StringStream maxBuffer;
+                maxBuffer << "Max: " << m_bounds.max.asString();
+                m_textRenderer->addString(4, maxBuffer.str(), Text::TextAnchor::Ptr(new BoxInfoMinMaxTextAnchor(m_bounds, BoxInfoMinMaxTextAnchor::BoxMax, context.camera())));
+                
                 m_initialized = true;
             }
             

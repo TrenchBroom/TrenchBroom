@@ -17,6 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Controller/VertexHandleManager.h"
 #include "MoveEdgesCommand.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -29,33 +30,42 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
 
-            m_edges.clear();
+            m_handleManager.remove(m_brushes);
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
-
+            m_edgesAfter.clear();
+            
             Model::BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::EdgeInfoList& edgeInfos = it->second;
                 const Model::EdgeInfoList newEdgeInfos = brush->moveEdges(edgeInfos, m_delta);
-                m_edges.insert(m_edges.end(), newEdgeInfos.begin(), newEdgeInfos.end());
+                m_edgesAfter.insert(m_edgesAfter.end(), newEdgeInfos.begin(), newEdgeInfos.end());
             }
 
             document().brushesDidChange(m_brushes);
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectEdgeHandles(m_edgesAfter);
+
             return true;
         }
 
         bool MoveEdgesCommand::performUndo() {
+            m_handleManager.remove(m_brushes);
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
-            m_edges = m_originalEdges;
+            m_handleManager.add(m_brushes);
+            m_handleManager.selectEdgeHandles(m_edgesBefore);
+            
             return true;
         }
 
-        MoveEdgesCommand::MoveEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta) :
+        MoveEdgesCommand::MoveEdgesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
+        m_handleManager(handleManager),
         m_delta(delta) {
+            const Model::VertexToEdgesMap& brushEdges = m_handleManager.selectedEdgeHandles();
             Model::VertexToEdgesMap::const_iterator mapIt, mapEnd;
             for (mapIt = brushEdges.begin(), mapEnd = brushEdges.end(); mapIt != mapEnd; ++mapIt) {
                 const Model::EdgeList& edges = mapIt->second;
@@ -69,8 +79,7 @@ namespace TrenchBroom {
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(edgeInfo);
-                    m_originalEdges.push_back(edgeInfo);
-                    m_edges.push_back(edgeInfo);
+                    m_edgesBefore.push_back(edgeInfo);
                 }
             }
 
@@ -78,8 +87,8 @@ namespace TrenchBroom {
             assert(m_brushes.size() == m_brushEdges.size());
         }
 
-        MoveEdgesCommand* MoveEdgesCommand::moveEdges(Model::MapDocument& document, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta) {
-            return new MoveEdgesCommand(document, brushEdges.size() == 1 ? wxT("Move Edge") : wxT("Move Edges"), brushEdges, delta);
+        MoveEdgesCommand* MoveEdgesCommand::moveEdges(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta) {
+            return new MoveEdgesCommand(document, handleManager.selectedEdgeHandles().size() == 1 ? wxT("Move Edge") : wxT("Move Edges"), handleManager, delta);
         }
 
         bool MoveEdgesCommand::canDo() const {

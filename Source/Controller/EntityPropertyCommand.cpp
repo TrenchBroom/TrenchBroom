@@ -26,117 +26,163 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name) :
-        SnapshotCommand(type, document, name),
-        m_entities(entities),
-        m_definitionChanged(false) {}
-
         bool EntityPropertyCommand::performDo() {
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            Model::EntityDefinitionManager& definitionManager = document().definitionManager();
-            if (type() == SetEntityPropertyKey && key() != m_newKey) {
-                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                    Model::Entity& entity = **entityIt;
-                    if (!entity.propertyKeyIsMutable(key()) ||
-                        entity.propertyForKey(m_newKey) != NULL)
-                        return false;
-                }
-                
-                makeSnapshots(m_entities);
-                
-                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                    Model::Entity& entity = **entityIt;
-                    if (entity.propertyForKey(key()) != NULL)
-                        entity.renameProperty(key(), m_newKey);
-                }
-                return true;
-            }
+            if (!m_force && affectsImmutableProperty())
+                return false;
+            if (type() == SetEntityPropertyKey)
+                if (!canSetKey() || (!m_force && affectsImmutableKey()))
+                    return false;
             
-            if (type() == SetEntityPropertyValue) {
-                makeSnapshots(m_entities);
-                m_definitionChanged = (key() == Model::Entity::ClassnameKey);
-
-                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                    Model::Entity& entity = **entityIt;
-                    entity.setProperty(key(), m_newValue);
-                    if (m_definitionChanged)
-                        entity.setDefinition(definitionManager.definition(m_newValue));
-                }
-                return true;
+            makeSnapshots(m_entities);
+            document().entitiesWillChange(m_entities);
+            switch (type()) {
+                case Command::SetEntityPropertyKey:
+                    setKey();
+                    break;
+                case SetEntityPropertyValue:
+                    setValue();
+                    break;
+                case RemoveEntityProperty:
+                    remove();
+                    break;
+                default:
+                    break;
             }
+            document().entitiesDidChange(m_entities);
             
-            if (type() == RemoveEntityProperty) {
-                makeSnapshots(m_entities);
-                for (unsigned int i = 0; i < m_keys.size(); i++) {
-                    for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                        Model::Entity& entity = **entityIt;
-                        if (!entity.propertyKeyIsMutable(key()))
-                            return false;
-                    }
-
-                    const Model::PropertyKey& key = m_keys[i];
-                    for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                        Model::Entity& entity = **entityIt;
-                        entity.removeProperty(key);
-                    }
-                }
-                return true;
-            }
-            
-            return false;
+            return true;
         }
         
-        bool EntityPropertyCommand::performUndo() {
-            restoreSnapshots(m_entities);
-            if (m_definitionChanged) {
-                Model::EntityDefinitionManager& definitionManager = document().definitionManager();
-
+        bool EntityPropertyCommand::affectsImmutableProperty() const {
+            for (size_t i = 0; i < m_keys.size(); i++) {
+                const Model::PropertyKey& key = m_keys[i];
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
-                    const String* classname = entity.classname();
-                    if (classname != NULL)
-                        entity.setDefinition(definitionManager.definition(*classname));
-                    else
-                        entity.setDefinition(NULL);
+                    if (!entity.propertyIsMutable(key))
+                        return true;
                 }
             }
+            return false;
+        }
 
+        bool EntityPropertyCommand::affectsImmutableKey() const {
+            return (!Model::Entity::propertyKeyIsMutable(m_newKey) ||
+                    !Model::Entity::propertyKeyIsMutable(key()));
+        }
+
+        bool EntityPropertyCommand::canSetKey() const {
+            return (key() != m_newKey &&
+                    !anyEntityHasProperty(m_newKey));
+        }
+
+        bool EntityPropertyCommand::anyEntityHasProperty(const Model::PropertyKey& key) const {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                if (entity.propertyForKey(key) != NULL)
+                    return true;
+            }
+            return false;
+        }
+        
+        void EntityPropertyCommand::setKey() {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                if (entity.propertyForKey(key()) != NULL)
+                    entity.renameProperty(key(), m_newKey);
+            }
+        }
+        
+        void EntityPropertyCommand::setValue() {
+            Model::EntityDefinitionManager& definitionManager = document().definitionManager();
+            m_definitionChanged = (key() == Model::Entity::ClassnameKey);
+
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                entity.setProperty(key(), m_newValue);
+                if (m_definitionChanged)
+                    entity.setDefinition(definitionManager.definition(m_newValue));
+            }
+        }
+
+        void EntityPropertyCommand::remove() {
+            for (size_t i = 0; i < m_keys.size(); i++) {
+                const Model::PropertyKey& key = m_keys[i];
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
+                    entity.removeProperty(key);
+                }
+            }
+        }
+
+        bool EntityPropertyCommand::performUndo() {
+            restoreSnapshots(m_entities);
+            if (m_definitionChanged)
+                restoreEntityDefinitions();
             return true;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
+        void EntityPropertyCommand::restoreEntityDefinitions() {
+            Model::EntityDefinitionManager& definitionManager = document().definitionManager();
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const String* classname = entity.classname();
+                if (classname != NULL)
+                    entity.setDefinition(definitionManager.definition(*classname));
+                else
+                    entity.setDefinition(NULL);
+            }
+        }
+
+        EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name) :
+        SnapshotCommand(type, document, name),
+        m_entities(entities),
+        m_definitionChanged(false),
+        m_force(false) {}
+
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, entities, wxT("Set Property Key"));
             command->setKey(oldKey);
             command->setNewKey(newKey);
+            command->setForce(force);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
             command->setKey(key);
             command->setNewValue(newValue);
+            command->setForce(force);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
             Model::EntityList entities;
             entities.push_back(&entity);
             EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
             command->setKey(key);
             command->setNewValue(newValue);
+            command->setForce(force);
             return command;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key) {
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Property"));
             command->setKey(key);
+            command->setForce(force);
             return command;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys) {
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys, const bool force) {
             EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Properties"));
             command->setKeys(keys);
+            command->setForce(force);
             return command;
         }
     }

@@ -38,6 +38,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Command;
+    }
+    
     namespace Model {
         class EditStateChangeSet;
         class MapDocument;
@@ -48,7 +52,7 @@ namespace TrenchBroom {
         class EntityRenderer;
         class FaceRenderer;
         class Figure;
-        class PointTraceFigure;
+        class PointTraceRenderer;
         class RenderContext;
         class Shader;
         class ShaderProgram;
@@ -83,14 +87,9 @@ namespace TrenchBroom {
             EntityRenderer* m_selectedEntityRenderer;
             EntityRenderer* m_lockedEntityRenderer;
             
-            Vbo* m_figureVbo;
-            Figure::List m_figures;
-            Figure::List m_deletedFigures;
-            
-            Vbo* m_decoratorVbo;
+            Vbo* m_utilityVbo;
             EntityDecorator::List m_entityDecorators;
-            
-            PointTraceFigure* m_pointTraceFigure;
+            PointTraceRenderer* m_pointTraceRenderer;
             
             bool m_overrideSelectionColors;
             Color m_selectedFaceColor;
@@ -104,15 +103,27 @@ namespace TrenchBroom {
             bool m_lockedGeometryDataValid;
             
             void rebuildGeometryData(RenderContext& context);
-            void deleteFigures(Figure::List& figures);
             
             void validate(RenderContext& context);
-            void invalidateDecorators();
             
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
-            void renderFigures(RenderContext& context);
             void renderDecorators(RenderContext& context);
+
+            void changeEditState(const Model::EditStateChangeSet& changeSet);
+            void invalidateEntities();
+            void invalidateSelectedEntities();
+            void invalidateBrushes();
+            void invalidateSelectedBrushes();
+            void invalidateAll();
+            void invalidateEntityModelRendererCache();
+            void invalidateSelectedEntityModelRendererCache();
+            void invalidateDecorators();
+            void clear();
+
+            // prevent copying
+            MapRenderer(const MapRenderer& other);
+            void operator= (const MapRenderer& other);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
@@ -124,25 +135,8 @@ namespace TrenchBroom {
                 m_occludedSelectedEdgeColor = occludedEdgeColor;
             }
             
-            void addEntity(Model::Entity& entity);
-            void addEntities(const Model::EntityList& entities);
-            void removeEntity(Model::Entity& entity);
-            void removeEntities(const Model::EntityList& entities);
-            void changeEditState(const Model::EditStateChangeSet& changeSet);
-            void loadMap();
-            void clearMap();
-            void invalidateEntities();
-            void invalidateSelectedEntities();
-            void invalidateBrushes();
-            void invalidateSelectedBrushes();
-            void invalidateAll();
-            void invalidateEntityModelRendererCache();
-            void invalidateSelectedEntityModelRendererCache();
-            
-            void addFigure(Figure* figure);
-            void removeFigure(Figure* figure);
-            void deleteFigure(Figure* figure);
-            
+            void update(const Controller::Command& command);
+
             void setPointTrace(const Vec3f::List& points);
             void removePointTrace();
             

@@ -21,15 +21,17 @@
 #define __TrenchBroom__MoveTexturesCommand__
 
 #include "Controller/Command.h"
+#include "Model/FaceTypes.h"
 
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
         class MoveTexturesCommand : public DocumentCommand {
         protected:
+            Model::FaceList m_faces;
             const Vec3f m_up;
             const Vec3f m_right;
             const Direction m_direction;
@@ -38,9 +40,9 @@ namespace TrenchBroom {
             bool performDo();
             bool performUndo();
 
-            MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
+            MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
         public:
-            static MoveTexturesCommand* moveTextures(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
+            static MoveTexturesCommand* moveTextures(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
         };
     }
 }

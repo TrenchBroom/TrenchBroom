@@ -21,7 +21,7 @@
 
 #include "Controller/Command.h"
 #include "Controller/ControllerUtils.h"
-#include "Controller/MoveObjectsCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
@@ -87,12 +87,12 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             
-            BBox bounds = editStateManager.bounds();
+            BBoxf bounds = editStateManager.bounds();
             bounds.translate(delta);
             if (!document().map().worldBounds().contains(bounds))
                 return Deny;
             
-            MoveObjectsCommand* command = MoveObjectsCommand::moveObjects(document(), entities, brushes, delta, document().textureLock());
+            TransformObjectsCommand* command = TransformObjectsCommand::translateObjects(document(), entities, brushes, delta);
             submitCommand(command);
             
             return Continue;
@@ -104,6 +104,7 @@ namespace TrenchBroom {
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         MoveTool(documentViewHolder, inputController, true),
-        m_filter(Model::SelectedFilter(view().filter())) {}
+        m_filter(Model::SelectedFilter(view().filter())),
+        m_mode(MMMove) {}
     }
 }

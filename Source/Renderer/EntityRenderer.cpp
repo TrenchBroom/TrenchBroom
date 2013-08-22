@@ -38,10 +38,10 @@ namespace TrenchBroom {
         
         const Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
             Vec3f position = m_entity->center();
-            position.z = m_entity->bounds().max.z;
+            position[2] = m_entity->bounds().max.z();
             if (m_renderer != NULL)
-                position.z = std::max(position.z, m_renderer->bounds().max.z + m_entity->origin().z);
-            position.z += 2.0f;
+                position[2] = std::max(position.z(), m_renderer->bounds().max.z() + m_entity->origin().z());
+            position[2] += 2.0f;
             return position;
         }
         
@@ -62,12 +62,12 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
+                const BBoxf& bounds = entity->bounds();
                 const Model::EntityDefinition* definition = entity->definition();
                 Color entityColor;
                 if (definition != NULL) {
                     entityColor = definition->color();
-                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
+                    entityColor[3] = prefs.getColor(Preferences::EntityBoundsColor).a();
                 } else {
                     entityColor = prefs.getColor(Preferences::EntityBoundsColor);
                 }
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             Vec3f::List vertices(24);
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
+                const BBoxf& bounds = entity->bounds();
                 bounds.vertices(vertices);
 
                 for (unsigned int j = 0; j < vertices.size(); j++)
@@ -282,8 +282,7 @@ namespace TrenchBroom {
                 if (renderer != NULL)
                     m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, *classname);
 
-                EntityClassnameAnchor anchor(entity, renderer);
-                m_classnameRenderer->addString(&entity, *classname, anchor);
+                m_classnameRenderer->addString(&entity, *classname, Text::TextAnchor::Ptr(new EntityClassnameAnchor(entity, renderer)));
             }
 
 
@@ -307,8 +306,7 @@ namespace TrenchBroom {
                     if (renderer != NULL)
                         m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
 
-                    EntityClassnameAnchor anchor(*entity, renderer);
-                    m_classnameRenderer->addString(entity, *classname, anchor);
+                    m_classnameRenderer->addString(entity, *classname, Text::TextAnchor::Ptr(new EntityClassnameAnchor(*entity, renderer)));
                 }
             }
 

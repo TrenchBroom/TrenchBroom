@@ -31,15 +31,15 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-	wxMenu* viewMenu = AbstractApp::CreateViewMenu(eventHandler, mapViewFocused);
-	viewMenu->AppendSeparator();
-    viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
-	return viewMenu;
+wxMenu* TrenchBroomApp::CreateEditMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+	wxMenu* editMenu = AbstractApp::CreateEditMenu(selector, eventHandler, mapViewFocused);
+	editMenu->AppendSeparator();
+    editMenu->Append(wxID_PREFERENCES, wxT("Preferences"));
+	return editMenu;
 }
 
-wxMenu* TrenchBroomApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    wxMenu* helpMenu = AbstractApp::CreateHelpMenu(eventHandler, mapViewFocused);
+wxMenu* TrenchBroomApp::CreateHelpMenu(const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused) {
+    wxMenu* helpMenu = AbstractApp::CreateHelpMenu(selector, eventHandler, mapViewFocused);
     helpMenu->AppendSeparator();
     helpMenu->Append(wxID_ABOUT, wxT("About TrenchBroom..."));
     return helpMenu;
@@ -52,8 +52,15 @@ bool TrenchBroomApp::OnInit() {
 	if (AbstractApp::OnInit()) {
 		SetExitOnFrameDelete(true);
 		m_docManager->SetUseSDI(false);
-		m_docManager->CreateNewDocument();
-		return true;
+        if (wxApp::argc > 1) {
+            wxString filename = wxApp::argv[1];
+            if (m_docManager->CreateDocument(filename) == NULL) {
+                return false;
+            }
+        } else {
+		    m_docManager->CreateNewDocument();
+        }
+        return true;
 	}
 
 	return false;

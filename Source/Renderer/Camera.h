@@ -23,7 +23,7 @@
 #include <GL/glew.h>
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -49,6 +49,8 @@ namespace TrenchBroom {
 
             Viewport m_viewport;
             
+            mutable Mat4f m_projectionMatrix;
+            mutable Mat4f m_viewMatrix;
             mutable Mat4f m_matrix;
             mutable Mat4f m_invertedMatrix;
             mutable bool m_valid;
@@ -142,12 +144,20 @@ namespace TrenchBroom {
             const Vec3f project(const Vec3f& point) const;
             const Vec3f unproject(float x, float y, float depth) const;
             const Vec3f toCameraCoordinateSystem(const Vec3f& point) const;
-            const Ray pickRay(float x, float y) const;
+            const Rayf pickRay(float x, float y) const;
             
-            const Mat4f& matrix() const;
+            inline const Mat4f& projectionMatrix() const {
+                return m_projectionMatrix;
+            }
+            
+            inline const Mat4f& viewMatrix() const {
+                return m_viewMatrix;
+            }
+            
             const Mat4f billboardMatrix(bool fixUp = false) const;
-            void frustumPlanes(Plane& top, Plane& right, Plane& bottom, Plane& left) const;
+            void frustumPlanes(Planef& top, Planef& right, Planef& bottom, Planef& left) const;
 
+            Vec3f vectorTo(const Vec3f& point) const;
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
 

@@ -26,12 +26,38 @@
 #include <cmath>
 
 namespace TrenchBroom {
-    class Color : public Math::Vec4f {
+    class Color : public VecMath::Vec4f {
     public:
-        Color() : Vec4f() {}
-        Color(const std::string& str) : Vec4f(str) {}
-        Color(float x, float y, float z, float w) : Vec4f(x, y, z, w) {}
-        Color(const Color& color, float w) : Vec4f(color, w) {}
+        Color() :
+        VecMath::Vec4f() {}
+        
+        Color(const std::string& str) :
+        VecMath::Vec4f(str) {}
+        
+        explicit Color(float r, float g, float b, float a = 1.0f) :
+        VecMath::Vec4f(r, g, b, a) {}
+        
+        explicit Color(int r, int g, int b, int a = 0xFF) :
+        VecMath::Vec4f(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, static_cast<float>(a) / 255.0f) {}
+        
+        Color(const Color& color, float w) :
+        VecMath::Vec4f(color.r(), color.g(), color.b(), w) {}
+        
+        inline float r() const {
+            return x();
+        }
+        
+        inline float g() const {
+            return y();
+        }
+        
+        inline float b() const {
+            return z();
+        }
+        
+        inline float a() const {
+            return w();
+        }
         
         inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {
             assert(r >= 0.0f && r <= 1.0f);
@@ -131,28 +157,22 @@ namespace TrenchBroom {
             assert(g >= 0.0f && g <= 1.0f);
             assert(b >= 0.0f && b <= 1.0f);
             
-            Math::Vec3f rgb(r, g, b);
-            Math::Vec3f yiq = Math::Mat3f::RGBToYIQ * rgb;
-            
-            y = yiq.x;
-            i = yiq.y;
-            q = yiq.z;
+            VecMath::Vec3f yiq = VecMath::Mat3f::RGBToYIQ * VecMath::Vec3f(r, g, b);
+            y = yiq.x();
+            i = yiq.y();
+            q = yiq.z();
         }
         
-        inline Color& mix(const Color& other, float f) {
+        inline Color& mix(const Color& other, const float f) {
             const float c = std::max(0.0f, std::min(1.0f, f));
             const float d = 1.0f - c;
-            x = d * x + c * other.x;
-            y = d * y + c * other.x;
-            z = d * z + c * other.x;
-            w = d * w + c * other.x;
+            for (size_t i = 0; i < 4; i++)
+                v[i] = d*v[i] + c*other[i];
             return *this;
         }
     
-        inline const Color mixed(const Color& other, float f) const {
-            Color result = *this;
-            result.mix(other, f);
-            return result;
+        inline const Color mixed(const Color& other, const float f) const {
+            return Color(*this).mix(other, f);
         }
     };
 }

@@ -37,7 +37,7 @@ namespace TrenchBroom {
             bool hasDescription;
             Color color;
             bool hasColor;
-            BBox size;
+            BBoxf size;
             bool hasSize;
             Model::PropertyDefinition::Map properties;
             Model::ModelDefinition::List models;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                 hasColor = true;
             }
             
-            inline void setSize(const BBox& i_size) {
+            inline void setSize(const BBoxf& i_size) {
                 size = i_size;
                 hasSize = true;
             }

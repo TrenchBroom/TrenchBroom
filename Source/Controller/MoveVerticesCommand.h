@@ -27,37 +27,35 @@
 
 #include <map>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
+        class VertexHandleManager;
+        
         class MoveVerticesCommand : public SnapshotCommand {
         protected:
             typedef std::map<Model::Brush*, Vec3f::List> BrushVerticesMap;
             typedef std::pair<Model::Brush*, Vec3f::List> BrushVerticesMapEntry;
             typedef std::pair<BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
 
+            VertexHandleManager& m_handleManager;
+            
             Model::BrushList m_brushes;
             BrushVerticesMap m_brushVertices;
-            Vec3f::Set m_vertices;
+            Vec3f::Set m_verticesBefore;
+            Vec3f::Set m_verticesAfter;
             Vec3f m_delta;
             
             bool performDo();
             bool performUndo();
 
-            MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta);
+            MoveVerticesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta);
         public:
-            static MoveVerticesCommand* moveVertices(Model::MapDocument& document, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta);
+            static MoveVerticesCommand* moveVertices(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta);
             
             bool canDo() const;
-            
-            inline const Model::BrushList& brushes() const {
-                return m_brushes;
-            }
-            
-            inline const Vec3f::Set& vertices() const {
-                return m_vertices;
-            }
+            bool hasRemainingVertices() const;
         };
     }
 }

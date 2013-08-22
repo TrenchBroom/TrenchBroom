@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
 
         void PointFile::load(const String& mapFilePath) {
-            static const float threshold = Math::radians(15);
+            static const float threshold = Math<float>::radians(15.0f);
             
             String pointFilePath = path(mapFilePath);
             std::fstream stream(pointFilePath.c_str(), std::ios_base::in);

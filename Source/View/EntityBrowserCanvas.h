@@ -27,7 +27,7 @@
 #include "Utility/VecMath.h"
 #include "View/CellLayoutGLCanvas.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,9 +50,9 @@ namespace TrenchBroom {
             Model::PointEntityDefinition* entityDefinition;
             Renderer::EntityModelRenderer* modelRenderer;
             Renderer::Text::FontDescriptor fontDescriptor;
-            BBox bounds;
+            BBoxf bounds;
 
-            EntityCellData(Model::PointEntityDefinition* i_entityDefinition, Renderer::EntityModelRenderer* i_modelRenderer, const Renderer::Text::FontDescriptor& i_fontDescriptor, const BBox& i_bounds) :
+            EntityCellData(Model::PointEntityDefinition* i_entityDefinition, Renderer::EntityModelRenderer* i_modelRenderer, const Renderer::Text::FontDescriptor& i_fontDescriptor, const BBoxf& i_bounds) :
             entityDefinition(i_entityDefinition),
             modelRenderer(i_modelRenderer),
             fontDescriptor(i_fontDescriptor),
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             DocumentViewHolder& m_documentViewHolder;
             Renderer::OffscreenRenderer m_offscreenRenderer;
             Renderer::Vbo* m_vbo;
-            Quat m_rotation;
+            Quatf m_rotation;
 
             bool m_group;
             bool m_hideUnused;
@@ -72,8 +72,8 @@ namespace TrenchBroom {
             String m_filterText;
 
             void addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font);
-            void renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale);
-            void renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale);
+            void renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling);
+            void renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBoxf& rotatedBounds, const Vec3f& offset, float scaling);
 
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);

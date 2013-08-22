@@ -34,6 +34,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class BoxGuideRenderer;
+        class Camera;
         class RenderContext;
         class Vbo;
     }
@@ -45,9 +46,10 @@ namespace TrenchBroom {
     namespace Controller {
         class CameraTool;
         class ClipTool;
+        class Command;
         class CreateBrushTool;
-        class CreateEntityFromMenuHelper;
         class CreateEntityTool;
+        class FlyTool;
         class MoveObjectsTool;
         class MoveVerticesTool;
         class ResizeBrushesTool;
@@ -63,10 +65,11 @@ namespace TrenchBroom {
 
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
-            MoveVerticesTool* m_moveVerticesTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
+            FlyTool* m_flyTool;
             MoveObjectsTool* m_moveObjectsTool;
+            MoveVerticesTool* m_moveVerticesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
             SetFaceAttributesTool* m_setFaceAttributesTool;
@@ -86,11 +89,14 @@ namespace TrenchBroom {
             void updateHits();
             void updateViews();
 
-            CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
             Model::SelectedFilter m_selectedFilter;
 
             void toggleTool(Tool* tool);
+            
+            // prevent copying
+            InputController(const InputController& other);
+            void operator= (const InputController& other);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
@@ -110,14 +116,12 @@ namespace TrenchBroom {
             void dragMove(const String& payload, int x, int y);
             bool drop(const String& payload, int x, int y);
             void dragLeave();
-
-            void objectsChange();
-            void editStateChange(const Model::EditStateChangeSet& changeSet);
-            void cameraChange();
-            void gridChange();
+            
+            bool navigateUp();
+            void update(const Command& command);
+            void cameraChanged();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
-            void freeRenderResources();
 
             inline ClipTool& clipTool() const {
                 return *m_clipTool;
@@ -130,6 +134,7 @@ namespace TrenchBroom {
             void deleteClipPoint();
             bool canPerformClip();
             void performClip();
+            void toggleAxisRestriction();
 
             inline MoveVerticesTool& moveVerticesTool() const {
                 return *m_moveVerticesTool;
@@ -151,17 +156,6 @@ namespace TrenchBroom {
                 return m_inputState;
             }
         };
-
-        class InputControllerFigure : public Renderer::Figure {
-        private:
-            InputController& m_inputController;
-        public:
-            InputControllerFigure(InputController& inputController);
-            ~InputControllerFigure();
-
-            void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
-        };
-
     }
 }
 

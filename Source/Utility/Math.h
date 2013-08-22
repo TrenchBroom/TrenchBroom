@@ -26,110 +26,141 @@
 #include <limits>
 
 namespace TrenchBroom {
-    namespace Math {
-        static const float AlmostZero = 0.001f;
-        static const float PointStatusEpsilon = 0.01f;
-        static const float CorrectEpsilon = 0.001f; // this is what QBSP uses
-        static const float ColinearEpsilon = 0.01f;
-        static const float Pi = 3.141592653589793f;
-        static const float E = 2.718281828459045f;
+    namespace VecMath {
+        template <typename T>
+        class Math {
+        public:
+            static const T AlmostZero;
+            static const T PointStatusEpsilon;
+            static const T CorrectEpsilon;
+            static const T ColinearEpsilon;
+            static const T Pi;
+            static const T TwoPi;
+            static const T PiOverTwo;
+            static const T PiOverFour;
+            static const T PiOverStraightAngle;
+            static const T StraightAngleOverPi;
+            static const T E;
 
-        inline bool isnan(float f) {
+            inline static bool isnan(const T f) {
 #ifdef _MSC_VER
-            return _isnan(f) != 0;
+                return _isnan(f) != 0;
 #else
-            return std::isnan(f);
+                return std::isnan(f);
 #endif
-        }
-
-        inline float nan() {
-            return std::numeric_limits<float>::quiet_NaN();
-        }
-
-        inline float radians(float d) {
-            return Pi * d / 180.0f;
-        }
-
-        inline float degrees(float r) {
-            return 180.0f * r / Pi;
-        }
-
-        inline float round(float f) {
-            return f > 0.0f ? std::floor(f + 0.5f) : std::ceil(f - 0.5f);
-        }
-
-        inline float correct(float f, float epsilon = CorrectEpsilon) {
-            const float r = round(f);
-            if (std::abs(f - r) <= epsilon
-                )
-                return r;
-            return f;
-        }
-
-        inline bool zero(float f, float epsilon = AlmostZero) {
-            return std::abs(f) <= epsilon;
-        }
-
-        inline bool pos(float f, float epsilon = AlmostZero) {
-            return f > epsilon;
-        }
-
-        inline bool neg(float f, float epsilon = AlmostZero) {
-            return f < -epsilon;
-        }
-
-        inline bool relEq(float f1, float f2, float epsilon = AlmostZero) {
-            const float absA = std::abs(f1);
-            const float absB = std::abs(f2);
-            const float diff = std::abs(f1 - f2);
-            
-            if (f1 == f2) { // shortcut, handles infinities
-                return true;
-            } else if (f1 == 0.0f || f2 == 0.0f || diff < std::numeric_limits<float>::min()) {
-                // a or b is zero or both are extremely close to it
-                // relative error is less meaningful here
-                return diff < (epsilon * std::numeric_limits<float>::min());
-            } else { // use relative error
-                return diff / (absA + absB) < epsilon;
             }
-        }
+            
+            inline static T nan() {
+                return std::numeric_limits<T>::quiet_NaN();
+            }
+            
+            inline static T radians(const T d) {
+                return d * PiOverStraightAngle;
+            }
 
-        inline bool eq(float f1, float f2, float epsilon = AlmostZero) {
-            return std::abs(f1 - f2) < epsilon;
-        }
+            inline static T degrees(const T r) {
+                return r * StraightAngleOverPi;
+            }
+            
+            inline static T round(const T v) {
+                return v > 0.0 ? std::floor(v + static_cast<T>(0.5)) : std::ceil(v - static_cast<T>(0.5));
+            }
+            
+            inline static T correct(const T v, const T epsilon = CorrectEpsilon) {
+                const T r = round(v);
+                if (std::abs(v - r) <= epsilon)
+                    return r;
+                return v;
+            }
 
-        inline bool gt(float f1, float f2, float epsilon = AlmostZero) {
-            return f1 > f2 + epsilon;
-        }
+            inline static bool zero(const T v, const T epsilon = AlmostZero) {
+                return std::abs(v) <= epsilon;
+            }
+            
+            inline static bool pos(const T v, const T epsilon = AlmostZero) {
+                return v > epsilon;
+            }
+            
+            inline static bool neg(const T v, const T epsilon = AlmostZero) {
+                return v < -epsilon;
+            }
 
-        inline bool lt(float f1, float f2, float epsilon = AlmostZero) {
-            return f1 < f2 - epsilon;
-        }
+            inline static bool relEq(const T v1, const T v2, const T epsilon = AlmostZero) {
+                const T absA = std::abs(v1);
+                const T absB = std::abs(v2);
+                const T diff = std::abs(v1 - v2);
+                
+                if (v1 == v2) { // shortcut, handles infinities
+                    return true;
+                } else if (v1 == 0.0 || v2 == 0.0 || diff < std::numeric_limits<T>::min()) {
+                    // a or b is zero or both are extremely close to it
+                    // relative error is less meaningful here
+                    return diff < (epsilon * std::numeric_limits<T>::min());
+                } else { // use relative error
+                    return diff / (absA + absB) < epsilon;
+                }
+            }
 
-        inline bool gte(float f1, float f2, float epsilon = AlmostZero) {
-            return !lt(f1, f2, epsilon);
-        }
+            inline static bool eq(const T v1, const T v2, const T epsilon = AlmostZero) {
+                return std::abs(v1 - v2) < epsilon;
+            }
+            
+            inline static bool gt(const T v1, const T v2, const T epsilon = AlmostZero) {
+                return v1 > v2 + epsilon;
+            }
+            
+            inline static bool lt(const T v1, const T v2, const T epsilon = AlmostZero) {
+                return v1 < v2 - epsilon;
+            }
+            
+            inline static bool gte(const T v1, const T v2, const T epsilon = AlmostZero) {
+                return !lt(v1, v2, epsilon);
+            }
+            
+            inline static bool lte(const T v1, const T v2, const T epsilon = AlmostZero) {
+                return !gt(v1, v2, epsilon);
+            }
 
-        inline bool lte(float f1, float f2, float epsilon = AlmostZero) {
-            return !gt(f1, f2, epsilon);
-        }
-
-        inline bool between(float f, float s, float e, float epsilon = AlmostZero) {
-            if (eq(f, s, epsilon) || eq(f, e, epsilon))
-                return true;
-            if (lt(s, e, epsilon))
-                return gt(f, s, epsilon) && lt(f, e, epsilon);
-            return gt(f, e, epsilon) && lt(f, s, epsilon);
-        }
+            inline static bool between(const T v, const T s, const T e, const T epsilon = AlmostZero) {
+                if (eq(v, s, epsilon) || eq(v, e, epsilon))
+                    return true;
+                if (lt(s, e, epsilon))
+                    return gt(v, s, epsilon) && lt(v, e, epsilon);
+                return gt(v, e, epsilon) && lt(v, s, epsilon);
+            }
+            
+            inline static T selectMin(const T v1, const T v2) {
+                if (isnan(v1))
+                    return v2;
+                if (isnan(v2))
+                    return v1;
+                return std::min(v1, v2);
+            }
+        };
         
-        inline float selectMin(float f1, float f2) {
-            if (isnan(f1))
-                return f2;
-            if (isnan(f2))
-                return f1;
-            return std::min(f1, f2);
-        }
-        
+        template <typename T>
+        const T Math<T>::AlmostZero           = static_cast<T>(0.001);
+        template <typename T>
+        const T Math<T>::PointStatusEpsilon   = static_cast<T>(0.01);
+        template <typename T>
+        const T Math<T>::CorrectEpsilon       = static_cast<T>(0.001); // this is what QBSP uses
+        template <typename T>
+        const T Math<T>::ColinearEpsilon      = static_cast<T>(0.01);
+        template <typename T>
+        const T Math<T>::Pi                   = static_cast<T>(3.141592653589793);
+        template <typename T>
+        const T Math<T>::TwoPi                = static_cast<T>(2.0) * Pi;
+        template <typename T>
+        const T Math<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
+        template <typename T>
+        const T Math<T>::PiOverFour           = Pi / static_cast<T>(4.0);
+        template <typename T>
+        const T Math<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
+        template <typename T>
+        const T Math<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
+        template <typename T>
+        const T Math<T>:: E                   = static_cast<T>(2.718281828459045);
+
         inline size_t succ(size_t index, size_t count, size_t offset = 1) {
             return (index + offset) % count;
         }
@@ -139,7 +170,7 @@ namespace TrenchBroom {
         }
 
 		namespace Axis {
-			typedef unsigned int Type;
+			typedef size_t Type;
 			static const Type AX = 0;
 			static const Type AY = 1;
 			static const Type AZ = 2;
@@ -155,7 +186,7 @@ namespace TrenchBroom {
         } Direction;
 
 		namespace PointStatus {
-			typedef unsigned int Type;
+			typedef size_t Type;
 			static const Type PSAbove = 0;
 			static const Type PSBelow = 1;
 			static const Type PSInside = 2;

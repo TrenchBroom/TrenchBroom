@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 m_bounds.mergeWith(m_vertices[i]);
         }
 
-        BspModel::BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBox& bounds) :
+        BspModel::BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBoxf& bounds) :
         m_faces(faces),
         m_vertexCount(vertexCount),
         m_center(center),
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             using namespace IO;
             
             char* cursor = begin;
-            int version = readInt<int32_t>(cursor); version = version; // prevent warning
+            readInt<int32_t>(cursor); // version
             cursor = begin + BspLayout::DirTexturesAddress;
             int textureAddr = readInt<int32_t>(cursor);
             cursor = begin + textureAddr;
@@ -257,7 +257,7 @@ namespace TrenchBroom {
                 }
 
                 Vec3f center;
-                BBox bounds;
+                BBoxf bounds;
 
                 center = vertices[modelVertices[0]];
                 bounds.min = vertices[modelVertices[0]];

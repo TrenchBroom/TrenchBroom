@@ -20,14 +20,13 @@
 #ifndef TrenchBroom_FaceTypes_h
 #define TrenchBroom_FaceTypes_h
 
+#include "Utility/GeometryPrecision.h"
+#include "Utility/Vec.h"
+
 #include <set>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Math {
-        class Vec3f;
-    }
-    
     namespace Model {
         class Face;
         
@@ -36,7 +35,7 @@ namespace TrenchBroom {
         typedef std::set<Face*> FaceSet;
         static const FaceSet EmptyFaceSet;
         
-        typedef Math::Vec3f FacePoints[3];
+        typedef VecMath::Vec3f FacePoints[3];
     }
 }
 

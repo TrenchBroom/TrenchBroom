@@ -62,6 +62,16 @@ namespace TrenchBroom {
             SetSizer(notebookSizer);
         }
 
+        void Inspector::update(const Controller::Command& command) {
+            m_entityInspector->update(command);
+            m_faceInspector->update(command);
+        }
+
+        void Inspector::cameraChanged(const Renderer::Camera& camera) {
+            m_entityInspector->cameraChanged(camera);
+            m_faceInspector->cameraChanged(camera);
+        }
+
         void Inspector::switchToInspector(size_t index) {
             assert(index < m_notebook->GetPageCount());
             m_notebook->SetSelection(index);

@@ -20,7 +20,7 @@
 #include "FindPlanePoints.h"
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
         const Vec2f SearchCursor::MoveOffsets[9] = {
             Vec2f(-1.0f,  1.0f), Vec2f( 0.0f,  1.0f), Vec2f( 1.0f,  1.0f),
             Vec2f(-1.0f,  0.0f), Vec2f( 0.0f,  0.0f), Vec2f( 1.0f,  0.0f),

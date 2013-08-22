@@ -96,7 +96,6 @@ namespace TrenchBroom {
         MappedFile::Ptr WinFileManager::mapFile(const String& path, std::ios_base::openmode mode) {
             HANDLE fileHandle = INVALID_HANDLE_VALUE;
 		    HANDLE mappingHandle = NULL;
-            char* address = NULL;
             size_t size = 0;
         
             DWORD accessMode = 0;
@@ -155,7 +154,7 @@ namespace TrenchBroom {
 
             MappedFile::Ptr mappedFile;
 		    if (mappingHandle != NULL) {
-			    address = static_cast<char*>(MapViewOfFile(mappingHandle, mapAccess, 0, 0, 0));
+			    char* address = static_cast<char*>(MapViewOfFile(mappingHandle, mapAccess, 0, 0, 0));
 			    if (address != NULL) {
                     mappedFile = MappedFile::Ptr(new WinMappedFile(fileHandle, mappingHandle, address, size));
 			    } else {

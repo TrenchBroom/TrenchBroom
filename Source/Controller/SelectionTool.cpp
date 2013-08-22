@@ -42,34 +42,60 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
             
-            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0)
-                return false;
-            
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
-            if (hit == NULL)
-                return false;
-            
             Command* command = NULL;
-            bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
+            const bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
 
-            Model::Face& face = hit->face();
-            Model::Brush& brush = *face.brush();
-            Model::FaceList selectFaces;
-            
-            const Model::FaceList& brushFaces = brush.faces();
-            Model::FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = brushFaces.begin(), faceEnd = brushFaces.end(); faceIt != faceEnd; ++faceIt) {
-                Model::Face& brushFace = **faceIt;
-                if (!brushFace.selected())
-                    selectFaces.push_back(&brushFace);
+            if ((inputState.modifierKeys() & ModifierKeys::MKShift) != 0) {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit == NULL)
+                    return false;
+                
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush();
+                const Model::FaceList& brushFaces = brush.faces();
+                
+                if (multi) {
+                    Model::FaceList selectFaces;
+                    Model::FaceList::const_iterator faceIt, faceEnd;
+                    for (faceIt = brushFaces.begin(), faceEnd = brushFaces.end(); faceIt != faceEnd; ++faceIt) {
+                        Model::Face& brushFace = **faceIt;
+                        if (!brushFace.selected())
+                            selectFaces.push_back(&brushFace);
+                    }
+                    if (!selectFaces.empty())
+                        command = ChangeEditStateCommand::select(document(), selectFaces);
+                } else {
+                    command = ChangeEditStateCommand::replace(document(), brushFaces);
+                }
+            } else {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit == NULL)
+                    return false;
+                
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush();
+                Model::Entity& entity = *brush.entity();
+                if (!entity.worldspawn()) {
+                    const Model::BrushList& entityBrushes = entity.brushes();
+                    if (multi) {
+                        Model::BrushList selectBrushes;
+                        Model::BrushList::const_iterator brushIt, brushEnd;
+                        for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                            Model::Brush& entityBrush = **brushIt;
+                            if (!entityBrush.selected())
+                                selectBrushes.push_back(&entityBrush);
+                        }
+                        
+                        if (!selectBrushes.empty())
+                            command = ChangeEditStateCommand::select(document(), selectBrushes);
+                    } else {
+                        command = ChangeEditStateCommand::replace(document(), entityBrushes);
+                    }
+                }
             }
-            
-            if (multi)
-                command = ChangeEditStateCommand::select(document(), brush.faces());
-            else
-                command = ChangeEditStateCommand::replace(document(), brush.faces());
 
-            submitCommand(command);
+            if (command != NULL)
+                submitCommand(command);
             return true;
         }
 
@@ -223,6 +249,54 @@ namespace TrenchBroom {
             
             ChangeEditStateCommand* command = ChangeEditStateCommand::replace(document(), entities, brushes);
             submitCommand(command);
+        }
+
+        bool SelectionTool::handleStartDrag(InputState& inputState) {
+            if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
+                return false;
+            
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone)
+                return false;
+            
+            return true;
+        }
+        
+        bool SelectionTool::handleDrag(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            assert(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
+            
+            Command* command = NULL;
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit == NULL)
+                    return true;
+                
+                Model::Face& face = hit->face();
+                if (!face.selected())
+                    command = ChangeEditStateCommand::select(document(), face);
+            } else {
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, true, view().filter()));
+                if (hit == NULL)
+                    return true;
+                if (hit->type() == Model::HitType::EntityHit) {
+                    Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                    Model::Entity& entity = entityHit->entity();
+                    if (!entity.selected())
+                        command = ChangeEditStateCommand::select(document(), entity);
+                } else {
+                    assert(hit->type() == Model::HitType::FaceHit);
+                    Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                    Model::Face& face = faceHit->face();
+                    Model::Brush& brush = *face.brush();
+                    if (!brush.selected())
+                        command = ChangeEditStateCommand::select(document(), brush);
+                }
+            }
+
+            if (command != NULL)
+                submitCommand(command);
+            return true;
         }
 
         SelectionTool::SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

@@ -32,7 +32,7 @@ namespace TrenchBroom {
             float maxLength = 512.0f;
             Vec3f endPoint = startPoint + maxLength * direction;
             
-            Model::PickResult* result = m_picker.pick(Ray(startPoint, direction));
+            Model::PickResult* result = m_picker.pick(Rayf(startPoint, direction));
             Model::HitList hits = result->hits(Model::HitType::FaceHit, m_filter);
             Model::HitList::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
@@ -44,13 +44,13 @@ namespace TrenchBroom {
             m_spikeArray->addAttribute(startPoint);
             m_spikeArray->addAttribute(m_color);
             m_spikeArray->addAttribute(endPoint);
-            m_spikeArray->addAttribute(Vec4f(m_color, m_color.w / 2.0f));
+            m_spikeArray->addAttribute(Color(m_color, m_color.a() / 2.0f));
 
             delete result;
         }
         
-        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
-        m_infoRenderer(BoxInfoRenderer(bounds, fontManager)),
+        BoxGuideRenderer::BoxGuideRenderer(const BBoxf& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::FontManager& fontManager) :
+        m_infoRenderer(bounds, fontManager),
         m_color(Color(1.0f, 1.0f, 0.0f, 1.0f)),
         m_bounds(bounds),
         m_picker(picker),
@@ -95,108 +95,108 @@ namespace TrenchBroom {
                 // (0,0,0) -> (1,0,0)
                 m_boxArray->addAttribute(m_bounds.min);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (0,0,0) -> (0,1,0)
                 m_boxArray->addAttribute(m_bounds.min);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (0,0,0) -> (0,0,1)
                 m_boxArray->addAttribute(m_bounds.min);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
                 
                 // (1,1,1) -> (0,1,1)
                 m_boxArray->addAttribute(m_bounds.max);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (1,1,1) -> (1,0,1)
                 m_boxArray->addAttribute(m_bounds.max);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (1,1,1) -> (1,1,0)
                 m_boxArray->addAttribute(m_bounds.max);
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (1,0,0) -> (1,0,1)
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (1,0,0) -> (1,1,0)
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (0,1,0) -> (0,1,1)
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
                 
                 // (0,1,0) -> (1,1,0)
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()));
                 m_boxArray->addAttribute(m_color);
 
                 // (0,0,1) -> (0,1,1)
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
                 
                 // (0,0,1) -> (1,0,1)
-                m_boxArray->addAttribute(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
-                m_boxArray->addAttribute(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z));
+                m_boxArray->addAttribute(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()));
                 m_boxArray->addAttribute(m_color);
                 
                 Vec3f::List hitPoints;
                 
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.min.z), Vec3f::NegX, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.min.z), Vec3f::NegY, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.min.z), Vec3f::NegZ, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::NegX, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::NegY, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::NegZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z), Vec3f::NegX, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z), Vec3f::NegY, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.min.y, m_bounds.max.z), Vec3f::PosZ, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::NegX, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::NegY, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::PosZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z), Vec3f::NegX, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z), Vec3f::PosY, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.min.z), Vec3f::NegZ, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::NegX, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::PosY, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::NegZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z), Vec3f::NegX, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z), Vec3f::PosY, hitPoints);
-                addSpike(Vec3f(m_bounds.min.x, m_bounds.max.y, m_bounds.max.z), Vec3f::PosZ, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::NegX, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::PosY, hitPoints);
+                addSpike(Vec3f(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::PosZ, hitPoints);
 
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z), Vec3f::PosX, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z), Vec3f::NegY, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.min.z), Vec3f::NegZ, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::PosX, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::NegY, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3f::NegZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z), Vec3f::PosX, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z), Vec3f::NegY, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.min.y, m_bounds.max.z), Vec3f::PosZ, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::PosX, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::NegY, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3f::PosZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z), Vec3f::PosX, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z), Vec3f::PosY, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.min.z), Vec3f::NegZ, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::PosX, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::PosY, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3f::NegZ, hitPoints);
                 
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.max.z), Vec3f::PosX, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.max.z), Vec3f::PosY, hitPoints);
-                addSpike(Vec3f(m_bounds.max.x, m_bounds.max.y, m_bounds.max.z), Vec3f::PosZ, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::PosX, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::PosY, hitPoints);
+                addSpike(Vec3f(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3f::PosZ, hitPoints);
 
                 if (!hitPoints.empty()) {
                     m_pointArray = new VertexArray(vbo, GL_POINTS, static_cast<unsigned int>(hitPoints.size()), Attribute::position3f());
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             
             if (m_pointArray != NULL) {
                 ActivateShader pointShader(context.shaderManager(), Shaders::EdgeShader);
-                pointShader.currentShader().setUniformVariable("Color", Vec4f(m_color, 1.0f));
+                pointShader.setUniformVariable("Color", Color(m_color, 1.0f));
                 glEnable(GL_POINT_SMOOTH);
                 glPointSize(3.0f);
                 m_pointArray->render();

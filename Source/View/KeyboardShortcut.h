@@ -82,6 +82,7 @@ namespace TrenchBroom {
 
             static wxString contextName(int context);
             static void sortModifierKeys(int& key1, int& key2, int& key3);
+            static bool isShortcutValid(const int key, const int modifierKey1 = WXK_NONE, const int modifierKey2 = WXK_NONE, const int modifierKey3 = WXK_NONE);
             static wxString modifierKeyMenuText(int key);
             static wxString modifierKeyDisplayText(int key);
             static wxString keyMenuText(int key);
@@ -98,11 +99,11 @@ namespace TrenchBroom {
             int m_context;
             String m_text;
         public:
-            KeyboardShortcut(int commandId, int context, const String& text);
-            KeyboardShortcut(int commandId, int key, int context, const String& text);
-            KeyboardShortcut(int commandId, int modifierKey1, int key, int context, const String& text);
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text);
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text);
+            KeyboardShortcut(const int commandId, const int context, const String& text);
+            KeyboardShortcut(const int commandId, const int key, const int context, const String& text);
+            KeyboardShortcut(const int commandId, const int modifierKey1, const int key, const int context, const String& text);
+            KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int key, const int context, const String& text);
+            KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int modifierKey3, const int key, const int context, const String& text);
             KeyboardShortcut(const String& string);
 
             inline int commandId() const {
@@ -137,6 +138,7 @@ namespace TrenchBroom {
                 return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
             }
             
+            bool matches(const int key, const int modifierKey1 = WXK_NONE, const int modifierKey2 = WXK_NONE, const int modifierKey3 = WXK_NONE) const;
             bool alwaysShowModifier() const;
             wxString modifierKeyMenuText() const;
             wxString keyMenuText() const;

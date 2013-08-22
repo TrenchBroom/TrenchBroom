@@ -31,7 +31,7 @@
 #include <iostream>
 #include <map>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -84,7 +84,8 @@ namespace TrenchBroom {
             Model::PropertyDefinition::Ptr parseFlagsProperty(const String& propertyKey);
             Model::PropertyDefinition::Map parseProperties();
             
-            BBox parseSize();
+            Vec3f parseVector();
+            BBoxf parseSize();
             Color parseColor();
             StringList parseBaseClasses();
             Model::ModelDefinition::List parseModels();

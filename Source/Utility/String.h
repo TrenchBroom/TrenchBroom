@@ -227,6 +227,10 @@ namespace TrenchBroom {
                 return std::equal(haystack.begin(), hEnd, needle.begin(), CharEqual<CaseSensitiveCharCompare>());
             return std::equal(haystack.begin(), hEnd, needle.begin(), CharEqual<CaseInsensitiveCharCompare>());
         }
+
+        inline bool isDigit(const char c) {
+            return c >= '0' && c <= '9';
+        }
     }
 }
 #endif

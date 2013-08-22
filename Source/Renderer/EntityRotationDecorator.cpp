@@ -19,67 +19,95 @@
 
 #include "EntityRotationDecorator.h"
 
+#include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
+#include "Model/MapDocument.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "Utility/Console.h"
+#include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 #include "View/ViewOptions.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRotationDecorator::EntityRotationDecorator(const Model::Map& map, const Color& color) :
-        EntityDecorator(map),
-        m_color(color),
-        m_vertexArray(NULL),
-        m_valid(false) {}
-
+        EntityRotationDecorator::EntityRotationDecorator(const Model::MapDocument& document, const Color& fillColor, const Color& outlineColor) :
+        EntityDecorator(document),
+        m_fillColor(fillColor),
+        m_outlineColor(outlineColor) {}
+        
         void EntityRotationDecorator::render(Vbo& vbo, RenderContext& context) {
             if (!context.viewOptions().showEntities() || !context.viewOptions().showEntityBounds())
                 return;
             
-            const Model::EntityList& entities = map().entities();
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList entities = editStateManager.allSelectedEntities();
             if (entities.empty())
                 return;
             
-            SetVboState activateVbo(vbo, Vbo::VboActive);
-            if (!m_valid || m_vertexArray == NULL) {
-                delete m_vertexArray;
-                m_vertexArray = NULL;
-                
-                Vec3f::List vertices;
-                Model::EntityList::const_iterator it, end;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                    const Model::Entity& entity = **it;
-                    if (context.filter().entityVisible(entity) && entity.rotated()) {
-                        const Vec3f direction = entity.rotation() * Vec3f::PosX;
-                        const Vec3f& center = entity.center();
-                        vertices.push_back(center);
-                        vertices.push_back(center + 32.0f * direction);
-                    }
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            static const float maxDistance2 = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance) * prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
+            
+            Vec2f t1, t2, t3;
+            arrowHead(12.0f, 6.0f, t1, t2, t3);
+            Vec3f triangle[3];
+            triangle[0] = Vec3f(t1, 0.0f);
+            triangle[1] = Vec3f(t2, 0.0f);
+            triangle[2] = Vec3f(t3, 0.0f);
+            
+            Vec3f::List vertices;
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Model::Entity& entity = **it;
+                if (entity.rotated() && context.filter().entityVisible(entity)) {
+                    const Vec3f direction = entity.rotation() * Vec3f::PosX;
+                    const Vec3f& center = entity.center();
+                    const Planef plane(direction, center);
+                    const Vec3f toCam = center - context.camera().position();
+                    if (toCam.lengthSquared() > maxDistance2)
+                        continue;
+                    Vec3f onPlane = plane.project(toCam);
+                    if (onPlane.null())
+                        continue;
+                    onPlane.normalize();
+                    
+                    const Vec3f rotZ = entity.rotation() * Vec3f::NegZ;
+                    const float angle = angleFrom(rotZ, onPlane, direction);
+                    
+                    const Mat4f matrix = translationMatrix(center) * rotationMatrix(angle, -direction) * rotationMatrix(entity.rotation()) * translationMatrix(16.0f * Vec3f::PosX);
+                    for (size_t i = 0; i < 3; i++)
+                        vertices.push_back(matrix * triangle[i]);
                 }
-                
-                unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
-                if (vertexCount == 0)
-                    return;
-                
-                m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount, Attribute::position3f(), 0);
-                
-                SetVboState mapVbo(vbo, Vbo::VboMapped);
-                m_vertexArray->addAttributes(vertices);
-                
-                m_valid = true;
             }
             
+            unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+            if (vertexCount == 0)
+                return;
+            
+            VertexArray vertexArray(vbo, GL_TRIANGLES, vertexCount, Attribute::position3f(), 0);
+            SetVboState mapVbo(vbo, Vbo::VboMapped);
+            vertexArray.addAttributes(vertices);
+            
+            SetVboState activateVbo(vbo, Vbo::VboActive);
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
-            shader.currentShader().setUniformVariable("Color", m_color);
-            m_vertexArray->render();
+            
+            glDepthMask(GL_FALSE);
+            glDisable(GL_DEPTH_TEST);
+            glPolygonMode(GL_FRONT, GL_LINE);
+            shader.setUniformVariable("Color", Color(m_outlineColor));
+            vertexArray.render();
+            glPolygonMode(GL_FRONT, GL_FILL);
+            shader.setUniformVariable("Color", Color(m_fillColor));
+            vertexArray.render();
+            glDepthMask(GL_TRUE);
         }
     }
 }

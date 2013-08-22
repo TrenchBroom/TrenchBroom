@@ -33,7 +33,7 @@
 #include <cstdlib>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -176,16 +176,16 @@ namespace TrenchBroom {
         
         class PointEntityDefinition : public EntityDefinition {
         protected:
-            BBox m_bounds;
+            BBoxf m_bounds;
             ModelDefinition::List m_modelDefinitions;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
+            PointEntityDefinition(const String& name, const Color& color, const BBoxf& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
             
             inline Type type() const {
                 return PointEntity;
             }
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
 

@@ -98,7 +98,7 @@ namespace TrenchBroom {
         ClassInfo::ClassInfo() :
         hasDescription(false),
         hasColor(false),
-        size(BBox(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
+        size(BBoxf(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
         hasSize(false) {}
         
         
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         hasDescription(false),
         color(defaultColor),
         hasColor(false),
-        size(BBox(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
+        size(BBoxf(Vec3f(-8.0f, -8.0f, -8.0f), Vec3f(8.0f, 8.0f, 8.0f))),
         hasSize(false) {}
 
         String FgdParser::typeNames(unsigned int types) {
@@ -371,25 +371,26 @@ namespace TrenchBroom {
             return properties;
         }
 
-        BBox FgdParser::parseSize() {
-            BBox size;
+        Vec3f FgdParser::parseVector() {
             Token token;
-            expect(OParenthesis, token = m_tokenizer.nextToken());
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.x = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.y = token.toFloat();
-            expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            size.min.z = token.toFloat();
+            Vec3f vec;
             
+            for (size_t i = 0; i < 3; i++) {
+                expect(Integer | Decimal, token = m_tokenizer.nextToken());
+                vec[i] = token.toFloat();
+            }
+            return vec;
+        }
+
+        BBoxf FgdParser::parseSize() {
+            Token token;
+            BBoxf size;
+
+            expect(OParenthesis, token = m_tokenizer.nextToken());
+            size.min = parseVector();
             expect(CParenthesis | Comma, token = m_tokenizer.nextToken());
             if (token.type() == Comma) {
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.x = token.toFloat();
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.y = token.toFloat();
-                expect(Integer | Decimal, token = m_tokenizer.nextToken());
-                size.max.z = token.toFloat();
+                size.max = parseVector();
                 expect(CParenthesis, token = m_tokenizer.nextToken());
             } else {
                 const Vec3f halfSize = size.min / 2.0f;
@@ -455,7 +456,7 @@ namespace TrenchBroom {
                     
                     unsigned int skinIndex = 0;
                     unsigned int frameIndex = 0;
-                    if (indices.size() > 0) {
+                    if (!indices.empty()) {
                         skinIndex = static_cast<unsigned int>(indices[0]);
                         if (indices.size() > 1)
                             frameIndex = static_cast<unsigned int>(indices[1]);

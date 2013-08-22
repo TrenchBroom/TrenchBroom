@@ -115,7 +115,18 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
         
-        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
+        Vec3f MapParser::parseVector() {
+            Token token;
+            Vec3f vec;
+            
+            for (size_t i = 0; i < 3; i++) {
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+                vec[i] = token.toFloat();
+            }
+            return vec;
+        }
+
+        Model::Entity* MapParser::parseEntity(const BBoxf& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -201,7 +212,7 @@ namespace TrenchBroom {
                 FacePointFormat facePointFormat = Unknown;
                 while ((entity = parseEntity(map.worldBounds(), facePointFormat, indicator)) != NULL)
                     map.addEntity(*entity);
-            } catch (MapParserException e) {
+            } catch (MapParserException& e) {
                 m_console.error(e.what());
             }
             
@@ -209,12 +220,12 @@ namespace TrenchBroom {
                 indicator->update(static_cast<int>(m_size));
         }
         
-        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
+        Model::Entity* MapParser::parseEntity(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
             FacePointFormat format = forceIntegerFacePoints ? Integer : Float;
             return parseEntity(worldBounds, format, indicator);
         }
         
-        Model::Brush* MapParser::parseBrush(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
+        Model::Brush* MapParser::parseBrush(const BBoxf& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -244,7 +255,7 @@ namespace TrenchBroom {
                             if (!brush->closed())
                                 m_console.warn("Non-closed brush at line %i", firstLine);
                             return brush;
-                        } catch (Model::GeometryException e) {
+                        } catch (Model::GeometryException&) {
                             m_console.warn("Invalid brush at line %i", firstLine);
                             Utility::deleteAll(faces);
                             return NULL;
@@ -260,7 +271,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Model::Face* MapParser::parseFace(const BBox& worldBounds, bool forceIntegerFacePoints) {
+        Model::Face* MapParser::parseFace(const BBoxf& worldBounds, bool forceIntegerFacePoints) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             Token token = m_tokenizer.nextToken();
@@ -268,28 +279,13 @@ namespace TrenchBroom {
                 return NULL;
             
             expect(TokenType::OParenthesis, token);
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.z = token.toFloat();
+            p1 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.z = token.toFloat();
+            p2 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.z = token.toFloat();
+            p3 = parseVector().corrected();
             expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             
             expect(TokenType::String, token = m_tokenizer.nextToken());
@@ -332,7 +328,7 @@ namespace TrenchBroom {
             expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat();
             
-            if (((p3 - p1).crossed(p2 - p1)).null()) {
+            if (crossed(p3 - p1, p2 - p1).null()) {
                 m_console.warn("Skipping face with colinear points in line %i", token.line());
                 return NULL;
             }
@@ -351,42 +347,42 @@ namespace TrenchBroom {
             return face;
         }
         
-        bool MapParser::parseEntities(const BBox& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities) {
+        bool MapParser::parseEntities(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities) {
             size_t oldSize = entities.size();
             try {
                 Model::Entity* entity = NULL;
                 while ((entity = parseEntity(worldBounds, forceIntegerFacePoints ? Integer : Float, NULL)) != NULL)
                     entities.push_back(entity);
                 return !entities.empty();
-            } catch (MapParserException e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(entities, oldSize);
                 m_tokenizer.reset();
                 return false;
             }
         }
         
-        bool MapParser::parseBrushes(const BBox& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes) {
+        bool MapParser::parseBrushes(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes) {
             size_t oldSize = brushes.size();
             try {
                 Model::Brush* brush = NULL;
                 while ((brush = parseBrush(worldBounds, forceIntegerFacePoints, NULL)) != NULL)
                     brushes.push_back(brush);
                 return !brushes.empty();
-            } catch (MapParserException e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(brushes, oldSize);
                 m_tokenizer.reset();
                 return false;
             }
         }
         
-        bool MapParser::parseFaces(const BBox& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces) {
+        bool MapParser::parseFaces(const BBoxf& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces) {
             size_t oldSize = faces.size();
             try {
                 Model::Face* face = NULL;
                 while ((face = parseFace(worldBounds, forceIntegerFacePoints)) != NULL)
                     faces.push_back(face);
                 return !faces.empty();
-            } catch (MapParserException e) {
+            } catch (MapParserException&) {
                 Utility::deleteAll(faces, oldSize);
                 m_tokenizer.reset();
                 return false;

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Utility::deleteAll(m_pictures);
         }
 
-        AliasSingleFrame::AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBox& bounds) :
+        AliasSingleFrame::AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBoxf& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_center(center),
@@ -64,10 +64,10 @@ namespace TrenchBroom {
         m_frames(frames) {
             assert(m_times.size() == m_frames.size());
 
-            if (m_frames.size() > 0) {
+            if (!m_frames.empty()) {
                 m_bounds = m_frames[0]->bounds();
-                for (unsigned int i = 1; i < m_frames.size(); i++)
-                    m_bounds.mergeWith(m_frames[0]->bounds());
+                for (size_t i = 1; i < m_frames.size(); i++)
+                    m_bounds.mergeWith(m_frames[i]->bounds());
             } else {
                 m_bounds.min = m_bounds.max = Vec3f::Null;
             }
@@ -83,9 +83,8 @@ namespace TrenchBroom {
 
         Vec3f Alias::unpackFrameVertex(const AliasPackedFrameVertex& packedVertex, const Vec3f& origin, const Vec3f& size) {
             Vec3f vertex;
-            vertex.x = size.x * packedVertex.x + origin.x;
-            vertex.y = size.y * packedVertex.y + origin.y;
-            vertex.z = size.z * packedVertex.z + origin.z;
+            for (size_t i = 0; i < 3; i++)
+                vertex[i] = size[i] * packedVertex[i] + origin[i];
             return vertex;
         }
 
@@ -101,7 +100,7 @@ namespace TrenchBroom {
 
             Vec3f::List frameVertices(vertices.size());
             Vec3f center;
-            BBox bounds;
+            BBoxf bounds;
 
             frameVertices[0] = unpackFrameVertex(packedFrameVertices[0], origin, scale);
             center = frameVertices[0];
@@ -124,14 +123,14 @@ namespace TrenchBroom {
                     size_t index = triangles[i].vertices[j];
 
                     Vec2f texCoords;
-                    texCoords.x = static_cast<float>(vertices[index].s) / static_cast<float>(skinWidth);
-                    texCoords.y = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
+                    texCoords[0] = static_cast<float>(vertices[index].s) / static_cast<float>(skinWidth);
+                    texCoords[1] = static_cast<float>(vertices[index].t) / static_cast<float>(skinHeight);
 
                     if (vertices[index].onseam && !triangles[i].front)
-                        texCoords.x += 0.5f;
+                        texCoords[0] += 0.5f;
 
                     (*frameTriangle)[j].setPosition(frameVertices[index]);
-                    (*frameTriangle)[j].setNormal(AliasNormals[packedFrameVertices[index].i]);
+                    (*frameTriangle)[j].setNormal(AliasNormals[packedFrameVertices[index][3]]);
                     (*frameTriangle)[j].setTexCoords(texCoords);
                 }
 

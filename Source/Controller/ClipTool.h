@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -58,6 +58,8 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Command;
+        
         class ClipTool : public Tool {
         public:
             typedef enum {
@@ -102,14 +104,15 @@ namespace TrenchBroom {
             bool m_directHit;
             
             ClipSide m_clipSide;
-            Model::BrushList m_frontBrushes;
-            Model::BrushList m_backBrushes;
+            Model::EntityBrushesMap m_frontBrushes;
+            Model::EntityBrushesMap m_backBrushes;
             Renderer::BrushFigure* m_frontBrushFigure;
             Renderer::BrushFigure* m_backBrushFigure;
             
             Vec3f selectNormal(const Vec3f::List& normals1, const Vec3f::List& normals2) const;
             void updateBrushes();
             Vec3f::List getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const;
+            bool isPointIdenticalWithExistingPoint(const Vec3f& point) const;
         protected:
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);
@@ -125,8 +128,8 @@ namespace TrenchBroom {
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
 
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            bool handleNavigateUp(InputState& inputState);
+            void handleUpdate(const Command& command, InputState& inputState);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
             

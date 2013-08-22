@@ -22,7 +22,7 @@
 
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,11 +37,11 @@ namespace TrenchBroom {
         public:
             virtual ~EntityModelRenderer() {};
             virtual void render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity);
-            virtual void render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quat& rotation);
+            virtual void render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quatf& rotation);
             virtual void render(ShaderProgram& shaderProgram) = 0;
             virtual const Vec3f& center() const = 0;
-            virtual const BBox& bounds() const = 0;
-            virtual BBox boundsAfterTransformation(const Mat4f& transformation) const = 0;
+            virtual const BBoxf& bounds() const = 0;
+            virtual BBoxf boundsAfterTransformation(const Mat4f& transformation) const = 0;
         };
     }
 }

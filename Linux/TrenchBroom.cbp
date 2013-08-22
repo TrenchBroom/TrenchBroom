@@ -123,7 +123,6 @@
 			<Add after='cp -R &quot;$(PROJECT_DIR)../Resources/Help/Documentation&quot; $(TARGET_OUTPUT_DIR)Resources/' />
 			<Mode after="always" />
 		</ExtraCommands>
-		<Unit filename="LinuxCapabilities.cpp" />
 		<Unit filename="LinuxFileManager.cpp" />
 		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
@@ -145,16 +144,12 @@
 		<Unit filename="../Source/Controller/ControllerUtils.h" />
 		<Unit filename="../Source/Controller/CreateBrushTool.cpp" />
 		<Unit filename="../Source/Controller/CreateBrushTool.h" />
-		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.cpp" />
-		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.h" />
 		<Unit filename="../Source/Controller/CreateEntityTool.cpp" />
 		<Unit filename="../Source/Controller/CreateEntityTool.h" />
-		<Unit filename="../Source/Controller/EntityDefinitionCommand.cpp" />
-		<Unit filename="../Source/Controller/EntityDefinitionCommand.h" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.cpp" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.h" />
-		<Unit filename="../Source/Controller/FlipObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/FlipObjectsCommand.h" />
+		<Unit filename="../Source/Controller/FlyTool.cpp" />
+		<Unit filename="../Source/Controller/FlyTool.h" />
 		<Unit filename="../Source/Controller/Input.h" />
 		<Unit filename="../Source/Controller/InputController.cpp" />
 		<Unit filename="../Source/Controller/InputController.h" />
@@ -162,8 +157,6 @@
 		<Unit filename="../Source/Controller/MoveEdgesCommand.h" />
 		<Unit filename="../Source/Controller/MoveFacesCommand.cpp" />
 		<Unit filename="../Source/Controller/MoveFacesCommand.h" />
-		<Unit filename="../Source/Controller/MoveObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/MoveObjectsCommand.h" />
 		<Unit filename="../Source/Controller/MoveObjectsTool.cpp" />
 		<Unit filename="../Source/Controller/MoveObjectsTool.h" />
 		<Unit filename="../Source/Controller/MoveTexturesCommand.cpp" />
@@ -176,6 +169,8 @@
 		<Unit filename="../Source/Controller/MoveVerticesTool.h" />
 		<Unit filename="../Source/Controller/ObjectsCommand.h" />
 		<Unit filename="../Source/Controller/ObjectsHandle.h" />
+		<Unit filename="../Source/Controller/PreferenceChangeEvent.cpp" />
+		<Unit filename="../Source/Controller/PreferenceChangeEvent.h" />
 		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.cpp" />
 		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.h" />
 		<Unit filename="../Source/Controller/RemoveObjectsCommand.cpp" />
@@ -188,10 +183,6 @@
 		<Unit filename="../Source/Controller/ResizeBrushesTool.h" />
 		<Unit filename="../Source/Controller/RotateHandle.cpp" />
 		<Unit filename="../Source/Controller/RotateHandle.h" />
-		<Unit filename="../Source/Controller/RotateObjects90Command.cpp" />
-		<Unit filename="../Source/Controller/RotateObjects90Command.h" />
-		<Unit filename="../Source/Controller/RotateObjectsCommand.cpp" />
-		<Unit filename="../Source/Controller/RotateObjectsCommand.h" />
 		<Unit filename="../Source/Controller/RotateObjectsTool.cpp" />
 		<Unit filename="../Source/Controller/RotateObjectsTool.h" />
 		<Unit filename="../Source/Controller/RotateTexturesCommand.cpp" />
@@ -202,8 +193,6 @@
 		<Unit filename="../Source/Controller/SetFaceAttributesCommand.h" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.cpp" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.h" />
-		<Unit filename="../Source/Controller/SetModCommand.cpp" />
-		<Unit filename="../Source/Controller/SetModCommand.h" />
 		<Unit filename="../Source/Controller/SnapVerticesCommand.cpp" />
 		<Unit filename="../Source/Controller/SnapVerticesCommand.h" />
 		<Unit filename="../Source/Controller/SnapshotCommand.cpp" />
@@ -212,12 +201,11 @@
 		<Unit filename="../Source/Controller/SplitEdgesCommand.h" />
 		<Unit filename="../Source/Controller/SplitFacesCommand.cpp" />
 		<Unit filename="../Source/Controller/SplitFacesCommand.h" />
-		<Unit filename="../Source/Controller/TextureCollectionCommand.cpp" />
-		<Unit filename="../Source/Controller/TextureCollectionCommand.h" />
 		<Unit filename="../Source/Controller/Tool.h" />
+		<Unit filename="../Source/Controller/TransformObjectsCommand.cpp" />
+		<Unit filename="../Source/Controller/TransformObjectsCommand.h" />
 		<Unit filename="../Source/Controller/VertexHandleManager.cpp" />
 		<Unit filename="../Source/Controller/VertexHandleManager.h" />
-		<Unit filename="../Source/GL/Capabilities.h" />
 		<Unit filename="../Source/GL/glew.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -229,8 +217,6 @@
 		<Unit filename="../Source/IO/ByteBuffer.h" />
 		<Unit filename="../Source/IO/ClassInfo.cpp" />
 		<Unit filename="../Source/IO/ClassInfo.h" />
-		<Unit filename="../Source/IO/CreateBrushFromFacesStrategy.h" />
-		<Unit filename="../Source/IO/CreateBrushFromGeometryStrategy.h" />
 		<Unit filename="../Source/IO/DefParser.cpp" />
 		<Unit filename="../Source/IO/DefParser.h" />
 		<Unit filename="../Source/IO/FgdParser.cpp" />
@@ -255,7 +241,6 @@
 		<Unit filename="../Source/Model/Brush.h" />
 		<Unit filename="../Source/Model/BrushGeometry.cpp" />
 		<Unit filename="../Source/Model/BrushGeometry.h" />
-		<Unit filename="../Source/Model/BrushGeometrySerializer.h" />
 		<Unit filename="../Source/Model/BrushGeometryTypes.h" />
 		<Unit filename="../Source/Model/BrushTypes.h" />
 		<Unit filename="../Source/Model/Bsp.cpp" />
@@ -314,13 +299,15 @@
 		<Unit filename="../Source/Renderer/Camera.h" />
 		<Unit filename="../Source/Renderer/CircleFigure.cpp" />
 		<Unit filename="../Source/Renderer/CircleFigure.h" />
+		<Unit filename="../Source/Renderer/CompassRenderer.cpp" />
+		<Unit filename="../Source/Renderer/CompassRenderer.h" />
 		<Unit filename="../Source/Renderer/EdgeRenderer.cpp" />
 		<Unit filename="../Source/Renderer/EdgeRenderer.h" />
-		<Unit filename="../Source/Renderer/EntityClassnameAnchor.h" />
-		<Unit filename="../Source/Renderer/EntityClassnameFilter.h" />
 		<Unit filename="../Source/Renderer/EntityDecorator.h" />
 		<Unit filename="../Source/Renderer/EntityFigure.cpp" />
 		<Unit filename="../Source/Renderer/EntityFigure.h" />
+		<Unit filename="../Source/Renderer/EntityLinkDecorator.cpp" />
+		<Unit filename="../Source/Renderer/EntityLinkDecorator.h" />
 		<Unit filename="../Source/Renderer/EntityModelRenderer.cpp" />
 		<Unit filename="../Source/Renderer/EntityModelRenderer.h" />
 		<Unit filename="../Source/Renderer/EntityModelRendererManager.cpp" />
@@ -343,6 +330,8 @@
 		<Unit filename="../Source/Renderer/MovementIndicator.h" />
 		<Unit filename="../Source/Renderer/OffscreenRenderer.cpp" />
 		<Unit filename="../Source/Renderer/OffscreenRenderer.h" />
+		<Unit filename="../Source/Renderer/OverlayRenderer.cpp" />
+		<Unit filename="../Source/Renderer/OverlayRenderer.h" />
 		<Unit filename="../Source/Renderer/Palette.cpp" />
 		<Unit filename="../Source/Renderer/Palette.h" />
 		<Unit filename="../Source/Renderer/PointGuideRenderer.cpp" />
@@ -351,12 +340,29 @@
 		<Unit filename="../Source/Renderer/PointHandleHighlightFigure.h" />
 		<Unit filename="../Source/Renderer/PointHandleRenderer.cpp" />
 		<Unit filename="../Source/Renderer/PointHandleRenderer.h" />
-		<Unit filename="../Source/Renderer/PointTraceFigure.cpp" />
-		<Unit filename="../Source/Renderer/PointTraceFigure.h" />
+		<Unit filename="../Source/Renderer/PointTraceRenderer.cpp" />
+		<Unit filename="../Source/Renderer/PointTraceRenderer.h" />
 		<Unit filename="../Source/Renderer/RenderContext.h" />
 		<Unit filename="../Source/Renderer/RenderUtils.h" />
 		<Unit filename="../Source/Renderer/RingFigure.cpp" />
 		<Unit filename="../Source/Renderer/RingFigure.h" />
+		<Unit filename="../Source/Renderer/Shader/BrowserGroup.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/BrowserGroup.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/ClipHandle.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/ColoredEdge.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/ColoredHandle.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/Compass.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/Compass.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/Edge.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/Edge.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/EntityModel.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/EntityModel.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/Face.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/Face.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/Handle.fragsh" />
+		<Unit filename="../Source/Renderer/Shader/Handle.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/InstancedPointHandle.vertsh" />
+		<Unit filename="../Source/Renderer/Shader/PointHandle.vertsh" />
 		<Unit filename="../Source/Renderer/Shader/Shader.cpp" />
 		<Unit filename="../Source/Renderer/Shader/Shader.h" />
 		<Unit filename="../Source/Renderer/Shader/ShaderManager.cpp" />
@@ -396,17 +402,16 @@
 		<Unit filename="../Source/Utility/CoordinatePlane.h" />
 		<Unit filename="../Source/Utility/DocManager.cpp" />
 		<Unit filename="../Source/Utility/DocManager.h" />
+		<Unit filename="../Source/Utility/ExecutableEvent.cpp" />
+		<Unit filename="../Source/Utility/ExecutableEvent.h" />
 		<Unit filename="../Source/Utility/FindPlanePoints.cpp" />
 		<Unit filename="../Source/Utility/FindPlanePoints.h" />
+		<Unit filename="../Source/Utility/FreeType.h" />
 		<Unit filename="../Source/Utility/Grid.cpp" />
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />
 		<Unit filename="../Source/Utility/List.h" />
-		<Unit filename="../Source/Utility/Mat2f.h" />
-		<Unit filename="../Source/Utility/Mat3f.cpp" />
-		<Unit filename="../Source/Utility/Mat3f.h" />
-		<Unit filename="../Source/Utility/Mat4f.cpp" />
-		<Unit filename="../Source/Utility/Mat4f.h" />
+		<Unit filename="../Source/Utility/Mat.h" />
 		<Unit filename="../Source/Utility/Math.h" />
 		<Unit filename="../Source/Utility/MessageException.h" />
 		<Unit filename="../Source/Utility/Plane.h" />
@@ -417,11 +422,7 @@
 		<Unit filename="../Source/Utility/Ray.h" />
 		<Unit filename="../Source/Utility/SharedPointer.h" />
 		<Unit filename="../Source/Utility/String.h" />
-		<Unit filename="../Source/Utility/Vec2f.h" />
-		<Unit filename="../Source/Utility/Vec3f.cpp" />
-		<Unit filename="../Source/Utility/Vec3f.h" />
-		<Unit filename="../Source/Utility/Vec4f.cpp" />
-		<Unit filename="../Source/Utility/Vec4f.h" />
+		<Unit filename="../Source/Utility/Vec.h" />
 		<Unit filename="../Source/Utility/VecMath.h" />
 		<Unit filename="../Source/View/AboutDialog.cpp" />
 		<Unit filename="../Source/View/AboutDialog.h" />
@@ -507,6 +508,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

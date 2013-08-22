@@ -27,17 +27,19 @@
 
 #include <wx/wx.h>
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
         class EntityPropertyCommand : public SnapshotCommand, ObjectsCommand {
         protected:
-            Model::EntityList m_entities;
+            const Model::EntityList m_entities;
             Model::PropertyKeyList m_keys;
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
             bool m_definitionChanged;
+            bool m_force;
             
             inline const Model::PropertyKey& key() const {
                 assert(m_keys.size() == 1);
@@ -76,21 +78,41 @@ namespace TrenchBroom {
                 m_newValue = newValue;
             }
             
-            EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
+            inline void setForce(const bool force) {
+                m_force = force;
+            }
             
             bool performDo();
+            bool affectsImmutableProperty() const;
+            bool affectsImmutableKey() const;
+            bool canSetKey() const;
+            bool anyEntityHasProperty(const Model::PropertyKey& key) const;
+            void setKey();
+            void setValue();
+            void remove();
+
             bool performUndo();
+            void restoreEntityDefinitions();
+
+            EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
         public:
-            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
-            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
-            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
-            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key);
-            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys);
+            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
+            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys, const bool force = false);
             
-            inline bool definitionChanged() const {
+            inline bool hasDefinitionChanged() const {
                 return m_definitionChanged;
             }
             
+            inline bool isPropertyAffected(const Model::PropertyKey& key) const {
+                return m_newKey == key || std::find(m_keys.begin(), m_keys.end(), key) != m_keys.end();
+            }
+            
+            inline bool isEntityAffected(const Model::Entity& entity) const {
+                return std::find(m_entities.begin(), m_entities.end(), &entity) != m_entities.end();
+            }
             
             const Model::EntityList& entities() const {
                 return m_entities;

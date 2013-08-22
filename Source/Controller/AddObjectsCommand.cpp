@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 m_hasAddedBrushes |= !entityBrushes.empty();
             }
             
-            Model::Entity& worldspawn = *document().worldspawn(true);
+            Model::Entity& worldspawn = document().worldspawn();
             Model::BrushList::iterator brushIt, brushEnd;
             for (brushIt = m_addedBrushes.begin(), brushEnd = m_addedBrushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;

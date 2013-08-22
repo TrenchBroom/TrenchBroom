@@ -36,7 +36,7 @@
 #include <wx/cmdproc.h>
 #include <wx/event.h>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -55,6 +55,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Command;
         class InputController;
         
         class Tool {
@@ -89,6 +90,10 @@ namespace TrenchBroom {
             m_suppressed(false),
             m_dragType(DTNone),
             m_nextTool(NULL) {}
+            
+            inline bool holderValid() const {
+                return m_documentViewHolder.valid();
+            }
             
             inline Model::MapDocument& document() const {
                 return m_documentViewHolder.document();
@@ -186,6 +191,7 @@ namespace TrenchBroom {
 
             /* Input Protocol */
             virtual void handleModifierKeyChange(InputState& inputState) {}
+            virtual bool handleKeyChange(InputState& inputState) { return false; }
             virtual bool handleMouseDown(InputState& inputState) { return false; }
             virtual bool handleMouseUp(InputState& inputState) { return false; }
             virtual bool handleMouseDClick(InputState& inputState) { return false; }
@@ -204,10 +210,9 @@ namespace TrenchBroom {
             virtual void handleDragLeave(InputState& inputState, const String& payload) {}
             virtual bool handleDragDrop(InputState& inputState, const String& payload) { return false; }
             
-            virtual void handleObjectsChange(InputState& inputState) {}
-            virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
-            virtual void handleCameraChange(InputState& inputState) {}
-            virtual void handleGridChange(InputState& inputState) {}
+            virtual bool handleNavigateUp(InputState& inputState) { return false; }
+            virtual void handleUpdate(const Command& command, InputState& inputState) {}
+            virtual void handleCameraChanged(InputState& inputState) {}
         public:
             virtual ~Tool() {
                 deleteFigures();
@@ -304,6 +309,14 @@ namespace TrenchBroom {
                     handleModifierKeyChange(inputState);
                 if (nextTool() != NULL)
                     nextTool()->modifierKeyChange(inputState);
+            }
+            
+            Tool* keyChange(InputState& inputState) {
+                if ((active() & !m_suppressed) && handleKeyChange(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->keyChange(inputState);
+                return NULL;
             }
             
             Tool* mouseDown(InputState& inputState) {
@@ -418,44 +431,39 @@ namespace TrenchBroom {
                 return success;
             }
             
-            void objectsChange(InputState& inputState) {
-                handleObjectsChange(inputState);
-                if (nextTool() != NULL)
-                    nextTool()->objectsChange(inputState);
+            bool navigateUp(InputState& inputState) {
+                bool result = !active() ? false : handleNavigateUp(inputState);
+                if (!result && nextTool() != NULL)
+                    result = nextTool()->navigateUp(inputState);
+                return result;
             }
             
-            void editStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-                handleEditStateChange(inputState, changeSet);
+            void update(const Command& command, InputState& inputState) {
+                handleUpdate(command, inputState);
                 if (nextTool() != NULL)
-                    nextTool()->editStateChange(inputState, changeSet);
+                    nextTool()->update(command, inputState);
             }
             
-            void cameraChange(InputState& inputState) {
-                handleCameraChange(inputState);
+            void cameraChanged(InputState& inputState) {
+                handleCameraChanged(inputState);
                 if (nextTool() != NULL)
-                    nextTool()->cameraChange(inputState);
-            }
-            
-            void gridChange(InputState& inputState) {
-                handleGridChange(inputState);
-                if (nextTool() != NULL)
-                    nextTool()->gridChange(inputState);
+                    nextTool()->cameraChanged(inputState);
             }
         };
         
         class PlaneDragTool : public Tool {
         private:
-            Plane m_plane;
+            Planef m_plane;
             Vec3f m_lastPoint;
             Vec3f m_refPoint;
         protected:
-            inline const Plane& dragPlane() const {
+            inline const Planef& dragPlane() const {
                 assert(dragType() == DTDrag);
                 return m_plane;
             }
             
-            virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
-            virtual void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {}
+            virtual bool handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) = 0;
+            virtual void handleResetPlane(InputState& inputState, Planef& plane, Vec3f& initialPoint) {}
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
             virtual void handleEndPlaneDrag(InputState& inputState) = 0;
             
@@ -474,7 +482,7 @@ namespace TrenchBroom {
             
             bool handleDrag(InputState& inputState) {
                 float distance = m_plane.intersectWithRay(inputState.pickRay());
-                if (Math::isnan(distance))
+                if (Math<float>::isnan(distance))
                     return true;
                 
                 Vec3f curPoint = inputState.pickRay().pointAtDistance(distance);

@@ -19,6 +19,9 @@
 
 #include "EntityInspector.h"
 
+#include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "View/CommandIds.h"
@@ -106,6 +109,19 @@ namespace TrenchBroom {
             m_smartPropertyEditorManager->selectEditor(key);
         }
 
+        void EntityInspector::updateProperties() {
+            m_propertyTable->update();
+            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
+        }
+        
+        void EntityInspector::updateSmartEditor() {
+            m_smartPropertyEditorManager->updateEditor();
+        }
+        
+        void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
+        }
+
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder),
@@ -131,22 +147,50 @@ namespace TrenchBroom {
             m_smartPropertyEditorManager = NULL;
         }
 
-        void EntityInspector::updateProperties() {
-            m_propertyTable->update();
-            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
+        void EntityInspector::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                    updateProperties();
+                    updateSmartEditor();
+                    updateEntityBrowser();
+                    break;
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey) ||
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::DefKey))
+                        updateEntityBrowser();
+                    updateProperties();
+                    updateSmartEditor();
+                    break;
+                }
+                case Controller::Command::ChangeEditState:
+                case Controller::Command::TransformObjects:
+                case Controller::Command::ReparentBrushes:
+                    updateProperties();
+                    updateSmartEditor();
+                    break;
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                        updateEntityBrowser();
+                    break;
+                }
+                default:
+                    break;
+            }
         }
-        
-        void EntityInspector::updateSmartEditor() {
-            m_smartPropertyEditorManager->updateEditor();
-        }
-        
-        void EntityInspector::updateEntityBrowser() {
-            m_entityBrowser->reload();
+
+        void EntityInspector::cameraChanged(const Renderer::Camera& camera) {
+            updateSmartEditor();
         }
 
         void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {
             m_propertyGrid->SetColSize(0, 100);
-            m_propertyGrid->SetColSize(1, m_propertyGrid->GetClientSize().x - m_propertyGrid->GetColSize(0));
+            const int newSize = m_propertyGrid->GetClientSize().x - m_propertyGrid->GetColSize(0);
+            m_propertyGrid->SetColSize(1, newSize > 0 ? newSize : -1);
             event.Skip();
         }
 

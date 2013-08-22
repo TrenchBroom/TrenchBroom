@@ -27,34 +27,30 @@
 
 #include <map>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
+        class VertexHandleManager;
+        
         class MoveEdgesCommand : public SnapshotCommand {
         protected:
+            VertexHandleManager& m_handleManager;
+            
             Model::BrushList m_brushes;
-            Model::EdgeInfoList m_originalEdges;
-            Model::EdgeInfoList m_edges;
             Model::BrushEdgesMap m_brushEdges;
+            Model::EdgeInfoList m_edgesBefore;
+            Model::EdgeInfoList m_edgesAfter;
             Vec3f m_delta;
 
             bool performDo();
             bool performUndo();
 
-            MoveEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta);
+            MoveEdgesCommand(Model::MapDocument& document, const wxString& name, VertexHandleManager& handleManager, const Vec3f& delta);
         public:
-            static MoveEdgesCommand* moveEdges(Model::MapDocument& document, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta);
+            static MoveEdgesCommand* moveEdges(Model::MapDocument& document, VertexHandleManager& handleManager, const Vec3f& delta);
 
             bool canDo() const;
-
-            inline const Model::BrushList& brushes() const {
-                return m_brushes;
-            }
-
-            inline const Model::EdgeInfoList& edges() const {
-                return m_edges;
-            }
         };
     }
 }

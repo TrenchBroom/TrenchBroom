@@ -30,7 +30,7 @@
 
 #include <cstdlib>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -54,10 +54,24 @@ namespace TrenchBroom {
             static String const MessageKey;
             static String const ModKey;
             static String const TargetKey;
+            static String const KillTargetKey;
+            static String const TargetnameKey;
             static String const WadKey;
             static String const DefKey;
             static String const DefaultDefinition;
             static String const FacePointFormatKey;
+
+            inline static bool isNumberedProperty(const String& pattern, const String& key) {
+                if (key.size() < pattern.size())
+                    return false;
+                for (size_t i = 0; i < pattern.size(); i++)
+                    if (key[i] != pattern[i])
+                        return false;
+                for (size_t i = pattern.size(); i < key.size(); i++)
+                    if (key[i] < '0' || key[i] > '9')
+                        return false;
+                return true;
+            }
         protected:
             Map* m_map;
             PropertyStore m_propertyStore;
@@ -69,11 +83,40 @@ namespace TrenchBroom {
             unsigned int m_selectedBrushCount;
             unsigned int m_hiddenBrushCount;
 
-            const BBox& m_worldBounds;
+            const BBoxf& m_worldBounds;
 
-            mutable BBox m_bounds;
+            mutable BBoxf m_bounds;
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
+
+            EntityList m_linkTargets;
+            EntityList m_linkSources;
+            EntityList m_killTargets;
+            EntityList m_killSources;
+
+            void addLinkTarget(Entity& entity);
+            void removeLinkTarget(Entity& entity);
+            void addLinkSource(Entity& entity);
+            void removeLinkSource(Entity& entity);
+            void addKillTarget(Entity& entity);
+            void removeKillTarget(Entity& entity);
+            void addKillSource(Entity& entity);
+            void removeKillSource(Entity& entity);
+            
+            void addLinkTarget(const PropertyValue& targetname);
+            void removeLinkTarget(const PropertyValue& targetname);
+            void addKillTarget(const PropertyValue& targetname);
+            void removeKillTarget(const PropertyValue& targetname);
+            
+            void addAllLinkTargets();
+            void addAllKillTargets();
+            void removeAllLinkTargets();
+            void removeAllKillTargets();
+            
+            void addAllLinkSources(const PropertyValue& targetname);
+            void addAllKillSources(const PropertyValue& targetname);
+            void removeAllLinkSources();
+            void removeAllKillSources();
 
             void init();
             void validateGeometry() const;
@@ -84,7 +127,7 @@ namespace TrenchBroom {
                 RTZAngleWithUpDown,
                 RTEulerAngles
             } RotationType;
-            
+
             struct RotationInfo {
                 const RotationType type;
                 const PropertyKey property;
@@ -95,10 +138,10 @@ namespace TrenchBroom {
             };
 
             const RotationInfo rotationInfo() const;
-            void applyRotation(const Quat& rotation);
+            void applyRotation(const Mat4f& rotation);
         public:
-            Entity(const BBox& worldBounds);
-            Entity(const BBox& worldBounds, const Entity& entityTemplate);
+            Entity(const BBoxf& worldBounds);
+            Entity(const BBoxf& worldBounds, const Entity& entityTemplate);
             ~Entity();
 
             inline MapObject::Type objectType() const {
@@ -109,9 +152,7 @@ namespace TrenchBroom {
                 return m_map;
             }
 
-            inline void setMap(Map* map) {
-                m_map = map;
-            }
+            void setMap(Map* map);
 
             inline const PropertyList& properties() const {
                 return m_propertyStore.properties();
@@ -121,19 +162,47 @@ namespace TrenchBroom {
                 return m_propertyStore.propertyValue(key);
             }
 
-            void setProperty(const PropertyKey& key, const PropertyValue& value);
-            void setProperty(const PropertyKey& key, const PropertyValue* value);
+            static bool propertyIsMutable(const PropertyKey& key);
+            static bool propertyKeyIsMutable(const PropertyKey& key);
+
+            void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
+            void removeProperty(const PropertyKey& key);
+
+            void setProperties(const PropertyList& properties, bool replace);
             void setProperty(const PropertyKey& key, const Vec3f& value, bool round);
             void setProperty(const PropertyKey& key, int value);
             void setProperty(const PropertyKey& key, float value, bool round);
-            void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
-            void setProperties(const PropertyList& properties, bool replace);
-            static bool propertyIsMutable(const PropertyKey& key);
-            static bool propertyKeyIsMutable(const PropertyKey& key);
-            void removeProperty(const PropertyKey& key);
+            void setProperty(const PropertyKey& key, const PropertyValue& value);
+            void setProperty(const PropertyKey& key, const PropertyValue* value);
+
+            StringList linkTargetnames() const;
+            StringList killTargetnames() const;
+
+            inline const EntityList& linkTargets() const {
+                return m_linkTargets;
+            }
+
+            inline const EntityList& linkSources() const {
+                return m_linkSources;
+            }
+
+            inline const EntityList& killTargets() const {
+                return m_killTargets;
+            }
+
+            inline const EntityList& killSources() const {
+                return m_killSources;
+            }
 
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
+            }
+            
+            inline const PropertyValue& safeClassname() const {
+                const PropertyValue* classn = classname();
+                if (classn != NULL)
+                    return *classn;
+                return NoClassnameValue;
             }
 
             inline bool worldspawn() const {
@@ -162,7 +231,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Quat rotation() const;
+            const Quatf rotation() const;
 
             inline const BrushList& brushes() const {
                 return m_brushes;
@@ -206,7 +275,7 @@ namespace TrenchBroom {
 
             virtual EditState::Type setEditState(EditState::Type editState);
 
-            inline const BBox& worldBounds() const {
+            inline const BBoxf& worldBounds() const {
                 return m_worldBounds;
             }
 
@@ -216,7 +285,7 @@ namespace TrenchBroom {
                 return m_center;
             }
 
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 if (!m_geometryValid)
                     validateGeometry();
                 return m_bounds;
@@ -226,11 +295,8 @@ namespace TrenchBroom {
                 m_geometryValid = false;
             }
 
-            void translate(const Vec3f& delta, bool lockTextures);
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
-            void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
-            void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
-            void pick(const Ray& ray, PickResult& pickResults);
+            void transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation);
+            void pick(const Rayf& ray, PickResult& pickResults);
         };
     }
 }

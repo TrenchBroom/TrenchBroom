@@ -19,6 +19,12 @@
 
 #include "MapRenderer.h"
 
+#include "Controller/AddObjectsCommand.h"
+#include "Controller/Command.h"
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/EntityPropertyCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
+#include "Controller/RemoveObjectsCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -31,9 +37,10 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityRotationDecorator.h"
+#include "Renderer/EntityLinkDecorator.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
-#include "Renderer/PointTraceFigure.h"
+#include "Renderer/PointTraceRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -88,44 +95,37 @@ namespace TrenchBroom {
             Model::BrushList selectedBrushes;
             Model::BrushList lockedBrushes;
             Model::FaceList partiallySelectedBrushFaces;
-            unsigned int totalUnselectedEdgeVertexCount = 0;
-            unsigned int totalSelectedEdgeVertexCount = 0;
-            unsigned int totalLockedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
             const Model::EntityList& entities = m_document.map().entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
+            for (size_t i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::BrushList& brushes = entity->brushes();
-                for (unsigned int j = 0; j < brushes.size(); j++) {
+                for (size_t j = 0; j < brushes.size(); j++) {
                     Model::Brush* brush = brushes[j];
                     if (context.filter().brushVisible(*brush)) {
                         if (entity->selected() || brush->selected()) {
                             selectedBrushes.push_back(brush);
-                            totalSelectedEdgeVertexCount += (2 * brush->edges().size());
                         } else if (entity->locked() || brush->locked()) {
                             lockedBrushes.push_back(brush);
-                            totalLockedEdgeVertexCount+= (2 * brush->edges().size());
                         } else {
                             if (entity->worldspawn())
                                 unselectedWorldBrushes.push_back(brush);
                             else
                                 unselectedEntityBrushes.push_back(brush);
-                            totalUnselectedEdgeVertexCount += (2 * brush->edges().size());
                             if (brush->partiallySelected()) {
                                 const Model::FaceList& faces = brush->faces();
-                                for (unsigned int k = 0; k < faces.size(); k++) {
+                                for (size_t k = 0; k < faces.size(); k++) {
                                     Model::Face* face = faces[k];
                                     if (face->selected()) {
                                         partiallySelectedBrushFaces.push_back(face);
-                                        totalSelectedEdgeVertexCount += (2 * face->edges().size());
                                     }
                                 }
                             }
                         }
                         
                         const Model::FaceList& faces = brush->faces();
-                        for (unsigned int k = 0; k < faces.size(); k++) {
+                        for (size_t k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
                             Model::Texture* texture = face->texture();
                             if (entity->selected() || brush->selected() || face->selected())
@@ -178,7 +178,6 @@ namespace TrenchBroom {
             // write edges
             m_edgeVbo->activate();
             m_edgeVbo->map();
-//            m_edgeVbo->ensureFreeCapacity(totalUnselectedEdgeVertexCount * EdgeVertexSize + (totalSelectedEdgeVertexCount + totalLockedEdgeVertexCount) * VertexSize);
             
             const Color& edgeColor = prefs.getColor(Preferences::EdgeColor);
 
@@ -205,15 +204,6 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
-        void MapRenderer::deleteFigures(Figure::List& figures) {
-            Figure::List::const_iterator it, end;
-            for (it = figures.begin(), end = figures.end(); it != end; ++it) {
-                Figure* figure = *it;
-                delete figure;
-            }
-            figures.clear();
-        }
-
         void MapRenderer::validate(RenderContext& context) {
             if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
@@ -272,127 +262,14 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MapRenderer::renderFigures(RenderContext& context) {
-            Figure::List::const_iterator it, end;
-            for (it = m_figures.begin(), end = m_figures.end(); it != end; ++it) {
-                Figure* figure = *it;
-                figure->render(*m_figureVbo, context);
-            }
-        }
-
         void MapRenderer::renderDecorators(RenderContext& context) {
             EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
             for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
                 EntityDecorator& decorator = **decoratorIt;
-                decorator.render(*m_decoratorVbo, context);
+                decorator.render(*m_utilityVbo, context);
             }
         }
 
-        MapRenderer::MapRenderer(Model::MapDocument& document) :
-        m_document(document),
-        m_faceVbo(NULL),
-        m_faceRenderer(NULL),
-        m_selectedFaceRenderer(NULL),
-        m_lockedFaceRenderer(NULL),
-        m_edgeVbo(NULL),
-        m_edgeRenderer(NULL),
-        m_selectedEdgeRenderer(NULL),
-        m_lockedEdgeRenderer(NULL),
-        m_entityVbo(NULL),
-        m_entityRenderer(NULL),
-        m_selectedEntityRenderer(NULL),
-        m_lockedEntityRenderer(NULL),
-        m_figureVbo(NULL),
-        m_decoratorVbo(NULL),
-        m_pointTraceFigure(NULL),
-        m_overrideSelectionColors(false),
-        m_rendering(false),
-        m_geometryDataValid(false),
-        m_selectedGeometryDataValid(false),
-        m_lockedGeometryDataValid(false) {
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_decoratorVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            
-            m_entityRenderer = new EntityRenderer(*m_entityVbo, m_document);
-            m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
-            m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
-            
-            m_selectedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
-            m_selectedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
-            m_selectedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-            m_selectedEntityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-            m_selectedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::SelectedEntityBoundsColor));
-            m_selectedEntityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
-            m_selectedEntityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
-            
-            m_lockedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
-            m_lockedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
-            m_lockedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::LockedInfoOverlayTextColor), prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
-            m_lockedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::LockedEntityBoundsColor));
-            m_lockedEntityRenderer->setTintColor(prefs.getColor(Preferences::LockedEntityColor));
-            m_lockedEntityRenderer->setGrayscale(true);
-            
-            m_entityDecorators.push_back(new EntityRotationDecorator(document.map(), prefs.getColor(Preferences::EntityRotationDecoratorColor)));
-        }
-        
-        MapRenderer::~MapRenderer() {
-            Utility::deleteAll(m_entityDecorators);
-            delete m_decoratorVbo;
-            m_decoratorVbo = NULL;
-
-            removePointTrace();
-            deleteFigures(m_deletedFigures);
-            deleteFigures(m_figures);
-            delete m_figureVbo;
-            m_figureVbo = NULL;
-            
-            delete m_lockedEntityRenderer;
-            m_lockedEntityRenderer = NULL;
-            delete m_selectedEntityRenderer;
-            m_selectedEntityRenderer = NULL;
-            delete m_entityRenderer;
-            m_entityRenderer = NULL;
-            delete m_entityVbo;
-            m_entityVbo = NULL;
-            delete m_lockedEdgeRenderer;
-            m_lockedEdgeRenderer = NULL;
-            delete m_selectedEdgeRenderer;
-            m_selectedEdgeRenderer = NULL;
-            delete m_edgeRenderer;
-            m_edgeRenderer = NULL;
-            delete m_edgeVbo;
-            m_edgeVbo = NULL;
-            delete m_lockedFaceRenderer;
-            m_lockedFaceRenderer = NULL;
-            delete m_selectedFaceRenderer;
-            m_selectedFaceRenderer = NULL;
-            delete m_faceRenderer;
-            m_faceRenderer = NULL;
-            delete m_faceVbo;
-            m_faceVbo = NULL;
-        }
-
-        void MapRenderer::addEntity(Model::Entity& entity) {
-            m_entityRenderer->addEntity(entity);
-        }
-
-        void MapRenderer::addEntities(const Model::EntityList& entities) {
-            m_entityRenderer->addEntities(entities);
-        }
-
-        void MapRenderer::removeEntity(Model::Entity& entity) {
-            m_entityRenderer->removeEntity(entity);
-        }
-        
-        void MapRenderer::removeEntities(const Model::EntityList& entities) {
-            m_entityRenderer->removeEntities(entities);
-        }
-        
         void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
             m_entityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Default));
             m_entityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Default));
@@ -407,12 +284,12 @@ namespace TrenchBroom {
                 m_geometryDataValid = false;
                 invalidateDecorators();
             }
-
+            
             if (changeSet.brushStateChangedFrom(Model::EditState::Selected) ||
                 changeSet.brushStateChangedTo(Model::EditState::Selected) ||
                 changeSet.faceSelectionChanged()) {
                 m_selectedGeometryDataValid = false;
-
+                
                 const Model::BrushList& selectedBrushes = changeSet.brushesTo(Model::EditState::Selected);
                 for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
                     Model::Brush* brush = selectedBrushes[i];
@@ -422,7 +299,7 @@ namespace TrenchBroom {
                         m_selectedEntityRenderer->addEntity(*entity);
                     }
                 }
-
+                
                 const Model::BrushList& deselectedBrushes = changeSet.brushesFrom(Model::EditState::Selected);
                 for (unsigned int i = 0; i < deselectedBrushes.size(); i++) {
                     Model::Brush* brush = deselectedBrushes[i];
@@ -460,19 +337,51 @@ namespace TrenchBroom {
                 
                 invalidateDecorators();
             }
-
+            
             if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
                 changeSet.brushStateChangedTo(Model::EditState::Locked)) {
                 m_lockedGeometryDataValid = false;
             }
         }
-
-        void MapRenderer::loadMap() {
-            clearMap();
-            addEntities(m_document.map().entities());
+        
+        void MapRenderer::invalidateEntities() {
+            m_entityRenderer->invalidateBounds();
+            m_selectedEntityRenderer->invalidateBounds();
+            m_lockedEntityRenderer->invalidateBounds();
+            invalidateDecorators();
         }
         
-        void MapRenderer::clearMap() {
+        void MapRenderer::invalidateSelectedEntities() {
+            m_selectedEntityRenderer->invalidateBounds();
+            invalidateDecorators();
+        }
+        
+        void MapRenderer::invalidateBrushes() {
+            m_geometryDataValid = false;
+            m_selectedGeometryDataValid = false;
+            m_lockedGeometryDataValid = false;
+        }
+        
+        void MapRenderer::invalidateSelectedBrushes() {
+            m_selectedGeometryDataValid = false;
+        }
+        
+        void MapRenderer::invalidateAll() {
+            invalidateEntities();
+            invalidateBrushes();
+        }
+        
+        void MapRenderer::invalidateEntityModelRendererCache() {
+            m_entityRenderer->invalidateModels();
+            m_selectedEntityRenderer->invalidateModels();
+            m_lockedEntityRenderer->invalidateModels();
+        }
+        
+        void MapRenderer::invalidateSelectedEntityModelRendererCache() {
+            m_selectedEntityRenderer->invalidateModels();
+        }
+        
+        void MapRenderer::clear() {
             delete m_faceRenderer;
             m_faceRenderer = NULL;
             delete m_selectedFaceRenderer;
@@ -486,86 +395,199 @@ namespace TrenchBroom {
             m_selectedEdgeRenderer = NULL;
             delete m_lockedEdgeRenderer;
             m_lockedEdgeRenderer = NULL;
-
+            
             m_entityRenderer->clear();
             m_selectedEntityRenderer->clear();
             m_lockedEntityRenderer->clear();
-
+            
             invalidateAll();
             invalidateEntityModelRendererCache();
         }
+        
+        MapRenderer::MapRenderer(Model::MapDocument& document) :
+        m_document(document),
+        m_faceVbo(NULL),
+        m_faceRenderer(NULL),
+        m_selectedFaceRenderer(NULL),
+        m_lockedFaceRenderer(NULL),
+        m_edgeVbo(NULL),
+        m_edgeRenderer(NULL),
+        m_selectedEdgeRenderer(NULL),
+        m_lockedEdgeRenderer(NULL),
+        m_entityVbo(NULL),
+        m_entityRenderer(NULL),
+        m_selectedEntityRenderer(NULL),
+        m_lockedEntityRenderer(NULL),
+        m_utilityVbo(NULL),
+        m_pointTraceRenderer(NULL),
+        m_overrideSelectionColors(false),
+        m_rendering(false),
+        m_geometryDataValid(false),
+        m_selectedGeometryDataValid(false),
+        m_lockedGeometryDataValid(false) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-        void MapRenderer::invalidateEntities() {
-            m_entityRenderer->invalidateBounds();
-            m_selectedEntityRenderer->invalidateBounds();
-            m_lockedEntityRenderer->invalidateBounds();
-            invalidateDecorators();
+            m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_utilityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            
+            m_entityRenderer = new EntityRenderer(*m_entityVbo, m_document);
+            m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
+            m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            
+            m_selectedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
+            m_selectedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
+            m_selectedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::SelectedEntityBoundsColor));
+            m_selectedEntityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
+            m_selectedEntityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
+            
+            m_lockedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
+            m_lockedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
+            m_lockedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::LockedInfoOverlayTextColor), prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
+            m_lockedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::LockedEntityBoundsColor));
+            m_lockedEntityRenderer->setTintColor(prefs.getColor(Preferences::LockedEntityColor));
+            m_lockedEntityRenderer->setGrayscale(true);
+            
+            m_entityDecorators.push_back(new EntityRotationDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorFillColor), prefs.getColor(Preferences::EntityRotationDecoratorOutlineColor)));
+				// TODO : give own color preferences
+            m_entityDecorators.push_back(new EntityLinkDecorator(document, prefs.getColor(Preferences::EntityRotationDecoratorFillColor)));
         }
         
-        void MapRenderer::invalidateSelectedEntities() {
-            m_selectedEntityRenderer->invalidateBounds();
-            invalidateDecorators();
+        MapRenderer::~MapRenderer() {
+            Utility::deleteAll(m_entityDecorators);
+            removePointTrace();
+            
+            delete m_lockedEntityRenderer;
+            m_lockedEntityRenderer = NULL;
+            delete m_selectedEntityRenderer;
+            m_selectedEntityRenderer = NULL;
+            delete m_entityRenderer;
+            m_entityRenderer = NULL;
+            delete m_entityVbo;
+            m_entityVbo = NULL;
+            delete m_lockedEdgeRenderer;
+            m_lockedEdgeRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
+            delete m_edgeRenderer;
+            m_edgeRenderer = NULL;
+            delete m_edgeVbo;
+            m_edgeVbo = NULL;
+            delete m_lockedFaceRenderer;
+            m_lockedFaceRenderer = NULL;
+            delete m_selectedFaceRenderer;
+            m_selectedFaceRenderer = NULL;
+            delete m_faceRenderer;
+            m_faceRenderer = NULL;
+            delete m_faceVbo;
+            m_faceVbo = NULL;
+            delete m_utilityVbo;
+            m_utilityVbo = NULL;
         }
 
-        void MapRenderer::invalidateBrushes() {
-            m_geometryDataValid = false;
-            m_selectedGeometryDataValid = false;
-            m_lockedGeometryDataValid = false;
-        }
-
-        void MapRenderer::invalidateSelectedBrushes() {
-            m_selectedGeometryDataValid = false;
-        }
-
-        void MapRenderer::invalidateAll() {
-            invalidateEntities();
-            invalidateBrushes();
-        }
-
-        void MapRenderer::invalidateEntityModelRendererCache() {
-            m_entityRenderer->invalidateModels();
-            m_selectedEntityRenderer->invalidateModels();
-            m_lockedEntityRenderer->invalidateModels();
-        }
-
-        void MapRenderer::invalidateSelectedEntityModelRendererCache() {
-            m_selectedEntityRenderer->invalidateModels();
-        }
-
-        void MapRenderer::addFigure(Figure* figure) {
-            m_figures.push_back(figure);
-        }
-        
-        void MapRenderer::removeFigure(Figure* figure) {
-            m_figures.erase(std::remove(m_figures.begin(), m_figures.end(), figure), m_figures.end());
-        }
-        
-        void MapRenderer::deleteFigure(Figure* figure) {
-            removeFigure(figure);
-            m_deletedFigures.push_back(figure);
+        void MapRenderer::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap: {
+                    clear();
+                    m_entityRenderer->addEntities(m_document.map().entities());
+                    break;
+                }
+                case Controller::Command::ClearMap: {
+                    clear();
+                    break;
+                }
+                case Controller::Command::ChangeEditState: {
+                    const Controller::ChangeEditStateCommand& changeEditStateCommand = static_cast<const Controller::ChangeEditStateCommand&>(command);
+                    changeEditState(changeEditStateCommand.changeSet());
+                    invalidateDecorators();
+                    break;
+                }
+                case Controller::Command::ViewFilterChange: {
+                    invalidateEntities();
+                    invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                        invalidateEntityModelRendererCache();
+                    break;
+                }
+                case Controller::Command::SetFaceAttributes:
+                case Controller::Command::MoveTextures:
+                case Controller::Command::RotateTextures: {
+                    invalidateSelectedBrushes();
+                    break;
+                }
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isEntityAffected(m_document.worldspawn()) &&
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey))
+                            invalidateBrushes();
+                    invalidateEntities();
+                    invalidateSelectedEntityModelRendererCache();
+                    break;
+                }
+                case Controller::Command::AddObjects: {
+                    const Controller::AddObjectsCommand& addObjectsCommand = static_cast<const Controller::AddObjectsCommand&>(command);
+                    if (addObjectsCommand.state() == Controller::Command::Doing)
+                        m_entityRenderer->addEntities(addObjectsCommand.addedEntities());
+                    else
+                        m_entityRenderer->removeEntities(addObjectsCommand.addedEntities());
+                    if (addObjectsCommand.hasAddedBrushes())
+                        invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::RebuildBrushGeometry:
+                case Controller::Command::MoveVertices:
+                case Controller::Command::SnapVertices:
+                case Controller::Command::TransformObjects:
+                case Controller::Command::ResizeBrushes: {
+                    invalidateSelectedBrushes();
+                    invalidateSelectedEntities();
+                    break;
+                }
+                case Controller::Command::RemoveObjects: {
+                    const Controller::RemoveObjectsCommand& removeObjectsCommand = static_cast<const Controller::RemoveObjectsCommand&>(command);
+                    if (removeObjectsCommand.state() == Controller::Command::Doing)
+                        m_entityRenderer->removeEntities(removeObjectsCommand.removedEntities());
+                    else
+                        m_entityRenderer->addEntities(removeObjectsCommand.removedEntities());
+                    if (!removeObjectsCommand.removedBrushes().empty())
+                        invalidateBrushes();
+                    break;
+                }
+                case Controller::Command::ReparentBrushes: {
+                    invalidateSelectedBrushes();
+                    invalidateEntities();
+                    invalidateSelectedEntities();
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         void MapRenderer::setPointTrace(const Vec3f::List& points) {
             removePointTrace();
-            m_pointTraceFigure = new PointTraceFigure(points);
-            m_pointTraceFigure->setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
-            addFigure(m_pointTraceFigure);
+            m_pointTraceRenderer = new PointTraceRenderer(points);
+            m_pointTraceRenderer->setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
         }
         
         void MapRenderer::removePointTrace() {
-            if (m_pointTraceFigure != NULL) {
-                deleteFigure(m_pointTraceFigure);
-                m_pointTraceFigure = NULL;
-            }
+            delete m_pointTraceRenderer;
+            m_pointTraceRenderer = NULL;
         }
 
         void MapRenderer::render(RenderContext& context) {
             if (m_rendering)
                 return;
             m_rendering = true;
-            
-            if (!m_deletedFigures.empty())
-                deleteFigures(m_deletedFigures);
             
             validate(context);
             
@@ -592,7 +614,8 @@ namespace TrenchBroom {
                 renderDecorators(context);
             }
             
-            renderFigures(context);
+            if (m_pointTraceRenderer != NULL)
+                m_pointTraceRenderer->render(*m_utilityVbo, context);
             
             m_rendering = false;
         }

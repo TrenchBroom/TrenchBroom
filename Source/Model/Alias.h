@@ -33,7 +33,7 @@
 #include <cstdint>
 #endif
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -64,8 +64,23 @@ namespace TrenchBroom {
         typedef std::vector<AliasSkinTriangle> AliasSkinTriangleList;
         
         class AliasPackedFrameVertex {
+        private:
+            unsigned char m_values[4];
         public:
-            unsigned char x, y, z, i;
+            AliasPackedFrameVertex() {
+                for (size_t i = 0; i < 4; i++)
+                    m_values[i] = 0;
+            }
+            
+            inline const unsigned char& operator[](const size_t index) const {
+                assert(index < 4);
+                return m_values[index];
+            }
+            
+            inline unsigned char& operator[](const size_t index) {
+                assert(index < 4);
+                return m_values[index];
+            }
         };
         
         // publicly visible classes below
@@ -106,12 +121,12 @@ namespace TrenchBroom {
             AliasFrameVertex m_vertices[3];
         public:
             inline AliasFrameVertex& operator[] (const size_t index) {
-                assert(index >= 0 && index < 3);
+                assert(index < 3);
                 return m_vertices[index];
             }
             
             inline const AliasFrameVertex& operator[] (const size_t index) const {
-                assert(index >= 0 && index < 3);
+                assert(index < 3);
                 return m_vertices[index];
             }
         };
@@ -163,9 +178,9 @@ namespace TrenchBroom {
             String m_name;
             AliasFrameTriangleList m_triangles;
             Vec3f m_center;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
-            AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBox& bounds);
+            AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBoxf& bounds);
             ~AliasSingleFrame();
             
             inline const String& name() const {
@@ -180,7 +195,7 @@ namespace TrenchBroom {
                 return m_center;
             }
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
             
@@ -191,7 +206,7 @@ namespace TrenchBroom {
         private:
             AliasTimeList m_times;
             AliasSingleFrameList m_frames;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
             AliasFrameGroup(const AliasTimeList& times, const AliasSingleFrameList& frames);
             ~AliasFrameGroup();

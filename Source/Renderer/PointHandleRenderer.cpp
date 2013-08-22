@@ -86,15 +86,15 @@ namespace TrenchBroom {
             }
             
             Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::PointHandleShader);
-            shader.currentShader().setUniformVariable("Color", color());
-            shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
-            shader.currentShader().setUniformVariable("ScalingFactor", scalingFactor());
-            shader.currentShader().setUniformVariable("MaximumDistance", maximumDistance());
+            shader.setUniformVariable("Color", color());
+            shader.setUniformVariable("CameraPosition", context.camera().position());
+            shader.setUniformVariable("ScalingFactor", scalingFactor());
+            shader.setUniformVariable("MaximumDistance", maximumDistance());
             
             Vec4f::List::const_iterator pIt, pEnd;
             for (pIt = positionList.begin(), pEnd = positionList.end(); pIt != pEnd; ++pIt) {
                 const Vec4f& position = *pIt;
-                shader.currentShader().setUniformVariable("Position", position);
+                shader.setUniformVariable("Position", position);
                 m_vertexArray->render();
             }
         }
@@ -137,10 +137,10 @@ namespace TrenchBroom {
             
             if (m_vertexArray != NULL) {
                 Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedPointHandleShader);
-                shader.currentShader().setUniformVariable("Color", color());
-                shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
-                shader.currentShader().setUniformVariable("ScalingFactor", scalingFactor());
-                shader.currentShader().setUniformVariable("MaximumDistance", maximumDistance());
+                shader.setUniformVariable("Color", color());
+                shader.setUniformVariable("CameraPosition", context.camera().position());
+                shader.setUniformVariable("ScalingFactor", scalingFactor());
+                shader.setUniformVariable("MaximumDistance", maximumDistance());
                 m_vertexArray->render(shader.currentShader());
             }
         }

@@ -30,10 +30,12 @@
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
+        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", "skip", "hintskip", "trigger"};
+
         void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter) {
             const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
             if (faceCollectionMap.empty())
@@ -45,24 +47,27 @@ namespace TrenchBroom {
                 TextureRenderer* textureRenderer = texture != NULL ? &textureRendererManager.renderer(texture) : NULL;
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
-                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 6 * faces.size());
+                const size_t vertexCount = 3 * faceCollection.vertexCount() - 6 * faces.size();
                 VertexArray* vertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
                                                            Attribute::position3f(),
                                                            Attribute::normal3f(),
                                                            Attribute::texCoord02f(),
                                                            0);
                 
-                for (unsigned int i = 0; i < faces.size(); i++) {
+                for (size_t i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     vertexArray->addAttributes(face->cachedVertices());
                 }
                 
-                m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
+                if (texture != NULL && alphaBlend(texture->name()))
+                    m_transparentVertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
+                else
+                    m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
             }
         }
 
         void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
-            if (m_vertexArrays.empty())
+            if (m_vertexArrays.empty() && m_transparentVertexArrays.empty())
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -76,6 +81,7 @@ namespace TrenchBroom {
                 
                 const bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
                 faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                faceProgram.setUniformVariable("Alpha", 1.0f);
                 faceProgram.setUniformVariable("RenderGrid", grid.visible());
                 faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 faceProgram.setUniformVariable("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
@@ -89,24 +95,40 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("ShadeFaces", context.viewOptions().shadeFaces() );
                 faceProgram.setUniformVariable("UseFog", context.viewOptions().useFog() );
                 
-                for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
-                    TextureVertexArray& textureVertexArray = m_vertexArrays[i];
-                    if (textureVertexArray.texture != NULL) {
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        faceProgram.setUniformVariable("Color", textureVertexArray.texture->averageColor());
-                    } else {
-                        faceProgram.setUniformVariable("ApplyTexture", false);
-                        faceProgram.setUniformVariable("Color", m_faceColor);
-                    }
-                    
-                    textureVertexArray.vertexArray->render();
-                    
-                    if (textureVertexArray.texture != NULL)
-                        textureVertexArray.texture->deactivate();
-                }
+                renderOpaqueFaces(faceProgram, applyTexture);
+                glDepthMask(GL_FALSE);
+                renderTransparentFaces(faceProgram, applyTexture);
+                glDepthMask(GL_TRUE);
+
                 faceProgram.deactivate();
+            }
+        }
+
+        void FaceRenderer::renderOpaqueFaces(ShaderProgram& shader, const bool applyTexture) {
+            renderFaces(m_vertexArrays, shader, applyTexture);
+        }
+        
+        void FaceRenderer::renderTransparentFaces(ShaderProgram& shader, const bool applyTexture) {
+            renderFaces(m_transparentVertexArrays, shader, applyTexture);
+        }
+
+        void FaceRenderer::renderFaces(const TextureVertexArrayList& vertexArrays, ShaderProgram& shader, const bool applyTexture) {
+            for (size_t i = 0; i < vertexArrays.size(); i++) {
+                const TextureVertexArray& textureVertexArray = vertexArrays[i];
+                if (textureVertexArray.texture != NULL) {
+                    textureVertexArray.texture->activate();
+                    shader.setUniformVariable("ApplyTexture", applyTexture);
+                    shader.setUniformVariable("FaceTexture", 0);
+                    shader.setUniformVariable("Color", textureVertexArray.texture->averageColor());
+                } else {
+                    shader.setUniformVariable("ApplyTexture", false);
+                    shader.setUniformVariable("Color", m_faceColor);
+                }
+                
+                textureVertexArray.vertexArray->render();
+                
+                if (textureVertexArray.texture != NULL)
+                    textureVertexArray.texture->deactivate();
             }
         }
 

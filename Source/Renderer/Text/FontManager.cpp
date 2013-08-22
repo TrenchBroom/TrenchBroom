@@ -22,6 +22,7 @@
 #include "IO/FileManager.h"
 #include "Renderer/Text/TexturedFont.h"
 #include "Utility/Console.h"
+#include "Utility/Map.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,6 +38,7 @@ namespace TrenchBroom {
             }
 
             FontManager::~FontManager() {
+                Utility::deleteAll(m_cache);
                 if (m_library != NULL) {
                     FT_Done_FreeType(m_library);
                     m_library = NULL;
@@ -72,7 +74,7 @@ namespace TrenchBroom {
                 FontDescriptor actualDescriptor = fontDescriptor;
                 TexturedFont* actualFont = font(actualDescriptor);
                 Vec2f actualBounds = actualFont->measure(string);
-                while (actualBounds.x > maxWidth && actualDescriptor.size() > minFontSize) {
+                while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
                     actualDescriptor = FontDescriptor(actualDescriptor.name(), actualDescriptor.size() - 1);
                     actualFont = font(actualDescriptor);
                     actualBounds = actualFont->measure(string);

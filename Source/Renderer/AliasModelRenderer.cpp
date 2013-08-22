@@ -89,15 +89,15 @@ namespace TrenchBroom {
             return m_alias.frame(m_frameIndex).center();
         }
 
-        const BBox& AliasModelRenderer::bounds() const {
+        const BBoxf& AliasModelRenderer::bounds() const {
             return m_alias.frame(m_frameIndex).bounds();
         }
 
-        BBox AliasModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
+        BBoxf AliasModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
             Model::AliasSingleFrame& frame = m_alias.frame(m_frameIndex);
             const Model::AliasFrameTriangleList& triangles = frame.triangles();
 
-            BBox bounds;
+            BBoxf bounds;
             bounds.min = bounds.max = transformation * (*triangles[0])[0].position();
             
             for (unsigned int i = 1; i < triangles.size(); i++) {

@@ -62,6 +62,18 @@ namespace TrenchBroom {
             }
         }
 
+        bool KeyboardShortcut::isShortcutValid(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) {
+#ifdef __linux__
+            // TAB and Escape are never allowed on GTK2:
+            if (key == WXK_TAB || key == WXK_ESCAPE)
+                return false;
+            // cursor keys are only allowed if they have modifiers
+            if (key == WXK_LEFT || key == WXK_RIGHT || key == WXK_UP || key == WXK_DOWN)
+                return modifierKey1 != WXK_NONE || modifierKey2 != WXK_NONE || modifierKey3 != WXK_NONE;
+#endif
+            return true;
+        }
+
         wxString KeyboardShortcut::modifierKeyMenuText(int key) {
             switch (key) {
                 case WXK_SHIFT:
@@ -477,7 +489,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        KeyboardShortcut::KeyboardShortcut(int commandId, int context, const String& text) :
+        KeyboardShortcut::KeyboardShortcut(const int commandId, const int context, const String& text) :
         m_commandId(commandId),
         m_modifierKey1(WXK_NONE),
         m_modifierKey2(WXK_NONE),
@@ -486,7 +498,7 @@ namespace TrenchBroom {
         m_context(context),
         m_text(text) {}
 
-        KeyboardShortcut::KeyboardShortcut(int commandId, int key, int context, const String& text) :
+        KeyboardShortcut::KeyboardShortcut(const int commandId, const int key, const int context, const String& text) :
         m_commandId(commandId),
         m_modifierKey1(WXK_NONE),
         m_modifierKey2(WXK_NONE),
@@ -495,7 +507,7 @@ namespace TrenchBroom {
         m_context(context),
         m_text(text) {}
 
-        KeyboardShortcut::KeyboardShortcut(int commandId, int modifierKey1, int key, int context, const String& text) :
+        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int key, const int context, const String& text) :
         m_commandId(commandId),
         m_modifierKey1(modifierKey1),
         m_modifierKey2(WXK_NONE),
@@ -504,7 +516,7 @@ namespace TrenchBroom {
         m_context(context),
         m_text(text) {}
 
-        KeyboardShortcut::KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text) :
+        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int key, const int context, const String& text) :
         m_commandId(commandId),
         m_modifierKey1(modifierKey1),
         m_modifierKey2(modifierKey2),
@@ -515,7 +527,7 @@ namespace TrenchBroom {
             sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
         }
 
-        KeyboardShortcut::KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text) :
+        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int modifierKey3, const int key, const int context, const String& text) :
         m_commandId(commandId),
         m_modifierKey1(modifierKey1),
         m_modifierKey2(modifierKey2),
@@ -551,6 +563,22 @@ namespace TrenchBroom {
             m_text = stream.str().substr(static_cast<size_t>(stream.tellg()));
 
             sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
+        }
+
+        bool KeyboardShortcut::matches(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
+            if (key != m_key)
+                return false;
+
+            int inModifierKeys[] = { modifierKey1, modifierKey2, modifierKey3 };
+            sortModifierKeys(inModifierKeys[0], inModifierKeys[1], inModifierKeys[2]);
+
+            int myModifierKeys[] = { m_modifierKey1, m_modifierKey2, m_modifierKey3 };
+            sortModifierKeys(myModifierKeys[0], myModifierKeys[1], myModifierKeys[2]);
+
+            for (size_t i = 0; i < 3; i++)
+                if (inModifierKeys[i] != myModifierKeys[i])
+                    return false;
+            return true;
         }
 
         bool KeyboardShortcut::alwaysShowModifier() const {
@@ -597,7 +625,11 @@ namespace TrenchBroom {
                 case WXK_F24:
                     return true;
                 default:
-                    return hasModifier();
+                    if (!hasModifier())
+                        return false;
+                    if (m_modifierKey1 == WXK_SHIFT && m_modifierKey2 == WXK_NONE)
+                        return false;
+                    return true;
             }
         }
 

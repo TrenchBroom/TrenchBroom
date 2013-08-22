@@ -35,77 +35,87 @@
 
 namespace TrenchBroom {
     namespace IO {
-        
-        void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
+        size_t MapWriter::writeFace(Model::Face& face, const size_t lineNumber, FILE* stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
             std::fprintf(stream, FaceFormat.c_str(),
-                    face.point(0).x,
-                    face.point(0).y,
-                    face.point(0).z,
-                    face.point(1).x,
-                    face.point(1).y,
-                    face.point(1).z,
-                    face.point(2).x,
-                    face.point(2).y,
-                    face.point(2).z,
+                    face.point(0).x(),
+                    face.point(0).y(),
+                    face.point(0).z(),
+                    face.point(1).x(),
+                    face.point(1).y(),
+                    face.point(1).z(),
+                    face.point(2).x(),
+                    face.point(2).y(),
+                    face.point(2).z(),
                     textureName.c_str(),
                     face.xOffset(),
                     face.yOffset(),
                     face.rotation(),
                     face.xScale(),
                     face.yScale());
+            face.setFilePosition(lineNumber);
+            return 1;
         }
         
-        void MapWriter::writeBrush(const Model::Brush& brush, FILE* stream) {
-            std::fprintf(stream, "{\n");
+        size_t MapWriter::writeBrush(Model::Brush& brush, const size_t lineNumber, FILE* stream) {
+            size_t lineCount = 0;
+            std::fprintf(stream, "{\n"); lineCount++;
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
-                writeFace(**faceIt, stream);
-            std::fprintf(stream, "}\n");
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                lineCount += writeFace(**faceIt, lineNumber + lineCount, stream);
+            }
+            std::fprintf(stream, "}\n"); lineCount++;
+            brush.setFilePosition(lineNumber, lineCount);
+            return lineCount;
         }
         
-        void MapWriter::writeEntityHeader(const Model::Entity& entity, FILE* stream) {
-            std::fprintf(stream, "{\n");
+        size_t MapWriter::writeEntityHeader(Model::Entity& entity, FILE* stream) {
+            size_t lineCount = 0;
+            std::fprintf(stream, "{\n"); lineCount++;
             
             const Model::PropertyList& properties = entity.properties();
             Model::PropertyList::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it) {
                 const Model::Property& property = *it;
-                std::fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());
+                std::fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str()); lineCount++;
             }
+            return lineCount;
         }
         
-        void MapWriter::writeEntityFooter(FILE* stream) {
+        size_t MapWriter::writeEntityFooter(FILE* stream) {
             std::fprintf(stream, "}\n");
+            return 1;
         }
         
-        void MapWriter::writeEntity(const Model::Entity& entity, FILE* stream) {
-            writeEntityHeader(entity, stream);
+        size_t MapWriter::writeEntity(Model::Entity& entity, const size_t lineNumber, FILE* stream) {
+            size_t lineCount = writeEntityHeader(entity, stream);
             const Model::BrushList& brushes = entity.brushes();
             for (unsigned int i = 0; i < brushes.size(); i++)
-                writeBrush(*brushes[i], stream);
-            writeEntityFooter(stream);
+                lineCount += writeBrush(*brushes[i], lineNumber + lineCount, stream);
+            lineCount += writeEntityFooter(stream);
+            entity.setFilePosition(lineNumber, lineCount);
+            return lineCount;
         }
 
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
-
+            
             stream.precision(FloatPrecision);
             stream <<
             "( " <<
-            face.point(0).x << " " <<
-            face.point(0).y << " " <<
-            face.point(0).z <<
-            " ) ( "         <<
-            face.point(1).x << " " <<
-            face.point(1).y << " " <<
-            face.point(1).z <<
-            " ) ( "         <<
-            face.point(2).x << " " <<
-            face.point(2).y << " " <<
-            face.point(2).z <<
+            face.point(0).x() << " " <<
+            face.point(0).y() << " " <<
+            face.point(0).z() <<
+            " ) ( "           <<
+            face.point(1).x() << " " <<
+            face.point(1).y() << " " <<
+            face.point(1).z() <<
+            " ) ( "           <<
+            face.point(2).x() << " " <<
+            face.point(2).y() << " " <<
+            face.point(2).z() <<
             " ) ";
 
             stream.precision(6);
@@ -235,7 +245,7 @@ namespace TrenchBroom {
                 writeEntity(*entities[i], stream);
         }
         
-        void MapWriter::writeToFileAtPath(const Model::Map& map, const String& path, bool overwrite) {
+        void MapWriter::writeToFileAtPath(Model::Map& map, const String& path, bool overwrite) {
             FileManager fileManager;
             if (fileManager.exists(path) && !overwrite)
                 return;
@@ -249,9 +259,10 @@ namespace TrenchBroom {
                 throw IOException::openError(path);
             // std::fstream stream(path.c_str(), std::ios::out | std::ios::trunc);
 
+            size_t lineNumber = 1;
             const Model::EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++)
-                writeEntity(*entities[i], stream);
+                lineNumber += writeEntity(*entities[i], lineNumber, stream);
             fclose(stream);
         }
     }

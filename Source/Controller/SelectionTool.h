@@ -29,6 +29,9 @@ namespace TrenchBroom {
             bool handleMouseDClick(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             void handleScroll(InputState& inputState);
+
+            bool handleStartDrag(InputState& inputState);
+            bool handleDrag(InputState& inputState);
         public:
             SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };

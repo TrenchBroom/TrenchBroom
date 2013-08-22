@@ -46,10 +46,14 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHOICE(CommandIds::ViewInspector::FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
         // EVT_CHECKBOX(CommandIds::ViewInspector::FogCheckBoxId, ViewInspector::OnFogChanged)
+        EVT_CHOICE(CommandIds::ViewInspector::LinkDisplayModeChoiceId, ViewInspector::OnLinkDisplayModeSelected)
         END_EVENT_TABLE()
 
         void ViewInspector::updateControls() {
@@ -66,17 +70,24 @@ namespace TrenchBroom {
             m_toggleBrushes->SetValue(viewOptions.showBrushes());
             m_toggleClipBrushes->SetValue(viewOptions.showClipBrushes());
             m_toggleSkipBrushes->SetValue(viewOptions.showSkipBrushes());
+            m_toggleHintBrushes->SetValue(viewOptions.showHintBrushes());
+            m_toggleLiquidBrushes->SetValue(viewOptions.showLiquidBrushes());
+            m_toggleTriggerBrushes->SetValue(viewOptions.showTriggerBrushes());
 
             m_toggleEntityModels->Enable(viewOptions.showEntities());
             m_toggleEntityBounds->Enable(viewOptions.showEntities());
             m_toggleEntityClassnames->Enable(viewOptions.showEntities());
             m_toggleClipBrushes->Enable(viewOptions.showBrushes());
             m_toggleSkipBrushes->Enable(viewOptions.showBrushes());
+            m_toggleHintBrushes->Enable(viewOptions.showBrushes());
+            m_toggleLiquidBrushes->Enable(viewOptions.showBrushes());
+            m_toggleTriggerBrushes->Enable(viewOptions.showBrushes());
 
             m_faceRenderModeChoice->SetSelection(viewOptions.faceRenderMode());
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
             m_toggleFaceShading->SetValue(viewOptions.shadeFaces());
 //            m_toggleFog->SetValue(viewOptions.useFog());
+            m_linkDisplayModeChoice->SetSelection(viewOptions.linkDisplayMode());
         }
 
         wxWindow* ViewInspector::createFilterBox() {
@@ -90,6 +101,9 @@ namespace TrenchBroom {
             m_toggleBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowBrushesCheckBoxId, wxT("Brushes"));
             m_toggleClipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
             m_toggleSkipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
+            m_toggleHintBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowHintBrushesCheckBoxId, wxT("Hint brushes"));
+            m_toggleLiquidBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId, wxT("Liquid brushes"));
+            m_toggleTriggerBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId, wxT("Trigger brushes"));
             
             wxGridBagSizer* filterPanelSizer = new wxGridBagSizer(LayoutConstants::CheckBoxVerticalMargin, LayoutConstants::ControlHorizontalMargin);
             filterPanelSizer->Add(m_toggleEntities, wxGBPosition(0, 0));
@@ -100,6 +114,9 @@ namespace TrenchBroom {
             filterPanelSizer->Add(m_toggleBrushes, wxGBPosition(0, 1));
             filterPanelSizer->Add(m_toggleClipBrushes, wxGBPosition(1, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->Add(m_toggleSkipBrushes, wxGBPosition(2, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleHintBrushes, wxGBPosition(3, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleLiquidBrushes, wxGBPosition(4, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleTriggerBrushes, wxGBPosition(5, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
             filterPanelSizer->AddGrowableCol(1);
             
             // layout of the contained controls
@@ -130,6 +147,10 @@ namespace TrenchBroom {
             m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
              */
 
+            wxStaticText* linkDisplayModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Entity links"));
+            wxString linkDisplayModes[4] = {wxT("All"), wxT("Connected"), wxT("Selected"), wxT("None")};
+            m_linkDisplayModeChoice = new wxChoice(renderModeBox, CommandIds::ViewInspector::LinkDisplayModeChoiceId, wxDefaultPosition, wxDefaultSize, 4, linkDisplayModes);
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
             innerSizer->Add(faceRenderModeLabel);
             innerSizer->Add(m_faceRenderModeChoice);
@@ -137,11 +158,8 @@ namespace TrenchBroom {
             innerSizer->Add(m_toggleRenderEdges, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(toggleFaceShadingLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
             innerSizer->Add(m_toggleFaceShading, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
-            
-            /*
-            innerSizer->Add(toggleFogLabel);
-            innerSizer->Add(m_toggleFog);
-             */
+            innerSizer->Add(linkDisplayModeLabel, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(m_linkDisplayModeChoice, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
 
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -179,39 +197,38 @@ namespace TrenchBroom {
             switch (event.GetId()) {
                 case CommandIds::ViewInspector::ShowEntitiesCheckBoxId:
                     editorView.viewOptions().setShowEntities(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityModelsCheckBoxId:
                     editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId:
                     editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId:
                     editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case CommandIds::ViewInspector::ShowBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowBrushesCheckBoxId:
                     editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
-                case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId:
                     editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
-                case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId:
                     editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    editorView.OnUpdate(NULL, &command);
                     break;
-                }
+                case CommandIds::ViewInspector::ShowHintBrushesCheckBoxId:
+                    editorView.viewOptions().setShowHintBrushes(event.GetInt() != 0);
+                    break;
+                case CommandIds::ViewInspector::ShowLiquidBrushesCheckBoxId:
+                    editorView.viewOptions().setShowLiquidBrushes(event.GetInt() != 0);
+                    break;
+                case CommandIds::ViewInspector::ShowTriggerBrushesCheckBoxId:
+                    editorView.viewOptions().setShowTriggerBrushes(event.GetInt() != 0);
+                    break;
             }
+            
+            Controller::Command command(Controller::Command::ViewFilterChange);
+            editorView.OnUpdate(NULL, &command);
             updateControls();
         }
 
@@ -241,24 +258,33 @@ namespace TrenchBroom {
             editorView.OnUpdate(NULL); // will just trigger a refresh
         }
 
-		  void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setShadeFaces(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
 
         /*
-		  void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setUseFog(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
          */
+
+        void ViewInspector::OnLinkDisplayModeSelected(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+
+            EditorView& editorView = m_documentViewHolder.view();
+            ViewOptions::LinkDisplayMode mode = static_cast<ViewOptions::LinkDisplayMode>(event.GetSelection());
+            editorView.viewOptions().setLinkDisplayMode(mode);
+        }
     }
 }

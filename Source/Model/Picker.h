@@ -23,7 +23,7 @@
 #include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             Octree& m_octree;
         public:
             Picker(Octree& octree);
-            PickResult* pick(const Ray& ray);
+            PickResult* pick(const Rayf& ray);
         };
     }
 }

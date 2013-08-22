@@ -36,6 +36,11 @@ namespace TrenchBroom {
             Model::MapDocument* m_document;
             EditorView* m_view;
         public:
+            DocumentViewHolder() :
+            m_valid(false),
+            m_document(NULL),
+            m_view(NULL) {}
+            
             DocumentViewHolder(Model::MapDocument* document, EditorView* view) :
             m_valid(true),
             m_document(document),

@@ -69,7 +69,7 @@ namespace TrenchBroom {
             
             typedef Model::Entity* EntityKey;
             typedef std::map<EntityKey, CachedEntityModelRenderer> EntityModelRenderers;
-            typedef Text::TextRenderer<EntityKey, EntityClassnameAnchor> EntityClassnameRenderer;
+            typedef Text::TextRenderer<EntityKey> EntityClassnameRenderer;
             
             class EntityClassnameFilter : public EntityClassnameRenderer::TextRendererFilter {
             public:
@@ -108,6 +108,10 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             void renderFigures(RenderContext& context);
+
+            // prevent copying
+            EntityRenderer(const EntityRenderer& other);
+            void operator= (const EntityRenderer& other);
         public:
             EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document);
             ~EntityRenderer();

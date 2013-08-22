@@ -21,7 +21,9 @@
 
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/Command.h"
 #include "Controller/RemoveObjectsCommand.h"
+#include "Controller/ReparentBrushesCommand.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Map.h"
@@ -59,12 +61,12 @@ namespace TrenchBroom {
             assert(!normals1.empty());
             
             Vec3f sum;
-            // first, try to find two normals with the same first component
+            // first, try to find two normals with the same first axis
             for (size_t i = 0; i < normals1.size(); i++) {
                 const Vec3f& normal1 = normals1[i];
                 for (size_t j =  0; j < normals2.size(); j++) {
                     const Vec3f& normal2 = normals2[j];
-                    if (normal1.firstComponent() == normal2.firstComponent())
+                    if (normal1.firstAxis() == normal2.firstAxis())
                         return normal1;
                 }
                 sum += normal1;
@@ -80,6 +82,9 @@ namespace TrenchBroom {
             m_frontBrushes.clear();
             m_backBrushes.clear();
             
+            Model::BrushList allFrontBrushes, allBackBrushes;
+            
+            Renderer::Camera& camera = view().camera();
             Vec3f planePoints[3];
             bool validPlane = false;
             if (m_numPoints > 0) {
@@ -92,10 +97,12 @@ namespace TrenchBroom {
                         
                         const Vec3f normal = m_normals[0].size() == 1 ? m_normals[0][0] : (m_normals[0][0] + m_normals[0][1]) / 2.0f;
                         planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
-                        if (normal.firstComponent() == Axis::AZ)
-                            planePoints[2] = planePoints[0] + 128.0f * (view().camera().direction().firstComponent() != Axis::AZ ? view().camera().direction().firstAxis() : view().camera().up().firstAxis());
-                        else
+                        if (normal.firstComponent() == Axis::AZ) {
+                            const Vec3f dir = camera.direction().firstComponent() != Axis::AZ ? camera.direction().firstAxis() : camera.direction().secondAxis();
+                            planePoints[2] = planePoints[0] + 128.0f * dir;
+                        } else {
                             planePoints[2] = planePoints[0] + 128.0f * normal.firstAxis();
+                        }
                     }
                 } else if (m_numPoints == 2) {
                     assert(!m_normals[0].empty());
@@ -113,17 +120,31 @@ namespace TrenchBroom {
                     planePoints[1] = m_points[1].rounded();
                     planePoints[2] = m_points[2].rounded();
                 }
+                
+                // make sure the plane's normal points towards the camera or to its left if the camera position is on the plane
+                if (validPlane) {
+                    Planef plane;
+                    plane.setPoints(planePoints[0], planePoints[1], planePoints[2]);
+                    if (plane.pointStatus(camera.position()) == PointStatus::PSInside) {
+                        if (plane.normal.dot(camera.right()) < 0.0f)
+                            std::swap(planePoints[1], planePoints[2]);
+                    } else {
+                        if (plane.normal.dot(camera.direction()) > 0.0f)
+                            std::swap(planePoints[1], planePoints[2]);
+                    }
+                }
             }
             
             const Model::BrushList& brushes = document().editStateManager().selectedBrushes();
             if (validPlane) {
-                const BBox& worldBounds = document().map().worldBounds();
+                const BBoxf& worldBounds = document().map().worldBounds();
                 const bool forceIntegerFacePoints = document().map().forceIntegerFacePoints();
                 const String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
                 
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                     Model::Brush& brush = **brushIt;
+                    Model::Entity* entity = brush.entity();
                     Model::Face* frontFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[1], planePoints[2], textureName);
                     Model::Face* backFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[2], planePoints[1], textureName);
                     
@@ -153,25 +174,28 @@ namespace TrenchBroom {
                     backFace->setAttributes(*bestBackFace);
                     
                     Model::Brush* frontBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
-                    if (frontBrush->clip(*frontFace))
-                        m_frontBrushes.push_back(frontBrush);
-                    else
+                    if (frontBrush->clip(*frontFace)) {
+                        m_frontBrushes[entity].push_back(frontBrush);
+                        allFrontBrushes.push_back(frontBrush);
+                    } else {
                         delete frontBrush;
+                    }
                     
                     Model::Brush* backBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
-                    if (backBrush->clip(*backFace))
-                        m_backBrushes.push_back(backBrush);
-                    else
+                    if (backBrush->clip(*backFace)) {
+                        m_backBrushes[entity].push_back(backBrush);
+                        allBackBrushes.push_back(backBrush);
+                    } else {
                         delete backBrush;
+                    }
                 }
-                m_frontBrushFigure->setBrushes(m_frontBrushes);
-                m_backBrushFigure->setBrushes(m_backBrushes);
             } else {
-                m_frontBrushes = brushes;
+                allFrontBrushes = brushes;
+                m_frontBrushes = entityBrushes(allFrontBrushes);
             }
 
-            m_frontBrushFigure->setBrushes(m_frontBrushes);
-            m_backBrushFigure->setBrushes(m_backBrushes);
+            m_frontBrushFigure->setBrushes(allFrontBrushes);
+            m_backBrushFigure->setBrushes(allBackBrushes);
         }
         
         Vec3f::List ClipTool::getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const {
@@ -213,10 +237,16 @@ namespace TrenchBroom {
             return normals;
         }
 
+        bool ClipTool::isPointIdenticalWithExistingPoint(const Vec3f& point) const {
+            for (size_t i = 0; i < m_numPoints; i++)
+                if (m_points[i] == point)
+                    return true;
+            return false;
+        }
+
         bool ClipTool::handleActivate(InputState& inputState) {
             m_numPoints = 0;
             m_hitIndex = -1;
-            m_clipSide = CMFront;
             view().viewOptions().setRenderSelection(false);
             
             assert(m_frontBrushFigure == NULL);
@@ -253,7 +283,7 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_numPoints; i++) {
                 float distance = inputState.pickRay().intersectWithSphere(m_points[i], handleRadius, scalingFactor, maxDistance);
-                if (!Math::isnan(distance)) {
+                if (!Math<float>::isnan(distance)) {
                     Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
                     inputState.pickResult().add(new Model::ClipHandleHit(hitPoint, distance, i));
                 }
@@ -333,18 +363,18 @@ namespace TrenchBroom {
             if (m_numPoints > 0 || m_hitIndex > -1) {
                 
                 Renderer::ActivateShader pointHandleShader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
-                pointHandleShader.currentShader().setUniformVariable("CameraPosition", renderContext.camera().position());
-                pointHandleShader.currentShader().setUniformVariable("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
-                pointHandleShader.currentShader().setUniformVariable("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+                pointHandleShader.setUniformVariable("CameraPosition", renderContext.camera().position());
+                pointHandleShader.setUniformVariable("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
+                pointHandleShader.setUniformVariable("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
 
                 Renderer::SphereFigure sphereFigure(prefs.getFloat(Preferences::HandleRadius), 1);
                 for (unsigned int i = 0; i < m_numPoints; i++) {
-                    pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
+                    pointHandleShader.setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
                     glDisable(GL_DEPTH_TEST);
-                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                     sphereFigure.render(vbo, renderContext);
                     glEnable(GL_DEPTH_TEST);
-                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                     sphereFigure.render(vbo, renderContext);
                 }
                 
@@ -362,12 +392,12 @@ namespace TrenchBroom {
                             glEnable(GL_DEPTH_TEST);
                         }
                     } else {
-                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
+                        pointHandleShader.setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
                         glDisable(GL_DEPTH_TEST);
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                        pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                         glEnable(GL_DEPTH_TEST);
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                        pointHandleShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                     }
                 }
@@ -393,16 +423,16 @@ namespace TrenchBroom {
                     
                     Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
                     glDisable(GL_DEPTH_TEST);
-                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    planeShader.setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                     linesArray->render();
                     glEnable(GL_DEPTH_TEST);
-                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    planeShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                     linesArray->render();
                     
                     if (m_numPoints == 3) {
                         glDisable(GL_DEPTH_TEST);
                         glDisable(GL_CULL_FACE);
-                        planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
+                        planeShader.setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
                         triangleArray->render();
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
@@ -432,6 +462,9 @@ namespace TrenchBroom {
             m_hitIndex = -1;
             updateBrushes();
             
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
+
             return true;
         }
         
@@ -453,42 +486,69 @@ namespace TrenchBroom {
             
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if  (faceHit == NULL) {
-                const Plane plane(m_normals[m_hitIndex].front(), m_points[m_hitIndex]);
+                const Planef plane(m_normals[m_hitIndex].front(), m_points[m_hitIndex]);
                 const float distance = plane.intersectWithRay(inputState.pickRay());
-                if (Math::isnan(distance))
+                if (Math<float>::isnan(distance))
                     return true;
                 
                 const Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
                 
                 Utility::Grid& grid = document().grid();
-                Vec3f point = grid.snap(hitPoint, plane);
-                m_points[m_hitIndex] = point;
+                const Vec3f point = grid.snap(hitPoint, plane);
+                if (!isPointIdenticalWithExistingPoint(point))
+                    m_points[m_hitIndex] = point;
             } else {
-                const Plane& plane = faceHit->face().boundary();
+                const Planef& plane = faceHit->face().boundary();
                 const Vec3f& hitPoint = faceHit->hitPoint();
                 
                 Utility::Grid& grid = document().grid();
-                Vec3f point = grid.snap(hitPoint, plane);
+                const Vec3f point = grid.snap(hitPoint, plane);
 
-                m_points[m_hitIndex] = point;
-                m_normals[m_hitIndex] = getNormals(point, faceHit->face());
+                if (!isPointIdenticalWithExistingPoint(point)) {
+                    m_points[m_hitIndex] = point;
+                    m_normals[m_hitIndex] = getNormals(point, faceHit->face());
+                }
             }
             
             updateBrushes();
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
+
             return true;
         }
         
         void ClipTool::handleEndDrag(InputState& inputState) {
         }
         
-        void ClipTool::handleObjectsChange(InputState& inputState) {
-            if (active())
+        bool ClipTool::handleNavigateUp(InputState& inputState) {
+            assert(active());
+            if (m_numPoints > 0) {
+                m_numPoints = 0;
                 updateBrushes();
+                
+                Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+                submitCommand(command, false);
+                
+                return true;
+            }
+            
+            return false;
         }
-        
-        void ClipTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            if (active())
-                updateBrushes();
+
+        void ClipTool::handleUpdate(const Command& command, InputState& inputState) {
+            if (active()) {
+                switch (command.type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap:
+                    case Controller::Command::TransformObjects:
+                    case Controller::Command::ResizeBrushes:
+                        updateBrushes();
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
@@ -520,13 +580,16 @@ namespace TrenchBroom {
             assert(m_numPoints > 0);
             m_numPoints--;
             updateBrushes();
+
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
         }
         
         void ClipTool::performClip() {
             assert(active());
             assert(m_numPoints > 0);
 
-            Model::BrushList addBrushes;
+            Model::EntityBrushesMap addBrushes;
             switch (m_clipSide) {
                 case CMFront:
                     addBrushes = m_frontBrushes;
@@ -534,33 +597,32 @@ namespace TrenchBroom {
                 case CMBack:
                     addBrushes = m_backBrushes;
                     break;
-                default: {
-                    addBrushes.insert(addBrushes.end(), m_frontBrushes.begin(), m_frontBrushes.end());
-                    addBrushes.insert(addBrushes.end(), m_backBrushes.begin(), m_backBrushes.end());
+                default:
+                    addBrushes = mergeEntityBrushes(m_frontBrushes, m_backBrushes);
                     break;
-                }
             }
             
-            const Model::BrushList& removeBrushes = document().editStateManager().selectedBrushes();
-
-            ChangeEditStateCommand* deselectCommand = ChangeEditStateCommand::deselectAll(document());
-            AddObjectsCommand* addCommand = NULL;
-            ChangeEditStateCommand* selectCommand = NULL;
-            RemoveObjectsCommand* removeCommand = RemoveObjectsCommand::removeObjects(document(), Model::EmptyEntityList, removeBrushes);
-            
-            if (!addBrushes.empty()) {
-                selectCommand = ChangeEditStateCommand::select(document(), addBrushes);
-                addCommand = AddObjectsCommand::addBrushes(document(), addBrushes);
-            }
-            
+            const Model::BrushList removeBrushes = document().editStateManager().selectedBrushes();
 
             beginCommandGroup(wxT("Clip"));
-            submitCommand(deselectCommand);
+            submitCommand(ChangeEditStateCommand::deselectAll(document()));
+
             if (!addBrushes.empty()) {
-                submitCommand(addCommand);
-                submitCommand(selectCommand);
+                Model::BrushList allBrushes;
+                Model::EntityBrushesMap::const_iterator it, end;
+                for (it = addBrushes.begin(), end = addBrushes.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    
+                    const Model::BrushList& entityBrushes = it->second;
+                    allBrushes.insert(allBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                    
+                    submitCommand(AddObjectsCommand::addBrushes(document(), entityBrushes));
+                    if (!entity->worldspawn())
+                        submitCommand(ReparentBrushesCommand::reparent(document(), entityBrushes, *entity));
+                }
             }
-            submitCommand(removeCommand);
+
+            submitCommand(RemoveObjectsCommand::removeBrushes(document(), removeBrushes));
             endCommandGroup();
             
             m_numPoints = 0;
@@ -569,6 +631,9 @@ namespace TrenchBroom {
             // only update if there are still brushes left because otherwise we have been deactivated
             if (active())
                 updateBrushes();
+            
+            Controller::Command* command = new Controller::DocumentCommand(Controller::Command::ClipToolChange, document());
+            submitCommand(command, false);
        }
     }
 }

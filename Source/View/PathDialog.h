@@ -40,7 +40,7 @@ namespace TrenchBroom {
             wxRadioButton* m_relativeToApp;
             wxRadioButton* m_relativeToQuake;
         public:
-            PathDialog(wxWindow* parent, const String& path, const String& mapPath = "");
+            PathDialog(wxWindow* parent, const String& path, const String& mapPath);
             
             const String& path() const;
             

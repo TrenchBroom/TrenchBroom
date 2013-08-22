@@ -34,7 +34,7 @@
 #include <stdint.h>
 #endif
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -121,15 +121,15 @@ namespace TrenchBroom {
         };
         
         class BspFace {
-            BBox m_bounds;
+            BBoxf m_bounds;
             BspTextureInfo* m_textureInfo;
             Vec3f::List m_vertices;
         public:
             BspFace(BspTextureInfo* textureInfo, const Vec3f::List& vertices);
 
             inline void textureCoordinates(const Vec3f& vertex, Vec2f& result) const {
-                result.x = (vertex.dot(m_textureInfo->sAxis) + m_textureInfo->sOffset) / m_textureInfo->texture->width();
-                result.y = (vertex.dot(m_textureInfo->tAxis) + m_textureInfo->tOffset) / m_textureInfo->texture->height();
+                result[0] = (vertex.dot(m_textureInfo->sAxis) + m_textureInfo->sOffset) / m_textureInfo->texture->width();
+                result[1] = (vertex.dot(m_textureInfo->tAxis) + m_textureInfo->tOffset) / m_textureInfo->texture->height();
             }
             
             inline const BspTexture& texture() const {
@@ -152,9 +152,9 @@ namespace TrenchBroom {
             BspFaceList m_faces;
             unsigned int m_vertexCount;
             Vec3f m_center;
-            BBox m_bounds;
+            BBoxf m_bounds;
         public:
-            BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBox& bounds);
+            BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBoxf& bounds);
             ~BspModel();
             
             inline unsigned int vertexCount() const {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 return m_center;
             }
             
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_bounds;
             }
         };

@@ -25,18 +25,17 @@
 #include "Controller/Command.h"
 #include "Controller/ControllerUtils.h"
 #include "Controller/EntityPropertyCommand.h"
-#include "Controller/FlipObjectsCommand.h"
 #include "Controller/InputController.h"
-#include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ObjectsCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
-#include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/SnapVerticesCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "IO/ByteBuffer.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
@@ -157,8 +156,13 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsHorizontally, EditorView::OnEditFlipObjectsH)
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
+
         EVT_MENU(CommandIds::Menu::EditSnapVertices, EditorView::OnEditSnapVertices)
         EVT_MENU(CommandIds::Menu::EditCorrectVertices, EditorView::OnEditCorrectVertices)
+
+        EVT_MENU(CommandIds::Menu::EditToggleAxisRestriction, EditorView::OnEditToggleAxisRestriction)
+
+        EVT_MENU(CommandIds::Menu::EditPrintFilePositions, EditorView::OnEditPrintFilePositions)
 
         EVT_MENU(CommandIds::Menu::EditMoveVerticesForward, EditorView::OnEditMoveVerticesForward)
         EVT_MENU(CommandIds::Menu::EditMoveVerticesBackward, EditorView::OnEditMoveVerticesBackward)
@@ -168,6 +172,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditMoveVerticesDown, EditorView::OnEditMoveVerticesDown)
 
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
+        EVT_MENU(CommandIds::Menu::EditNavigateUp, EditorView::OnEditNavigateUp)
         EVT_MENU(CommandIds::Menu::EditShowMapProperties, EditorView::OnEditShowMapProperties)
 
         EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
@@ -219,10 +224,10 @@ namespace TrenchBroom {
 
         void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
             assert(entities.empty() != brushes.empty());
-            
+
             Model::EntityList selectEntities;
             Model::BrushList selectBrushes = brushes;
-            
+
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
@@ -232,11 +237,11 @@ namespace TrenchBroom {
                 else
                     selectEntities.push_back(&entity);
             }
-            
+
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-            Controller::MoveObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
-            
+            Controller::TransformObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::TransformObjectsCommand::translateObjects(mapDocument(), selectEntities, selectBrushes, delta);
+
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
             submit(addObjectsCommand);
@@ -244,13 +249,13 @@ namespace TrenchBroom {
             if (moveObjectsCommand != NULL)
                 submit(moveObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
-            
+
             StringStream message;
             message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
             message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
             mapDocument().console().info(message.str());
         }
-        
+
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
             Vec3f moveDirection;
             switch (direction) {
@@ -287,9 +292,7 @@ namespace TrenchBroom {
 
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::FaceList& faces = editStateManager.selectedFaces();
-            wxString actionName = faces.size() == 1 ? wxT("Move Texture") : wxT("Move Textures");
-
-            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), actionName, camera().up(), camera().right(), direction, distance);
+            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), faces, camera().up(), camera().right(), direction, distance);
             submit(command);
         }
 
@@ -314,21 +317,21 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
-            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), entities, brushes, delta, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::translateObjects(mapDocument(), entities, brushes, delta);
             submit(command);
         }
 
         void EditorView::rotateObjects(RotationAxis rotationAxis, bool clockwise) {
-            Axis::Type absoluteAxis;
+            Vec3f absoluteAxis;
             switch (rotationAxis) {
                 case ARoll:
-                    absoluteAxis = m_camera->direction().firstComponent();
+                    absoluteAxis = -m_camera->direction().firstAxis();
                     break;
                 case APitch:
-                    absoluteAxis = m_camera->right().firstComponent();
+                    absoluteAxis = m_camera->right().firstAxis();
                     break;
                 default:
-                    absoluteAxis = Axis::AZ;
+                    absoluteAxis = Vec3f::PosZ;
                     break;
             }
 
@@ -338,11 +341,7 @@ namespace TrenchBroom {
             assert(entities.size() + brushes.size() > 0);
 
             Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
-            Controller::RotateObjects90Command* command = NULL;
-            if (clockwise)
-                command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
-            else
-                command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::rotateObjects(mapDocument(), entities, brushes, absoluteAxis, -Math<float>::Pi / 2.0f, clockwise, center);
             submit(command);
         }
 
@@ -355,7 +354,7 @@ namespace TrenchBroom {
             assert(entities.size() + brushes.size() > 0);
 
             Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
-            Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
+            Controller::TransformObjectsCommand* command = Controller::TransformObjectsCommand::flipObjects(mapDocument(), entities, brushes, axis, center);
             submit(command);
         }
 
@@ -383,6 +382,92 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
+        Vec3f EditorView::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            Model::BrushList::const_iterator brushIt, brushEnd;
+
+            float minDist = std::numeric_limits<float>::max();
+
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+
+                        const Vec3f toPosition = vertex - m_camera->position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                    }
+                }
+            }
+
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+
+                    const Vec3f toPosition = vertex.position - m_camera->position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                }
+            }
+
+            if (minDist < 0.0f) { // move camera so that all vertices are in front of it
+                Controller::CameraMoveEvent moveBack;
+                moveBack.setForward(minDist - 10.0f);
+                moveBack.SetEventObject(this);
+                ProcessEvent(moveBack);
+            }
+
+            // now look at the center
+            const BBoxf bounds = Model::MapObject::bounds(entities, brushes);
+            const Vec3f center = bounds.center();
+
+            // act as if the camera were there already:
+            const Vec3f oldPosition = camera().position();
+            camera().moveTo(center);
+
+            float offset = std::numeric_limits<float>::max();
+
+            Planef frustumPlanes[4];
+            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+
+                        for (size_t j = 0; j < 4; j++) {
+                            const Planef& plane = frustumPlanes[j];
+                            float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                            offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                        }
+                    }
+                }
+            }
+
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+
+                    for (size_t i = 0; i < 4; i++) {
+                        const Planef& plane = frustumPlanes[i];
+                        float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                        offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                    }
+                }
+            }
+
+            // jump back
+            camera().moveTo(oldPosition);
+
+            return center + camera().direction() * offset;
+        }
+
         EditorView::EditorView() :
         wxView(),
         m_animationManager(new AnimationManager()),
@@ -397,7 +482,7 @@ namespace TrenchBroom {
             m_animationManager->Delete();
             m_animationManager = NULL;
         }
-        
+
         ViewOptions& EditorView::viewOptions() const {
             return *m_viewOptions;
         }
@@ -427,9 +512,12 @@ namespace TrenchBroom {
             return mapDocument().console();
         }
 
+        View::EditorFrame& EditorView::editorFrame() const {
+            return *static_cast<EditorFrame*>(GetFrame());
+        }
+
         Controller::InputController& EditorView::inputController() const {
-            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            return frame->mapCanvas().inputController();
+            return editorFrame().mapCanvas().inputController();
         }
 
         AnimationManager& EditorView::animationManager() const {
@@ -451,29 +539,29 @@ namespace TrenchBroom {
                     const String& groupName = groupIt->first;
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
-                    
+
                     const Model::EntityDefinitionList& definitions = groupIt->second;
                     for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
                         Model::EntityDefinition& definition = **defIt;
                         groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem + id++, definition.shortName());
                     }
-                    
+
                     pointMenu->AppendSubMenu(groupMenu, groupName);
                 }
-                
+
 
                 m_createPointEntityMenu = pointMenu;
 
                 id = 0;
                 wxMenu* brushMenu = new wxMenu();
                 brushMenu->SetEventHandler(this);
-                
+
                 groups = definitionManager.groups(Model::EntityDefinition::BrushEntity);
                 for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
                     const String& groupName = groupIt->first;
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
-                    
+
                     const Model::EntityDefinitionList& definitions = groupIt->second;
                     for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
                         Model::EntityDefinition& definition = **defIt;
@@ -481,7 +569,7 @@ namespace TrenchBroom {
                             groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id, definition.shortName());
                         ++id;
                     }
-                    
+
                     brushMenu->AppendSubMenu(groupMenu, groupName);
                 }
 
@@ -535,120 +623,28 @@ namespace TrenchBroom {
             if (hint != NULL) {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
-                    case Controller::Command::ChangeGrid:
-                        inputController().gridChange();
-                        break;
                     case Controller::Command::LoadMap: {
-                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
-                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
-                        inputController().cameraChange();
+                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+                        Model::Entity& worldspawn = mapDocument().worldspawn();
 
-                        m_renderer->loadMap();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
+                        if (!worldspawn.brushes().empty()) {
+                            Vec3f newPosition = centerCameraOnObjectsPosition(Model::EmptyEntityList, worldspawn.brushes());
+                            for (size_t i = 0; i < 3; i++)
+                                newPosition[i] = std::max(std::min(newPosition[i], 1024.0f), -1024.0f);
+                            m_camera->moveTo(newPosition);
+                        } else {
+                            m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+                        }
                         break;
                     }
-                    case Controller::Command::ClearMap: {
-                        m_renderer->clearMap();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
-                        break;
-                    }
-                    case Controller::Command::ChangeEditState: {
-                        Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
-                        m_renderer->changeEditState(changeEditStateCommand->changeSet());
-
-                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                        frame->updateNavBar();
-                        frame->updateMenuBar();
-                        inputController().editStateChange(changeEditStateCommand->changeSet());
-                        if (mapDocument().editStateManager().selectedBrushes().empty() && inputController().clipToolActive())
-                            inputController().toggleClipTool();
-
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateSelectedTexture();
-                        inspector().entityInspector().updateProperties();
-                        break;
-                    }
-                    case Controller::Command::InvalidateRendererEntityState:
-                        m_renderer->invalidateEntities();
-                        break;
-                    case Controller::Command::InvalidateRendererBrushState:
-                        m_renderer->invalidateBrushes();
-                        break;
-                    case Controller::Command::InvalidateRendererState:
-                        m_renderer->invalidateAll();
-                        break;
-                    case Controller::Command::InvalidateEntityModelRendererCache:
-                        mapDocument().invalidateSearchPaths();
-                        m_renderer->invalidateEntityModelRendererCache();
-                        inspector().entityInspector().updateEntityBrowser();
-                        break;
-                    case Controller::Command::InvalidateInstancedRenderers:
-                        inputController().moveVerticesTool().resetInstancedRenderers();
-                        break;
-                    case Controller::Command::SetFaceAttributes:
-                    case Controller::Command::MoveTextures:
-                    case Controller::Command::RotateTextures: {
-                        m_renderer->invalidateSelectedBrushes();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureBrowser(false);
-                        break;
-                    }
-                    case Controller::Command::RemoveTextureCollection:
-                    case Controller::Command::MoveTextureCollectionUp:
-                    case Controller::Command::MoveTextureCollectionDown:
-                        mapDocument().sharedResources().textureRendererManager().invalidate();
-                    case Controller::Command::AddTextureCollection:
-                        m_renderer->invalidateAll();
-                        inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateSelectedTexture();
-                        //inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().updateProperties();
-                    case Controller::Command::RefreshTextureBrowser:
-                        inspector().faceInspector().updateTextureBrowser(true);
-                        break;
-                    case Controller::Command::SetEntityPropertyKey:
-                    case Controller::Command::SetEntityPropertyValue:
-                    case Controller::Command::RemoveEntityProperty: {
-                        m_renderer->invalidateEntities();
-                        m_renderer->invalidateSelectedEntityModelRendererCache();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
-                        break;
-                    }
-                    case Controller::Command::AddObjects: {
-                        Controller::AddObjectsCommand* addObjectsCommand = static_cast<Controller::AddObjectsCommand*>(command);
-                        if (addObjectsCommand->state() == Controller::Command::Doing)
-                            m_renderer->addEntities(addObjectsCommand->addedEntities());
-                        else
-                            m_renderer->removeEntities(addObjectsCommand->addedEntities());
-                        if (addObjectsCommand->hasAddedBrushes())
-                            m_renderer->invalidateBrushes();
-                        inspector().faceInspector().updateTextureBrowser(false);
+                    case Controller::Command::PreferenceChange: {
+                        const Controller::PreferenceChangeEvent& preferenceChangeEvent = *static_cast<const Controller::PreferenceChangeEvent*>(command);
+                        if (preferenceChangeEvent.isPreferenceChanged(Preferences::QuakePath))
+                            mapDocument().invalidateSearchPaths();
                         break;
                     }
                     case Controller::Command::RebuildBrushGeometry:
-                    case Controller::Command::MoveVertices:
+                    case Controller::Command::MoveVertices: {
                         if (command->type() == Controller::Command::RebuildBrushGeometry) {
                             Controller::RebuildBrushGeometryCommand* rebuildCommand = static_cast<Controller::RebuildBrushGeometryCommand*>(command);
                             if (rebuildCommand->state() == Controller::Command::Undoing && rebuildCommand->activateMoveVerticesTool()) {
@@ -662,54 +658,41 @@ namespace TrenchBroom {
                             else
                                 inputController().moveVerticesTool().decChangeCount();
                         }
-                    case Controller::Command::SnapVertices:
-                    case Controller::Command::MoveObjects:
-                    case Controller::Command::RotateObjects:
-                    case Controller::Command::FlipObjects:
-                    case Controller::Command::ResizeBrushes: {
-                        m_renderer->invalidateSelectedBrushes();
-                        m_renderer->invalidateSelectedEntities();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
                         break;
                     }
-                    case Controller::Command::RemoveObjects: {
-                        Controller::RemoveObjectsCommand* removeObjectsCommand = static_cast<Controller::RemoveObjectsCommand*>(command);
-                        if (removeObjectsCommand->state() == Controller::Command::Doing)
-                            m_renderer->removeEntities(removeObjectsCommand->removedEntities());
-                        else
-                            m_renderer->addEntities(removeObjectsCommand->removedEntities());
-                        if (!removeObjectsCommand->removedBrushes().empty())
-                            m_renderer->invalidateBrushes();
-                        inspector().faceInspector().updateTextureBrowser(false);
+                    case Controller::Command::SetEntityPropertyKey:
+                    case Controller::Command::SetEntityPropertyValue:
+                    case Controller::Command::RemoveEntityProperty: {
+                        const Controller::EntityPropertyCommand& entityPropertyCommand = *static_cast<const Controller::EntityPropertyCommand*>(command);
+                        if (entityPropertyCommand.isEntityAffected(mapDocument().worldspawn())) {
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey)) {
+                                mapDocument().invalidateSearchPaths();
+                                mapDocument().sharedResources().modelRendererManager().clearMismatches();
+                            }
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::DefKey)) {
+                                mapDocument().loadEntityDefinitionFile();
+                                mapDocument().sharedResources().modelRendererManager().clearMismatches();
+                            }
+                            if (entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey)) {
+                                mapDocument().loadTextures();
+                                mapDocument().sharedResources().textureRendererManager().invalidate();
+                            }
+                        }
                         break;
                     }
-                    case Controller::Command::ReparentBrushes:
-                        m_renderer->invalidateSelectedBrushes();
-                        m_renderer->invalidateEntities();
-                        m_renderer->invalidateSelectedEntities();
-                        inspector().entityInspector().updateProperties();
-                        inputController().objectsChange();
-                        break;
-                    case Controller::Command::UpdateFigures:
-                        break;
-                    case Controller::Command::SetMod:
-                    case Controller::Command::SetEntityDefinitionFile:
-                        mapDocument().sharedResources().modelRendererManager().clearMismatches();
-                        m_renderer->invalidateEntityModelRendererCache();
-                        inspector().entityInspector().updateProperties();
-                        inspector().entityInspector().updateEntityBrowser();
-                        inputController().objectsChange();
-                        m_renderer->invalidateAll();
-                        break;
                     default:
                         break;
                 }
+                
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                frame->update(*command);
+                inputController().update(*command);
+                inspector().update(*command);
+                renderer().update(*command);
             }
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            if (frame != NULL)
-                frame->mapCanvas().Refresh();
+            frame->mapCanvas().Refresh();
         }
 
         void EditorView::OnChangeFilename() {
@@ -734,57 +717,50 @@ namespace TrenchBroom {
             if (deleteWindow) {
                 EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                 if (frame != NULL) {
-					frame->Disable();
+                    frame->Disable();
                     frame->disableProcessing();
                     frame->Destroy(); // don't call close because that method will try to destroy the document again
-				}
+                }
             }
 
-            if (m_filter != NULL) {
-                delete m_filter;
-                m_filter = NULL;
-            }
-            if (m_viewOptions != NULL) {
-                delete m_viewOptions;
-                m_viewOptions = NULL;
-            }
-            if (m_camera != NULL) {
-                delete m_camera;
-                m_camera = NULL;
-            }
-            if (m_renderer != NULL) {
-                delete m_renderer;
-                m_renderer = NULL;
-            }
+            delete m_filter;
+            m_filter = NULL;
+            delete m_viewOptions;
+            m_viewOptions = NULL;
+            delete m_camera;
+            m_camera = NULL;
+            delete m_renderer;
+            m_renderer = NULL;
+
             return true;
         }
 
         void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {
             m_camera->moveBy(event.forward(), event.right(), event.up());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraLook(Controller::CameraLookEvent& event) {
             m_camera->rotate(event.hAngle(), event.vAngle());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
         void EditorView::OnCameraSet(Controller::CameraSetEvent& event) {
             m_camera->moveTo(event.position());
             m_camera->setDirection(event.direction(), event.up());
-            inputController().cameraChange();
-            inspector().entityInspector().updateSmartEditor();
+            inputController().cameraChanged();
+            inspector().cameraChanged(*m_camera);
             OnUpdate(this);
         }
 
@@ -887,10 +863,10 @@ namespace TrenchBroom {
 
                         wxTextDataObject textData;
                         String text;
-                        
+
                         if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
-                        
+
                         IO::MapParser mapParser(text, console());
                         if (mapParser.parseFaces(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), faces)) {
                             assert(!faces.empty());
@@ -917,7 +893,7 @@ namespace TrenchBroom {
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
-                            const BBox objectsBounds = Model::MapObject::bounds(entities, brushes);
+                            const BBoxf objectsBounds = Model::MapObject::bounds(entities, brushes);
                             const Vec3f objectsPosition = mapDocument().grid().referencePoint(objectsBounds);
 
                             Vec3f delta;
@@ -959,18 +935,18 @@ namespace TrenchBroom {
                     if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
                         Model::EntityList entities;
                         Model::BrushList brushes;
-                        
+
                         wxTextDataObject textData;
                         String text;
-                        
+
                         if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
-                        
+
                         IO::MapParser mapParser(text, console());
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), entities) ||
                             mapParser.parseBrushes(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brushes)) {
                             assert(entities.empty() != brushes.empty());
-                            
+
                             pasteObjects(entities, brushes, Vec3f::Null);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
@@ -1091,7 +1067,7 @@ namespace TrenchBroom {
             const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntitySet selectEntities;
             Model::BrushSet selectBrushes;
-            
+
             wxStringTokenizer tokenizer(string, ", ");
             while (tokenizer.HasMoreTokens()) {
                 wxString token = tokenizer.NextToken();
@@ -1099,14 +1075,14 @@ namespace TrenchBroom {
                 if (token.ToULong(&position)) {
                     Model::Entity* selectEntity = NULL;
                     Model::Brush* selectBrush = NULL;
-                    
+
                     Model::EntityList::const_iterator entityIt, entityEnd;
                     for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd && selectEntity == NULL; ++entityIt) {
                         Model::Entity& entity = **entityIt;
                         if (entity.occupiesFileLine(position)) {
                             if (entity.brushes().empty())
                                 selectEntity = &entity;
-                            
+
                             const Model::BrushList& brushes = entity.brushes();
                             Model::BrushList::const_iterator brushIt, brushEnd;
                             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd && selectBrush == NULL; ++brushIt) {
@@ -1116,14 +1092,14 @@ namespace TrenchBroom {
                             }
                         }
                     }
-                    
+
                     if (selectBrush != NULL)
                         selectBrushes.insert(selectBrush);
                     else if (selectEntity != NULL)
                         selectEntities.insert(selectEntity);
                 }
             }
-            
+
             if (!selectEntities.empty() || !selectBrushes.empty()) {
                 wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), Utility::makeList(selectEntities), Utility::makeList(selectBrushes));
                 submit(command);
@@ -1284,87 +1260,87 @@ namespace TrenchBroom {
             Controller::duplicateObjects(mapDocument());
             moveObjects(DForward, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditDuplicateObjectsRight(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
             Controller::duplicateObjects(mapDocument());
             moveObjects(DRight, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditDuplicateObjectsBackward(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
             Controller::duplicateObjects(mapDocument());
             moveObjects(DBackward, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditDuplicateObjectsLeft(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
             Controller::duplicateObjects(mapDocument());
             moveObjects(DLeft, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditDuplicateObjectsUp(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
             Controller::duplicateObjects(mapDocument());
             moveObjects(DUp, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditDuplicateObjectsDown(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), Controller::Command::makeObjectActionName(wxT("Duplicate & Move"), entities, brushes));
             Controller::duplicateObjects(mapDocument());
             moveObjects(DDown, true);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void EditorView::OnEditMoveTexturesUp(wxCommandEvent& event) {
             moveTextures(DUp, true);
         }
@@ -1447,7 +1423,7 @@ namespace TrenchBroom {
 
         void EditorView::OnEditDuplicateObjects(wxCommandEvent& event) {
             Controller::duplicateObjects(mapDocument());
-            
+
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
             m_animationManager->runAnimation(animation, true);
@@ -1477,6 +1453,54 @@ namespace TrenchBroom {
             submit(command);
         }
 
+        void EditorView::OnEditToggleAxisRestriction(wxCommandEvent& event) {
+            inputController().toggleAxisRestriction();
+        }
+
+        void EditorView::OnEditPrintFilePositions(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList entities = editStateManager.allSelectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            const Model::FaceList& faces = editStateManager.selectedFaces();
+
+            StringStream buffer;
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                const String classname = entity.classname() != NULL ? *entity.classname() : Model::Entity::NoClassnameValue;
+                buffer << "Entity " << classname << ": ";
+                if (entity.fileLine() > 0)
+                    buffer << entity.fileLine();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                buffer.str("");
+                const Model::Brush& brush = **brushIt;
+                buffer << "Brush: ";
+                if (brush.fileLine() > 0)
+                    buffer << brush.fileLine();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                buffer.str("");
+                const Model::Face& face = **faceIt;
+                buffer << "Face: ";
+                if (face.filePosition() > 0)
+                    buffer << face.filePosition();
+                else
+                    buffer << "unsaved";
+                console().info(buffer.str());
+            }
+        }
+
         void EditorView::OnEditMoveVerticesForward(wxCommandEvent& event) {
             moveVertices(DForward, true);
         }
@@ -1503,6 +1527,16 @@ namespace TrenchBroom {
 
         void EditorView::OnEditToggleTextureLock(wxCommandEvent& event) {
             mapDocument().setTextureLock(!mapDocument().textureLock());
+        }
+
+        void EditorView::OnEditNavigateUp(wxCommandEvent& event) {
+            if (!inputController().navigateUp()) {
+                wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+                submit(command);
+            } else {
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                frame->updateNavBar();
+            }
         }
 
         void EditorView::OnEditShowMapProperties(wxCommandEvent& event) {
@@ -1665,92 +1699,8 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             assert(editStateManager.hasSelectedObjects());
 
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            const Vec3f newPosition = centerCameraOnObjectsPosition(editStateManager.selectedEntities(), editStateManager.selectedBrushes());
 
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            Model::BrushList::const_iterator brushIt, brushEnd;
-
-            float minDist = std::numeric_limits<float>::max();
-
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                if (entity.brushes().empty()) {
-                    for (unsigned int i = 0; i < 8; i++) {
-                        const Vec3f vertex = entity.bounds().vertex(i);
-
-                        const Vec3f toPosition = vertex - m_camera->position();
-                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
-                    }
-                }
-            }
-
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                const Model::VertexList& vertices = brush.vertices();
-                Model::VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                    const Model::Vertex& vertex = **vertexIt;
-
-                    const Vec3f toPosition = vertex.position - m_camera->position();
-                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
-                }
-            }
-
-            if (minDist < 0.0f) { // move camera so that all vertices are in front of it
-                Controller::CameraMoveEvent moveBack;
-                moveBack.setForward(minDist - 10.0f);
-                moveBack.SetEventObject(this);
-                ProcessEvent(moveBack);
-            }
-
-            // now look at the center
-            const BBox bounds = Model::MapObject::bounds(entities, brushes);
-            const Vec3f center = bounds.center();
-
-            // act as if the camera were there already:
-            const Vec3f oldPosition = camera().position();
-            camera().moveTo(center);
-            
-            float offset = std::numeric_limits<float>::max();
-
-            Plane frustumPlanes[4];
-            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
-
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                if (entity.brushes().empty()) {
-                    for (unsigned int i = 0; i < 8; i++) {
-                        const Vec3f vertex = entity.bounds().vertex(i);
-
-                        for (size_t j = 0; j < 4; j++) {
-                            const Plane& plane = frustumPlanes[j];
-                            float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
-                            offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
-                        }
-                    }
-                }
-            }
-
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                const Model::VertexList& vertices = brush.vertices();
-                Model::VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                    const Model::Vertex& vertex = **vertexIt;
-
-                    for (size_t i = 0; i < 4; i++) {
-                        const Plane& plane = frustumPlanes[i];
-                        float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
-                        offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
-                    }
-                }
-            }
-
-            // jump back
-            camera().moveTo(oldPosition);
-            
-            const Vec3f newPosition = center + camera().direction() * offset;
             CameraAnimation* animation = new CameraAnimation(*this, newPosition, camera().direction(), camera().up(), 150);
             m_animationManager->runAnimation(animation, true);
         }
@@ -1758,11 +1708,11 @@ namespace TrenchBroom {
         void EditorView::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
             inspector().switchToInspector(0);
         }
-        
+
         void EditorView::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
             inspector().switchToInspector(1);
         }
-        
+
         void EditorView::OnViewSwitchToViewInspector(wxCommandEvent& event) {
             inspector().switchToInspector(2);
         }
@@ -1773,7 +1723,7 @@ namespace TrenchBroom {
                 event.Enable(false);
                 return;
             }
-            
+
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
             switch (event.GetId()) {
@@ -1887,7 +1837,7 @@ namespace TrenchBroom {
                     event.Check(inputController().rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditActions:
-                    event.Enable(false);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone || inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditMoveTexturesUp:
                 case CommandIds::Menu::EditMoveTexturesRight:
@@ -1924,6 +1874,12 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCorrectVertices:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     break;
+                case CommandIds::Menu::EditToggleAxisRestriction:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditPrintFilePositions:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
+                    break;
                 case CommandIds::Menu::EditMoveVerticesForward:
                 case CommandIds::Menu::EditMoveVerticesBackward:
                 case CommandIds::Menu::EditMoveVerticesLeft:
@@ -1935,6 +1891,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Check(mapDocument().textureLock());
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditNavigateUp:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case CommandIds::Menu::EditShowMapProperties:
                     event.Enable(true);
@@ -2048,20 +2007,20 @@ namespace TrenchBroom {
             }
             event.SetText(commandName.str());
         }
-        
+
         void EditorView::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            inputController().reparentBrushes(editStateManager.selectedBrushes(), mapDocument().worldspawn(true));
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), &mapDocument().worldspawn());
         }
 
         void EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
+
             StringStream commandName;
             commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to World";
             event.SetText(commandName.str());
-            event.Enable(inputController().canReparentBrushes(brushes, mapDocument().worldspawn(true)) != NULL);
+            event.Enable(inputController().canReparentBrushes(brushes, &mapDocument().worldspawn()) != NULL);
         }
 
         void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {
@@ -2079,7 +2038,7 @@ namespace TrenchBroom {
                     inputController().createEntity(*definitions[index - count]);
                     break;
                 }
-                
+
                 count += definitions.size();
             }
         }
@@ -2091,11 +2050,11 @@ namespace TrenchBroom {
         void EditorView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
             Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
             const Model::EntityDefinitionManager::EntityDefinitionGroups groups = definitionManager.groups(Model::EntityDefinition::BrushEntity);
-            
+
             size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
             Model::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
             Model::EntityDefinitionList::const_iterator defIt, defEnd;
-            
+
             size_t count = 0;
             for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
                 const Model::EntityDefinitionList& definitions = groupIt->second;
@@ -2103,7 +2062,7 @@ namespace TrenchBroom {
                     inputController().createEntity(*definitions[index - count]);
                     break;
                 }
-                
+
                 count += definitions.size();
             }
         }

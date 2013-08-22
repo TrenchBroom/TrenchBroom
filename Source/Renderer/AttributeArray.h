@@ -120,16 +120,20 @@ namespace TrenchBroom {
             inline GLenum valueType() const {
                 return m_valueType;
             }
+            
+            inline AttributeType attributeType() const {
+                return m_attributeType;
+            }
 
             inline const String& name() const {
                 return m_name;
             }
 
-            inline void setGLState(unsigned int index, unsigned int stride, unsigned int offset) {
+            inline void setGLState(size_t index, size_t stride, size_t offset) {
                 switch (m_attributeType) {
                     case User:
-                        glEnableVertexAttribArray(index);
-                        glVertexAttribPointer(index, m_size, m_valueType, true, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
+                        glEnableVertexAttribArray(static_cast<GLuint>(index));
+                        glVertexAttribPointer(static_cast<GLuint>(index), m_size, m_valueType, true, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case Position:
                         glEnableClientState(GL_VERTEX_ARRAY);
@@ -169,15 +173,15 @@ namespace TrenchBroom {
                 }
             }
 
-            inline void bindAttribute(GLuint index, GLuint programId) {
+            inline void bindAttribute(size_t index, GLuint programId) {
                 if (m_attributeType == User)
-                    glBindAttribLocation(programId, index, m_name.c_str());
+                    glBindAttribLocation(programId, static_cast<GLuint>(index), m_name.c_str());
             }
 
-            inline void clearGLState(GLuint index) {
+            inline void clearGLState(size_t index) {
                 switch (m_attributeType) {
                     case User:
-                        glDisableVertexAttribArray(index);
+                        glDisableVertexAttribArray(static_cast<GLuint>(index));
                         break;
                     case Position:
                         glDisableClientState(GL_VERTEX_ARRAY);
@@ -216,28 +220,28 @@ namespace TrenchBroom {
             VboBlock* m_block;
             Attribute::List m_attributes;
 
-            unsigned int m_padBy;
-            unsigned int m_vertexSize;
-            unsigned int m_vertexCapacity;
-            unsigned int m_vertexCount;
+            size_t m_padBy;
+            size_t m_vertexSize;
+            size_t m_vertexCapacity;
+            size_t m_vertexCount;
 
-            unsigned int m_specIndex;
-            unsigned int m_writeOffset;
+            size_t m_specIndex;
+            size_t m_writeOffset;
 
-            void init(Vbo& vbo, unsigned int padTo) {
-                for (unsigned int i = 0; i < m_attributes.size(); i++)
+            void init(Vbo& vbo, size_t padTo) {
+                for (size_t i = 0; i < m_attributes.size(); i++)
                     m_vertexSize += m_attributes[i].sizeInBytes();
                 if (padTo != 0)
                     m_padBy = (m_vertexSize / padTo + 1) * padTo - m_vertexSize;
                 m_block = vbo.allocBlock(m_vertexCapacity * (m_vertexSize + m_padBy));
             }
 
-            inline void attributesAdded(unsigned int count = 1) {
+            inline void attributesAdded(size_t count = 1) {
                 assert(count <= 1 || m_padBy == 0);
                 if (count > 1) {
                     m_vertexCount += count;
                 } else {
-                    m_specIndex = static_cast<unsigned int>(succ(m_specIndex, m_attributes.size()));
+                    m_specIndex = static_cast<size_t>(succ(m_specIndex, m_attributes.size()));
                     if (m_specIndex == 0) {
                         if (m_padBy > 0)
                             m_writeOffset += m_padBy;
@@ -250,7 +254,7 @@ namespace TrenchBroom {
                 return (size / padTo + 1) * padTo - size;
             }
             
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute& attribute1, size_t padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -261,7 +265,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, size_t padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -273,7 +277,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, size_t padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -286,7 +290,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, size_t padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -300,7 +304,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, size_t padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -315,7 +319,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
+            AttributeArray(Vbo& vbo, size_t vertexCapacity, const Attribute::List& attributes, size_t padTo = 16) :
             m_attributes(attributes),
             m_padBy(0),
             m_vertexSize(0),
@@ -333,7 +337,7 @@ namespace TrenchBroom {
                 }
             }
 
-            inline unsigned int vertexCount() const {
+            inline size_t vertexCount() const {
                 return m_vertexCount;
             }
             
@@ -366,9 +370,9 @@ namespace TrenchBroom {
                 assert(m_padBy == 0);
                 
                 const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
-                unsigned int length = static_cast<unsigned int>(values.size() * 2 * sizeof(float));
+                size_t length = static_cast<size_t>(values.size() * 2 * sizeof(float));
                 m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
-                attributesAdded(static_cast<unsigned int>(values.size() / m_attributes.size()));
+                attributesAdded(static_cast<size_t>(values.size() / m_attributes.size()));
             }
 
             inline void addAttribute(const Vec3f& value) {
@@ -391,24 +395,43 @@ namespace TrenchBroom {
                 assert(m_padBy == 0);
                 
                 const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
-                unsigned int length = static_cast<unsigned int>(values.size() * 3 * sizeof(float));
+                size_t length = static_cast<size_t>(values.size() * 3 * sizeof(float));
                 m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
-                attributesAdded(static_cast<unsigned int>(values.size() / m_attributes.size()));
+                attributesAdded(static_cast<size_t>(values.size() / m_attributes.size()));
             }
-
-            inline void addAttribute(const Vec4f& value) {
-                assert(m_vertexCount < m_vertexCapacity);
-                assert(m_attributes[m_specIndex].valueType() == GL_FLOAT);
-                assert(m_attributes[m_specIndex].size() == 4);
-
-                m_writeOffset = m_block->writeVec(value, m_writeOffset);
-                attributesAdded();
+            
+            inline void addAttributes(const Vec3f::List& vertices, const Vec3f::List& normals) {
+                assert(vertices.size() == normals.size());
+                assert(m_attributes.size() == 2);
+                assert(m_attributes[0].attributeType() == Attribute::Position);
+                assert(m_attributes[0].valueType() == GL_FLOAT);
+                assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Normal);
+                assert(m_attributes[1].valueType() == GL_FLOAT);
+                assert(m_attributes[1].size() == 3);
+                assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
+                if (m_padBy == 0) {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        m_writeOffset = m_block->writeVec(normals[i], m_writeOffset);
+                    }
+                    attributesAdded(static_cast<size_t>(vertices.size()));
+                } else {
+                    for (size_t i = 0; i < vertices.size(); i++) {
+                        m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
+                        attributesAdded();
+                        m_writeOffset = m_block->writeVec(normals[i], m_writeOffset);
+                        attributesAdded();
+                    }
+                }
             }
 
             inline void addAttributes(const Vec3f::List& vertices, const Vec4f& color) {
                 assert(m_attributes.size() == 2);
+                assert(m_attributes[0].attributeType() == Attribute::Position);
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Color);
                 assert(m_attributes[1].valueType() == GL_FLOAT);
                 assert(m_attributes[1].size() == 4);
                 assert(m_vertexCount + vertices.size() <= m_vertexCapacity);
@@ -417,7 +440,7 @@ namespace TrenchBroom {
                         m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
                         m_writeOffset = m_block->writeVec(color, m_writeOffset);
                     }
-                    attributesAdded(static_cast<unsigned int>(vertices.size()));
+                    attributesAdded(static_cast<size_t>(vertices.size()));
                 } else {
                     for (size_t i = 0; i < vertices.size(); i++) {
                         m_writeOffset = m_block->writeVec(vertices[i], m_writeOffset);
@@ -428,22 +451,34 @@ namespace TrenchBroom {
                 }
             }
             
+            inline void addAttribute(const Vec4f& value) {
+                assert(m_vertexCount < m_vertexCapacity);
+                assert(m_attributes[m_specIndex].valueType() == GL_FLOAT);
+                assert(m_attributes[m_specIndex].size() == 4);
+                
+                m_writeOffset = m_block->writeVec(value, m_writeOffset);
+                attributesAdded();
+            }
+            
             inline void addAttributes(const FaceVertex::List& cachedVertices) {
+                assert(m_attributes[0].attributeType() == Attribute::Position);
                 assert(m_attributes[0].valueType() == GL_FLOAT);
                 assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].attributeType() == Attribute::Normal);
                 assert(m_attributes[1].valueType() == GL_FLOAT);
                 assert(m_attributes[1].size() == 3);
+                assert(m_attributes[2].attributeType() == Attribute::TexCoord0);
                 assert(m_attributes[2].valueType() == GL_FLOAT);
                 assert(m_attributes[2].size() == 2);
                 assert(m_padBy == 0);
                 assert(m_vertexCount + cachedVertices.size() <= m_vertexCapacity);
                 
-                m_writeOffset = m_block->writeBuffer(reinterpret_cast<const unsigned char*>(&cachedVertices.front()), m_writeOffset, static_cast<unsigned int>(cachedVertices.size() * sizeof(FaceVertex)));
-                attributesAdded(static_cast<unsigned int>(cachedVertices.size()));
+                m_writeOffset = m_block->writeBuffer(reinterpret_cast<const unsigned char*>(&cachedVertices.front()), m_writeOffset, static_cast<size_t>(cachedVertices.size() * sizeof(FaceVertex)));
+                attributesAdded(static_cast<size_t>(cachedVertices.size()));
             }
             
             inline void bindAttributes(const ShaderProgram& program) {
-                for (unsigned int i = 0; i < m_attributes.size(); i++) {
+                for (size_t i = 0; i < m_attributes.size(); i++) {
                     Attribute& attribute = m_attributes[i];
                     attribute.bindAttribute(i, program.programId());
                 }
@@ -458,8 +493,8 @@ namespace TrenchBroom {
             inline void setup() {
                 assert(m_specIndex == 0);
                 
-                unsigned int offset = m_block->address();
-                for (unsigned int i = 0; i < m_attributes.size(); i++) {
+                size_t offset = m_block->address();
+                for (size_t i = 0; i < m_attributes.size(); i++) {
                     Attribute& attribute = m_attributes[i];
                     attribute.setGLState(i, m_vertexSize + m_padBy, offset);
                     offset += attribute.sizeInBytes();
@@ -467,7 +502,7 @@ namespace TrenchBroom {
             }
             
             inline void cleanup() {
-                for (unsigned int i = 0; i < m_attributes.size(); i++) {
+                for (size_t i = 0; i < m_attributes.size(); i++) {
                     Attribute& attribute = m_attributes[i];
                     attribute.clearGLState(i);
                 }
@@ -478,27 +513,27 @@ namespace TrenchBroom {
         protected:
             GLenum m_primType;
         public:
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute::List& attributes, size_t padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attributes, padTo),
             m_primType(primType) {}
             

@@ -32,25 +32,25 @@
 #include <string>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
         static const float EdgeOffset = 0.0001f;
         
         inline void glVertexV3f(const Vec3f& vertex) {
-            glVertex3f(vertex.x, vertex.y, vertex.z);
+            glVertex3f(vertex.x(), vertex.y(), vertex.z());
         }
         
         inline void glColorV4f(const Color& color) {
-            glColor4f(color.x, color.y, color.z, color.w);
+            glColor4f(color.r(), color.g(), color.b(), color.a());
         }
         
-        inline void glColorV4f(const Color& color, float blendFactor) {
-            glColor4f(color.x, color.y, color.z, color.w * blendFactor);
+        inline void glColorV4f(const Color& color, const float blendFactor) {
+            glColor4f(color.r(), color.g(), color.b(), color.a() * blendFactor);
         }
         
-        inline void glSetEdgeOffset(float f) {
+        inline void glSetEdgeOffset(const float f) {
             glDepthRange(0.0f, 1.0f - EdgeOffset * f);
         }
         
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
-        inline void arrow(float shaftLength, float shaftWidth, float headLength, float headWidth, Vec2f::List& outline, Vec2f::List& triangles) {
+        inline void arrow(const float shaftLength, const float shaftWidth, const float headLength, const float headWidth, Vec2f::List& outline, Vec2f::List& triangles) {
             assert(shaftLength > 0.0f);
             assert(shaftWidth > 0.0f);
             assert(headLength > 0.0f);
@@ -88,7 +88,15 @@ namespace TrenchBroom {
             triangles.push_back(Vec2f(shaftLength, -headWidth / 2.0f));
         }
         
-        inline void circle(float radius, unsigned int segments, Vec2f::List& vertices) {
+        inline void arrowHead(const float headLength, const float headWidth, Vec2f& v1, Vec2f& v2, Vec2f& v3) {
+            assert(headLength > 0.0f);
+            assert(headWidth > 0.0f);
+            v1 = Vec2f(0.0f, headWidth / 2.0f);
+            v2 = Vec2f(headLength, 0.0f);
+            v3 = Vec2f(0.0f, -headWidth / 2.0f);
+        }
+        
+        inline void circle(const float radius, const unsigned int segments, Vec2f::List& vertices) {
             assert(radius > 0.0f);
             assert(segments > 2);
             
@@ -96,78 +104,104 @@ namespace TrenchBroom {
             vertices.reserve(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec2f(radius * s, radius * c));
+                vertices.push_back(Vec2f(radius * c, radius * s));
                 a += d;
             }
         }
         
-        inline void circle(float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void circle(const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(radius > 0.0f);
             assert(segments > 2);
             
             vertices.clear();
             vertices.reserve(segments);
+            normals.clear();
+            normals.reserve(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
             for (unsigned int i = 0; i < segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
+                vertices.push_back(Vec3f(radius * c, radius * s, 0.0f));
+                normals.push_back(Vec3f::PosZ);
                 a += d;
             }
         }
         
-        inline void cylinder(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void cylinder(const float length, const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
 
             vertices.clear();
-            vertices.reserve(2 * segments);
+            vertices.reserve(2 * (segments + 1));
+            normals.clear();
+            normals.reserve(2 * (segments + 1));
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
-            for (unsigned int i = 0; i < segments; i++) {
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
+            for (unsigned int i = 0; i <= segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                float x = radius * s;
-                float y = radius * c;
-                vertices.push_back(Vec3f(x, y, 0.0f));
+                float x = radius * c;
+                float y = radius * s;
                 vertices.push_back(Vec3f(x, y, length));
+                vertices.push_back(Vec3f(x, y, 0.0f));
+                normals.push_back(Vec3f(c, s, 0.0f));
+                normals.push_back(Vec3f(c, s, 0.0f));
                 a += d;
             }
         }
         
-        inline void cone(float length, float radius, unsigned int segments, Vec3f::List& vertices) {
+        inline void cone(const float length, const float radius, const unsigned int segments, Vec3f::List& vertices, Vec3f::List& normals) {
             assert(length > 0.0f);
             assert(radius > 0.0f);
             assert(segments > 2);
             
             vertices.clear();
-            vertices.reserve(segments + 1);
-            vertices.push_back(Vec3f(0.0f, 0.0f, length));
+            vertices.reserve(3 * segments);
+            normals.clear();
+            normals.reserve(3 * segments);
+            
+            const float t = std::atan(length / radius);
+            const float n = std::cos(Math<float>::Pi / 2.0f - t);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Pi / static_cast<float>(segments);
-            for (unsigned int i = 0; i < segments; i++) {
+            const float d = 2.0f * Math<float>::Pi / static_cast<float>(segments);
+            float lastS = std::sin(a);
+            float lastC = std::cos(a);
+            a += d;
+            
+            for (unsigned int i = 0; i <= segments; i++) {
                 float s = std::sin(a);
                 float c = std::cos(a);
-                vertices.push_back(Vec3f(radius * s, radius * c, 0.0f));
+                
+                vertices.push_back(Vec3f(0.0f, 0.0f, length));
+                normals.push_back(Vec3f(std::cos(a - d / 2.0f), std::sin(a - d / 2.0f), n).normalize());
+                
+                vertices.push_back(Vec3f(radius * lastC, radius * lastS, 0.0f));
+                normals.push_back(Vec3f(lastC, lastS, n).normalize());
+                
+                vertices.push_back(Vec3f(radius * c, radius * s, 0.0f));
+                normals.push_back(Vec3f(c, s, n).normalize());
+                
+                lastS = s;
+                lastC = c;
                 a += d;
             }
         }
         
-        inline void roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments, Vec2f::List& vertices) {
+        inline void roundedRect(const float width, const float height, const float cornerRadius, const unsigned int cornerSegments, Vec2f::List& vertices) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
-            const float angle = Math::Pi / 2.0f / cornerSegments;
+            const float angle = Math<float>::Pi / 2.0f / cornerSegments;
             Vec2f center(0.0f, 0.0f);
             Vec2f translation;
 
@@ -176,8 +210,8 @@ namespace TrenchBroom {
             float y = std::sin(curAngle) * cornerRadius;
 
             // lower right corner
-            translation.x =  (width  / 2.0f - cornerRadius);
-            translation.y = -(height / 2.0f - cornerRadius);
+            translation = Vec2f( (width  / 2.0f - cornerRadius),
+                                -(height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -189,8 +223,8 @@ namespace TrenchBroom {
             }
 
             // lower left corner
-            translation.x = -(width  / 2.0f - cornerRadius);
-            translation.y = -(height / 2.0f - cornerRadius);
+            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+                                -(height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -202,8 +236,8 @@ namespace TrenchBroom {
             }
             
             // upper left corner
-            translation.x = -(width  / 2.0f - cornerRadius);
-            translation.y =  (height / 2.0f - cornerRadius);
+            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+                                 (height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -215,8 +249,8 @@ namespace TrenchBroom {
             }
 
             // upper right corner
-            translation.x =  (width  / 2.0f - cornerRadius);
-            translation.y =  (height / 2.0f - cornerRadius);
+            translation = Vec2f( (width  / 2.0f - cornerRadius),
+                                 (height / 2.0f - cornerRadius));
             for (unsigned int i = 0; i < cornerSegments; i++) {
                 vertices.push_back(center);
                 vertices.push_back(translation + Vec2f(x, y));
@@ -285,7 +319,7 @@ namespace TrenchBroom {
 
             typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
 
-            inline size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2) {
+            inline size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
                 if (it == cache.end()) {
                     const Vec3f& vertex1 = vertices[index1];
@@ -301,14 +335,14 @@ namespace TrenchBroom {
             }
         }
         
-        inline Vec3f::List sphere(float radius, unsigned int iterations) {
+        inline Vec3f::List sphere(const float radius, const unsigned int iterations) {
             typedef std::vector<SphereBuilder::Triangle> TriangleList;
 
             Vec3f::List vertices;
             TriangleList triangles;
 
             // build initial icosahedron
-            float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
+            const float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
             vertices.push_back(Vec3f(-1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f( 1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f(-1.0f,    -t,  0.0f).normalize());

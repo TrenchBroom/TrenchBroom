@@ -23,6 +23,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Filter.h"
 #include "Model/Picker.h"
+#include "Model/Map.h"
 #include "Utility/List.h"
 
 #include <algorithm>
@@ -43,10 +44,202 @@ namespace TrenchBroom {
         String const Entity::MessageKey          = "message";
         String const Entity::ModKey              = "_mod";
         String const Entity::TargetKey           = "target";
+        String const Entity::KillTargetKey       = "killtarget";
+        String const Entity::TargetnameKey       = "targetname";
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
         String const Entity::DefaultDefinition   = "Quake.fgd";
         String const Entity::FacePointFormatKey  = "_point_format";
+
+        void Entity::addLinkTarget(Entity& entity) {
+            m_linkTargets.push_back(&entity);
+        }
+        
+        void Entity::removeLinkTarget(Entity& entity) {
+            Utility::erase(m_linkTargets, &entity);
+        }
+        
+        void Entity::addLinkSource(Entity& entity) {
+            m_linkSources.push_back(&entity);
+        }
+        
+        void Entity::removeLinkSource(Entity& entity) {
+            Utility::erase(m_linkSources, &entity);
+        }
+        
+        void Entity::addKillTarget(Entity& entity) {
+            m_killTargets.push_back(&entity);
+        }
+        
+        void Entity::removeKillTarget(Entity& entity) {
+            Utility::erase(m_killTargets, &entity);
+        }
+        
+        void Entity::addKillSource(Entity& entity) {
+            m_killSources.push_back(&entity);
+        }
+        
+        void Entity::removeKillSource(Entity& entity) {
+            Utility::erase(m_killSources, &entity);
+        }
+
+        void Entity::addLinkTarget(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList targets = m_map->entitiesWithTargetname(targetname);
+                EntityList::const_iterator it, end;
+                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                    Entity& entity = **it;
+                    entity.addLinkSource(*this);
+                    m_linkTargets.push_back(&entity);
+                }
+            }
+        }
+        
+        void Entity::removeLinkTarget(const PropertyValue& targetname) {
+            EntityList::iterator it = m_linkTargets.begin();
+            while (it != m_linkTargets.end()) {
+                Entity& target = **it;
+                const PropertyValue* currentTargetname = target.propertyForKey(TargetnameKey);
+                if (currentTargetname == NULL) { // gracefully remove this one
+                    it = m_linkTargets.erase(it);
+                    continue;
+                }
+                
+                if (*currentTargetname == targetname) {
+                    target.removeLinkSource(*this);
+                    it = m_linkTargets.erase(it);
+                    continue;
+                }
+            }
+        }
+        
+        void Entity::addKillTarget(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList targets = m_map->entitiesWithTargetname(targetname);
+                EntityList::const_iterator it, end;
+                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                    Entity& entity = **it;
+                    entity.addKillSource(*this);
+                    m_killTargets.push_back(&entity);
+                }
+            }
+        }
+        
+        void Entity::removeKillTarget(const PropertyValue& targetname) {
+            EntityList::iterator it = m_killTargets.begin();
+            while (it != m_killTargets.end()) {
+                Entity& target = **it;
+                const PropertyValue* currentTargetname = target.propertyForKey(TargetnameKey);
+                if (currentTargetname == NULL) { // gracefully remove this one
+                    it = m_killTargets.erase(it);
+                    continue;
+                }
+                
+                if (*currentTargetname == targetname) {
+                    target.removeKillSource(*this);
+                    it = m_killTargets.erase(it);
+                    continue;
+                }
+            }
+        }
+        
+        void Entity::addAllLinkTargets() {
+            if (m_map != NULL) {
+                StringList::const_iterator nameIt, nameEnd;
+                EntityList::const_iterator entityIt, entityEnd;
+                
+                const StringList l_linkTargetnames = linkTargetnames();
+                for (nameIt = l_linkTargetnames.begin(), nameEnd = l_linkTargetnames.end(); nameIt != nameEnd; ++nameIt) {
+                    const String& targetname = *nameIt;
+                    const EntityList linkTargets = m_map->entitiesWithTargetname(targetname);
+                    m_linkTargets.insert(m_linkTargets.end(), linkTargets.begin(), linkTargets.end());
+                }
+                
+                for (entityIt = m_linkTargets.begin(), entityEnd = m_linkTargets.end(); entityIt != entityEnd; ++entityIt) {
+                    Entity& target = **entityIt;
+                    target.addLinkSource(*this);
+                }
+            }
+        }
+        
+        void Entity::addAllKillTargets() {
+            if (m_map != NULL) {
+                StringList::const_iterator nameIt, nameEnd;
+                EntityList::const_iterator entityIt, entityEnd;
+                
+                const StringList l_killTargetnames = killTargetnames();
+                for (nameIt = l_killTargetnames.begin(), nameEnd = l_killTargetnames.end(); nameIt != nameEnd; ++nameIt) {
+                    const String& targetname = *nameIt;
+                    const EntityList killTargets = m_map->entitiesWithTargetname(targetname);
+                    m_killTargets.insert(m_killTargets.end(), killTargets.begin(), killTargets.end());
+                }
+                
+                for (entityIt = m_killTargets.begin(), entityEnd = m_killTargets.end(); entityIt != entityEnd; ++entityIt) {
+                    Entity& target = **entityIt;
+                    target.addKillSource(*this);
+                }
+            }
+        }
+
+        void Entity::removeAllLinkTargets() {
+            EntityList::const_iterator it, end;
+            for (it = m_linkTargets.begin(), end = m_linkTargets.end(); it != end; ++it) {
+                Entity& entity = **it;
+                entity.removeLinkSource(*this);
+            }
+            m_linkTargets.clear();
+        }
+        
+        void Entity::removeAllKillTargets() {
+            EntityList::const_iterator it, end;
+            for (it = m_killTargets.begin(), end = m_killTargets.end(); it != end; ++it) {
+                Entity& entity = **it;
+                entity.removeKillSource(*this);
+            }
+            m_killTargets.clear();
+        }
+
+        void Entity::addAllLinkSources(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList linkSources = m_map->entitiesWithTarget(targetname);
+                EntityList::const_iterator it, end;
+                for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
+                    Entity& source = **it;
+                    source.addLinkTarget(*this);
+                    m_linkSources.push_back(&source);
+                }
+            }
+        }
+        
+        void Entity::addAllKillSources(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList killSources = m_map->entitiesWithKillTarget(targetname);
+                EntityList::const_iterator it, end;
+                for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
+                    Entity& source = **it;
+                    source.addKillTarget(*this);
+                    m_killSources.push_back(&source);
+                }
+            }
+        }
+        
+        void Entity::removeAllLinkSources() {
+            EntityList::const_iterator it, end;
+            for (it = m_linkSources.begin(), end = m_linkSources.end(); it != end; ++it) {
+                Entity& source = **it;
+                source.removeLinkTarget(*this);
+            }
+            m_linkSources.clear();
+        }
+        
+        void Entity::removeAllKillSources() {
+            EntityList::const_iterator it, end;
+            for (it = m_killSources.begin(), end = m_killSources.end(); it != end; ++it) {
+                Entity& source = **it;
+                source.removeKillTarget(*this);
+            }
+            m_killSources.clear();
+        }
 
         void Entity::init() {
             m_map = NULL;
@@ -68,7 +261,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 1; i < m_brushes.size(); i++)
                         m_bounds.mergeWith(m_brushes[i]->bounds());
                 } else {
-                    m_bounds = BBox(Vec3f(-8, -8, -8), Vec3f(8, 8, 8));
+                    m_bounds = BBoxf(Vec3f(-8, -8, -8), Vec3f(8, 8, 8));
                     m_bounds.translate(origin());
                 }
             } else {
@@ -86,8 +279,9 @@ namespace TrenchBroom {
             PropertyKey property;
             
             // determine the type of rotation to apply to this entity
-            if (classname() != NULL) {
-                if (Utility::startsWith(*classname(), "light")) {
+            const String* classn = classname();
+            if (classn != NULL) {
+                if (Utility::startsWith(*classn, "light")) {
                     if (propertyForKey(MangleKey) != NULL) {
                         // spotlight without a target, update mangle
                         type = RTEulerAngles;
@@ -119,7 +313,7 @@ namespace TrenchBroom {
                         
                         // if the origin of the definition's bounding box is not in its center, don't apply the rotation
                         const Vec3f offset = origin() - center();
-                        if (offset.x == 0.0f && offset.y == 0.0f) {
+                        if (offset.x() == 0.0f && offset.y() == 0.0f) {
                             if (propertyForKey(AnglesKey) != NULL) {
                                 type = RTEulerAngles;
                                 property = AnglesKey;
@@ -135,35 +329,29 @@ namespace TrenchBroom {
             return RotationInfo(type, property);
         }
 
-        void Entity::applyRotation(const Quat& rotation) {
+        void Entity::applyRotation(const Mat4f& rotation) {
             const RotationInfo info = rotationInfo();
             
             switch (info.type) {
                 case RTZAngle: {
-                    if (rotation.v.firstComponent() != Axis::AZ)
-                        return;
-                    
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     
                     Vec3f direction;
-                    direction.x = std::cos(Math::radians(angle));
-                    direction.y = std::sin(Math::radians(angle));
+                    direction[0] = std::cos(Math<float>::radians(angle));
+                    direction[1] = std::sin(Math<float>::radians(angle));
 
                     direction = rotation * direction;
-                    direction.z = 0.0f;
+                    direction[2] = 0.0f;
                     direction.normalize();
                     
-                    angle = Math::round(Math::degrees(std::acos(direction.x)));
-                    if (direction.y < 0.0f)
+                    angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x())));
+                    if (direction.y() < 0.0f)
                         angle = 360.0f - angle;
                     setProperty(info.property, angle, true);
                     break;
                 }
                 case RTZAngleWithUpDown: {
-                    if (rotation.v.firstComponent() != Axis::AZ)
-                        return;
-
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
 
@@ -173,20 +361,23 @@ namespace TrenchBroom {
                     } else if (angle == -2.0f) {
                         direction = Vec3f::NegZ;
                     } else {
-                        direction.x = std::cos(Math::radians(angle));
-                        direction.y = std::sin(Math::radians(angle));
+                        direction[0] = std::cos(Math<float>::radians(angle));
+                        direction[1] = std::sin(Math<float>::radians(angle));
                     }
 
-                    if (direction.z > 0.9f) {
+                    direction = rotation * direction;
+                    direction.normalize();
+
+                    if (direction.z() > 0.9f) {
                         setProperty(info.property, -1.0f, true);
-                    } else if (direction.z < -0.9f) {
+                    } else if (direction.z() < -0.9f) {
                         setProperty(info.property, -2.0f, true);
                     } else {
-                        direction.z = 0.0f;
+                        direction[2] = 0.0f;
                         direction.normalize();
                         
-                        angle = Math::round(Math::degrees(std::acos(direction.x)));
-                        if (direction.y < 0.0f)
+                        angle = Math<float>::round(Math<float>::degrees(std::acos(direction.x())));
+                        if (direction.y() < 0.0f)
                             angle = 360.0f - angle;
                         while (angle < 0.0f)
                             angle += 360.0f;
@@ -199,34 +390,35 @@ namespace TrenchBroom {
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
                     Vec3f direction = Vec3f::PosX;
-                    Quat zRotation(Math::radians(angles.x), Vec3f::PosZ);
-                    Quat yRotation(Math::radians(-angles.y), Vec3f::PosY);
+                    Quatf zRotation(Math<float>::radians(angles.x()), Vec3f::PosZ);
+                    Quatf yRotation(Math<float>::radians(-angles.y()), Vec3f::PosY);
                     
                     direction = zRotation * yRotation * direction;
                     direction = rotation * direction;
+                    direction.normalize();
                     
                     float zAngle, xAngle;
                     
                     // FIXME: this is still buggy
                     Vec3f xyDirection = direction;
-                    if (std::abs(xyDirection.z) == 1.0f) {
+                    if (std::abs(xyDirection.z()) == 1.0f) {
                         zAngle = 0.0f;
                     } else {
-                        xyDirection.z = 0.0f;
+                        xyDirection[2] = 0.0f;
                         xyDirection.normalize();
-                        zAngle = Math::round(Math::degrees(std::acos(xyDirection.x)));
-                        if (xyDirection.y < 0.0f)
+                        zAngle = Math<float>::round(Math<float>::degrees(std::acos(xyDirection.x())));
+                        if (xyDirection.y() < 0.0f)
                             zAngle = 360.0f - zAngle;
                     }
                     
                     Vec3f xzDirection = direction;
-                    if (std::abs(xzDirection.y) == 1.0f) {
+                    if (std::abs(xzDirection.y()) == 1.0f) {
                         xAngle = 0.0f;
                     } else {
-                        xzDirection.y = 0.0f;
+                        xzDirection[1] = 0.0f;
                         xzDirection.normalize();
-                        xAngle = Math::round(Math::degrees(std::acos(xzDirection.x)));
-                        if (xzDirection.z < 0.0f)
+                        xAngle = Math<float>::round(Math<float>::degrees(std::acos(xzDirection.x())));
+                        if (xzDirection.z() < 0.0f)
                             xAngle = 360.0f - xAngle;
                     }
                     
@@ -239,11 +431,11 @@ namespace TrenchBroom {
             }
         }
 
-        Entity::Entity(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
+        Entity::Entity(const BBoxf& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
             init();
         }
 
-        Entity::Entity(const BBox& worldBounds, const Entity& entityTemplate) : MapObject(), m_worldBounds(worldBounds) {
+        Entity::Entity(const BBoxf& worldBounds, const Entity& entityTemplate) : MapObject(), m_worldBounds(worldBounds) {
             init();
             setProperties(entityTemplate.properties(), true);
         }
@@ -255,69 +447,27 @@ namespace TrenchBroom {
             m_geometryValid = false;
         }
 
-        void Entity::setProperty(const PropertyKey& key, const PropertyValue& value) {
-            setProperty(key, &value);
-        }
-        
-        void Entity::setProperty(const PropertyKey& key, const PropertyValue* value) {
-            if (key == ClassnameKey) {
-                if (value != classname()) {
-                    m_worldspawn = *value == WorldspawnClassname;
-                    setDefinition(NULL);
-                }
-            }
-            
-            const PropertyValue* oldValue = propertyForKey(key);
-            if (oldValue != NULL && oldValue == value)
+        void Entity::setMap(Map* map) {
+            if (m_map == map)
                 return;
-            if (value == NULL)
-                m_propertyStore.removeProperty(key);
-            else
-                m_propertyStore.setPropertyValue(key, *value);
-            invalidateGeometry();
-        }
-        
-        void Entity::setProperty(const PropertyKey& key, const Vec3f& value, bool round) {
-            StringStream valueStr;
-            if (round)
-                valueStr    << static_cast<int>(Math::round(value.x)) <<
-                " "         << static_cast<int>(Math::round(value.y)) <<
-                " "         << static_cast<int>(Math::round(value.z));
-            else
-                valueStr << value.x << " " << value.y << " " << value.z;
-            setProperty(key, valueStr.str());
-        }
-        
-        void Entity::setProperty(const PropertyKey& key, int value) {
-            StringStream valueStr;
-            valueStr << value;
-            setProperty(key, valueStr.str());
-        }
-        
-        void Entity::setProperty(const PropertyKey& key, float value, bool round) {
-            StringStream valueStr;
-            if (round)
-                valueStr << static_cast<float>(Math::round(value));
-            else
-                valueStr << value;
-            setProperty(key, valueStr.str());
-        }
-        
-        void Entity::renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
-            bool success = m_propertyStore.setPropertyKey(oldKey, newKey);
-            assert(success);
+            
+            removeAllLinkTargets();
+            removeAllKillTargets();
+            removeAllLinkSources();
+            removeAllKillSources();
+            
+            m_map = map;
+            
+            addAllLinkTargets();
+            addAllKillTargets();
+
+            const PropertyValue* targetname = propertyForKey(TargetnameKey);
+            if (targetname != NULL && !targetname->empty()) {
+                addAllLinkSources(*targetname);
+                addAllKillSources(*targetname);
+            }
         }
 
-        void Entity::setProperties(const PropertyList& properties, bool replace) {
-            if (replace) {
-                m_propertyStore.clear();
-                setProperty(SpawnFlagsKey, "0");
-            }
-            PropertyList::const_iterator it, end;
-            for (it = properties.begin(), end = properties.end(); it != end; ++it)
-                setProperty(it->key(), it->value());
-        }
-        
         bool Entity::propertyIsMutable(const PropertyKey& key) {
             if (key == ModKey)
                 return false;
@@ -329,7 +479,7 @@ namespace TrenchBroom {
                 return false;
             return true;
         }
-
+        
         bool Entity::propertyKeyIsMutable(const PropertyKey& key) {
             if (key == ClassnameKey)
                 return false;
@@ -348,49 +498,158 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Entity::renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
+            const PropertyValue* value = propertyForKey(oldKey);
+            removeProperty(oldKey);
+            setProperty(newKey, *value);
+        }
+        
         void Entity::removeProperty(const PropertyKey& key) {
             assert(propertyKeyIsMutable(key));
             if (!m_propertyStore.containsProperty(key))
                 return;
             
-            if (key == ClassnameKey)
+            setProperty(key, static_cast<const PropertyValue*>(NULL));
+        }
+        
+        void Entity::setProperties(const PropertyList& properties, bool replace) {
+            if (replace) {
+                m_propertyStore.clear();
+                setProperty(SpawnFlagsKey, "0");
+            }
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it)
+                setProperty(it->key(), it->value());
+        }
+        
+        void Entity::setProperty(const PropertyKey& key, const Vec3f& value, bool round) {
+            StringStream valueStr;
+            if (round)
+                setProperty(key, value.rounded().asString());
+            else
+                setProperty(key, value.asString());
+        }
+        
+        void Entity::setProperty(const PropertyKey& key, int value) {
+            StringStream valueStr;
+            valueStr << value;
+            setProperty(key, valueStr.str());
+        }
+        
+        void Entity::setProperty(const PropertyKey& key, float value, bool round) {
+            StringStream valueStr;
+            if (round)
+                valueStr << static_cast<float>(Math<float>::round(value));
+            else
+                valueStr << value;
+            setProperty(key, valueStr.str());
+        }
+        
+        void Entity::setProperty(const PropertyKey& key, const PropertyValue& value) {
+            setProperty(key, &value);
+        }
+        
+        void Entity::setProperty(const PropertyKey& key, const PropertyValue* value) {
+            const PropertyValue* oldValue = propertyForKey(key);
+            if (oldValue == value)
+                return;
+            if (oldValue != NULL && value != NULL && *oldValue == *value)
+                return;
+            
+            if (key == ClassnameKey && value != classname()) {
+                m_worldspawn = *value == WorldspawnClassname;
                 setDefinition(NULL);
-
-            m_propertyStore.removeProperty(key);
+            }
+            
+            if (isNumberedProperty(TargetKey, key)) {
+                if (oldValue != NULL && !oldValue->empty())
+                    removeLinkTarget(*oldValue);
+                if (value != NULL && !value->empty())
+                    addLinkTarget(*value);
+                if (m_map != NULL)
+                    m_map->updateEntityTarget(*this, value, oldValue);
+            } else if (isNumberedProperty(KillTargetKey, key)) {
+                if (oldValue != NULL && !oldValue->empty())
+                    removeKillTarget(*oldValue);
+                if (value != NULL && !value->empty())
+                    addKillTarget(*value);
+                if (m_map != NULL)
+                    m_map->updateEntityKillTarget(*this, value, oldValue);
+            } else if (key == TargetnameKey) {
+                removeAllLinkSources();
+                removeAllKillSources();
+                if (value != NULL && !value->empty()) {
+                    addAllLinkSources(*value);
+                    addAllKillSources(*value);
+                }
+                if (m_map != NULL)
+                    m_map->updateEntityTargetname(*this, value, oldValue);
+            }
+            
+            if (value == NULL)
+                m_propertyStore.removeProperty(key);
+            else
+                m_propertyStore.setPropertyValue(key, *value);
             invalidateGeometry();
         }
         
-        const Quat Entity::rotation() const {
+        StringList Entity::linkTargetnames() const {
+            StringList targetnames;
+
+            const PropertyList& properties = m_propertyStore.properties();
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Property& property = *it;
+                if (isNumberedProperty(TargetKey, property.key()))
+                    targetnames.push_back(property.value());
+            }
+            return targetnames;
+        }
+        
+        StringList Entity::killTargetnames() const {
+            StringList targetnames;
+            
+            const PropertyList& properties = m_propertyStore.properties();
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Property& property = *it;
+                if (isNumberedProperty(KillTargetKey, property.key()))
+                    targetnames.push_back(property.value());
+            }
+            return targetnames;
+        }
+
+        const Quatf Entity::rotation() const {
             const RotationInfo info = rotationInfo();
             switch (info.type) {
                 case RTZAngle: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     if (angleValue == NULL)
-                        return Quat(0.0f, Vec3f::PosZ);
+                        return Quatf(0.0f, Vec3f::PosZ);
                     float angle = static_cast<float>(std::atof(angleValue->c_str()));
-                    return Quat(Math::radians(angle), Vec3f::PosZ);
+                    return Quatf(Math<float>::radians(angle), Vec3f::PosZ);
                 }
                 case RTZAngleWithUpDown: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     if (angleValue == NULL)
-                        return Quat(0.0f, Vec3f::PosZ);
+                        return Quatf(0.0f, Vec3f::PosZ);
                     float angle = static_cast<float>(std::atof(angleValue->c_str()));
                     if (angle == -1.0f)
-                        return Quat(-Math::Pi / 2.0f, Vec3f::PosY);
+                        return Quatf(-Math<float>::Pi / 2.0f, Vec3f::PosY);
                     if (angle == -2.0f)
-                        return Quat(Math::Pi / 2.0f, Vec3f::PosY);
-                    return Quat(Math::radians(angle), Vec3f::PosZ);
+                        return Quatf(Math<float>::Pi / 2.0f, Vec3f::PosY);
+                    return Quatf(Math<float>::radians(angle), Vec3f::PosZ);
                 }
                 case RTEulerAngles: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
-                    Quat zRotation(Math::radians(angles.x), Vec3f::PosZ);
-                    Quat yRotation(Math::radians(-angles.y), Vec3f::PosY);
+                    Quatf zRotation(Math<float>::radians( angles.x()), Vec3f::PosZ);
+                    Quatf yRotation(Math<float>::radians(-angles.y()), Vec3f::PosY);
                     return zRotation * yRotation;
                 }
                 default:
-                    return Quat(0.0f, Vec3f::PosZ);
+                    return Quatf(0.0f, Vec3f::PosZ);
             }
         }
 
@@ -434,123 +693,17 @@ namespace TrenchBroom {
             return MapObject::setEditState(editState);
         }
 
-        void Entity::translate(const Vec3f& delta, bool lockTextures) {
-            if (delta.null())
-                return;
-            
-            Vec3f newOrigin = origin() + delta;
+        void Entity::transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation) {
+            Vec3f newOrigin = pointTransform * origin();
             setProperty(OriginKey, newOrigin, true);
+            applyRotation(vectorTransform);
             invalidateGeometry();
-        }
-
-        void Entity::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = center().rotated90(axis, rotationCenter, clockwise);
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-
-            Quat rotation;
-            switch (axis) {
-                case Axis::AX:
-                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosX) : Quat(Math::Pi / 2.0f, Vec3f::PosX);
-                    break;
-                case Axis::AY:
-                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosY) : Quat(Math::Pi / 2.0f, Vec3f::PosY);
-                    break;
-                default:
-                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosZ) : Quat(Math::Pi / 2.0f, Vec3f::PosZ);
-                    break;
-            }
             
-            applyRotation(rotation);
-            invalidateGeometry();
         }
 
-        void Entity::rotate(const Quat& rotation, const Vec3f& rotationCenter, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-            
-            applyRotation(rotation);
-            invalidateGeometry();
-        }
-
-        void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
-            if (m_brushes.empty()) {
-                const Vec3f offset = origin() - center();
-                const Vec3f newCenter = center().flipped(axis, flipCenter);
-                setProperty(OriginKey, newCenter + offset, true);
-            }
-            
-            RotationInfo info = rotationInfo();
-            switch (info.type) {
-                case RTZAngle: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
-                    switch (axis) {
-                        case Axis::AX:
-                            angle = 180.0f - angle;
-                            break;
-                        case Axis::AY:
-                            angle = 360.0f - angle;
-                            break;
-                        default:
-                            break;
-                    }
-                    setProperty(info.property, angle, true);
-                    break;
-                }
-                case RTZAngleWithUpDown: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
-                    switch (axis) {
-                        case Axis::AX:
-                            if (angle != -1.0f && angle != -2.0f)
-                                angle = 180.0f - angle;
-                            break;
-                        case Axis::AY:
-                            if (angle != -1.0f && angle != -2.0f)
-                                angle = 360.0f - angle;
-                            break;
-                        default:
-                            if (angle == -1.0f)
-                                angle = -2.0f;
-                            else if (angle == -2.0f)
-                                angle = -1.0f;
-                            break;
-                    }
-                    setProperty(info.property, angle, true);
-                    break;
-                }
-                case RTEulerAngles: {
-                    const PropertyValue* angleValue = propertyForKey(info.property);
-                    Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
-                    switch (axis) {
-                        case Axis::AX:
-                            angles.x = 180.0f - angles.x;
-                            break;
-                        case Axis::AY:
-                            angles.x = 360.0f - angles.x;
-                            break;
-                        default:
-                            angles.z = -angles.z;
-                            break;
-                    }
-                    setProperty(info.property, angles, true);
-                    break;
-                }
-                default:
-                    break;
-            }
-            invalidateGeometry();
-        }
-
-        void Entity::pick(const Ray& ray, PickResult& pickResults) {
+        void Entity::pick(const Rayf& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (Math::isnan(dist))
+            if (Math<float>::isnan(dist))
                 return;
             
             Vec3f hitPoint = ray.pointAtDistance(dist);

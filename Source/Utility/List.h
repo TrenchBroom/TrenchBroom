@@ -64,6 +64,13 @@ namespace TrenchBroom {
         }
         
         template <typename T>
+        inline void erase(std::vector<T>& list, size_t index) {
+            typename std::vector<T>::iterator it = list.begin();
+            std::advance(it, index);
+            list.erase(it);
+        }
+        
+        template <typename T>
         inline std::vector<T> concatenate(const std::vector<T>& prefix, const std::vector<T>& suffix) {
             if (prefix.empty())
                 return suffix;
@@ -105,6 +112,17 @@ namespace TrenchBroom {
             list.reserve(set.size());
             std::copy(set.begin(), set.end(), std::back_inserter(list));
             return list;
+        }
+        
+        template <typename T>
+        inline std::vector<T> listUnion(std::vector<T> left, std::vector<T> right) {
+            std::sort(left.begin(), left.end());
+            std::sort(right.begin(), right.end());
+            
+            std::vector<T> result;
+            result.reserve(left.size() + right.size());
+            std::set_union(left.begin(), left.end(), right.begin(), right.end(), result.begin());
+            return result;
         }
     }
 }

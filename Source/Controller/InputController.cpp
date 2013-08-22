@@ -20,15 +20,16 @@
 #include "InputController.h"
 
 #include "Controller/AddObjectsCommand.h"
-#include "Controller/CreateEntityFromMenuHelper.h"
-#include "Controller/MoveObjectsCommand.h"
+#include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Controller/CameraTool.h"
 #include "Controller/ClipTool.h"
 #include "Controller/CreateBrushTool.h"
 #include "Controller/CreateEntityTool.h"
+#include "Controller/FlyTool.h"
 #include "Controller/MoveObjectsTool.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ResizeBrushesTool.h"
@@ -108,7 +109,9 @@ namespace TrenchBroom {
         m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_createEntityTool(NULL),
+        m_flyTool(NULL),
         m_moveObjectsTool(NULL),
+        m_moveVerticesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
         m_setFaceAttributesTool(NULL),
@@ -120,20 +123,22 @@ namespace TrenchBroom {
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
         m_modifierKeys(ModifierKeys::MKNone),
-        m_createEntityHelper(NULL),
         m_selectionGuideRenderer(NULL),
         m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
             m_clipTool = new ClipTool(m_documentViewHolder, *this);
-            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder, *this);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder, *this);
+            m_flyTool = new FlyTool(m_documentViewHolder, *this);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, *this);
+            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
             m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f, 32.0f);
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
             m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
             m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
 
+            m_toolChain = m_flyTool;
+            m_flyTool->setNextTool(m_cameraTool);
             m_cameraTool->setNextTool(m_clipTool);
             m_clipTool->setNextTool(m_rotateObjectsTool);
             m_rotateObjectsTool->setNextTool(m_moveVerticesTool);
@@ -143,21 +148,25 @@ namespace TrenchBroom {
             m_moveObjectsTool->setNextTool(m_resizeBrushesTool);
             m_resizeBrushesTool->setNextTool(m_setFaceAttributesTool);
             m_setFaceAttributesTool->setNextTool(m_selectionTool);
-            m_toolChain = m_cameraTool;
 
+            m_flyTool->activate(m_inputState);
             m_createBrushTool->activate(m_inputState);
             m_moveObjectsTool->activate(m_inputState);
             m_resizeBrushesTool->activate(m_inputState);
-
-            m_documentViewHolder.view().renderer().addFigure(new InputControllerFigure(*this));
         }
 
         InputController::~InputController() {
+            m_toolChain->freeRenderResources();
+            delete m_selectionGuideRenderer;
+            m_selectionGuideRenderer = NULL;
+
             m_toolChain = NULL;
             m_dragTool = NULL;
             m_nextDropReceiver = NULL;
             m_modalTool = NULL;
 
+            delete m_flyTool;
+            m_flyTool = NULL;
             delete m_cameraTool;
             m_cameraTool = NULL;
             delete m_clipTool;
@@ -388,39 +397,48 @@ namespace TrenchBroom {
             updateViews();
         }
 
-        void InputController::objectsChange() {
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-
+        bool InputController::navigateUp() {
             updateHits();
-            m_toolChain->objectsChange(m_inputState);
-            updateModalTool();
-            updateViews();
-        }
-
-        void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-
-            if (m_documentViewHolder.document().editStateManager().selectedBrushes().empty())
+            bool done = m_toolChain->navigateUp(m_inputState);
+            if (!done && (clipToolActive() || moveVerticesToolActive() || rotateObjectsToolActive())) {
+                done = true;
                 deactivateAll();
+            }
+            updateModalTool();
+            updateViews();
+            return done;
+        }
+
+        void InputController::update(const Command& command) {
+            switch (command.type()) {
+                case Controller::Command::ChangeEditState:
+                    if (m_documentViewHolder.document().editStateManager().selectedBrushes().empty())
+                        deactivateAll();
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty:
+                case Controller::Command::SnapVertices:
+                case Controller::Command::TransformObjects:
+                case Controller::Command::ResizeBrushes:
+                case Controller::Command::ReparentBrushes:
+                    delete m_selectionGuideRenderer;
+                    m_selectionGuideRenderer = NULL;
+                    break;
+                default:
+                    break;
+            }
 
             updateHits();
-            m_toolChain->editStateChange(m_inputState, changeSet);
+            m_toolChain->update(command, m_inputState);
             updateModalTool();
             updateViews();
         }
 
-        void InputController::cameraChange() {
+        void InputController::cameraChanged() {
             updateHits();
-            m_toolChain->cameraChange(m_inputState);
-            updateModalTool();
-            updateViews();
-        }
-
-        void InputController::gridChange() {
-            updateHits();
-            m_toolChain->gridChange(m_inputState);
+            m_toolChain->cameraChanged(m_inputState);
             updateModalTool();
             updateViews();
         }
@@ -456,23 +474,12 @@ namespace TrenchBroom {
             }
 
             m_toolChain->renderOverlay(m_inputState, vbo, context);
-
-            if (m_createEntityHelper != NULL)
-                m_createEntityHelper->render(vbo, context);
-        }
-
-        void InputController::freeRenderResources() {
-            m_toolChain->freeRenderResources();
-            delete m_selectionGuideRenderer;
-            m_selectionGuideRenderer = NULL;
-            delete m_createEntityHelper;
-            m_createEntityHelper = NULL;
         }
 
         void InputController::toggleClipTool() {
             toggleTool(m_clipTool);
         }
-
+        
         bool InputController::clipToolActive() {
             return m_clipTool->active();
         }
@@ -503,7 +510,12 @@ namespace TrenchBroom {
             updateHits();
             updateViews();
         }
-        
+
+        void InputController::toggleAxisRestriction() {
+            m_inputState.axisRestriction().toggleHorizontalRestriction(m_documentViewHolder.view().camera());
+            updateViews();
+        }
+
         void InputController::toggleMoveVerticesTool(size_t changeCount) {
             toggleTool(m_moveVerticesTool);
             if (m_moveVerticesTool->active())
@@ -531,7 +543,7 @@ namespace TrenchBroom {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 View::EditorView& view = m_documentViewHolder.view();
 
-                const BBox& worldBounds = document.map().worldBounds();
+                const BBoxf& worldBounds = document.map().worldBounds();
                 Model::Entity* entity = new Model::Entity(worldBounds);
                 entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 entity->setDefinition(&definition);
@@ -556,7 +568,7 @@ namespace TrenchBroom {
                 ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
                 AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
                 ChangeEditStateCommand* selectEntity = ChangeEditStateCommand::select(document, *entity);
-                MoveObjectsCommand* moveEntity = MoveObjectsCommand::moveEntity(document, *entity, delta, document.textureLock());
+                TransformObjectsCommand* moveEntity = TransformObjectsCommand::translateEntity(document, *entity, delta);
 
                 CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
                 document.GetCommandProcessor()->Submit(deselectAll);
@@ -568,11 +580,21 @@ namespace TrenchBroom {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 Model::EditStateManager& editStateManager = document.editStateManager();
                 assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+
                 const Model::BrushList brushes = editStateManager.selectedBrushes(); // we need a copy here!
                 assert(!brushes.empty());
 
-                const BBox& worldBounds = document.map().worldBounds();
-                Model::Entity* entity = new Model::Entity(worldBounds);
+                // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+                Model::BrushList::const_iterator brushIt = brushes.begin();
+                Model::BrushList::const_iterator brushEnd = brushes.end();
+                Model::Entity* entityTemplate = (*brushIt++)->entity();
+                while (brushIt != brushEnd && entityTemplate != NULL) {
+                    if ((*brushIt++)->entity() != entityTemplate)
+                        entityTemplate = NULL;
+                }
+
+                const BBoxf& worldBounds = document.map().worldBounds();
+                Model::Entity* entity = entityTemplate == NULL || entityTemplate->worldspawn() ? new Model::Entity(worldBounds) : new Model::Entity(worldBounds, *entityTemplate);
                 entity->setProperty(Model::Entity::ClassnameKey, definition.name());
                 entity->setDefinition(&definition);
 
@@ -671,17 +693,6 @@ namespace TrenchBroom {
 
             document.GetCommandProcessor()->Submit(select);
             CommandProcessor::EndGroup(document.GetCommandProcessor());
-        }
-
-        InputControllerFigure::InputControllerFigure(InputController& inputController) :
-        m_inputController(inputController) {}
-
-        InputControllerFigure::~InputControllerFigure() {
-            m_inputController.freeRenderResources();
-        }
-
-        void InputControllerFigure::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
-            m_inputController.render(vbo, context);
         }
     }
 }

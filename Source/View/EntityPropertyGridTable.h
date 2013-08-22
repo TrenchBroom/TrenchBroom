@@ -45,7 +45,11 @@ namespace TrenchBroom {
                 String value;
                 String tooltip;
 
-                Entry() {}
+                Entry() :
+                m_maxCount(0),
+                m_count(0),
+                m_multi(false) {}
+                
                 Entry(const String& i_key, const String& i_value, const String& i_tooltip, size_t maxCount) :
                 m_maxCount(maxCount),
                 m_count(1),

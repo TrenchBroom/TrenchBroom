@@ -36,7 +36,7 @@ namespace TrenchBroom {
             m_selectedFaceCount = 0;
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             restore(brushTemplate, false);
         }
 
-        Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture) :
+        Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const BBoxf& brushBounds, Texture* texture) :
         MapObject(),
         m_geometry(NULL),
         m_worldBounds(worldBounds),
@@ -74,27 +74,27 @@ namespace TrenchBroom {
 
             p1 = brushBounds.min;
             p2 = p1;
-            p2.z = brushBounds.max.z;
+            p2[2] = brushBounds.max[2];
             p3 = p1;
-            p3.x = brushBounds.max.x;
+            p3[0] = brushBounds.max[0];
             Face* front = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             front->setTexture(texture);
             front->setBrush(this);
             m_faces.push_back(front);
 
             p2 = p1;
-            p2.y = brushBounds.max.y;
+            p2[1] = brushBounds.max[1];
             p3 = p1;
-            p3.z = brushBounds.max.z;
+            p3[2] = brushBounds.max[2];
             Face* left = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             left->setTexture(texture);
             left->setBrush(this);
             m_faces.push_back(left);
 
             p2 = p1;
-            p2.x = brushBounds.max.x;
+            p2[0] = brushBounds.max[0];
             p3 = p1;
-            p3.y = brushBounds.max.y;
+            p3[1] = brushBounds.max[1];
             Face* bottom = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             bottom->setTexture(texture);
             bottom->setBrush(this);
@@ -102,27 +102,27 @@ namespace TrenchBroom {
 
             p1 = brushBounds.max;
             p2 = p1;
-            p2.x = brushBounds.min.x;
+            p2[0] = brushBounds.min[0];
             p3 = p1;
-            p3.z = brushBounds.min.z;
+            p3[2] = brushBounds.min[2];
             Face* back = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             back->setTexture(texture);
             back->setBrush(this);
             m_faces.push_back(back);
 
             p2 = p1;
-            p2.z = brushBounds.min.z;
+            p2[2] = brushBounds.min[2];
             p3 = p1;
-            p3.y = brushBounds.min.y;
+            p3[1] = brushBounds.min[1];
             Face* right = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             right->setTexture(texture);
             right->setBrush(this);
             m_faces.push_back(right);
 
             p2 = p1;
-            p2.y = brushBounds.min.y;
+            p2[1] = brushBounds.min[1];
             p3 = p1;
-            p3.x = brushBounds.min.x;
+            p3[0] = brushBounds.min[0];
             Face* top = new Face(worldBounds, m_forceIntegerFacePoints, p1, p2, p3, textureName);
             top->setTexture(texture);
             top->setBrush(this);
@@ -176,6 +176,12 @@ namespace TrenchBroom {
                     m_entity->decSelectedBrushCount();
                 else if (hidden())
                     m_entity->decHiddenBrushCount();
+                if (entity == NULL && m_geometry != NULL) {
+                    delete m_geometry;
+                    m_geometry = NULL;
+                }
+            } else if (entity != NULL && m_geometry == NULL) {
+                rebuildGeometry();
             }
 
             m_entity = entity;
@@ -220,8 +226,8 @@ namespace TrenchBroom {
 
             // sort the faces by the weight of their plane normals like QBSP does
             Model::FaceList sortedFaces = m_faces;
-            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Planef::WeightOrder(true)));
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Planef::WeightOrder(false)));
 
             FaceSet droppedFaces;
             bool success = m_geometry->addFaces(sortedFaces, droppedFaces);
@@ -244,43 +250,25 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
-        void Brush::translate(const Vec3f& delta, bool lockTextures) {
-            if (delta.null())
-                return;
-
+        void Brush::transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation) {
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Face& face = **faceIt;
-                face.translate(delta, lockTextures);
+                face.transform(pointTransform, vectorTransform, lockTextures, invertOrientation);
             }
+
             rebuildGeometry();
         }
 
-        void Brush::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.rotate90(axis, center, clockwise, lockTextures);
+        bool Brush::clip(Face& face) {
+            try {
+                face.setBrush(this);
+                m_faces.push_back(&face);
+                rebuildGeometry();
+                return !m_faces.empty() && closed();
+            } catch (GeometryException&) {
+                return false;
             }
-            rebuildGeometry();
-        }
-
-        void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.rotate(rotation, center, lockTextures);
-            }
-            rebuildGeometry();
-        }
-
-        void Brush::flip(Axis::Type axis, const Vec3f& center, bool lockTextures) {
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Face& face = **faceIt;
-                face.flip(axis, center, lockTextures);
-            }
-            rebuildGeometry();
         }
 
         void Brush::correct(float epsilon) {
@@ -327,25 +315,13 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
 
-        bool Brush::clip(Face& face) {
-            try {
-                face.setBrush(this);
-                m_faces.push_back(&face);
-                rebuildGeometry();
-                return !m_faces.empty() && closed();
-            } catch (GeometryException e) {
-                return false;
-            }
-        }
-
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
 
-            // using worldbounds here can lead to invalid brushes due to precision errors
-            // so we use a smaller bounding box that's still big enough to fit the brush
+            const Mat4f pointTransform = translationMatrix(delta);
             BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
-            testFace.translate(delta, false);
+            testFace.transform(pointTransform, Mat4f::Identity, false, false);
 
             FaceSet droppedFaces;
             FaceList::const_iterator it, end;
@@ -366,16 +342,8 @@ namespace TrenchBroom {
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
             assert(canMoveBoundary(face, delta));
 
-            // using worldbounds here can lead to invalid brushes due to precision errors
-            // so we use a smaller bounding box that's still big enough to fit the brush
-            // OTOH it's just fake, so let's not do it
-            /*
-            BBox maxBounds = m_geometry->bounds;
-            float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
-            maxBounds.expand(2.0f * max);
-            */
-
-            face.translate(delta, lockTexture);
+            const Mat4f pointTransform = translationMatrix(delta);
+            face.transform(pointTransform, Mat4f::Identity, false, false);
             rebuildGeometry();
         }
 
@@ -401,7 +369,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -433,7 +401,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -465,7 +433,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -497,7 +465,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -529,7 +497,7 @@ namespace TrenchBroom {
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* newFace = *it;
                 newFace->setBrush(this);
@@ -539,21 +507,22 @@ namespace TrenchBroom {
             return newVertexPosition;
         }
 
-        void Brush::pick(const Ray& ray, PickResult& pickResults) {
+        void Brush::pick(const Rayf& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (Math::isnan(dist))
+            if (Math<float>::isnan(dist))
                 return;
 
-            dist = Math::nan();
-            Side* side;
-            for (unsigned int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
+            dist = Math<float>::nan();
+            Side* side = NULL;
+            for (unsigned int i = 0; i < m_geometry->sides.size() && Math<float>::isnan(dist); i++) {
                 side = m_geometry->sides[i];
                 dist = side->intersectWithRay(ray);
             }
 
-            if (!Math::isnan(dist)) {
+            if (!Math<float>::isnan(dist)) {
+                assert(side != NULL);
                 Vec3f hitPoint = ray.pointAtDistance(dist);
-                FaceHit* hit = new FaceHit(*side->face, hitPoint, dist);
+                FaceHit* hit = new FaceHit(*(side->face), hitPoint, dist);
                 pickResults.add(hit);
             }
         }
@@ -610,7 +579,7 @@ namespace TrenchBroom {
                     const Vec3f myEdgeVec = myEdge.vector();
                     const Vec3f theirEdgeVec = theirEdge.vector();
                     const Vec3f& origin = myEdge.start->position;
-                    const Vec3f direction = myEdgeVec.crossed(theirEdgeVec);
+                    const Vec3f direction = crossed(myEdgeVec, theirEdgeVec);
 
                     PointStatus::Type myStatus = vertexStatusFromRay(origin, direction, myVertices);
                     if (myStatus != PointStatus::PSInside) {
@@ -642,64 +611,64 @@ namespace TrenchBroom {
         }
 
         bool Brush::intersectsEntity(const Entity& entity) const {
-            BBox theirBounds = entity.bounds();
+            BBoxf theirBounds = entity.bounds();
             if (!bounds().intersects(theirBounds))
                 return false;
 
             Vec3f point = theirBounds.min;
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (containsPoint(point))
                 return true;
-            point.y = theirBounds.max.y;
+            point[1] = theirBounds.max[1];
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (containsPoint(point))
                 return true;
             point = theirBounds.max;
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (containsPoint(point))
                 return true;
-            point.y = theirBounds.min.y;
+            point[1] = theirBounds.min[1];
             if (containsPoint(point))
                 return true;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (containsPoint(point))
                 return true;
             return false;
         }
 
         bool Brush::containsEntity(const Entity& entity) const {
-            BBox theirBounds = entity.bounds();
+            BBoxf theirBounds = entity.bounds();
             if (!bounds().contains(theirBounds))
                 return false;
 
             Vec3f point = theirBounds.min;
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (!containsPoint(point))
                 return false;
-            point.y = theirBounds.max.y;
+            point[1] = theirBounds.max[1];
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (!containsPoint(point))
                 return false;
             point = theirBounds.max;
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.min.x;
+            point[0] = theirBounds.min[0];
             if (!containsPoint(point))
                 return false;
-            point.y = theirBounds.min.y;
+            point[1] = theirBounds.min[1];
             if (!containsPoint(point))
                 return false;
-            point.x = theirBounds.max.x;
+            point[0] = theirBounds.max[0];
             if (!containsPoint(point))
                 return false;
             return true;

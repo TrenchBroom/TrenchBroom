@@ -20,14 +20,15 @@
 #include "MapGLCanvas.h"
 
 #include "Controller/CameraEvent.h"
-#include "Controller/Input.h"
 #include "Controller/InputController.h"
 #include "Model/MapDocument.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/OverlayRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
@@ -42,7 +43,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace View {
@@ -62,8 +63,6 @@ namespace TrenchBroom {
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         EVT_MOUSE_CAPTURE_LOST(MapGLCanvas::OnMouseCaptureLost)
-        EVT_KILL_FOCUS(MapGLCanvas::OnKillFocus)
-        EVT_IDLE(MapGLCanvas::OnIdle)
         END_EVENT_TABLE()
 
         wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
@@ -99,7 +98,7 @@ namespace TrenchBroom {
             return m_inputController.drop(text.ToStdString(), x, y);
         }
 
-        bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {
+        bool MapGLCanvas::handleModifierKey(int keyCode, bool down) {
             Controller::ModifierKeyState key;
             switch (keyCode) {
                 case WXK_SHIFT:
@@ -131,25 +130,42 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().sharedResources().attribs()),
         m_documentViewHolder(documentViewHolder),
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
+        m_vbo(NULL),
         m_inputController(new Controller::InputController(documentViewHolder)),
+        m_overlayRenderer(NULL),
         m_hasFocus(false),
         m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
 
         MapGLCanvas::~MapGLCanvas() {
-            if (m_inputController != NULL) {
-                delete m_inputController;
-                m_inputController = NULL;
-            }
-            if (m_glContext != NULL) {
-                wxDELETE(m_glContext);
-                m_glContext = NULL;
-            }
+			if (GetCapture() == this)
+				ReleaseMouse();
+
+            delete m_inputController;
+            m_inputController = NULL;
+            delete m_overlayRenderer;
+            m_overlayRenderer = NULL;
+            delete m_vbo;
+            m_vbo = NULL;
+            wxDELETE(m_glContext);
+        }
+
+        bool MapGLCanvas::setHasFocus(bool hasFocus, bool dontIgnoreNextClick) {
+            if (m_hasFocus == hasFocus)
+                return false;
+            m_hasFocus = hasFocus;
+            if (!m_hasFocus)
+                m_ignoreNextClick = true;
+            if (dontIgnoreNextClick)
+                m_ignoreNextClick = false;
+            Refresh();
+
+            return true;
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
-            if (!m_documentViewHolder.valid())
+            if (!m_documentViewHolder.valid() || !IsShownOnScreen())
                 return;
 
             EditorView& view = m_documentViewHolder.view();
@@ -160,7 +176,7 @@ namespace TrenchBroom {
 
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
+				glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				glDisableClientState(GL_VERTEX_ARRAY);
@@ -168,29 +184,41 @@ namespace TrenchBroom {
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
-
 				view.camera().update(0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
 
                 Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
                 Utility::Grid& grid = m_documentViewHolder.document().grid();
-				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), view.console());
+				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), inputController().inputState(), view.console());
+
+                // render the scene
 				view.renderer().render(renderContext);
 
-                // draw focus rectangle
-                if (FindFocus() == this) {
-                    Mat4f ortho = Mat4f::Identity;
-                    ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
-                    Renderer::ApplyMatrix applyOrtho(renderContext.transformation(), ortho);
+                // render input controller
+                if (m_vbo == NULL)
+                    m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+                m_inputController->render(*m_vbo, renderContext);
 
-                    wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-                    float r = static_cast<float>(color.Red()) / 0xFF;
-                    float g = static_cast<float>(color.Green()) / 0xFF;
-                    float b = static_cast<float>(color.Blue()) / 0xFF;
-                    float a = 1.0f;
+                // render overlays
+                if (m_overlayRenderer == NULL)
+                    m_overlayRenderer = new Renderer::OverlayRenderer();
+                m_overlayRenderer->render(renderContext, GetClientSize().x, GetClientSize().y);
 
-                    float w = GetSize().x;
-                    float h = GetSize().y;
-                    float t = 2.0f;
+                // render focus rectangle
+                if (m_hasFocus) {
+                    const Mat4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f,
+                                                         static_cast<float>(GetClientSize().x),
+                                                         static_cast<float>(GetClientSize().y));
+                    Renderer::ApplyTransformation ortho(renderContext.transformation(), projection, Mat4f::Identity);
+
+                    const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+                    const float r = static_cast<float>(color.Red()) / 0xFF;
+                    const float g = static_cast<float>(color.Green()) / 0xFF;
+                    const float b = static_cast<float>(color.Blue()) / 0xFF;
+                    const float a = 1.0f;
+
+                    const float w = GetSize().x;
+                    const float h = GetSize().y;
+                    const float t = 2.0f;
 
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glDisable(GL_CULL_FACE);
@@ -229,9 +257,6 @@ namespace TrenchBroom {
                     glVertex2f(w - t, h - t);
                     glVertex2f(w - t, t);
                     glEnd();
-
-					glEnable(GL_CULL_FACE);
-					glEnable(GL_DEPTH_TEST);
                 }
 
 				SwapBuffers();
@@ -242,12 +267,12 @@ namespace TrenchBroom {
 
         void MapGLCanvas::OnKeyDown(wxKeyEvent& event) {
             m_ignoreNextClick = false;
-            HandleModifierKey(event.GetKeyCode(), true);
+            handleModifierKey(event.GetKeyCode(), true);
         }
 
         void MapGLCanvas::OnKeyUp(wxKeyEvent& event) {
             m_ignoreNextClick = false;
-            HandleModifierKey(event.GetKeyCode(), false);
+            handleModifierKey(event.GetKeyCode(), false);
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
@@ -381,26 +406,5 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             m_inputController->endDrag();
         }
-
-        void MapGLCanvas::OnKillFocus(wxFocusEvent& event) {
-            m_ignoreNextClick = true;
-            m_hasFocus = false;
-            event.Skip();
-        }
-
-        void MapGLCanvas::OnIdle(wxIdleEvent& event) {
-            // this is a fix for Mac OS X, where the kill focus event is not properly sent
-            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
-
-#ifdef __APPLE__
-            wxWindow* focus = FindFocus();
-            if (m_hasFocus != (focus == this)) {
-                m_hasFocus = (focus == this);
-                if (!m_hasFocus)
-                    m_ignoreNextClick = true;
-            }
-#endif
-        }
-
     }
 }

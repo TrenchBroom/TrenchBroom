@@ -67,11 +67,13 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::handleIsModal(InputState& inputState) {
-            return inputState.modifierKeys() == ModifierKeys::MKShift;
+            return (inputState.modifierKeys() == ModifierKeys::MKShift ||
+                    inputState.modifierKeys() == (ModifierKeys::MKShift | ModifierKeys::MKAlt));
         }
 
         void ResizeBrushesTool::handlePick(InputState& inputState) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift)
+            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return;
 
             float closestEdgeDist = std::numeric_limits<float>::max();
@@ -99,7 +101,7 @@ namespace TrenchBroom {
                                                                                              edge->end->position,
                                                                                              pointOnSegment,
                                                                                              distanceToClosestPointOnRay);
-                    if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                    if (!Math<float>::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
                         closestEdge = edge;
                         closestEdgeDist = distanceBetweenRayAndEdge;
                         hitDistance = distanceToClosestPointOnRay;
@@ -131,7 +133,7 @@ namespace TrenchBroom {
                                                                                                      edge->end->position,
                                                                                                      pointOnSegment,
                                                                                                      distanceToClosestPointOnRay);
-                            if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                            if (!Math<float>::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
                                 closestEdge = edge;
                                 closestEdgeDist = distanceBetweenRayAndEdge;
                                 hitDistance = distanceToClosestPointOnRay;
@@ -159,7 +161,8 @@ namespace TrenchBroom {
         void ResizeBrushesTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
-                if (inputState.modifierKeys() != ModifierKeys::MKShift)
+                if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                    inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                     return;
 
                 Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
@@ -200,31 +203,34 @@ namespace TrenchBroom {
             Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
 
             glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
+            shader.setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
             edgeArray.render();
             glEnable(GL_DEPTH_TEST);
 
             Renderer::glResetEdgeOffset();
         }
 
-        bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift)
+        bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
+            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return false;
 
             Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
             if (hit == NULL)
                 return false;
 
+            m_snapMode = inputState.modifierKeys() == ModifierKeys::MKShift ? SMRelative : SMAbsolute;
+            
             Model::Face& dragFace = hit->dragFace();
 
             const Vec3f& dragNormal = dragFace.boundary().normal;
-            Vec3f planeNormal = dragNormal.crossed(inputState.pickRay().direction);
+            Vec3f planeNormal = crossed(dragNormal, inputState.pickRay().direction);
             if (planeNormal.null())
                 return false;
 
-            planeNormal = dragNormal.crossed(planeNormal);
+            planeNormal = crossed(dragNormal, planeNormal);
             planeNormal.normalize();
-            plane = Plane(planeNormal, hit->hitPoint());
+            plane = Planef(planeNormal, hit->hitPoint());
 
             m_faces = dragFaces(dragFace);
             initialPoint = hit->hitPoint();
@@ -245,7 +251,7 @@ namespace TrenchBroom {
             Model::Face& dragFace = *m_faces.front();
             const Vec3f& faceAxis = dragFace.boundary().normal.firstAxis();
             const float faceDist = planeDelta.dot(faceAxis);
-            const Vec3f faceDelta = grid.snap(faceDist * faceAxis);
+            const Vec3f faceDelta = m_snapMode == SMRelative ? grid.snap(faceDist * faceAxis) : grid.snap(faceDist * faceAxis + dragFace.point(0)) - dragFace.point(0);
 
             if (faceDelta.null())
                 return true;
@@ -269,6 +275,7 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         PlaneDragTool(documentViewHolder, inputController, true),
-        m_filter(Model::SelectedFilter(view().filter())) {}
+        m_filter(Model::SelectedFilter(view().filter())),
+        m_snapMode(SMRelative) {}
     }
 }

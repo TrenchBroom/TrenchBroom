@@ -26,7 +26,7 @@
 #include "Model/MapObjectTypes.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,17 +46,18 @@ namespace TrenchBroom {
             } NodePosition;
             
             unsigned int m_minSize;
-            BBox m_bounds;
+            BBoxf m_bounds;
             MapObjectList m_objects;
             OctreeNode* m_children[8];
             bool addObject(MapObject& object, unsigned int childIndex);
         public:
-            OctreeNode(const BBox& bounds, unsigned int minSize);
+            OctreeNode(const BBoxf& bounds, unsigned int minSize);
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
-            bool empty();
-            void intersect(const Ray& ray, MapObjectList& objects);
+            bool empty() const;
+            size_t count() const;
+            void intersect(const Rayf& ray, MapObjectList& objects);
         };
         
         class Octree {
@@ -74,8 +75,10 @@ namespace TrenchBroom {
             void addObjects(const MapObjectList& objects);
             void removeObject(MapObject& object);
             void removeObjects(const MapObjectList& objects);
+            
+            size_t count() const;
 
-            MapObjectList intersect(const Ray& ray);
+            MapObjectList intersect(const Rayf& ray);
         };
     }
 }

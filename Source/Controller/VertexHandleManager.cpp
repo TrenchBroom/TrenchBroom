@@ -359,7 +359,7 @@ namespace TrenchBroom {
             deselectFaceHandles();
         }
 
-        void VertexHandleManager::pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const {
+        void VertexHandleManager::pick(const Rayf& ray, Model::PickResult& pickResult, bool splitMode) const {
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::VertexToEdgesMap::const_iterator eIt, eEnd;
             Model::VertexToFacesMap::const_iterator fIt, fEnd;
@@ -430,21 +430,6 @@ namespace TrenchBroom {
                 m_selectedHandleRenderer->clear();
                 m_selectedEdgeRenderer->clear();
 
-                unsigned int vertexCount = 0;
-                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
-                    const Model::EdgeList& edges = eIt->second;
-                    vertexCount += static_cast<unsigned int>(2 * edges.size());
-                }
-                
-                for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
-                    const Model::FaceList& faces = fIt->second;
-                    Model::FaceList::const_iterator faceIt, faceEnd;
-                    for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                        const Model::Face& face = **faceIt;
-                        vertexCount += static_cast<unsigned int>(2 * face.edges().size());
-                    }
-                }
-                
                 if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                     for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                         const Vec3f& position = vIt->first;

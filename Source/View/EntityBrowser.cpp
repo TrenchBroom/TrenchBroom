@@ -92,8 +92,10 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::reload() {
-            m_canvas->clear();
-            m_canvas->reload();
+            if (m_canvas != NULL) {
+                m_canvas->clear();
+                m_canvas->reload();
+            }
         }
         
         void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {

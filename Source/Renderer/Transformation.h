@@ -26,40 +26,64 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
         class Transformation {
         private:
-            Mat4f::List m_matrixStack;
+            Mat4f::List m_projectionStack;
+            Mat4f::List m_viewStack;
+            Mat4f::List m_modelStack;
+            
+            inline void loadProjectionMatrix(const Mat4f& matrix) {
+                glMatrixMode(GL_PROJECTION);
+                glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
+            }
+
+            inline void loadModelViewMatrix(const Mat4f& matrix) {
+                glMatrixMode(GL_MODELVIEW);
+                glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
+            }
         public:
-            Transformation(const Mat4f& matrix, bool load) {
-                m_matrixStack.push_back(matrix);
-                if (load)
-                    loadMatrix(matrix);
+            Transformation(const Mat4f& projection, const Mat4f& view, const Mat4f& model = Mat4f::Identity) {
+                pushTransformation(projection, view, model);
             }
             
             ~Transformation() {
-                assert(m_matrixStack.size() == 1);
+                assert(m_projectionStack.size() == 1);
+                assert(m_viewStack.size() == 1);
+                assert(m_modelStack.size() == 1);
             }
             
-            inline Mat4f& pushMatrix() {
-                m_matrixStack.push_back(m_matrixStack.back());
-                return m_matrixStack.back();
+            inline void pushTransformation(const Mat4f& projection, const Mat4f& view, const Mat4f& model = Mat4f::Identity) {
+                m_projectionStack.push_back(projection);
+                m_viewStack.push_back(view);
+                m_modelStack.push_back(model);
+                loadProjectionMatrix(m_projectionStack.back());
+                loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
             }
             
-            inline void popMatrix() {
-                assert(m_matrixStack.size() > 1);
-                m_matrixStack.pop_back();
-                loadMatrix(m_matrixStack.back());
+            inline void popTransformation() {
+                assert(m_projectionStack.size() > 1);
+                assert(m_viewStack.size() > 1);
+                assert(m_modelStack.size() > 1);
+                m_projectionStack.pop_back();
+                m_viewStack.pop_back();
+                m_modelStack.pop_back();
+                loadProjectionMatrix(m_projectionStack.back());
+                loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
             }
             
-            inline void loadMatrix(const Mat4f& matrix) {
-                glMatrixMode(GL_PROJECTION);
-                glLoadMatrixf(matrix.v);
-                glMatrixMode(GL_MODELVIEW);
-                glLoadIdentity();
+            inline void pushModelMatrix(const Mat4f& matrix, bool replace) {
+                m_modelStack.push_back(replace ? matrix : m_modelStack.back() * matrix);
+                loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
+            }
+            
+            inline void popModelMatrix() {
+                assert(m_modelStack.size() > 1);
+                m_modelStack.pop_back();
+                loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
             }
         };
     }

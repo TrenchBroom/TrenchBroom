@@ -23,12 +23,12 @@
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ActivateShader;
         class RenderContext;
-        class ShaderProgram;
         class VertexArray;
         class Vbo;
         
@@ -36,9 +36,14 @@ namespace TrenchBroom {
         public:
             typedef enum {
                 Horizontal,
+                HorizontalX,
+                HorizontalY,
                 Vertical
             } Direction;
         private:
+            static const float Width2;
+            static const float Height;
+            
             Direction m_direction;
             Vec3f m_position;
             Color m_outlineColor;
@@ -47,7 +52,9 @@ namespace TrenchBroom {
             VertexArray* m_triangles;
             bool m_valid;
             
-            void renderArrow(const Mat4f& matrix, ShaderProgram& shader, RenderContext& context) const;
+            void validate(Vbo& vbo);
+            void buildXArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
+            void buildYArrows(const float offset, Vec2f::List& triangles, Vec2f::List& outline) const;
         public:
             MovementIndicator();
             ~MovementIndicator();
@@ -69,6 +76,9 @@ namespace TrenchBroom {
             }
             
             void render(Vbo& vbo, RenderContext& context);
+
+        private:
+            void renderArrow(const Mat4f& matrix, ActivateShader& shader, RenderContext& context) const;
         };
     }
 }

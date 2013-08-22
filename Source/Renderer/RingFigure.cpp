@@ -43,21 +43,21 @@ namespace TrenchBroom {
         m_vertexArray(NULL) {
             float angle1, angle2;
             if (m_normal == Axis::AX) {
-                angle1 = startAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
-                angle2 = endAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
-                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosX), endAxis.angleFrom(startAxis, Vec3f::PosX));
+                angle1 = angleFrom(startAxis, Vec3f::PosZ, Vec3f::PosX);
+                angle2 = angleFrom(endAxis, Vec3f::PosZ, Vec3f::PosX);
+                m_angleLength = std::min(angleFrom(startAxis, endAxis, Vec3f::PosX), angleFrom(endAxis, startAxis, Vec3f::PosX));
             } else if (m_normal == Axis::AY) {
-                angle1 = startAxis.angleFrom(Vec3f::PosX, Vec3f::PosY);
-                angle2 = endAxis.angleFrom(Vec3f::PosX, Vec3f::PosY);
-                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosY), endAxis.angleFrom(startAxis, Vec3f::PosY));
+                angle1 = angleFrom(startAxis, Vec3f::PosX, Vec3f::PosY);
+                angle2 = angleFrom(endAxis, Vec3f::PosX, Vec3f::PosY);
+                m_angleLength = std::min(angleFrom(startAxis, endAxis, Vec3f::PosY), angleFrom(endAxis, startAxis, Vec3f::PosY));
             } else {
-                angle1 = startAxis.angleFrom(Vec3f::PosY, Vec3f::PosZ);
-                angle2 = endAxis.angleFrom(Vec3f::PosY, Vec3f::PosZ);
-                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosZ), endAxis.angleFrom(startAxis, Vec3f::PosZ));
+                angle1 = angleFrom(startAxis, Vec3f::PosY, Vec3f::PosZ);
+                angle2 = angleFrom(endAxis, Vec3f::PosY, Vec3f::PosZ);
+                m_angleLength = std::min(angleFrom(startAxis, endAxis, Vec3f::PosZ), angleFrom(endAxis, startAxis, Vec3f::PosZ));
             }
             float minAngle = std::min(angle1, angle2);
             float maxAngle = std::max(angle1, angle2);
-            m_startAngle = (maxAngle - minAngle <= Math::Pi ? minAngle : maxAngle);
+            m_startAngle = (maxAngle - minAngle <= Math<float>::Pi ? minAngle : maxAngle);
         }
         
         RingFigure::~RingFigure() {

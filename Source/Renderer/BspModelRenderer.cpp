@@ -49,8 +49,6 @@ namespace TrenchBroom {
                 if (textureIt == m_textures.end()) {
                     textureRenderer = new TextureRenderer(texture, m_palette);
                     m_textures[&texture] = textureRenderer;
-                } else {
-                    textureRenderer = textureIt->second;
                 }
                 
                 faceSorter.addPolygon(&texture, face, face->vertices().size());
@@ -125,15 +123,15 @@ namespace TrenchBroom {
             return m_bsp.models()[0]->center();
         }
         
-        const BBox& BspModelRenderer::bounds() const {
+        const BBoxf& BspModelRenderer::bounds() const {
             return m_bsp.models()[0]->bounds();
         }
 
-        BBox BspModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
+        BBoxf BspModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
             Model::BspModel& model = *m_bsp.models()[0];
             const Model::BspFaceList& faces = model.faces();
 
-            BBox bounds;
+            BBoxf bounds;
             bounds.min = bounds.max = transformation * faces[0]->vertices()[0];
             
             for (unsigned int i = 0; i < faces.size(); i++) {

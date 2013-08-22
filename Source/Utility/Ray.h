@@ -20,84 +20,83 @@
 #ifndef TrenchBroom_Ray_h
 #define TrenchBroom_Ray_h
 
-#include "Utility/Vec3f.h"
+#include "Utility/Vec.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
+        template <typename T>
         class Ray {
         public:
-            Vec3f origin;
-            Vec3f direction;
+            Vec<T,3> origin;
+            Vec<T,3> direction;
 
-            Ray() : origin(Vec3f::Null), direction(Vec3f::Null) {}
+            Ray() : origin(Vec<T,3>::Null), direction(Vec<T,3>::Null) {}
 
-            Ray(const Vec3f& i_origin, const Vec3f& i_direction) : origin(i_origin), direction(i_direction) {}
+            Ray(const Vec<T,3>& i_origin, const Vec<T,3>& i_direction) : origin(i_origin), direction(i_direction) {}
 
-            inline const Vec3f pointAtDistance(float distance) const {
-                return Vec3f(origin.x + direction.x * distance,
-                             origin.y + direction.y * distance,
-                             origin.z + direction.z * distance);
+            inline const Vec<T,3> pointAtDistance(const T distance) const {
+                return origin + direction * distance;
             }
 
-            inline PointStatus::Type pointStatus(const Vec3f& point) const {
-                float dot = direction.dot(point - origin);
-                if (dot >  Math::PointStatusEpsilon)
+            inline PointStatus::Type pointStatus(const Vec<T,3>& point) const {
+                const T dot = direction.dot(point - origin);
+                if (dot >  Math<T>::PointStatusEpsilon)
                     return PointStatus::PSAbove;
-                if (dot < -Math::PointStatusEpsilon)
+                if (dot < -Math<T>::PointStatusEpsilon)
                     return PointStatus::PSBelow;
                 return PointStatus::PSInside;
             }
 
-            inline float intersectWithPlane(const Vec3f& normal, const Vec3f& anchor) const {
-                float d = direction.dot(normal);
-                if (Math::zero(d))
-                    return Math::nan();
+            inline T intersectWithPlane(const Vec<T,3>& normal, const Vec<T,3>& anchor) const {
+                const T d = direction.dot(normal);
+                if (Math<T>::zero(d))
+                    return Math<T>::nan();
                 
-                float s = ((anchor - origin).dot(normal)) / d;
-                if (Math::neg(s))
-                    return Math::nan();
+                const T s = ((anchor - origin).dot(normal)) / d;
+                if (Math<T>::neg(s))
+                    return Math<T>::nan();
                 return s;
             }
 
-            float intersectWithSphere(const Vec3f& position, float radius) const {
-                Vec3f diff = origin - position;
+            T intersectWithSphere(const Vec<T,3>& position, const T radius) const {
+                const Vec<T,3> diff = origin - position;
                 
-                float p = 2.0f * diff.dot(direction);
-                float q = diff.lengthSquared() - radius * radius;
+                const T p = static_cast<T>(2.0) * diff.dot(direction);
+                const T q = diff.lengthSquared() - radius * radius;
 
-                float d = p * p - 4.0f * q;
-                if (d < 0.0f)
-                    return Math::nan();
+                const T d = p * p - static_cast<T>(4.0) * q;
+                if (d < static_cast<T>(0.0))
+                    return Math<T>::nan();
                 
-                float s = std::sqrt(d);
-                float t0 = (-p + s) / 2.0f;
-                float t1 = (-p - s) / 2.0f;
+                const T s = std::sqrt(d);
+                const T t0 = (-p + s) / static_cast<T>(2.0);
+                const T t1 = (-p - s) / static_cast<T>(2.0);
                 
-                if (t0 < 0.0f && t1 < 0.0f)
-                    return Math::nan();
-                if (t0 > 0.0f && 1 > 0.0f)
+                if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0))
+                    return Math<T>::nan();
+                if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0))
                     return std::min(t0, t1);
                 return std::max(t0, t1);
             }
             
-            float intersectWithSphere(const Vec3f& position, float radius, float scalingFactor, float maxDistance) const {
-                float distanceToCenter = (position - origin).length();
+            T intersectWithSphere(const Vec<T,3>& position, const T radius, const T scalingFactor, const T maxDistance) const {
+                const T distanceToCenter = (position - origin).length();
                 if (distanceToCenter > maxDistance)
-                    return Math::nan();
+                    return Math<T>::nan();
                     
-                float scaledRadius = radius * scalingFactor * distanceToCenter;
+                const T scaledRadius = radius * scalingFactor * distanceToCenter;
                 return intersectWithSphere(position, scaledRadius);
             }
             
-            float intersectWithCube(const Vec3f& position, float size) const {
-                float halfSize = size / 2.0f;
+            T intersectWithCube(const Vec<T,3>& position, const T size) const {
+                const T halfSize = size / 2.0;
                 
-                if (direction.x < 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::PosX, Vec3f(position.x + halfSize, position.y, position.z));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                if (direction.x < 0.0) {
+                    const T distance = intersectWithPlane(Vec<T,3>::PosX, Vec<T,3>(position.x + halfSize, position.y, position.z));
+                    if (!Math<T>::isnan(distance)) {
+                        const Vec<T,3> point = pointAtDistance(distance);
                         if (point.y >= position.y - halfSize &&
                             point.y <= position.y + halfSize &&
                             point.z >= position.z - halfSize &&
@@ -106,9 +105,9 @@ namespace TrenchBroom {
                         }
                     }
                 } else if (direction.x > 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::NegX, Vec3f(position.x - halfSize, position.y, position.z));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                    const T distance = intersectWithPlane(Vec<T,3>::NegX, Vec<T,3>(position.x - halfSize, position.y, position.z));
+                    if (!Math<T>::isnan(distance)) {
+                        const Vec<T,3> point = pointAtDistance(distance);
                         if (point.y >= position.y - halfSize &&
                             point.y <= position.y + halfSize &&
                             point.z >= position.z - halfSize &&
@@ -119,9 +118,9 @@ namespace TrenchBroom {
                 }
                 
                 if (direction.y < 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::PosY, Vec3f(position.x, position.y + halfSize, position.z));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                    const T distance = intersectWithPlane(Vec<T,3>::PosY, Vec<T,3>(position.x, position.y + halfSize, position.z));
+                    if (!Math<T>::isnan(distance)) {
+                        const Vec<T,3> point = pointAtDistance(distance);
                         if (point.x >= position.x - halfSize &&
                             point.x <= position.x + halfSize &&
                             point.z >= position.z - halfSize &&
@@ -130,9 +129,9 @@ namespace TrenchBroom {
                         }
                     }
                 } else if (direction.y > 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::NegY, Vec3f(position.x, position.y - halfSize, position.z));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                    const T distance = intersectWithPlane(Vec<T,3>::NegY, Vec<T,3>(position.x, position.y - halfSize, position.z));
+                    if (!Math<T>::isnan(distance)) {
+                        Vec<T,3> point = pointAtDistance(distance);
                         if (point.x >= position.x - halfSize &&
                             point.x <= position.x + halfSize &&
                             point.z >= position.z - halfSize &&
@@ -143,9 +142,9 @@ namespace TrenchBroom {
                 }
                 
                 if (direction.z < 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::PosZ, Vec3f(position.x, position.y, position.z + halfSize));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                    const T distance = intersectWithPlane(Vec<T,3>::PosZ, Vec<T,3>(position.x, position.y, position.z + halfSize));
+                    if (!Math<T>::isnan(distance)) {
+                        const Vec<T,3> point = pointAtDistance(distance);
                         if (point.x >= position.x - halfSize &&
                             point.x <= position.x + halfSize &&
                             point.y >= position.y - halfSize &&
@@ -154,9 +153,9 @@ namespace TrenchBroom {
                         }
                     }
                 } else if (direction.z > 0.0f) {
-                    float distance = intersectWithPlane(Vec3f::NegZ, Vec3f(position.x, position.y, position.z - halfSize));
-                    if (!Math::isnan(distance)) {
-                        Vec3f point = pointAtDistance(distance);
+                    const T distance = intersectWithPlane(Vec<T,3>::NegZ, Vec<T,3>(position.x, position.y, position.z - halfSize));
+                    if (!Math<T>::isnan(distance)) {
+                        const Vec<T,3> point = pointAtDistance(distance);
                         if (point.x >= position.x - halfSize &&
                             point.x <= position.x + halfSize &&
                             point.y >= position.y - halfSize &&
@@ -166,48 +165,48 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return Math::nan();
+                return Math<T>::nan();
             }
             
-            float squaredDistanceToPoint(const Vec3f& point, float& distanceToClosestPoint) const {
+            T squaredDistanceToPoint(const Vec<T,3>& point, T& distanceToClosestPoint) const {
                 distanceToClosestPoint = (point - origin).dot(direction);
-                if (distanceToClosestPoint <= 0.0f)
-                    return Math::nan();
+                if (distanceToClosestPoint <= 0.0)
+                    return Math<T>::nan();
                 return (pointAtDistance(distanceToClosestPoint) - point).lengthSquared();
             }
             
-            float distanceToPoint(const Vec3f& point, float& distanceToClosestPoint) const {
-                float squaredDistance = squaredDistanceToPoint(point, distanceToClosestPoint);
-                if (Math::isnan(squaredDistance))
+            T distanceToPoint(const Vec<T,3>& point, T& distanceToClosestPoint) const {
+                const T squaredDistance = squaredDistanceToPoint(point, distanceToClosestPoint);
+                if (Math<T>::isnan(squaredDistance))
                     return squaredDistance;
                 return std::sqrt(squaredDistance);
             }
             
-            float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, Vec3f& pointOnSegment, float& distanceToClosestPoint) const {
-                Vec3f u, v, w;
+            T squaredDistanceToSegment(const Vec<T,3>& start, const Vec<T,3>& end, Vec<T,3>& pointOnSegment, T& distanceToClosestPoint) const {
+                Vec<T,3> u, v, w;
                 u = end - start;
                 v = direction;
                 w = start - origin;
                 
-                float a = u.dot(u);
-                float b = u.dot(v);
-                float c = v.dot(v);
-                float d = u.dot(w);
-                float e = v.dot(w);
-                float D = a * c - b * b;
-                float sN, sD = D;
-                float tN, tD = D;
+                const T a = u.dot(u);
+                const T b = u.dot(v);
+                const T c = v.dot(v);
+                const T d = u.dot(w);
+                const T e = v.dot(w);
+                const T D = a * c - b * b;
+                T sN, sD = D;
+                T tN, tD = D;
                 
-                if (zero(D)) {
-                    sN = 0.0f;
-                    sD = 1.0f;
+                if (Math<T>::zero(D)) {
+                    sN = 0.0;
+                    sD = 1.0;
                     tN = e;
                     tD = c;
                 } else {
                     sN = (b * e - c * d);
                     tN = (a * e - b * d);
-                    if (sN < 0.0f) {
-                        sN = 0.0f;
+                    if (sN < 0.0) {
+                        sN = 0.0;
                         tN = e;
                         tD = c;
                     } else if (sN > sD) {
@@ -217,61 +216,66 @@ namespace TrenchBroom {
                     }
                 }
                 
-                if (tN < 0.0f)
-                    return nan();
+                if (tN < 0.0)
+                    return Math<T>::nan();
                 
-                float sc = zero(sN) ? 0.0f : sN / sD;
-                float tc = zero(tN) ? 0.0f : tN / tD;
+                const T sc = Math<T>::zero(sN) ? static_cast<T>(0.0) : sN / sD;
+                const T tc = Math<T>::zero(tN) ? static_cast<T>(0.0) : tN / tD;
 
                 distanceToClosestPoint = tc;
 
                 u = u * sc;
                 v = v * tc;
                 w = w + u;
-                Vec3f dP = w - v;
+                const Vec<T,3> dP = w - v;
 
                 pointOnSegment = start + u;
                 return dP.lengthSquared();
             }
             
-            float distanceToSegment(const Vec3f& start, const Vec3f& end, Vec3f& pointOnSegment, float& distanceToClosestPoint) const {
-                float squaredDistance = squaredDistanceToSegment(start, end, pointOnSegment, distanceToClosestPoint);
-                if (isnan(squaredDistance))
+            T distanceToSegment(const Vec<T,3>& start, const Vec<T,3>& end, Vec<T,3>& pointOnSegment, T& distanceToClosestPoint) const {
+                const T squaredDistance = squaredDistanceToSegment(start, end, pointOnSegment, distanceToClosestPoint);
+                if (Math<T>::isnan(squaredDistance))
                     return squaredDistance;
                 return std::sqrt(squaredDistance);
             }
             
-            float squaredDistanceToLine(const Vec3f& lineAnchor, const Vec3f& lineDir, Vec3f& pointOnLine, float& distanceToClosestPoint) const {
-                Vec3f w0 = origin - lineAnchor;
-                float a = direction.dot(direction);
-                float b = direction.dot(lineDir);
-                float c = lineDir.dot(lineDir);
-                float d = direction.dot(w0);
-                float e = lineDir.dot(w0);
+            T squaredDistanceToLine(const Vec<T,3>& lineAnchor, const Vec<T,3>& lineDir, Vec<T,3>& pointOnLine, T& distanceToClosestPoint) const {
+                const Vec<T,3> w0 = origin - lineAnchor;
+                const T a = direction.dot(direction);
+                const T b = direction.dot(lineDir);
+                const T c = lineDir.dot(lineDir);
+                const T d = direction.dot(w0);
+                const T e = lineDir.dot(w0);
                 
-                float f = a * c - b * b;
-                if (zero(f))
-                    return Math::nan();
+                const T f = a * c - b * b;
+                if (Math<T>::zero(f)) {
+                    distanceToClosestPoint = Math<T>::nan();
+                    return Math<T>::nan();
+                }
                 
-                float sc = (b * e - c * d) / f;
-                float tc = (a * e - b * d) / f;
+                T sc = (b * e - c * d) / f;
+                const T tc = (a * e - b * d) / f;
                 
-                if (sc < 0.0f)
-                    sc = 0.0f;
+                if (sc < 0.0)
+                    sc = 0.0;
                 
-                Vec3f pointOnRay = origin + sc * direction;
+                const Vec<T,3> pointOnRay = origin + sc * direction;
                 pointOnLine = lineAnchor + tc * lineDir;
                 distanceToClosestPoint = sc;
                 return (pointOnLine - pointOnRay).lengthSquared();
             }
             
-            float distanceToLine(const Vec3f& lineAnchor, const Vec3f& lineDir, Vec3f& pointOnLine, float& distanceToClosestPoint) const {
-                float squaredDistance = squaredDistanceToLine(lineAnchor, lineDir, pointOnLine, distanceToClosestPoint);
-                if (isnan(squaredDistance))
+            T distanceToLine(const Vec<T,3>& lineAnchor, const Vec<T,3>& lineDir, Vec<T,3>& pointOnLine, T& distanceToClosestPoint) const {
+                const T squaredDistance = squaredDistanceToLine(lineAnchor, lineDir, pointOnLine, distanceToClosestPoint);
+                if (Math<T>::isnan(squaredDistance))
                     return squaredDistance;
                 return std::sqrt(squaredDistance);
             }
         };
+        
+        typedef Ray<float> Rayf;
+        typedef Ray<double> Rayd;
     }
 }
 

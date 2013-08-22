@@ -20,7 +20,7 @@
 #include "RotateObjectsTool.h"
 
 #include "Controller/Command.h"
-#include "Controller/RotateObjectsCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
@@ -37,7 +37,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
@@ -48,6 +48,11 @@ namespace TrenchBroom {
 
             Vec3f position = document().grid().referencePoint(editStateManager.bounds());
             m_rotateHandle.setPosition(position);
+        }
+
+        bool RotateObjectsTool::handleActivate(InputState& inputState) {
+            updateHandlePosition(inputState);
+            return true;
         }
 
         bool RotateObjectsTool::handleIsModal(InputState& inputState) {
@@ -74,17 +79,23 @@ namespace TrenchBroom {
             m_rotateHandle.render(hit, vbo, renderContext, m_angle);
         }
 
-        void RotateObjectsTool::handleObjectsChange(InputState& inputState) {
-            if (!m_ignoreObjectsChange)
-                updateHandlePosition(inputState);
-        }
-
-        void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            updateHandlePosition(inputState);
-        }
-
-        void RotateObjectsTool::handleGridChange(InputState& inputState) {
-            updateHandlePosition(inputState);
+        void RotateObjectsTool::handleUpdate(const Command& command, InputState& inputState) {
+            if (active()) {
+                switch (command.type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap:
+                    case Controller::Command::TransformObjects:
+                    case Controller::Command::ResizeBrushes:
+                    case Controller::Command::MoveVertices:
+                    case Controller::Command::SnapVertices:
+                    case Controller::Command::ChangeEditState:
+                    case Controller::Command::ChangeGrid:
+                        updateHandlePosition(inputState);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         bool RotateObjectsTool::handleStartDrag(InputState& inputState) {
@@ -119,8 +130,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            m_startX = inputState.x();
-            m_startY = inputState.y();
+            m_startPoint = wxPoint(inputState.x(), inputState.y());
             m_angle = 0.0f;
             m_center = m_rotateHandle.position();
             m_rotateHandle.lock();
@@ -132,14 +142,14 @@ namespace TrenchBroom {
         bool RotateObjectsTool::handleDrag(InputState& inputState) {
             int delta = 0;
             if (m_axis == Vec3f::PosZ) {
-                delta = -(inputState.x() - m_startX);
+                delta = -(inputState.x() - m_startPoint.x);
             } else {
-                delta = inputState.y() - m_startY;
+                delta = inputState.y() - m_startPoint.y;
                 if (m_invert)
                     delta *= -1;
             }
 
-            m_angle = static_cast<float>(delta) / 200.0f * Math::Pi;
+            m_angle = static_cast<float>(delta) / 200.0f * Math<float>::Pi;
 
             Utility::Grid& grid = document().grid();
             m_angle = grid.snapAngle(m_angle);
@@ -151,7 +161,7 @@ namespace TrenchBroom {
                 Model::EditStateManager& editStateManager = document().editStateManager();
                 const Model::EntityList& entities = editStateManager.selectedEntities();
                 const Model::BrushList& brushes = editStateManager.selectedBrushes();
-                RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
+                TransformObjectsCommand* command = TransformObjectsCommand::rotateObjects(document(), entities, brushes, m_axis, m_angle, false, m_center);
                 submitCommand(command);
             }
 
@@ -167,6 +177,7 @@ namespace TrenchBroom {
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness) :
         Tool(documentViewHolder, inputController, true),
+        m_invert(false),
         m_angle(0.0f),
         m_ignoreObjectsChange(false),
         m_rotateHandle(RotateHandle(axisLength, ringRadius, ringThickness)){}

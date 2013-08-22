@@ -39,35 +39,35 @@ namespace TrenchBroom {
             
             IndexArray m_primIndices;
             IndexArray m_primVertexCounts;
-            unsigned int m_currentPrimIndex;
-            unsigned int m_primCount;
+            size_t m_currentPrimIndex;
+            size_t m_primCount;
         public:
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}
             
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}
             
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}
             
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}
             
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}
             
-            IndexedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
+            IndexedVertexArray(Vbo& vbo, GLenum primType, size_t vertexCapacity, const Attribute::List& attributes, size_t padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attributes, padTo),
             m_currentPrimIndex(0),
             m_primCount(0) {}

@@ -86,7 +86,7 @@ namespace TrenchBroom {
                         dc.SetPen(wxPen(wxCol));
                         dc.SetBrush(wxBrush(wxCol));
                         dc.DrawRectangle(x, y, width, height);
-                        colorIt++;
+                        ++colorIt;
                     }
                     x += width + m_margin;
                 }

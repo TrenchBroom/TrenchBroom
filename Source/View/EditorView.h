@@ -29,7 +29,7 @@
 #include <wx/cmdproc.h>
 #include <wx/docview.h>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Controller {
@@ -55,6 +55,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class EditorFrame;
         class Inspector;
         class MapWindow;
         class ViewOptions;
@@ -87,6 +88,8 @@ namespace TrenchBroom {
             void flipObjects(bool horizontally);
             void moveVertices(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
+            
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
             EditorView();
             ~EditorView();
@@ -98,6 +101,7 @@ namespace TrenchBroom {
             Renderer::MapRenderer& renderer() const;
             View::Inspector& inspector() const;
             Utility::Console& console() const;
+            View::EditorFrame& editorFrame() const;
             Controller::InputController& inputController() const;
             AnimationManager& animationManager() const;
             wxMenu* createEntityPopupMenu();
@@ -190,7 +194,11 @@ namespace TrenchBroom {
             void OnEditFlipObjectsV(wxCommandEvent& event);
             void OnEditDuplicateObjects(wxCommandEvent& event);
             void OnEditCorrectVertices(wxCommandEvent& event);
+
             void OnEditSnapVertices(wxCommandEvent& event);
+            void OnEditToggleAxisRestriction(wxCommandEvent& event);
+            
+            void OnEditPrintFilePositions(wxCommandEvent& event);
 
             void OnEditMoveVerticesForward(wxCommandEvent& event);
             void OnEditMoveVerticesBackward(wxCommandEvent& event);
@@ -200,6 +208,7 @@ namespace TrenchBroom {
             void OnEditMoveVerticesDown(wxCommandEvent& event);
             
             void OnEditToggleTextureLock(wxCommandEvent& event);
+            void OnEditNavigateUp(wxCommandEvent& event);
             void OnEditShowMapProperties(wxCommandEvent& event);
             
             void OnViewToggleShowGrid(wxCommandEvent& event);

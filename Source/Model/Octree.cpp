@@ -33,63 +33,63 @@ namespace TrenchBroom {
     namespace Model {
         bool OctreeNode::addObject(MapObject& object, unsigned int childIndex) {
             if (m_children[childIndex] == NULL) {
-                BBox childBounds;
+                BBoxf childBounds;
                 switch (childIndex) {
                     case WSB:
-                        childBounds.min.x = m_bounds.min.x;
-                        childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
+                        childBounds.min[0] = m_bounds.min[0];
+                        childBounds.min[1] = m_bounds.min[1];
+                        childBounds.min[2] = m_bounds.min[2];
+                        childBounds.max[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.max[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.max[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
                         break;
                     case WST:
-                        childBounds.min.x = m_bounds.min.x;
-                        childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.max.z = m_bounds.max.z;
+                        childBounds.min[0] = m_bounds.min[0];
+                        childBounds.min[1] = m_bounds.min[1];
+                        childBounds.min[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
+                        childBounds.max[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.max[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.max[2] = m_bounds.max[2];
                         break;
                     case WNB:
-                        childBounds.min.x = m_bounds.min.x;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.max.y = m_bounds.max.y;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
+                        childBounds.min[0] = m_bounds.min[0];
+                        childBounds.min[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.min[2] = m_bounds.min[2];
+                        childBounds.max[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.max[1] = m_bounds.max[1];
+                        childBounds.max[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
                         break;
                     case ESB:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
+                        childBounds.min[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.min[1] = m_bounds.min[1];
+                        childBounds.min[2] = m_bounds.min[2];
+                        childBounds.max[0] = m_bounds.max[0];
+                        childBounds.max[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.max[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
                         break;
                     case EST:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
-                        childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.max.z = m_bounds.max.z;
+                        childBounds.min[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.min[1] = m_bounds.min[1];
+                        childBounds.min[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
+                        childBounds.max[0] = m_bounds.max[0];
+                        childBounds.max[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.max[2] = m_bounds.max[2];
                         break;
                     case ENB:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = m_bounds.max.y;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
+                        childBounds.min[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.min[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.min[2] = m_bounds.min[2];
+                        childBounds.max[0] = m_bounds.max[0];
+                        childBounds.max[1] = m_bounds.max[1];
+                        childBounds.max[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
                         break;
                     case ENT:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
-                        childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = m_bounds.max.y;
-                        childBounds.max.z = m_bounds.max.z;
+                        childBounds.min[0] = (m_bounds.min[0] + m_bounds.max[0]) / 2.0f;
+                        childBounds.min[1] = (m_bounds.min[1] + m_bounds.max[1]) / 2.0f;
+                        childBounds.min[2] = (m_bounds.min[2] + m_bounds.max[2]) / 2.0f;
+                        childBounds.max[0] = m_bounds.max[0];
+                        childBounds.max[1] = m_bounds.max[1];
+                        childBounds.max[2] = m_bounds.max[2];
                         break;
                 }
                 m_children[childIndex] = new OctreeNode(childBounds, m_minSize);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
 
-        OctreeNode::OctreeNode(const BBox& bounds, unsigned int minSize) :
+        OctreeNode::OctreeNode(const BBoxf& bounds, unsigned int minSize) :
         m_minSize(minSize),
         m_bounds(bounds) {
             for (unsigned int i = 0; i < 8; i++)
@@ -115,7 +115,7 @@ namespace TrenchBroom {
         bool OctreeNode::addObject(MapObject& object) {
             if (!m_bounds.contains(object.bounds()))
                 return false;
-            if (m_bounds.max.x - m_bounds.min.x > m_minSize)
+            if (m_bounds.max[0] - m_bounds.min[0] > m_minSize)
                 for (unsigned int i = 0; i < 8; i++)
                     if (addObject(object, i))
                         return true;
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool OctreeNode::empty() {
+        bool OctreeNode::empty() const {
             if (!m_objects.empty())
                 return false;
             for (unsigned int i = 0; i < 8; i++)
@@ -153,8 +153,17 @@ namespace TrenchBroom {
             return true;
         }
 
-        void OctreeNode::intersect(const Ray& ray, MapObjectList& objects) {
-            if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
+        size_t OctreeNode::count() const {
+            size_t count = m_objects.size();
+            for (size_t i = 0; i < 8; i++) {
+                if (m_children[i] != NULL)
+                    count += m_children[i]->count();
+            }
+            return count;
+        }
+
+        void OctreeNode::intersect(const Rayf& ray, MapObjectList& objects) {
+            if (m_bounds.contains(ray.origin) || !Math<float>::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (unsigned int i = 0; i < 8; i++)
                     if (m_children[i] != NULL)
@@ -218,7 +227,11 @@ namespace TrenchBroom {
             }
         }
         
-        MapObjectList Octree::intersect(const Ray& ray) {
+        size_t Octree::count() const {
+            return m_root->count();
+        }
+
+        MapObjectList Octree::intersect(const Rayf& ray) {
             MapObjectList result;
             m_root->intersect(ray, result);
             return result;

@@ -20,8 +20,18 @@
 
 #include "FaceInspector.h"
 
+#include <wx/button.h>
+#include <wx/filedlg.h>
+#include <wx/gbsizer.h>
+#include <wx/listbox.h>
+#include <wx/sizer.h>
+#include <wx/splitter.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
+
+#include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
-#include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -176,27 +186,6 @@ namespace TrenchBroom {
             return m_textureBrowser;
         }
         
-        FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
-        wxPanel(parent),
-        m_documentViewHolder(documentViewHolder) {
-            
-            // layout of the contained controls
-            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(createFaceEditor(), 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            innerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(createTextureBrowser(), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
-            
-            // creates 5 pixel border inside the page
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
-            SetSizerAndFit(outerSizer);
-            
-            updateFaceAttributes();
-            updateSelectedTexture();
-        }
-
         void FaceInspector::updateFaceAttributes() {
             Model::FaceList faces;
             if (m_documentViewHolder.valid()) {
@@ -235,7 +224,7 @@ namespace TrenchBroom {
                 m_xScaleEditor->Enable();
                 m_yScaleEditor->Enable();
                 m_rotationEditor->Enable();
-
+                
                 if (xOffsetMulti) {
                     m_xOffsetEditor->SetHint(wxT("multi"));
                     m_xOffsetEditor->SetValue(wxT(""));
@@ -300,9 +289,70 @@ namespace TrenchBroom {
             else
                 m_textureBrowser->setSelectedTexture(NULL);
         }
-
+        
         void FaceInspector::updateTextureBrowser(bool reloadTextures) {
             m_textureBrowser->reload(reloadTextures);
+        }
+        
+        FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
+        wxPanel(parent),
+        m_documentViewHolder(documentViewHolder) {
+            
+            // layout of the contained controls
+            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
+            innerSizer->Add(createFaceEditor(), 0, wxEXPAND);
+            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
+            innerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
+            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(createTextureBrowser(), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
+            
+            // creates 5 pixel border inside the page
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
+            SetSizerAndFit(outerSizer);
+            
+            updateFaceAttributes();
+            updateSelectedTexture();
+        }
+
+        void FaceInspector::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                    updateFaceAttributes();
+                    updateSelectedTexture();
+                    updateTextureBrowser(true);
+                    break;
+                case Controller::Command::ChangeEditState:
+                    updateFaceAttributes();
+                    updateSelectedTexture();
+                    break;
+                case Controller::Command::SetFaceAttributes:
+                case Controller::Command::MoveTextures:
+                case Controller::Command::RotateTextures:
+                    updateFaceAttributes();
+                    updateSelectedTexture();
+                    updateTextureBrowser(false);
+                    break;
+                case Controller::Command::AddObjects:
+                case Controller::Command::RemoveObjects:
+                    updateTextureBrowser(false);
+                    break;
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isEntityAffected(m_documentViewHolder.document().worldspawn()) &&
+                        entityPropertyCommand.isPropertyAffected(Model::Entity::WadKey)) {
+                        updateFaceAttributes();
+                        updateSelectedTexture();
+                        updateTextureBrowser(true);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         void FaceInspector::OnXOffsetChanged(SpinControlEvent& event) {

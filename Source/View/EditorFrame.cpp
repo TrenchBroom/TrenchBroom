@@ -20,6 +20,8 @@
 #include "EditorFrame.h"
 
 #include "Controller/Command.h"
+#include "Controller/EntityPropertyCommand.h"
+#include "Controller/PreferenceChangeEvent.h"
 #include "Controller/InputController.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
@@ -36,6 +38,7 @@
 
 #include <wx/colour.h>
 #include <wx/config.h>
+#include <wx/display.h>
 #include <wx/docview.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
@@ -52,12 +55,46 @@ namespace TrenchBroom {
     namespace View {
         const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
 
+        IMPLEMENT_DYNAMIC_CLASS(EditorFrame, wxFrame)
+
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
-        EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
-        EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnSetFocus)
+        EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
+
+        EditorFrame::MenuSelector::MenuSelector(DocumentViewHolder& documentViewHolder) :
+        m_documentViewHolder(documentViewHolder) {}
+
+        const Preferences::Menu* EditorFrame::MenuSelector::select(const Preferences::MultiMenu& multiMenu) const {
+            if (m_documentViewHolder.valid()) {
+                Controller::InputController& inputController = m_documentViewHolder.view().inputController();
+                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+
+                switch (multiMenu.menuId()) {
+                    case View::CommandIds::Menu::EditActions:
+                        if (inputController.moveVerticesToolActive())
+                            return multiMenu.menuById(View::CommandIds::Menu::EditVertexActions);
+                        if (inputController.clipToolActive())
+                            return multiMenu.menuById(View::CommandIds::Menu::EditClipActions);
+                        switch (editStateManager.selectionMode()) {
+                            case Model::EditStateManager::SMFaces:
+                                return multiMenu.menuById(View::CommandIds::Menu::EditFaceActions);
+                            case Model::EditStateManager::SMEntities:
+                            case Model::EditStateManager::SMBrushes:
+                            case Model::EditStateManager::SMEntitiesAndBrushes:
+                                return multiMenu.menuById(View::CommandIds::Menu::EditObjectActions);
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return NULL;
+        }
 
         void EditorFrame::CreateGui() {
             /*
@@ -105,76 +142,112 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
-
-            SetSize(1024, 768);
-
-            /*
-            m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);
-            m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
-             */
         }
 
+        EditorFrame::EditorFrame() :
+        wxFrame(NULL, wxID_ANY, wxT("")),
+        m_inspector(NULL),
+        m_mapCanvasContainerPanel(NULL),
+        m_navBar(NULL),
+        m_mapCanvas(NULL),
+        m_logView(NULL),
+        m_focusMapCanvasOnIdle(2) {}
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)),
-        m_focusMapCanvasOnIdle(true) {
+        m_inspector(NULL),
+        m_mapCanvasContainerPanel(NULL),
+        m_navBar(NULL),
+        m_mapCanvas(NULL),
+        m_logView(NULL),
+        m_focusMapCanvasOnIdle(2) {
+            Create(document, view);
+        }
+
+        void EditorFrame::Create(Model::MapDocument& document, EditorView& view) {
 #ifdef _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
-            updateMenuBar();
-
-            m_mapCanvasHasFocus = false;
+            
+            const wxDisplay display;
+            const wxRect displaySize = display.GetClientArea();
+            SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
+            EditorFrame* topWindow = wxDynamicCast(wxTheApp->GetTopWindow(), EditorFrame);
+            if (topWindow != NULL) {
+                wxPoint position = topWindow->GetPosition();
+#ifdef __APPLE__
+                position.x += 23;
+                position.y += 23;
+#elif defined _WIN32
+                position.x += 23;
+                position.y += 23;
+#else
+                position.x += 23;
+                position.y += 23;
+#endif
+                SetPosition(position);
+            } else {
+                Center();
+            }
+            Raise();
         }
 
-        void EditorFrame::updateNavBar() {
-            if (!m_documentViewHolder.valid())
-                return;
-            m_navBar->updateBreadcrump();
+        void EditorFrame::update(const Controller::Command& command) {
+            switch (command.type()) {
+                case Controller::Command::LoadMap:
+                case Controller::Command::ClearMap:
+                case Controller::Command::ChangeEditState:
+                    updateMenuBar();
+                case Controller::Command::MoveVertices:
+                case Controller::Command::ReparentBrushes:
+                case Controller::Command::ClipToolChange:
+                case Controller::Command::MoveVerticesToolChange:
+                case Controller::Command::SetEntityDefinitionFile:
+                    updateNavBar();
+                    break;
+                case Controller::Command::SetEntityPropertyKey:
+                case Controller::Command::SetEntityPropertyValue:
+                case Controller::Command::RemoveEntityProperty: {
+                    const Controller::EntityPropertyCommand& entityPropertyCommand = static_cast<const Controller::EntityPropertyCommand&>(command);
+                    if (entityPropertyCommand.isPropertyAffected(Model::Entity::ModKey))
+                        updateNavBar();
+                    break;
+                }
+                case Controller::Command::PreferenceChange: {
+                    const Controller::PreferenceChangeEvent& preferenceChangeEvent = static_cast<const Controller::PreferenceChangeEvent&>(command);
+                    if (preferenceChangeEvent.menuHasChanged())
+                        updateMenuBar();
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         void EditorFrame::updateMenuBar() {
             if (!m_documentViewHolder.valid())
                 return;
 
-            bool mapViewFocused = FindFocus() == m_mapCanvas;
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-            wxMenu* actionMenu = NULL;
-            if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {
-                if (m_mapCanvas->inputController().moveVerticesToolActive()) {
-                    actionMenu = app->CreateVertexActionMenu(mapViewFocused);
-                } else if (m_mapCanvas->inputController().clipToolActive()) {
-                } else {
-                    Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-                    switch (editStateManager.selectionMode()) {
-                        case Model::EditStateManager::SMFaces:
-                            actionMenu = app->CreateTextureActionMenu(mapViewFocused);
-                            break;
-                        case Model::EditStateManager::SMEntities:
-                        case Model::EditStateManager::SMBrushes:
-                        case Model::EditStateManager::SMEntitiesAndBrushes:
-                            actionMenu = app->CreateObjectActionMenu(mapViewFocused);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            wxMenuBar* menuBar = app->CreateMenuBar(&m_documentViewHolder.view(), actionMenu, mapViewFocused);
+            wxMenuBar* menuBar = app->CreateMenuBar(MenuSelector(m_documentViewHolder), &m_documentViewHolder.view(), m_mapCanvas->hasFocus());
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
             m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
-
-            // SetMenuBar(NULL);
 
             wxMenuBar* oldMenuBar = GetMenuBar();
             app->DetachFileHistoryMenu(oldMenuBar);
 
             SetMenuBar(menuBar);
             delete oldMenuBar;
+        }
+
+        void EditorFrame::updateNavBar() {
+            if (!m_documentViewHolder.valid())
+                return;
+            m_navBar->updateBreadcrump();
         }
 
         void EditorFrame::disableProcessing() {
@@ -185,97 +258,35 @@ namespace TrenchBroom {
             m_documentViewHolder.invalidate();
         }
 
-        /*
-        void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
-            m_mapCanvasHasFocus = true;
-
-            if (m_documentViewHolder.valid()) {
-                updateMenuBar();
-
-                wxMenuBar* menuBar = GetMenuBar();
-                size_t menuCount = menuBar->GetMenuCount();
-                for (size_t i = 0; i < menuCount; i++) {
-                    wxMenu* menu = menuBar->GetMenu(i);
-                    menu->UpdateUI(&m_documentViewHolder.view());
-                }
-
-                m_mapCanvas->Refresh();
-            }
-
-            event.Skip();
-        }
-
-        void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
-            m_mapCanvasHasFocus = false;
-
-            if (m_documentViewHolder.valid()) {
-                updateMenuBar();
-
-                wxMenuBar* menuBar = GetMenuBar();
-                size_t menuCount = menuBar->GetMenuCount();
-                for (size_t i = 0; i < menuCount; i++) {
-                    wxMenu* menu = menuBar->GetMenu(i);
-                    menu->UpdateUI(&m_documentViewHolder.view());
-                }
-
-                m_mapCanvas->Refresh();
-            }
-
-            event.Skip();
-        }
-         */
-
-        void EditorFrame::OnSetFocus(wxCommandEvent& event) {
+        void EditorFrame::OnChangeFocus(wxCommandEvent& event) {
             if (m_documentViewHolder.valid()) {
                 wxWindow* focus = FindFocus();
-                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
-                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
-
+                if (m_mapCanvas->setHasFocus(m_mapCanvas == focus))
                     updateMenuBar();
-
-                    wxMenuBar* menuBar = GetMenuBar();
-                    size_t menuCount = menuBar->GetMenuCount();
-                    for (size_t i = 0; i < menuCount; i++) {
-                        wxMenu* menu = menuBar->GetMenu(i);
-                        menu->UpdateUI(&m_documentViewHolder.view());
-                    }
-                    m_mapCanvas->Refresh();
-                }
             }
         }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
-            if (m_focusMapCanvasOnIdle) {
+            if (m_focusMapCanvasOnIdle > 0) {
                 m_mapCanvas->SetFocus();
-                m_focusMapCanvasOnIdle = false;
+                m_mapCanvas->setHasFocus(true, true);
+                updateMenuBar();
+                updateNavBar();
+                m_focusMapCanvasOnIdle--;
             }
-            updateNavBar();
 
-            /*
-            // this is a fix for Mac OS X, where the kill focus event is not properly sent
-            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
-
-#ifdef __APPLE__
-            if (m_documentViewHolder.valid()) {
-                wxWindow* focus = FindFocus();
-                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
-                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
-
-                    updateMenuBar();
-
-                    wxMenuBar* menuBar = GetMenuBar();
-                    size_t menuCount = menuBar->GetMenuCount();
-                    for (size_t i = 0; i < menuCount; i++) {
-                        wxMenu* menu = menuBar->GetMenu(i);
-                        menu->UpdateUI(&m_documentViewHolder.view());
-                    }
-                    m_mapCanvas->Refresh();
-                }
+            // FIXME: Workaround for a bug in Ubuntu GTK where menus are not updated
+            // This will be fixed in wxWidgets 2.9.5: http://trac.wxwidgets.org/ticket/14302
+            // Unfortunately right now this leads to a crash after the "Navigate Up" item is invoked.
+#ifdef __linux__
+            wxMenuBar* menuBar = GetMenuBar();
+            size_t menuCount = menuBar->GetMenuCount();
+            for (size_t i = 0; i < menuCount; i++) {
+                wxMenu* menu = menuBar->GetMenu(i);
+                menu->UpdateUI(&m_documentViewHolder.view());
             }
 #endif
-            */
 
-            // finally set the top window
             if (IsActive() && wxTheApp->GetTopWindow() != this)
                 wxTheApp->SetTopWindow(this);
             event.Skip();
@@ -287,14 +298,6 @@ namespace TrenchBroom {
 
             Model::MapDocument& document = m_documentViewHolder.document();
             document.GetDocumentManager()->CloseDocument(&document);
-        }
-
-        void EditorFrame::OnMenuOpen(wxMenuEvent& event) {
-#ifdef _WIN32
-            wxMenu* menu = event.GetMenu();
-			menu->UpdateUI(&m_documentViewHolder.view());
-#endif
-            event.Skip();
         }
     }
 }

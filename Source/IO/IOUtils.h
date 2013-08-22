@@ -35,7 +35,7 @@
 #include <cstdint>
 #endif
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace IO {
@@ -94,9 +94,8 @@ namespace TrenchBroom {
 
         inline Vec3f readVec3f(char*& cursor) {
             Vec3f value;
-            value.x = readFloat<float>(cursor);
-            value.y = readFloat<float>(cursor);
-            value.z = readFloat<float>(cursor);
+            for (size_t i = 0; i < 3; i++)
+                value[i] = readFloat<float>(cursor);
             return value;
         }
 

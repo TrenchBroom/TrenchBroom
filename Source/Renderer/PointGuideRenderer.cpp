@@ -34,7 +34,7 @@ namespace TrenchBroom {
             float maxLength = 512.0f;
             const Vec3f endPoint = m_position + maxLength * direction;
             
-            Model::PickResult* result = m_picker.pick(Ray(m_position, direction));
+            Model::PickResult* result = m_picker.pick(Rayf(m_position, direction));
             Model::HitList hits = result->hits(Model::HitType::FaceHit, m_filter);
             Model::HitList::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             m_spikeArray->addAttribute(m_position);
             m_spikeArray->addAttribute(m_color);
             m_spikeArray->addAttribute(endPoint);
-            m_spikeArray->addAttribute(Vec4f(m_color, m_color.w / 2.0f));
+            m_spikeArray->addAttribute(Color(m_color, m_color.a() / 2.0f));
             
             delete result;
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             
             if (m_pointArray != NULL) {
                 ActivateShader pointShader(context.shaderManager(), Shaders::EdgeShader);
-                pointShader.currentShader().setUniformVariable("Color", Vec4f(m_color, 1.0f));
+                pointShader.setUniformVariable("Color", Color(m_color, 1.0f));
                 glEnable(GL_POINT_SMOOTH);
                 glPointSize(3.0f);
                 m_pointArray->render();

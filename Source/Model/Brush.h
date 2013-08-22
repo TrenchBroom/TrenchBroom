@@ -32,7 +32,7 @@
 #include <iterator>
 #include <vector>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,14 +48,14 @@ namespace TrenchBroom {
 
             unsigned int m_selectedFaceCount;
 
-            const BBox& m_worldBounds;
+            const BBoxf& m_worldBounds;
             bool m_forceIntegerFacePoints;
 
             void init();
         public:
-            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces);
-            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate);
-            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture);
+            Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const FaceList& faces);
+            Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate);
+            Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const BBoxf& brushBounds, Texture* texture);
             ~Brush();
 
             void restore(const Brush& brushTemplate, bool checkId = false);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
             virtual EditState::Type setEditState(EditState::Type editState);
 
-            inline const BBox& worldBounds() const {
+            inline const BBoxf& worldBounds() const {
                 return m_worldBounds;
             }
 
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 return m_geometry->center;
             }
 
-            inline const BBox& bounds() const {
+            inline const BBoxf& bounds() const {
                 return m_geometry->bounds;
             }
 
@@ -135,16 +135,13 @@ namespace TrenchBroom {
 
             void rebuildGeometry();
 
-            void translate(const Vec3f& delta, bool lockTextures);
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
-            void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
-            void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
-
-            void correct(float epsilon);
-            void snap(unsigned int snapTo);
+            void transform(const Mat4f& pointTransform, const Mat4f& vectorTransform, const bool lockTextures, const bool invertOrientation);
 
             bool clip(Face& face);
             
+            void correct(float epsilon);
+            void snap(unsigned int snapTo);
+
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
 
@@ -160,13 +157,36 @@ namespace TrenchBroom {
             bool canSplitFace(const FaceInfo& faceInfo, const Vec3f& delta) const;
             Vec3f splitFace(const FaceInfo& faceInfo, const Vec3f& delta);
 
-            void pick(const Ray& ray, PickResult& pickResults);
+            void pick(const Rayf& ray, PickResult& pickResults);
             bool containsPoint(const Vec3f point) const;
             bool intersectsBrush(const Brush& brush) const;
             bool containsBrush(const Brush& brush) const;
             bool intersectsEntity(const Entity& entity) const;
             bool containsEntity(const Entity& entity) const;
         };
+        
+        inline static EntityBrushesMap entityBrushes(const BrushList& brushes) {
+            EntityBrushesMap entityBrushesMap;
+            BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                Model::Entity* entity = brush->entity();
+                entityBrushesMap[entity].push_back(brush);
+            }
+            return entityBrushesMap;
+        }
+        
+        inline static EntityBrushesMap mergeEntityBrushes(const EntityBrushesMap& left, const EntityBrushesMap& right) {
+            EntityBrushesMap result = left;
+            EntityBrushesMap::const_iterator it, end;
+            for (it = right.begin(), end = right.end(); it != end; ++it) {
+                Entity* entity = it->first;
+                const BrushList& brushes = it->second;
+                BrushList& resultBrushes = result[entity];
+                resultBrushes.insert(resultBrushes.end(), brushes.begin(), brushes.end());
+            }
+            return result;
+        }
     }
 }
 

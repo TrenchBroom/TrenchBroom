@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,7 +42,7 @@
 
 #include <cassert>
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace View {
@@ -52,22 +52,22 @@ namespace TrenchBroom {
                 const float maxCellWidth = layout.maxCellWidth();
                 const Renderer::Text::FontDescriptor actualFont = fontManager.selectFontSize(font, texture->name(), maxCellWidth, 5);
                 const Vec2f actualSize = fontManager.font(actualFont)->measure(texture->name());
-                
+
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
-                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->height())));
-                
+                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math<float>::round(scaleFactor * static_cast<float>(texture->width())));
+                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math<float>::round(scaleFactor * static_cast<float>(texture->height())));
+
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), scaledTextureWidth, scaledTextureHeight, actualSize.x, font.size() + 2.0f);
+                layout.addItem(TextureCellData(texture, &textureRenderer, actualFont), scaledTextureWidth, scaledTextureHeight, actualSize.x(), font.size() + 2.0f);
             }
         }
-        
+
         void TextureBrowserCanvas::doInitLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
-            
+
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
@@ -75,49 +75,49 @@ namespace TrenchBroom {
             layout.setCellWidth(scaleFactor * 64.0f, scaleFactor * 64.0f);
             layout.setCellHeight(scaleFactor * 64.0f, scaleFactor * 128.0f);
         }
-        
+
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
 
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::TextureBrowserFontSize);
-            
+
             assert(fontSize >= 0);
             Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
             IO::FileManager fileManager;
-            
+
             if (m_group) {
                 const Model::TextureCollectionList& collections = textureManager.collections();
-                for (unsigned int i = 0; i < collections.size(); i++) {
+                for (size_t i = 0; i < collections.size(); i++) {
                     Model::TextureCollection* collection = collections[i];
                     if (m_group) {
                         String name = fileManager.pathComponents(collection->name()).back();
                         layout.addGroup(collection, fontSize + 2.0f);
                     }
-                    
+
                     Model::TextureList textures = collection->textures(m_sortOrder);
-                    for (unsigned int j = 0; j < textures.size(); j++)
+                    for (size_t j = 0; j < textures.size(); j++)
                         addTextureToLayout(layout, textures[j], font);
                 }
             } else {
                 layout.addGroup(NULL, 0.0f);
                 Model::TextureList textures = textureManager.textures(m_sortOrder);
-                for (unsigned int i = 0; i < textures.size(); i++)
+                for (size_t i = 0; i < textures.size(); i++)
                     addTextureToLayout(layout, textures[i], font);
             }
         }
-        
+
         void TextureBrowserCanvas::doClear() {
         }
 
         void TextureBrowserCanvas::doRender(Layout& layout, float y, float height) {
             if (m_vbo == NULL)
                 m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            
+
             Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
             Renderer::Text::FontManager& fontManager = m_documentViewHolder.document().sharedResources().fontManager();
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Renderer::Text::FontDescriptor defaultDescriptor(prefs.getString(Preferences::RendererFontName),
                                                              static_cast<unsigned int>(prefs.getInt(Preferences::TextureBrowserFontSize)));
@@ -125,41 +125,37 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-            float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-            float viewRight     = static_cast<float>(GetClientRect().GetRight());
-            float viewBottom    = static_cast<float>(GetClientRect().GetTop());
-            
-            Mat4f projection;
-            projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-            
-            Mat4f view;
-            view.setView(Vec3f::NegZ, Vec3f::PosY);
-            view.translate(Vec3f(0.0f, 0.0f, 0.1f));
-            Renderer::Transformation transformation(projection * view, true);
+            const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
+            const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
+            const float viewRight     = static_cast<float>(GetClientRect().GetRight());
+            const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+
+            const Mat4f projection = orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const Mat4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, 0.1f));
+            Renderer::Transformation transformation(projection, view);
 
             size_t visibleGroupCount = 0;
             size_t visibleItemCount = 0;
 
             typedef std::map<Renderer::Text::FontDescriptor, Vec2f::List> StringMap;
             StringMap stringVertices;
-            
+
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     visibleGroupCount++;
-                    
+
                     Model::TextureCollection* collection = group.item();
                     if (collection != NULL && !collection->name().empty()) {
                         const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
-                        
+
                         Renderer::Text::TexturedFont* font = fontManager.font(defaultDescriptor);
                         Vec2f::List titleVertices = font->quads(collection->name(), false, offset);
                         Vec2f::List& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                     }
-                    
+
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
                         if (row.intersectsY(y, height)) {
@@ -169,7 +165,7 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 const LayoutBounds titleBounds = cell.titleBounds();
                                 const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
-                                
+
                                 Renderer::Text::TexturedFont* font = fontManager.font(cell.item().fontDescriptor);
                                 Vec2f::List titleVertices = font->quads(cell.item().texture->name(), false, offset);
                                 Vec2f::List& vertices = stringVertices[cell.item().fontDescriptor];
@@ -179,13 +175,13 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             if (visibleItemCount > 0) { // render borders
                 unsigned int vertexCount = static_cast<unsigned int>(4 * visibleItemCount);
                 Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
                                                   Renderer::Attribute::position2f(),
                                                   Renderer::Attribute::color4f());
-                
+
                 Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
                 for (unsigned int i = 0; i < layout.size(); i++) {
                     const Layout::Group& group = layout[i];
@@ -195,14 +191,14 @@ namespace TrenchBroom {
                             if (row.intersectsY(y, height)) {
                                 for (unsigned int k = 0; k < row.size(); k++) {
                                     const Layout::Group::Row::Cell& cell = row[k];
-                                    
+
                                     bool selected = cell.item().texture == m_selectedTexture;
                                     bool inUse = cell.item().texture->usageCount() > 0;
                                     bool overridden = cell.item().texture->overridden();
-                                    
+
                                     if (selected || inUse || overridden) {
                                         const Color& color = selected ? prefs.getColor(Preferences::SelectedTextureColor) : (inUse ? prefs.getColor(Preferences::UsedTextureColor) : prefs.getColor(Preferences::OverriddenTextureColor));
-                                        
+
                                         vertexArray.addAttribute(Vec2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().top() - 1.5f - y)));
                                         vertexArray.addAttribute(color);
                                         vertexArray.addAttribute(Vec2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().bottom() + 1.5f - y)));
@@ -222,11 +218,11 @@ namespace TrenchBroom {
                 Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextureBrowserBorderShader);
                 vertexArray.render();
             }
-            
+
             { // render textures
                 Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextureBrowserShader);
-                shader.currentShader().setUniformVariable("ApplyTinting", false);
-                shader.currentShader().setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                shader.setUniformVariable("ApplyTinting", false);
+                shader.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 for (unsigned int i = 0; i < layout.size(); i++) {
                     const Layout::Group& group = layout[i];
                     if (group.intersectsY(y, height)) {
@@ -235,8 +231,8 @@ namespace TrenchBroom {
                             if (row.intersectsY(y, height)) {
                                 for (unsigned int k = 0; k < row.size(); k++) {
                                     const Layout::Group::Row::Cell& cell = row[k];
-                                    shader.currentShader().setUniformVariable("GrayScale", cell.item().texture->overridden());
-                                    shader.currentShader().setUniformVariable("Texture", 0);
+                                    shader.setUniformVariable("GrayScale", cell.item().texture->overridden());
+                                    shader.setUniformVariable("Texture", 0);
                                     cell.item().textureRenderer->activate();
                                     glBegin(GL_QUADS);
                                     glTexCoord2f(0.0f, 0.0f);
@@ -255,7 +251,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             if (visibleGroupCount > 0) { // render group title background
                 unsigned int vertexCount = static_cast<unsigned int>(4 * visibleGroupCount);
                 Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
@@ -274,33 +270,33 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                
+
                 Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
                 Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::BrowserGroupShader);
-                shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                shader.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
                 vertexArray.render();
             }
-            
+
             if (!stringVertices.empty()) { // render strings
                 StringMap::iterator it, end;
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::Text::FontDescriptor& descriptor = it->first;
                     Renderer::Text::TexturedFont* font = fontManager.font(descriptor);
                     const Vec2f::List& vertices = it->second;
-                    
+
                     unsigned int vertexCount = static_cast<unsigned int>(vertices.size() / 2);
                     Renderer::VertexArray vertexArray(*m_vbo, GL_QUADS, vertexCount,
                                                       Renderer::Attribute::position2f(),
                                                       Renderer::Attribute::texCoord02f(), 0);
-                    
+
                     Renderer::SetVboState mapVbo(*m_vbo, Renderer::Vbo::VboMapped);
                     vertexArray.addAttributes(vertices);
-                    
+
                     Renderer::SetVboState activateVbo(*m_vbo, Renderer::Vbo::VboActive);
                     Renderer::ActivateShader shader(shaderManager, Renderer::Shaders::TextShader);
-                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
-                    shader.currentShader().setUniformVariable("Texture", 0);
-                    
+                    shader.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextColor));
+                    shader.setUniformVariable("Texture", 0);
+
                     font->activate();
                     vertexArray.render();
                     font->deactivate();
@@ -314,7 +310,7 @@ namespace TrenchBroom {
                 if (!result->item().texture->overridden()) {
                     m_selectedTexture = result->item().texture;
                     Refresh();
-                    
+
                     if (m_documentViewHolder.valid()) {
                         TextureSelectedCommand command;
                         command.setTexture(m_selectedTexture);

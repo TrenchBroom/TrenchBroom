@@ -39,6 +39,13 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
         
         void KeyboardShortcutEditor::update() {
+            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifierKey1, m_modifierKey2, m_modifierKey3)) {
+                m_key = WXK_NONE;
+                m_modifierKey1 = WXK_NONE;
+                m_modifierKey2 = WXK_NONE;
+                m_modifierKey3 = WXK_NONE;
+            }
+            
             KeyboardShortcut::sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
             wxString label = KeyboardShortcut::shortcutDisplayText(m_modifierKey1, m_modifierKey2, m_modifierKey3, m_key);
             m_label->SetLabel(label);
@@ -114,13 +121,17 @@ namespace TrenchBroom {
                     // not supported
                     break;
 #endif
-                default:
-                    if (m_key == WXK_NONE && !wasReset) {
-                        m_key = key;
-                    } else if (key == WXK_BACK || key == WXK_DELETE) {
+                case WXK_BACK:
+                case WXK_DELETE:
+                    if (m_key != WXK_NONE) {
                         SetShortcut();
                         m_resetOnNextKey = false;
+                    } else if (!wasReset) {
+                        m_key = key;
                     }
+                    break;
+                default:
+                    m_key = key;
                     break;
             }
             update();

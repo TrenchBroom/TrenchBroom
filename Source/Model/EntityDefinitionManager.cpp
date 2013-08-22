@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     clear();
                     m_entityDefinitions = newDefinitions;
                     m_path = path;
-                } catch (IO::ParserException e) {
+                } catch (IO::ParserException& e) {
                     Utility::deleteAll(newDefinitions);
                     m_console.error(e.what());
                 }

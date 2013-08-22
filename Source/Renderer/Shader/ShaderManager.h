@@ -21,6 +21,7 @@
 #define __TrenchBroom__ShaderManager__
 
 #include "GL/glew.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Utility/String.h"
 
 #include <map>
@@ -70,10 +71,12 @@ namespace TrenchBroom {
             extern const ShaderConfig PointHandleShader;
             extern const ShaderConfig InstancedPointHandleShader;
             extern const ShaderConfig ColoredHandleShader;
+            extern const ShaderConfig CompassShader;
+            extern const ShaderConfig CompassOutlineShader;
+            extern const ShaderConfig EntityLinkShader;
         }
 
         class Shader;
-        class ShaderProgram;
         
         class ShaderManager {
         private:
@@ -103,6 +106,11 @@ namespace TrenchBroom {
             
             inline ShaderProgram& currentShader() {
                 return m_shaderProgram;
+            }
+
+            template <class T>
+            bool setUniformVariable(const String& name, const T& value) {
+                return m_shaderProgram.setUniformVariable(name, value);
             }
         };
     }

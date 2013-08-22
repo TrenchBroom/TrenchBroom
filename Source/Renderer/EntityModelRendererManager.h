@@ -57,6 +57,10 @@ namespace TrenchBroom {
 
             const String modelRendererKey(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths);
             EntityModelRenderer* modelRenderer(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths);
+
+            // prevent copying
+            EntityModelRendererManager(const EntityModelRendererManager& other);
+            void operator= (const EntityModelRendererManager& other);
         public:
             EntityModelRendererManager(Utility::Console& console);
             ~EntityModelRendererManager();

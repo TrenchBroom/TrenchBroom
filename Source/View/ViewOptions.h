@@ -31,6 +31,12 @@ namespace TrenchBroom {
                 Flat,
                 Discard
             } FaceRenderMode;
+            typedef enum {
+                LinkDisplayAll,
+                LinkDisplayContext,
+                LinkDisplayLocal,
+                LinkDisplayNone
+            } LinkDisplayMode;
         private:
             String m_filterPattern;
             bool m_showEntities;
@@ -40,11 +46,15 @@ namespace TrenchBroom {
             bool m_showBrushes;
             bool m_showClipBrushes;
             bool m_showSkipBrushes;
+            bool m_showHintBrushes;
+            bool m_showLiquidBrushes;
+            bool m_showTriggerBrushes;
             FaceRenderMode m_faceRenderMode;
             bool m_renderEdges;
             bool m_renderSelection;
             bool m_shadeFaces;
             bool m_useFog;
+            LinkDisplayMode m_linkDisplayMode;
         public:
             ViewOptions() :
             m_filterPattern(""),
@@ -55,11 +65,15 @@ namespace TrenchBroom {
             m_showBrushes(true),
             m_showClipBrushes(true),
             m_showSkipBrushes(true),
+            m_showHintBrushes(true),
+            m_showLiquidBrushes(true),
+            m_showTriggerBrushes(true),
             m_faceRenderMode(Textured),
             m_renderEdges(true),
             m_renderSelection(true),
             m_shadeFaces(true),
-            m_useFog(false) {}
+            m_useFog(false),
+            m_linkDisplayMode(LinkDisplayLocal) {}
 
             inline const String& filterPattern() const {
                 return m_filterPattern;
@@ -125,6 +139,30 @@ namespace TrenchBroom {
                 m_showSkipBrushes = showSkipBrushes;
             }
 
+            inline bool showHintBrushes() const {
+                return m_showHintBrushes;
+            }
+            
+            inline void setShowHintBrushes(bool showHintBrushes) {
+                m_showHintBrushes = showHintBrushes;
+            }
+            
+            inline bool showLiquidBrushes() const {
+                return m_showLiquidBrushes;
+            }
+            
+            inline void setShowLiquidBrushes(bool showLiquidBrushes) {
+                m_showLiquidBrushes = showLiquidBrushes;
+            }
+            
+            inline bool showTriggerBrushes() const {
+                return m_showTriggerBrushes;
+            }
+            
+            inline void setShowTriggerBrushes(bool showTriggerBrushes) {
+                m_showTriggerBrushes = showTriggerBrushes;
+            }
+            
             inline FaceRenderMode faceRenderMode() const {
                 return m_faceRenderMode;
             }
@@ -163,6 +201,14 @@ namespace TrenchBroom {
 
             inline void setUseFog(bool useFog) {
                 m_useFog = useFog;
+            }
+
+            inline LinkDisplayMode linkDisplayMode() const {
+                return m_linkDisplayMode;
+            }
+
+            inline void setLinkDisplayMode(LinkDisplayMode linkDisplayMode) {
+                m_linkDisplayMode = linkDisplayMode;
             }
         };
     }

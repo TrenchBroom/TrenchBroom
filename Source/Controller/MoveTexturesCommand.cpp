@@ -27,12 +27,8 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveTexturesCommand::performDo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
-            assert(!faces.empty());
-            
             Model::FaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
                 face.moveTexture(m_up, m_right, m_direction, m_distance);
             }
@@ -41,12 +37,8 @@ namespace TrenchBroom {
         }
         
         bool MoveTexturesCommand::performUndo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
-            assert(!faces.empty());
-            
             Model::FaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
                 face.moveTexture(m_up, m_right, m_direction, -m_distance);
             }
@@ -54,15 +46,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        MoveTexturesCommand::MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance) :
+        MoveTexturesCommand::MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Vec3f& up, const Vec3f& right, Direction direction, float distance) :
         DocumentCommand(MoveTextures, document, true, name, true),
+        m_faces(faces),
         m_up(up),
         m_right(right),
         m_direction(direction),
         m_distance(distance) {}
 
-        MoveTexturesCommand* MoveTexturesCommand::moveTextures(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance) {
-            return new MoveTexturesCommand(document, name, up, right, direction, distance);
+        MoveTexturesCommand* MoveTexturesCommand::moveTextures(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& up, const Vec3f& right, Direction direction, float distance) {
+            const wxString name = faces.size() == 1 ? wxT("Move Texture") : wxT("Move Textures");
+            return new MoveTexturesCommand(document, name, faces, up, right, direction, distance);
         }
     }
 }

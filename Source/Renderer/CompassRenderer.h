@@ -20,25 +20,38 @@
 #ifndef __TrenchBroom__CompassRenderer__
 #define __TrenchBroom__CompassRenderer__
 
-#include <iostream>
+#include "Utility/Color.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class IndexedVertexArray;
         class RenderContext;
+        class ShaderProgram;
         class Vbo;
         class VertexArray;
         
         class CompassRenderer {
         private:
-            static const unsigned int m_segments = 12;
+            static const unsigned int m_segments = 32;
             static const float m_shaftLength;
             static const float m_shaftRadius;
             static const float m_headLength;
             static const float m_headRadius;
-            
-            IndexedVertexArray* m_fans;
+
             VertexArray* m_strip;
+            VertexArray* m_set;
+            IndexedVertexArray* m_fans;
+            bool m_valid;
+            
+            void validate(Vbo& vbo);
+            const Mat4f cameraRotationMatrix(const Camera& camera) const;
+            void renderColoredAxis(RenderContext& context, const Mat4f& rotation, const Color& color);
+            void renderOutlinedAxis(RenderContext& context, const Mat4f& rotation, const Color& color);
+            void renderAxis(RenderContext& context, const Mat4f& rotation);
         public:
             CompassRenderer();
             ~CompassRenderer();

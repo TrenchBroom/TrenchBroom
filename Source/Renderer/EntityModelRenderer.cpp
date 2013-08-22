@@ -26,7 +26,7 @@
 #include "Renderer/Shader/Shader.h"
 #include "Utility/VecMath.h"
 
-using namespace TrenchBroom::Math;
+using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -34,12 +34,9 @@ namespace TrenchBroom {
             render(shaderProgram, transformation, entity.origin(), entity.rotation());
         }
 
-        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quat& rotation) {
-            Mat4f matrix;
-            matrix.translate(position);
-            matrix.rotate(rotation);
-
-            ApplyMatrix applyMatrux(transformation, matrix);
+        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quatf& rotation) {
+            const Mat4f matrix = translationMatrix(position) * rotationMatrix(rotation);
+            ApplyModelMatrix applyMatrix(transformation, matrix);
             render(shaderProgram);
         }
     }

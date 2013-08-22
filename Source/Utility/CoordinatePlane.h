@@ -21,12 +21,13 @@
 #define TrenchBroom_CoordinatePlane_h
 
 #include "Utility/Math.h"
-#include "Utility/Vec3f.h"
+#include "Utility/Vec.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
-    namespace Math {
+    namespace VecMath {
+        template <typename T>
         class CoordinatePlane {
         private:
             enum Which {
@@ -63,41 +64,41 @@ namespace TrenchBroom {
                 }
             }
 
-            static const CoordinatePlane& plane(const Vec3f& normal) {
+            static const CoordinatePlane& plane(const Vec<T,3>& normal) {
                 return plane(normal.firstComponent());
             }
             
-            inline Vec3f project(const Vec3f& point) const {
+            inline Vec<T,3> project(const Vec<T,3>& point) const {
                 switch (m_plane) {
                     case XY:
-                        return Vec3f(point.x, point.y, 0.0f);
+                        return Vec<T,3>(point.x(), point.y(), static_cast<T>(0.0));
                     case YZ:
-                        return Vec3f(0.0f, point.y, point.z);
+                        return Vec<T,3>(static_cast<T>(0.0), point.y(), point.z());
                     default:
-                        return Vec3f(point.x, 0.0f, point.z);
+                        return Vec<T,3>(point.x(), static_cast<T>(0.0), point.z());
                 }
             }
             
-            inline Vec3f swizzle(const Vec3f& point) const {
+            inline Vec<T,3> swizzle(const Vec<T,3>& point) const {
                 switch (m_plane) {
                     case XY:
                         return point;
                     case YZ:
-                        return Vec3f(point.y, point.z, point.x);
+                        return Vec<T,3>(point.y(), point.z(), point.x());
                     default:
-                        return Vec3f(point.z, point.x, point.y);
+                        return Vec<T,3>(point.z(), point.x(), point.y());
                 }
             }
 
             
-            inline Vec3f unswizzle(const Vec3f& point) const {
+            inline Vec<T,3> unswizzle(const Vec<T,3>& point) const {
                 switch (m_plane) {
                     case XY:
                         return point;
                     case YZ:
-                        return Vec3f(point.z, point.x, point.y);
+                        return Vec<T,3>(point.z(), point.x(), point.y());
                     default:
-                        return Vec3f(point.y, point.z, point.x);
+                        return Vec<T,3>(point.y(), point.z(), point.x());
                 }
             }
             
@@ -117,6 +118,8 @@ namespace TrenchBroom {
                 swizzle(first, last);
             }
         };
+        
+        typedef CoordinatePlane<float> CoordinatePlanef;
     }
 }
 

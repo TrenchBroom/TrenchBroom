@@ -36,6 +36,34 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.0.9
+- Fix the rotation tool handle position
+
+### TrenchBroom 1.0.8
+- Fix the rotation tool
+- Allow snapping faces to the grid when resizing brushes
+- Improved major grid line shading (rebb)
+- Fixed umlauts in About dialog
+
+### TrenchBroom 1.0.7
+- Emergency bugfix
+
+### TrenchBroom 1.0.6
+- New text rendering system (faster and fewer glitches)
+- Brush drawing now more accurate (see docs)
+- Option to use integer plane point coordinates
+- Recompute vertices after every change to brush geometry
+- Major lines of the grid are rendered thicker
+- Read write protected map files
+- Don't crash when trying to save a write protected file
+- Internal Worldspawn properties set to read only
+- Fix 3D view focus issues on Windows
+- Drop invalid brushes in parser instead of crashing
+- Always autosave (don't wait until the map is changed)
+- Keep more autosaves and save only every 10 minutes
+- Don't show rotation decorators for invisible entities
+- Documentation updates and fixes
+
 ### TrenchBroom 1.0.5
 - Fixed a crash when undoing edge and face move operations.
 - Improved map loading speed.
