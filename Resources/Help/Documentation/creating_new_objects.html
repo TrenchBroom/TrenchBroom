@@ -35,7 +35,16 @@
 		<p>If you wish to create a brush entity, select the brushes that should belong to that entity, <b>right click</b><script>print_macCtrlClick();</script> in the 3D view and select the brush entity from the <b>Create Brush Entity</b> submenu. To delete a brush entity, you can either delete all brushes belonging to that entity or you can move all brushes to another entity (such as worldspawn). To move brushes from one entity to another one, select the brushes you wish to move and then <b>right click</b><script>print_macCtrlClick();</script> on a brush belonging to the entity to which you wish to add the selected brushes. Finally, choose <b>Add Brushes to &lt;classname&gt;</b> from the menu.</p>
 
 		<a id="duplicating_objects"></a><h3>Duplicating Objects</h3>
-		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <script>print_menu_command("edit_duplicate_selection");</script>. The duplicated objects are offset by the current grid size towards the camera. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
+		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <script>print_menu_command("edit_duplicate_selection");</script>. The duplicated objects are duplicated in place and briefly flash to indicate the operation was successful. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
+		<p>You may also wish to duplicate and move with the current grid spacing. There is an array of shortcut commands to accomplish this:</p>
+		<ul>
+			<li><b>Duplicate Away (<script>print_key("Up", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing away from the current viewpoint horizontally.</li>
+			<li><b>Duplicate Toward (<script>print_key("Down", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing toward the current viewpoint horizontally.</li>
+			<li><b>Duplicate Right (<script>print_key("Right", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing toward the right side of the current viewpoint horizontally.</li>
+			<li><b>Duplicate Left (<script>print_key("Left", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing toward the left side of the current viewpoint horizontally.</li>
+			<li><b>Duplicate Upward (<script>print_key("PgUp", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing upwards vertically in world space.</li>
+			<li><b>Duplicate Downward (<script>print_key("PgDown", "CmdCtrl");</script>)</b> - creates a duplicate 1 grid spacing downwards vertically in worldspace.</li>
+		</ul>
 
 		<a id="drag_copy_objects"></a><h4>Ctrl Dragging to Duplicate</h4>
 		<p>You can also duplicate the current selection by pressing the <script>print_key("Ctrl");</script>, clicking on the current selection and dragging the mouse.  This will duplicate the current selection while also moving to where you want immediately.  If you desire more fine control, you can press <script>print_key("Ctrl");</script> along with any of the Arrow Keys <script>print_key("ArrowKeys");</script> to duplicate the current selection.</p>
