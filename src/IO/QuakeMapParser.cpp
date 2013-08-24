@@ -27,6 +27,7 @@
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotator.h"
+#include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
@@ -101,12 +102,12 @@ namespace TrenchBroom {
         QuakeMapParser::QuakeMapParser(const char* begin, const char* end, Logger* logger) :
         m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(begin, end)),
-        m_format(MFUnknown) {}
+        m_format(Model::MFUnknown) {}
                     
         QuakeMapParser::QuakeMapParser(const String& str, Logger* logger) :
         m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(str)),
-        m_format(MFUnknown) {}
+        m_format(Model::MFUnknown) {}
         
         String QuakeMapParser::tokenName(const QuakeMapToken::Type typeMask) const {
             StringList names;
@@ -150,7 +151,7 @@ namespace TrenchBroom {
             m_format = detectFormat();
             m_tokenizer.reset();
             
-            Model::Map* map = new Model::Map();
+            Model::Map* map = new Model::Map(m_format);
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
@@ -164,20 +165,20 @@ namespace TrenchBroom {
             }
         }
 
-        QuakeMapParser::MapFormat QuakeMapParser::detectFormat() {
+        Model::MapFormat QuakeMapParser::detectFormat() {
             // iterate over all entities
             while (true) {
                 Token token = m_tokenizer.nextToken();
                 while (token.type() != QuakeMapToken::OBrace && token.type() != QuakeMapToken::Eof)
                     token = m_tokenizer.nextToken();
                 if (token.type() == QuakeMapToken::Eof)
-                    return MFQuake;
+                    return Model::MFQuake;
                 // find a brush
                 token = m_tokenizer.nextToken();
                 while (token.type() != QuakeMapToken::OBrace && token.type() != QuakeMapToken::CBrace && token.type() != QuakeMapToken::Eof)
                     token = m_tokenizer.nextToken();
                 if (token.type() == QuakeMapToken::Eof)
-                    return MFQuake;
+                    return Model::MFQuake;
                 
                 // we have a brush, now parse the first face
                 if (token.type() == QuakeMapToken::OBrace) {
@@ -190,21 +191,21 @@ namespace TrenchBroom {
                     expect(QuakeMapToken::String, token = m_tokenizer.nextToken()); // texture name
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
                     if (token.type() == QuakeMapToken::OBracket)
-                        return MFValve;
+                        return Model::MFValve;
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y offset
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // rotation
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // x scale
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
                     if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                        return MFQuake;
+                        return Model::MFQuake;
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token); // unknown Hexen 2 flag or Quake 2 surface contents
                     if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                        return MFHexen2;
-                    return MFQuake2;
+                        return Model::MFHexen2;
+                    return Model::MFQuake2;
                 }
             }
-            return MFQuake;
+            return Model::MFQuake;
         }
 
         Model::Entity* QuakeMapParser::parseEntity(const BBox3& worldBounds) {
@@ -318,7 +319,7 @@ namespace TrenchBroom {
             if (normal.null())
                 return NULL;
             
-            if (m_format == MFValve) {
+            if (m_format == Model::MFValve) {
                 expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
                 texAxisX = parseVector();
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
@@ -345,19 +346,19 @@ namespace TrenchBroom {
             yScale = token.toFloat<float>();
             
             Model::BrushFace* face = NULL;
-            if (m_format == MFValve)
+            if (m_format == Model::MFValve)
                 face = new Model::ValveBrushFace(p1, p2, p3, texAxisX, texAxisY, normal, rotation, textureName);
             else
                 face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
 
-            if (m_format == MFQuake2) {
+            if (m_format == Model::MFQuake2) {
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
                 surfaceContents = token.toInteger<size_t>();
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
                 surfaceFlags = token.toInteger<size_t>();
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceValue = token.toFloat<float>();
-            } else if (m_format == MFHexen2) {
+            } else if (m_format == Model::MFHexen2) {
                 // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceContents = surfaceFlags = 0;

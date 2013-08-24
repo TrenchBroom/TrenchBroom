@@ -28,16 +28,18 @@ namespace TrenchBroom {
         class ParaxialTexCoordSystem {
         private:
             static const Vec3 BaseAxes[];
-
+            
             Vec3 m_xAxis;
             Vec3 m_yAxis;
         public:
+            ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+
             void update(const Vec3& normal, const float rotation);
             const Vec3& xAxis() const;
             const Vec3& yAxis() const;
-        private:
-            void axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const;
-            void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const;
+
+            static void axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex);
+            static void rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex);
         };
     }
 }

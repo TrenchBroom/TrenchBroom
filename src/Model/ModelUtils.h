@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        struct MatchAllFilter {
+        struct MatchAll {
             inline bool operator()(Object* entity) const {
                 return true;
             }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         template <typename Output, typename Input>
         inline Output extractEntities(const Input& objects) {
             ExtractObjectByType<Output> extractor(Object::OTEntity);
-            eachObject(objects.begin(), objects.end(), extractor, MatchAllFilter());
+            eachObject(objects.begin(), objects.end(), extractor, MatchAll());
             return extractor.result;
         }
         

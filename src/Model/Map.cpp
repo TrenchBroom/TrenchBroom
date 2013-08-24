@@ -14,7 +14,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Map.h"
@@ -23,7 +23,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map() :
+        Map::Map(const MapFormat format) :
+        m_format(format),
         m_worldspawn(NULL) {}
         
         Map::~Map() {

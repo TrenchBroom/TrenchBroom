@@ -45,6 +45,7 @@ namespace TrenchBroom {
             static const BBox3 WorldBounds;
             static IO::Path palettePath();
             
+            Map* doNewMap() const;
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const;

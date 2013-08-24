@@ -32,6 +32,11 @@ namespace TrenchBroom {
             Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
 
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            update(normal, 0.0f);
+        }
+
         const Vec3& ParaxialTexCoordSystem::xAxis() const {
             return m_xAxis;
         }
@@ -46,7 +51,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math<FloatType>::radians(rotation), planeNormIndex);
         }
 
-        void ParaxialTexCoordSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) const {
+        void ParaxialTexCoordSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
@@ -63,7 +68,7 @@ namespace TrenchBroom {
             faceNormIndex = bestIndex * 3;
         }
         
-        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const {
+        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) {
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             const Quat3 rot(BaseAxes[planeNormIndex], planeNormIndex == 12 ? -angle : angle);
             xAxis = rot * xAxis;

@@ -78,9 +78,8 @@ namespace TrenchBroom {
             
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
-        protected:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
         public:
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             virtual ~BrushFace();
             
             Brush* parent() const;
@@ -136,7 +135,8 @@ namespace TrenchBroom {
             TexCoordSystem m_coordSystem;
         public:
             ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName) :
-            BrushFace(point0, point1, point2, textureName) {}
+            BrushFace(point0, point1, point2, textureName),
+            m_coordSystem(point0, point1, point2) {}
 
             ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const Vec3& textureXAxis, const Vec3& textureYAxis, const Vec3& normal, const float rotation, const String& textureName = NoTextureName) :
             BrushFace(point0, point1, point2, textureName),

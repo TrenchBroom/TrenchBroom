@@ -22,15 +22,31 @@
 #include "Model/Brush.h"
 #include "Model/HitFilters.h"
 #include "Model/Picker.h"
+#include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace View {
+        struct RendererFilter : public Renderer::BrushRenderer::Filter {
+            bool operator()(const Model::Brush* brush) const { return true; }
+            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const { return true; }
+            bool operator()(const Model::BrushEdge* edge) const { return true; }
+        };
+        
         CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentPtr document) :
         Tool(next),
-        m_document(document) {}
+        m_document(document),
+        m_brushRenderer(new Renderer::BrushRenderer(RendererFilter())),
+        m_brush(NULL) {}
+
+        CreateBrushTool::~CreateBrushTool() {
+            delete m_brushRenderer;
+            m_brushRenderer = NULL;
+        }
 
         bool CreateBrushTool::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
@@ -54,12 +70,21 @@ namespace TrenchBroom {
         }
         
         bool CreateBrushTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            return true;
         }
         
         void CreateBrushTool::doEndPlaneDrag(const InputState& inputState) {
         }
         
         void CreateBrushTool::doCancelPlaneDrag(const InputState& inputState) {
+        }
+
+        void CreateBrushTool::render(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            assert(m_brushRenderer != NULL);
+        }
+
+        Model::Brush* CreateBrushTool::createBrush(const BBox3& bounds) const {
+            
         }
     }
 }

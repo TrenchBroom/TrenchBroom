@@ -28,6 +28,14 @@
 
 namespace TrenchBroom {
     namespace Model {
+        typedef enum {
+            MFUnknown,
+            MFQuake,
+            MFQuake2,
+            MFValve,
+            MFHexen2
+        } MapFormat;
+        
         typedef String PropertyKey;
         typedef std::vector<PropertyKey> PropertyKeyList;
         typedef String PropertyValue;

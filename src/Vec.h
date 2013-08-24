@@ -152,46 +152,42 @@ public:
         }
     }
     
-    template <typename U>
-    Vec(const U i_x) {
+    Vec(const T i_x) {
         if (S > 0)
-            v[0] = static_cast<T>(i_x);
+            v[0] = i_x;
         for (size_t i = 1; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
             
-    template <typename U>
-    Vec(const U i_x, const U i_y) {
+    Vec(const T i_x, const T i_y) {
         if (S > 0)
-            v[0] = static_cast<T>(i_x);
+            v[0] = i_x;
         if (S > 1)
-            v[1] = static_cast<T>(i_y);
+            v[1] = i_y;
         for (size_t i = 2; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
-    template <typename U>
-    Vec(const U i_x, const U i_y, const U i_z) {
+    Vec(const T i_x, const T i_y, const T i_z) {
         if (S > 0)
-            v[0] = static_cast<T>(i_x);
+            v[0] = i_x;
         if (S > 1)
-            v[1] = static_cast<T>(i_y);
+            v[1] = i_y;
         if (S > 2)
-            v[2] = static_cast<T>(i_z);
+            v[2] = i_z;
         for (size_t i = 3; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
-    template <typename U>
-    Vec(const U i_x, const U i_y, const U i_z, const U i_w) {
+    Vec(const T i_x, const T i_y, const T i_z, const T i_w) {
         if (S > 0)
-            v[0] = static_cast<T>(i_x);
+            v[0] = i_x;
         if (S > 1)
-            v[1] = static_cast<T>(i_y);
+            v[1] = i_y;
         if (S > 2)
-            v[2] = static_cast<T>(i_z);
+            v[2] = i_z;
         if (S > 3)
-            v[3] = static_cast<T>(i_w);
+            v[3] = i_w;
         for (size_t i = 4; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }

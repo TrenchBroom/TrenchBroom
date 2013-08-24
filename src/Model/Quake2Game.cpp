@@ -43,6 +43,10 @@ namespace TrenchBroom {
             return fs.resourceDirectory() + IO::Path("quake2/colormap.pcx");
         }
         
+        Map* Quake2Game::doNewMap() const {
+            return new Map(MFQuake2);
+        }
+
         Map* Quake2Game::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);

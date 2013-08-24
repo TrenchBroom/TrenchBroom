@@ -168,7 +168,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             delete m_map;
-            m_map = new Model::Map();
+            m_map = game->newMap();
 
             m_selection = Model::Selection(m_map);
             m_entityDefinitionManager.clear();
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
             
-            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAllFilter());
+            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAll());
         }
 
         void MapDocument::saveDocument() {
@@ -290,8 +290,8 @@ namespace TrenchBroom {
             
             if (command->type() == Controller::EntityPropertyCommand::Type) {
                 const Model::EntityList entities = command->affectedEntities();
-                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
-                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
+                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
+                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAll());
             }
         }
         
@@ -308,8 +308,8 @@ namespace TrenchBroom {
 
             if (command->type() == Controller::EntityPropertyCommand::Type) {
                 const Model::EntityList entities = command->affectedEntities();
-                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
-                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
+                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
+                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAll());
             }
         }
         
@@ -342,11 +342,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateEntityDefinitions() {
-            Model::eachEntity(*m_map, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAllFilter());
+            Model::eachEntity(*m_map, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
         }
 
         void MapDocument::updateEntityModels() {
-            Model::eachEntity(*m_map, SetEntityModel(m_entityModelManager), Model::MatchAllFilter());
+            Model::eachEntity(*m_map, SetEntityModel(m_entityModelManager), Model::MatchAll());
         }
 
         void MapDocument::loadAndUpdateTextures() {
@@ -377,7 +377,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateTextures() {
-            Model::eachFace(*m_map, SetFaceTexture(m_textureManager), Model::MatchAllFilter());
+            Model::eachFace(*m_map, SetFaceTexture(m_textureManager), Model::MatchAll());
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

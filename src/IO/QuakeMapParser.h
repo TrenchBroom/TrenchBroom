@@ -77,17 +77,9 @@ namespace TrenchBroom {
                 bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
             };
                     
-            typedef enum {
-                MFUnknown,
-                MFQuake,
-                MFQuake2,
-                MFValve,
-                MFHexen2
-            } MapFormat;
-
             Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
-            MapFormat m_format;
+            Model::MapFormat m_format;
             typedef QuakeMapTokenizer::Token Token;
         public:
             QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
@@ -96,7 +88,7 @@ namespace TrenchBroom {
             String tokenName(const QuakeMapToken::Type typeMask) const;
             Model::Map* doParseMap(const BBox3& worldBounds);
             
-            MapFormat detectFormat();
+            Model::MapFormat detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);

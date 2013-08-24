@@ -301,7 +301,7 @@ namespace TrenchBroom {
             SelectionResult result;
             if (!objects.empty()) {
                 deselectAllFaces(result);
-                eachObject(objects, SetSelection(true, result), MatchAllFilter());
+                eachObject(objects, SetSelection(true, result), MatchAll());
             }
             return result;
         }
@@ -310,7 +310,7 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             SelectionResult result;
             if (!objects.empty())
-                eachObject(objects, SetSelection(false, result), MatchAllFilter());
+                eachObject(objects, SetSelection(false, result), MatchAll());
             return result;
         }
         
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             SelectionResult result;
             if (!faces.empty()) {
                 deselectAllObjects(result);
-                eachFace(faces, SetSelection(true, result), MatchAllFilter());
+                eachFace(faces, SetSelection(true, result), MatchAll());
             }
             return result;
         }
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             
             SelectionResult result;
             if (!faces.empty())
-                eachFace(faces, SetSelection(false, result), MatchAllFilter());
+                eachFace(faces, SetSelection(false, result), MatchAll());
             return result;
         }
 

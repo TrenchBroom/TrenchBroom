@@ -21,11 +21,12 @@
 
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST(MapTest, addEntity) {
-            Map map;
+            Map map(MFQuake);
             Entity* entity = new Entity();
             map.addEntity(entity);
             
@@ -35,7 +36,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapTest, getNonExistingWorldspawn) {
-            Map map;
+            Map map(MFQuake);
             ASSERT_EQ(NULL, map.worldspawn());
 
             Entity* worldspawn = new Entity();
@@ -44,7 +45,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapTest, getExistingWorldspawn) {
-            Map map;
+            Map map(MFQuake);
             Entity* worldspawn = new Entity();
             worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
             map.addEntity(worldspawn);

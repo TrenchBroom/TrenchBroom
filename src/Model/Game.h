@@ -47,6 +47,7 @@ namespace TrenchBroom {
             static StringList gameList();
             
             virtual ~Game();
+            Map* newMap() const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
             
             IO::Path::List extractTexturePaths(const Map* map) const;
@@ -61,6 +62,7 @@ namespace TrenchBroom {
         protected:
             Game(Logger* logger);
         private:
+            virtual Map* doNewMap() const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
             
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;

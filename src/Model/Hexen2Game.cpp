@@ -42,6 +42,10 @@ namespace TrenchBroom {
             return fs.resourceDirectory() + IO::Path("hexen2/palette.lmp");
         }
         
+        Map* Hexen2Game::doNewMap() const {
+            return new Map(MFHexen2);
+        }
+
         Map* Hexen2Game::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);

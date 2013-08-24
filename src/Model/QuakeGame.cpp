@@ -50,6 +50,10 @@ namespace TrenchBroom {
             return fs.resourceDirectory() + IO::Path("quake/palette.lmp");
         }
 
+        Map* QuakeGame::doNewMap() const {
+            return new Map(MFQuake);
+        }
+
         Map* QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             IO::FileSystem fs;
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);

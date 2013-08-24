@@ -312,24 +312,25 @@ namespace TrenchBroom {
 
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
+            const float axisLength = prefs.getFloat(Preferences::AxisLength);
             const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
             const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
             const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
+            Vertex::List vertices(6);
             
-            vertices.push_back(Vertex(Vec3f(-128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(Vertex(Vec3f( 128.0f, 0.0f, 0.0f), xAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, -128.0f, 0.0f), yAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f,  128.0f, 0.0f), yAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, -128.0f), zAxisColor));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f,  128.0f), zAxisColor));
-            
-            Renderer::VertexArray array(m_auxVbo, GL_LINES, vertices);
+            vertices[0] = Vertex(Vec3f(-axisLength,        0.0f,        0.0f), xAxisColor);
+            vertices[1] = Vertex(Vec3f( axisLength,        0.0f,        0.0f), xAxisColor);
+            vertices[2] = Vertex(Vec3f(       0.0f, -axisLength,        0.0f), yAxisColor);
+            vertices[3] = Vertex(Vec3f(       0.0f,  axisLength,        0.0f), yAxisColor);
+            vertices[4] = Vertex(Vec3f(       0.0f,        0.0f, -axisLength), zAxisColor);
+            vertices[5] = Vertex(Vec3f(       0.0f,        0.0f,  axisLength), zAxisColor);
             
             Renderer::SetVboState setVboState(m_auxVbo);
             setVboState.active();
+
+            Renderer::VertexArray array(m_auxVbo, GL_LINES, vertices);
             array.render();
         }
         
@@ -352,41 +353,40 @@ namespace TrenchBroom {
             const float t = 3.0f;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
-            vertices.reserve(16);
+            Vertex::List vertices(16);
             
             // top
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
+            vertices[ 0] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
+            vertices[ 1] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
+            vertices[ 2] = Vertex(Vec3f(w-t, t, 0.0f), inner);
+            vertices[ 3] = Vertex(Vec3f(t, t, 0.0f), inner);
             
             // right
-            vertices.push_back(Vertex(Vec3f(w, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(w-t, t, 0.0f), inner));
+            vertices[ 4] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
+            vertices[ 5] = Vertex(Vec3f(w, h, 0.0f), outer);
+            vertices[ 6] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
+            vertices[ 7] = Vertex(Vec3f(w-t, t, 0.0f), inner);
             
             // bottom
-            vertices.push_back(Vertex(Vec3f(w, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(w-t, h-t, 0.0f), inner));
+            vertices[ 8] = Vertex(Vec3f(w, h, 0.0f), outer);
+            vertices[ 9] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
+            vertices[10] = Vertex(Vec3f(t, h-t, 0.0f), inner);
+            vertices[11] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
             
             // left
-            vertices.push_back(Vertex(Vec3f(0.0f, h, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer));
-            vertices.push_back(Vertex(Vec3f(t, t, 0.0f), inner));
-            vertices.push_back(Vertex(Vec3f(t, h-t, 0.0f), inner));
+            vertices[12] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
+            vertices[13] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
+            vertices[14] = Vertex(Vec3f(t, t, 0.0f), inner);
+            vertices[15] = Vertex(Vec3f(t, h-t, 0.0f), inner);
             
             const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
             
-            Renderer::VertexArray array(m_auxVbo, GL_QUADS, vertices);
             Renderer::SetVboState setVboState(m_auxVbo);
             setVboState.active();
             
             glDisable(GL_DEPTH_TEST);
+            Renderer::VertexArray array(m_auxVbo, GL_QUADS, vertices);
             array.render();
             glEnable(GL_DEPTH_TEST);
         }
@@ -408,10 +408,10 @@ namespace TrenchBroom {
                 glewExperimental = GL_TRUE;
                 const GLenum glewState = glewInit();
                 if (glewState != GLEW_OK)
-                    m_logger->error("Unable to initialize glew: %s", glewGetErrorString(glewState));
+                    m_logger->error("Error initializing glew: %s", glewGetErrorString(glewState));
 #endif
             } else {
-                m_logger->info("Unable to set current GL context");
+                m_logger->info("Cannot set current GL context");
             }
             m_initialized = true;
         }

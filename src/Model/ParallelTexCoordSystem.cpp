@@ -18,6 +18,7 @@
  */
 
 #include "ParallelTexCoordSystem.h"
+#include "ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,6 +31,14 @@ namespace TrenchBroom {
             m_initialYAxis = rot * m_yAxis;
         }
         
+        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            size_t planeNormIndex, faceNormIndex;
+            ParaxialTexCoordSystem::axesAndIndices(normal, m_initialXAxis, m_initialYAxis, planeNormIndex, faceNormIndex);
+            m_xAxis = m_initialXAxis;
+            m_yAxis = m_initialYAxis;
+        }
+
         void ParallelTexCoordSystem::update(const Vec3& normal, const float rotation) {
             const FloatType angle = static_cast<FloatType>(Math<float>::radians(rotation));
             const Quat3 rot(normal, angle);

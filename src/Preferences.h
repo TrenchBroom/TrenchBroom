@@ -31,6 +31,7 @@ namespace TrenchBroom {
         extern Preference<String> Hexen2Path;
         
         extern Preference<Color> BackgroundColor;
+        extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;

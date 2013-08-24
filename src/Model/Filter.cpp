@@ -53,5 +53,29 @@ namespace TrenchBroom {
         bool Filter::pickable(const BrushFace* face) const {
             return true;
         }
+
+        bool MatchAllFilter::visible(const Entity* entity) const {
+            return true;
+        }
+        
+        bool MatchAllFilter::visible(const Brush* brush) const {
+            return true;
+        }
+        
+        bool MatchAllFilter::visible(const BrushFace* face) const {
+            return true;
+        }
+        
+        bool MatchAllFilter::pickable(const Entity* entity) const {
+            return true;
+        }
+        
+        bool MatchAllFilter::pickable(const Brush* brush) const {
+            return true;
+        }
+        
+        bool MatchAllFilter::pickable(const BrushFace* face) const {
+            return true;
+        }
     }
 }

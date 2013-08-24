@@ -17,28 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ParallelTexCoordSystem__
-#define __TrenchBroom__ParallelTexCoordSystem__
+#ifndef TrenchBroom_ModelFactory_h
+#define TrenchBroom_ModelFactory_h
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "StringUtils.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class ParallelTexCoordSystem {
-        private:
-            Vec3 m_initialXAxis;
-            Vec3 m_initialYAxis;
-            Vec3 m_xAxis;
-            Vec3 m_yAxis;
+        class ModelFactory {
         public:
-            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation);
-            ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
-            void update(const Vec3& normal, const float rotation);
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
+            virtual ~ModelFactory();
+            
+            Entity* createEntity() const;
+            Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
+        private:
+            virtual Entity* doCreateEntity() const = 0;
+            virtual Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const = 0;
+            virtual BrushFace* doCreateFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ParallelTexCoordSystem__) */
+#endif

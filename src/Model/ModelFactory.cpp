@@ -17,35 +17,22 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
-
-#include "SharedPointer.h"
-#include "Model/Entity.h"
-#include "Model/ModelTypes.h"
-
-#include <algorithm>
+#include "ModelFactory.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Map {
-        private:
-            MapFormat m_format;
-            EntityList m_entities;
-            mutable Entity* m_worldspawn;
-        public:
-            Map(const MapFormat format);
-            ~Map();
-            
-            const EntityList& entities() const;
-            void addEntity(Entity* entity);
-            Entity* worldspawn() const;
-            
-            const BrushList brushes() const;
-        private:
-            Entity* findWorldspawn() const;
-        };
+        ModelFactory::~ModelFactory() {}
+        
+        Entity* ModelFactory::createEntity() const {
+            return doCreateEntity();
+        }
+        
+        Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+            return doCreateBrush(worldBounds, faces);
+        }
+        
+        BrushFace* ModelFactory::createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
+            return doCreateFace(point0, point1, point2, textureName);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__Map__) */

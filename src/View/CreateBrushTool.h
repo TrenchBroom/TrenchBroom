@@ -26,20 +26,37 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
+    
+    namespace Renderer {
+        class BrushRenderer;
+        class RenderContext;
+    }
+    
     namespace View {
-        class CreateBrushTool : public Tool<DefaultMousePolicy, PlaneDragPolicy, DefaultRenderPolicy> {
+        class CreateBrushTool : public Tool<DefaultMousePolicy, PlaneDragPolicy, RenderPolicy> {
         private:
             MapDocumentPtr m_document;
             Vec3 m_initialPoint;
             BBox3 m_bounds;
+            
+            Renderer::BrushRenderer* m_brushRenderer;
+            Model::Brush* m_brush;
         public:
             CreateBrushTool(BaseTool* next, MapDocumentPtr document);
+            ~CreateBrushTool();
         private:
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
+
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+
+            Model::Brush* createBrush(const BBox3& bounds) const;
         };
     }
 }

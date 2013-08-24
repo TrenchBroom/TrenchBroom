@@ -35,6 +35,7 @@ namespace TrenchBroom {
 
             const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doNewMap()).WillOnce(Return(new Model::Map(Model::MFQuake)));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
 
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/View/FrameManager/TestDoc1.map");
             
-            Model::Map* map = new Model::Map();
+            Model::Map* map = new Model::Map(Model::MFQuake);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
