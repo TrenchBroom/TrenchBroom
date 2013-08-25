@@ -48,7 +48,7 @@ namespace TrenchBroom {
         void ParaxialTexCoordSystem::update(const Vec3& normal, const float rotation) {
             size_t planeNormIndex, faceNormIndex;
             axesAndIndices(normal, m_xAxis, m_yAxis, planeNormIndex, faceNormIndex);
-            rotateAxes(m_xAxis, m_yAxis, Math<FloatType>::radians(rotation), planeNormIndex);
+            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), planeNormIndex);
         }
 
         void ParaxialTexCoordSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) {

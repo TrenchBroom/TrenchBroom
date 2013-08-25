@@ -22,6 +22,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        SelectionResult::SelectionResult() :
+        m_lastSelectedFace(NULL) {}
+
         const ObjectSet& SelectionResult::selectedObjects() const {
             return m_selectedObjects;
         }
@@ -51,11 +54,16 @@ namespace TrenchBroom {
         void SelectionResult::addSelectedFace(BrushFace* face) {
             m_deselectedFaces.erase(face);
             m_selectedFaces.insert(face);
+            m_lastSelectedFace = face;
         }
         
         void SelectionResult::addDeselectedFace(BrushFace* face) {
             m_selectedFaces.erase(face);
             m_deselectedFaces.insert(face);
+        }
+
+        BrushFace* SelectionResult::lastSelectedFace() const {
+            return m_lastSelectedFace;
         }
 
         SelectionResult& SelectionResult::operator+=(const SelectionResult& rhs) {
@@ -83,6 +91,9 @@ namespace TrenchBroom {
             m_selectedFaces.erase(otherDeselectedFaces.begin(), otherDeselectedFaces.end());
             m_selectedFaces.insert(otherSelectedFaces.begin(), otherSelectedFaces.end());
             m_deselectedFaces.insert(otherDeselectedFaces.begin(), otherDeselectedFaces.end());
+            
+            if (other.lastSelectedFace() != NULL)
+                m_lastSelectedFace = other.lastSelectedFace();
         }
     }
 }

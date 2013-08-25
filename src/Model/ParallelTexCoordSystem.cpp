@@ -25,7 +25,7 @@ namespace TrenchBroom {
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {
-            const FloatType angle = static_cast<FloatType>(Math<float>::radians(rotation));
+            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
             const Quat3 rot(normal, -angle);
             m_initialXAxis = rot * m_xAxis;
             m_initialYAxis = rot * m_yAxis;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
 
         void ParallelTexCoordSystem::update(const Vec3& normal, const float rotation) {
-            const FloatType angle = static_cast<FloatType>(Math<float>::radians(rotation));
+            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
             const Quat3 rot(normal, angle);
             m_xAxis = rot * m_initialXAxis;
             m_yAxis = rot * m_initialYAxis;

@@ -48,23 +48,23 @@ public:
         return origin + direction * distance;
     }
 
-    inline PointStatus::Type pointStatus(const Vec<T,S>& point) const {
+    inline Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
         const T dot = direction.dot(point - origin);
-        if (dot >  Math<T>::PointStatusEpsilon)
-            return PointStatus::PSAbove;
-        if (dot < -Math<T>::PointStatusEpsilon)
-            return PointStatus::PSBelow;
-        return PointStatus::PSInside;
+        if (dot >  Math::Constants<T>::PointStatusEpsilon)
+            return Math::PointStatus::PSAbove;
+        if (dot < -Math::Constants<T>::PointStatusEpsilon)
+            return Math::PointStatus::PSBelow;
+        return Math::PointStatus::PSInside;
     }
 
     inline const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
         const T d = direction.dot(normal);
-        if (Math<T>::zero(d))
-            return Math<T>::nan();
+        if (Math::zero(d))
+            return Math::nan<T>();
         
         const T s = ((anchor - origin).dot(normal)) / d;
-        if (Math<T>::neg(s))
-            return Math<T>::nan();
+        if (Math::neg(s))
+            return Math::nan<T>();
         return s;
     }
 
@@ -76,14 +76,14 @@ public:
 
         const T d = p * p - static_cast<T>(4.0) * q;
         if (d < static_cast<T>(0.0))
-            return Math<T>::nan();
+            return Math::nan<T>();
         
         const T s = std::sqrt(d);
         const T t0 = (-p + s) / static_cast<T>(2.0);
         const T t1 = (-p - s) / static_cast<T>(2.0);
         
         if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0))
-            return Math<T>::nan();
+            return Math::nan<T>();
         if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0))
             return std::min(t0, t1);
         return std::max(t0, t1);
@@ -92,7 +92,7 @@ public:
     const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T scalingFactor, const T maxDistance) const {
         const T distanceToCenter = (position - origin).length();
         if (distanceToCenter > maxDistance)
-            return Math<T>::nan();
+            return Math::nan<T>();
             
         const T scaledRadius = radius * scalingFactor * distanceToCenter;
         return intersectWithSphere(position, scaledRadius);
@@ -129,7 +129,7 @@ public:
         inline static const LineDistance Parallel(const T distance) {
             LineDistance result;
             result.parallel = true;
-            result.rayDistance = Math<T>::nan();
+            result.rayDistance = Math::nan<T>();
             result.distance = distance;
             result.point = Vec<T,S>::Null;
             return result;
@@ -160,7 +160,7 @@ public:
         T sN, sD = D;
         T tN, tD = D;
         
-        if (Math<T>::zero(D))
+        if (Math::zero(D))
             return LineDistance::Parallel(w.squaredLength());
 
         sN = (b * e - c * d);
@@ -175,8 +175,8 @@ public:
             tD = c;
         }
         
-        const T sc = Math<T>::zero(sN) ? static_cast<T>(0.0) : sN / sD;
-        const T tc = std::max(Math<T>::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        const T sc = Math::zero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const T tc = std::max(Math::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
 
         u = u * sc; // vector from segment start to the closest point on the segment
         v = v * tc; // vector from ray origin to closest point on the ray
@@ -201,7 +201,7 @@ public:
         const T e = lineDir.dot(w0);
         
         const T f = a * c - b * b;
-        if (Math<T>::zero(f))
+        if (Math::zero(f))
             return LineDistance::Parallel(w0.squaredLength());
         
         const T sc = std::max((b * e - c * d) / f, static_cast<T>(0.0));

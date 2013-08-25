@@ -28,6 +28,24 @@
 
 namespace TrenchBroom {
     namespace Model {
+        inline Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName) {
+            const Vec3 size = brushBounds.size();
+            const Vec3 x = Vec3(size.x(), 0.0, 0.0);
+            const Vec3 y = Vec3(0.0, size.y(), 0.0);
+            const Vec3 z = Vec3(0.0, 0.0, size.z());
+            
+            // east, west, front, back, top, bottom
+            BrushFaceList faces(6);
+            faces[0] = map.createFace(brushBounds.min, brushBounds.min + y, brushBounds.min + z, textureName);
+            faces[1] = map.createFace(brushBounds.max, brushBounds.max - z, brushBounds.max - y, textureName);
+            faces[2] = map.createFace(brushBounds.min, brushBounds.min + z, brushBounds.min + x, textureName);
+            faces[3] = map.createFace(brushBounds.max, brushBounds.max - x, brushBounds.max - z, textureName);
+            faces[4] = map.createFace(brushBounds.max, brushBounds.max - y, brushBounds.max - x, textureName);
+            faces[5] = map.createFace(brushBounds.min, brushBounds.min + x, brushBounds.min + y, textureName);
+            
+            return map.createBrush(worldBounds, faces);
+        }
+        
         struct MatchAll {
             inline bool operator()(Object* entity) const {
                 return true;

@@ -56,8 +56,8 @@ namespace TrenchBroom {
             assert(m_fov > 0.0f);
             assert(m_nearPlane >= 0.0f);
             assert(m_farPlane > m_nearPlane);
-            assert(Math<float>::eq(direction.length(), 1.0f));
-            assert(Math<float>::eq(up.length(), 1.0f));
+            assert(Math::eq(direction.length(), 1.0f));
+            assert(Math::eq(up.length(), 1.0f));
             setDirection(direction, up);
         }
         
@@ -238,7 +238,7 @@ namespace TrenchBroom {
                 // correct rounding errors
                 const float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction.dot(newDirection)));
                 const float angle = acosf(cos);
-                if (!Mathf::zero(angle)) {
+                if (!Math::zero(angle)) {
                     const Vec3f axis = crossed(m_direction, newDirection).normalized();
                     rotation = Quatf(axis, angle);
                     offset = rotation * offset;

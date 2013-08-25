@@ -34,6 +34,7 @@
 #include "Model/Picker.h"
 #include "Model/Selection.h"
 #include "View/CachingLogger.h"
+#include "View/Grid.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -60,12 +61,14 @@ namespace TrenchBroom {
             Assets::TextureManager m_textureManager;
             Model::Picker m_picker;
             Model::Filter m_filter;
+            View::Grid m_grid;
             
             size_t m_modificationCount;
         public:
             static MapDocumentPtr newMapDocument();
             ~MapDocument();
             
+            const BBox3& worldBounds() const;
             const IO::Path& path() const;
             String filename() const;
 
@@ -75,6 +78,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
             Assets::TextureManager& textureManager();
+            View::Grid& grid();
             
             bool modified() const;
             void incModificationCount();
@@ -102,6 +106,8 @@ namespace TrenchBroom {
             Model::SelectionResult selectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectAll();
+            Assets::FaceTexture* currentTexture() const;
+            String currentTextureName() const;
             
             void commitPendingRenderStateChanges();
 

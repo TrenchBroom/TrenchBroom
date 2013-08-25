@@ -44,7 +44,7 @@ namespace TrenchBroom {
             vertices.resize(4 * (3 * cornerSegments + 3));
             size_t vertexIndex = 0;
 
-            const float angle = Math<float>::Pi / 2.0f / cornerSegments;
+            const float angle = Math::Constants<float>::PiOverTwo / cornerSegments;
             Vec2f center(0.0f, 0.0f);
             Vec2f translation;
             

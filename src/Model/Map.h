@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 #include "Model/Entity.h"
+#include "Model/ModelFactory.h"
 #include "Model/ModelTypes.h"
 
 #include <algorithm>
@@ -31,11 +32,18 @@ namespace TrenchBroom {
         class Map {
         private:
             MapFormat m_format;
+            ModelFactory m_factory;
             EntityList m_entities;
             mutable Entity* m_worldspawn;
         public:
             Map(const MapFormat format);
             ~Map();
+            
+            MapFormat format() const;
+
+            Entity* createEntity() const;
+            Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
             
             const EntityList& entities() const;
             void addEntity(Entity* entity);

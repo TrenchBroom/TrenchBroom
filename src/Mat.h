@@ -211,7 +211,7 @@ public:
         return v[index];
     }
 
-    inline bool equals(const Mat<T,R,C>& other, const T epsilon = Math<T>::AlmostZero) const {
+    inline bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t c = 0; c < C; c++)
             if (!v[c].equals(other[c], epsilon))
                 return false;
@@ -428,7 +428,7 @@ inline const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) 
 
 template <typename T>
 inline const Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
-    const T vFrustum = std::tan(Math<T>::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
+    const T vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
     const T hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
     const T depth = farPlane - nearPlane;
 

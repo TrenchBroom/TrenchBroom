@@ -96,13 +96,13 @@ namespace TrenchBroom {
         class RenderPolicy {
         public:
             virtual ~RenderPolicy();
-            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
         class DefaultRenderPolicy {
         public:
             virtual ~DefaultRenderPolicy();
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
         
         class BaseTool {
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
             
-            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
+            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
         template <class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
@@ -195,8 +195,8 @@ namespace TrenchBroom {
                     m_next->cancelMouseDrag(inputState);
             }
             
-            inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-                static_cast<const RenderPolicyType&>(*this).doRender(inputState, renderContext);
+            inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
+                static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
                 if (m_next != NULL)
                     m_next->render(inputState, renderContext);
             }

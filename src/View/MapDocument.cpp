@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/FaceTexture.h"
 #include "Assets/ModelDefinition.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "IO/FileSystem.h"
@@ -110,6 +111,10 @@ namespace TrenchBroom {
             m_map = NULL;
         }
         
+        const BBox3& MapDocument::worldBounds() const {
+            return m_worldBounds;
+        }
+
         const IO::Path& MapDocument::path() const {
             return m_path;
         }
@@ -142,6 +147,10 @@ namespace TrenchBroom {
         
         Assets::TextureManager& MapDocument::textureManager() {
             return m_textureManager;
+        }
+        
+        View::Grid& MapDocument::grid() {
+            return m_grid;
         }
 
         bool MapDocument::modified() const {
@@ -277,6 +286,18 @@ namespace TrenchBroom {
             return m_selection.deselectAll();
         }
 
+        Assets::FaceTexture* MapDocument::currentTexture() const {
+            if (m_selection.lastSelectedFace() == NULL)
+                return NULL;
+            return m_selection.lastSelectedFace()->texture();
+        }
+
+        String MapDocument::currentTextureName() const {
+            if (currentTexture() != NULL)
+                return currentTexture()->name();
+            return Model::BrushFace::NoTextureName;
+        }
+
         void MapDocument::commitPendingRenderStateChanges() {
             m_textureManager.commitChanges();
         }
@@ -327,6 +348,7 @@ namespace TrenchBroom {
         m_path(""),
         m_map(NULL),
         m_picker(m_worldBounds),
+        m_grid(5),
         m_modificationCount(0) {}
         
         void MapDocument::loadAndUpdateEntityDefinitions() {

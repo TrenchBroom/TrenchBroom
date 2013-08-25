@@ -51,25 +51,6 @@ namespace TrenchBroom {
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
             
-            template <class TexCoordSystem>
-            static Brush* createFromBounds(const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName) {
-                const Vec3 size = brushBounds.size();
-                const Vec3 x = Vec3(size.x(), 0.0, 0.0);
-                const Vec3 y = Vec3(0.0, size.y(), 0.0);
-                const Vec3 z = Vec3(0.0, 0.0, size.z());
-                
-                // east, west, front, back, top, bottom
-                BrushFaceList faces(6);
-                faces[0] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.min, brushBounds.min + y, brushBounds.min + z, textureName);
-                faces[1] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.max, brushBounds.max - z, brushBounds.max - y, textureName);
-                faces[2] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.min, brushBounds.min + z, brushBounds.min + x, textureName);
-                faces[3] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.max, brushBounds.max - x, brushBounds.max - z, textureName);
-                faces[4] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.max, brushBounds.max - y, brushBounds.max - x, textureName);
-                faces[5] = new ConfigurableBrushFace<TexCoordSystem>(brushBounds.min, brushBounds.min + x, brushBounds.min + y, textureName);
-                
-                return new Brush(worldBounds, faces);
-            }
-            
             Entity* parent() const;
             void setParent(Entity* parent);
             

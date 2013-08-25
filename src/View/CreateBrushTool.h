@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Renderer/BrushRenderer.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
@@ -40,13 +41,11 @@ namespace TrenchBroom {
         private:
             MapDocumentPtr m_document;
             Vec3 m_initialPoint;
-            BBox3 m_bounds;
             
-            Renderer::BrushRenderer* m_brushRenderer;
+            Renderer::BrushRenderer m_brushRenderer;
             Model::Brush* m_brush;
         public:
             CreateBrushTool(BaseTool* next, MapDocumentPtr document);
-            ~CreateBrushTool();
         private:
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
@@ -54,9 +53,11 @@ namespace TrenchBroom {
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
 
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
 
+            BBox3 computeBounds(const Vec3& point1, const Vec3& point2) const;
             Model::Brush* createBrush(const BBox3& bounds) const;
+            void updateBrushRenderer();
         };
     }
 }

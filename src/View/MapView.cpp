@@ -29,6 +29,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CameraTool.h"
+#include "View/CreateBrushTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
 
@@ -49,6 +50,8 @@ namespace TrenchBroom {
         m_auxVbo(0xFFF),
         m_inputState(document->filter(), m_camera),
         m_cameraTool(NULL),
+        m_createBrushTool(NULL),
+        m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_ignoreNextClick(false){
@@ -247,15 +250,18 @@ namespace TrenchBroom {
         }
 
         void MapView::createTools() {
-            m_cameraTool = new CameraTool(NULL, m_camera);
-            m_selectionTool = new SelectionTool(m_cameraTool, m_controller);
-            m_toolChain = m_selectionTool;
+            m_selectionTool = new SelectionTool(NULL, m_controller);
+            m_createBrushTool = new CreateBrushTool(m_selectionTool, m_document);
+            m_cameraTool = new CameraTool(m_createBrushTool, m_camera);
+            m_toolChain = m_cameraTool;
         }
         
         void MapView::deleteTools() {
             m_toolChain = NULL;
             delete m_cameraTool;
             m_cameraTool = NULL;
+            delete m_createBrushTool;
+            m_createBrushTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
         }

@@ -212,12 +212,12 @@ public:
             
             const Plane<T,S> plane(position, normal);
             const T distance = plane.intersectWithRay(ray);
-            if (Math<T>::isnan(distance))
+            if (Math::isnan(distance))
                 continue;
             
             const Vec<T,S> point = ray.pointAtDistance(distance);
             for (size_t j = 0; j < S; ++j)
-                if (i != j && !Math<T>::between(point[j], min[j], max[j]))
+                if (i != j && !Math::between(point[j], min[j], max[j]))
                     goto cont;
             
             if (sideNormal != NULL)

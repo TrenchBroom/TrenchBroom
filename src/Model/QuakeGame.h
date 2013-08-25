@@ -54,8 +54,9 @@ namespace TrenchBroom {
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path doDefaultEntityDefinitionFile() const;
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
-
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
+            
+            ModelFactory doModelFactory(const Map* map) const;
         };
     }
 }

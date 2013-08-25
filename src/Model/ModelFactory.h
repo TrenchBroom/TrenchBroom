@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ModelFactory_h
-#define TrenchBroom_ModelFactory_h
+#ifndef __TrenchBroom__ModelFactory__
+#define __TrenchBroom__ModelFactory__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -28,18 +28,19 @@
 namespace TrenchBroom {
     namespace Model {
         class ModelFactory {
+        private:
+            MapFormat m_format;
         public:
-            virtual ~ModelFactory();
-            
+            ModelFactory(const MapFormat format);
+
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
             BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
         private:
-            virtual Entity* doCreateEntity() const = 0;
-            virtual Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const = 0;
-            virtual BrushFace* doCreateFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const = 0;
+            BrushFace* createValveFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
+            BrushFace* createDefaultFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
         };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__ModelFactory__) */

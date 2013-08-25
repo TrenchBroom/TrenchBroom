@@ -73,9 +73,9 @@ public:
     public:
         inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             for (size_t i = 0; i < S; ++i) {
-                if (Math<T>::lt(lhs[i], rhs[i]))
+                if (Math::lt(lhs[i], rhs[i]))
                     return true;
-                if (Math<T>::gt(lhs[i], rhs[i]))
+                if (Math::gt(lhs[i], rhs[i]))
                     return false;
             }
             return false;
@@ -329,15 +329,23 @@ public:
     }
             
     inline Vec<T,2> xy() const {
-        return Vec<T,2>(*this);
+        return Vec<T,2>(x(), y());
     }
 
+    inline Vec<T,2> xz() const {
+        return Vec<T,2>(x(), z());
+    }
+
+    inline Vec<T,2> yz() const {
+        return Vec<T,2>(y(), z());
+    }
+    
     inline Vec<T,3> xyz() const {
-        return Vec<T,3>(*this);
+        return Vec<T,3>(x(), y(), z());
     }
             
     inline Vec<T,4> xyzw() const {
-        return Vec<T,4>(*this);
+        return Vec<T,4>(x(), y(), z());
     }
             
     inline Vec<T,S-1> overLast() const {
@@ -379,7 +387,7 @@ public:
         return Vec<T,S>(*this).normalize();
     }
     
-    inline bool equals(const Vec<T,S>& other, const T epsilon = Math<T>::AlmostZero) const {
+    inline bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)
                 return false;
@@ -387,7 +395,7 @@ public:
     }
     
     inline bool null() const {
-        return equals(Null, Math<T>::AlmostZero);
+        return equals(Null, Math::Constants<T>::AlmostZero);
     }
 
     inline void setNull() {
@@ -402,12 +410,12 @@ public:
     
     inline bool nan() const {
         for (size_t i = 0; i < S; ++i)
-            if (!Math<T>::isnan(v[i]))
+            if (!Math::isnan(v[i]))
                 return false;
         return true;
     }
     
-    inline bool parallelTo(const Vec<T,S>& other, const T epsilon = Math<T>::ColinearEpsilon) const {
+            inline bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::ColinearEpsilon) const {
         return std::abs(dot(other) - other.length()) <= epsilon;
     }
     
@@ -515,7 +523,7 @@ public:
     
     inline Vec<T,S>& round() {
         for (size_t i = 0; i < S; ++i)
-            v[i] = Math<T>::round(v[i]);
+            v[i] = Math::round(v[i]);
         return *this;
     }
     
@@ -523,20 +531,20 @@ public:
         return Vec<T,S>(*this).round();
     }
     
-    inline bool isInteger(const T epsilon = Math<T>::AlmostZero) const {
+    inline bool isInteger(const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t i = 0; i < S; ++i)
-            if (std::abs(v[i] - Math<T>::round(v[i])) > epsilon)
+            if (std::abs(v[i] - Math::round(v[i])) > epsilon)
                 return false;
         return true;
     }
     
-    inline Vec<T,S>& correct(const T epsilon = Math<T>::CorrectEpsilon) {
+    inline Vec<T,S>& correct(const T epsilon = Math::Constants<T>::CorrectEpsilon) {
         for (size_t i = 0; i < S; ++i)
-            v[i] = Math<T>::correct(v[i], epsilon);
+            v[i] = Math::correct(v[i], epsilon);
         return *this;
     }
     
-    inline const Vec<T,S> corrected(const T epsilon = Math<T>::CorrectEpsilon) const {
+    inline const Vec<T,S> corrected(const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
         return Vec<T,S>(*this).correct();
     }
 };
@@ -589,14 +597,14 @@ inline T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& 
     // computes the CCW angle between axis and vector in relation to the given up vector
     // all vectors are expected to be normalized
     const T cos = vec.dot(axis);
-    if (Math<T>::eq(cos, static_cast<T>(1.0)))
+    if (Math::eq(cos, static_cast<T>(1.0)))
         return static_cast<T>(0.0);
-    if (Math<T>::eq(cos, static_cast<T>(-1.0)))
-        return Math<T>::Pi;
+    if (Math::eq(cos, static_cast<T>(-1.0)))
+        return Math::Constants<T>::Pi;
     const Vec<T,3> cross = crossed(vec, axis);
     if (cross.dot(up) >= static_cast<T>(0.0))
         return std::acos(cos);
-    return Math<T>::TwoPi - std::acos(cos);
+    return Math::Constants<T>::TwoPi - std::acos(cos);
 }
 
 #endif

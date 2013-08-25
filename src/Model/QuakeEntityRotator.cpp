@@ -35,7 +35,7 @@ namespace TrenchBroom {
                     if (angleValue.empty())
                         return Quatf(Vec3f::PosZ, 0.0f);
                     const float angle = static_cast<float>(std::atof(angleValue.c_str()));
-                    return Quatf(Vec3f::PosZ, Mathf::radians(angle));
+                    return Quatf(Vec3f::PosZ, Math::radians(angle));
                 }
                 case RTZAngleWithUpDown: {
                     const PropertyValue angleValue = entity.property(info.property);
@@ -43,10 +43,10 @@ namespace TrenchBroom {
                         return Quatf(Vec3f::PosZ, 0.0f);
                     const float angle = static_cast<float>(std::atof(angleValue.c_str()));
                     if (angle == -1.0f)
-                        return Quatf(Vec3f::PosY, -Mathf::Pi / 2.0f);
+                        return Quatf(Vec3f::PosY, -Math::Constants<float>::PiOverTwo);
                     if (angle == -2.0f)
-                        return Quatf(Vec3f::PosY,  Mathf::Pi / 2.0f);
-                    return Quatf(Vec3f::PosZ, Mathf::radians(angle));
+                        return Quatf(Vec3f::PosY,  Math::Constants<float>::PiOverTwo);
+                    return Quatf(Vec3f::PosZ, Math::radians(angle));
                 }
                 case RTEulerAngles: {
                     const PropertyValue angleValue = entity.property(info.property);
@@ -57,9 +57,9 @@ namespace TrenchBroom {
                     // const Quatf yRotation(Vec3f::PosY, Mathf::radians(-angles.y()));
                     
                     // pitch / yaw / roll
-                    const Quatf pitch(  Vec3f::PosY, Mathf::radians(angles.x()));
-                    const Quatf yaw(    Vec3f::PosZ, Mathf::radians(angles.y()));
-                    const Quatf roll(   Vec3f::PosX, Mathf::radians(angles.z()));
+                    const Quatf pitch(  Vec3f::PosY, Math::radians(angles.x()));
+                    const Quatf yaw(    Vec3f::PosZ, Math::radians(angles.y()));
+                    const Quatf roll(   Vec3f::PosX, Math::radians(angles.z()));
                     return pitch * yaw * roll;
                 }
                 default:

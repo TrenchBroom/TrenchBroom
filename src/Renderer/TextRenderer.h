@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 2; i++) {
                     offset[i] += factors[i] * size[i];
                     offset[i] -= halfSize[i];
-                    offset[i] = Math<float>::round(offset[i]);
+                    offset[i] = Math::round(offset[i]);
                 }
                 return offset;
             }

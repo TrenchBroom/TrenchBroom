@@ -94,7 +94,7 @@ public:
     }
     
     inline Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
-        assert(Math<T>::eq(axis.length(), static_cast<T>(1.0)));
+        assert(Math::eq(axis.length(), static_cast<T>(1.0)));
         r = std::cos(angle / static_cast<T>(2.0));
         v = axis * std::sin(angle / static_cast<T>(2.0));
         return *this;

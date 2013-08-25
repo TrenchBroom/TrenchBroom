@@ -30,6 +30,7 @@ namespace TrenchBroom {
         class Selection {
         private:
             Map* m_map;
+            BrushFace* m_lastSelectedFace;
         public:
             Selection(Map* map = NULL);
 
@@ -50,6 +51,7 @@ namespace TrenchBroom {
             SelectionResult selectFaces(const BrushFaceList& faces);
             SelectionResult deselectFaces(const BrushFaceList& faces);
             SelectionResult deselectAll();
+            BrushFace* lastSelectedFace() const;
         private:
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);

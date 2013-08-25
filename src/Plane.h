@@ -80,26 +80,26 @@ public:
     
     inline T intersectWithLine(const Line<T,S>& line) const {
         const T d = line.direction.dot(normal);
-        if (Math<T>::zero(d))
-            return Math<T>::nan();
+        if (Math::zero(d))
+            return Math::nan<T>();
         return ((anchor() - line.point).dot(normal)) / d;
     }
     
-    inline PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math<T>::PointStatusEpsilon) const {
+    inline Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::PointStatusEpsilon) const {
         const T dist = pointDistance(point);
         if (dist >  epsilon)
-            return PointStatus::PSAbove;
+            return Math::PointStatus::PSAbove;
         if (dist < -epsilon)
-            return PointStatus::PSBelow;
-        return PointStatus::PSInside;
+            return Math::PointStatus::PSBelow;
+        return Math::PointStatus::PSInside;
     }
     
     inline T pointDistance(const Vec<T,S>& point) const {
         return point.dot(normal) - distance;
     }
     
-    inline T at(const Vec<T,S-1>& point, const Axis::Type axis) const {
-        if (Math<T>::zero(normal[axis]))
+    inline T at(const Vec<T,S-1>& point, const Math::Axis::Type axis) const {
+        if (Math::zero(normal[axis]))
             return static_cast<T>(0.0);
         
         T t = static_cast<T>(0.0);
@@ -111,19 +111,19 @@ public:
     }
             
     inline T xAt(const Vec<T,S-1>& point) const {
-        return at(point, Axis::AX);
+        return at(point, Math::Axis::AX);
     }
     
     inline T yAt(const Vec<T,S-1>& point) const {
-        return at(point, Axis::AY);
+        return at(point, Math::Axis::AY);
     }
     
     inline T zAt(const Vec<T,S-1>& point) const {
-        return at(point, Axis::AZ);
+        return at(point, Math::Axis::AZ);
     }
     
-    inline bool equals(const Plane<T,S>& other, const T epsilon = Math<T>::AlmostZero) const {
-        return Math<T>::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
+    inline bool equals(const Plane<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+        return Math::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
     }
             
             /*
@@ -162,7 +162,7 @@ inline bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3> (&points)[3]) {
     const Vec<T,3> v1 = points[2] - points[0];
     const Vec<T,3> v2 = points[1] - points[0];
     const Vec<T,3> normal = crossed(v1, v2);
-    if (normal.equals(Vec<T,3>::Null, Math<T>::AlmostZero))
+    if (normal.equals(Vec<T,3>::Null, Math::Constants<T>::AlmostZero))
         return false;
     plane.normal = normal.normalized();
     plane.distance = points[0].dot(plane.normal);
@@ -176,7 +176,7 @@ inline const Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
 
 template <typename T>
 inline const Plane<T,3> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
-    if (direction.firstComponent() != Axis::AZ)
+    if (direction.firstComponent() != Math::Axis::AZ)
         return Plane<T,3>(position, direction.firstAxis());
     return Plane<T,3>(position, direction.secondAxis());
 }

@@ -28,12 +28,12 @@ namespace TrenchBroom {
         m_mark(New) {}
 
         void BrushVertex::updateMark(const Plane3& plane) {
-            const PointStatus::Type status = plane.pointStatus(m_position);
+            const Math::PointStatus::Type status = plane.pointStatus(m_position);
             switch (status) {
-                case PointStatus::PSAbove:
+                case Math::PointStatus::PSAbove:
                     m_mark = Drop;
                     break;
-                case PointStatus::PSBelow:
+                case Math::PointStatus::PSBelow:
                     m_mark = Keep;
                     break;
                 default:

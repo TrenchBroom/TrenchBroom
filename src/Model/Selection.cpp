@@ -195,7 +195,8 @@ namespace TrenchBroom {
         };
 
         Selection::Selection(Map* map) :
-        m_map(map) {}
+        m_map(map),
+        m_lastSelectedFace(NULL) {}
 
         bool Selection::hasSelectedObjects() const {
             if (m_map == NULL)
@@ -330,6 +331,10 @@ namespace TrenchBroom {
                 deselectAllObjects(result);
                 eachFace(faces, SetSelection(true, result), MatchAll());
             }
+            
+            if (result.lastSelectedFace() != NULL)
+                m_lastSelectedFace = result.lastSelectedFace();
+            
             return result;
         }
         
@@ -349,6 +354,12 @@ namespace TrenchBroom {
             deselectAllObjects(result);
             deselectAllFaces(result);
             return result;
+        }
+
+        BrushFace* Selection::lastSelectedFace() const {
+            if (m_map == NULL)
+                return NULL;
+            return m_lastSelectedFace;
         }
 
         void Selection::deselectAllObjects(SelectionResult& result) {

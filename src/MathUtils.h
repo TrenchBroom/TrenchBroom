@@ -25,22 +25,48 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <limits>
 
-template <typename T>
-class Math {
-public:
-    static const T AlmostZero;
-    static const T PointStatusEpsilon;
-    static const T CorrectEpsilon;
-    static const T ColinearEpsilon;
-    static const T Pi;
-    static const T TwoPi;
-    static const T PiOverTwo;
-    static const T PiOverFour;
-    static const T PiOverStraightAngle;
-    static const T StraightAngleOverPi;
-    static const T E;
+namespace Math {
+    template <typename T>
+    class Constants {
+    public:
+        static const T AlmostZero;
+        static const T PointStatusEpsilon;
+        static const T CorrectEpsilon;
+        static const T ColinearEpsilon;
+        static const T Pi;
+        static const T TwoPi;
+        static const T PiOverTwo;
+        static const T PiOverFour;
+        static const T PiOverStraightAngle;
+        static const T StraightAngleOverPi;
+        static const T E;
+    };
+    
+    template <typename T>
+    const T Constants<T>::AlmostZero           = static_cast<T>(0.001);
+    template <typename T>
+    const T Constants<T>::PointStatusEpsilon   = static_cast<T>(0.01);
+    template <typename T>
+    const T Constants<T>::CorrectEpsilon       = static_cast<T>(0.001); // this is what QBSP uses
+    template <typename T>
+    const T Constants<T>::ColinearEpsilon      = static_cast<T>(0.01);
+    template <typename T>
+    const T Constants<T>::Pi                   = static_cast<T>(3.141592653589793);
+    template <typename T>
+    const T Constants<T>::TwoPi                = static_cast<T>(2.0) * Pi;
+    template <typename T>
+    const T Constants<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
+    template <typename T>
+    const T Constants<T>::PiOverFour           = Pi / static_cast<T>(4.0);
+    template <typename T>
+    const T Constants<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
+    template <typename T>
+    const T Constants<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
+    template <typename T>
+    const T Constants<T>:: E                   = static_cast<T>(2.718281828459045);
 
-    inline static bool isnan(const T f) {
+    template <typename T>
+    inline bool isnan(const T f) {
 #ifdef _MSC_VER
         return _isnan(f) != 0;
 #else
@@ -48,42 +74,51 @@ public:
 #endif
     }
     
-    inline static T nan() {
+    template <typename T>
+    inline T nan() {
         return std::numeric_limits<T>::quiet_NaN();
     }
     
-    inline static T radians(const T d) {
-        return d * PiOverStraightAngle;
+    template <typename T>
+    inline T radians(const T d) {
+        return d * Constants<T>::PiOverStraightAngle;
     }
 
-    inline static T degrees(const T r) {
-        return r * StraightAngleOverPi;
+    template <typename T>
+    inline T degrees(const T r) {
+        return r * Constants<T>::StraightAngleOverPi;
     }
     
-    inline static T round(const T v) {
+    template <typename T>
+    inline T round(const T v) {
         return v > 0.0 ? std::floor(v + static_cast<T>(0.5)) : std::ceil(v - static_cast<T>(0.5));
     }
     
-    inline static T correct(const T v, const T epsilon = CorrectEpsilon) {
+    template <typename T>
+    inline T correct(const T v, const T epsilon = Constants<T>::CorrectEpsilon) {
         const T r = round(v);
         if (std::abs(v - r) <= epsilon)
             return r;
         return v;
     }
 
-    inline static bool zero(const T v, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool zero(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return std::abs(v) <= epsilon;
     }
     
-    inline static bool pos(const T v, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool pos(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return v > epsilon;
     }
     
-    inline static bool neg(const T v, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool neg(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return v < -epsilon;
     }
 
-    inline static bool relEq(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         const T absA = std::abs(v1);
         const T absB = std::abs(v2);
         const T diff = std::abs(v1 - v2);
@@ -99,27 +134,33 @@ public:
         }
     }
 
-    inline static bool eq(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool eq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return std::abs(v1 - v2) < epsilon;
     }
     
-    inline static bool gt(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool gt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return v1 > v2 + epsilon;
     }
     
-    inline static bool lt(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool lt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return v1 < v2 - epsilon;
     }
     
-    inline static bool gte(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool gte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return !lt(v1, v2, epsilon);
     }
     
-    inline static bool lte(const T v1, const T v2, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool lte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return !gt(v1, v2, epsilon);
     }
 
-    inline static bool between(const T v, const T s, const T e, const T epsilon = AlmostZero) {
+    template <typename T>
+    inline bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::AlmostZero) {
         if (eq(v, s, epsilon) || eq(v, e, epsilon))
             return true;
         if (lt(s, e, epsilon))
@@ -127,61 +168,36 @@ public:
         return gt(v, e, epsilon) && lt(v, s, epsilon);
     }
     
-    inline static T selectMin(const T v1, const T v2) {
+    template <typename T>
+    inline T selectMin(const T v1, const T v2) {
         if (isnan(v1))
             return v2;
         if (isnan(v2))
             return v1;
         return std::min(v1, v2);
     }
+
+    inline size_t succ(size_t index, size_t count, size_t offset = 1) {
+        return (index + offset) % count;
+    }
+    
+    inline size_t pred(size_t index, size_t count, size_t offset = 1) {
+        return ((index + count) - (offset % count)) % count;
+    }
+    
+    namespace Axis {
+        typedef size_t Type;
+        static const Type AX = 0;
+        static const Type AY = 1;
+        static const Type AZ = 2;
+    }
+    
+    namespace PointStatus {
+        typedef size_t Type;
+        static const Type PSAbove = 0;
+        static const Type PSBelow = 1;
+        static const Type PSInside = 2;
+    }
 };
-
-template <typename T>
-const T Math<T>::AlmostZero           = static_cast<T>(0.001);
-template <typename T>
-const T Math<T>::PointStatusEpsilon   = static_cast<T>(0.01);
-template <typename T>
-const T Math<T>::CorrectEpsilon       = static_cast<T>(0.001); // this is what QBSP uses
-template <typename T>
-const T Math<T>::ColinearEpsilon      = static_cast<T>(0.01);
-template <typename T>
-const T Math<T>::Pi                   = static_cast<T>(3.141592653589793);
-template <typename T>
-const T Math<T>::TwoPi                = static_cast<T>(2.0) * Pi;
-template <typename T>
-const T Math<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
-template <typename T>
-const T Math<T>::PiOverFour           = Pi / static_cast<T>(4.0);
-template <typename T>
-const T Math<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
-template <typename T>
-const T Math<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
-template <typename T>
-const T Math<T>:: E                   = static_cast<T>(2.718281828459045);
-
-typedef Math<float> Mathf;
-typedef Math<double> Mathd;
-
-inline size_t succ(size_t index, size_t count, size_t offset = 1) {
-    return (index + offset) % count;
-}
-
-inline size_t pred(size_t index, size_t count, size_t offset = 1) {
-    return ((index + count) - (offset % count)) % count;
-}
-
-namespace Axis {
-    typedef size_t Type;
-    static const Type AX = 0;
-    static const Type AY = 1;
-    static const Type AZ = 2;
-}
-
-namespace PointStatus {
-    typedef size_t Type;
-    static const Type PSAbove = 0;
-    static const Type PSBelow = 1;
-    static const Type PSInside = 2;
-}
 
 #endif

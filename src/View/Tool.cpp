@@ -59,7 +59,7 @@ namespace TrenchBroom {
         
         bool PlaneDragPolicy::doMouseDrag(const InputState& inputState) {
             const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
-            if (Math<FloatType>::isnan(distance))
+            if (Math::isnan(distance))
                 return true;
             
             const Vec3 curPoint = inputState.pickRay().pointAtDistance(distance);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         RenderPolicy::~RenderPolicy() {}
         
         DefaultRenderPolicy::~DefaultRenderPolicy() {}
-        void DefaultRenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void DefaultRenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {}
 
         BaseTool::~BaseTool() {}
     }

@@ -83,14 +83,14 @@ namespace TrenchBroom {
         }
 
         void Brush::pick(const Ray3& ray, PickResult& result) {
-            if (Math<FloatType>::isnan(bounds().intersectWithRay(ray)))
+            if (Math::isnan(bounds().intersectWithRay(ray)))
                 return;
             
             BrushFaceList::iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
                 const FloatType distance = face->intersectWithRay(ray);
-                if (!Math<FloatType>::isnan(distance)) {
+                if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
                     Hit hit(BrushHit, distance, hitPoint, face);
                     result.addHit(hit);

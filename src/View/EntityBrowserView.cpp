@@ -59,8 +59,8 @@ namespace TrenchBroom {
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinitionManager::Name),
         m_vbo(0xFFFFF) {
-            const Quatf hRotation = Quatf(Vec3f::PosZ, Mathf::radians(-30.0f));
-            const Quatf vRotation = Quatf(Vec3f::PosY, Mathf::radians(20.0f));
+            const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
+            const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
         }
         

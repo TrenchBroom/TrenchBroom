@@ -69,7 +69,7 @@ namespace TrenchBroom {
             const BBox3 myBounds = bounds();
             if (!myBounds.contains(ray.origin)) {
                 const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math<FloatType>::isnan(distance)) {
+                if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
                     Hit hit(EntityHit, distance, hitPoint, this);
                     result.addHit(hit);

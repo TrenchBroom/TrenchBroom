@@ -77,7 +77,7 @@ namespace TrenchBroom {
         
         bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
-                if (plane.pointStatus(m_points[i]) != PointStatus::PSInside)
+                if (plane.pointStatus(m_points[i]) != Math::PointStatus::PSInside)
                     return false;
             return true;
         }
@@ -212,12 +212,12 @@ namespace TrenchBroom {
             assert(m_side != NULL);
             
             const FloatType dot = m_boundary.normal.dot(ray.direction);
-            if (!Math<FloatType>::neg(dot))
-                return Math<FloatType>::nan();
+            if (!Math::neg(dot))
+                return Math::nan<FloatType>();
             
             const FloatType dist = m_boundary.intersectWithRay(ray);
-            if (Math<FloatType>::isnan(dist))
-                return Math<FloatType>::nan();
+            if (Math::isnan(dist))
+                return Math::nan<FloatType>();
             
             const size_t axis = m_boundary.normal.firstComponent();
             const Vec3 hit = ray.pointAtDistance(dist);
@@ -232,8 +232,8 @@ namespace TrenchBroom {
                 vertex = vertices[i];
                 const Vec3 v1 = swizzle(vertex->position(), axis) - projectedHit;
                 
-                if ((Math<FloatType>::zero(v0.x()) && Math<FloatType>::zero(v0.y())) ||
-                    (Math<FloatType>::zero(v1.x()) && Math<FloatType>::zero(v1.y()))) {
+                if ((Math::zero(v0.x()) && Math::zero(v0.y())) ||
+                    (Math::zero(v1.x()) && Math::zero(v1.y()))) {
                     // the point is identical to a polygon vertex, cancel search
                     c = 1;
                     break;
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             }
             
             if (c % 2 == 0)
-                return Math<FloatType>::nan();
+                return Math::nan<FloatType>();
             return dist;
         }
         
