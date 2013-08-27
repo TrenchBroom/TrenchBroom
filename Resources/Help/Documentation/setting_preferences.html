@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Getting Started</title>
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<script src="scripts/commands.js"></script>
+	<div id="container">
+		<h2>Setting User Preferences</h2>
+		<p>TrenchBroom allows to user to customize some of the functionality of the program.  TO do so, open the preferences window with <b><script>print_menu_command("preferences");</script></b>.</p>
+
+		<a name="prefs_general"></a><h3>General Settings</h3>
+		<div class="images">
+			<img src="images/preferences_general.jpg" alt="Preferences General Settings tab">
+			<div class="imagecaption">General Settings</div>
+		</div>
+		<p>The general settings tab was briefly mentioned in the <a href="getting_started.html#setting_the_quake_path">Getting Started</a> page when setting up Quake's directory.  There are more settings here which can be changed.</p>
+		<ul>
+			<li><b>Brightness</b> - This affects the brightness of the textures on the screen.  Moving this slider to the right will increase the brightness, making darker textures easier to see.</li>
+			<li><b>Grid</b> - This slider affects the brightness of the grid lines/checker pattern.  Moving it to the right increases the brightness of these marks.</li>
+			<li><b>Render grid as</b> - This drop down menu lets you choose between grid lines and a checkerboard pattern.</li>
+			<li><b>Use OpenGL instancing</b> - You should normally never need to touch this, however some videocards do not properly report that they do not support GL_EXT_gpu_shader4 and Trenchbroom may crash when trying to go into vertex editing mode.  To resolve this, set this to Forced off.</li>
+			<li><b>Texture Browser Icon Size</b> - This affects the size of the texture icons in the texture browser pane.</li>
+			
+			<li><b>Mouse Look</b> - This affects the speed at which the camera rotates with the mouse.</li>
+			<li><b>Mouse Pan</b> - This affects the speed the camera moves when panning.</li>
+			<li><b>Mouse Move</b> - This affects the speed the camera moves forward and back when scrolling the mouse wheel.</li>
+		</ul>
+
+		<a name="prefs_keyboard"></a><h3>Keyboard Settings</h3>
+		<div class="images">
+			<img src="images/preferences_keyboard.jpg" alt="Preferences Keyboard Settings tab">
+			<div class="imagecaption">General Settings</div>
+		</div>
+		<p>The keyboard settings tab allows you to customize nearly all the shortcuts in Trenchbroom.  To do so, click twice the Shortcut in the Shortcut column and then press the new key combination you would like to use.  Shortcuts which are used more than once will show up as red and you can scroll through the list to find the other instance of its use.</p>
+		
+	</div>
+</body>
+</html>

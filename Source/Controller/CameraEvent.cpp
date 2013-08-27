@@ -29,10 +29,7 @@ namespace TrenchBroom {
     namespace Controller {
         IMPLEMENT_DYNAMIC_CLASS(CameraMoveEvent, wxEvent)
         CameraMoveEvent::CameraMoveEvent() :
-        wxEvent(wxID_ANY, EVT_CAMERA_MOVE_EVENT),
-        m_forward(0.0f),
-        m_right(0.0f),
-        m_up(0.0f) {}
+        wxEvent(wxID_ANY, EVT_CAMERA_MOVE_EVENT) {}
         
         wxEvent* CameraMoveEvent::Clone() const {
             return new CameraMoveEvent(*this);

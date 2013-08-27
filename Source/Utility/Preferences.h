@@ -288,6 +288,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  SelectedFaceColor;
         extern const Preference<Color>  LockedFaceColor;
         extern const Preference<Color>  ClippedFaceColor;
+        extern const Preference<float>  TransparentFaceAlpha;
 
         extern const Preference<Color>  EdgeColor;
         extern const Preference<Color>  SelectedEdgeColor;
@@ -559,6 +560,7 @@ namespace TrenchBroom {
                 return static_cast<const Menu&>(*(it->second.get()));
             }
 
+            bool saveInstantly() const;
             PreferenceBase::Set saveChanges();
             PreferenceBase::Set discardChanges();
 

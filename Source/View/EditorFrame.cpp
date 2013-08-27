@@ -59,7 +59,6 @@ namespace TrenchBroom {
 
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
-        EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
         EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
@@ -314,5 +313,5 @@ namespace TrenchBroom {
 #endif
             event.Skip();
         }
-   }
+    }
 }

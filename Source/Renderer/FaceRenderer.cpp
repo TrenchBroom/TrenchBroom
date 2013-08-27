@@ -34,7 +34,7 @@ using namespace TrenchBroom::VecMath;
 
 namespace TrenchBroom {
     namespace Renderer {
-        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", "skip", "hintskip", "trigger"};
+        String FaceRenderer::AlphaBlendedTextures[] = {"clip", "hint", /*"skip",*/ "hintskip", "trigger"};
 
         void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter) {
             const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
@@ -97,6 +97,7 @@ namespace TrenchBroom {
                 
                 renderOpaqueFaces(faceProgram, applyTexture);
                 glDepthMask(GL_FALSE);
+                faceProgram.setUniformVariable("Alpha", prefs.getFloat(Preferences::TransparentFaceAlpha));
                 renderTransparentFaces(faceProgram, applyTexture);
                 glDepthMask(GL_TRUE);
 

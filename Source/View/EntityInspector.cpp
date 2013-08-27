@@ -189,8 +189,8 @@ namespace TrenchBroom {
 
         void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {
             m_propertyGrid->SetColSize(0, 100);
-            const int colSize = std::max(1, m_propertyGrid->GetClientSize().x - m_propertyGrid->GetColSize(0));
-            m_propertyGrid->SetColSize(1, colSize);
+            const int newSize = m_propertyGrid->GetClientSize().x - m_propertyGrid->GetColSize(0);
+            m_propertyGrid->SetColSize(1, newSize > 0 ? newSize : -1);
             event.Skip();
         }
 

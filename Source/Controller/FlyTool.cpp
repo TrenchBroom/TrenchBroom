@@ -32,7 +32,7 @@ namespace TrenchBroom {
             if (!holderValid())
                 return;
 
-            if (!wxTheApp->IsActive() || !view().editorFrame().mapCanvas().HasFocus())
+            if (!wxTheApp->IsActive() || !view().editorFrame().IsActive() || !view().editorFrame().mapCanvas().HasFocus())
                 return;
 
             if (wxGetKeyState(WXK_SHIFT) || wxGetKeyState(WXK_CONTROL) || wxGetKeyState(WXK_ALT))
@@ -57,9 +57,13 @@ namespace TrenchBroom {
 
             if (!direction.null()) {
                 direction.normalize();
+                const float forward = direction.dot(camera.direction()) * distance;
+                const float right = direction.dot(camera.right()) * distance;
+                const float up = direction.dot(camera.up()) * distance;
+                const Vec3f delta(forward, right, up);
 
-                Controller::CameraSetEvent moveEvent;
-                moveEvent.set(camera.position() + distance * direction, camera.direction(), camera.up());
+                Controller::CameraMoveEvent moveEvent;
+                moveEvent.setDelta(delta);
                 postEvent(moveEvent);
             }
             m_lastUpdateTime = updateTime;

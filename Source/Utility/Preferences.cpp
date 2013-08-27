@@ -71,6 +71,7 @@ namespace TrenchBroom {
         const Preference<Color> SelectedFaceColor = Preference<Color>(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
         const Preference<Color> LockedFaceColor = Preference<Color>(                            "Renderer/Colors/Locked face",                                  Color(0.35f, 0.35f, 0.6f,  1.0f ));
         const Preference<Color> ClippedFaceColor = Preference<Color>(                           "Renderer/Colors/Clipped face",                                 Color(0.6f,  0.3f,  0.0f,  1.0f ));
+        const Preference<float> TransparentFaceAlpha = Preference<float>(                       "Renderer/Colors/Transparent face alpha",                       0.65f);
 
         const Preference<Color> EdgeColor = Preference<Color>(                                  "Renderer/Colors/Edge",                                         Color(0.7f,  0.7f,  0.7f,  1.0f ));
         const Preference<Color> SelectedEdgeColor = Preference<Color>(                          "Renderer/Colors/Selected edge",                                Color(1.0f,  0.0f,  0.0f,  1.0f ));
@@ -169,6 +170,7 @@ namespace TrenchBroom {
 
         String ShortcutMenuItem::path() const {
             StringList components;
+            components.push_back(text());
             const MenuItemParent* p = parent();
             while (p != NULL) {
                 if (!p->text().empty())
@@ -188,7 +190,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::preferences();
             const String p = path();
             Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.getKeyboardShortcut(preference);
+            m_shortcut = prefs.getKeyboardShortcut(preference);
         }
 
         const String ShortcutMenuItem::longText() const {
@@ -294,7 +296,11 @@ namespace TrenchBroom {
             editMenu->addActionItem(KeyboardShortcut(wxID_COPY, WXK_CONTROL, 'C', KeyboardShortcut::SCAny, "Copy"));
             editMenu->addActionItem(KeyboardShortcut(wxID_PASTE, WXK_CONTROL, 'V', KeyboardShortcut::SCAny, "Paste"));
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPasteAtOriginalPosition, WXK_CONTROL, WXK_SHIFT, 'V', KeyboardShortcut::SCAny, "Paste at Original Position"));
+#if defined __APPLE__
             editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::SCAny, "Delete"));
+#else
+            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_DELETE, KeyboardShortcut::SCAny, "Delete"));
+#endif
             editMenu->addSeparator();
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::SCAny, "Select All"));
             editMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditSelectSiblings, WXK_CONTROL, WXK_ALT, 'A', KeyboardShortcut::SCAny, "Select Siblings"));
@@ -335,12 +341,12 @@ namespace TrenchBroom {
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
 #endif
             faceActionMenu.addSeparator();
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUp, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDown, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesUpFine, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesDownFine, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesLeftFine, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditMoveTexturesRightFine, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
             faceActionMenu.addSeparator();
             faceActionMenu.addActionItem(KeyboardShortcut(View::CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
 
@@ -442,6 +448,10 @@ namespace TrenchBroom {
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
             viewMenu->addActionItem(KeyboardShortcut(View::CommandIds::Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
             return menus;
+        }
+
+        bool PreferenceManager::saveInstantly() const {
+            return m_saveInstantly;
         }
 
         PreferenceBase::Set PreferenceManager::saveChanges() {
