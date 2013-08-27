@@ -14,12 +14,14 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_ModelUtils_h
 #define TrenchBroom_ModelUtils_h
 
+#include "CastIterator.h"
+#include "FilterIterator.h"
 #include "Model/ModelTypes.h"
 #include "Model/Map.h"
 #include "Model/Entity.h"
@@ -49,7 +51,7 @@ namespace TrenchBroom {
         }
         
         struct MatchAll {
-            inline bool operator()(const Object* entity) const {
+            inline bool operator()(const Object* object) const {
                 return true;
             }
             
@@ -66,20 +68,15 @@ namespace TrenchBroom {
             }
         };
         
-        template <class Container>
-        struct ExtractObjectsByType {
+        struct MatchObjectByType {
         private:
             Object::Type m_type;
         public:
-            Container result;
-
-            ExtractObjectsByType(const Object::Type type) :
+            MatchObjectByType(const Object::Type type) :
             m_type(type) {}
             
-            inline bool operator()(Object* object) {
-                if (object->type() == m_type)
-                    result.insert(result.end(), static_cast<Entity*>(object));
-                return true;
+            inline bool operator()(const Object* object) const {
+                return object->type() == m_type;
             }
         };
         
@@ -120,11 +117,14 @@ namespace TrenchBroom {
             }
         }
         
-        template <template <typename> class Iter, class Container>
-        inline Container filterObjectsByType(Iter<Object*> cur, Iter<Object*> end, const Object::Type type) {
-            ExtractObjectsByType<Container> extract(type);
-            each(cur, end, extract, MatchAll());
-            return extract.result;
+        template <typename Iter>
+        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& cur, const Iter& end) {
+            return MakeCastIterator<Entity*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTEntity)));
+        }
+
+        template <typename Iter>
+        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
+            return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTEntity)));
         }
     }
 }

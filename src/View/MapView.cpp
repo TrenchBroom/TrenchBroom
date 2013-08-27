@@ -14,7 +14,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MapView.h"
@@ -81,56 +81,32 @@ namespace TrenchBroom {
         }
 
         void MapView::OnMouseButton(wxMouseEvent& event) {
-            if (m_ignoreNextClick && (event.LeftDown() || event.LeftUp())) {
-                if (event.LeftUp())
+            const MouseButtonState button = mouseButton(event);
+
+            if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
+                if (event.ButtonUp())
                     m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
             
-            if (event.LeftDown()) {
+            if (event.ButtonDown()) {
                 CaptureMouse();
                 m_clickPos = event.GetPosition();
-                m_inputState.mouseDown(MouseButtons::MBLeft);
+                m_inputState.mouseDown(button);
                 m_toolChain->mouseDown(m_inputState);
-            } else if (event.LeftUp()) {
+            } else {
                 if (m_dragReceiver != NULL) {
-                    m_toolChain->endMouseDrag(m_inputState);
+                    m_dragReceiver->endMouseDrag(m_inputState);
                     m_dragReceiver = NULL;
+                } else {
+                    m_toolChain->mouseUp(m_inputState);
                 }
-                m_toolChain->mouseUp(m_inputState);
-                m_inputState.mouseUp(MouseButtons::MBLeft);
-                if (GetCapture() == this)
-                    ReleaseMouse();
-            } else if (event.MiddleDown()) {
-                CaptureMouse();
-                m_clickPos = event.GetPosition();
-                m_inputState.mouseDown(MouseButtons::MBMiddle);
-                m_toolChain->mouseDown(m_inputState);
-            } else if (event.MiddleUp()) {
-                if (m_dragReceiver != NULL) {
-                    m_toolChain->endMouseDrag(m_inputState);
-                    m_dragReceiver = NULL;
-                }
-                m_toolChain->mouseUp(m_inputState);
-                m_inputState.mouseUp(MouseButtons::MBMiddle);
-                if (GetCapture() == this)
-                    ReleaseMouse();
-            } else if (event.RightDown()) {
-                CaptureMouse();
-                m_clickPos = event.GetPosition();
-                m_inputState.mouseDown(MouseButtons::MBRight);
-                m_toolChain->mouseDown(m_inputState);
-            } else if (event.RightUp()) {
-                if (m_dragReceiver != NULL) {
-                    m_toolChain->endMouseDrag(m_inputState);
-                    m_dragReceiver = NULL;
-                }
-                m_toolChain->mouseUp(m_inputState);
-                m_inputState.mouseUp(MouseButtons::MBRight);
+                m_inputState.mouseUp(button);
                 if (GetCapture() == this)
                     ReleaseMouse();
             }
+
             Refresh();
             event.Skip();
         }
@@ -151,7 +127,7 @@ namespace TrenchBroom {
                     }
                 if (m_dragReceiver != NULL) {
                     m_inputState.mouseMove(event.GetX(), event.GetY());
-                    m_toolChain->mouseDrag(m_inputState);
+                    m_dragReceiver->mouseDrag(m_inputState);
                 } else {
                     m_inputState.mouseMove(event.GetX(), event.GetY());
                     m_toolChain->mouseMove(m_inputState);
@@ -272,6 +248,16 @@ namespace TrenchBroom {
                 m_inputState.clearMouseButtons();
                 m_dragReceiver = NULL;
             }
+        }
+
+        MouseButtonState MapView::mouseButton(wxMouseEvent& event) {
+            if (event.LeftDown() || event.LeftUp())
+                return MouseButtons::MBLeft;
+            if (event.MiddleDown() || event.MiddleUp())
+                return MouseButtons::MBMiddle;
+            if (event.RightDown() || event.RightUp())
+                return MouseButtons::MBRight;
+            return MouseButtons::MBNone;
         }
 
         void MapView::bindEvents() {

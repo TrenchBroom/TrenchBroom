@@ -14,7 +14,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_NestedHierarchyIterator_h
@@ -46,25 +46,23 @@ namespace TrenchBroom {
         NestedHierarchyIterator(const OuterIterator& outerCur) :
         m_outerCur(outerCur),
         m_outerEnd(m_outerCur),
-        m_returnOuter(true) {}
+        m_returnOuter(true) {
+            resetInner();
+        }
         
         NestedHierarchyIterator(const OuterIterator& outerCur, const OuterIterator& outerEnd) :
         m_outerCur(outerCur),
         m_outerEnd(outerEnd),
-        m_returnOuter(true) {}
-        
-        inline reference operator*() const {
-            if (m_returnOuter)
-                return static_cast<reference>(*m_outerCur);
-            return static_cast<reference>(*m_innerCur);
+        m_returnOuter(true) {
+            resetInner();
         }
         
         inline ValueType& operator*() {
             if (m_returnOuter)
-                return static_cast<ValueType&>(*m_outerCur);
-            return static_cast<ValueType&>(*m_innerCur);
+                return (ValueType&)(*m_outerCur);
+            return (ValueType&)(*m_innerCur);
         }
-        
+
         inline ValueType* operator->() const {
             if (m_returnOuter)
                 return &*m_outerCur;
@@ -73,10 +71,14 @@ namespace TrenchBroom {
         
         // pre-increment
         inline NestedHierarchyIterator& operator++() {
-            ++m_innerCur;
-            m_returnOuter = false;
-            if (m_innerCur == m_innerEnd)
+            if (m_innerCur == m_innerEnd) {
                 advanceOuter();
+            } else {
+                ++m_innerCur;
+                m_returnOuter = false;
+                if (m_innerCur == m_innerEnd)
+                    advanceOuter();
+            }
             return *this;
         }
         
@@ -105,9 +107,15 @@ namespace TrenchBroom {
             if (m_outerCur == m_outerEnd)
                 return;
             ++m_outerCur;
+            resetInner();
+            m_returnOuter = true;
+        }
+        
+        inline void resetInner() {
+            if (m_outerCur == m_outerEnd)
+                return;
             m_innerCur = m_adapter.beginInner(m_outerCur);
             m_innerEnd = m_adapter.endInner(m_outerCur);
-            m_returnOuter = true;
         }
     };
 }

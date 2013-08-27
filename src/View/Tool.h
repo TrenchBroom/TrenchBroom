@@ -14,7 +14,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_Tool_h
@@ -197,23 +197,15 @@ namespace TrenchBroom {
             }
             
             inline bool mouseDrag(const InputState& inputState) {
-                if (static_cast<MouseDragPolicyType&>(*this).doMouseDrag(inputState))
-                    return true;
-                if (m_next != NULL)
-                    return m_next->mouseDrag(inputState);
-                return false;
+                return static_cast<MouseDragPolicyType&>(*this).doMouseDrag(inputState);
             }
             
             inline void endMouseDrag(const InputState& inputState) {
                 static_cast<MouseDragPolicyType&>(*this).doEndMouseDrag(inputState);
-                if (m_next != NULL)
-                    m_next->endMouseDrag(inputState);
             }
             
             inline void cancelMouseDrag(const InputState& inputState) {
                 static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
-                if (m_next != NULL)
-                    m_next->cancelMouseDrag(inputState);
             }
             
             inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) {

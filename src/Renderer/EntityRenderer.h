@@ -14,7 +14,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __TrenchBroom__EntityRenderer__
@@ -95,26 +95,28 @@ namespace TrenchBroom {
             void removeEntity(Model::Entity* entity);
             void clear();
 
-            template <typename Collection>
-            void addEntities(const Collection& entities) {
-                typename Collection::const_iterator it, end;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                    addEntity(*it);
+            template <typename Iter>
+            void addEntities(Iter cur, const Iter end) {
+                while (cur != end) {
+                    addEntity(*cur);
+                    ++cur;
+                }
             }
-            template <typename Collection>
-            void updateEntities(const Collection& entities) {
-                typename Collection::const_iterator it, end;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                    updateEntity(*it);
-            }
-            
-            template <typename Collection>
-            void removeEntities(const Collection& entities) {
-                typename Collection::const_iterator it, end;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it)
-                    removeEntity(*it);
+            template <typename Iter>
+            void updateEntities(Iter cur, const Iter end) {
+                while (cur != end) {
+                    updateEntity(*cur);
+                    ++cur;
+                }
             }
             
+            template <typename Iter>
+            void removeEntities(Iter cur, const Iter end) {
+                while (cur != end) {
+                    removeEntity(*cur);
+                    ++cur;
+                }
+            }
             
             void render(RenderContext& context);
             

@@ -14,13 +14,15 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MapRenderer.h"
 
 #include "Color.h"
 #include "Preferences.h"
+#include "CastIterator.h"
+#include "FilterIterator.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
@@ -191,7 +193,9 @@ namespace TrenchBroom {
 
         void MapRenderer::loadMap(Model::Map& map) {
             m_unselectedBrushRenderer.setBrushes(map.brushes());
-            m_unselectedEntityRenderer.addEntities(map.entities());
+            
+            m_unselectedEntityRenderer.addEntities(map.entities().begin(),
+                                                   map.entities().end());
         }
 
         void MapRenderer::updateSelection(Controller::Command::Ptr command) {
@@ -201,16 +205,19 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
             
             const Model::SelectionResult& result = selectionCommand->lastResult();
-            
-            
-            m_unselectedEntityRenderer.removeEntities(Model::filterObjectsByType<Model::EntitySet>(result.selectedObjects().begin(), result.selectedObjects().end(), Model::Object::OTEntity));
-            m_unselectedEntityRenderer.addEntities(Model::filterObjectsByType<Model::EntitySet>(result.deselectedObjects()));
-            m_selectedEntityRenderer.removeEntities(Model::filterObjectsByType<Model::EntitySet>(result.deselectedObjects()));
-            m_selectedEntityRenderer.addEntities(Model::filterObjectsByType<Model::EntitySet>(result.selectedObjects()));
+            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
+                                                      Model::entityIterator(result.selectedObjects().end()));
+            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
+                                                   Model::entityIterator(result.deselectedObjects().end()));
+            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
+                                                    Model::entityIterator(result.deselectedObjects().end()));
+            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
+                                                 Model::entityIterator(result.selectedObjects().end()));
         }
         
         void MapRenderer::updateEntities(Controller::Command::Ptr command) {
-            m_selectedEntityRenderer.updateEntities(command->affectedEntities());
+            m_selectedEntityRenderer.updateEntities(Model::entityIterator(command->affectedEntities().begin(), command->affectedEntities().end()),
+                                                    Model::entityIterator(command->affectedEntities().end()));
         }
     }
 }
