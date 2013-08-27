@@ -21,9 +21,9 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "Controller/ControllerFacade.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             m_multi = false;
         }
 
-        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, Controller::ControllerFacade& controller) :
+        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, ControllerFacade& controller) :
         m_document(document),
         m_controller(controller),
         m_ignoreUpdates(false),

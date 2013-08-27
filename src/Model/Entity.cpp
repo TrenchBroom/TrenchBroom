@@ -91,6 +91,10 @@ namespace TrenchBroom {
                 m_definition->incUsageCount();
         }
 
+        bool Entity::worldspawn() const {
+            return classname() == PropertyValues::WorldspawnClassname;
+        }
+
         Assets::ModelSpecification Entity::modelSpecification() const {
             if (m_definition == NULL || m_definition->type() != Assets::EntityDefinition::PointEntity)
                 return Assets::ModelSpecification();

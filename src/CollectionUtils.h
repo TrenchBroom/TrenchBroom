@@ -153,6 +153,11 @@ namespace VectorUtils {
     }
     
     template <typename T>
+    inline void concatenate(std::vector<T>& vec1, const std::vector<T>& vec2) {
+        vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+    }
+    
+    template <typename T>
     inline std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         typedef std::vector<T> VecType;
         typedef typename VecType::const_iterator VecIter;

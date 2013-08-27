@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Model/Picker.h"
 #include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             bool m_orbit;
             Vec3f m_orbitCenter;
         public:
-            CameraTool(BaseTool* next, Renderer::Camera& camera);
+            CameraTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, Renderer::Camera& camera);
         private:
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);

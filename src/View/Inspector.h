@@ -28,10 +28,6 @@
 class wxNotebook;
 
 namespace TrenchBroom {
-    namespace Controller {
-        class ControllerFacade;
-    }
-    
     namespace Renderer {
         class RenderResources;
     }
@@ -47,7 +43,7 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
             ViewInspector* m_viewInspector;
         public:
-            Inspector(wxWindow* parent, MapDocumentPtr document, Controller::ControllerFacade& controller, Renderer::RenderResources& resources);
+            Inspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
 
             void update(Controller::Command::Ptr command);
         };

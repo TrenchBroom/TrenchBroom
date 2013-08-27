@@ -90,6 +90,9 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
+            void addEntity(Model::Entity* entity);
+            void addBrushes(Model::Entity* entity, const Model::BrushList& brushes);
+            
             bool hasSelectedObjects() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
@@ -124,12 +127,14 @@ namespace TrenchBroom {
             
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
-            void updateEntityDefinitions();
-            void updateEntityModels();
+            void updateEntityDefinitions(const Model::EntityList& entities);
+            void updateEntityModels(const Model::EntityList& entities);
 
             void loadAndUpdateTextures();
             void loadTextures();
             void updateTextures();
+            
+            Model::Entity* worldspawn();
             
             void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);

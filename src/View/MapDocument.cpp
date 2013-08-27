@@ -26,8 +26,12 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "IO/FileSystem.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityBrushesIterator.h"
+#include "Model/EntityFacesIterator.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
+#include "Model/MapFacesIterator.h"
+#include "Model/MapObjectsIterator.h"
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
 #include "View/MapFrame.h"
@@ -46,10 +50,9 @@ namespace TrenchBroom {
             SetEntityDefinition(Assets::EntityDefinitionManager& definitionManager) :
             m_definitionManager(definitionManager) {}
             
-            inline bool operator()(Model::Entity* entity) const {
+            inline void operator()(Model::Entity* entity) const {
                 Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
                 entity->setDefinition(definition);
-                return true;
             }
         };
         
@@ -60,7 +63,7 @@ namespace TrenchBroom {
             SetEntityModel(Assets::EntityModelManager& modelManager) :
             m_modelManager(modelManager) {}
             
-            inline bool operator()(Model::Entity* entity) const {
+            inline void operator()(Model::Entity* entity) const {
                 const Assets::ModelSpecification spec = entity->modelSpecification();
                 if (spec.path.isEmpty()) {
                     entity->setModel(NULL);
@@ -68,7 +71,6 @@ namespace TrenchBroom {
                     Assets::EntityModel* model = m_modelManager.model(spec.path);
                     entity->setModel(model);
                 }
-                return true;
             }
         };
         
@@ -79,11 +81,10 @@ namespace TrenchBroom {
             SetFaceTexture(Assets::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) const {
+            inline void operator()(Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
                 Assets::FaceTexture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
-                return true;
             }
         };
         
@@ -94,9 +95,44 @@ namespace TrenchBroom {
             AddToPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline bool operator()(Model::Object* object) const {
+            inline void operator()(Model::Object* object) const {
                 m_picker.addObject(object);
-                return true;
+            }
+        };
+        
+        class RemoveFromPicker {
+        private:
+            Model::Picker& m_picker;
+        public:
+            RemoveFromPicker(Model::Picker& picker) :
+            m_picker(picker) {}
+            
+            inline void operator()(Model::Object* object) const {
+                m_picker.removeObject(object);
+            }
+        };
+        
+        class AddToMap {
+        private:
+            Model::Map& m_map;
+        public:
+            AddToMap(Model::Map& map) :
+            m_map(map) {}
+            
+            inline void operator()(Model::Entity* entity) const {
+                m_map.addEntity(entity);
+            }
+        };
+        
+        class AddToEntity {
+        private:
+            Model::Entity& m_entity;
+        public:
+            AddToEntity(Model::Entity& entity) :
+            m_entity(entity) {}
+            
+            inline void operator()(Model::Brush* brush) const {
+                m_entity.addBrush(brush);
             }
         };
         
@@ -210,7 +246,10 @@ namespace TrenchBroom {
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
             
-            Model::eachObject(*m_map, AddToPicker(m_picker), Model::MatchAll());
+            Model::each(Model::MapObjectsIterator::begin(*m_map),
+                        Model::MapObjectsIterator::end(*m_map),
+                        AddToPicker(m_picker),
+                        Model::MatchAll());
         }
 
         void MapDocument::saveDocument() {
@@ -222,6 +261,60 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        void MapDocument::addEntity(Model::Entity* entity) {
+            if (entity->worldspawn()) {
+                addBrushes(worldspawn(), entity->brushes());
+                
+                // we are supposed to take ownership, so if the given worldspawn
+                // is not our worldspawn, we delete it
+                if (entity != worldspawn())
+                    delete entity;
+            } else {
+                SetEntityDefinition setDefinition(m_entityDefinitionManager);
+                SetEntityModel setModel(m_entityModelManager);
+                AddToMap addToMap(*m_map);
+                AddToPicker addToPicker(m_picker);
+                SetFaceTexture setTexture(m_textureManager);
+                
+                setDefinition(entity);
+                setModel(entity);
+                addToMap(entity);
+                addToPicker(entity);
+                
+                Model::each(entity->brushes().begin(),
+                            entity->brushes().end(),
+                            addToPicker,
+                            Model::MatchAll());
+                Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
+                            Model::BrushFacesIterator::end(entity->brushes()),
+                            setTexture, Model::MatchAll());
+            }
+        }
+        
+        void MapDocument::addBrushes(Model::Entity* entity, const Model::BrushList& brushes) {
+            Model::Entity* target = entity->worldspawn() ? worldspawn() : entity;
+            
+            AddToEntity addToEntity(*target);
+            AddToPicker addToPicker(m_picker);
+            RemoveFromPicker removeFromPicker(m_picker);
+            SetFaceTexture setTexture(m_textureManager);
+
+            removeFromPicker(entity);
+            Model::each(brushes.begin(),
+                        brushes.end(),
+                        addToEntity,
+                        Model::MatchAll());
+            Model::each(brushes.begin(),
+                        brushes.end(),
+                        addToPicker,
+                        Model::MatchAll());
+            Model::each(Model::BrushFacesIterator::begin(brushes),
+                        Model::BrushFacesIterator::end(brushes),
+                        setTexture,
+                        Model::MatchAll());
+            addToPicker(entity);
+        }
+
         bool MapDocument::hasSelectedObjects() const {
             return m_selection.hasSelectedObjects();
         }
@@ -311,8 +404,8 @@ namespace TrenchBroom {
             
             if (command->type() == Controller::EntityPropertyCommand::Type) {
                 const Model::EntityList entities = command->affectedEntities();
-                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
-                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAll());
+                updateEntityDefinitions(entities);
+                updateEntityModels(entities);
             }
         }
         
@@ -329,8 +422,8 @@ namespace TrenchBroom {
 
             if (command->type() == Controller::EntityPropertyCommand::Type) {
                 const Model::EntityList entities = command->affectedEntities();
-                Model::eachEntity(entities, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
-                Model::eachEntity(entities, SetEntityModel(m_entityModelManager), Model::MatchAll());
+                updateEntityDefinitions(entities);
+                updateEntityModels(entities);
             }
         }
         
@@ -353,8 +446,8 @@ namespace TrenchBroom {
         
         void MapDocument::loadAndUpdateEntityDefinitions() {
             loadEntityDefinitions();
-            updateEntityDefinitions();
-            updateEntityModels();
+            updateEntityDefinitions(m_map->entities());
+            updateEntityModels(m_map->entities());
         }
         
         void MapDocument::loadEntityDefinitions() {
@@ -363,12 +456,18 @@ namespace TrenchBroom {
             info("Loaded entity definition file " + path.asString());
         }
         
-        void MapDocument::updateEntityDefinitions() {
-            Model::eachEntity(*m_map, SetEntityDefinition(m_entityDefinitionManager), Model::MatchAll());
+        void MapDocument::updateEntityDefinitions(const Model::EntityList& entities) {
+            Model::each(entities.begin(),
+                        entities.end(),
+                        SetEntityDefinition(m_entityDefinitionManager),
+                        Model::MatchAll());
         }
 
-        void MapDocument::updateEntityModels() {
-            Model::eachEntity(*m_map, SetEntityModel(m_entityModelManager), Model::MatchAll());
+        void MapDocument::updateEntityModels(const Model::EntityList& entities) {
+            Model::each(entities.begin(),
+                        entities.end(),
+                        SetEntityModel(m_entityModelManager),
+                        Model::MatchAll());
         }
 
         void MapDocument::loadAndUpdateTextures() {
@@ -399,7 +498,20 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateTextures() {
-            Model::eachFace(*m_map, SetFaceTexture(m_textureManager), Model::MatchAll());
+            Model::each(Model::MapFacesIterator::begin(*m_map),
+                        Model::MapFacesIterator::end(*m_map),
+                        SetFaceTexture(m_textureManager),
+                        Model::MatchAll());
+        }
+
+        Model::Entity* MapDocument::worldspawn() {
+            Model::Entity* worldspawn = m_map->worldspawn();
+            if (worldspawn == NULL) {
+                worldspawn = m_map->createEntity();
+                worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
+                m_map->addEntity(worldspawn);
+            }
+            return worldspawn;
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

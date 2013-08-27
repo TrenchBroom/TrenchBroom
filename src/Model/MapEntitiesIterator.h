@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,16 +17,23 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewTypes_h
-#define TrenchBroom_ViewTypes_h
+#ifndef TrenchBroom_MapEntitiesIterator_h
+#define TrenchBroom_MapEntitiesIterator_h
 
-#include "SharedPointer.h"
+#include "Model/Map.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class ControllerFacade;
-        class MapDocument;
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
+    namespace Model {
+        namespace MapEntitiesIterator {
+            inline EntityList::const_iterator begin(Map& map) {
+                return map.entities().begin();
+            }
+            
+            inline EntityList::const_iterator end(Map& map) {
+                return map.entities().end();
+            }
+        }
     }
 }
 

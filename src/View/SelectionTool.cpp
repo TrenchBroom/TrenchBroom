@@ -19,7 +19,6 @@
 
 #include "SelectionTool.h"
 
-#include "Controller/ControllerFacade.h"
 #include "Model/Brush.h"
 #include "Model/HitFilters.h"
 #include "Model/Entity.h"
@@ -27,14 +26,14 @@
 #include "Model/Object.h"
 #include "Model/Picker.h"
 #include "Model/HitAdapter.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
-        SelectionTool::SelectionTool(BaseTool* next, Controller::ControllerFacade& controller) :
-        Tool(next),
-        m_controller(controller) {}
+        SelectionTool::SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+        Tool(next, document, controller) {}
 
         bool SelectionTool::doMouseUp(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
@@ -50,15 +49,15 @@ namespace TrenchBroom {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
                         if (face->selected()) {
-                            m_controller.deselectFace(face);
+                            controller().deselectFace(face);
                         } else {
-                            m_controller.selectFace(face);
+                            controller().selectFace(face);
                         }
                     } else {
-                        m_controller.deselectAllAndSelectFace(face);
+                        controller().deselectAllAndSelectFace(face);
                     }
                 } else {
-                    m_controller.deselectAll();
+                    controller().deselectAll();
                 }
             } else {
                 Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit | Model::Entity::EntityHit), Model::DefaultHitFilter(inputState.filter()));
@@ -67,15 +66,15 @@ namespace TrenchBroom {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {
                         if (object->selected()) {
-                            m_controller.deselectObject(object);
+                            controller().deselectObject(object);
                         } else {
-                            m_controller.selectObject(object);
+                            controller().selectObject(object);
                         }
                     } else {
-                        m_controller.deselectAllAndSelectObject(object);
+                        controller().deselectAllAndSelectObject(object);
                     }
                 } else {
-                    m_controller.deselectAll();
+                    controller().deselectAll();
                 }
             }
             

@@ -37,13 +37,12 @@ namespace TrenchBroom {
     namespace View {
         struct RendererFilter : public Renderer::BrushRenderer::Filter {
             bool operator()(const Model::Brush* brush) const { return true; }
-            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const { return true; }
+            bool operator()(const Model::BrushFace* face) const { return true; }
             bool operator()(const Model::BrushEdge* edge) const { return true; }
         };
         
-        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentPtr document) :
-        Tool(next),
-        m_document(document),
+        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+        Tool(next, document, controller),
         m_brushRenderer(RendererFilter()),
         m_brush(NULL) {}
 
@@ -52,7 +51,7 @@ namespace TrenchBroom {
             
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
-            if (m_document->hasSelectedObjects())
+            if (document()->hasSelectedObjects())
                 return false;
             
             Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit), Model::DefaultHitFilter(inputState.filter()));
@@ -120,7 +119,7 @@ namespace TrenchBroom {
                 bounds.max[i] = std::max(point1[i], point2[i]);
             }
             
-            View::Grid& grid = m_document->grid();
+            View::Grid& grid = document()->grid();
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
             
@@ -131,9 +130,9 @@ namespace TrenchBroom {
         }
 
         Model::Brush* CreateBrushTool::createBrush(const BBox3& bounds) const {
-            Model::Map& map = *m_document->map();
-            const BBox3& worldBounds = m_document->worldBounds();
-            const String textureName = m_document->currentTextureName();
+            Model::Map& map = *document()->map();
+            const BBox3& worldBounds = document()->worldBounds();
+            const String textureName = document()->currentTextureName();
             return Model::createBrushFromBounds(map, worldBounds, bounds, textureName);
         }
 

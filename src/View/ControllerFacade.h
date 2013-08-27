@@ -38,16 +38,18 @@ namespace TrenchBroom {
     
     namespace Controller {
         class CommandProcessor;
-        
+    }
+    
+    namespace View {
         class ControllerFacade {
         private:
-            View::MapDocumentPtr m_document;
-            CommandProcessor m_commandProcessor;
+            MapDocumentPtr m_document;
+            Controller::CommandProcessor m_commandProcessor;
         public:
-            void setDocument(View::MapDocumentPtr document);
+            void setDocument(MapDocumentPtr document);
             
-            void addCommandListener(CommandListener::Ptr listener);
-            void removeCommandListener(CommandListener::Ptr listener);
+            void addCommandListener(Controller::CommandListener::Ptr listener);
+            void removeCommandListener(Controller::CommandListener::Ptr listener);
 
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

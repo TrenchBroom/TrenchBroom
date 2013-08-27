@@ -23,6 +23,10 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/MapBrushesIterator.h"
+#include "Model/MapEntitiesIterator.h"
+#include "Model/MapFacesIterator.h"
+#include "Model/MapObjectsIterator.h"
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
 
@@ -30,43 +34,21 @@
 
 namespace TrenchBroom {
     namespace Model {
-        struct Test {
-            bool hasSelectedObjects;
-            bool hasSelectedFaces;
-
-            Test() :
-            hasSelectedObjects(false),
-            hasSelectedFaces(false) {}
-            
-            inline bool operator()(Object* object) {
-                hasSelectedObjects = object->selected();
-                return !hasSelectedObjects;
-            }
-
-            inline bool operator()(Brush* brush, BrushFace* face) {
-                hasSelectedFaces = face->selected();
-                return !hasSelectedFaces;
-            }
-        };
-        
         struct Collect {
             EntityList entities;
             BrushList brushes;
             BrushFaceList faces;
             
-            inline bool operator()(Entity* entity) {
+            inline void operator()(Entity* entity) {
                 entities.push_back(entity);
-                return true;
             }
             
-            inline bool operator()(Brush* brush) {
+            inline void operator()(Brush* brush) {
                 brushes.push_back(brush);
-                return true;
             }
             
-            inline bool operator()(Brush* brush, BrushFace* face) {
+            inline void operator()(BrushFace* face) {
                 faces.push_back(face);
-                return true;
             }
         };
         
@@ -79,7 +61,7 @@ namespace TrenchBroom {
             m_select(select),
             m_result(result) {}
             
-            inline bool operator()(Object* object) const {
+            inline void operator()(Object* object) const {
                 if (m_select) {
                     if (!object->selected()) {
                         object->select();
@@ -91,10 +73,9 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(object);
                     }
                 }
-                return true;
             }
 
-            inline bool operator()(Entity* entity) const {
+            inline void operator()(Entity* entity) const {
                 if (m_select) {
                     if (!entity->selected()) {
                         entity->select();
@@ -106,10 +87,9 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(entity);
                     }
                 }
-                return true;
             }
             
-            inline bool operator()(Brush* brush) const {
+            inline void operator()(Brush* brush) const {
                 if (m_select) {
                     if (!brush->selected()) {
                         brush->select();
@@ -121,10 +101,9 @@ namespace TrenchBroom {
                         m_result.addDeselectedObject(brush);
                     }
                 }
-                return true;
             }
             
-            inline bool operator()(Brush* brush, BrushFace* face) const {
+            inline void operator()(BrushFace* face) const {
                 if (m_select) {
                     if (!face->selected()) {
                         face->select();
@@ -136,60 +115,51 @@ namespace TrenchBroom {
                         m_result.addDeselectedFace(face);
                     }
                 }
-                return true;
             }
         };
 
-        struct MatchSelectedObjectsFilter {
-            inline bool operator()(Entity* entity) const {
+        struct MatchSelected  {
+            inline bool operator()(const Object* object) const {
+                return object->selected();
+            }
+            
+            inline bool operator()(const Entity* entity) const {
                 return entity->selected();
             }
             
-            inline bool operator()(Brush* brush) const {
-                return brush->selected();
-            }
-        };
-        
-        struct MatchSelectedFacesFilter {
-            inline bool operator()(Brush* brush, BrushFace* face) const {
-                return face->selected();
-            }
-        };
-
-        struct MatchSelectedFilter  {
-            inline bool operator()(Entity* entity) const {
-                return entity->selected();
-            }
-            
-            inline bool operator()(Brush* brush) const {
+            inline bool operator()(const Brush* brush) const {
                 return brush->selected();
             }
 
-            inline bool operator()(Brush* brush, BrushFace* face) const {
+            inline bool operator()(const BrushFace* face) const {
                 return face->selected();
             }
         };
         
-        struct MatchPartiallySelectedFilter  {
-            inline bool operator()(Entity* entity) const {
+        struct MatchPartiallySelected  {
+            inline bool operator()(const Entity* entity) const {
                 return entity->selected() || entity->partiallySelected();
             }
             
-            inline bool operator()(Brush* brush) const {
+            inline bool operator()(const Brush* brush) const {
                 return brush->selected() || brush->partiallySelected();
             }
         };
         
-        struct MatchUnselectedFilter {
-            inline bool operator()(Entity* entity) const {
+        struct MatchUnselected {
+            inline bool operator()(const Object* object) const {
+                return !object->selected();
+            }
+            
+            inline bool operator()(const Entity* entity) const {
                 return !entity->selected();
             }
             
-            inline bool operator()(Brush* brush) const {
+            inline bool operator()(const Brush* brush) const {
                 return !brush->selected();
             }
             
-            inline bool operator()(Brush* brush, BrushFace* face) const {
+            inline bool operator()(const BrushFace* face) const {
                 return !face->selected();
             }
         };
@@ -202,98 +172,109 @@ namespace TrenchBroom {
             if (m_map == NULL)
                 return false;
             
-            Test test;
-            eachObject(*m_map, test, MatchSelectedFilter());
-            return test.hasSelectedObjects;
+            return any(MapObjectsIterator::begin(*m_map),
+                       MapObjectsIterator::end(*m_map),
+                       MatchSelected());
         }
         
         bool Selection::hasSelectedFaces() const {
             if (m_map == NULL)
                 return false;
             
-            Test test;
-            eachFace(*m_map, test, MatchSelectedFilter());
-            return test.hasSelectedFaces;
+            return any(MapFacesIterator::begin(*m_map),
+                       MapFacesIterator::end(*m_map),
+                       MatchSelected());
         }
         
         bool Selection::hasSelection() const {
             if (m_map == NULL)
                 return false;
             
-            Test test;
-            MatchSelectedFilter filter;
-            
-            eachObject(*m_map, test, filter);
-            if (test.hasSelectedObjects)
-                return true;
-            eachFace(*m_map, test, filter);
-            return test.hasSelectedFaces;
+            return hasSelectedObjects() || hasSelectedFaces();
         }
 
         ObjectList Selection::selectedObjects() const {
             if (m_map == NULL)
                 return EmptyObjectList;
             
-            Collect collect;
-            eachObject(*m_map, collect, MatchSelectedFilter());
-            
             ObjectList result;
-            VectorUtils::concatenate(collect.entities, collect.brushes, result);
+            filter(MapObjectsIterator::begin(*m_map),
+                   MapObjectsIterator::end(*m_map),
+                   MatchSelected(),
+                   std::back_inserter(result));
             return result;
         }
         
         EntityList Selection::selectedEntities() const {
             if (m_map == NULL)
                 return EmptyEntityList;
-            
-            Collect collect;
-            eachEntity(*m_map, collect, MatchSelectedFilter());
-            return collect.entities;
+
+            EntityList result;
+            filter(MapEntitiesIterator::begin(*m_map),
+                   MapEntitiesIterator::end(*m_map),
+                   MatchSelected(),
+                   std::back_inserter(result));
+            return result;
         }
         
         EntityList Selection::allSelectedEntities() const {
             if (m_map == NULL)
                 return EmptyEntityList;
             
-            Collect collect;
-            eachEntity(*m_map, collect, MatchPartiallySelectedFilter());
-            return collect.entities;
+            EntityList result;
+            filter(MapEntitiesIterator::begin(*m_map),
+                   MapEntitiesIterator::end(*m_map),
+                   MatchPartiallySelected(),
+                   std::back_inserter(result));
+            return result;
         }
 
         EntityList Selection::unselectedEntities() const {
             if (m_map == NULL)
                 return EmptyEntityList;
             
-            Collect collect;
-            eachEntity(*m_map, collect, MatchUnselectedFilter());
-            return collect.entities;
+            EntityList result;
+            filter(MapEntitiesIterator::begin(*m_map),
+                   MapEntitiesIterator::end(*m_map),
+                   MatchUnselected(),
+                   std::back_inserter(result));
+            return result;
         }
 
         BrushList Selection::selectedBrushes() const {
             if (m_map == NULL)
                 return EmptyBrushList;
             
-            Collect collect;
-            eachBrush(*m_map, collect, MatchSelectedFilter());
-            return collect.brushes;
+            BrushList result;
+            filter(MapBrushesIterator::begin(*m_map),
+                   MapBrushesIterator::end(*m_map),
+                   MatchSelected(),
+                   std::back_inserter(result));
+            return result;
         }
         
         BrushList Selection::unselectedBrushes() const {
             if (m_map == NULL)
                 return EmptyBrushList;
             
-            Collect collect;
-            eachBrush(*m_map, collect, MatchUnselectedFilter());
-            return collect.brushes;
+            BrushList result;
+            filter(MapBrushesIterator::begin(*m_map),
+                   MapBrushesIterator::end(*m_map),
+                   MatchUnselected(),
+                   std::back_inserter(result));
+            return result;
         }
 
         BrushFaceList Selection::selectedFaces() const {
             if (m_map == NULL)
                 return EmptyBrushFaceList;
             
-            Collect collect;
-            eachFace(*m_map, collect, MatchSelectedFilter());
-            return collect.faces;
+            BrushFaceList result;
+            filter(MapFacesIterator::begin(*m_map),
+                   MapFacesIterator::end(*m_map),
+                   MatchSelected(),
+                   std::back_inserter(result));
+            return result;
         }
         
         SelectionResult Selection::selectObjects(const ObjectList& objects) {
@@ -302,7 +283,10 @@ namespace TrenchBroom {
             SelectionResult result;
             if (!objects.empty()) {
                 deselectAllFaces(result);
-                eachObject(objects, SetSelection(true, result), MatchAll());
+                each(objects.begin(),
+                     objects.end(),
+                     SetSelection(true, result),
+                     MatchAll());
             }
             return result;
         }
@@ -311,7 +295,10 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             SelectionResult result;
             if (!objects.empty())
-                eachObject(objects, SetSelection(false, result), MatchAll());
+                each(objects.begin(),
+                     objects.end(),
+                     SetSelection(false, result),
+                     MatchAll());
             return result;
         }
         
@@ -319,7 +306,10 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             SelectionResult result;
-            eachObject(*m_map, SetSelection(true, result), MatchUnselectedFilter());
+            each(MapObjectsIterator::begin(*m_map),
+                 MapObjectsIterator::end(*m_map),
+                 SetSelection(true, result),
+                 MatchUnselected());
             return result;
         }
         
@@ -329,7 +319,10 @@ namespace TrenchBroom {
             SelectionResult result;
             if (!faces.empty()) {
                 deselectAllObjects(result);
-                eachFace(faces, SetSelection(true, result), MatchAll());
+                each(faces.begin(),
+                     faces.end(),
+                     SetSelection(true, result),
+                     MatchAll());
             }
             
             if (result.lastSelectedFace() != NULL)
@@ -343,7 +336,10 @@ namespace TrenchBroom {
             
             SelectionResult result;
             if (!faces.empty())
-                eachFace(faces, SetSelection(false, result), MatchAll());
+                each(faces.begin(),
+                     faces.end(),
+                     SetSelection(false, result),
+                     MatchAll());
             return result;
         }
 
@@ -365,13 +361,19 @@ namespace TrenchBroom {
         void Selection::deselectAllObjects(SelectionResult& result) {
             assert(m_map != NULL);
             
-            eachObject(*m_map, SetSelection(false, result), MatchSelectedObjectsFilter());
+            each(MapObjectsIterator::begin(*m_map),
+                 MapObjectsIterator::end(*m_map),
+                 SetSelection(false, result),
+                 MatchSelected());
         }
         
         void Selection::deselectAllFaces(SelectionResult& result) {
             assert(m_map != NULL);
             
-            eachFace(*m_map, SetSelection(false, result), MatchSelectedFacesFilter());
+            each(MapFacesIterator::begin(*m_map),
+                 MapFacesIterator::end(*m_map),
+                 SetSelection(false, result),
+                 MatchSelected());
         }
     }
 }

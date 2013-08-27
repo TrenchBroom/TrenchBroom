@@ -17,17 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewTypes_h
-#define TrenchBroom_ViewTypes_h
+#include <gtest/gtest.h>
 
-#include "SharedPointer.h"
+#include "Model/EntityFacesIterator.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class ControllerFacade;
-        class MapDocument;
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
+    namespace Model {
+        TEST(EntityFacesIteratorTest, testEmptyIterator) {
+            EntityList entities;
+            EntityFacesIterator::OuterIterator begin = EntityFacesIterator::begin(entities);
+            EntityFacesIterator::OuterIterator end = EntityFacesIterator::end(entities);
+            ASSERT_TRUE(begin == end);
+        }
     }
 }
-
-#endif

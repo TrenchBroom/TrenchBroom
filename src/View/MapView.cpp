@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerFacade& controller) :
         wxGLCanvas(parent, wxID_ANY, &attribs().front()),
         m_logger(logger),
         m_initialized(false),
@@ -250,9 +250,9 @@ namespace TrenchBroom {
         }
 
         void MapView::createTools() {
-            m_selectionTool = new SelectionTool(NULL, m_controller);
-            m_createBrushTool = new CreateBrushTool(m_selectionTool, m_document);
-            m_cameraTool = new CameraTool(m_createBrushTool, m_camera);
+            m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
+            m_createBrushTool = new CreateBrushTool(m_selectionTool, m_document, m_controller);
+            m_cameraTool = new CameraTool(m_createBrushTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
         }
         

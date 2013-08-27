@@ -40,7 +40,7 @@ namespace TrenchBroom {
             struct Filter {
                 virtual ~Filter();
                 virtual bool operator()(const Model::Brush* brush) const = 0;
-                virtual bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const = 0;
+                virtual bool operator()(const Model::BrushFace* face) const = 0;
                 virtual bool operator()(const Model::BrushEdge* edge) const = 0;
             };
         private:

@@ -33,6 +33,7 @@
 #include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
+#include "Model/Object.h"
 #include "Model/SelectionResult.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
@@ -55,7 +56,7 @@ namespace TrenchBroom {
                 return !brush->selected() && m_filter.visible(brush);
             }
             
-            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const {
+            bool operator()(const Model::BrushFace* face) const {
                 return !face->selected() && m_filter.visible(face);
             }
             
@@ -78,8 +79,8 @@ namespace TrenchBroom {
                 return brush->selected() && m_filter.visible(brush);
             }
             
-            bool operator()(const Model::Brush* brush, const Model::BrushFace* face) const {
-                return (brush->selected() || face->selected()) && m_filter.visible(face);
+            bool operator()(const Model::BrushFace* face) const {
+                return (face->parent()->selected() || face->selected()) && m_filter.visible(face);
             }
             
             bool operator()(const Model::BrushEdge* edge) const {
@@ -200,10 +201,12 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
             
             const Model::SelectionResult& result = selectionCommand->lastResult();
-            m_unselectedEntityRenderer.removeEntities(Model::extractEntities<Model::EntitySet>(result.selectedObjects()));
-            m_unselectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
-            m_selectedEntityRenderer.removeEntities(Model::extractEntities<Model::EntitySet>(result.deselectedObjects()));
-            m_selectedEntityRenderer.addEntities(Model::extractEntities<Model::EntitySet>(result.selectedObjects()));
+            
+            
+            m_unselectedEntityRenderer.removeEntities(Model::filterObjectsByType<Model::EntitySet>(result.selectedObjects().begin(), result.selectedObjects().end(), Model::Object::OTEntity));
+            m_unselectedEntityRenderer.addEntities(Model::filterObjectsByType<Model::EntitySet>(result.deselectedObjects()));
+            m_selectedEntityRenderer.removeEntities(Model::filterObjectsByType<Model::EntitySet>(result.deselectedObjects()));
+            m_selectedEntityRenderer.addEntities(Model::filterObjectsByType<Model::EntitySet>(result.selectedObjects()));
         }
         
         void MapRenderer::updateEntities(Controller::Command::Ptr command) {

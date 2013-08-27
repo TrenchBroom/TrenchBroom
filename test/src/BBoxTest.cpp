@@ -188,10 +188,10 @@ TEST(BBoxTest, intersectWithRay) {
     Vec3f normal;
     
     float distance = bounds.intersectWithRay(Ray3f(Vec3f::Null, Vec3f::NegZ));
-    ASSERT_TRUE(Mathf::isnan(distance));
+    ASSERT_TRUE(Math::isnan(distance));
     
     distance = bounds.intersectWithRay(Ray3f(Vec3f::Null, Vec3f::PosZ), &normal);
-    ASSERT_FALSE(Mathf::isnan(distance));
+    ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(4.0f, distance);
     ASSERT_VEC_EQ(Vec3f::NegZ, normal);
     
@@ -199,7 +199,7 @@ TEST(BBoxTest, intersectWithRay) {
     const Vec3f diff = Vec3f(-2.0f, 3.0f, 8.0f) - origin;
     const Vec3f dir = diff.normalized();
     distance = bounds.intersectWithRay(Ray3f(origin, dir), &normal);
-    ASSERT_FALSE(Mathf::isnan(distance));
+    ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(diff.length(), distance);
     ASSERT_VEC_EQ(Vec3f::PosZ, normal);
     

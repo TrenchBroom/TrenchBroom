@@ -29,27 +29,31 @@
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Controller {
-        void ControllerFacade::setDocument(View::MapDocumentPtr document) {
+    namespace View {
+        void ControllerFacade::setDocument(MapDocumentPtr document) {
             assert(m_document == NULL);
             assert(document != NULL);
             m_document = document;
         }
 
-        void ControllerFacade::addCommandListener(CommandListener::Ptr listener) {
+        void ControllerFacade::addCommandListener(Controller::CommandListener::Ptr listener) {
             m_commandProcessor.addCommandListener(listener);
         }
         
-        void ControllerFacade::removeCommandListener(CommandListener::Ptr listener) {
+        void ControllerFacade::removeCommandListener(Controller::CommandListener::Ptr listener) {
             m_commandProcessor.removeCommandListener(listener);
         }
 
         bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
+            using namespace Controller;
+            
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(m_document, worldBounds, game));
             return m_commandProcessor.submitCommand(command);
         }
         
         bool ControllerFacade::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+            using namespace Controller;
+            
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(m_document, worldBounds, game, path));
             if (m_commandProcessor.submitCommand(command)) {
                 View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
@@ -77,6 +81,8 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::selectObject(Model::Object* object) {
+            using namespace Controller;
+            
             Model::ObjectList objects;
             objects.push_back(object);
             Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
@@ -84,6 +90,8 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::deselectAllAndSelectObject(Model::Object* object) {
+            using namespace Controller;
+
             Model::ObjectList objects;
             objects.push_back(object);
             Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
@@ -97,6 +105,8 @@ namespace TrenchBroom {
         }
         
         bool ControllerFacade::deselectObject(Model::Object* object) {
+            using namespace Controller;
+
             Model::ObjectList objects;
             objects.push_back(object);
             Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
@@ -104,6 +114,8 @@ namespace TrenchBroom {
         }
         
         bool ControllerFacade::selectFace(Model::BrushFace* face) {
+            using namespace Controller;
+
             Model::BrushFaceList faces;
             faces.push_back(face);
             Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
@@ -111,6 +123,8 @@ namespace TrenchBroom {
         }
         
         bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace* face) {
+            using namespace Controller;
+
             Model::BrushFaceList faces;
             faces.push_back(face);
             Command::Ptr selectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
@@ -124,6 +138,8 @@ namespace TrenchBroom {
         }
         
         bool ControllerFacade::deselectFace(Model::BrushFace* face) {
+            using namespace Controller;
+
             Model::BrushFaceList faces;
             faces.push_back(face);
             Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STFaces, Model::EmptyObjectList, faces));
@@ -131,21 +147,29 @@ namespace TrenchBroom {
         }
         
         bool ControllerFacade::deselectAll() {
+            using namespace Controller;
+
             Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(deselectCommand);
         }
 
         bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
+            using namespace Controller;
+
             Command::Ptr command = EntityPropertyCommand::renameEntityProperty(m_document, entities, oldKey, newKey, force);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
         bool ControllerFacade::setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force) {
+            using namespace Controller;
+            
             Command::Ptr command = EntityPropertyCommand::setEntityProperty(m_document, entities, key, newValue, force);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
+            using namespace Controller;
+
             Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
             return m_commandProcessor.submitAndStoreCommand(command);
         }

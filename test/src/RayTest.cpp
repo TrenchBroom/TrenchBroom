@@ -30,14 +30,14 @@ TEST(RayTest, pointAtDistance) {
 
 TEST(RayTest, pointStatus) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
-    ASSERT_EQ(PointStatus::PSAbove, ray.pointStatus(Vec3f(0.0f, 0.0f, 1.0f)));
-    ASSERT_EQ(PointStatus::PSInside, ray.pointStatus(Vec3f(0.0f, 0.0f, 0.0f)));
-    ASSERT_EQ(PointStatus::PSBelow, ray.pointStatus(Vec3f(0.0f, 0.0f, -1.0f)));
+    ASSERT_EQ(Math::PointStatus::PSAbove, ray.pointStatus(Vec3f(0.0f, 0.0f, 1.0f)));
+    ASSERT_EQ(Math::PointStatus::PSInside, ray.pointStatus(Vec3f(0.0f, 0.0f, 0.0f)));
+    ASSERT_EQ(Math::PointStatus::PSBelow, ray.pointStatus(Vec3f(0.0f, 0.0f, -1.0f)));
 }
 
 TEST(RayTest, intersectWithPlane) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
-    ASSERT_TRUE(Mathf::isnan(ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f, -1.0f))));
+    ASSERT_TRUE(Math::isnan(ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f, -1.0f))));
     ASSERT_FLOAT_EQ(0.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  0.0f)));
     ASSERT_FLOAT_EQ(1.0f, ray.intersectWithPlane(Vec3f::PosZ, Vec3f(0.0f, 0.0f,  1.0f)));
 }
@@ -52,7 +52,7 @@ TEST(RayTest, intersectWithSphere) {
     ASSERT_FLOAT_EQ(3.0f, ray.intersectWithSphere(Vec3f(0.0f, 0.0f, 5.0f), 2.0f));
     
     // miss
-    ASSERT_TRUE(Mathf::isnan(ray.intersectWithSphere(Vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+    ASSERT_TRUE(Math::isnan(ray.intersectWithSphere(Vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
 }
 
 TEST(RayTest, distanceToPoint) {

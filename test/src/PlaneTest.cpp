@@ -64,9 +64,9 @@ TEST(PlaneTest, intersectWithLine) {
 
 TEST(PlaneTest, pointStatus) {
     const Plane3f p(10.0f, Vec3f::PosZ);
-    ASSERT_EQ(PointStatus::PSAbove, p.pointStatus(Vec3f(0.0f, 0.0f, 11.0f)));
-    ASSERT_EQ(PointStatus::PSBelow, p.pointStatus(Vec3f(0.0f, 0.0f, 9.0f)));
-    ASSERT_EQ(PointStatus::PSInside, p.pointStatus(Vec3f(0.0f, 0.0f, 10.0f)));
+    ASSERT_EQ(Math::PointStatus::PSAbove, p.pointStatus(Vec3f(0.0f, 0.0f, 11.0f)));
+    ASSERT_EQ(Math::PointStatus::PSBelow, p.pointStatus(Vec3f(0.0f, 0.0f, 9.0f)));
+    ASSERT_EQ(Math::PointStatus::PSInside, p.pointStatus(Vec3f(0.0f, 0.0f, 10.0f)));
 }
 
 TEST(PlaneTest, pointDistance) {
@@ -80,12 +80,12 @@ TEST(PlaneTest, pointDistance) {
 TEST(PlaneTest, valueAtParallelPlanes) {
     const Plane3f p1(10.0f, Vec3f::PosX);
     
-    ASSERT_FLOAT_EQ(p1.distance, p1.at(Vec2f(2.0f, 1.0f), Axis::AX));
-    ASSERT_FLOAT_EQ(p1.distance, p1.at(Vec2f(22.0f, -34322.0232f), Axis::AX));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(2.0f, 1.0f), Axis::AY));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(22.0f, -34322.0232f), Axis::AY));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(2.0f, 1.0f), Axis::AZ));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(22.0f, -34322.0232f), Axis::AZ));
+    ASSERT_FLOAT_EQ(p1.distance, p1.at(Vec2f(2.0f, 1.0f), Math::Axis::AX));
+    ASSERT_FLOAT_EQ(p1.distance, p1.at(Vec2f(22.0f, -34322.0232f), Math::Axis::AX));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(2.0f, 1.0f), Math::Axis::AY));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(22.0f, -34322.0232f), Math::Axis::AY));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(2.0f, 1.0f), Math::Axis::AZ));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(Vec2f(22.0f, -34322.0232f), Math::Axis::AZ));
 }
 
 TEST(PlaneTest, valueAt) {
@@ -94,12 +94,12 @@ TEST(PlaneTest, valueAt) {
     const Plane3f p(a, n);
     const Vec2f point1(27.022f, -12.0123223f);
     
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[Axis::AX],
-                    p.at(point1, Axis::AX));
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[Axis::AY],
-                    p.at(point1, Axis::AY));
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[Axis::AZ],
-                    p.at(point1, Axis::AZ));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[Math::Axis::AX],
+                    p.at(point1, Math::Axis::AX));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[Math::Axis::AY],
+                    p.at(point1, Math::Axis::AY));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[Math::Axis::AZ],
+                    p.at(point1, Math::Axis::AZ));
 }
 
 TEST(PlaneTest, xYZValueAt) {
@@ -108,9 +108,9 @@ TEST(PlaneTest, xYZValueAt) {
     const Plane3f p(a, n);
     const Vec2f point1(27.022f, -12.0123223f);
     
-    ASSERT_FLOAT_EQ(p.at(point1, Axis::AX), p.xAt(point1));
-    ASSERT_FLOAT_EQ(p.at(point1, Axis::AY), p.yAt(point1));
-    ASSERT_FLOAT_EQ(p.at(point1, Axis::AZ), p.zAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, Math::Axis::AX), p.xAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, Math::Axis::AY), p.yAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, Math::Axis::AZ), p.zAt(point1));
 }
 
 TEST(PlaneTest, equals) {
@@ -157,7 +157,7 @@ TEST(PlaneTest, setPlanePoints) {
 TEST(PlaneTest, horizontalDragPlane) {
     const Vec3f position(322.0f, -122.2392f, 34.0f);
     const Plane3f p = horizontalDragPlane(position);
-    ASSERT_TRUE(p.pointStatus(position) == PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(Vec3f::PosZ, p.normal);
 }
 
@@ -165,7 +165,7 @@ TEST(PlaneTest, verticalDragPlane) {
     const Vec3f position(322.0f, -122.2392f, 34.0f);
     const Vec3f direction = Vec3f(1.0f, 3.0f, -2.0f).normalize();
     const Plane3f p = verticalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(Vec3f::PosY, p.normal);
 }
 
@@ -173,7 +173,7 @@ TEST(PlaneTest, verticalDragPlaneWithZDirection) {
     const Vec3f position(322.0f, -122.2392f, 34.0f);
     const Vec3f direction = Vec3f(1.0f, 2.0f, -3.0f).normalize();
     const Plane3f p = verticalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(Vec3f::PosY, p.normal);
 }
 
@@ -181,7 +181,7 @@ TEST(PlaneTest, orthogonalDragPlane) {
     const Vec3f position(322.0f, -122.2392f, 34.0f);
     const Vec3f direction = Vec3f(1.0f, 2.0f, -3.0f).normalize();
     const Plane3f p = orthogonalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(direction, p.normal);
 }
 
@@ -189,6 +189,6 @@ TEST(PlaneTest, alignedOrthogonalDragPlane) {
     const Vec3f position(322.0f, -122.2392f, 34.0f);
     const Vec3f direction = Vec3f(1.0f, 2.0f, -3.0f).normalize();
     const Plane3f p = alignedOrthogonalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(direction.firstAxis(), p.normal);
 }

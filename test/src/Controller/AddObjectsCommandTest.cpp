@@ -17,17 +17,11 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewTypes_h
-#define TrenchBroom_ViewTypes_h
+#include <gtest/gtest.h>
 
-#include "SharedPointer.h"
+#include "Controller/AddObjectsCommand.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class ControllerFacade;
-        class MapDocument;
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
+    namespace Controller {
     }
 }
-
-#endif

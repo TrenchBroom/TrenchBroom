@@ -21,18 +21,13 @@
 #define __TrenchBroom__SelectionTool__
 
 #include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        class ControllerFacade;
-    }
-    
     namespace View {
         class SelectionTool : public Tool<MousePolicy, MouseDragPolicy, DefaultRenderPolicy> {
         public:
-            SelectionTool(BaseTool* next, Controller::ControllerFacade& controller);
-        private:
-            Controller::ControllerFacade& m_controller;
+            SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
         private:
             bool doMouseUp(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);

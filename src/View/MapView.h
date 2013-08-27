@@ -36,10 +36,6 @@
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Controller {
-        class ControllerFacade;
-    }
     
     namespace Renderer {
         class RenderContext;
@@ -58,7 +54,7 @@ namespace TrenchBroom {
             wxGLContext* m_glContext;
             
             View::MapDocumentPtr m_document;
-            Controller::ControllerFacade& m_controller;
+            ControllerFacade& m_controller;
             Renderer::Camera m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
@@ -76,7 +72,7 @@ namespace TrenchBroom {
             
             bool m_ignoreNextClick;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, Controller::ControllerFacade& controller);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerFacade& controller);
             ~MapView();
             
             Renderer::RenderResources& renderResources();

@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/BrushFacesIterator.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
 #include "Model/Filter.h"
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             BuildBrushEdges(BrushRenderer::Filter& i_filter) :
             filter(i_filter) {}
             
-            inline bool operator()(Model::Brush* brush) {
+            inline void operator()(Model::Brush* brush) {
                 const Model::BrushEdge::List edges = brush->edges();
                 Model::BrushEdge::List::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
@@ -49,14 +50,13 @@ namespace TrenchBroom {
                         vertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
                     }
                 }
-                return true;
             }
         };
         
         struct BuildBrushFaceMesh {
             Model::BrushFace::Mesh mesh;
             
-            inline bool operator()(Model::Brush* brush, Model::BrushFace* face) {
+            inline bool operator()(Model::BrushFace* face) {
                 face->addToMesh(mesh);
                 return true;
             }
@@ -164,10 +164,16 @@ namespace TrenchBroom {
 
         void BrushRenderer::validate() {
             BuildBrushFaceMesh buildFaces;
-            eachFace(m_brushes, buildFaces, *m_filter);
+            each(Model::BrushFacesIterator::begin(m_brushes),
+                 Model::BrushFacesIterator::end(m_brushes),
+                 buildFaces,
+                 *m_filter);
             
             BuildBrushEdges buildEdges(*m_filter);
-            eachBrush(m_brushes, buildEdges, *m_filter);
+            each(m_brushes.begin(),
+                 m_brushes.end(),
+                 buildEdges,
+                 *m_filter);
             
             m_faceRenderer = FaceRenderer(buildFaces.mesh, faceColor());
             m_edgeRenderer = EdgeRenderer(buildEdges.vertices);

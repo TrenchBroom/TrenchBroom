@@ -20,11 +20,11 @@
 #ifndef __TrenchBroom__MapFrame__
 #define __TrenchBroom__MapFrame__
 
-#include "Controller/ControllerFacade.h"
 #include "Controller/Command.h"
 #include "Controller/CommandListener.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
+#include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
 
 #include <wx/frame.h>
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             static const wxEventType EVT_REBUILD_MENU;
         private:
             FrameManager* m_frameManager;
-            Controller::ControllerFacade m_controller;
+            ControllerFacade m_controller;
             MapDocumentPtr m_document;
 
             Console* m_console;

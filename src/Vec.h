@@ -345,7 +345,7 @@ public:
     }
             
     inline Vec<T,4> xyzw() const {
-        return Vec<T,4>(x(), y(), z());
+        return Vec<T,4>(x(), y(), z(), w());
     }
             
     inline Vec<T,S-1> overLast() const {

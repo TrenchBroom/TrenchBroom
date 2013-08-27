@@ -28,10 +28,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Controller {
-        class ControllerFacade;
-    }
-    
     namespace View {
         class EntityPropertyGridTable : public wxGridTableBase {
         private:
@@ -57,12 +53,12 @@ namespace TrenchBroom {
             typedef std::vector<Entry> EntryList;
             
             MapDocumentPtr m_document;
-            Controller::ControllerFacade& m_controller;
+            ControllerFacade& m_controller;
             EntryList m_entries;
             bool m_ignoreUpdates;
             wxColor m_specialCellColor;
         public:
-            EntityPropertyGridTable(MapDocumentPtr document, Controller::ControllerFacade& controller);
+            EntityPropertyGridTable(MapDocumentPtr document, ControllerFacade& controller);
             
             int GetNumberRows();
             int GetNumberCols();

@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -127,9 +128,29 @@ namespace TrenchBroom {
         class Tool : public BaseTool, private MousePolicyType, private MouseDragPolicyType, private RenderPolicyType {
         private:
             BaseTool* m_next;
+            MapDocumentPtr m_document;
+            ControllerFacade& m_controller;
+        protected:
+            inline MapDocumentPtr document() {
+                return m_document;
+            }
+            
+            inline MapDocumentPtr document() const {
+                return m_document;
+            }
+            
+            inline ControllerFacade& controller() {
+                return m_controller;
+            }
+            
+            inline const ControllerFacade& controller() const {
+                return m_controller;
+            }
         public:
-            Tool(BaseTool* next) :
-            m_next(next) {}
+            Tool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+            m_next(next),
+            m_document(document),
+            m_controller(controller) {}
             
             inline bool mouseDown(const InputState& inputState) {
                 if (static_cast<MousePolicyType&>(*this).doMouseDown(inputState))

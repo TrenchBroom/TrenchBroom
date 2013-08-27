@@ -39,13 +39,11 @@ namespace TrenchBroom {
     namespace View {
         class CreateBrushTool : public Tool<DefaultMousePolicy, PlaneDragPolicy, RenderPolicy> {
         private:
-            MapDocumentPtr m_document;
             Vec3 m_initialPoint;
-            
             Renderer::BrushRenderer m_brushRenderer;
             Model::Brush* m_brush;
         public:
-            CreateBrushTool(BaseTool* next, MapDocumentPtr document);
+            CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
         private:
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);

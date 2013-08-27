@@ -256,16 +256,16 @@ TEST(VecTest, vec3fParallelTo) {
 }
 
 TEST(VecTest, vec3fMajorComponent) {
-    ASSERT_EQ(Axis::AX, Vec3f::PosX.majorComponent(0));
-    ASSERT_EQ(Axis::AX, Vec3f::NegX.majorComponent(0));
-    ASSERT_EQ(Axis::AY, Vec3f::PosY.majorComponent(0));
-    ASSERT_EQ(Axis::AY, Vec3f::NegY.majorComponent(0));
-    ASSERT_EQ(Axis::AZ, Vec3f::PosZ.majorComponent(0));
-    ASSERT_EQ(Axis::AZ, Vec3f::NegZ.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AX, Vec3f::PosX.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AX, Vec3f::NegX.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AY, Vec3f::PosY.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AY, Vec3f::NegY.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AZ, Vec3f::PosZ.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AZ, Vec3f::NegZ.majorComponent(0));
     
-    ASSERT_EQ(Axis::AX, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(0));
-    ASSERT_EQ(Axis::AZ, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(1));
-    ASSERT_EQ(Axis::AY, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(2));
+    ASSERT_EQ(Math::Axis::AX, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(0));
+    ASSERT_EQ(Math::Axis::AZ, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(1));
+    ASSERT_EQ(Math::Axis::AY, Vec3f(3.0f, -1.0f, 2.0f).majorComponent(2));
 }
 
 TEST(VecTest, vec3fMajorAxis) {

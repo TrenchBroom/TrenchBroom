@@ -140,8 +140,8 @@ namespace TrenchBroom {
 
             Camera camera(fov, near, far, viewport, position, direction, up);
 
-            const float yaw = Mathf::radians(15.0f);
-            const float pitch = Mathf::radians(20.0f);
+            const float yaw = Math::radians(15.0f);
+            const float pitch = Math::radians(20.0f);
             const Quatf rotation = Quatf(Vec3f::PosZ, yaw) * Quatf(camera.right(), pitch);
             
             const Vec3f newDirection = rotation * direction;
@@ -171,8 +171,8 @@ namespace TrenchBroom {
             
             Camera camera(fov, near, far, viewport, position, direction, up);
             
-            const float yaw = Mathf::radians(15.0f);
-            const float pitch = Mathf::radians(92.0f);
+            const float yaw = Math::radians(15.0f);
+            const float pitch = Math::radians(92.0f);
             const Quatf yawRotation = Quatf(Vec3f::PosZ, yaw);
             
             const Vec3f newDirection = Vec3f::PosZ;
@@ -202,8 +202,8 @@ namespace TrenchBroom {
             
             Camera camera(fov, near, far, viewport, position, direction, up);
             
-            const float yaw = Mathf::radians(15.0f);
-            const float pitch = Mathf::radians(-107.0f);
+            const float yaw = Math::radians(15.0f);
+            const float pitch = Math::radians(-107.0f);
             const Quatf yawRotation = Quatf(Vec3f::PosZ, yaw);
             
             const Vec3f newDirection = Vec3f::NegZ;
