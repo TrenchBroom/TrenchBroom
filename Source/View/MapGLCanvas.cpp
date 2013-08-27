@@ -170,8 +170,9 @@ namespace TrenchBroom {
 
             EditorView& view = m_documentViewHolder.view();
 
-            wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
+                wxPaintDC(this);
+                
                 glEnable(GL_MULTISAMPLE);
 
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();

@@ -637,13 +637,12 @@ namespace TrenchBroom {
             m_boundary.transform(pointTransform, vectorTransform);
             for (size_t i = 0; i < 3; i++)
                 m_points[i] = pointTransform * m_points[i];
-            if (m_forceIntegerFacePoints) {
+            if (invertOrientation)
+                std::swap(m_points[1], m_points[2]);
+            if (m_forceIntegerFacePoints)
                 updatePointsFromBoundary();
-            } else {
+            else
                 correctFacePoints();
-                if (invertOrientation)
-                    std::swap(m_points[1], m_points[2]);
-            }
 
             m_texAxesValid = false;
             m_vertexCacheValid = false;

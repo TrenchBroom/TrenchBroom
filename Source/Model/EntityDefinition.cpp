@@ -57,6 +57,15 @@ namespace TrenchBroom {
             return false;
         }
 
+        ModelDefinitionPropertiesEvaluator::ModelDefinitionPropertiesEvaluator(const PropertyKey& modelKey, const PropertyKey& skinKey, const PropertyKey& frameKey) :
+        m_modelKey(modelKey),
+        m_skinKey(skinKey),
+        m_frameKey(frameKey) {}
+        
+        bool ModelDefinitionPropertiesEvaluator::evaluate(const PropertyList& properties) const {
+            return false;
+        }
+
         ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex) :
         m_name(name),
         m_skinIndex(skinIndex),

@@ -66,6 +66,17 @@ namespace TrenchBroom {
             bool evaluate(const PropertyList& properties) const;
         };
         
+        class ModelDefinitionPropertiesEvaluator : public ModelDefinitionEvaluator {
+        private:
+            PropertyKey m_modelKey;
+            PropertyKey m_skinKey;
+            PropertyKey m_frameKey;
+        public:
+            ModelDefinitionPropertiesEvaluator(const PropertyKey& modelKey, const PropertyKey& skinKey, const PropertyKey& frameKey);
+            
+            bool evaluate(const PropertyList& properties) const;
+        };
+        
         class ModelDefinition {
         public:
             typedef std::tr1::shared_ptr<ModelDefinition> Ptr;

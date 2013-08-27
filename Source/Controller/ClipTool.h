@@ -113,6 +113,7 @@ namespace TrenchBroom {
             void updateBrushes();
             Vec3f::List getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const;
             bool isPointIdenticalWithExistingPoint(const Vec3f& point) const;
+            bool isPointLinearlyDependent(const Vec3f& point) const;
         protected:
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);

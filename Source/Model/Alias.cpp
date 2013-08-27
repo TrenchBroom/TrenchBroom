@@ -180,13 +180,13 @@ namespace TrenchBroom {
                     char* base = cursor;
                     for (size_t j = 0; j < static_cast<size_t>(numPics); j++) {
                         cursor = base + j * sizeof(float);
-                        times[i] = readFloat<float>(cursor);
+                        times[j] = readFloat<float>(cursor);
 
                         unsigned char* skinPicture = new unsigned char[skinSize];
                         cursor = base + numPics * 4 + j * skinSize;
                         readBytes(cursor, skinPicture, skinSize);
 
-                        skinPictures[i] = skinPicture;
+                        skinPictures[j] = skinPicture;
                     }
 
                     AliasSkin* skin = new AliasSkin(skinPictures, times, numPics, skinWidth, skinHeight);

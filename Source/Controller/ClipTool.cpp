@@ -228,6 +228,15 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool ClipTool::isPointLinearlyDependent(const Vec3f& point) const {
+            if (m_numPoints < 2)
+                return false;
+            const Vec3f v1 = (point - m_points[0]).normalized();
+            const Vec3f v2 = (point - m_points[1]).normalized();
+            const float dot = v1.dot(v2);
+            return Math<float>::eq(std::abs(dot), 1.0f);
+        }
+
         bool ClipTool::handleActivate(InputState& inputState) {
             m_numPoints = 0;
             m_hitIndex = -1;
@@ -298,7 +307,8 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    if (m_hitIndex == -1 && m_numPoints < 3) {
+                    if (m_hitIndex == -1 && m_numPoints < 3 &&
+                        !isPointLinearlyDependent(point)) {
                         m_hitIndex = static_cast<int>(m_numPoints);
                         m_points[m_numPoints] = point;
                         m_normals[m_numPoints] = getNormals(point, face);
@@ -480,7 +490,8 @@ namespace TrenchBroom {
                 
                 Utility::Grid& grid = document().grid();
                 const Vec3f point = grid.snap(hitPoint, plane);
-                if (!isPointIdenticalWithExistingPoint(point))
+                if (!isPointIdenticalWithExistingPoint(point) &&
+                    !isPointLinearlyDependent(point))
                     m_points[m_hitIndex] = point;
             } else {
                 const Planef& plane = faceHit->face().boundary();
@@ -489,7 +500,8 @@ namespace TrenchBroom {
                 Utility::Grid& grid = document().grid();
                 const Vec3f point = grid.snap(hitPoint, plane);
 
-                if (!isPointIdenticalWithExistingPoint(point)) {
+                if (!isPointIdenticalWithExistingPoint(point) &&
+                    !isPointLinearlyDependent(point)) {
                     m_points[m_hitIndex] = point;
                     m_normals[m_hitIndex] = getNormals(point, faceHit->face());
                 }
@@ -605,6 +617,7 @@ namespace TrenchBroom {
                     if (!entity->worldspawn())
                         submitCommand(ReparentBrushesCommand::reparent(document(), entityBrushes, *entity));
                 }
+                submitCommand(ChangeEditStateCommand::select(document(), allBrushes));
             }
 
             submitCommand(RemoveObjectsCommand::removeBrushes(document(), removeBrushes));

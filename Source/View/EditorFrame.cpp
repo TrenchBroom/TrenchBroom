@@ -302,10 +302,15 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnMenuOpen(wxMenuEvent& event) {
-            // FIXME is this still necessaryß
+            // FIXME is this still necessary?
+            // How does updating menu items work in Windows, anyway? 
 #ifdef _WIN32
-            wxMenu* menu = event.GetMenu();
-			menu->UpdateUI(&m_documentViewHolder.view());
+            wxMenuBar* menuBar = GetMenuBar();
+            size_t menuCount = menuBar->GetMenuCount();
+            for (size_t i = 0; i < menuCount; i++) {
+                wxMenu* menu = menuBar->GetMenu(i);
+                menu->UpdateUI(&m_documentViewHolder.view());
+            }
 #endif
             event.Skip();
         }
