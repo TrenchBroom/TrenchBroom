@@ -19,6 +19,7 @@
 
 #include "ControllerFacade.h"
 
+#include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
@@ -78,6 +79,13 @@ namespace TrenchBroom {
 
         void ControllerFacade::rollbackGroup() {
             m_commandProcessor.undoGroup();
+        }
+
+        bool ControllerFacade::selectObjects(const Model::ObjectList& objects) {
+            using namespace Controller;
+            
+            Command::Ptr command = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCSelect, SelectionCommand::STObjects, objects, Model::EmptyBrushFaceList));
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::selectObject(Model::Object* object) {
@@ -151,6 +159,13 @@ namespace TrenchBroom {
 
             Command::Ptr deselectCommand = Command::Ptr(new SelectionCommand(m_document, SelectionCommand::SCDeselect, SelectionCommand::STAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
             return m_commandProcessor.submitAndStoreCommand(deselectCommand);
+        }
+
+        bool ControllerFacade::addObjects(const Model::ObjectList& objects) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects);
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {

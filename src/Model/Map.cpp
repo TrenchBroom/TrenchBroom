@@ -57,6 +57,10 @@ namespace TrenchBroom {
             m_entities.push_back(entity);
         }
 
+        void Map::removeEntity(Entity* entity) {
+            VectorUtils::remove(m_entities, entity);
+        }
+
         Entity* Map::worldspawn() const {
             if (m_worldspawn == NULL)
                 m_worldspawn = findWorldspawn();

@@ -58,6 +58,7 @@ namespace TrenchBroom {
             void clearState();
             void loadMap(Model::Map& map);
             void updateSelection(Controller::Command::Ptr command);
+            void addRemoveObjects(Controller::Command::Ptr command);
             void updateEntities(Controller::Command::Ptr command);
         };
     }

@@ -59,6 +59,7 @@ namespace TrenchBroom {
             void closeGroup();
             void rollbackGroup();
             
+            bool selectObjects(const Model::ObjectList& objects);
             bool selectObject(Model::Object* object);
             bool deselectAllAndSelectObject(Model::Object* object);
             bool deselectObject(Model::Object* object);
@@ -66,6 +67,8 @@ namespace TrenchBroom {
             bool deselectAllAndSelectFace(Model::BrushFace* face);
             bool deselectFace(Model::BrushFace* face);
             bool deselectAll();
+            
+            bool addObjects(const Model::ObjectList& objects);
             
             bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
             bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);

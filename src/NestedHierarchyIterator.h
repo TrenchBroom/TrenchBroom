@@ -74,10 +74,13 @@ namespace TrenchBroom {
             if (m_innerCur == m_innerEnd) {
                 advanceOuter();
             } else {
-                ++m_innerCur;
-                m_returnOuter = false;
-                if (m_innerCur == m_innerEnd)
-                    advanceOuter();
+                if (m_returnOuter) {
+                    m_returnOuter = false;
+                } else {
+                    ++m_innerCur;
+                    if (m_innerCur == m_innerEnd)
+                        advanceOuter();
+                }
             }
             return *this;
         }

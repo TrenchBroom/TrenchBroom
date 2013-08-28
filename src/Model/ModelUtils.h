@@ -126,6 +126,16 @@ namespace TrenchBroom {
         inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
             return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTEntity)));
         }
+
+        template <typename Iter>
+        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& cur, const Iter& end) {
+            return MakeCastIterator<Brush*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTBrush)));
+        }
+        
+        template <typename Iter>
+        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& end) {
+            return MakeCastIterator<Brush*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTBrush)));
+        }
     }
 }
 #endif

@@ -33,8 +33,16 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<Command> Ptr;
             typedef std::vector<Ptr> List;
             typedef size_t CommandType;
+            
+            typedef enum {
+                Default,
+                Doing,
+                Done,
+                Undoing
+            } CommandState;
         private:
             CommandType m_type;
+            CommandState m_state;
             String m_name;
             bool m_undoable;
         public:
@@ -43,6 +51,7 @@ namespace TrenchBroom {
             Command(const CommandType type, const String& name, const bool undoable);
 
             CommandType type() const;
+            CommandState state() const;
             const String& name() const;
             bool undoable() const;
             bool performDo();

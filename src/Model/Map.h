@@ -47,6 +47,7 @@ namespace TrenchBroom {
             
             const EntityList& entities() const;
             void addEntity(Entity* entity);
+            void removeEntity(Entity* entity);
             Entity* worldspawn() const;
             
             const BrushList brushes() const;

@@ -91,7 +91,11 @@ namespace TrenchBroom {
             void saveDocumentAs(const IO::Path& path);
             
             void addEntity(Model::Entity* entity);
-            void addBrushes(Model::Entity* entity, const Model::BrushList& brushes);
+            void addWorldBrush(Model::Brush* brush);
+            void addBrush(Model::Entity* entity, Model::Brush* brush);
+            void removeEntity(Model::Entity* entity);
+            void removeWorldBrush(Model::Brush* brush);
+            void removeBrush(Model::Entity* entity, Model::Brush* brush);
             
             bool hasSelectedObjects() const;
             bool hasSelectedFaces() const;

@@ -29,6 +29,7 @@ namespace TrenchBroom {
 
         Command::Command(const CommandType type, const String& name, const bool undoable) :
         m_type(type),
+        m_state(Default),
         m_name(name),
         m_undoable(undoable) {}
         
@@ -36,6 +37,10 @@ namespace TrenchBroom {
             return m_type;
         }
         
+        Command::CommandState Command::state() const {
+            return m_state;
+        }
+
         const String& Command::name() const {
             return m_name;
         }
@@ -45,13 +50,27 @@ namespace TrenchBroom {
         }
         
         bool Command::performDo() {
-            return doPerformDo();
+            m_state = Doing;
+            if (doPerformDo()) {
+                m_state = Done;
+                return true;
+            } else {
+                m_state = Default;
+                return false;
+            }
         }
         
         bool Command::performUndo() {
             if (!undoable())
                 throw CommandProcessorException("Cannot undo one-shot command");
-            return doPerformUndo();
+            m_state = Undoing;
+            if (doPerformUndo()) {
+                m_state = Default;
+                return true;
+            } else {
+                m_state = Done;
+                return false;
+            }
         }
         
         const Model::ObjectList Command::affectedObjects() const {

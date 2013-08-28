@@ -21,12 +21,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Controller/AddRemoveObjectsCommand.h"
+#include "Controller/SelectionCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitFilters.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
 #include "Model/Picker.h"
 #include "Renderer/Camera.h"
+#include "View/ControllerFacade.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -87,7 +90,7 @@ namespace TrenchBroom {
         
         void CreateBrushTool::doEndPlaneDrag(const InputState& inputState) {
             assert(m_brush != NULL);
-            delete m_brush;
+            addBrushToMap(m_brush);
             m_brush = NULL;
             updateBrushRenderer();
         }
@@ -141,6 +144,17 @@ namespace TrenchBroom {
             if (m_brush != NULL)
                 brushes.push_back(m_brush);
             m_brushRenderer.setBrushes(brushes);
+        }
+
+        void CreateBrushTool::addBrushToMap(Model::Brush* brush) {
+            Model::ObjectList objects;
+            objects.push_back(brush);
+            
+            controller().beginUndoableGroup("Create brush");
+            controller().deselectAll();
+            controller().addObjects(objects);
+            controller().selectObjects(objects);
+            controller().closeGroup();
         }
     }
 }

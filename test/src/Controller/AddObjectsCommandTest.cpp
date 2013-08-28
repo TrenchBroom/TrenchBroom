@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Controller/AddObjectsCommand.h"
+#include "Controller/AddRemoveObjectsCommand.h"
 
 namespace TrenchBroom {
     namespace Controller {

@@ -68,6 +68,20 @@ namespace TrenchBroom {
             
             ~BrushRenderer();
 
+            template <typename Iter>
+            void addBrushes(Iter cur, Iter end) {
+                m_brushes.insert(m_brushes.end(), cur, end);
+                invalidate();
+            }
+            
+            template <typename Iter>
+            void removeBrushes(Iter cur, Iter end) {
+                while (cur != end) {
+                    m_brushes.erase(std::find(m_brushes.begin(), m_brushes.end(), *cur));
+                    ++cur;
+                }
+            }
+            
             void setBrushes(const Model::BrushList& brushes);
             void invalidate();
             void clear();

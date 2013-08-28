@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "CastIterator.h"
 #include "FilterIterator.h"
+#include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
@@ -123,6 +124,8 @@ namespace TrenchBroom {
                 loadMap(*map);
             } else if (command->type() == SelectionCommand::Type) {
                 updateSelection(command);
+            } else if (command->type() == AddRemoveObjectsCommand::Type) {
+                addRemoveObjects(command);
             } else if (command->type() == EntityPropertyCommand::Type) {
                 updateEntities(command);
             }
@@ -132,6 +135,8 @@ namespace TrenchBroom {
             using namespace Controller;
             if (command->type() == SelectionCommand::Type) {
                 updateSelection(command);
+            } else if (command->type() == AddRemoveObjectsCommand::Type) {
+                addRemoveObjects(command);
             } else if (command->type() == EntityPropertyCommand::Type) {
                 updateEntities(command);
             }
@@ -199,7 +204,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::updateSelection(Controller::Command::Ptr command) {
-            Controller::SelectionCommand::Ptr selectionCommand = Controller::Command::cast<Controller::SelectionCommand>(command);
+            using namespace Controller;
+            SelectionCommand::Ptr selectionCommand = Command::cast<SelectionCommand>(command);
+
             View::MapDocumentPtr document = selectionCommand->document();
             m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
             m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
@@ -215,6 +222,19 @@ namespace TrenchBroom {
                                                  Model::entityIterator(result.selectedObjects().end()));
         }
         
+        void MapRenderer::addRemoveObjects(Controller::Command::Ptr command) {
+            using namespace Controller;
+            AddRemoveObjectsCommand::Ptr addRemoveCommand = Command::cast<AddRemoveObjectsCommand>(command);
+
+            const Model::ObjectList& addObjects = addRemoveCommand->addedObjects();
+            m_unselectedBrushRenderer.addBrushes(Model::brushIterator(addObjects.begin(), addObjects.end()),
+                                                 Model::brushIterator(addObjects.end()));
+
+            const Model::ObjectList& removedObjects = addRemoveCommand->removedObjects();
+            m_unselectedBrushRenderer.removeBrushes(Model::brushIterator(removedObjects.begin(), removedObjects.end()),
+                                                    Model::brushIterator(removedObjects.end()));
+        }
+
         void MapRenderer::updateEntities(Controller::Command::Ptr command) {
             m_selectedEntityRenderer.updateEntities(Model::entityIterator(command->affectedEntities().begin(), command->affectedEntities().end()),
                                                     Model::entityIterator(command->affectedEntities().end()));
