@@ -69,6 +69,15 @@ namespace TrenchBroom {
 
         class Face : public Utility::Allocator<Face> {
         public:
+            enum ContentType {
+                CTLiquid,
+                CTClip,
+                CTSkip,
+                CTHint,
+                CTTrigger,
+                CTDefault
+            };
+            
             class WeightOrder {
             private:
                 const Planef::WeightOrder& m_planeOrder;
@@ -127,6 +136,8 @@ namespace TrenchBroom {
 
             size_t m_filePosition;
             bool m_selected;
+            
+            ContentType m_contentType;
 
             inline void rotateTexAxes(Vec3f& xAxis, Vec3f& yAxis, const float angle, const unsigned int planeNormIndex) const {
                 // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
@@ -142,6 +153,7 @@ namespace TrenchBroom {
 
             void projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis);
             void compensateTransformation(const Mat4f& transformation);
+            void updateContentType();
         public:
             Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
             Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate);
@@ -215,12 +227,17 @@ namespace TrenchBroom {
                 return centerOfVertices(m_side->vertices);
             }
 
+            inline ContentType contentType() const {
+                return m_contentType;
+            }
+            
             inline const String& textureName() const {
                 return m_textureName;
             }
 
             inline void setTextureName(const String& textureName) {
                 m_textureName = textureName;
+                updateContentType();
             }
 
             inline Texture* texture() const {

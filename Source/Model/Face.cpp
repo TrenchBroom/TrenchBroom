@@ -113,6 +113,7 @@ namespace TrenchBroom {
             m_selected = false;
             m_texAxesValid = false;
             m_vertexCacheValid = false;
+            m_contentType = CTDefault;
         }
         
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const {
@@ -330,6 +331,25 @@ namespace TrenchBroom {
             m_yOffset = Math<float>::correct(m_yOffset);
         }
         
+        void Face::updateContentType() {
+            if (!m_textureName.empty()) {
+                if (m_textureName[0] == '*')
+                    m_contentType = CTLiquid;
+                else if (Utility::containsString(m_textureName, "clip", false))
+                    m_contentType = CTClip;
+                else if (Utility::containsString(m_textureName, "skip", false))
+                    m_contentType = CTSkip;
+                else if (Utility::containsString(m_textureName, "hint", false))
+                    m_contentType = CTHint;
+                else if (Utility::containsString(m_textureName, "trigger", false))
+                    m_contentType = CTTrigger;
+                else
+                    m_contentType = CTDefault;
+            } else {
+                m_contentType = CTDefault;
+            }
+        }
+
         Face::Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_worldBounds = worldBounds;
@@ -365,7 +385,8 @@ namespace TrenchBroom {
         m_texAxesValid(false),
         m_vertexCacheValid(false),
         m_filePosition(face.filePosition()),
-        m_selected(false) {
+        m_selected(false),
+        m_contentType(face.contentType()) {
             face.getPoints(m_points[0], m_points[1], m_points[2]);
             updatePointsFromBoundary();
         }
@@ -411,6 +432,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_vertexCacheValid = false;
 			m_selected = faceTemplate.selected();
+            m_contentType = faceTemplate.contentType();
         }
         
         void Face::setBrush(Brush* brush) {
@@ -502,6 +524,7 @@ namespace TrenchBroom {
             if (m_texture != NULL)
                 m_texture->incUsageCount();
             m_vertexCacheValid = false;
+            updateContentType();
         }
         
         void Face::moveTexture(const Vec3f& up, const Vec3f& right, Direction direction, float distance) {

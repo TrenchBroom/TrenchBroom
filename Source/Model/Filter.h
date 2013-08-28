@@ -141,19 +141,26 @@ namespace TrenchBroom {
                     unsigned int triggerCount = 0;
                     bool matches = pattern.empty();
                     for (unsigned int i = 0; i < faces.size(); i++) {
-                        const String& textureName = faces[i]->textureName();
-                        if (!m_viewOptions.showClipBrushes() && Utility::containsString(textureName, "clip", false))
-                            clipCount++;
-                        else if (!m_viewOptions.showSkipBrushes() && Utility::containsString(textureName, "skip", false))
-                            skipCount++;
-                        else if (!m_viewOptions.showHintBrushes() && Utility::containsString(textureName, "hint", false))
-                            hintCount++;
-                        else if (!m_viewOptions.showLiquidBrushes() && textureName[0] == '*')
-                            liquidCount++;
-                        else if (!m_viewOptions.showTriggerBrushes() && Utility::containsString(textureName, "trigger", false))
-                            triggerCount++;
-                        else if (!matches)
-                            matches = Utility::containsString(textureName, pattern, false);
+                        switch (faces[i]->contentType()) {
+                            case Face::CTLiquid:
+                                liquidCount++;
+                                break;
+                            case Face::CTClip:
+                                clipCount++;
+                                break;
+                            case Face::CTSkip:
+                                skipCount++;
+                                break;
+                            case Face::CTHint:
+                                hintCount++;
+                            case Face::CTTrigger:
+                                triggerCount++;
+                                break;
+                            default:
+                                if (!matches)
+                                    matches = Utility::containsString(faces[i]->textureName(), pattern, false);
+                                break;
+                        }
                     }
 
                     if (!m_viewOptions.showClipBrushes() && clipCount == faces.size())
