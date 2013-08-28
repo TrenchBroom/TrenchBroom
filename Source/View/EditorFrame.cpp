@@ -61,6 +61,7 @@ namespace TrenchBroom {
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
         EVT_IDLE(EditorFrame::OnIdle)
+        EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
 		END_EVENT_TABLE()
 
         EditorFrame::MenuSelector::MenuSelector(DocumentViewHolder& documentViewHolder) :

@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     return false;
                 if (textureName[0] == '*')
                     return true;
-                for (size_t i = 0; i < 5; i++)
+                for (size_t i = 0; i < 4; i++)
                     if (textureName == AlphaBlendedTextures[i])
                         return true;
                 return false;

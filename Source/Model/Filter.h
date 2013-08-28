@@ -144,15 +144,15 @@ namespace TrenchBroom {
                         const String& textureName = faces[i]->textureName();
                         if (!m_viewOptions.showClipBrushes() && Utility::containsString(textureName, "clip", false))
                             clipCount++;
-                        if (!m_viewOptions.showSkipBrushes() && Utility::containsString(textureName, "skip", false))
+                        else if (!m_viewOptions.showSkipBrushes() && Utility::containsString(textureName, "skip", false))
                             skipCount++;
-                        if (!m_viewOptions.showHintBrushes() && Utility::containsString(textureName, "hint", false))
+                        else if (!m_viewOptions.showHintBrushes() && Utility::containsString(textureName, "hint", false))
                             hintCount++;
-                        if (!m_viewOptions.showLiquidBrushes() && textureName[0] == '*')
+                        else if (!m_viewOptions.showLiquidBrushes() && textureName[0] == '*')
                             liquidCount++;
-                        if (!m_viewOptions.showTriggerBrushes() && Utility::containsString(textureName, "trigger", false))
+                        else if (!m_viewOptions.showTriggerBrushes() && Utility::containsString(textureName, "trigger", false))
                             triggerCount++;
-                        if (!matches)
+                        else if (!matches)
                             matches = Utility::containsString(textureName, pattern, false);
                     }
 
