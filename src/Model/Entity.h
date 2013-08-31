@@ -60,7 +60,6 @@ namespace TrenchBroom {
             EntityProperties m_properties;
             BrushList m_brushes;
         public:
-            Entity();
             virtual ~Entity();
             
             EntitySnapshot takeSnapshot();
@@ -91,6 +90,8 @@ namespace TrenchBroom {
             const BrushList& brushes() const;
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
+        protected:
+            Entity();
         private:
             Entity(const Entity& other);
             Entity& operator=(const Entity& other);

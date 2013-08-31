@@ -22,11 +22,14 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/BrushFace.h"
+#include "Model/QuakeEntityRotator.h"
 
 namespace TrenchBroom {
     namespace Model {
+        typedef ConfigurableEntity<QuakeEntityRotationPolicy> QuakeEntity;
+        
         TEST(EntityTest, hasProperty) {
-            Entity entity;
+            QuakeEntity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
             entity.addOrUpdateProperty(key, value);
@@ -36,7 +39,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, getProperty) {
-            Entity entity;
+            QuakeEntity entity;
             const PropertyKey key("key");
             const PropertyKey key2("asdf");
             const PropertyValue value("value");
@@ -48,7 +51,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, addProperty) {
-            Entity entity;
+            QuakeEntity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
             
@@ -61,7 +64,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, updateProperty) {
-            Entity entity;
+            QuakeEntity entity;
             const PropertyKey key("key");
             const PropertyValue value("value");
             const PropertyValue newValue("value");
@@ -76,7 +79,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, getClassname) {
-            Entity entity;
+            QuakeEntity entity;
             const PropertyValue classname = "classname";
             const PropertyValue defaultClassname = "asdf";
             
@@ -91,7 +94,7 @@ namespace TrenchBroom {
         TEST(EntityTest, addBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity entity;
+            QuakeEntity entity;
             Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
             
             entity.addBrush(brush);
@@ -104,7 +107,7 @@ namespace TrenchBroom {
         TEST(EntityTest, removeBrush) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity entity;
+            QuakeEntity entity;
             Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
             entity.addBrush(brush);
             
@@ -117,7 +120,7 @@ namespace TrenchBroom {
         TEST(EntityTest, partialSelectionAfterAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity entity;
+            QuakeEntity entity;
             Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
             Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
             entity.addBrush(brush1);
@@ -136,7 +139,7 @@ namespace TrenchBroom {
         TEST(EntityTest, partialSelectionBeforeAdd) {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
-            Entity entity;
+            QuakeEntity entity;
             Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
             Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
             brush1->select();

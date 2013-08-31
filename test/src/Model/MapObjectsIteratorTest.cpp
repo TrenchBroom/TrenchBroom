@@ -21,37 +21,32 @@
 
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/MapObjectsIterator.h"
 #include "Model/ModelTypes.h"
 #include "Model/QuakeEntityRotator.h"
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(MapTest, addEntity) {
+        TEST(MapObjectsIteratorTest, emptyMap) {
             Map map(MFQuake);
+            MapObjectsIterator::OuterIterator it = MapObjectsIterator::begin(map);
+            MapObjectsIterator::OuterIterator end = MapObjectsIterator::end(map);
+            ASSERT_TRUE(it == end);
+        }
+
+        TEST(MapObjectsIteratorTest, oneEmptyEntityMap) {
+            Map map(MFQuake);
+
             Entity* entity = new ConfigurableEntity<QuakeEntityRotationPolicy>();
             map.addEntity(entity);
             
-            const EntityList& entities = map.entities();
-            ASSERT_EQ(1u, entities.size());
-            ASSERT_EQ(entity, entities[0]);
-        }
-        
-        TEST(MapTest, getNonExistingWorldspawn) {
-            Map map(MFQuake);
-            ASSERT_EQ(NULL, map.worldspawn());
+            MapObjectsIterator::OuterIterator it = MapObjectsIterator::begin(map);
+            MapObjectsIterator::OuterIterator end = MapObjectsIterator::end(map);
 
-            Entity* worldspawn = new ConfigurableEntity<QuakeEntityRotationPolicy>();
-            map.addEntity(worldspawn);
-            ASSERT_EQ(NULL, map.worldspawn());
-        }
-        
-        TEST(MapTest, getExistingWorldspawn) {
-            Map map(MFQuake);
-            Entity* worldspawn = new ConfigurableEntity<QuakeEntityRotationPolicy>();
-            worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
-            map.addEntity(worldspawn);
-            
-            ASSERT_EQ(worldspawn, map.worldspawn());
+            ASSERT_TRUE(it != end);
+            ASSERT_EQ(static_cast<Object*>(entity), *it);
+            ++it;
+            ASSERT_TRUE(it == end);
         }
     }
 }
