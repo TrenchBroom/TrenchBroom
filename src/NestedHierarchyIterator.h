@@ -59,8 +59,8 @@ namespace TrenchBroom {
         
         inline ValueType& operator*() {
             if (m_returnOuter)
-                return (ValueType&)(*m_outerCur);
-            return (ValueType&)(*m_innerCur);
+                return reinterpret_cast<ValueType&>(*m_outerCur);
+            return reinterpret_cast<ValueType&>(*m_innerCur);
         }
 
         inline ValueType* operator->() const {
