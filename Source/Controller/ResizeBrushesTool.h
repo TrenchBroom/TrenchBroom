@@ -29,30 +29,27 @@ namespace TrenchBroom {
         class Brush;
         
         namespace HitType {
-            static const Type NearEdgeHit      = 1 << 9;
+            static const Type DragFaceHit      = 1 << 9;
         }
         
-        class NearEdgeHit : public Hit {
+        class DragFaceHit : public Hit {
         private:
             Face& m_dragFace;
-            Face& m_referenceFace;
         public:
-            NearEdgeHit(const Vec3f& hitPoint, float distance, Face& dragFace, Face& referenceFace);
+            DragFaceHit(const Vec3f& hitPoint, float distance, Face& dragFace);
 
-            bool pickable(Filter& filter) const;
+            inline bool pickable(Filter& filter) const {
+                return true;
+            }
 
             inline Face& dragFace() const {
                 return m_dragFace;
-            }
-            
-            inline Face& referenceFace() const {
-                return m_referenceFace;
             }
         };
     }
 
     namespace Controller {
-        class ResizeBrushesTool : public PlaneDragTool {
+        class ResizeBrushesTool : public Tool {
         protected:
             typedef enum {
                 SMRelative,
@@ -63,6 +60,8 @@ namespace TrenchBroom {
             Model::FaceList m_faces;
             Vec3f m_totalDelta;
             SnapMode m_snapMode;
+
+            Vec3f m_dragOrigin;
             
             Model::FaceList dragFaces(Model::Face& dragFace);
             
@@ -71,9 +70,16 @@ namespace TrenchBroom {
             void handlePick(InputState& inputState);
             void handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
+            bool handleStartDrag(InputState& inputState);
+            bool handleDrag(InputState& inputState);
+            void handleEndDrag(InputState& inputState);
+            void handleCancelDrag(InputState& inputState);
+
+            /*
             bool handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint);
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
+             */
         public:
             ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };

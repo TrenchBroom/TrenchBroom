@@ -34,14 +34,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        NearEdgeHit::NearEdgeHit(const Vec3f& hitPoint, float distance, Face& dragFace, Face& referenceFace) :
-        Hit(HitType::NearEdgeHit, hitPoint, distance),
-        m_dragFace(dragFace),
-        m_referenceFace(referenceFace) {}
-
-        bool NearEdgeHit::pickable(Filter& filter) const {
-            return true;
-        }
+        DragFaceHit::DragFaceHit(const Vec3f& hitPoint, float distance, Face& dragFace) :
+        Hit(HitType::DragFaceHit, hitPoint, distance),
+        m_dragFace(dragFace) {}
     }
 
     namespace Controller {
@@ -76,46 +71,20 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                 return;
 
-            float closestEdgeDist = std::numeric_limits<float>::max();
-            const Model::Edge* closestEdge = NULL;
-            Model::Face* dragFace = NULL;
-            Model::Face* otherFace = NULL;
-            Vec3f hitPoint;
-            float hitDistance = 0.0f;
-
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
-
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (faceHit != NULL) {
-                const Model::Face& face = faceHit->face();
-                const Model::EdgeList& edges = face.edges();
-
-                Model::EdgeList::const_iterator edgeIt, edgeEnd;
-                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                    const Model::Edge* edge = *edgeIt;
-
-                    Vec3f pointOnSegment;
-                    float distanceToClosestPointOnRay;
-                    float distanceBetweenRayAndEdge = inputState.pickRay().distanceToSegment(edge->start->position,
-                                                                                             edge->end->position,
-                                                                                             pointOnSegment,
-                                                                                             distanceToClosestPointOnRay);
-                    if (!Math<float>::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
-                        closestEdge = edge;
-                        closestEdgeDist = distanceBetweenRayAndEdge;
-                        hitDistance = distanceToClosestPointOnRay;
-                        hitPoint = inputState.pickRay().pointAtDistance(hitDistance);
-                        if (edge->left->face == &face) {
-                            dragFace = edge->left->face;
-                            otherFace = edge->right->face;
-                        } else {
-                            dragFace = edge->right->face;
-                            otherFace = edge->left->face;
-                        }
-                    }
-                }
+                inputState.pickResult().add(new Model::DragFaceHit(faceHit->hitPoint(), faceHit->distance(), faceHit->face()));
             } else {
+                float closestEdgeDist = std::numeric_limits<float>::max();
+                const Model::Edge* closestEdge = NULL;
+                Model::Face* dragFace = NULL;
+                Vec3f hitPoint;
+                float hitDistance = 0.0f;
+                
+                Model::EditStateManager& editStateManager = document().editStateManager();
+                const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
+                
+
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
                     Model::Brush& brush = **brushIt;
@@ -140,21 +109,16 @@ namespace TrenchBroom {
                                 hitPoint = inputState.pickRay().pointAtDistance(hitDistance);
                                 if (leftDot > rightDot) {
                                     dragFace = edge->left->face;
-                                    otherFace = edge->right->face;
                                 } else {
                                     dragFace = edge->right->face;
-                                    otherFace = edge->left->face;
                                 }
                             }
                         }
                     }
                 }
-            }
-
-            if (closestEdge != NULL) {
-                assert(dragFace != NULL);
-                assert(otherFace != NULL);
-                inputState.pickResult().add(new Model::NearEdgeHit(hitPoint, hitDistance, *dragFace, *otherFace));
+                
+                if (closestEdge != NULL)
+                    inputState.pickResult().add(new Model::DragFaceHit(hitPoint, hitDistance, *dragFace));
             }
         }
 
@@ -165,7 +129,7 @@ namespace TrenchBroom {
                     inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
                     return;
 
-                Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
+                Model::DragFaceHit* hit = static_cast<Model::DragFaceHit*>(inputState.pickResult().first(Model::HitType::DragFaceHit, true, m_filter));
                 if (DTDrag && hit == NULL)
                     return;
 
@@ -209,7 +173,66 @@ namespace TrenchBroom {
 
             Renderer::glResetEdgeOffset();
         }
+        
+        bool ResizeBrushesTool::handleStartDrag(InputState& inputState) {
+            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
+                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
+                return false;
+            
+            Model::DragFaceHit* hit = static_cast<Model::DragFaceHit*>(inputState.pickResult().first(Model::HitType::DragFaceHit, true, m_filter));
+            if (hit == NULL)
+                return false;
+            
+            m_snapMode = inputState.modifierKeys() == ModifierKeys::MKShift ? SMRelative : SMAbsolute;
+            m_dragOrigin = hit->hitPoint();
+            m_totalDelta = Vec3f::Null;
+            m_faces = dragFaces(hit->dragFace());
+            
+            beginCommandGroup(wxT("Resize Brush"));
+            return true;
+        }
+        
+        bool ResizeBrushesTool::handleDrag(InputState& inputState) {
+            assert(!m_faces.empty());
 
+            Model::Face& dragFace = *m_faces.front();
+            const Vec3f& faceNormal = dragFace.boundary().normal;
+            const Vec3f& faceAxis = faceNormal.firstAxis();
+
+            Vec3f pointOnNormal;
+            float distanceOnRay;
+            inputState.pickRay().distanceToLine(m_dragOrigin, faceNormal, pointOnNormal, distanceOnRay);
+            
+            const float faceDist = (pointOnNormal - m_dragOrigin).dot(faceAxis);
+            
+            Utility::Grid& grid = document().grid();
+            const Vec3f faceDelta = m_snapMode == SMRelative ? grid.snap(faceDist * faceAxis) : grid.snap(faceDist * faceAxis + dragFace.point(0)) - dragFace.point(0);
+            
+            rollbackCommandGroup();
+            if (faceDelta.null())
+                return true;
+            
+            ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, faceDelta, document().textureLock());
+            if (submitCommand(command))
+                m_totalDelta = faceDelta;
+            return true;
+        }
+        
+        void ResizeBrushesTool::handleEndDrag(InputState& inputState) {
+            if (m_totalDelta.null())
+                rollbackCommandGroup();
+            endCommandGroup();
+            m_faces.clear();
+        }
+        
+        void ResizeBrushesTool::handleCancelDrag(InputState& inputState) {
+            rollbackCommandGroup();
+            endCommandGroup();
+            m_faces.clear();
+        }
+
+
+        /*
         bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
             if (inputState.modifierKeys() != ModifierKeys::MKShift &&
                 inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
@@ -272,9 +295,10 @@ namespace TrenchBroom {
             endCommandGroup();
             m_faces.clear();
         }
+         */
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-        PlaneDragTool(documentViewHolder, inputController, true),
+        Tool(documentViewHolder, inputController, true),
         m_filter(Model::SelectedFilter(view().filter())),
         m_snapMode(SMRelative) {}
     }
