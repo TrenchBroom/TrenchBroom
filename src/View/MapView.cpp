@@ -48,7 +48,7 @@ namespace TrenchBroom {
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_renderResources.fontManager(), document->filter()),
         m_auxVbo(0xFFF),
-        m_inputState(document->filter(), m_camera),
+        m_inputState(document->filter(), m_camera, document->grid()),
         m_cameraTool(NULL),
         m_createBrushTool(NULL),
         m_selectionTool(NULL),
@@ -80,6 +80,11 @@ namespace TrenchBroom {
             return m_renderResources;
         }
 
+        void MapView::OnKey(wxKeyEvent& event) {
+            if (modifierKeys(event) != ModifierKeys::MKNone)
+                m_toolChain->modifierKeyChange(m_inputState);
+        }
+        
         void MapView::OnMouseButton(wxMouseEvent& event) {
             const MouseButtonState button = mouseButton(event);
 
@@ -250,6 +255,19 @@ namespace TrenchBroom {
             }
         }
 
+        ModifierKeyState MapView::modifierKeys(wxKeyEvent& event) {
+            switch (event.GetKeyCode()) {
+                case WXK_SHIFT:
+                    return ModifierKeys::MKShift;
+                case WXK_ALT:
+                    return  ModifierKeys::MKAlt;
+                case WXK_CONTROL:
+                    return ModifierKeys::MKCtrlCmd;
+                default:
+                    return ModifierKeys::MKNone;
+            }
+        }
+        
         MouseButtonState MapView::mouseButton(wxMouseEvent& event) {
             if (event.LeftDown() || event.LeftUp())
                 return MouseButtons::MBLeft;
@@ -261,6 +279,8 @@ namespace TrenchBroom {
         }
 
         void MapView::bindEvents() {
+            Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
             Bind(wxEVT_LEFT_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_LEFT_UP, &MapView::OnMouseButton, this);
             Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseButton, this);

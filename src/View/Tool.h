@@ -88,10 +88,10 @@ namespace TrenchBroom {
             void resetPlane(const InputState& inputState);
 
             virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
             virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void doEndPlaneDrag(const InputState& inputState) = 0;
             virtual void doCancelPlaneDrag(const InputState& inputState) = 0;
+            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
         };
         
         class RenderPolicy {
@@ -110,6 +110,7 @@ namespace TrenchBroom {
         public:
             virtual ~BaseTool();
 
+            virtual void modifierKeyChange(const InputState& inputState) = 0;
             virtual bool mouseDown(const InputState& inputState) = 0;
             virtual bool mouseUp(const InputState& inputState) = 0;
             virtual bool mouseDoubleClick(const InputState& inputState) = 0;
@@ -125,32 +126,24 @@ namespace TrenchBroom {
         };
         
         template <class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
-        class Tool : public BaseTool, private MousePolicyType, private MouseDragPolicyType, private RenderPolicyType {
+        class Tool : public BaseTool, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             BaseTool* m_next;
             MapDocumentPtr m_document;
             ControllerFacade& m_controller;
-        protected:
-            inline MapDocumentPtr document() {
-                return m_document;
-            }
-            
-            inline MapDocumentPtr document() const {
-                return m_document;
-            }
-            
-            inline ControllerFacade& controller() {
-                return m_controller;
-            }
-            
-            inline const ControllerFacade& controller() const {
-                return m_controller;
-            }
+            bool m_dragging;
         public:
             Tool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
             m_next(next),
             m_document(document),
-            m_controller(controller) {}
+            m_controller(controller),
+            m_dragging(false) {}
+            
+            inline void modifierKeyChange(const InputState& inputState) {
+                doModifierKeyChange(inputState);
+                if (m_next != NULL)
+                    m_next->modifierKeyChange(inputState);
+            }
             
             inline bool mouseDown(const InputState& inputState) {
                 if (static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
@@ -189,8 +182,10 @@ namespace TrenchBroom {
             }
 
             inline BaseTool* startMouseDrag(const InputState& inputState) {
-                if (static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState))
+                if (static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
+                    m_dragging = true;
                     return this;
+                }
                 if (m_next != NULL)
                     return m_next->startMouseDrag(inputState);
                 return NULL;
@@ -202,16 +197,40 @@ namespace TrenchBroom {
             
             inline void endMouseDrag(const InputState& inputState) {
                 static_cast<MouseDragPolicyType&>(*this).doEndMouseDrag(inputState);
+                m_dragging = false;
             }
             
             inline void cancelMouseDrag(const InputState& inputState) {
                 static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
+                m_dragging = false;
             }
             
             inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
                 if (m_next != NULL)
                     m_next->render(inputState, renderContext);
+            }
+        protected:
+            virtual void doModifierKeyChange(const InputState& inputState) {}
+            
+            inline MapDocumentPtr document() {
+                return m_document;
+            }
+            
+            inline MapDocumentPtr document() const {
+                return m_document;
+            }
+            
+            inline ControllerFacade& controller() {
+                return m_controller;
+            }
+            
+            inline const ControllerFacade& controller() const {
+                return m_controller;
+            }
+            
+            inline bool dragging() const {
+                return m_dragging;
             }
         };
     }

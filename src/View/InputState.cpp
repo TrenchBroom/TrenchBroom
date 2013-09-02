@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera) :
+        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(0),
         m_mouseY(0),
@@ -32,13 +32,14 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_filter(filter),
-        m_camera(camera) {
+        m_camera(camera),
+        m_grid(grid) {
             const wxMouseState mouseState = wxGetMouseState();
             m_mouseX = mouseState.GetX();
             m_mouseY = mouseState.GetY();
         }
 
-        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const int mouseX, const int mouseY) :
+        InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid, const int mouseX, const int mouseY) :
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
         m_mouseY(mouseY),
@@ -47,7 +48,8 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_filter(filter),
-        m_camera(camera) {}
+        m_camera(camera),
+        m_grid(grid) {}
         
         InputState::~InputState() {}
 
@@ -154,6 +156,10 @@ namespace TrenchBroom {
 
         const Renderer::Camera& InputState::camera() const {
             return m_camera;
+        }
+        
+        const Grid& InputState::grid() const {
+            return m_grid;
         }
     }
 }

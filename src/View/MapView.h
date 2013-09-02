@@ -77,6 +77,7 @@ namespace TrenchBroom {
             
             Renderer::RenderResources& renderResources();
             
+            void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
@@ -97,6 +98,7 @@ namespace TrenchBroom {
             void createTools();
             void deleteTools();
             void cancelCurrentDrag();
+            ModifierKeyState modifierKeys(wxKeyEvent& event);
             MouseButtonState mouseButton(wxMouseEvent& event);
             void bindEvents();
             

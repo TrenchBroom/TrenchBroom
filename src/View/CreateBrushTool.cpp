@@ -49,6 +49,11 @@ namespace TrenchBroom {
         m_brushRenderer(RendererFilter()),
         m_brush(NULL) {}
 
+        void CreateBrushTool::doModifierKeyChange(const InputState& inputState) {
+            if (dragging())
+                resetPlane(inputState);
+        }
+
         bool CreateBrushTool::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             assert(m_brush == NULL);
             
@@ -75,6 +80,19 @@ namespace TrenchBroom {
         }
         
         void CreateBrushTool::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return;
+            initialPoint = inputState.pickRay().pointAtDistance(distance);
+            
+            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                Vec3 planeNorm = inputState.pickRay().direction;
+                planeNorm[2] = 0.0;
+                planeNorm.normalize();
+                plane = Plane3(initialPoint, planeNorm);
+            } else {
+                plane = horizontalDragPlane(initialPoint);
+            }
         }
         
         bool CreateBrushTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {

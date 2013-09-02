@@ -52,6 +52,8 @@ namespace TrenchBroom {
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
         
+        class Grid;
+        
         class InputState {
         private:
             MouseButtonState m_mouseButtons;
@@ -65,9 +67,10 @@ namespace TrenchBroom {
             mutable Model::PickResult m_pickResult;
             const Model::Filter& m_filter;
             Renderer::Camera& m_camera;
+            const Grid& m_grid;
         public:
-            InputState(const Model::Filter& filter, Renderer::Camera& camera);
-            InputState(const Model::Filter& filter, Renderer::Camera& camera, const int mouseX, const int mouseY);
+            InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid);
+            InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid, const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -98,6 +101,7 @@ namespace TrenchBroom {
             void setPickResult(Model::PickResult& pickResult);
             const Model::Filter& filter() const;
             const Renderer::Camera& camera() const;
+            const Grid& grid() const;
         };
     }
 }

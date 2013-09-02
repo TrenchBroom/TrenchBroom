@@ -45,6 +45,7 @@ namespace TrenchBroom {
         public:
             CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
         private:
+            void doModifierKeyChange(const InputState& inputState);
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
