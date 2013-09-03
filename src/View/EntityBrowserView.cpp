@@ -58,7 +58,7 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinitionManager::Name),
-        m_vbo(0xFFFFF) {
+        m_vbo(0xFFFF) {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             int fontSize = prefs.getInt(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
-            Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
+            const Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
             
             if (m_group) {
                 Assets::EntityDefinitionManager::EntityDefinitionGroups groups = m_entityDefinitionManager.groups(Assets::EntityDefinition::PointEntity, m_sortOrder);
@@ -170,24 +170,25 @@ namespace TrenchBroom {
                 }
                 
                 const Vec3f size = rotatedBounds.size();
-                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds), size.y(), size.z(), actualSize.x(), font.size() + 2.0f);
+                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
+                               size.y(),
+                               size.z(),
+                               actualSize.x(),
+                               font.size() + 2.0f);
             }
         }
-
+        
         void EntityBrowserView::doClear() {}
         
         void EntityBrowserView::doRender(Layout& layout, const float y, const float height) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_DEPTH_TEST);
-
             const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
             const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
             const float viewRight     = static_cast<float>(GetClientRect().GetRight());
             const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
 
             const Mat4x4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f)));
+            const Mat4x4f view = viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f));
+            Renderer::Transformation transformation(projection, view);
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();

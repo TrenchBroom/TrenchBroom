@@ -19,9 +19,42 @@
 
 #include "FaceInspector.h"
 
+#include "Controller/NewDocumentCommand.h"
+#include "Controller/OpenDocumentCommand.h"
+#include "Controller/SelectionCommand.h"
+#include "View/FaceAttribsEditor.h"
+#include "View/LayoutConstants.h"
+#include "View/TextureBrowser.h"
+
+#include <wx/sizer.h>
+
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(wxWindow* parent) :
-        wxPanel(parent) {}
+        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources) :
+        wxPanel(parent),
+        m_document(document),
+        m_controller(controller) {
+            m_faceAttribsEditor = new FaceAttribsEditor(this, resources);
+            m_textureBrowser = new TextureBrowser(this, wxID_ANY, resources, m_document);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            
+            SetSizer(outerSizer);
+        }
+
+        void FaceInspector::update(Controller::Command::Ptr command) {
+            using namespace Controller;
+            
+            if (command->type() == NewDocumentCommand::Type ||
+                command->type() == OpenDocumentCommand::Type) {
+//                m_faceAttribsEditor->update();
+                m_textureBrowser->reload();
+            } else if (command->type() == SelectionCommand::Type) {
+//                m_faceAttribsEditor->update();
+            }
+        }
     }
 }

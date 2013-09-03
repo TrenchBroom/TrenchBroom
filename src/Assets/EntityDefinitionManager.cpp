@@ -29,18 +29,28 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        bool EntityDefinitionManager::CompareByName::operator() (const EntityDefinition* left, const EntityDefinition* right) const {
-            if (m_shortName)
-                return left->shortName() < right->shortName();
-            return left->name() < right->name();
-        }
-
-        inline bool EntityDefinitionManager::CompareByUsage::operator() (const EntityDefinition* left, const EntityDefinition* right) const {
-            if (left->usageCount() == right->usageCount())
+        class CompareByName {
+        private:
+            bool m_shortName;
+        public:
+            CompareByName(const bool shortName) :
+            m_shortName(shortName) {}
+            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+                if (m_shortName)
+                    return left->shortName() < right->shortName();
                 return left->name() < right->name();
-            return left->usageCount() > right->usageCount();
-        }
-
+            }
+        };
+        
+        class CompareByUsage {
+        public:
+            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+                if (left->usageCount() == right->usageCount())
+                    return left->name() < right->name();
+                return left->usageCount() > right->usageCount();
+            }
+        };
+        
         EntityDefinitionManager::~EntityDefinitionManager() {
             clear();
         }

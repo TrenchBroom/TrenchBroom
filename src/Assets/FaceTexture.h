@@ -54,7 +54,7 @@ namespace TrenchBroom {
             size_t usageCount() const;
             void incUsageCount();
             void decUsageCount();
-            bool isOverridden() const;
+            bool overridden() const;
             void setOverridden(const bool overridden);
             
             void activate() const;

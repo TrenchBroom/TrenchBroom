@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityBrowser.h"
+#include "TextureBrowser.h"
 
-#include "Assets/EntityDefinitionManager.h"
-#include "View/EntityBrowserView.h"
+#include "Assets/TextureManager.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
+#include "View/TextureBrowserView.h"
+#include "View/TextureSelectedCommand.h"
 
 #include <wx/choice.h>
 #include <wx/event.h>
@@ -32,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
+        TextureBrowser::TextureBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
         wxPanel(parent, windowId) {
             const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
@@ -43,11 +44,12 @@ namespace TrenchBroom {
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);
-
-            m_sortOrderChoice->Bind(wxEVT_CHOICE, &EntityBrowser::OnSortOrderChanged, this);
-            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnGroupButtonToggled, this);
-            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnUsedButtonToggled, this);
-            m_filterBox->Bind(wxEVT_TEXT, &EntityBrowser::OnFilterPatternChanged, this);
+            
+            m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
+            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
+            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
+            m_filterBox->Bind(wxEVT_TEXT, &TextureBrowser::OnFilterPatternChanged, this);
+            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
@@ -61,10 +63,9 @@ namespace TrenchBroom {
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-            m_view = new EntityBrowserView(browserPanel, wxID_ANY, m_scrollBar,
+            m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
-                                           document->entityDefinitionManager(),
-                                           document->entityModelManager());
+                                           document->textureManager());
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
@@ -80,28 +81,42 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
         }
         
-        void EntityBrowser::reload() {
+        void TextureBrowser::reload() {
             if (m_view != NULL) {
                 m_view->clear();
                 m_view->reload();
             }
         }
         
-        void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
-            const Assets::EntityDefinitionManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinitionManager::Name : Assets::EntityDefinitionManager::Usage;
+        Assets::FaceTexture* TextureBrowser::selectedTexture() const {
+            return m_view->selectedTexture();
+        }
+        
+        void TextureBrowser::setSelectedTexture(Assets::FaceTexture* selectedTexture) {
+            m_view->setSelectedTexture(selectedTexture);
+        }
+
+        void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
+            const Assets::TextureManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::TextureManager::Name : Assets::TextureManager::Usage;
             m_view->setSortOrder(sortOrder);
         }
         
-        void EntityBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
+        void TextureBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
             m_view->setGroup(m_groupButton->GetValue());
         }
         
-        void EntityBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
+        void TextureBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
             m_view->setHideUnused(m_usedButton->GetValue());
         }
         
-        void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
+        void TextureBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
+        }
+
+        void TextureBrowser::OnTextureSelected(TextureSelectedCommand& event) {
+            event.SetEventObject(this);
+            event.SetId(GetId());
+            event.Skip(true);
         }
     }
 }

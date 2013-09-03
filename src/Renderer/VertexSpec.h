@@ -151,6 +151,7 @@ namespace TrenchBroom {
 
         namespace VertexSpecs {
             typedef VertexSpec1<AttributeSpecs::P2> P2;
+            typedef VertexSpec2<AttributeSpecs::P2, AttributeSpecs::C4> P2C4;
             typedef VertexSpec2<AttributeSpecs::P2, AttributeSpecs::T02> P2T2;
             typedef VertexSpec1<AttributeSpecs::P3> P3;
             typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4> P3C4;

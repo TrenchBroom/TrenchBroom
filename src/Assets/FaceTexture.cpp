@@ -78,7 +78,7 @@ namespace TrenchBroom {
             --m_usageCount;
         }
         
-        bool FaceTexture::isOverridden() const {
+        bool FaceTexture::overridden() const {
             return m_overridden;
         }
         

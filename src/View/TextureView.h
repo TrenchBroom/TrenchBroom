@@ -17,13 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceInspector__
-#define __TrenchBroom__FaceInspector__
+#ifndef __TrenchBroom__TextureView__
+#define __TrenchBroom__TextureView__
 
-#include "Controller/Command.h"
-#include "View/ViewTypes.h"
-
-#include <wx/panel.h>
+#include "GL/glew.h"
+#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,22 +29,16 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FaceAttribsEditor;
-        class TextureBrowser;
-        
-        class FaceInspector : public wxPanel {
+        class TextureView : public wxGLCanvas {
         private:
-            MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
-            
-            FaceAttribsEditor* m_faceAttribsEditor;
-            TextureBrowser* m_textureBrowser;
+            wxGLContext* m_glContext;
         public:
-            FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
-
-            void update(Controller::Command::Ptr command);
+            TextureView(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources);
+            ~TextureView();
+            
+            void OnPaint(wxPaintEvent& event);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceInspector__) */
+#endif /* defined(__TrenchBroom__TextureView__) */

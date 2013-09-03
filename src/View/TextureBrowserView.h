@@ -17,91 +17,90 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityBrowserView__
-#define __TrenchBroom__EntityBrowserView__
+#ifndef __TrenchBroom__TextureBrowserView__
+#define __TrenchBroom__TextureBrowserView__
 
-#include "VecMath.h"
-#include "Assets/EntityDefinitionManager.h"
+#include "StringUtils.h"
+#include "Assets/TextureManager.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
+
+#include <map>
+
+class wxScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
-        class EntityModelManager;
-        class PointEntityDefinition;
+        class FaceTexture;
+        class FaceTextureCollection;
     }
     
     namespace Renderer {
-        class FontDescriptor;
-        class MeshRenderer;
         class RenderResources;
-        class Transformation;
     }
     
     namespace View {
+        typedef String TextureGroupData;
         
-        typedef String EntityGroupData;
-        
-        class EntityCellData {
+        class TextureCellData {
         public:
-            Assets::PointEntityDefinition* entityDefinition;
-            Renderer::MeshRenderer* modelRenderer;
+            Assets::FaceTexture* texture;
             Renderer::FontDescriptor fontDescriptor;
-            BBox3f bounds;
             
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, Renderer::MeshRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
+            TextureCellData(Assets::FaceTexture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor);
         };
 
-        class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
+        class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
         private:
             typedef Renderer::VertexSpecs::P2T2::Vertex StringVertex;
             typedef std::map<Renderer::FontDescriptor, StringVertex::List> StringMap;
 
             Renderer::RenderResources& m_resources;
-            Assets::EntityDefinitionManager& m_entityDefinitionManager;
-            Assets::EntityModelManager& m_entityModelManager;
-            Quatf m_rotation;
-            
+            Assets::TextureManager& m_textureManager;
+
             bool m_group;
             bool m_hideUnused;
-            Assets::EntityDefinitionManager::SortOrder m_sortOrder;
+            Assets::TextureManager::SortOrder m_sortOrder;
             String m_filterText;
             
             Renderer::Vbo m_vbo;
+            Assets::FaceTexture* m_selectedTexture;
         public:
-            EntityBrowserView(wxWindow* parent, wxWindowID windowId,
-                              wxScrollBar* scrollBar,
-                              Renderer::RenderResources& resources,
-                              Assets::EntityDefinitionManager& entityDefinitionManager,
-                              Assets::EntityModelManager& entityModelManager);
-            ~EntityBrowserView();
-            
-            void setSortOrder(const Assets::EntityDefinitionManager::SortOrder sortOrder);
+            TextureBrowserView(wxWindow* parent, wxWindowID windowId,
+                               wxScrollBar* scrollBar,
+                               Renderer::RenderResources& resources,
+                               Assets::TextureManager& textureManager);
+            ~TextureBrowserView();
+
+            void setSortOrder(const Assets::TextureManager::SortOrder sortOrder);
             void setGroup(const bool group);
             void setHideUnused(const bool hideUnused);
             void setFilterText(const String& filterText);
+
+            Assets::FaceTexture* selectedTexture() const;
+            void setSelectedTexture(Assets::FaceTexture* selectedTexture);
         private:
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
-            void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
-
+            void addTextureToLayout(Layout& layout, Assets::FaceTexture* texture, const Renderer::FontDescriptor& font);
+            
             void doClear();
             void doRender(Layout& layout, const float y, const float height);
-
-
             void renderBounds(Layout& layout, const float y, const float height);
-            void renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation);
-            void renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection);
+            const Color& textureColor(const Assets::FaceTexture& texture) const;
+            void renderTextures(Layout& layout, const float y, const float height);
+            void renderNames(Layout& layout, const float y, const float height);
             void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);
             void renderStrings(Layout& layout, const float y, const float height);
             StringMap collectStringVertices(Layout& layout, const float y, const float height);
             
-            
-            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
+            void doLeftClick(Layout& layout, const float x, const float y);
+            wxString tooltip(const Layout::Group::Row::Cell& cell);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityBrowserView__) */
+#endif /* defined(__TrenchBroom__TextureBrowserView__) */

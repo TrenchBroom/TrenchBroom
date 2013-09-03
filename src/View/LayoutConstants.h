@@ -42,6 +42,7 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0;
             static const int ChoiceLeftMargin                   = 0;
             static const int BrowserControlsHorizontalMargin    = 3;
+            static const int FaceAttribsControlMargin           = 5;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -59,6 +60,7 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = wxBORDER_SUNKEN;
             static const int ChoiceLeftMargin                   = 1;
             static const int BrowserControlsHorizontalMargin    = 3;
+            static const int FaceAttribsControlMargin           = 5;
 #elif defined __linux__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -76,6 +78,7 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0;
             static const int ChoiceLeftMargin                   = 0;
             static const int BrowserControlsHorizontalMargin    = 3;
+            static const int FaceAttribsControlMargin           = 5;
 #endif
         }
     }

@@ -73,9 +73,8 @@ namespace TrenchBroom {
             CellView(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
             m_layoutInitialized(false),
+            m_glContext(new wxGLContext(this, sharedContext)),
             m_scrollBar(scrollBar) {
-                m_glContext = new wxGLContext(this, sharedContext);
-
                 Bind(wxEVT_PAINT, &CellView::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellView::OnSize, this);
                 Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
@@ -122,22 +121,22 @@ namespace TrenchBroom {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 
-                /* This prevents a minor flickering issue when resizing the canvas on OS X, but it introduces a worse
-                   issue on Windows.
-                wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.x * 0xFF),
-                                           static_cast<unsigned char>(backgroundColor.y * 0xFF),
-                                           static_cast<unsigned char>(backgroundColor.z * 0xFF),
-                                           static_cast<unsigned char>(backgroundColor.w * 0xFF));
-
+                
                 wxPaintDC dc(this);
+
+#ifdef __APPLE__
+                /* This prevents a minor flickering issue when resizing the canvas on OS X. */
+                const wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.r() * 0xFF),
+                                                 static_cast<unsigned char>(backgroundColor.g() * 0xFF),
+                                                 static_cast<unsigned char>(backgroundColor.b() * 0xFF),
+                                                 static_cast<unsigned char>(backgroundColor.a() * 0xFF));
+
                 dc.SetPen(wxPen(wxBackgroundColor));
                 dc.SetBrush(wxBrush(wxBackgroundColor));
-                dc.DrawRectangle(GetRect());
-                */
+                dc.DrawRectangle(GetClientRect());
+#endif
 
                 if (SetCurrent(*m_glContext)) {
-                    wxPaintDC paintDC(this);
-
                     glEnable(GL_MULTISAMPLE);
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -149,16 +148,16 @@ namespace TrenchBroom {
                     glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                    wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
+                    const int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                    const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
 
-                    float y = static_cast<float>(visibleRect.GetY());
-                    float height = static_cast<float>(visibleRect.GetHeight());
+                    const float y = static_cast<float>(visibleRect.GetY());
+                    const float height = static_cast<float>(visibleRect.GetHeight());
 
-                    GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
-                    GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
-                    GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
-                    GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
+                    const GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
+                    const GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
+                    const GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
+                    const GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
                     glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
 
                     doRender(m_layout, y, height);
@@ -233,7 +232,7 @@ namespace TrenchBroom {
                 int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
-                handleLeftClick(m_layout, x, y);
+                doLeftClick(m_layout, x, y);
             }
 
             void OnMouseWheel(wxMouseEvent& event) {
@@ -255,7 +254,7 @@ namespace TrenchBroom {
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doClear() {}
             virtual void doRender(Layout& layout, const float y, const float height) = 0;
-            virtual void handleLeftClick(const Layout& layout, const float x, const float y) {}
+            virtual void doLeftClick(Layout& layout, const float x, const float y) {}
             virtual bool dndEnabled() { return false; }
             virtual wxImage* dndImage(const typename Layout::Group::Row::Cell& cell) { return NULL; }
             virtual wxDataObject* dndData(const typename Layout::Group::Row::Cell& cell) { return NULL; }

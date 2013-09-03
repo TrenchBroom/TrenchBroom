@@ -59,6 +59,10 @@ namespace TrenchBroom {
         extern Preference<int> BrowserFontSize;
         extern Preference<Color> BrowserTextColor;
         extern Preference<Color> BrowserGroupBackgroundColor;
+        extern Preference<float> TextureBrowserIconSize;
+        extern Preference<Color> TextureBrowserDefaultColor;
+        extern Preference<Color> TextureBrowserSelectedColor;
+        extern Preference<Color> TextureBrowserUsedColor;
         
         extern Preference<float> CameraLookSpeed;
         extern Preference<bool> CameraLookInvertH;

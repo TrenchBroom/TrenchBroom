@@ -26,6 +26,23 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class CompareByName {
+        public:
+            CompareByName() {}
+            bool operator() (const FaceTexture* left, const FaceTexture* right) const {
+                return left->name() < right->name();
+            }
+        };
+        
+        class CompareByUsage {
+        public:
+            bool operator() (const FaceTexture* left, const FaceTexture* right) const {
+                if (left->usageCount() == right->usageCount())
+                    return left->name() < right->name();
+                return left->usageCount() > right->usageCount();
+            }
+        };
+
         TextureManager::~TextureManager() {
             VectorUtils::clearAndDelete(m_collections);
         }
@@ -103,6 +120,18 @@ namespace TrenchBroom {
             return it->second;
         }
 
+        const FaceTextureList& TextureManager::textures(const SortOrder sortOrder) const {
+            return m_sortedTextures[sortOrder];
+        }
+
+        const TextureManager::GroupList& TextureManager::groups(const SortOrder sortOrder) const {
+            return m_sortedGroups[sortOrder];
+        }
+
+        const TextureCollectionList& TextureManager::collections() const {
+            return m_collections;
+        }
+
         void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove) {
             if (collectionsByPath.count(path) > 0)
                 return;
@@ -126,6 +155,8 @@ namespace TrenchBroom {
 
         void TextureManager::updateTextures() {
             m_texturesByName.clear();
+            m_sortedGroups[Name].clear();
+            m_sortedGroups[Usage].clear();
             
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
@@ -138,7 +169,38 @@ namespace TrenchBroom {
                     FaceTexture* texture = *tIt;
                     m_texturesByName[texture->name()] = texture;
                 }
+
+                const Group group = std::make_pair(collection->path(), textures);
+                m_sortedGroups[Name].push_back(group);
+                m_sortedGroups[Usage].push_back(group);
+                std::sort(m_sortedGroups[Name].back().second.begin(),
+                          m_sortedGroups[Name].back().second.end(),
+                          CompareByName());
+                std::sort(m_sortedGroups[Usage].back().second.begin(),
+                          m_sortedGroups[Usage].back().second.end(),
+                          CompareByUsage());
             }
+            
+            m_sortedTextures[Name] = m_sortedTextures[Usage] = textureList();
+            std::sort(m_sortedTextures[Name].begin(), m_sortedTextures[Name].end(), CompareByName());
+            std::sort(m_sortedTextures[Usage].begin(), m_sortedTextures[Usage].end(), CompareByUsage());
+        }
+
+        FaceTextureList TextureManager::textureList() const {
+            FaceTextureList result;
+            TextureCollectionList::const_iterator cIt, cEnd;
+            for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
+                const FaceTextureCollection* collection = *cIt;
+                const FaceTextureList textures = collection->textures();
+                
+                FaceTextureList::const_iterator tIt, tEnd;
+                for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
+                    FaceTexture* texture = *tIt;
+                    result.push_back(texture);
+                }
+            }
+            
+            return result;
         }
     }
 }
