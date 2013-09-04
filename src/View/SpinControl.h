@@ -33,17 +33,10 @@ class SpinControlEvent : public wxNotifyEvent {
 private:
     double m_value;
 public:
-    SpinControlEvent(wxEventType commandType = wxEVT_NULL, int winId = wxID_ANY, double value = 0.0) :
-    wxNotifyEvent(commandType, winId),
-    m_value(value) {}
-    
-    SpinControlEvent(const SpinControlEvent& event) :
-    wxNotifyEvent(event),
-    m_value(event.GetValue()) {}
-    
-    inline double GetValue() const {
-        return m_value;
-    }
+    SpinControlEvent(wxEventType commandType = wxEVT_NULL, int winId = wxID_ANY, double value = 0.0);
+    SpinControlEvent(const SpinControlEvent& event);
+    double GetValue() const;
+    virtual wxEvent* Clone() const;
 private:
     DECLARE_DYNAMIC_CLASS(SpinControlEvent)
 };
@@ -61,13 +54,27 @@ protected:
     double m_value;
     unsigned int m_digits;
     wxString m_format;
+public:
+    SpinControl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
     
+    double GetValue() const;
+    void SetValue(double doubleValue);
+    void SetValue(const wxString& textValue);
+    void SetRange(double min, double max);
+    void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
+    void SetDigits(unsigned int digits);
+    void SetHint(const wxString& hint);
+    bool Enable(bool enable = true);
+    void SetFocus();
+private:
+    wxSize DoGetBestSize() const;
+
     bool InRange(double value);
     double AdjustToRange(double value);
     bool DoSetValue(double value);
     void DoSendEvent();
     bool SyncFromText();
-
+    
     void OnTextEnter(wxCommandEvent& event);
     void OnTextKillFocus(wxFocusEvent& event);
     void OnSpinButton(bool up);
@@ -75,33 +82,6 @@ protected:
     void OnSpinButtonDown(wxSpinEvent& event);
     
     void OnSetFocus(wxFocusEvent& event);
-public:
-    SpinControl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
-    
-    inline double GetValue() const {
-        return m_value;
-    }
-    
-    void SetValue(double doubleValue);
-    void SetValue(const wxString& textValue);
-    
-    void SetRange(double min, double max);
-    
-    inline void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement) {
-        m_regularIncrement = regularIncrement;
-        m_shiftIncrement = shiftIncrement;
-        m_ctrlIncrement = ctrlIncrement;
-    }
-    
-    void SetDigits(unsigned int digits);
-    
-    void SetHint(const wxString& hint);
-    
-    bool Enable(bool enable = true);
-
-    void SetFocus();
-protected:
-    wxSize DoGetBestSize() const;
 };
 
 #define WXDLLIMPEXP_CUSTOM_EVENT

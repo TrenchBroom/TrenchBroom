@@ -28,110 +28,20 @@
 DEFINE_EVENT_TYPE(EVT_SPINCONTROL_EVENT)
 
 IMPLEMENT_DYNAMIC_CLASS(SpinControlEvent, wxNotifyEvent)
+SpinControlEvent::SpinControlEvent(wxEventType commandType, int winId, double value) :
+wxNotifyEvent(commandType, winId),
+m_value(value) {}
 
-bool SpinControl::InRange(double value) {
-    return value >= m_minValue && value <= m_maxValue;
+SpinControlEvent::SpinControlEvent(const SpinControlEvent& event) :
+wxNotifyEvent(event),
+m_value(event.GetValue()) {}
+
+double SpinControlEvent::GetValue() const {
+    return m_value;
 }
 
-double SpinControl::AdjustToRange(double value) {
-    if (m_value < m_minValue)
-        return m_minValue;
-    else if (m_value > m_maxValue)
-        return m_maxValue;
-    return value;
-}
-
-bool SpinControl::DoSetValue(double value) {
-    if (!InRange(value))
-        return false;
-
-    wxString str(wxString::Format(m_format.c_str(), value));
-    if (value == m_value && str == m_text->GetValue())
-        return false;
-
-    str.ToDouble(&m_value);
-    m_text->SetValue(str);
-    m_text->SetInsertionPointEnd();
-    m_text->DiscardEdits();
-    return true;
-}
-
-void SpinControl::DoSendEvent() {
-    SpinControlEvent event(EVT_SPINCONTROL_EVENT, GetId(), m_value);
-    event.SetEventObject( this );
-    GetEventHandler()->ProcessEvent( event );
-}
-
-bool SpinControl::SyncFromText() {
-    if (!m_text->IsModified())
-        return false;
-
-    double textValue;
-    if (m_text->GetValue().ToDouble(&textValue))
-        textValue = AdjustToRange(textValue);
-    else
-        textValue = m_value;
-    return DoSetValue(textValue);
-}
-
-void SpinControl::OnTextEnter(wxCommandEvent& event) {
-    if (SyncFromText())
-        DoSendEvent();
-}
-
-void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
-    if (SyncFromText())
-        DoSendEvent();
-    event.Skip();
-}
-
-void SpinControl::OnSpinButton(bool up) {
-    static const unsigned int SHIFT = 1;
-    static const unsigned int ALT = 2;
-    static const unsigned int META = 4;
-    static const unsigned int CTRLCMD = 8;
-
-    double increment = 0.0f;
-
-    wxMouseState mouseState = wxGetMouseState();
-    unsigned int keys = 0;
-
-    if (mouseState.ShiftDown())
-        keys |= SHIFT;
-    if (mouseState.AltDown())
-        keys |= ALT;
-    if (mouseState.MetaDown())
-        keys |= META;
-    if (mouseState.ControlDown() || mouseState.CmdDown())
-        keys |= CTRLCMD;
-
-    if (keys == 0)
-        increment = m_regularIncrement;
-    else if (keys == SHIFT)
-        increment = m_shiftIncrement;
-    else if (keys == CTRLCMD)
-        increment = m_ctrlIncrement;
-
-    double newValue = up ? m_value + increment : m_value - increment;
-    newValue = AdjustToRange(newValue);
-
-    if (DoSetValue(newValue))
-        DoSendEvent();
-
-    // m_spin->SetValue(0);
-}
-
-void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
-    OnSpinButton(true);
-}
-
-void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
-    OnSpinButton(false);
-}
-
-void SpinControl::OnSetFocus(wxFocusEvent& event) {
-    // no idea why this is necessary, but it works
-    SetFocus();
+wxEvent* SpinControlEvent::Clone() const {
+    return new SpinControlEvent(*this);
 }
 
 SpinControl::SpinControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
@@ -174,6 +84,10 @@ m_format(wxT("%g")) {
     Bind(wxEVT_SET_FOCUS, &SpinControl::OnSetFocus, this);
 }
 
+double SpinControl::GetValue() const {
+    return m_value;
+}
+
 void SpinControl::SetValue(double doubleValue) {
     if (InRange(doubleValue))
         DoSetValue(doubleValue);
@@ -199,6 +113,12 @@ void SpinControl::SetRange(double min, double max) {
     DoSetValue(AdjustToRange(m_value));
 }
 
+void SpinControl::SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement) {
+    m_regularIncrement = regularIncrement;
+    m_shiftIncrement = shiftIncrement;
+    m_ctrlIncrement = ctrlIncrement;
+}
+
 void SpinControl::SetDigits(unsigned int digits) {
     if (digits == m_digits)
         return;
@@ -213,13 +133,6 @@ void SpinControl::SetHint(const wxString& hint) {
 #endif
 }
 
-wxSize SpinControl::DoGetBestSize() const {
-    wxSize spinSize = m_spin->GetBestSize();
-    wxSize textSize = m_text->GetBestSize();
-
-    return wxSize(spinSize.x + textSize.x + 0, textSize.y);
-}
-
 bool SpinControl::Enable(bool enable) {
     if (wxPanel::Enable(enable)) {
         m_text->Enable(enable);
@@ -231,4 +144,116 @@ bool SpinControl::Enable(bool enable) {
 
 void SpinControl::SetFocus() {
     m_text->SetFocus();
+}
+
+wxSize SpinControl::DoGetBestSize() const {
+    wxSize spinSize = m_spin->GetBestSize();
+    wxSize textSize = m_text->GetBestSize();
+    
+    return wxSize(spinSize.x + textSize.x + 0, textSize.y);
+}
+
+bool SpinControl::InRange(double value) {
+    return value >= m_minValue && value <= m_maxValue;
+}
+
+double SpinControl::AdjustToRange(double value) {
+    if (m_value < m_minValue)
+        return m_minValue;
+    else if (m_value > m_maxValue)
+        return m_maxValue;
+    return value;
+}
+
+bool SpinControl::DoSetValue(double value) {
+    if (!InRange(value))
+        return false;
+    
+    wxString str(wxString::Format(m_format.c_str(), value));
+    if (value == m_value && str == m_text->GetValue())
+        return false;
+    
+    str.ToDouble(&m_value);
+    m_text->SetValue(str);
+    m_text->SetInsertionPointEnd();
+    m_text->DiscardEdits();
+    return true;
+}
+
+void SpinControl::DoSendEvent() {
+    SpinControlEvent event(EVT_SPINCONTROL_EVENT, GetId(), m_value);
+    event.SetEventObject( this );
+    GetEventHandler()->ProcessEvent( event );
+}
+
+bool SpinControl::SyncFromText() {
+    if (!m_text->IsModified())
+        return false;
+    
+    double textValue;
+    if (m_text->GetValue().ToDouble(&textValue))
+        textValue = AdjustToRange(textValue);
+    else
+        textValue = m_value;
+    return DoSetValue(textValue);
+}
+
+void SpinControl::OnTextEnter(wxCommandEvent& event) {
+    if (SyncFromText())
+        DoSendEvent();
+}
+
+void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
+    if (SyncFromText())
+        DoSendEvent();
+    event.Skip();
+}
+
+void SpinControl::OnSpinButton(bool up) {
+    static const unsigned int SHIFT = 1;
+    static const unsigned int ALT = 2;
+    static const unsigned int META = 4;
+    static const unsigned int CTRLCMD = 8;
+    
+    double increment = 0.0f;
+    
+    wxMouseState mouseState = wxGetMouseState();
+    unsigned int keys = 0;
+    
+    if (mouseState.ShiftDown())
+        keys |= SHIFT;
+    if (mouseState.AltDown())
+        keys |= ALT;
+    if (mouseState.MetaDown())
+        keys |= META;
+    if (mouseState.ControlDown() || mouseState.CmdDown())
+        keys |= CTRLCMD;
+    
+    if (keys == 0)
+        increment = m_regularIncrement;
+    else if (keys == SHIFT)
+        increment = m_shiftIncrement;
+    else if (keys == CTRLCMD)
+        increment = m_ctrlIncrement;
+    
+    double newValue = up ? m_value + increment : m_value - increment;
+    newValue = AdjustToRange(newValue);
+    
+    if (DoSetValue(newValue))
+        DoSendEvent();
+    
+    // m_spin->SetValue(0);
+}
+
+void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
+    OnSpinButton(true);
+}
+
+void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
+    OnSpinButton(false);
+}
+
+void SpinControl::OnSetFocus(wxFocusEvent& event) {
+    // no idea why this is necessary, but it works
+    SetFocus();
 }

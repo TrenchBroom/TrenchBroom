@@ -38,6 +38,55 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushFaceGeometry;
         
+        class BrushFaceAttribs {
+        private:
+            String m_textureName;
+            Assets::FaceTexture* m_texture;
+            
+            float m_xOffset;
+            float m_yOffset;
+            float m_rotation;
+            float m_xScale;
+            float m_yScale;
+            
+            size_t m_surfaceContents;
+            size_t m_surfaceFlags;
+            float m_surfaceValue;
+        public:
+            BrushFaceAttribs(const String& textureName);
+            
+            const String& textureName() const;
+            Assets::FaceTexture* texture() const;
+
+            float xOffset() const;
+            float yOffset() const;
+            float rotation() const;
+            float xScale() const;
+            float yScale() const;
+            size_t surfaceContents() const;
+            size_t surfaceFlags() const;
+            float surfaceValue() const;
+            
+            void setTexture(Assets::FaceTexture* texture);
+            void setXOffset(const float xOffset);
+            void setYOffset(const float yOffset);
+            void setRotation(const float rotation);
+            void setXScale(const float xScale);
+            void setYScale(const float yScale);
+            void setSurfaceContents(const size_t surfaceContents);
+            void setSurfaceFlags(const size_t surfaceFlags);
+            void setSurfaceValue(const float surfaceValue);
+        };
+        
+        class BrushFaceSnapshot {
+        private:
+            BrushFace* m_face;
+            BrushFaceAttribs m_attribs;
+        public:
+            BrushFaceSnapshot(BrushFace& face);
+            void restore();
+        };
+        
         class BrushFace {
         public:
             /*
@@ -60,37 +109,32 @@ namespace TrenchBroom {
             Brush* m_parent;
             BrushFace::Points m_points;
             Plane3 m_boundary;
-            String m_textureName;
-            float m_xOffset;
-            float m_yOffset;
-            float m_rotation;
-            float m_xScale;
-            float m_yScale;
-            size_t m_surfaceContents;
-            size_t m_surfaceFlags;
-            float m_surfaceValue;
+            BrushFaceAttribs m_attribs;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
             
-            Assets::FaceTexture* m_texture;
             BrushFaceGeometry* m_side;
-            
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
         public:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             virtual ~BrushFace();
             
+            BrushFaceSnapshot takeSnapshot();
+
             Brush* parent() const;
             void setParent(Brush* parent);
             
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
+            const Plane3& boundary() const;
+
+            const BrushFaceAttribs& attribs() const;
+            void setAttribs(const BrushFaceAttribs& attribs);
             
             const String& textureName() const;
             Assets::FaceTexture* texture() const;
-            const Plane3& boundary() const;
             float xOffset() const;
             float yOffset() const;
             float rotation() const;
@@ -121,6 +165,7 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void validateVertexCache() const;
+            void invalidateVertexCache();
 
             virtual void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
             virtual Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const = 0;

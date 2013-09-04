@@ -24,6 +24,10 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class FaceTexture;
+    }
+    
     namespace Renderer {
         class RenderResources;
     }
@@ -31,10 +35,14 @@ namespace TrenchBroom {
     namespace View {
         class TextureView : public wxGLCanvas {
         private:
+            Renderer::RenderResources& m_resources;
             wxGLContext* m_glContext;
+            Assets::FaceTexture* m_texture;
         public:
             TextureView(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources);
             ~TextureView();
+            
+            void setTexture(Assets::FaceTexture* texture);
             
             void OnPaint(wxPaintEvent& event);
         };

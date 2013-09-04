@@ -21,6 +21,7 @@
 
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
+#include "Controller/FaceAttributeCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
@@ -186,6 +187,46 @@ namespace TrenchBroom {
             using namespace Controller;
 
             Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset) {
+            using namespace Controller;
+
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setXOffset(xOffset);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setYOffset(yOffset);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setFaceRotation(const Model::BrushFaceList& faces, const float rotation) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setRotation(rotation);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setFaceXScale(const Model::BrushFaceList& faces, const float xScale) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setXScale(xScale);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setFaceYScale(const Model::BrushFaceList& faces, const float yScale) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setYScale(yScale);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
     }

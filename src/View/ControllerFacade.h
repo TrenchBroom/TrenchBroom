@@ -73,6 +73,12 @@ namespace TrenchBroom {
             bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
             bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
+            
+            bool setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset);
+            bool setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset);
+            bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);
+            bool setFaceXScale(const Model::BrushFaceList& faces, const float xScale);
+            bool setFaceYScale(const Model::BrushFaceList& faces, const float yScale);
         };
     }
 }

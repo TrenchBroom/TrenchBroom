@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_filter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {
-                return brush->selected() && m_filter.visible(brush);
+                return (brush->selected() || brush->partiallySelected()) && m_filter.visible(brush);
             }
             
             bool operator()(const Model::BrushFace* face) const {
@@ -209,7 +209,7 @@ namespace TrenchBroom {
 
             View::MapDocumentPtr document = selectionCommand->document();
             m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
-            m_selectedBrushRenderer.setBrushes(document->selectedBrushes());
+            m_selectedBrushRenderer.setBrushes(document->allSelectedBrushes());
             
             const Model::SelectionResult& result = selectionCommand->lastResult();
             m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),

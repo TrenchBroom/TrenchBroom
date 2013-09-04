@@ -38,18 +38,16 @@ namespace TrenchBroom {
             const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
+            m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
             
             m_groupButton = new wxToggleButton(this, wxID_ANY, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
             m_usedButton = new wxToggleButton(this, wxID_ANY, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);
-            
-            m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
-            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
-            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
             m_filterBox->Bind(wxEVT_TEXT, &TextureBrowser::OnFilterPatternChanged, this);
-            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
@@ -66,6 +64,7 @@ namespace TrenchBroom {
             m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
                                            document->textureManager());
+            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);

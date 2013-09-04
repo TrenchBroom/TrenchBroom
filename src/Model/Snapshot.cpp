@@ -31,10 +31,24 @@ namespace TrenchBroom {
             }
         }
         
+        Snapshot::Snapshot(const Model::BrushFaceList& faces) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace& face = **it;
+                m_faceSnapshots.push_back(face.takeSnapshot());
+            }
+        }
+
         void Snapshot::restore() {
-            EntitySnapshotList::iterator it, end;
-            for (it = m_entitySnapshots.begin(), end = m_entitySnapshots.end(); it != end; ++it) {
-                Model::EntitySnapshot& snapshot = *it;
+            EntitySnapshotList::iterator eIt, eEnd;
+            for (eIt = m_entitySnapshots.begin(), eEnd = m_entitySnapshots.end(); eIt != eEnd; ++eIt) {
+                Model::EntitySnapshot& snapshot = *eIt;
+                snapshot.restore();
+            }
+            
+            BrushFaceSnapshotList::iterator fIt, fEnd;
+            for (fIt = m_faceSnapshots.begin(), fEnd = m_faceSnapshots.end(); fIt != fEnd; ++fIt) {
+                Model::BrushFaceSnapshot& snapshot = *fIt;
                 snapshot.restore();
             }
         }

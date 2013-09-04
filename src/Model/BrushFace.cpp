@@ -28,11 +28,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const String BrushFace::NoTextureName = "__TB_empty";
-        
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
-        m_parent(NULL),
+        BrushFaceAttribs::BrushFaceAttribs(const String& textureName) :
         m_textureName(textureName),
+        m_texture(NULL),
         m_xOffset(0.0f),
         m_yOffset(0.0f),
         m_rotation(0.0f),
@@ -40,11 +38,104 @@ namespace TrenchBroom {
         m_yScale(1.0f),
         m_surfaceContents(0),
         m_surfaceFlags(0),
-        m_surfaceValue(0.0f),
+        m_surfaceValue(0.0f) {}
+        
+        const String& BrushFaceAttribs::textureName() const {
+            return m_textureName;
+        }
+        
+        Assets::FaceTexture* BrushFaceAttribs::texture() const {
+            return m_texture;
+        }
+        
+        float BrushFaceAttribs::xOffset() const {
+            return m_xOffset;
+        }
+        
+        float BrushFaceAttribs::yOffset() const {
+            return m_yOffset;
+        }
+        
+        float BrushFaceAttribs::rotation() const {
+            return m_rotation;
+        }
+        
+        float BrushFaceAttribs::xScale() const {
+            return m_xScale;
+        }
+        
+        float BrushFaceAttribs::yScale() const {
+            return m_yScale;
+        }
+        
+        size_t BrushFaceAttribs::surfaceContents() const {
+            return m_surfaceContents;
+        }
+        
+        size_t BrushFaceAttribs::surfaceFlags() const {
+            return m_surfaceFlags;
+        }
+        
+        float BrushFaceAttribs::surfaceValue() const {
+            return m_surfaceValue;
+        }
+        
+        void BrushFaceAttribs::setTexture(Assets::FaceTexture* texture) {
+            m_texture = texture;
+            if (m_texture != NULL)
+                m_textureName = texture->name();
+            else
+                m_textureName = BrushFace::NoTextureName;
+        }
+        
+        void BrushFaceAttribs::setXOffset(const float xOffset) {
+            m_xOffset = xOffset;
+        }
+        
+        void BrushFaceAttribs::setYOffset(const float yOffset) {
+            m_yOffset = yOffset;
+        }
+        
+        void BrushFaceAttribs::setRotation(const float rotation) {
+            m_rotation = rotation;
+        }
+        
+        void BrushFaceAttribs::setXScale(const float xScale) {
+            m_xScale = xScale;
+        }
+        
+        void BrushFaceAttribs::setYScale(const float yScale) {
+            m_yScale = yScale;
+        }
+        
+        void BrushFaceAttribs::setSurfaceContents(const size_t surfaceContents) {
+            m_surfaceContents = surfaceContents;
+        }
+        
+        void BrushFaceAttribs::setSurfaceFlags(const size_t surfaceFlags) {
+            m_surfaceFlags = surfaceFlags;
+        }
+        
+        void BrushFaceAttribs::setSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+        }
+
+        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace& face) :
+        m_face(&face),
+        m_attribs(m_face->attribs()) {}
+        
+        void BrushFaceSnapshot::restore() {
+            m_face->setAttribs(m_attribs);
+        }
+
+        const String BrushFace::NoTextureName = "__TB_empty";
+        
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
+        m_parent(NULL),
+        m_attribs(textureName),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
-        m_texture(NULL),
         m_side(NULL),
         m_vertexCacheValid(false) {
             setPoints(point0, point1, point2);
@@ -52,6 +143,10 @@ namespace TrenchBroom {
         
         BrushFace::~BrushFace() {}
         
+        BrushFaceSnapshot BrushFace::takeSnapshot() {
+            return BrushFaceSnapshot(*this);
+        }
+
         Brush* BrushFace::parent() const {
             return m_parent;
         }
@@ -82,91 +177,126 @@ namespace TrenchBroom {
             return true;
         }
         
-        const String& BrushFace::textureName() const {
-            return m_textureName;
-        }
-        
-        Assets::FaceTexture* BrushFace::texture() const {
-            return m_texture;
-        }
-        
         const Plane3& BrushFace::boundary() const {
             return m_boundary;
         }
         
+        const BrushFaceAttribs& BrushFace::attribs() const {
+            return m_attribs;
+        }
+        
+        void BrushFace::setAttribs(const BrushFaceAttribs& attribs) {
+            if (m_attribs.texture() != NULL)
+                m_attribs.texture()->decUsageCount();
+            m_attribs = attribs;
+            if (m_attribs.texture() != NULL)
+                m_attribs.texture()->incUsageCount();
+            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            invalidateVertexCache();
+        }
+
+        const String& BrushFace::textureName() const {
+            return m_attribs.textureName();
+        }
+        
+        Assets::FaceTexture* BrushFace::texture() const {
+            return m_attribs.texture();
+        }
+        
         float BrushFace::xOffset() const {
-            return m_xOffset;
+            return m_attribs.xOffset();
         }
         
         float BrushFace::yOffset() const {
-            return m_yOffset;
+            return m_attribs.yOffset();
         }
         
         float BrushFace::rotation() const {
-            return m_rotation;
+            return m_attribs.rotation();
         }
         
         float BrushFace::xScale() const {
-            return m_xScale;
+            return m_attribs.xScale();
         }
         
         float BrushFace::yScale() const {
-            return m_yScale;
+            return m_attribs.yScale();
         }
         
         size_t BrushFace::surfaceContents() const {
-            return m_surfaceContents;
+            return m_attribs.surfaceContents();
         }
         
         size_t BrushFace::surfaceFlags() const {
-            return m_surfaceFlags;
+            return m_attribs.surfaceFlags();
         }
         
         float BrushFace::surfaceValue() const {
-            return m_surfaceValue;
+            return m_attribs.surfaceValue();
         }
 
         void BrushFace::setTexture(Assets::FaceTexture* texture) {
-            if (m_texture != NULL)
-                m_texture->decUsageCount();
-            m_texture = texture;
-            if (m_texture != NULL) {
-                m_textureName = m_texture->name();
-                m_texture->incUsageCount();
-            }
+            if (texture == m_attribs.texture())
+                return;
+            if (m_attribs.texture() != NULL)
+                m_attribs.texture()->decUsageCount();
+            m_attribs.setTexture(texture);
+            if (m_attribs.texture() != NULL)
+                m_attribs.texture()->incUsageCount();
         }
         
         void BrushFace::setXOffset(const float xOffset) {
-            m_xOffset = xOffset;
+            if (xOffset == m_attribs.xOffset())
+                return;
+            m_attribs.setXOffset(xOffset);
+            invalidateVertexCache();
         }
         
         void BrushFace::setYOffset(const float yOffset) {
-            m_yOffset = yOffset;
+            if (yOffset == m_attribs.yOffset())
+                return;
+            m_attribs.setYOffset(yOffset);
+            invalidateVertexCache();
         }
         
         void BrushFace::setRotation(const float rotation) {
-            m_rotation = rotation;
-            updateTextureCoordinateSystem(m_boundary.normal, m_rotation);
+            if (rotation == m_attribs.rotation())
+                return;
+            m_attribs.setRotation(rotation);
+            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            invalidateVertexCache();
         }
         
         void BrushFace::setXScale(const float xScale) {
-            m_xScale = xScale;
+            if (xScale == m_attribs.xScale())
+                return;
+            m_attribs.setXScale(xScale);
+            invalidateVertexCache();
         }
         
         void BrushFace::setYScale(const float yScale) {
-            m_yScale = yScale;
+            if (yScale == m_attribs.yScale())
+                return;
+            m_attribs.setYScale(yScale);
+            invalidateVertexCache();
         }
         
         void BrushFace::setSurfaceContents(const size_t surfaceContents) {
-            m_surfaceContents = surfaceContents;
+            if (surfaceContents == m_attribs.surfaceContents())
+                return;
+            m_attribs.setSurfaceContents(surfaceContents);
         }
         
         void BrushFace::setSurfaceFlags(const size_t surfaceFlags) {
-            m_surfaceFlags = surfaceFlags;
+            if (surfaceFlags == m_attribs.surfaceFlags())
+                return;
+            m_attribs.setSurfaceFlags(surfaceFlags);
         }
         
         void BrushFace::setSurfaceValue(const float surfaceValue) {
-            m_surfaceValue = surfaceValue;
+            if (surfaceValue == m_attribs.surfaceValue())
+                return;
+            m_attribs.setSurfaceValue(surfaceValue);
         }
 
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
@@ -203,7 +333,7 @@ namespace TrenchBroom {
             if (!m_vertexCacheValid)
                 validateVertexCache();
             
-            mesh.beginTriangleSet(m_texture);
+            mesh.beginTriangleSet(m_attribs.texture());
             mesh.addTrianglesToSet(m_cachedVertices);
             mesh.endTriangleSet();
         }
@@ -280,6 +410,7 @@ namespace TrenchBroom {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;
+            invalidateVertexCache();
             
             if (!setPlanePoints(m_boundary, m_points)) {
                 GeometryException e;
@@ -294,8 +425,13 @@ namespace TrenchBroom {
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
             
-            const size_t textureWidth = m_texture != NULL ? m_texture->width() : 1;
-            const size_t textureHeight = m_texture != NULL ? m_texture->height() : 1;
+            const Assets::FaceTexture* texture = m_attribs.texture();
+            const float xOffset = m_attribs.xOffset();
+            const float yOffset = m_attribs.yOffset();
+            const float xScale = m_attribs.xScale();
+            const float yScale = m_attribs.yScale();
+            const size_t textureWidth = texture != NULL ? texture->width() : 1;
+            const size_t textureHeight = texture != NULL ? texture->height() : 1;
             
             const BrushVertex::List& vertices = m_side->vertices();
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
@@ -304,23 +440,27 @@ namespace TrenchBroom {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position(),
                                                   m_boundary.normal,
                                                   textureCoordinates(vertices[0]->position(),
-                                                                     m_xOffset, m_yOffset,
-                                                                     m_xScale, m_yScale,
+                                                                     xOffset, yOffset,
+                                                                     xScale, yScale,
                                                                      textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i]->position(),
                                                   m_boundary.normal,
                                                   textureCoordinates(vertices[i]->position(),
-                                                                     m_xOffset, m_yOffset,
-                                                                     m_xScale, m_yScale,
+                                                                     xOffset, yOffset,
+                                                                     xScale, yScale,
                                                                      textureWidth, textureHeight)));
                 m_cachedVertices.push_back(Vertex(vertices[i+1]->position(),
                                                   m_boundary.normal,
                                                   textureCoordinates(vertices[i+1]->position(),
-                                                                     m_xOffset, m_yOffset,
-                                                                     m_xScale, m_yScale,
+                                                                     xOffset, yOffset,
+                                                                     xScale, yScale,
                                                                      textureWidth, textureHeight)));
             }
             m_vertexCacheValid = true;
+        }
+
+        void BrushFace::invalidateVertexCache() {
+            m_vertexCacheValid = false;
         }
     }
 }

@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__FaceAttribsEditor__
 #define __TrenchBroom__FaceAttribsEditor__
 
+#include "Model/ModelTypes.h"
+
 #include <wx/panel.h>
 
 class wxStaticText;
@@ -32,10 +34,14 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class ControllerFacade;
         class TextureView;
         
         class FaceAttribsEditor : public wxPanel {
         private:
+            ControllerFacade& m_controller;
+            Model::BrushFaceList m_faces;
+            
             TextureView* m_textureView;
             wxStaticText* m_textureNameLabel;
             
@@ -45,13 +51,17 @@ namespace TrenchBroom {
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources);
+            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, ControllerFacade& controller);
 
+            void updateFaces(const Model::BrushFaceList& faces);
+            
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
+            void OnRotationChanged(SpinControlEvent& event);
             void OnXScaleChanged(SpinControlEvent& event);
             void OnYScaleChanged(SpinControlEvent& event);
-            void OnRotationChanged(SpinControlEvent& event);
+        private:
+            void updateAttributes();
         };
     }
 }

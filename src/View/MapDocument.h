@@ -105,8 +105,10 @@ namespace TrenchBroom {
             Model::EntityList allSelectedEntities() const;
             Model::EntityList unselectedEntities() const;
             Model::BrushList selectedBrushes() const;
+            Model::BrushList allSelectedBrushes() const;
             Model::BrushList unselectedBrushes() const;
             Model::BrushFaceList selectedFaces() const;
+            Model::BrushFaceList allSelectedFaces() const;
             Model::SelectionResult selectObjects(const Model::ObjectList& objects);
             Model::SelectionResult deselectObjects(const Model::ObjectList& objects);
             Model::SelectionResult selectAllObjects();

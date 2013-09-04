@@ -19,6 +19,9 @@
 
 #include "FaceAttribsEditor.h"
 
+#include "Assets/AssetTypes.h"
+#include "Model/BrushFace.h"
+#include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/SpinControl.h"
 #include "View/TextureView.h"
@@ -29,40 +32,57 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources) :
-        wxPanel(parent) {
+        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, ControllerFacade& controller) :
+        wxPanel(parent),
+        m_controller(controller) {
             m_textureView = new TextureView(this, wxID_ANY, resources);
-            m_textureNameLabel = new wxStaticText(this, wxID_ANY, _T("none"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
+            m_textureNameLabel = new wxStaticText(this, wxID_ANY, _T("n/a"));
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
+            // EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected)
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
-            m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT, &FaceAttribsEditor::OnXOffsetChanged, this);
+            m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
+                                  this);
             
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
-            m_yOffsetEditor->Bind(EVT_SPINCONTROL_EVENT, &FaceAttribsEditor::OnYOffsetChanged, this);
+            m_yOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYOffsetChanged),
+                                  this);
             
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_xScaleEditor->Bind(EVT_SPINCONTROL_EVENT, &FaceAttribsEditor::OnXScaleChanged, this);
+            m_xScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXScaleChanged),
+                                 this);
 
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT, &FaceAttribsEditor::OnYScaleChanged, this);
+            m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYScaleChanged),
+                                 this);
             
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
-            m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT, &FaceAttribsEditor::OnRotationChanged, this);
+            m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
+                                   this);
+            
+            wxSizer* textureLabelSizer = new wxBoxSizer(wxHORIZONTAL);
+            textureLabelSizer->AddStretchSpacer();
+            textureLabelSizer->Add(m_textureNameLabel);
+            textureLabelSizer->AddStretchSpacer();
             
             wxSizer* textureViewSizer = new wxBoxSizer(wxVERTICAL);
             textureViewSizer->Add(m_textureView, 0, wxEXPAND);
             textureViewSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            textureViewSizer->Add(m_textureNameLabel, 1, wxEXPAND | wxALIGN_CENTER);
+            textureViewSizer->Add(textureLabelSizer, 1, wxEXPAND);
             textureViewSizer->SetItemMinSize(m_textureView, 128, 128);
             
             wxGridBagSizer* faceAttribsSizer = new wxGridBagSizer(LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
@@ -99,19 +119,126 @@ namespace TrenchBroom {
             SetSizer(faceEditorSizer);
         }
 
+        void FaceAttribsEditor::updateFaces(const Model::BrushFaceList& faces) {
+            m_faces = faces;
+            updateAttributes();
+        }
+
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
+            if (!m_controller.setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
         }
         
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
-        }
-        
-        void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
-        }
-        
-        void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
+            if (!m_controller.setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
         }
         
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
+            if (!m_controller.setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
+            if (!m_controller.setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
+            if (!m_controller.setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::updateAttributes() {
+            if (!m_faces.empty()) {
+                bool textureMulti = false;
+                bool xOffsetMulti = false;
+                bool yOffsetMulti = false;
+                bool rotationMulti = false;
+                bool xScaleMulti = false;
+                bool yScaleMulti = false;
+                
+                Assets::FaceTexture* texture = m_faces[0]->texture();
+                const String& textureName = m_faces[0]->textureName();
+                const float xOffset = m_faces[0]->xOffset();
+                const float yOffset = m_faces[0]->yOffset();
+                const float rotation = m_faces[0]->rotation();
+                const float xScale = m_faces[0]->xScale();
+                const float yScale = m_faces[0]->yScale();
+                
+                for (size_t i = 1; i < m_faces.size(); i++) {
+                    Model::BrushFace* face = m_faces[i];
+                    textureMulti  |= (texture  != face->texture());
+                    xOffsetMulti  |= (xOffset  != face->xOffset());
+                    yOffsetMulti  |= (yOffset  != face->yOffset());
+                    rotationMulti |= (rotation != face->rotation());
+                    xScaleMulti   |= (xScale   != face->xScale());
+                    yScaleMulti   |= (yScale   != face->yScale());
+                }
+                
+                m_xOffsetEditor->Enable();
+                m_yOffsetEditor->Enable();
+                m_rotationEditor->Enable();
+                m_xScaleEditor->Enable();
+                m_yScaleEditor->Enable();
+                
+                if (textureMulti) {
+                    m_textureView->setTexture(NULL);
+                    m_textureNameLabel->SetLabel(wxT("multi"));
+                } else {
+                    m_textureView->setTexture(texture);
+                    m_textureNameLabel->SetLabel(texture != NULL ? textureName : "n/a");
+                }
+                if (xOffsetMulti) {
+                    m_xOffsetEditor->SetHint(wxT("multi"));
+                    m_xOffsetEditor->SetValue(wxT(""));
+                } else {
+                    m_xOffsetEditor->SetHint(wxT(""));
+                    m_xOffsetEditor->SetValue(xOffset);
+                }
+                if (yOffsetMulti) {
+                    m_yOffsetEditor->SetHint(wxT("multi"));
+                    m_yOffsetEditor->SetValue(wxT(""));
+                } else {
+                    m_yOffsetEditor->SetHint(wxT(""));
+                    m_yOffsetEditor->SetValue(yOffset);
+                }
+                if (rotationMulti) {
+                    m_rotationEditor->SetHint(wxT("multi"));
+                    m_rotationEditor->SetValue(wxT(""));
+                } else {
+                    m_rotationEditor->SetHint(wxT(""));
+                    m_rotationEditor->SetValue(rotation);
+                }
+                if (xScaleMulti){
+                    m_xScaleEditor->SetHint(wxT("multi"));
+                    m_xScaleEditor->SetValue(wxT(""));
+                } else {
+                    m_xScaleEditor->SetHint(wxT(""));
+                    m_xScaleEditor->SetValue(xScale);
+                }
+                if (yScaleMulti) {
+                    m_yScaleEditor->SetHint(wxT("multi"));
+                    m_yScaleEditor->SetValue(wxT(""));
+                } else {
+                    m_yScaleEditor->SetHint(wxT(""));
+                    m_yScaleEditor->SetValue(yScale);
+                }
+            } else {
+                m_xOffsetEditor->SetValue(wxT("n/a"));
+                m_xOffsetEditor->Disable();
+                m_yOffsetEditor->SetValue(wxT("n/a"));
+                m_yOffsetEditor->Disable();
+                m_xScaleEditor->SetValue(wxT("n/a"));
+                m_xScaleEditor->Disable();
+                m_yScaleEditor->SetValue(wxT("n/a"));
+                m_yScaleEditor->Disable();
+                m_rotationEditor->SetValue(wxT("n/a"));
+                m_rotationEditor->Disable();
+                m_textureView->setTexture(NULL);
+                m_textureNameLabel->SetLabel("n/a");
+            }
+            Layout();
         }
     }
 }

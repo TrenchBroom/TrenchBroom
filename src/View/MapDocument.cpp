@@ -419,6 +419,10 @@ namespace TrenchBroom {
             return m_selection.selectedBrushes();
         }
         
+        Model::BrushList MapDocument::allSelectedBrushes() const {
+            return m_selection.allSelectedBrushes();
+        }
+
         Model::BrushList MapDocument::unselectedBrushes() const {
             return m_selection.unselectedBrushes();
         }
@@ -427,6 +431,10 @@ namespace TrenchBroom {
             return m_selection.selectedFaces();
         }
         
+        Model::BrushFaceList MapDocument::allSelectedFaces() const {
+            return m_selection.allSelectedFaces();
+        }
+
         Model::SelectionResult MapDocument::selectObjects(const Model::ObjectList& objects) {
             return m_selection.selectObjects(objects);
         }

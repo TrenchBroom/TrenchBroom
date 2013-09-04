@@ -146,6 +146,12 @@ namespace TrenchBroom {
             }
         };
         
+        struct MatchAnySelectedFace  {
+            inline bool operator()(const BrushFace* face) const {
+                return face->selected() || face->parent()->selected();
+            }
+        };
+
         struct MatchUnselected {
             inline bool operator()(const Object* object) const {
                 return !object->selected();
@@ -253,6 +259,18 @@ namespace TrenchBroom {
             return result;
         }
         
+        BrushList Selection::allSelectedBrushes() const {
+            if (m_map == NULL)
+                return EmptyBrushList;
+            
+            BrushList result;
+            filter(MapBrushesIterator::begin(*m_map),
+                   MapBrushesIterator::end(*m_map),
+                   MatchPartiallySelected(),
+                   std::back_inserter(result));
+            return result;
+        }
+
         BrushList Selection::unselectedBrushes() const {
             if (m_map == NULL)
                 return EmptyBrushList;
@@ -277,6 +295,30 @@ namespace TrenchBroom {
             return result;
         }
         
+        BrushFaceList Selection::allSelectedFaces() const {
+            if (m_map == NULL)
+                return EmptyBrushFaceList;
+            
+            BrushFaceList result;
+            filter(MapFacesIterator::begin(*m_map),
+                   MapFacesIterator::end(*m_map),
+                   MatchAnySelectedFace(),
+                   std::back_inserter(result));
+            return result;
+        }
+        
+        BrushFaceList Selection::unselectedFaces() const {
+            if (m_map == NULL)
+                return EmptyBrushFaceList;
+            
+            BrushFaceList result;
+            filter(MapFacesIterator::begin(*m_map),
+                   MapFacesIterator::end(*m_map),
+                   MatchUnselected(),
+                   std::back_inserter(result));
+            return result;
+        }
+
         SelectionResult Selection::selectObjects(const ObjectList& objects) {
             assert(m_map != NULL);
 

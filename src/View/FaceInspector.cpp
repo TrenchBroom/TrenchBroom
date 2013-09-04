@@ -24,6 +24,7 @@
 #include "Controller/SelectionCommand.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/LayoutConstants.h"
+#include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
 
 #include <wx/sizer.h>
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
-            m_faceAttribsEditor = new FaceAttribsEditor(this, resources);
+            m_faceAttribsEditor = new FaceAttribsEditor(this, resources, m_controller);
             m_textureBrowser = new TextureBrowser(this, wxID_ANY, resources, m_document);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -50,10 +51,10 @@ namespace TrenchBroom {
             
             if (command->type() == NewDocumentCommand::Type ||
                 command->type() == OpenDocumentCommand::Type) {
-//                m_faceAttribsEditor->update();
+                m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
                 m_textureBrowser->reload();
             } else if (command->type() == SelectionCommand::Type) {
-//                m_faceAttribsEditor->update();
+                m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
             }
         }
     }
