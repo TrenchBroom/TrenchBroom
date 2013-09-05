@@ -49,6 +49,7 @@ namespace TrenchBroom {
             virtual bool select();
             virtual bool deselect();
             bool partiallySelected() const;
+            size_t childSelectionCount() const;
             void incChildSelectionCount();
             void decChildSelectionCount();
         protected:

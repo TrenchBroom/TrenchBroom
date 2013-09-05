@@ -54,6 +54,10 @@ namespace TrenchBroom {
             return m_childSelectionCount > 0;
         }
         
+        size_t Object::childSelectionCount() const {
+            return m_childSelectionCount;
+        }
+
         void Object::incChildSelectionCount() {
             ++m_childSelectionCount;
         }

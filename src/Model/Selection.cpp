@@ -175,21 +175,11 @@ namespace TrenchBroom {
         m_lastSelectedFace(NULL) {}
 
         bool Selection::hasSelectedObjects() const {
-            if (m_map == NULL)
-                return false;
-            
-            return any(MapObjectsIterator::begin(*m_map),
-                       MapObjectsIterator::end(*m_map),
-                       MatchSelected());
+            return !m_selectedObjects.empty();
         }
         
         bool Selection::hasSelectedFaces() const {
-            if (m_map == NULL)
-                return false;
-            
-            return any(MapFacesIterator::begin(*m_map),
-                       MapFacesIterator::end(*m_map),
-                       MatchSelected());
+            return !m_selectedFaces.empty();
         }
         
         bool Selection::hasSelection() const {
@@ -199,42 +189,41 @@ namespace TrenchBroom {
             return hasSelectedObjects() || hasSelectedFaces();
         }
 
-        ObjectList Selection::selectedObjects() const {
-            if (m_map == NULL)
-                return EmptyObjectList;
-            
-            ObjectList result;
-            filter(MapObjectsIterator::begin(*m_map),
-                   MapObjectsIterator::end(*m_map),
-                   MatchSelected(),
-                   std::back_inserter(result));
-            return result;
+        const ObjectList& Selection::selectedObjects() const {
+            return m_selectedObjects;
         }
         
-        EntityList Selection::selectedEntities() const {
-            if (m_map == NULL)
-                return EmptyEntityList;
-
-            EntityList result;
-            filter(MapEntitiesIterator::begin(*m_map),
-                   MapEntitiesIterator::end(*m_map),
-                   MatchSelected(),
-                   std::back_inserter(result));
-            return result;
+        const EntityList& Selection::selectedEntities() const {
+            return m_selectedEntities;
+        }
+        
+        const BrushList& Selection::selectedBrushes() const {
+            return m_selectedBrushes;
+        }
+        
+        const BrushFaceList& Selection::selectedFaces() const {
+            return m_selectedFaces;
         }
         
         EntityList Selection::allSelectedEntities() const {
-            if (m_map == NULL)
-                return EmptyEntityList;
-            
             EntityList result;
-            filter(MapEntitiesIterator::begin(*m_map),
-                   MapEntitiesIterator::end(*m_map),
-                   MatchPartiallySelected(),
-                   std::back_inserter(result));
+            VectorUtils::concatenate(m_selectedEntities, m_partiallySelectedEntities, result);
             return result;
         }
-
+        
+        BrushList Selection::allSelectedBrushes() const {
+            BrushList result;
+            VectorUtils::concatenate(m_selectedBrushes, m_partiallySelectedBrushes, result);
+            return result;
+        }
+        
+        const BrushFaceList& Selection::allSelectedFaces() const {
+            assert(!(!m_selectedFaces.empty() && !m_selectedBrushFaces.empty()));
+            if (!m_selectedFaces.empty())
+                return m_selectedFaces;
+            return m_selectedBrushFaces;
+        }
+        
         EntityList Selection::unselectedEntities() const {
             if (m_map == NULL)
                 return EmptyEntityList;
@@ -243,30 +232,6 @@ namespace TrenchBroom {
             filter(MapEntitiesIterator::begin(*m_map),
                    MapEntitiesIterator::end(*m_map),
                    MatchUnselected(),
-                   std::back_inserter(result));
-            return result;
-        }
-
-        BrushList Selection::selectedBrushes() const {
-            if (m_map == NULL)
-                return EmptyBrushList;
-            
-            BrushList result;
-            filter(MapBrushesIterator::begin(*m_map),
-                   MapBrushesIterator::end(*m_map),
-                   MatchSelected(),
-                   std::back_inserter(result));
-            return result;
-        }
-        
-        BrushList Selection::allSelectedBrushes() const {
-            if (m_map == NULL)
-                return EmptyBrushList;
-            
-            BrushList result;
-            filter(MapBrushesIterator::begin(*m_map),
-                   MapBrushesIterator::end(*m_map),
-                   MatchPartiallySelected(),
                    std::back_inserter(result));
             return result;
         }
@@ -283,30 +248,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        BrushFaceList Selection::selectedFaces() const {
-            if (m_map == NULL)
-                return EmptyBrushFaceList;
-            
-            BrushFaceList result;
-            filter(MapFacesIterator::begin(*m_map),
-                   MapFacesIterator::end(*m_map),
-                   MatchSelected(),
-                   std::back_inserter(result));
-            return result;
-        }
-        
-        BrushFaceList Selection::allSelectedFaces() const {
-            if (m_map == NULL)
-                return EmptyBrushFaceList;
-            
-            BrushFaceList result;
-            filter(MapFacesIterator::begin(*m_map),
-                   MapFacesIterator::end(*m_map),
-                   MatchAnySelectedFace(),
-                   std::back_inserter(result));
-            return result;
-        }
-        
         BrushFaceList Selection::unselectedFaces() const {
             if (m_map == NULL)
                 return EmptyBrushFaceList;
@@ -319,6 +260,12 @@ namespace TrenchBroom {
             return result;
         }
 
+        BrushFace* Selection::lastSelectedFace() const {
+            if (m_map == NULL)
+                return NULL;
+            return m_lastSelectedFace;
+        }
+        
         SelectionResult Selection::selectObjects(const ObjectList& objects) {
             assert(m_map != NULL);
 
@@ -329,6 +276,7 @@ namespace TrenchBroom {
                      objects.end(),
                      SetSelection(true, result),
                      MatchAll());
+                applyResult(result);
             }
             return result;
         }
@@ -336,11 +284,13 @@ namespace TrenchBroom {
         SelectionResult Selection::deselectObjects(const ObjectList& objects) {
             assert(m_map != NULL);
             SelectionResult result;
-            if (!objects.empty())
+            if (!objects.empty()) {
                 each(objects.begin(),
                      objects.end(),
                      SetSelection(false, result),
                      MatchAll());
+                applyResult(result);
+            }
             return result;
         }
         
@@ -352,6 +302,7 @@ namespace TrenchBroom {
                  MapObjectsIterator::end(*m_map),
                  SetSelection(true, result),
                  MatchUnselected());
+            applyResult(result);
             return result;
         }
         
@@ -365,6 +316,7 @@ namespace TrenchBroom {
                      faces.end(),
                      SetSelection(true, result),
                      MatchAll());
+                applyResult(result);
             }
             
             if (result.lastSelectedFace() != NULL)
@@ -377,11 +329,13 @@ namespace TrenchBroom {
             assert(m_map != NULL);
             
             SelectionResult result;
-            if (!faces.empty())
+            if (!faces.empty()) {
                 each(faces.begin(),
                      faces.end(),
                      SetSelection(false, result),
                      MatchAll());
+                applyResult(result);
+            }
             return result;
         }
 
@@ -391,13 +345,8 @@ namespace TrenchBroom {
             SelectionResult result;
             deselectAllObjects(result);
             deselectAllFaces(result);
+            applyResult(result);
             return result;
-        }
-
-        BrushFace* Selection::lastSelectedFace() const {
-            if (m_map == NULL)
-                return NULL;
-            return m_lastSelectedFace;
         }
 
         void Selection::deselectAllObjects(SelectionResult& result) {
@@ -416,6 +365,81 @@ namespace TrenchBroom {
                  MapFacesIterator::end(*m_map),
                  SetSelection(false, result),
                  MatchSelected());
+        }
+
+        void Selection::applyResult(const SelectionResult& result) {
+            applySelectedObjects(result.selectedObjects());
+            applyDeselectedObjects(result.deselectedObjects());
+            applySelectedFaces(result.selectedFaces());
+            applyDeselectedFaces(result.deselectedFaces());
+        }
+
+        void Selection::applySelectedObjects(const ObjectSet& objects) {
+            ObjectSet::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Object* object = *it;
+                VectorUtils::insertOrdered(m_selectedObjects, object);
+                
+                if (object->type() == Object::OTEntity) {
+                    Entity* entity = static_cast<Entity*>(object);
+                    VectorUtils::insertOrdered(m_selectedEntities, entity);
+                } else {
+                    Brush* brush = static_cast<Brush*>(object);
+                    VectorUtils::insertOrdered(m_selectedBrushes, brush);
+                    
+                    const BrushFaceList& brushFaces = brush->faces();
+                    VectorUtils::insertOrdered(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
+                    
+                    Entity* entity = brush->parent();
+                    VectorUtils::insertOrdered(m_partiallySelectedEntities, entity);
+                }
+            }
+        }
+        
+        void Selection::applyDeselectedObjects(const ObjectSet& objects) {
+            ObjectSet::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Object* object = *it;
+                VectorUtils::removeOrdered(m_selectedObjects, object);
+                
+                if (object->type() == Object::OTEntity) {
+                    Entity* entity = static_cast<Entity*>(object);
+                    VectorUtils::removeOrdered(m_selectedEntities, entity);
+                } else {
+                    Brush* brush = static_cast<Brush*>(object);
+                    VectorUtils::removeOrdered(m_selectedBrushes, brush);
+                    
+                    const BrushFaceList& brushFaces = brush->faces();
+                    VectorUtils::removeOrdered(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
+
+                    Entity* entity = brush->parent();
+                    if (!entity->partiallySelected())
+                        VectorUtils::removeOrdered(m_partiallySelectedEntities, entity);
+                }
+            }
+        }
+        
+        void Selection::applySelectedFaces(const BrushFaceSet& faces) {
+            BrushFaceSet::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                VectorUtils::insertOrdered(m_selectedFaces, face);
+                
+                Brush* brush = face->parent();
+                VectorUtils::insertOrdered(m_partiallySelectedBrushes, brush);
+            }
+        }
+        
+        void Selection::applyDeselectedFaces(const BrushFaceSet& faces) {
+            BrushFaceSet::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                VectorUtils::removeOrdered(m_selectedFaces, face);
+                
+                Brush* brush = face->parent();
+                if (!brush->partiallySelected())
+                    VectorUtils::removeOrdered(m_partiallySelectedBrushes, brush);
+            }
         }
     }
 }

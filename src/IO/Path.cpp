@@ -104,6 +104,14 @@ namespace TrenchBroom {
             return StringUtils::join(m_components, separator);
         }
 
+        StringList Path::asStrings(const Path::List& paths, const char separator) {
+            StringList result;
+            Path::List::const_iterator it, end;
+            for (it = paths.begin(), end = paths.end(); it != end; ++it)
+                result.push_back(it->asString(separator));
+            return result;
+        }
+
         bool Path::isEmpty() const {
             return !m_absolute && m_components.empty();
         }

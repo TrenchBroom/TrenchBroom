@@ -30,6 +30,13 @@ namespace TrenchBroom {
         class Selection {
         private:
             Map* m_map;
+            ObjectList m_selectedObjects;
+            EntityList m_selectedEntities;
+            EntityList m_partiallySelectedEntities;
+            BrushList m_selectedBrushes;
+            BrushList m_partiallySelectedBrushes;
+            BrushFaceList m_selectedFaces;
+            BrushFaceList m_selectedBrushFaces;
             BrushFace* m_lastSelectedFace;
         public:
             Selection(Map* map = NULL);
@@ -37,26 +44,36 @@ namespace TrenchBroom {
             bool hasSelectedObjects() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
-            ObjectList selectedObjects() const;
-            EntityList selectedEntities() const;
+            
+            const ObjectList& selectedObjects() const;
+            const EntityList& selectedEntities() const;
+            const BrushList& selectedBrushes() const;
+            const BrushFaceList& selectedFaces() const;
+
             EntityList allSelectedEntities() const;
-            EntityList unselectedEntities() const;
-            BrushList selectedBrushes() const;
             BrushList allSelectedBrushes() const;
+            const BrushFaceList& allSelectedFaces() const;
+            
+            EntityList unselectedEntities() const;
             BrushList unselectedBrushes() const;
-            BrushFaceList selectedFaces() const;
-            BrushFaceList allSelectedFaces() const;
             BrushFaceList unselectedFaces() const;
+
+            BrushFace* lastSelectedFace() const;
+            
             SelectionResult selectObjects(const ObjectList& objects);
             SelectionResult deselectObjects(const ObjectList& objects);
             SelectionResult selectAllObjects();
             SelectionResult selectFaces(const BrushFaceList& faces);
             SelectionResult deselectFaces(const BrushFaceList& faces);
             SelectionResult deselectAll();
-            BrushFace* lastSelectedFace() const;
         private:
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);
+            void applyResult(const SelectionResult& result);
+            void applySelectedObjects(const ObjectSet& objects);
+            void applyDeselectedObjects(const ObjectSet& objects);
+            void applySelectedFaces(const BrushFaceSet& faces);
+            void applyDeselectedFaces(const BrushFaceSet& faces);
         };
     }
 }

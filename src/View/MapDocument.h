@@ -100,15 +100,19 @@ namespace TrenchBroom {
             bool hasSelectedObjects() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
-            Model::ObjectList selectedObjects() const;
-            Model::EntityList selectedEntities() const;
+            
+            const Model::ObjectList& selectedObjects() const;
+            const Model::EntityList& selectedEntities() const;
+            const Model::BrushList& selectedBrushes() const;
+            const Model::BrushFaceList& selectedFaces() const;
+            
             Model::EntityList allSelectedEntities() const;
-            Model::EntityList unselectedEntities() const;
-            Model::BrushList selectedBrushes() const;
             Model::BrushList allSelectedBrushes() const;
+            const Model::BrushFaceList& allSelectedFaces() const;
+
+            Model::EntityList unselectedEntities() const;
             Model::BrushList unselectedBrushes() const;
-            Model::BrushFaceList selectedFaces() const;
-            Model::BrushFaceList allSelectedFaces() const;
+            
             Model::SelectionResult selectObjects(const Model::ObjectList& objects);
             Model::SelectionResult deselectObjects(const Model::ObjectList& objects);
             Model::SelectionResult selectAllObjects();

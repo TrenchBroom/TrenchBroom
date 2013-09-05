@@ -47,6 +47,7 @@ namespace TrenchBroom {
             bool operator> (const Path& rhs) const;
             
             String asString(const char separator = Separator) const;
+            static StringList asStrings(const Path::List& paths, const char separator = Separator);
             
             bool isEmpty() const;
             String firstComponent() const;

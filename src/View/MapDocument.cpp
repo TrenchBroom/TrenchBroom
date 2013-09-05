@@ -399,40 +399,40 @@ namespace TrenchBroom {
             return m_selection.hasSelection();
         }
 
-        Model::ObjectList MapDocument::selectedObjects() const {
+        const Model::ObjectList& MapDocument::selectedObjects() const {
             return m_selection.selectedObjects();
         }
 
-        Model::EntityList MapDocument::selectedEntities() const {
+        const Model::EntityList& MapDocument::selectedEntities() const {
             return m_selection.selectedEntities();
+        }
+        
+        const Model::BrushList& MapDocument::selectedBrushes() const {
+            return m_selection.selectedBrushes();
+        }
+        
+        const Model::BrushFaceList& MapDocument::selectedFaces() const {
+            return m_selection.selectedFaces();
         }
         
         Model::EntityList MapDocument::allSelectedEntities() const {
             return m_selection.allSelectedEntities();
         }
 
+        Model::BrushList MapDocument::allSelectedBrushes() const {
+            return m_selection.allSelectedBrushes();
+        }
+        
+        const Model::BrushFaceList& MapDocument::allSelectedFaces() const {
+            return m_selection.allSelectedFaces();
+        }
+        
         Model::EntityList MapDocument::unselectedEntities() const {
             return m_selection.unselectedEntities();
         }
 
-        Model::BrushList MapDocument::selectedBrushes() const {
-            return m_selection.selectedBrushes();
-        }
-        
-        Model::BrushList MapDocument::allSelectedBrushes() const {
-            return m_selection.allSelectedBrushes();
-        }
-
         Model::BrushList MapDocument::unselectedBrushes() const {
             return m_selection.unselectedBrushes();
-        }
-
-        Model::BrushFaceList MapDocument::selectedFaces() const {
-            return m_selection.selectedFaces();
-        }
-        
-        Model::BrushFaceList MapDocument::allSelectedFaces() const {
-            return m_selection.allSelectedFaces();
         }
 
         Model::SelectionResult MapDocument::selectObjects(const Model::ObjectList& objects) {
@@ -564,16 +564,15 @@ namespace TrenchBroom {
                 rootPaths.push_back(m_path.deleteLastComponent());
             
             const IO::Path::List wadPaths = m_game->extractTexturePaths(m_map);
-            IO::Path::List::const_iterator it, end;
-            for (it = wadPaths.begin(), end = wadPaths.end(); it != end; ++it) {
-                const IO::Path& wadPath = *it;
-                try {
-                    const IO::Path path = fs.resolvePath(rootPaths, *it);
-                    m_textureManager.addTextureCollection(path);
-                    info("Loaded texture collection " + wadPath.asString());
-                } catch (Exception e) {
-                    error("Error loading texture collection " + wadPath.asString() + ": " + e.what());
-                }
+            const IO::Path::List realPaths = fs.resolvePaths(rootPaths, wadPaths);
+
+            try {
+                m_textureManager.addTextureCollections(realPaths);
+
+                const StringList realPathNames = IO::Path::asStrings(realPaths);
+                info("Loaded texture collections " + StringUtils::join(realPathNames, ", "));
+            } catch (Exception e) {
+                error("Error loading texture collection: %s", e.what());
             }
         }
 

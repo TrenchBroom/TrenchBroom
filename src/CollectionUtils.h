@@ -181,7 +181,6 @@ namespace VectorUtils {
         return output;
     }
     
-    /*
     template <typename T, typename Compare = std::less<T> >
     inline void insertOrdered(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
@@ -191,13 +190,36 @@ namespace VectorUtils {
             vec.insert(it, object);
     }
     
+    template <typename T, typename I, typename Compare = std::less<T> >
+    inline void insertOrdered(std::vector<T>& vec, I cur, const I end) {
+        Compare cmp;
+        while (cur != end) {
+            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
+            if (it == vec.end())
+                vec.push_back(*cur);
+            else
+                vec.insert(it, *cur);
+            ++cur;
+        }
+    }
+    
     template <typename T, typename Compare = std::less<T> >
     inline void removeOrdered(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
         if (it != vec.end() && *it == object)
             vec.erase(it);
     }
-     */
+
+    template <typename T, typename I, typename Compare = std::less<T> >
+    inline void removeOrdered(std::vector<T>& vec, I cur, const I end) {
+        Compare cmp;
+        while (cur != end) {
+            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
+            if (it != vec.end() && *it == *cur)
+                vec.erase(it);
+            ++cur;
+        }
+    }
 }
 
 namespace MapUtils {

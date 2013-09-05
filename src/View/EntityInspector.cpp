@@ -128,7 +128,7 @@ namespace TrenchBroom {
         }
         
         void EntityInspector::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {
-            event.Enable(!m_document->selectedObjects().empty());
+            event.Enable(m_document->hasSelectedObjects());
         }
         
         void EntityInspector::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
