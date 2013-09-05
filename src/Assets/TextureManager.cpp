@@ -167,7 +167,15 @@ namespace TrenchBroom {
                 FaceTextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
                     FaceTexture* texture = *tIt;
-                    m_texturesByName[texture->name()] = texture;
+                    texture->setOverridden(false);
+                    
+                    TextureMap::iterator mIt = m_texturesByName.find(texture->name());
+                    if (mIt != m_texturesByName.end()) {
+                        mIt->second->setOverridden(true);
+                        mIt->second = texture;
+                    } else {
+                        m_texturesByName.insert(std::make_pair(texture->name(), texture));
+                    }
                 }
 
                 const Group group = std::make_pair(collection->path(), textures);
