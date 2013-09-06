@@ -25,6 +25,7 @@
 #include "FilterIterator.h"
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
+#include "Controller/FaceAttributeCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
@@ -95,13 +96,13 @@ namespace TrenchBroom {
             }
         };
         
-        MapRenderer::MapRenderer(FontManager& fontManager, const Model::Filter& filter) :
+        MapRenderer::MapRenderer(View::MapDocumentPtr document, FontManager& fontManager) :
+        m_document(document),
         m_fontManager(fontManager),
-        m_filter(filter),
-        m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_filter)),
-        m_selectedBrushRenderer(SelectedBrushRendererFilter(m_filter)),
-        m_unselectedEntityRenderer(m_fontManager, m_filter),
-        m_selectedEntityRenderer(m_fontManager, m_filter) {}
+        m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_document->filter())),
+        m_selectedBrushRenderer(SelectedBrushRendererFilter(m_document->filter())),
+        m_unselectedEntityRenderer(m_fontManager, m_document->filter()),
+        m_selectedEntityRenderer(m_fontManager, m_document->filter()) {}
         
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
@@ -114,20 +115,18 @@ namespace TrenchBroom {
             using namespace Controller;
             if (command->type() == NewDocumentCommand::Type) {
                 clearState();
-                NewDocumentCommand::Ptr newDocumentCommand = Command::cast<NewDocumentCommand>(command);
-                Model::Map* map = newDocumentCommand->map();
-                loadMap(*map);
+                loadMap(*m_document->map());
             } else if (command->type() == OpenDocumentCommand::Type) {
                 clearState();
-                OpenDocumentCommand::Ptr openDocumentCommand = Command::cast<OpenDocumentCommand>(command);
-                Model::Map* map = openDocumentCommand->map();
-                loadMap(*map);
+                loadMap(*m_document->map());
             } else if (command->type() == SelectionCommand::Type) {
                 updateSelection(command);
             } else if (command->type() == AddRemoveObjectsCommand::Type) {
                 addRemoveObjects(command);
             } else if (command->type() == EntityPropertyCommand::Type) {
                 updateEntities(command);
+            } else if (command->type() == FaceAttributeCommand::Type) {
+                updateBrushes(command);
             }
         }
         
@@ -207,9 +206,8 @@ namespace TrenchBroom {
             using namespace Controller;
             SelectionCommand::Ptr selectionCommand = Command::cast<SelectionCommand>(command);
 
-            View::MapDocumentPtr document = selectionCommand->document();
-            m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
-            m_selectedBrushRenderer.setBrushes(document->allSelectedBrushes());
+            m_unselectedBrushRenderer.setBrushes(m_document->unselectedBrushes());
+            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
             
             const Model::SelectionResult& result = selectionCommand->lastResult();
             m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
@@ -238,6 +236,10 @@ namespace TrenchBroom {
         void MapRenderer::updateEntities(Controller::Command::Ptr command) {
             m_selectedEntityRenderer.updateEntities(Model::entityIterator(command->affectedEntities().begin(), command->affectedEntities().end()),
                                                     Model::entityIterator(command->affectedEntities().end()));
+        }
+
+        void MapRenderer::updateBrushes(Controller::Command::Ptr command) {
+            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
         }
     }
 }

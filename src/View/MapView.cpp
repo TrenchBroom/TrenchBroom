@@ -46,7 +46,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_renderResources(attribs(), m_glContext),
-        m_renderer(m_renderResources.fontManager(), document->filter()),
+        m_renderer(m_document, m_renderResources.fontManager()),
         m_auxVbo(0xFFF),
         m_inputState(document->filter(), m_camera, document->grid()),
         m_cameraTool(NULL),

@@ -22,10 +22,12 @@
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
+#include "View/ControllerFacade.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
+#include "View/TextureSelectedCommand.h"
 
 #include <wx/sizer.h>
 
@@ -35,8 +37,8 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
-            m_faceAttribsEditor = new FaceAttribsEditor(this, resources, m_controller);
-            m_textureBrowser = new TextureBrowser(this, wxID_ANY, resources, m_document);
+            m_faceAttribsEditor = new FaceAttribsEditor(this, resources, m_document, m_controller);
+            m_textureBrowser = new TextureBrowser(this, resources, m_document);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
@@ -44,6 +46,9 @@ namespace TrenchBroom {
             outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             
             SetSizer(outerSizer);
+            m_textureBrowser->Bind(EVT_TEXTURE_SELECTED_EVENT,
+                                   EVT_TEXTURE_SELECTED_HANDLER(FaceInspector::OnTextureSelected),
+                                   this);
         }
 
         void FaceInspector::update(Controller::Command::Ptr command) {
@@ -56,6 +61,11 @@ namespace TrenchBroom {
             } else if (command->type() == SelectionCommand::Type) {
                 m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
             }
+        }
+
+        void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
+            if (!m_controller.setFaceTexture(m_document->allSelectedFaces(), event.texture()))
+                event.Veto();
         }
     }
 }

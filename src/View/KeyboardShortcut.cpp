@@ -662,12 +662,15 @@ namespace TrenchBroom {
             return text;
         }
         
-        wxString KeyboardShortcut::menuText() const {
+        wxString KeyboardShortcut::menuText(const String& additionalText) const {
             if (m_key == WXK_NONE)
                 return m_text;
             
             wxString text;
-            text << m_text << "\t";
+            text << m_text;
+            if (!additionalText.empty())
+                text << " " << additionalText;
+            text << "\t";
             if (hasModifier())
                 text << modifierKeyMenuText() << "+";
             text << keyMenuText();

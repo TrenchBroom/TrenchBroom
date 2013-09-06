@@ -251,13 +251,24 @@ namespace TrenchBroom {
             return recentDocumentsItem->GetSubMenu();
         }
         
+        const KeyboardShortcut& Menu::undoShortcut() {
+            static const KeyboardShortcut shortcut(wxID_UNDO, WXK_CONTROL, 'Z', KeyboardShortcut::SCAny, "Undo");
+            return shortcut;
+        }
+        
+        const KeyboardShortcut& Menu::redoShortcut() {
+            static const KeyboardShortcut shortcut(wxID_REDO, WXK_CONTROL, WXK_SHIFT, 'Z', KeyboardShortcut::SCAny, "Redo");
+            return shortcut;
+        }
+
+        
         wxMenu* Menu::createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers) {
             const Menu& menu = getMenu(name);
             return createMenu(menu, selector, showModifiers);
         }
 
         wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers) {
-            wxMenu* result = new wxMenu(menu.text());
+            wxMenu* result = new wxMenu();
             
             const Menu::List& items = menu.items();
             Menu::List::const_iterator it, end;
@@ -340,8 +351,8 @@ namespace TrenchBroom {
             Menu* editMenu = new Menu("Edit");
             menus[EditMenu] = Menu::Ptr(editMenu);
             
-            editMenu->addActionItem(KeyboardShortcut(wxID_UNDO, WXK_CONTROL, 'Z', KeyboardShortcut::SCAny, "Undo"));
-            editMenu->addActionItem(KeyboardShortcut(wxID_REDO, WXK_CONTROL, WXK_SHIFT, 'Z', KeyboardShortcut::SCAny, "Redo"));
+            editMenu->addActionItem(undoShortcut());
+            editMenu->addActionItem(redoShortcut());
             editMenu->addSeparator();
             editMenu->addActionItem(KeyboardShortcut(wxID_CUT, WXK_CONTROL, 'X', KeyboardShortcut::SCAny, "Cut"));
             editMenu->addActionItem(KeyboardShortcut(wxID_COPY, WXK_CONTROL, 'C', KeyboardShortcut::SCAny, "Copy"));

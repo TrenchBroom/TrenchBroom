@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__ControllerFacade__
 #define __TrenchBroom__ControllerFacade__
 
+#include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Controller/CommandProcessor.h"
@@ -28,6 +29,10 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class FaceTexture;
+    }
+    
     namespace IO {
         class Path;
     }
@@ -51,6 +56,11 @@ namespace TrenchBroom {
             void addCommandListener(Controller::CommandListener::Ptr listener);
             void removeCommandListener(Controller::CommandListener::Ptr listener);
 
+            bool hasLastCommand() const;
+            bool hasNextCommand() const;
+            const String& lastCommandName() const;
+            const String& nextCommandName() const;
+
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
@@ -59,6 +69,9 @@ namespace TrenchBroom {
             void closeGroup();
             void rollbackGroup();
             
+            bool undoLastCommand();
+            bool redoNextCommand();
+
             bool selectObjects(const Model::ObjectList& objects);
             bool selectObject(Model::Object* object);
             bool deselectAllAndSelectObject(Model::Object* object);
@@ -74,6 +87,7 @@ namespace TrenchBroom {
             bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
             
+            bool setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset);
             bool setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset);
             bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);

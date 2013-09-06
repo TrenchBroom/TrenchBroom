@@ -168,7 +168,7 @@ namespace TrenchBroom {
             Model::ObjectList objects;
             objects.push_back(brush);
             
-            controller().beginUndoableGroup("Create brush");
+            controller().beginUndoableGroup("Create Brush");
             controller().deselectAll();
             controller().addObjects(objects);
             controller().selectObjects(objects);

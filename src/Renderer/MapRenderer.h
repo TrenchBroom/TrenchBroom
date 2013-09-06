@@ -25,6 +25,7 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/Vbo.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,14 +39,14 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
+            View::MapDocumentPtr m_document;
             FontManager& m_fontManager;
-            const Model::Filter& m_filter;
             BrushRenderer m_unselectedBrushRenderer;
             BrushRenderer m_selectedBrushRenderer;
             EntityRenderer m_unselectedEntityRenderer;
             EntityRenderer m_selectedEntityRenderer;
         public:
-            MapRenderer(FontManager& fontManager, const Model::Filter& filter);
+            MapRenderer(View::MapDocumentPtr document, FontManager& fontManager);
             
             void render(RenderContext& context);
 
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             void updateSelection(Controller::Command::Ptr command);
             void addRemoveObjects(Controller::Command::Ptr command);
             void updateEntities(Controller::Command::Ptr command);
+            void updateBrushes(Controller::Command::Ptr command);
         };
     }
 }

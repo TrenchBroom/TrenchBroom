@@ -143,7 +143,7 @@ namespace TrenchBroom {
             wxString modifierKeyMenuText() const;
             wxString keyMenuText() const;
             wxString shortcutMenuText() const;
-            wxString menuText() const;
+            wxString menuText(const String& additionalText = "") const;
             wxString keyDisplayText() const;
             wxString shortcutDisplayText() const;
             String asString() const;

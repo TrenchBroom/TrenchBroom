@@ -142,9 +142,9 @@ namespace TrenchBroom {
         
         bool AddRemoveObjectsCommand::doPerformUndo() {
             if (m_action == AAdd)
-                removeObjects(m_objectsToAdd);
+                removeObjects(m_objectsToRemove);
             else
-                addObjects(m_objectsToRemove);
+                addObjects(m_objectsToAdd);
             std::swap(m_objectsToAdd, m_objectsToRemove);
             return true;
         }

@@ -46,6 +46,22 @@ namespace TrenchBroom {
             m_commandProcessor.removeCommandListener(listener);
         }
 
+        bool ControllerFacade::hasLastCommand() const {
+            return m_commandProcessor.hasLastCommand();
+        }
+        
+        bool ControllerFacade::hasNextCommand() const {
+            return m_commandProcessor.hasNextCommand();
+        }
+        
+        const String& ControllerFacade::lastCommandName() const {
+            return m_commandProcessor.lastCommandName();
+        }
+        
+        const String& ControllerFacade::nextCommandName() const {
+            return m_commandProcessor.nextCommandName();
+        }
+
         bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
             using namespace Controller;
             
@@ -80,6 +96,14 @@ namespace TrenchBroom {
 
         void ControllerFacade::rollbackGroup() {
             m_commandProcessor.undoGroup();
+        }
+
+        bool ControllerFacade::undoLastCommand() {
+            return m_commandProcessor.undoLastCommand();
+        }
+        
+        bool ControllerFacade::redoNextCommand() {
+            return m_commandProcessor.redoNextCommand();
         }
 
         bool ControllerFacade::selectObjects(const Model::ObjectList& objects) {
@@ -187,6 +211,14 @@ namespace TrenchBroom {
             using namespace Controller;
 
             Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setTexture(texture);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

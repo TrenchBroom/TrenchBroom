@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
-        wxPanel(parent, windowId) {
+        TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
+        wxPanel(parent) {
             const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -113,9 +113,10 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::OnTextureSelected(TextureSelectedCommand& event) {
+            // let the event bubble up to our own listeners
             event.SetEventObject(this);
             event.SetId(GetId());
-            event.Skip(true);
+            ProcessEvent(event);
         }
     }
 }

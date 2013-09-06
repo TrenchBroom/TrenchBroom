@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class FaceAttribsEditor;
         class TextureBrowser;
+        class TextureSelectedCommand;
         
         class FaceInspector : public wxPanel {
         private:
@@ -45,6 +46,8 @@ namespace TrenchBroom {
             FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
 
             void update(Controller::Command::Ptr command);
+
+            void OnTextureSelected(TextureSelectedCommand& event);
         };
     }
 }

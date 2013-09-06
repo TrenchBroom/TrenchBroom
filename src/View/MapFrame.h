@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class Console;
         class FrameManager;
         class Inspector;
+        class KeyboardShortcut;
         class MapView;
         class NavBar;
         
@@ -67,9 +68,15 @@ namespace TrenchBroom {
             void OnClose(wxCloseEvent& event);
             
             void OnFileClose(wxCommandEvent& event);
+            
+            void OnEditUndo(wxCommandEvent& event);
+            void OnEditRedo(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
+            
             void OnMapViewSetFocus(wxFocusEvent& event);
             void OnMapViewKillFocus(wxFocusEvent& event);
+            
             void OnRebuildMenu(wxEvent& event);
             
             void commandDo(Controller::Command::Ptr command);

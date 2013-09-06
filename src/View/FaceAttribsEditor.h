@@ -21,6 +21,7 @@
 #define __TrenchBroom__FaceAttribsEditor__
 
 #include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
@@ -39,6 +40,7 @@ namespace TrenchBroom {
         
         class FaceAttribsEditor : public wxPanel {
         private:
+            MapDocumentPtr m_document;
             ControllerFacade& m_controller;
             Model::BrushFaceList m_faces;
             
@@ -51,7 +53,7 @@ namespace TrenchBroom {
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, ControllerFacade& controller);
+            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerFacade& controller);
 
             void updateFaces(const Model::BrushFaceList& faces);
             
@@ -60,6 +62,7 @@ namespace TrenchBroom {
             void OnRotationChanged(SpinControlEvent& event);
             void OnXScaleChanged(SpinControlEvent& event);
             void OnYScaleChanged(SpinControlEvent& event);
+            void OnIdle(wxIdleEvent& event);
         private:
             void updateAttributes();
         };

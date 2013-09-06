@@ -22,7 +22,9 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
 #include "View/ControllerFacade.h"
+#include "View/Grid.h"
 #include "View/LayoutConstants.h"
+#include "View/MapDocument.h"
 #include "View/SpinControl.h"
 #include "View/TextureView.h"
 
@@ -32,8 +34,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, ControllerFacade& controller) :
+        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerFacade& controller) :
         wxPanel(parent),
+        m_document(document),
         m_controller(controller) {
             m_textureView = new TextureView(this, wxID_ANY, resources);
             m_textureNameLabel = new wxStaticText(this, wxID_ANY, _T("n/a"));
@@ -117,6 +120,7 @@ namespace TrenchBroom {
             faceEditorSizer->Add(faceAttribsSizer, 1, wxEXPAND);
             
             SetSizer(faceEditorSizer);
+            Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
 
         void FaceAttribsEditor::updateFaces(const Model::BrushFaceList& faces) {
@@ -239,6 +243,13 @@ namespace TrenchBroom {
                 m_textureNameLabel->SetLabel("n/a");
             }
             Layout();
+        }
+
+        void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
+            Grid& grid = m_document->grid();
+            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
         }
     }
 }

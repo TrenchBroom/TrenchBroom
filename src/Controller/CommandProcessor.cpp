@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 Command::Ptr command = *it;
                 m_notifier.commandDo(command);
                 if (!command->performDo())
-                    throw CommandProcessorException("Partial failure of while executing command group");
+                    throw CommandProcessorException("Partial failure while executing command group");
                 m_notifier.commandDone(command);
             }
             return true;
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 Command::Ptr command = *it;
                 m_notifier.commandUndo(command);
                 if (!command->performUndo())
-                    throw CommandProcessorException("Partial failure of while undoing command group");
+                    throw CommandProcessorException("Partial failure while undoing command group");
                 m_notifier.commandUndone(command);
             }
             return true;

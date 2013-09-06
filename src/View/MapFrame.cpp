@@ -75,6 +75,8 @@ namespace TrenchBroom {
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
@@ -147,10 +149,36 @@ namespace TrenchBroom {
             Close();
         }
 
+        void MapFrame::OnEditUndo(wxCommandEvent& event) {
+            m_controller.undoLastCommand();
+        }
+        
+        void MapFrame::OnEditRedo(wxCommandEvent& event) {
+            m_controller.redoNextCommand();
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_CLOSE:
                     event.Enable(true);
+                    break;
+                case wxID_UNDO:
+                    if (m_controller.hasLastCommand()) {
+                        event.Enable(true);
+                        event.SetText(Menu::undoShortcut().menuText(m_controller.lastCommandName()));
+                    } else {
+                        event.Enable(false);
+                        event.SetText(Menu::undoShortcut().menuText());
+                    }
+                    break;
+                case wxID_REDO:
+                    if (m_controller.hasNextCommand()) {
+                        event.Enable(true);
+                        event.SetText(Menu::redoShortcut().menuText(m_controller.nextCommandName()));
+                    } else {
+                        event.Enable(false);
+                        event.SetText(Menu::redoShortcut().menuText());
+                    }
                     break;
                 default:
                     event.Enable(false);
@@ -188,6 +216,7 @@ namespace TrenchBroom {
             if (command->type() == Controller::NewDocumentCommand::Type ||
                 command->type() == Controller::OpenDocumentCommand::Type)
                 updateTitle();
+            
         }
         
         void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
