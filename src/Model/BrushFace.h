@@ -121,6 +121,8 @@ namespace TrenchBroom {
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             virtual ~BrushFace();
             
+            BrushFace* clone() const;
+            
             BrushFaceSnapshot takeSnapshot();
 
             Brush* parent() const;
@@ -153,6 +155,8 @@ namespace TrenchBroom {
             void setSurfaceContents(const size_t surfaceContents);
             void setSurfaceFlags(const size_t surfaceFlags);
             void setSurfaceValue(const float surfaceValue);
+            void setAttributes(const BrushFace& other);
+
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);
             
@@ -163,6 +167,8 @@ namespace TrenchBroom {
             void addToMesh(Mesh& mesh) const;
             FloatType intersectWithRay(const Ray3& ray) const;
         private:
+            virtual BrushFace* doClone() const = 0;
+            
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void validateVertexCache() const;
             void invalidateVertexCache();
@@ -187,6 +193,13 @@ namespace TrenchBroom {
             BrushFace(point0, point1, point2, textureName),
             m_coordSystem(textureXAxis, textureYAxis, normal, rotation) {}
         private:
+            inline BrushFace* doClone() const {
+                ConfigurableBrushFace<TexCoordSystem>* result = new ConfigurableBrushFace<TexCoordSystem>(points()[0], points()[1], points()[2]);
+                result->m_coordSystem = m_coordSystem;
+                result->setAttributes(*this);
+                return result;
+            }
+            
             inline void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) {
                 m_coordSystem.update(normal, rotation);
             }

@@ -32,7 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool : public Tool<MousePolicy, MouseDragPolicy, DefaultRenderPolicy> {
+        class CameraTool : public Tool<NoActivationPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy> {
         private:
             Renderer::Camera& m_camera;
             bool m_orbit;

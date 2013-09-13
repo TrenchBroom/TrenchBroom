@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Allocator.h"
 #include "Model/BrushVertex.h"
+#include "Model/BrushGeometryTypes.h"
 
 #include <vector>
 
@@ -31,9 +32,6 @@ namespace TrenchBroom {
     namespace Model {
         class BrushVertex : public Allocator<BrushVertex> {
         public:
-            typedef std::vector<BrushVertex*> List;
-            static const List EmptyList;
-            
             typedef enum {
                 Drop,
                 Keep,
@@ -55,11 +53,12 @@ namespace TrenchBroom {
             }
             
             void updateMark(const Plane3& plane);
+            BrushFaceGeometryList incidentSides(const BrushEdgeList& edges) const;
         };
         
-        inline BrushVertex::List::iterator findBrushVertex(BrushVertex::List& vertices, const Vec3& position) {
-            BrushVertex::List::iterator it = vertices.begin();
-            const BrushVertex::List::iterator end = vertices.end();
+        inline BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::iterator it = vertices.begin();
+            const BrushVertexList::iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
                 if (vertex.position() == position)
@@ -69,9 +68,9 @@ namespace TrenchBroom {
             return end;
         }
 
-        inline BrushVertex::List::const_iterator findBrushVertex(const BrushVertex::List& vertices, const Vec3& position) {
-            BrushVertex::List::const_iterator it = vertices.begin();
-            const BrushVertex::List::const_iterator end = vertices.end();
+        inline BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::const_iterator it = vertices.begin();
+            const BrushVertexList::const_iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
                 if (vertex.position() == position)

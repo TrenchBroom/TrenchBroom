@@ -42,7 +42,7 @@ namespace TrenchBroom {
         Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
             return new Brush(worldBounds, faces);
         }
-        
+
         BrushFace* ModelFactory::createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
             switch (m_format) {
                 case MFValve:

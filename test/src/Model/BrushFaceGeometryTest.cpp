@@ -32,23 +32,23 @@
 
 namespace TrenchBroom {
     namespace Model {
-        inline void updateMarks(const BrushVertex::List& vertices, const BrushEdge::List& edges, const Plane3& plane) {
-            BrushVertex::List::const_iterator vIt, vEnd;
+        inline void updateMarks(const BrushVertexList& vertices, const BrushEdgeList& edges, const Plane3& plane) {
+            BrushVertexList::const_iterator vIt, vEnd;
             for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                 BrushVertex& vertex = **vIt;
                 vertex.updateMark(plane);
             }
             
-            BrushEdge::List::const_iterator eIt, eEnd;
+            BrushEdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                 BrushEdge& edge = **eIt;
                 edge.updateMark();
             }
         }
         
-        inline BrushVertex::List splitEdges(const BrushEdge::List& edges, const Plane3& plane) {
-            BrushVertex::List newVertices;
-            BrushEdge::List::const_iterator eIt, eEnd;
+        inline BrushVertexList splitEdges(const BrushEdgeList& edges, const Plane3& plane) {
+            BrushVertexList newVertices;
+            BrushEdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                 BrushEdge& edge = **eIt;
                 if (edge.mark() == BrushEdge::Split)
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
             BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             BrushEdge* e3 = new BrushEdge(v3, v4);
             BrushEdge* e4 = new BrushEdge(v4, v1);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(e1);
             edges.push_back(e2);
             edges.push_back(e3);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
             BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             BrushEdge* e3 = new BrushEdge(v3, v4);
             BrushEdge* e4 = new BrushEdge(v4, v1);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(e1);
             edges.push_back(e2);
             edges.push_back(e3);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
 
             const Plane3 plane(5.0, Vec3::PosX);
             updateMarks(vertices, edges, plane);
-            BrushVertex::List newVertices = splitEdges(edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             ASSERT_EQ(4u, face->vertices().size());
             ASSERT_EQ(4u, face->edges().size());
             
-            BrushFaceGeometry::List faces;
+            BrushFaceGeometryList faces;
             faces.push_back(face);
             
             Vec3::List newPositions;
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
             BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             BrushEdge* e3 = new BrushEdge(v3, v4);
             BrushEdge* e4 = new BrushEdge(v4, v1);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(e1);
             edges.push_back(e2);
             edges.push_back(e3);
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             
             const Plane3 plane(Vec3(10.0, 10.0, 0.0), Vec3(2.0, -1.0, 0.0).normalized());
             updateMarks(vertices, edges, plane);
-            BrushVertex::List newVertices = splitEdges(edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             ASSERT_EQ(4u, face->vertices().size());
             ASSERT_EQ(4u, face->edges().size());
             
-            BrushFaceGeometry::List faces;
+            BrushFaceGeometryList faces;
             faces.push_back(face);
             
             Vec3::List newPositions;
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
             BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
@@ -241,7 +241,7 @@ namespace TrenchBroom {
             BrushEdge* e3 = new BrushEdge(v3, v4);
             BrushEdge* e4 = new BrushEdge(v4, v1);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(e1);
             edges.push_back(e2);
             edges.push_back(e3);
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             
             const Plane3 plane(Vec3(10.0, 10.0, 0.0), Vec3(1.0, -1.0, 0.0).normalized());
             updateMarks(vertices, edges, plane);
-            BrushVertex::List newVertices = splitEdges(edges, plane);
+            BrushVertexList newVertices = splitEdges(edges, plane);
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
@@ -264,7 +264,7 @@ namespace TrenchBroom {
             ASSERT_EQ(3u, face->vertices().size());
             ASSERT_EQ(3u, face->edges().size());
             
-            BrushFaceGeometry::List faces;
+            BrushFaceGeometryList faces;
             faces.push_back(face);
             
             Vec3::List newPositions;
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             BrushVertex* v3 = new BrushVertex(Vec3(10.0, 10.0, 0.0));
             BrushVertex* v4 = new BrushVertex(Vec3(10.0,  0.0, 0.0));
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             BrushEdge* e3 = new BrushEdge(v3, v4);
             BrushEdge* e4 = new BrushEdge(v4, v1);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(e1);
             edges.push_back(e2);
             edges.push_back(e3);
@@ -343,12 +343,12 @@ namespace TrenchBroom {
             face.addForwardEdge(e2);
             face.addForwardEdge(e3);
             
-            const BrushEdge::List& edges = face.edges();
+            const BrushEdgeList& edges = face.edges();
             ASSERT_EQ(e1, edges[0]);
             ASSERT_EQ(e2, edges[1]);
             ASSERT_EQ(e3, edges[2]);
             
-            const BrushVertex::List& vertices = face.vertices();
+            const BrushVertexList& vertices = face.vertices();
             ASSERT_EQ(v1, vertices[0]);
             ASSERT_EQ(v2, vertices[1]);
             ASSERT_EQ(v3, vertices[2]);
@@ -386,12 +386,12 @@ namespace TrenchBroom {
             face.addBackwardEdge(e2);
             face.addBackwardEdge(e3);
             
-            const BrushEdge::List& edges = face.edges();
+            const BrushEdgeList& edges = face.edges();
             ASSERT_EQ(e1, edges[0]);
             ASSERT_EQ(e2, edges[1]);
             ASSERT_EQ(e3, edges[2]);
             
-            const BrushVertex::List& vertices = face.vertices();
+            const BrushVertexList& vertices = face.vertices();
             ASSERT_EQ(v1, vertices[0]);
             ASSERT_EQ(v2, vertices[1]);
             ASSERT_EQ(v3, vertices[2]);
@@ -450,14 +450,14 @@ namespace TrenchBroom {
             BrushVertex* v4 = new BrushVertex(p4);
             BrushVertex* v5 = new BrushVertex(p5);
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
             vertices.push_back(v4);
             vertices.push_back(v5);
             
-            BrushEdge::List edges;
+            BrushEdgeList edges;
             edges.push_back(new BrushEdge(v1, v2));
             edges.push_back(new BrushEdge(v2, v3));
             edges.push_back(new BrushEdge(v3, v4));
@@ -513,26 +513,26 @@ namespace TrenchBroom {
             BrushVertex* v4 = new BrushVertex(p4);
             BrushVertex* v5 = new BrushVertex(p5);
             
-            BrushVertex::List vertices;
+            BrushVertexList vertices;
             vertices.push_back(v1);
             vertices.push_back(v2);
             vertices.push_back(v3);
             vertices.push_back(v4);
             vertices.push_back(v5);
             
-            BrushEdge::List edges1;
+            BrushEdgeList edges1;
             edges1.push_back(new BrushEdge(v1, v2));
             edges1.push_back(new BrushEdge(v2, v3));
             edges1.push_back(new BrushEdge(v3, v4));
             edges1.push_back(new BrushEdge(v4, v5));
             edges1.push_back(new BrushEdge(v5, v1));
 
-            BrushEdge::List edges2;
+            BrushEdgeList edges2;
             edges2.push_back(new BrushEdge(v1, v2));
             edges2.push_back(new BrushEdge(v2, v3));
             edges2.push_back(new BrushEdge(v3, v1));
 
-            BrushEdge::List edges3;
+            BrushEdgeList edges3;
             edges3.push_back(new BrushEdge(v3, v4));
             edges3.push_back(new BrushEdge(v4, v5));
             edges3.push_back(new BrushEdge(v5, v3));
@@ -544,7 +544,7 @@ namespace TrenchBroom {
             BrushFaceGeometry* faceGeometry3 = new BrushFaceGeometry();
             faceGeometry3->addForwardEdges(edges3);
             
-            BrushFaceGeometry::List faceGeometries;
+            BrushFaceGeometryList faceGeometries;
             faceGeometries.push_back(faceGeometry1);
             faceGeometries.push_back(faceGeometry2);
             faceGeometries.push_back(faceGeometry3);

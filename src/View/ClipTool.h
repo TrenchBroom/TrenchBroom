@@ -17,26 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SelectionTool__
-#define __TrenchBroom__SelectionTool__
+#ifndef __TrenchBroom__ClipTool__
+#define __TrenchBroom__ClipTool__
 
+#include "View/Clipper.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
-        class SelectionTool : public Tool<NoActivationPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy> {
-        public:
-            SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
+        class ClipTool : public Tool<ActivationPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy> {
         private:
+            Clipper m_clipper;
+        public:
+            ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
+        private:
+            bool initiallyActive() const;
+            bool doActivate(const InputState& inputState);
+            bool doDeactivate(const InputState& inputState);
+
             bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            void doMouseMove(const InputState& inputState);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SelectionTool__) */
+#endif /* defined(__TrenchBroom__ClipTool__) */

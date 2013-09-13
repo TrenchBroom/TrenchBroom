@@ -55,18 +55,19 @@ namespace TrenchBroom {
             
             typedef Result<AddFaceResultCode> AddFaceResult;
         private:
-            BrushVertex::List m_vertices;
-            BrushEdge::List m_edges;
-            BrushFaceGeometry::List m_sides;
+            BrushVertexList m_vertices;
+            BrushEdgeList m_edges;
+            BrushFaceGeometryList m_sides;
             BBox3 m_bounds;
         public:
             BrushGeometry(const BBox3& worldBounds);
             ~BrushGeometry();
             
             const BBox3& bounds() const;
-            const BrushVertex::List& vertices() const;
-            const BrushEdge::List& edges() const;
-            const BrushFaceGeometry::List& sides() const;
+            const BrushVertexList& vertices() const;
+            const BrushEdgeList& edges() const;
+            const BrushFaceGeometryList& sides() const;
+            BrushFaceGeometryList incidentSides(const BrushVertex& vertex) const;
 
             AddFaceResult addFaces(const BrushFaceList& faces);
         private:

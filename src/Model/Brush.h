@@ -49,7 +49,10 @@ namespace TrenchBroom {
             BrushGeometry* m_geometry;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const Brush& other);
             ~Brush();
+            
+            Brush* clone(const BBox3& worldBounds) const;
             
             Entity* parent() const;
             void setParent(Entity* parent);
@@ -61,9 +64,12 @@ namespace TrenchBroom {
             void pick(const Ray3& ray, PickResult& result);
             
             const BrushFaceList& faces() const;
-            const BrushEdge::List& edges() const;
+            const BrushEdgeList& edges() const;
+            BrushFaceList incidentFaces(const BrushVertex& vertex) const;
             
             void addEdges(Vertex::List& vertices) const;
+            
+            bool clip(const BBox3& worldBounds, BrushFace* face);
         private:
             void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
             void addFaces(const BrushFaceList& faces);

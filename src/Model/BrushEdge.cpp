@@ -19,12 +19,11 @@
 
 #include "BrushEdge.h"
 
+#include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const BrushEdge::List BrushEdge::EmptyList = BrushEdge::List();
-
         BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end) :
         m_start(start),
         m_end(end),
@@ -76,7 +75,31 @@ namespace TrenchBroom {
         BrushEdge::Mark BrushEdge::mark() const {
             return m_mark;
         }
+        
+        const BrushFace* BrushEdge::leftFace() const {
+            if (m_left == NULL)
+                return NULL;
+            return m_left->face();
+        }
 
+        BrushFace* BrushEdge::leftFace() {
+            if (m_left == NULL)
+                return NULL;
+            return m_left->face();
+        }
+        
+        const BrushFace* BrushEdge::rightFace() const {
+            if (m_right == NULL)
+                return NULL;
+            return m_right->face();
+        }
+        
+        BrushFace* BrushEdge::rightFace() {
+            if (m_right == NULL)
+                return NULL;
+            return m_right->face();
+        }
+        
         void BrushEdge::updateMark() {
             size_t drop = 0;
             size_t keep = 0;
@@ -192,6 +215,28 @@ namespace TrenchBroom {
                 return false;
             return (m_start->position() == position1 && m_end->position() == position2) || (m_start->position() == position2 && m_end->position() == position1);
                     
+        }
+
+        bool BrushEdge::contains(const Vec3& point, const FloatType maxDistance) const {
+            const Vec3 edgeVec = vector();
+            const Vec3 edgeDir = edgeVec.normalized();
+            const FloatType dot = (point - m_start->position()).dot(edgeDir);
+            
+            // determine the closest point on the edge
+            Vec3 closestPoint;
+            if (dot < 0.0)
+                closestPoint = m_start->position();
+            else if ((dot * dot) > edgeVec.squaredLength())
+                closestPoint = m_end->position();
+            else
+                closestPoint = m_start->position() + edgeDir * dot;
+            
+            const FloatType distance2 = (point - closestPoint).squaredLength();
+            return distance2 <= (maxDistance * maxDistance);
+        }
+
+        Vec3 BrushEdge::vector() const {
+            return m_end - m_start;
         }
     }
 }

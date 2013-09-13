@@ -36,9 +36,9 @@ namespace TrenchBroom {
             const BBox3 worldBounds(-worldSize2, worldSize2);
             const BrushGeometry geometry(worldBounds);
             
-            const BrushVertex::List& vertices = geometry.vertices();
-            const BrushEdge::List& edges = geometry.edges();
-            const BrushFaceGeometry::List& sides = geometry.sides();
+            const BrushVertexList& vertices = geometry.vertices();
+            const BrushEdgeList& edges = geometry.edges();
+            const BrushFaceGeometryList& sides = geometry.sides();
             
             ASSERT_EQ(8u, vertices.size());
             ASSERT_EQ(12u, edges.size());
@@ -157,9 +157,9 @@ namespace TrenchBroom {
             ASSERT_EQ(6u, result.addedFaces.size());
             ASSERT_TRUE(result.droppedFaces.empty());
             
-            const BrushVertex::List& vertices = geometry.vertices();
-            const BrushEdge::List& edges = geometry.edges();
-            const BrushFaceGeometry::List& sides = geometry.sides();
+            const BrushVertexList& vertices = geometry.vertices();
+            const BrushEdgeList& edges = geometry.edges();
+            const BrushFaceGeometryList& sides = geometry.sides();
             
             ASSERT_EQ(8u, vertices.size());
             ASSERT_EQ(12u, edges.size());

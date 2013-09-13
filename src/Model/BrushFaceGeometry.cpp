@@ -28,8 +28,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const BrushFaceGeometry::List BrushFaceGeometry::EmptyList = BrushFaceGeometry::List();
-
         BrushFaceGeometry::BrushFaceGeometry() :
         m_face(NULL) {
             m_vertices.reserve(8);
@@ -48,11 +46,11 @@ namespace TrenchBroom {
             m_face = face;
         }
         
-        const BrushVertex::List& BrushFaceGeometry::vertices() const {
+        const BrushVertexList& BrushFaceGeometry::vertices() const {
             return m_vertices;
         }
         
-        const BrushEdge::List& BrushFaceGeometry::edges() const {
+        const BrushEdgeList& BrushFaceGeometry::edges() const {
             return m_edges;
         }
 
@@ -62,7 +60,7 @@ namespace TrenchBroom {
             size_t split = 0;
             size_t undecided = 0;
             
-            BrushEdge::List::const_iterator it, end;
+            BrushEdgeList::const_iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 const BrushEdge& edge = **it;
                 const BrushEdge::Mark edgeMark = edge.mark();
@@ -89,14 +87,14 @@ namespace TrenchBroom {
             assert(mark() == Split);
             assert(!m_edges.empty());
 
-            BrushEdge::List::iterator splitIt1 = m_edges.end();
-            BrushEdge::List::iterator splitIt2 = m_edges.end();
+            BrushEdgeList::iterator splitIt1 = m_edges.end();
+            BrushEdgeList::iterator splitIt2 = m_edges.end();
             BrushVertex* newEdgeStart = NULL;
             BrushVertex* newEdgeEnd = NULL;
             
             BrushEdge* lastEdge = m_edges.back();
             BrushEdge::Mark lastMark = lastEdge->mark();
-            BrushEdge::List::iterator it, end;
+            BrushEdgeList::iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 BrushEdge* currentEdge = *it;
                 const BrushEdge::Mark currentMark = currentEdge->mark();
@@ -155,7 +153,7 @@ namespace TrenchBroom {
         }
 
         BrushEdge* BrushFaceGeometry::findUndecidedEdge() const {
-            BrushEdge::List::const_iterator it, end;
+            BrushEdgeList::const_iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
                 if (edge->mark() == BrushEdge::Undecided)
@@ -187,8 +185,8 @@ namespace TrenchBroom {
             m_vertices.push_back(edge->start());
         }
         
-        void BrushFaceGeometry::addForwardEdges(const BrushEdge::List& edges) {
-            BrushEdge::List::const_iterator it, end;
+        void BrushFaceGeometry::addForwardEdges(const BrushEdgeList& edges) {
+            BrushEdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
                 addForwardEdge(edge);
@@ -218,8 +216,8 @@ namespace TrenchBroom {
             m_vertices.push_back(edge->end());
         }
 
-        void BrushFaceGeometry::addBackwardEdges(const BrushEdge::List& edges) {
-            BrushEdge::List::const_iterator it, end;
+        void BrushFaceGeometry::addBackwardEdges(const BrushEdgeList& edges) {
+            BrushEdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
                 addBackwardEdge(edge);
@@ -227,7 +225,7 @@ namespace TrenchBroom {
         }
 
         bool BrushFaceGeometry::containsDroppedEdge() const {
-            BrushEdge::List::const_iterator it, end;
+            BrushEdgeList::const_iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
                 if (edge->mark() == BrushEdge::Drop)
@@ -240,7 +238,7 @@ namespace TrenchBroom {
             if (m_edges.size() < 3)
                 return false;
             
-            BrushEdge::List::const_iterator it, end;
+            BrushEdgeList::const_iterator it, end;
             const BrushEdge* previous = m_edges.back();
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
@@ -271,17 +269,17 @@ namespace TrenchBroom {
             return false;
         }
 
-        void BrushFaceGeometry::replaceEdgesWithBackwardEdge(const BrushEdge::List::iterator it1, const BrushEdge::List::iterator it2, BrushEdge* edge) {
+        void BrushFaceGeometry::replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
             if (it1 == it2) {
                 m_edges.insert(it1, edge);
             } else if (it1 < it2) {
-                BrushEdge::List newEdges;
+                BrushEdgeList newEdges;
                 newEdges.insert(newEdges.end(), m_edges.begin(), it1);
                 newEdges.push_back(edge);
                 newEdges.insert(newEdges.end(), it2, m_edges.end());
                 m_edges = newEdges;
             } else {
-                BrushEdge::List newEdges;
+                BrushEdgeList newEdges;
                 newEdges.insert(newEdges.end(), it2, it1);
                 newEdges.push_back(edge);
                 m_edges = newEdges;
@@ -293,7 +291,7 @@ namespace TrenchBroom {
 
         void BrushFaceGeometry::updateVerticesFromEdges() {
             m_vertices.clear();
-            BrushEdge::List::const_iterator it, end;
+            BrushEdgeList::const_iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
                 BrushEdge& edge = **it;
                 BrushVertex* vertex = edge.start(this);

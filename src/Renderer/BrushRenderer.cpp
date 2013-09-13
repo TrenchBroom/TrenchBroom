@@ -41,8 +41,8 @@ namespace TrenchBroom {
             filter(i_filter) {}
             
             inline void operator()(Model::Brush* brush) {
-                const Model::BrushEdge::List edges = brush->edges();
-                Model::BrushEdge::List::const_iterator it, end;
+                const Model::BrushEdgeList edges = brush->edges();
+                Model::BrushEdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     if (filter(edge)) {

@@ -20,12 +20,12 @@
 #include "SelectionTool.h"
 
 #include "Model/Brush.h"
+#include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/Entity.h"
 #include "Model/Filter.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
-#include "Model/HitAdapter.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"

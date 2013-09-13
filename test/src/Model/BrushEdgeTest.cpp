@@ -134,15 +134,15 @@ namespace TrenchBroom {
             BrushEdge* e1 = new BrushEdge(e1s, e1e);
             BrushEdge* e2 = new BrushEdge(e2s, e2e);
             
-            BrushEdge::List list;
+            BrushEdgeList list;
             list.push_back(e1);
             list.push_back(e2);
             
-            BrushEdge::List::iterator notFound   = findBrushEdge(list, Vec3(3.0, 2.0, 1.0), Vec3::Null);
-            BrushEdge::List::iterator e1Forward  = findBrushEdge(list, e1->start()->position(), e1->end()->position());
-            BrushEdge::List::iterator e1Backward = findBrushEdge(list, e1->end()->position(), e1->start()->position());
-            BrushEdge::List::iterator e2Forward  = findBrushEdge(list, e2->start()->position(), e2->end()->position());
-            BrushEdge::List::iterator e2Backward = findBrushEdge(list, e2->end()->position(), e2->start()->position());
+            BrushEdgeList::iterator notFound   = findBrushEdge(list, Vec3(3.0, 2.0, 1.0), Vec3::Null);
+            BrushEdgeList::iterator e1Forward  = findBrushEdge(list, e1->start()->position(), e1->end()->position());
+            BrushEdgeList::iterator e1Backward = findBrushEdge(list, e1->end()->position(), e1->start()->position());
+            BrushEdgeList::iterator e2Forward  = findBrushEdge(list, e2->start()->position(), e2->end()->position());
+            BrushEdgeList::iterator e2Backward = findBrushEdge(list, e2->end()->position(), e2->start()->position());
             
             ASSERT_EQ(list.end(), notFound);
             ASSERT_EQ(e1, *e1Forward);

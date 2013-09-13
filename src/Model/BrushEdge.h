@@ -23,19 +23,18 @@
 #include "VecMath.h"
 #include "TrenchBroom.h"
 #include "Allocator.h"
+#include "Model/BrushGeometryTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
         class BrushVertex;
         class BrushFaceGeometry;
         
         class BrushEdge : public Allocator<BrushEdge> {
         public:
-            typedef std::vector<BrushEdge*> List;
-            static const List EmptyList;
-            
             enum Mark {
                 Drop,
                 Keep,
@@ -63,6 +62,10 @@ namespace TrenchBroom {
             BrushFaceGeometry* left();
             const BrushFaceGeometry* right() const;
             BrushFaceGeometry* right();
+            const BrushFace* leftFace() const;
+            BrushFace* leftFace();
+            const BrushFace* rightFace() const;
+            BrushFace* rightFace();
             Mark mark() const;
             
             void updateMark();
@@ -78,11 +81,13 @@ namespace TrenchBroom {
             BrushVertex* end(const BrushFaceGeometry* side);
             
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
+            bool contains(const Vec3& point, const FloatType maxDistance = Math::Constants<FloatType>::AlmostZero) const;
+            Vec3 vector() const;
         };
 
-        inline BrushEdge::List::iterator findBrushEdge(BrushEdge::List& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdge::List::iterator it = edges.begin();
-            const BrushEdge::List::iterator end = edges.end();
+        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::iterator it = edges.begin();
+            const BrushEdgeList::iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))
@@ -92,9 +97,9 @@ namespace TrenchBroom {
             return end;
         }
         
-        inline BrushEdge::List::const_iterator findBrushEdge(const BrushEdge::List& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdge::List::const_iterator it = edges.begin();
-            const BrushEdge::List::const_iterator end = edges.end();
+        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
+            BrushEdgeList::const_iterator it = edges.begin();
+            const BrushEdgeList::const_iterator end = edges.end();
             while (it != end) {
                 const BrushEdge& edge = **it;
                 if (edge.hasPositions(position1, position2))

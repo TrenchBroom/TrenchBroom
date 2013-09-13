@@ -61,6 +61,8 @@ namespace TrenchBroom {
         static const EntityList EmptyEntityList(0);
         typedef std::set<Entity*> EntitySet;
         
+        typedef std::map<Entity*, BrushList> EntityBrushesMap;
+        
         class Pickable;
         typedef std::vector<Pickable*> PickableList;
         

@@ -144,6 +144,14 @@ namespace VectorUtils {
         return false;
     }
     
+    template <typename T>
+    inline size_t indexOf(const std::vector<T>& vec, const T& item) {
+        for (size_t i = 0; i < vec.size(); ++i)
+            if (vec[i] == item)
+                return i;
+        return vec.size();
+    }
+    
     template <typename T1, typename T2, typename R>
     inline void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
         result.clear();
@@ -226,11 +234,27 @@ namespace MapUtils {
     template <typename K, typename V>
     struct Deleter {
     public:
-        void operator()(const std::pair<K, V*> entry) const {
+        void operator()(std::pair<K, V*>& entry) {
+            delete entry.second;
+        }
+
+        void operator()(std::pair<const K, V*>& entry) {
             delete entry.second;
         }
     };
 
+    template <typename K, typename V>
+    struct VectorDeleter {
+    public:
+        void operator()(std::pair<K, std::vector<V*> >& entry) {
+            VectorUtils::clearAndDelete(entry.second);
+        }
+
+        void operator()(std::pair<const K, std::vector<V*> >& entry) {
+            VectorUtils::clearAndDelete(entry.second);
+        }
+    };
+    
     template <typename K, typename V>
     inline typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
         typedef std::map<K, V> Map;
@@ -276,7 +300,15 @@ namespace MapUtils {
 
     template <typename K, typename V>
     inline void clearAndDelete(std::map<K, V*>& map) {
-        std::for_each(map.begin(), map.end(), Deleter<K,V>());
+        Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
+        std::for_each(map.begin(), map.end(), deleter);
+        map.clear();
+    }
+
+    template <typename K, typename V>
+    inline void clearAndDelete(std::map<K, std::vector<V*> >& map) {
+        VectorDeleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
+        std::for_each(map.begin(), map.end(), deleter);
         map.clear();
     }
 }

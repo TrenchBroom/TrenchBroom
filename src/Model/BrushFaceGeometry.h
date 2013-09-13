@@ -25,6 +25,7 @@
 #include "Allocator.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/BrushGeometryTypes.h"
 #include "Model/BrushVertex.h"
 #include "Model/ModelTypes.h"
 
@@ -34,17 +35,14 @@ namespace TrenchBroom {
         
         class BrushFaceGeometry : public Allocator<BrushFaceGeometry> {
         public:
-            typedef std::vector<BrushFaceGeometry*> List;
-            static const List EmptyList;
-
             typedef enum {
                 Keep,
                 Drop,
                 Split
             } Mark;
         private:
-            BrushVertex::List m_vertices;
-            BrushEdge::List m_edges;
+            BrushVertexList m_vertices;
+            BrushEdgeList m_edges;
             BrushFace* m_face;
         public:
             BrushFaceGeometry();
@@ -52,29 +50,29 @@ namespace TrenchBroom {
 
             BrushFace* face() const;
             void setFace(BrushFace* face);
-            const BrushVertex::List& vertices() const;
-            const BrushEdge::List& edges() const;
+            const BrushVertexList& vertices() const;
+            const BrushEdgeList& edges() const;
             
             Mark mark() const;
             BrushEdge* splitUsingEdgeMarks();
             BrushEdge* findUndecidedEdge() const;
             
             void addForwardEdge(BrushEdge* edge);
-            void addForwardEdges(const BrushEdge::List& edges);
+            void addForwardEdges(const BrushEdgeList& edges);
             void addBackwardEdge(BrushEdge* edge);
-            void addBackwardEdges(const BrushEdge::List& edges);
+            void addBackwardEdges(const BrushEdgeList& edges);
             
             bool containsDroppedEdge() const;
             bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
         private:
-            void replaceEdgesWithBackwardEdge(const BrushEdge::List::iterator it1, const BrushEdge::List::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
             void updateVerticesFromEdges();
         };
         
-        inline BrushFaceGeometry::List::iterator findBrushFaceGeometry(BrushFaceGeometry::List& faceGeometries, const Vec3::List& positions) {
-            BrushFaceGeometry::List::iterator it = faceGeometries.begin();
-            const BrushFaceGeometry::List::iterator end = faceGeometries.end();
+        inline BrushFaceGeometryList::iterator findBrushFaceGeometry(BrushFaceGeometryList& faceGeometries, const Vec3::List& positions) {
+            BrushFaceGeometryList::iterator it = faceGeometries.begin();
+            const BrushFaceGeometryList::iterator end = faceGeometries.end();
             while (it != end) {
                 const BrushFaceGeometry& faceGeometry = **it;
                 if (faceGeometry.hasVertexPositions(positions))
@@ -84,9 +82,9 @@ namespace TrenchBroom {
             return end;
         }
         
-        inline BrushFaceGeometry::List::const_iterator findBrushFaceGeometry(const BrushFaceGeometry::List& faceGeometries, const Vec3::List& positions) {
-            BrushFaceGeometry::List::const_iterator it = faceGeometries.begin();
-            const BrushFaceGeometry::List::const_iterator end = faceGeometries.end();
+        inline BrushFaceGeometryList::const_iterator findBrushFaceGeometry(const BrushFaceGeometryList& faceGeometries, const Vec3::List& positions) {
+            BrushFaceGeometryList::const_iterator it = faceGeometries.begin();
+            const BrushFaceGeometryList::const_iterator end = faceGeometries.end();
             while (it != end) {
                 const BrushFaceGeometry& faceGeometry = **it;
                 if (faceGeometry.hasVertexPositions(positions))

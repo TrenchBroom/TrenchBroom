@@ -143,6 +143,10 @@ namespace TrenchBroom {
         
         BrushFace::~BrushFace() {}
         
+        BrushFace* BrushFace::clone() const {
+            return doClone();
+        }
+
         BrushFaceSnapshot BrushFace::takeSnapshot() {
             return BrushFaceSnapshot(*this);
         }
@@ -299,6 +303,18 @@ namespace TrenchBroom {
             m_attribs.setSurfaceValue(surfaceValue);
         }
 
+        void BrushFace::setAttributes(const BrushFace& other) {
+            setTexture(other.texture());
+            setXOffset(other.xOffset());
+            setYOffset(other.yOffset());
+            setRotation(other.rotation());
+            setXScale(other.xScale());
+            setYScale(other.yScale());
+            setSurfaceContents(other.surfaceContents());
+            setSurfaceFlags(other.surfaceFlags());
+            setSurfaceValue(other.surfaceValue());
+        }
+
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
@@ -353,7 +369,7 @@ namespace TrenchBroom {
             const Vec3 hit = ray.pointAtDistance(dist);
             const Vec3 projectedHit = swizzle(hit, axis);
             
-            const BrushVertex::List& vertices = m_side->vertices();
+            const BrushVertexList& vertices = m_side->vertices();
             const BrushVertex* vertex = vertices.back();
             Vec3 v0 = swizzle(vertex->position(), axis) - projectedHit;
             
@@ -433,7 +449,7 @@ namespace TrenchBroom {
             const size_t textureWidth = texture != NULL ? texture->width() : 1;
             const size_t textureHeight = texture != NULL ? texture->height() : 1;
             
-            const BrushVertex::List& vertices = m_side->vertices();
+            const BrushVertexList& vertices = m_side->vertices();
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
             
             for (size_t i = 1; i < vertices.size() - 1; i++) {

@@ -42,6 +42,20 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
         }
 
+        Brush* Brush::clone(const BBox3& worldBounds) const {
+            BrushFaceList newFaces;
+            newFaces.reserve(m_faces.size());
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                const BrushFace* face = *it;
+                BrushFace* newFace = face->clone();
+                newFaces.push_back(newFace);
+            }
+            
+            return new Brush(worldBounds, newFaces);
+        }
+
         Entity* Brush::parent() const {
             return m_parent;
         }
@@ -103,13 +117,27 @@ namespace TrenchBroom {
             return m_faces;
         }
 
-        const BrushEdge::List& Brush::edges() const {
+        const BrushEdgeList& Brush::edges() const {
             return m_geometry->edges();
         }
 
+        BrushFaceList Brush::incidentFaces(const BrushVertex& vertex) const {
+            const BrushFaceGeometryList sides = m_geometry->incidentSides(vertex);
+            BrushFaceList result;
+            result.reserve(sides.size());
+            
+            BrushFaceGeometryList::const_iterator it, end;
+            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                const BrushFaceGeometry& side = **it;
+                result.push_back(side.face());
+            }
+            
+            return result;
+        }
+
         void Brush::addEdges(Vertex::List& vertices) const {
-            const BrushEdge::List edges = m_geometry->edges();
-            BrushEdge::List::const_iterator it, end;
+            const BrushEdgeList edges = m_geometry->edges();
+            BrushEdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
                 vertices.push_back(Vertex(edge->start()->position()));
@@ -117,6 +145,18 @@ namespace TrenchBroom {
             }
         }
         
+        bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
+            try {
+                Model::BrushFaceList newFaces = m_faces;
+                newFaces.push_back(face);
+                face->setParent(this);
+                rebuildGeometry(worldBounds, newFaces);
+                return !m_faces.empty();
+            } catch (GeometryException&) {
+                return false;
+            }
+        }
+
         void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);

@@ -158,7 +158,7 @@ public:
 };
 
 template <typename T>
-inline bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3> (&points)[3]) {
+inline bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
     const Vec<T,3> v1 = points[2] - points[0];
     const Vec<T,3> v2 = points[1] - points[0];
     const Vec<T,3> normal = crossed(v1, v2);

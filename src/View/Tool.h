@@ -32,6 +32,26 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         
+        class ActivationPolicy {
+        public:
+            virtual ~ActivationPolicy();
+            
+            virtual bool activatable() const;
+            virtual bool initiallyActive() const = 0;
+            virtual bool doActivate(const InputState& inputState) = 0;
+            virtual bool doDeactivate(const InputState& inputState) = 0;
+        };
+        
+        class NoActivationPolicy {
+        public:
+            virtual ~NoActivationPolicy();
+            
+            bool activatable() const;
+            bool initiallyActive() const;
+            bool doActivate(const InputState& inputState);
+            bool doDeactivate(const InputState& inputState);
+        };
+        
         class MousePolicy {
         public:
             virtual ~MousePolicy();
@@ -43,9 +63,9 @@ namespace TrenchBroom {
             virtual void doMouseMove(const InputState& inputState);
         };
         
-        class DefaultMousePolicy {
+        class NoMousePolicy {
         public:
-            virtual ~DefaultMousePolicy();
+            virtual ~NoMousePolicy();
             
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
@@ -64,8 +84,9 @@ namespace TrenchBroom {
             virtual void doCancelMouseDrag(const InputState& inputState) = 0;
         };
         
-        class DefaultMouseDragPolicy {
-            virtual ~DefaultMouseDragPolicy();
+        class NoMouseDragPolicy {
+        public:
+            virtual ~NoMouseDragPolicy();
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -100,9 +121,9 @@ namespace TrenchBroom {
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
-        class DefaultRenderPolicy {
+        class NoRenderPolicy {
         public:
-            virtual ~DefaultRenderPolicy();
+            virtual ~NoRenderPolicy();
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
         
@@ -110,6 +131,9 @@ namespace TrenchBroom {
         public:
             virtual ~BaseTool();
 
+            virtual void activate(const InputState& inputState) = 0;
+            virtual void deactivate(const InputState& inputState) = 0;
+            
             virtual void modifierKeyChange(const InputState& inputState) = 0;
             virtual bool mouseDown(const InputState& inputState) = 0;
             virtual bool mouseUp(const InputState& inputState) = 0;
@@ -125,28 +149,51 @@ namespace TrenchBroom {
             virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
-        template <class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
-        class Tool : public BaseTool, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
+        template <class ActivationPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
+        class Tool : public BaseTool, protected ActivationPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             BaseTool* m_next;
             MapDocumentPtr m_document;
             ControllerFacade& m_controller;
             bool m_dragging;
+            bool m_active;
         public:
             Tool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
             m_next(next),
             m_document(document),
             m_controller(controller),
-            m_dragging(false) {}
+            m_dragging(false),
+            m_active(static_cast<ActivationPolicyType&>(*this).initiallyActive()) {}
+            
+            inline bool active() const {
+                return true;
+            }
+            
+            inline void activate(const InputState& inputState) {
+                if (static_cast<ActivationPolicyType&>(*this).activatable()) {
+                    assert(!active());
+                    if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
+                        m_active = true;
+                }
+            }
+            
+            inline void deactivate(const InputState& inputState) {
+                if (static_cast<ActivationPolicyType&>(*this).activatable()) {
+                    assert(active());
+                    if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
+                        m_active = false;
+                }
+            }
             
             inline void modifierKeyChange(const InputState& inputState) {
-                doModifierKeyChange(inputState);
+                if (active())
+                    doModifierKeyChange(inputState);
                 if (m_next != NULL)
                     m_next->modifierKeyChange(inputState);
             }
             
             inline bool mouseDown(const InputState& inputState) {
-                if (static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
+                if (active() && static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
                     return true;
                 if (m_next != NULL)
                     return m_next->mouseDown(inputState);
@@ -154,7 +201,7 @@ namespace TrenchBroom {
             }
             
             inline bool mouseUp(const InputState& inputState) {
-                if (static_cast<MousePolicyType&>(*this).doMouseUp(inputState))
+                if (active() && static_cast<MousePolicyType&>(*this).doMouseUp(inputState))
                     return true;
                 if (m_next != NULL)
                     return m_next->mouseUp(inputState);
@@ -162,7 +209,7 @@ namespace TrenchBroom {
             }
             
             inline bool mouseDoubleClick(const InputState& inputState) {
-                if (static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState))
+                if (active() && static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState))
                     return true;
                 if (m_next != NULL)
                     return m_next->mouseDoubleClick(inputState);
@@ -170,19 +217,21 @@ namespace TrenchBroom {
             }
             
             inline void scroll(const InputState& inputState) {
-                static_cast<MousePolicyType&>(*this).doScroll(inputState);
+                if (active())
+                    static_cast<MousePolicyType&>(*this).doScroll(inputState);
                 if (m_next != NULL)
                     m_next->scroll(inputState);
             }
             
             inline void mouseMove(const InputState& inputState) {
-                static_cast<MousePolicyType&>(*this).doMouseMove(inputState);
+                if (active())
+                    static_cast<MousePolicyType&>(*this).doMouseMove(inputState);
                 if (m_next != NULL)
                     m_next->mouseMove(inputState);
             }
 
             inline BaseTool* startMouseDrag(const InputState& inputState) {
-                if (static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
+                if (active() && static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
                     m_dragging = true;
                     return this;
                 }
@@ -192,21 +241,28 @@ namespace TrenchBroom {
             }
             
             inline bool mouseDrag(const InputState& inputState) {
+                assert(active());
+                assert(dragging());
                 return static_cast<MouseDragPolicyType&>(*this).doMouseDrag(inputState);
             }
             
             inline void endMouseDrag(const InputState& inputState) {
+                assert(active());
+                assert(dragging());
                 static_cast<MouseDragPolicyType&>(*this).doEndMouseDrag(inputState);
                 m_dragging = false;
             }
             
             inline void cancelMouseDrag(const InputState& inputState) {
+                assert(active());
+                assert(dragging());
                 static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
                 m_dragging = false;
             }
             
             inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
-                static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
+                if (active())
+                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
                 if (m_next != NULL)
                     m_next->render(inputState, renderContext);
             }

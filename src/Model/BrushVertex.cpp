@@ -19,10 +19,15 @@
 
 #include "BrushVertex.h"
 
+#include "CollectionUtils.h"
+#include "MathUtils.h"
+#include "Model/BrushEdge.h"
+#include "Model/BrushFaceGeometry.h"
+
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
-        const BrushVertex::List BrushVertex::EmptyList = BrushVertex::List();
-        
         BrushVertex::BrushVertex(const Vec3& position) :
         m_position(position),
         m_mark(New) {}
@@ -40,6 +45,33 @@ namespace TrenchBroom {
                     m_mark = Undecided;
                     break;
             }
+        }
+
+        BrushFaceGeometryList BrushVertex::incidentSides(const BrushEdgeList& edges) const {
+            BrushFaceGeometryList result;
+            
+            BrushEdge* edge = NULL;
+            BrushEdgeList::const_iterator eIt, eEnd;
+            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd && edge == NULL; ++eIt) {
+                BrushEdge* candidate = *eIt;
+                if (candidate->start() == this || candidate->end() == this)
+                    edge = candidate;
+            }
+            
+            assert(edge != NULL);
+            
+            // iterate over the incident sides in clockwise order
+            BrushFaceGeometry* side = edge->start() == this ? edge->right() : edge->left();
+            do {
+                result.push_back(side);
+                const size_t index = VectorUtils::indexOf(side->edges(), edge);
+                
+                const BrushEdgeList& sideEdges = side->edges();
+                edge = sideEdges[Math::pred(index, sideEdges.size())];
+                side = edge->start() == this ? edge->right() : edge->left();
+            } while (side != result.front());
+            
+            return result;
         }
     }
 }

@@ -42,18 +42,22 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        const BrushVertex::List& BrushGeometry::vertices() const {
+        const BrushVertexList& BrushGeometry::vertices() const {
             return m_vertices;
         }
         
-        const BrushEdge::List& BrushGeometry::edges() const {
+        const BrushEdgeList& BrushGeometry::edges() const {
             return m_edges;
         }
         
-        const BrushFaceGeometry::List& BrushGeometry::sides() const {
+        const BrushFaceGeometryList& BrushGeometry::sides() const {
             return m_sides;
         }
         
+        BrushFaceGeometryList BrushGeometry::incidentSides(const BrushVertex& vertex) const {
+            return vertex.incidentSides(m_edges);
+        }
+
         BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
             AddFaceResult totalResult(BrushIsSplit);
             
