@@ -136,20 +136,17 @@ namespace TrenchBroom {
             return result;
         }
         
-        float Grid::intersectWithRay(const Rayf& ray, unsigned int skip) const {
+        float Grid::intersectWithRay(const Rayf& ray, const size_t skip) const {
             Vec3f planeAnchor;
             
-            for (size_t i = 0; i < 3; i++)
-                planeAnchor[i] = ray.direction[i] > 0.0f ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
+            for (size_t i = 0; i < 3; ++i)
+                planeAnchor[i] = (ray.direction[i] > 0.0f
+                                  ? snapUp(ray.origin[i], true) + skip * actualSize()
+                                  : snapDown(ray.origin[i], true) - skip * actualSize());
 
-            Planef plane(Vec3f::PosX, planeAnchor);
-            float distX = plane.intersectWithRay(ray);
-            
-            plane = Planef(Vec3f::PosY, planeAnchor);
-            float distY = plane.intersectWithRay(ray);
-            
-            plane = Planef(Vec3f::PosZ, planeAnchor);
-            float distZ = plane.intersectWithRay(ray);
+            const float distX = Planef(Vec3f::PosX, planeAnchor).intersectWithRay(ray);
+            const float distY = Planef(Vec3f::PosY, planeAnchor).intersectWithRay(ray);
+            const float distZ = Planef(Vec3f::PosZ, planeAnchor).intersectWithRay(ray);
             
             float dist = distX;
             if (!Math<float>::isnan(distY) && (Math<float>::isnan(dist) || std::abs(distY) < std::abs(dist)))
@@ -248,52 +245,51 @@ namespace TrenchBroom {
             return snap(bounds.center());
         }
 
-        /*
-        float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
-            float dist = delta.dot(face.boundary().normal);
+        Vec3f Grid::moveDelta(const Model::Face& face, const Vec3f delta) {
+            const float dist = delta.dot(face.boundary().normal);
             if (Math<float>::zero(dist))
-                return Math<float>::nan();
+                return Vec3f::Null;
             
             const Model::EdgeList& brushEdges = face.brush()->edges();
             const Model::VertexList& faceVertices = face.vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<Rayf> edgeRays;
-            for (unsigned int i = 0; i < brushEdges.size(); i++) {
+            for (size_t i = 0; i < brushEdges.size(); ++i) {
                 const Model::Edge* edge = brushEdges[i];
-                unsigned int c = 0;
-                bool invert = false;
+                size_t c = 0;
+                bool originAtStart = true;
                 
-                if (Model::findElement(faceVertices, edge->start) < faceVertices.size()) {
+                if (Model::findElement(faceVertices, edge->start) < faceVertices.size())
                     c++;
-                } 
-                
                 if (Model::findElement(faceVertices, edge->end) < faceVertices.size()) {
                     c++;
-                    invert = true;
+                    originAtStart = false;
                 }
                 
                 if (c == 1) {
                     Rayf ray;
-                    if (invert) {
-                        ray.origin = edge->end->position;
-                        ray.direction = (edge->start->position - edge->end->position).normalized();
-                    } else {
+                    if (originAtStart) {
                         ray.origin = edge->start->position;
                         ray.direction = (edge->end->position - edge->start->position).normalized();
+                    } else {
+                        ray.origin = edge->end->position;
+                        ray.direction = (edge->start->position - edge->end->position).normalized();
                     }
                     
                     // depending on the direction of the drag vector, the rays must be inverted to reflect the
                     // actual movement of the vertices
-                    if (dist > 0.0f)
-                        ray.direction *= -1.0f;
+                    if (delta.dot(ray.direction) < 0.0f)
+                        ray.direction = -ray.direction;
                     
                     edgeRays.push_back(ray);
                 }
             }
             
             Vec3f normDelta = face.boundary().normal * dist;
-            unsigned int gridSkip = std::max<unsigned int>(0, static_cast<unsigned int>(normDelta.dot(normDelta.firstAxis())) / actualSize() - 1);
+            size_t gridSkip = static_cast<size_t>(normDelta.dot(normDelta.firstAxis())) / actualSize();
+            if (gridSkip > 0)
+                --gridSkip;
             float actualDist = std::numeric_limits<float>::max();
             
             do {
@@ -304,36 +300,27 @@ namespace TrenchBroom {
                 // and the drag would snap the vertex onto the previously selected grid plane.
                 // This vector is then projected onto the face normal to yield the distance by which the face
                 // must be dragged so that the vertex snaps to its closest grid plane.
-                // Then, test if the resulting drag distance is smaller than the current candidate and if it is, see if
-                // it is large enough so that the face boundary changes when the drag is applied.
+                // Then, test if the resulting drag distance is smaller than the current candidate.
                 
-                for (unsigned int i = 0; i < edgeRays.size(); i++) {
+                for (size_t i = 0; i < edgeRays.size(); ++i) {
                     const Rayf& ray = edgeRays[i];
-                    float vertexDist = intersectWithRay(ray, gridSkip);
-                    Vec3f vertexDelta = ray.direction * vertexDist;
-                    float vertexNormDist = vertexDelta.dot(face.boundary().normal);
+                    const float vertexDist = intersectWithRay(ray, gridSkip);
+                    const Vec3f vertexDelta = ray.direction * vertexDist;
+                    const float vertexNormDist = vertexDelta.dot(face.boundary().normal);
                     
-                    if (std::abs(vertexNormDist) < std::abs(actualDist)) {
-                        Model::Face testFace(face.worldBounds(), face);
-                        testFace.move(vertexNormDist, false);
-                        if (!testFace.boundary().equals(face.boundary()))
-                            actualDist = vertexNormDist;
-                    }
-                    
-                    gridSkip++;
+                    if (std::abs(vertexNormDist) < std::abs(actualDist))
+                        actualDist = vertexNormDist;
                 }
+                ++gridSkip;
             } while (actualDist == std::numeric_limits<float>::max());
             
             if (std::abs(actualDist) > std::abs(dist))
-                return Math<float>::nan();
+                return Vec3f::Null;
 
             normDelta = face.boundary().normal * actualDist;
-            Vec3f deltaNormalized = delta.normalized();
-            delta = deltaNormalized * (normDelta.dot(deltaNormalized));
-            
-            return actualDist;
+            const Vec3f deltaNormalized = delta.normalized();
+            return deltaNormalized * normDelta.dot(deltaNormalized);
         }
-         */
     }
 }
 

@@ -60,7 +60,10 @@ namespace TrenchBroom {
         }
         
         void MoveTool::handleModifierKeyChange(InputState& inputState) {
-            inputState.axisRestriction().setVerticalRestriction((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0);
+            if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0)
+                inputState.axisRestriction().setVerticalRestriction((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0);
+            else
+                inputState.axisRestriction().setVerticalRestriction((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0);
             
             if (dragType() != DTDrag)
                 return;

@@ -476,6 +476,7 @@ namespace TrenchBroom {
         }
 
         bool KeyboardPreferencePane::validate() {
+            m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {
                 wxMessageBox(wxT("Please fix all conflicting shortcuts (highlighted in red)."), wxT("Error"), wxOK, this);
                 return false;

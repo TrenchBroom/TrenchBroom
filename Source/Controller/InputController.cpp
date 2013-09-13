@@ -122,7 +122,6 @@ namespace TrenchBroom {
         m_modalTool(NULL),
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
-        m_modifierKeys(ModifierKeys::MKNone),
         m_selectionGuideRenderer(NULL),
         m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
@@ -190,8 +189,8 @@ namespace TrenchBroom {
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
-            if ((m_modifierKeys & modifierKey) == 0) {
-                m_modifierKeys |= modifierKey;
+            if ((m_inputState.modifierKeys() & modifierKey) == 0) {
+                m_inputState.modifierKeyDown(modifierKey);
                 updateHits();
                 m_toolChain->modifierKeyChange(m_inputState);
                 updateModalTool();
@@ -200,13 +199,35 @@ namespace TrenchBroom {
         }
 
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
-            if ((m_modifierKeys & modifierKey) != 0) {
-                m_modifierKeys &= ~modifierKey;
+            if ((m_inputState.modifierKeys() & modifierKey) != 0) {
+                m_inputState.modifierKeyUp(modifierKey);
                 updateHits();
                 m_toolChain->modifierKeyChange(m_inputState);
                 updateModalTool();
                 updateViews();
             }
+        }
+
+        void InputController::resetModifierKeys() {
+            const wxMouseState state = wxGetMouseState();
+            if (state.ControlDown())
+                modifierKeyDown(ModifierKeys::MKCtrlCmd);
+            else
+                modifierKeyUp(ModifierKeys::MKCtrlCmd);
+            if (state.AltDown())
+                modifierKeyDown(ModifierKeys::MKAlt);
+            else
+                modifierKeyUp(ModifierKeys::MKAlt);
+            if (state.ShiftDown())
+                modifierKeyDown(ModifierKeys::MKShift);
+            else
+                modifierKeyUp(ModifierKeys::MKShift);
+        }
+
+        void InputController::clearModifierKeys() {
+            modifierKeyUp(ModifierKeys::MKCtrlCmd);
+            modifierKeyUp(ModifierKeys::MKAlt);
+            modifierKeyUp(ModifierKeys::MKShift);
         }
 
         bool InputController::mouseDown(int x, int y, MouseButtonState mouseButton) {

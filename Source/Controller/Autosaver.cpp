@@ -172,6 +172,10 @@ namespace TrenchBroom {
         m_lastModificationTime(0),
         m_dirty(false) {}
 
+        Autosaver::~Autosaver() {
+            autosave();
+        }
+
         void Autosaver::triggerAutosave() {
             time_t currentTime = time(NULL);
             IO::FileManager fileManager;

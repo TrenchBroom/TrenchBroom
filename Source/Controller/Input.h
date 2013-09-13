@@ -112,6 +112,7 @@ namespace TrenchBroom {
         private:
             AxisRestriction m_axisRestriction;
             
+            ModifierKeyState m_modifierKeys;
             MouseButtonState m_mouseButtons;
             int m_mouseX;
             int m_mouseY;
@@ -127,6 +128,7 @@ namespace TrenchBroom {
             Model::PickResult* m_pickResult;
         public:
             InputState(const Renderer::Camera& camera, Model::Picker& picker) :
+            m_modifierKeys(ModifierKeys::MKNone),
             m_mouseButtons(MouseButtons::MBNone),
             m_mouseX(0),
             m_mouseY(0),
@@ -161,6 +163,8 @@ namespace TrenchBroom {
             }
             
             inline ModifierKeyState modifierKeys() const {
+                return m_modifierKeys;
+                /*
                 wxMouseState mouseState = wxGetMouseState();
                 
                 ModifierKeyState state = ModifierKeys::MKNone;
@@ -171,6 +175,15 @@ namespace TrenchBroom {
                 if (mouseState.AltDown())
                     state |= ModifierKeys::MKAlt;
                 return state;
+                 */
+            }
+            
+            inline void modifierKeyDown(ModifierKeyState key) {
+                m_modifierKeys |= key;
+            }
+            
+            inline void modifierKeyUp(ModifierKeyState key) {
+                m_modifierKeys &= ~key;
             }
             
             inline MouseButtonState mouseButtons() const {

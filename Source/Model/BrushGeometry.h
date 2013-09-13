@@ -371,7 +371,7 @@ namespace TrenchBroom {
         template <class T>
         inline size_t findElement(const std::vector<T*>& vec, const T* element) {
 //            return vec.find(element) - vec.begin();
-            for (unsigned int i = 0; i < vec.size(); i++)
+            for (size_t i = 0; i < vec.size(); i++)
                 if (vec[i] == element)
                     return i;
             return vec.size();

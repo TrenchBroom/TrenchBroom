@@ -195,26 +195,32 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::handleDrag(InputState& inputState) {
             assert(!m_faces.empty());
 
-            Model::Face& dragFace = *m_faces.front();
-            const Vec3f& faceNormal = dragFace.boundary().normal;
-            const Vec3f& faceAxis = faceNormal.firstAxis();
-
-            Vec3f pointOnNormal;
-            float distanceOnRay;
-            inputState.pickRay().distanceToLine(m_dragOrigin, faceNormal, pointOnNormal, distanceOnRay);
+            const Planef dragPlane = Planef::orthogonalDragPlane(m_dragOrigin, inputState.camera().direction());
             
-            const float faceDist = (pointOnNormal - m_dragOrigin).dot(faceAxis);
+            Model::Face& dragFace = *m_faces.front();
+            const Vec3f& faceNormal3D = dragFace.boundary().normal;
+            const Vec3f faceNormal2D = dragPlane.project(faceNormal3D);
+            const float rayPointDistance = dragPlane.intersectWithRay(inputState.pickRay());
+            const Vec3f rayPoint = inputState.pickRay().pointAtDistance(rayPointDistance);
+            const Vec3f dragVector2D = rayPoint - m_dragOrigin;
+            
+            const float dragDistance = dragVector2D.dot(faceNormal2D);
             
             Utility::Grid& grid = document().grid();
-            const Vec3f faceDelta = m_snapMode == SMRelative ? grid.snap(faceDist * faceAxis) : grid.snap(faceDist * faceAxis + dragFace.point(0)) - dragFace.point(0);
-            
-            rollbackCommandGroup();
+            Vec3f faceDelta;
+            if (m_snapMode == SMRelative)
+                faceDelta = grid.snap(dragDistance) * faceNormal3D;
+            else
+                faceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDistance);
+
             if (faceDelta.null())
                 return true;
-            
+
             ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, faceDelta, document().textureLock());
-            if (submitCommand(command))
-                m_totalDelta = faceDelta;
+            if (submitCommand(command)) {
+                m_totalDelta += faceDelta;
+                m_dragOrigin += faceDelta;
+            }
             return true;
         }
         
@@ -230,72 +236,6 @@ namespace TrenchBroom {
             endCommandGroup();
             m_faces.clear();
         }
-
-
-        /*
-        bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Planef& plane, Vec3f& initialPoint) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
-                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
-                return false;
-
-            Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
-            if (hit == NULL)
-                return false;
-
-            m_snapMode = inputState.modifierKeys() == ModifierKeys::MKShift ? SMRelative : SMAbsolute;
-            
-            Model::Face& dragFace = hit->dragFace();
-
-            const Vec3f& dragNormal = dragFace.boundary().normal;
-            Vec3f planeNormal = crossed(dragNormal, inputState.pickRay().direction);
-            if (planeNormal.null())
-                return false;
-
-            planeNormal = crossed(dragNormal, planeNormal);
-            planeNormal.normalize();
-            plane = Planef(planeNormal, hit->hitPoint());
-
-            m_faces = dragFaces(dragFace);
-            initialPoint = hit->hitPoint();
-            m_totalDelta = Vec3f::Null;
-
-            beginCommandGroup(wxT("Resize Brush"));
-            return true;
-        }
-
-        bool ResizeBrushesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
-            assert(!m_faces.empty());
-
-            const Vec3f planeDelta = curPoint - refPoint;
-            if (planeDelta.null())
-                return true;
-
-            Utility::Grid& grid = document().grid();
-            Model::Face& dragFace = *m_faces.front();
-            const Vec3f& faceAxis = dragFace.boundary().normal.firstAxis();
-            const float faceDist = planeDelta.dot(faceAxis);
-            const Vec3f faceDelta = m_snapMode == SMRelative ? grid.snap(faceDist * faceAxis) : grid.snap(faceDist * faceAxis + dragFace.point(0)) - dragFace.point(0);
-
-            if (faceDelta.null())
-                return true;
-
-            ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, faceDelta, document().textureLock());
-            if (submitCommand(command)) {
-                const Vec3f planeDir = planeDelta.normalized();
-                const float planeDist = faceDelta.dot(planeDir);
-                refPoint += planeDist * planeDir;
-                m_totalDelta += faceDelta;
-            }
-            return true;
-        }
-
-        void ResizeBrushesTool::handleEndPlaneDrag(InputState& inputState) {
-            if (m_totalDelta.null())
-                rollbackCommandGroup();
-            endCommandGroup();
-            m_faces.clear();
-        }
-         */
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         Tool(documentViewHolder, inputController, true),

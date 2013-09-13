@@ -49,6 +49,7 @@ namespace TrenchBroom {
             void autosave();
         public:
             Autosaver(Model::MapDocument& document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, unsigned int maxBackups = 30);
+            ~Autosaver();
             
             void triggerAutosave();
             void updateLastModificationTime();

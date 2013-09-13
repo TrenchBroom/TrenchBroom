@@ -51,13 +51,16 @@ namespace TrenchBroom {
     namespace View {
         class DocumentViewHolder;
         class EditorView;
+        class MapGLCanvas;
         
         class MapGLCanvasDropTarget : public wxTextDropTarget {
         protected:
+            MapGLCanvas* m_view;
             Controller::InputController& m_inputController;
         public:
-            MapGLCanvasDropTarget(Controller::InputController& inputController) :
+            MapGLCanvasDropTarget(MapGLCanvas* view, Controller::InputController& inputController) :
             wxTextDropTarget(),
+            m_view(view),
             m_inputController(inputController) {}
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
@@ -92,6 +95,7 @@ namespace TrenchBroom {
             }
             
             bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false);
+            void updateMenuBar();
             
             void OnPaint(wxPaintEvent& event);
             void OnKeyDown(wxKeyEvent& event);

@@ -107,7 +107,7 @@ namespace TrenchBroom {
             Vec3f offset(const Vec3f& p) const;
             Vec3f snap(const Vec3f& p, const Planef& onPlane) const;
             
-            float intersectWithRay(const Rayf& ray, unsigned int skip) const;
+            float intersectWithRay(const Rayf& ray, const size_t skip) const;
 
             Vec3f moveDeltaForPoint(const Vec3f& point, const BBoxf& worldBounds, const Vec3f& delta) const;
             Vec3f moveDeltaForBounds(const Model::Face& face, const BBoxf& bounds, const BBoxf& worldBounds, const Rayf& ray, const Vec3f& position) const;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             Vec3f moveDelta(const Vec3f& delta) const;
             Vec3f combineDeltas(const Vec3f& delta1, const Vec3f& delta2) const;
             Vec3f referencePoint(const BBoxf& bounds);
-            // float moveDistance(const Model::Face& face, Vec3f& delta);
+            Vec3f moveDelta(const Model::Face& face, const Vec3f delta);
         };
     }
 }

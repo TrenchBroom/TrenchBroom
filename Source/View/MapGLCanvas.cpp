@@ -35,6 +35,7 @@
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 #include "View/DocumentViewHolder.h"
+#include "View/EditorFrame.h"
 #include "View/EditorView.h"
 #include "View/DragAndDrop.h"
 
@@ -95,7 +96,13 @@ namespace TrenchBroom {
 
             wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
             wxString text = dataObject->GetText();
-            return m_inputController.drop(text.ToStdString(), x, y);
+            const bool result = m_inputController.drop(text.ToStdString(), x, y);
+            if (result) {
+                m_view->SetFocus();
+                m_view->setHasFocus(true, true);
+                m_view->updateMenuBar();
+            }
+            return result;
         }
 
         bool MapGLCanvas::handleModifierKey(int keyCode, bool down) {
@@ -135,7 +142,7 @@ namespace TrenchBroom {
         m_overlayRenderer(NULL),
         m_hasFocus(false),
         m_ignoreNextClick(false) {
-            SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
+            SetDropTarget(new MapGLCanvasDropTarget(this, *m_inputController));
         }
 
         MapGLCanvas::~MapGLCanvas() {
@@ -159,9 +166,17 @@ namespace TrenchBroom {
                 m_ignoreNextClick = true;
             if (dontIgnoreNextClick)
                 m_ignoreNextClick = false;
+            if (m_hasFocus)
+                m_inputController->resetModifierKeys();
+            else
+                m_inputController->clearModifierKeys();
             Refresh();
 
             return true;
+        }
+
+        void MapGLCanvas::updateMenuBar() {
+            m_documentViewHolder.view().editorFrame().updateMenuBar();
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
