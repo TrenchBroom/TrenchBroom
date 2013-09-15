@@ -12,6 +12,9 @@
 	<div id="container">
 		<h2>Solving Problems</h2>
 		<p></p>
+		<a name="solving_problems_line_numbers"></a><h3>Finding Objects by Line Numbers</h3>
+		<p>If the map compilers detect a problem with a map file, they often print a line number with the error message. To find the offending objects, select <script>print_menu_command("edit_select_by_file_position");</script> from the menu and enter a space-separated list of line numbers. All objects matching these line numbers will be selected by the editor. If you would like to know the line number of the currently selected objects, select <script>print_menu_command("edit_print_file_position");</script> from the menu.</p>
+
 		<a name="solving_problems_leaks"></a><h3>Leaks and Pointfiles</h3>
 		<p>During mapping, you may inadvertently leave holes that lead outside of the map into the void. These are known as leaks.  You will not be able to properly compile and vis your map until it is fully sealed from the void.</p>
 		<p>Your QBSP tool already has some functionality built in that facilitates in finding leaks, but there is an editor side as well. When QBSP detects a leak, it generates a 'pointfile'.  This is a file with the .pts extension and provides a way for a map editor to communicate the QBSP tool's findings. In order to make use of this file, you must place it alongside the map file as it is loaded in Trenchbroom, so if you have a separate folder where you compile your maps, you will need to copy the .pts file back into the map folder. Once this is done, use the <b>Load Pointfile</b> command (<script>print_menu_command("file_load_pointfile");</script>) and Trenchbroom will draw a line which will help you find where the leak in your map is. You can use the <script>print_menu_command("view_camera_move_to_next_pt");</script> and <script>print_menu_command("view_camera_move_to_prev_pt");</script> commands to navigate the camera along the line.</p>
