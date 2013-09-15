@@ -59,7 +59,6 @@ namespace TrenchBroom {
             Model::SelectedFilter m_filter;
             Model::FaceList m_faces;
             Vec3f m_totalDelta;
-            SnapMode m_snapMode;
 
             Vec3f m_dragOrigin;
             

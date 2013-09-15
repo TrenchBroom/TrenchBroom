@@ -67,8 +67,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::handlePick(InputState& inputState) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
-                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
+            if (inputState.modifierKeys() != ModifierKeys::MKShift)
                 return;
 
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
@@ -125,8 +124,7 @@ namespace TrenchBroom {
         void ResizeBrushesTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
-                if (inputState.modifierKeys() != ModifierKeys::MKShift &&
-                    inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
+                if (inputState.modifierKeys() != ModifierKeys::MKShift)
                     return;
 
                 Model::DragFaceHit* hit = static_cast<Model::DragFaceHit*>(inputState.pickResult().first(Model::HitType::DragFaceHit, true, m_filter));
@@ -175,15 +173,13 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushesTool::handleStartDrag(InputState& inputState) {
-            if (inputState.modifierKeys() != ModifierKeys::MKShift &&
-                inputState.modifierKeys() != (ModifierKeys::MKShift | ModifierKeys::MKAlt))
+            if (inputState.modifierKeys() != ModifierKeys::MKShift)
                 return false;
             
             Model::DragFaceHit* hit = static_cast<Model::DragFaceHit*>(inputState.pickResult().first(Model::HitType::DragFaceHit, true, m_filter));
             if (hit == NULL)
                 return false;
             
-            m_snapMode = inputState.modifierKeys() == ModifierKeys::MKShift ? SMRelative : SMAbsolute;
             m_dragOrigin = hit->hitPoint();
             m_totalDelta = Vec3f::Null;
             m_faces = dragFaces(hit->dragFace());
@@ -207,11 +203,9 @@ namespace TrenchBroom {
             const float dragDistance = dragVector2D.dot(faceNormal2D);
             
             Utility::Grid& grid = document().grid();
-            Vec3f faceDelta;
-            if (m_snapMode == SMRelative)
-                faceDelta = grid.snap(dragDistance) * faceNormal3D;
-            else
-                faceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDistance);
+            const Vec3f relativeFaceDelta = grid.snap(dragDistance) * faceNormal3D;
+            const Vec3f absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDistance);
+            const Vec3f faceDelta = relativeFaceDelta.lengthSquared() < absoluteFaceDelta.lengthSquared() ? relativeFaceDelta : absoluteFaceDelta;
 
             if (faceDelta.null())
                 return true;
@@ -239,7 +233,6 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         Tool(documentViewHolder, inputController, true),
-        m_filter(Model::SelectedFilter(view().filter())),
-        m_snapMode(SMRelative) {}
+        m_filter(Model::SelectedFilter(view().filter())) {}
     }
 }
