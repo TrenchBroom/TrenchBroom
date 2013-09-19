@@ -163,13 +163,15 @@ namespace TrenchBroom {
             m_document(document),
             m_controller(controller),
             m_dragging(false),
-            m_active(static_cast<ActivationPolicyType&>(*this).initiallyActive()) {}
+            m_active(false) {
+                m_active = static_cast<ActivationPolicyType&>(*this).initiallyActive();
+            }
             
-            inline bool active() const {
+            bool active() const {
                 return true;
             }
             
-            inline void activate(const InputState& inputState) {
+            void activate(const InputState& inputState) {
                 if (static_cast<ActivationPolicyType&>(*this).activatable()) {
                     assert(!active());
                     if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
@@ -177,7 +179,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void deactivate(const InputState& inputState) {
+            void deactivate(const InputState& inputState) {
                 if (static_cast<ActivationPolicyType&>(*this).activatable()) {
                     assert(active());
                     if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
@@ -185,14 +187,14 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void modifierKeyChange(const InputState& inputState) {
+            void modifierKeyChange(const InputState& inputState) {
                 if (active())
                     doModifierKeyChange(inputState);
                 if (m_next != NULL)
                     m_next->modifierKeyChange(inputState);
             }
             
-            inline bool mouseDown(const InputState& inputState) {
+            bool mouseDown(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
                     return true;
                 if (m_next != NULL)
@@ -200,7 +202,7 @@ namespace TrenchBroom {
                 return false;
             }
             
-            inline bool mouseUp(const InputState& inputState) {
+            bool mouseUp(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseUp(inputState))
                     return true;
                 if (m_next != NULL)
@@ -208,7 +210,7 @@ namespace TrenchBroom {
                 return false;
             }
             
-            inline bool mouseDoubleClick(const InputState& inputState) {
+            bool mouseDoubleClick(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState))
                     return true;
                 if (m_next != NULL)
@@ -216,21 +218,21 @@ namespace TrenchBroom {
                 return false;
             }
             
-            inline void scroll(const InputState& inputState) {
+            void scroll(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doScroll(inputState);
                 if (m_next != NULL)
                     m_next->scroll(inputState);
             }
             
-            inline void mouseMove(const InputState& inputState) {
+            void mouseMove(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doMouseMove(inputState);
                 if (m_next != NULL)
                     m_next->mouseMove(inputState);
             }
 
-            inline BaseTool* startMouseDrag(const InputState& inputState) {
+            BaseTool* startMouseDrag(const InputState& inputState) {
                 if (active() && static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
                     m_dragging = true;
                     return this;
@@ -240,27 +242,27 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            inline bool mouseDrag(const InputState& inputState) {
+            bool mouseDrag(const InputState& inputState) {
                 assert(active());
                 assert(dragging());
                 return static_cast<MouseDragPolicyType&>(*this).doMouseDrag(inputState);
             }
             
-            inline void endMouseDrag(const InputState& inputState) {
+            void endMouseDrag(const InputState& inputState) {
                 assert(active());
                 assert(dragging());
                 static_cast<MouseDragPolicyType&>(*this).doEndMouseDrag(inputState);
                 m_dragging = false;
             }
             
-            inline void cancelMouseDrag(const InputState& inputState) {
+            void cancelMouseDrag(const InputState& inputState) {
                 assert(active());
                 assert(dragging());
                 static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
                 m_dragging = false;
             }
             
-            inline void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 if (active())
                     static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
                 if (m_next != NULL)
@@ -269,23 +271,23 @@ namespace TrenchBroom {
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) {}
             
-            inline MapDocumentPtr document() {
+            MapDocumentPtr document() {
                 return m_document;
             }
             
-            inline MapDocumentPtr document() const {
+            MapDocumentPtr document() const {
                 return m_document;
             }
             
-            inline ControllerFacade& controller() {
+            ControllerFacade& controller() {
                 return m_controller;
             }
             
-            inline const ControllerFacade& controller() const {
+            const ControllerFacade& controller() const {
                 return m_controller;
             }
             
-            inline bool dragging() const {
+            bool dragging() const {
                 return m_dragging;
             }
         };

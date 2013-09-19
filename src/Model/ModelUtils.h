@@ -20,68 +20,38 @@
 #ifndef TrenchBroom_ModelUtils_h
 #define TrenchBroom_ModelUtils_h
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "CastIterator.h"
 #include "FilterIterator.h"
 #include "Model/ModelTypes.h"
-#include "Model/Map.h"
-#include "Model/Entity.h"
-#include "Model/Brush.h"
 #include "Model/Object.h"
 
 #include <iterator>
 
 namespace TrenchBroom {
     namespace Model {
-        inline Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName) {
-            const Vec3 size = brushBounds.size();
-            const Vec3 x = Vec3(size.x(), 0.0, 0.0);
-            const Vec3 y = Vec3(0.0, size.y(), 0.0);
-            const Vec3 z = Vec3(0.0, 0.0, size.z());
-            
-            // east, west, front, back, top, bottom
-            BrushFaceList faces(6);
-            faces[0] = map.createFace(brushBounds.min, brushBounds.min + y, brushBounds.min + z, textureName);
-            faces[1] = map.createFace(brushBounds.max, brushBounds.max - z, brushBounds.max - y, textureName);
-            faces[2] = map.createFace(brushBounds.min, brushBounds.min + z, brushBounds.min + x, textureName);
-            faces[3] = map.createFace(brushBounds.max, brushBounds.max - x, brushBounds.max - z, textureName);
-            faces[4] = map.createFace(brushBounds.max, brushBounds.max - y, brushBounds.max - x, textureName);
-            faces[5] = map.createFace(brushBounds.min, brushBounds.min + x, brushBounds.min + y, textureName);
-            
-            return map.createBrush(worldBounds, faces);
-        }
+        class Map;
+        
+        Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         
         struct MatchAll {
-            inline bool operator()(const Object* object) const {
-                return true;
-            }
-            
-            inline bool operator()(const Entity* entity) const {
-                return true;
-            }
-            
-            inline bool operator()(const Brush* brush) const {
-                return true;
-            }
-            
-            inline bool operator()(const BrushFace* face) const {
-                return true;
-            }
+            bool operator()(const Object* object) const;
+            bool operator()(const Entity* entity) const;
+            bool operator()(const Brush* brush) const;
+            bool operator()(const BrushFace* face) const;
         };
         
         struct MatchObjectByType {
         private:
             Object::Type m_type;
         public:
-            MatchObjectByType(const Object::Type type) :
-            m_type(type) {}
-            
-            inline bool operator()(const Object* object) const {
-                return object->type() == m_type;
-            }
+            MatchObjectByType(const Object::Type type);
+            bool operator()(const Object* object) const;
         };
         
         template <typename Iter, class Operator, class Filter>
-        inline void each(Iter cur, Iter end, const Operator& op, const Filter& filter) {
+        void each(Iter cur, Iter end, const Operator& op, const Filter& filter) {
             while (cur != end) {
                 if (filter(*cur))
                     op(*cur);
@@ -90,7 +60,7 @@ namespace TrenchBroom {
         }
 
         template <typename Iter, class Operator, class Filter>
-        inline void each(Iter cur, Iter end, Operator& op, const Filter& filter) {
+        void each(Iter cur, Iter end, Operator& op, const Filter& filter) {
             while (cur != end) {
                 if (filter(*cur))
                     op(*cur);
@@ -99,7 +69,7 @@ namespace TrenchBroom {
         }
         
         template <typename Iter, class Filter>
-        inline bool any(Iter cur, Iter end, const Filter& filter) {
+        bool any(Iter cur, Iter end, const Filter& filter) {
             while (cur != end) {
                 if (filter(*cur))
                     return true;
@@ -109,7 +79,7 @@ namespace TrenchBroom {
         }
         
         template <typename InputIter, class Filter, typename OutputIter>
-        inline void filter(InputIter cur, InputIter end, const Filter& filter, OutputIter output) {
+        void filter(InputIter cur, InputIter end, const Filter& filter, OutputIter output) {
             while (cur != end) {
                 if (filter(*cur))
                     *output++ = *cur;
@@ -118,22 +88,22 @@ namespace TrenchBroom {
         }
         
         template <typename Iter>
-        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& cur, const Iter& end) {
+        CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& cur, const Iter& end) {
             return MakeCastIterator<Entity*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTEntity)));
         }
 
         template <typename Iter>
-        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
+        CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
             return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTEntity)));
         }
 
         template <typename Iter>
-        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& cur, const Iter& end) {
+        CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& cur, const Iter& end) {
             return MakeCastIterator<Brush*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTBrush)));
         }
         
         template <typename Iter>
-        inline CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& end) {
+        CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& end) {
             return MakeCastIterator<Brush*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTBrush)));
         }
     }

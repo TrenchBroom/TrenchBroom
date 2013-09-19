@@ -40,34 +40,34 @@ namespace TrenchBroom {
             IndexedVertexList() :
             m_primStart(0) {}
             
-            inline void addVertex(const typename T::Vertex& vertex) {
+            void addVertex(const typename T::Vertex& vertex) {
                 m_vertices.push_back(vertex);
             }
             
-            inline void addVertices(const typename T::Vertex::List& vertices) {
+            void addVertices(const typename T::Vertex::List& vertices) {
                 m_vertices.insert(m_vertices.end(), vertices.begin(), vertices.end());
             }
             
-            inline void addPrimitive(const typename T::Vertex::List& vertices) {
+            void addPrimitive(const typename T::Vertex::List& vertices) {
                 addVertices(vertices);
                 endPrimitive();
             }
             
-            inline void endPrimitive() {
+            void endPrimitive() {
                 m_indices.push_back(static_cast<GLint>(m_primStart));
                 m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));
                 m_primStart = m_vertices.size();
             }
             
-            inline const IndexArray& indices() const {
+            const IndexArray& indices() const {
                 return m_indices;
             }
             
-            inline const CountArray& counts() const {
+            const CountArray& counts() const {
                 return m_counts;
             }
             
-            inline const typename T::Vertex::List& vertices() const {
+            const typename T::Vertex::List& vertices() const {
                 return m_vertices;
             }
         };

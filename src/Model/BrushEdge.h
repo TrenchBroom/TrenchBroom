@@ -85,29 +85,8 @@ namespace TrenchBroom {
             Vec3 vector() const;
         };
 
-        inline BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::iterator it = edges.begin();
-            const BrushEdgeList::iterator end = edges.end();
-            while (it != end) {
-                const BrushEdge& edge = **it;
-                if (edge.hasPositions(position1, position2))
-                    return it;
-                ++it;
-            }
-            return end;
-        }
-        
-        inline BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {
-            BrushEdgeList::const_iterator it = edges.begin();
-            const BrushEdgeList::const_iterator end = edges.end();
-            while (it != end) {
-                const BrushEdge& edge = **it;
-                if (edge.hasPositions(position1, position2))
-                    return it;
-                ++it;
-            }
-            return end;
-        }
+        BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2);
+        BrushEdgeList::const_iterator findBrushEdge(const BrushEdgeList& edges, const Vec3& position1, const Vec3& position2);
     }
 }
 

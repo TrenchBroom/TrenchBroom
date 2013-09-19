@@ -39,15 +39,15 @@ namespace TrenchBroom {
             BrushList brushes;
             BrushFaceList faces;
             
-            inline void operator()(Entity* entity) {
+            void operator()(Entity* entity) {
                 entities.push_back(entity);
             }
             
-            inline void operator()(Brush* brush) {
+            void operator()(Brush* brush) {
                 brushes.push_back(brush);
             }
             
-            inline void operator()(BrushFace* face) {
+            void operator()(BrushFace* face) {
                 faces.push_back(face);
             }
         };
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             m_select(select),
             m_result(result) {}
             
-            inline void operator()(Object* object) const {
+            void operator()(Object* object) const {
                 if (m_select) {
                     if (!object->selected()) {
                         object->select();
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 }
             }
 
-            inline void operator()(Entity* entity) const {
+            void operator()(Entity* entity) const {
                 if (m_select) {
                     if (!entity->selected()) {
                         entity->select();
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void operator()(Brush* brush) const {
+            void operator()(Brush* brush) const {
                 if (m_select) {
                     if (!brush->selected()) {
                         brush->select();
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void operator()(BrushFace* face) const {
+            void operator()(BrushFace* face) const {
                 if (m_select) {
                     if (!face->selected()) {
                         face->select();
@@ -119,53 +119,53 @@ namespace TrenchBroom {
         };
 
         struct MatchSelected  {
-            inline bool operator()(const Object* object) const {
+            bool operator()(const Object* object) const {
                 return object->selected();
             }
             
-            inline bool operator()(const Entity* entity) const {
+            bool operator()(const Entity* entity) const {
                 return entity->selected();
             }
             
-            inline bool operator()(const Brush* brush) const {
+            bool operator()(const Brush* brush) const {
                 return brush->selected();
             }
 
-            inline bool operator()(const BrushFace* face) const {
+            bool operator()(const BrushFace* face) const {
                 return face->selected();
             }
         };
         
         struct MatchPartiallySelected  {
-            inline bool operator()(const Entity* entity) const {
+            bool operator()(const Entity* entity) const {
                 return entity->selected() || entity->partiallySelected();
             }
             
-            inline bool operator()(const Brush* brush) const {
+            bool operator()(const Brush* brush) const {
                 return brush->selected() || brush->partiallySelected();
             }
         };
         
         struct MatchAnySelectedFace  {
-            inline bool operator()(const BrushFace* face) const {
+            bool operator()(const BrushFace* face) const {
                 return face->selected() || face->parent()->selected();
             }
         };
 
         struct MatchUnselected {
-            inline bool operator()(const Object* object) const {
+            bool operator()(const Object* object) const {
                 return !object->selected();
             }
             
-            inline bool operator()(const Entity* entity) const {
+            bool operator()(const Entity* entity) const {
                 return !entity->selected();
             }
             
-            inline bool operator()(const Brush* brush) const {
+            bool operator()(const Brush* brush) const {
                 return !brush->selected();
             }
             
-            inline bool operator()(const BrushFace* face) const {
+            bool operator()(const BrushFace* face) const {
                 return !face->selected();
             }
         };

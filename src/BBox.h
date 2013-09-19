@@ -48,7 +48,7 @@ public:
                 m_positions[i] = positions[i];
         }
         
-        inline const Range& operator[] (const size_t index) const {
+        const Range& operator[] (const size_t index) const {
             assert(index >= 0 && index < S);
             return m_positions[index];
         }
@@ -94,31 +94,31 @@ public:
     min(other.min),
     max(other.max) {}
 
-    inline bool operator== (const BBox<T,S>& right) const {
+    bool operator== (const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
     }
     
-    inline const Vec<T,S> center() const {
+    const Vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }
     
-    inline const Vec<T,S> size() const {
+    const Vec<T,S> size() const {
         return max - min;
     }
     
-    inline const Vec<T,S> vertex(MinMax c[S]) const {
+    const Vec<T,S> vertex(MinMax c[S]) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; i++)
             result[i] = c[i] == Min ? min[i] : max[i];
         return result;
     }
     
-    inline const Vec<T,3> vertex(MinMax x, MinMax y, MinMax z) const {
+    const Vec<T,3> vertex(MinMax x, MinMax y, MinMax z) const {
         MinMax c[] = {x, y, z};
         return vertex(c);
     }
     
-    inline BBox<T,S>& mergeWith(const BBox<T,S>& right) {
+    BBox<T,S>& mergeWith(const BBox<T,S>& right) {
         for (size_t i = 0; i < S; i++) {
             min[i] = std::min(min[i], right.min[i]);
             max[i] = std::max(max[i], right.max[i]);
@@ -126,12 +126,12 @@ public:
         return *this;
     }
     
-    inline const BBox<T,S> mergedWith(const BBox<T,S>& right) const {
+    const BBox<T,S> mergedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
     
-    inline BBox<T,S>& mergeWith(const Vec<T,S>& right) {
+    BBox<T,S>& mergeWith(const Vec<T,S>& right) {
         for (size_t i = 0; i < S; i++) {
             min[i] = std::min(min[i], right[i]);
             max[i] = std::max(max[i], right[i]);
@@ -139,40 +139,40 @@ public:
         return *this;
     }
     
-    inline const BBox<T,S> mergedWith(const Vec<T,S>& right) const {
+    const BBox<T,S> mergedWith(const Vec<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
-    inline BBox<T,S>& translateToOrigin() {
+    BBox<T,S>& translateToOrigin() {
         const Vec<T,S> c = center();
         min -= c;
         max -= c;
         return *this;
     }
     
-    inline const BBox<T,S> translatedToOrigin() const {
+    const BBox<T,S> translatedToOrigin() const {
         return BBox<T,S>(*this).translateToOrigin();
     }
     
-    inline BBox<T,S>& repair() {
+    BBox<T,S>& repair() {
         for (size_t i = 0; i < S; i++)
             if (min[i] > max[i])
                 std::swap(min[i], max[i]);
         return *this;
     }
     
-    inline const BBox<T,S> repaired() const {
+    const BBox<T,S> repaired() const {
         return BBox<T,S>(*this).repair();
     }
 
-    inline bool contains(const Vec<T,S>& point) const {
+    bool contains(const Vec<T,S>& point) const {
         for (size_t i = 0; i < S; i++)
             if (point[i] < min[i] || point[i] > max[i])
                 return false;
         return true;
     }
     
-    inline const RelativePosition relativePosition(const Vec<T,S>& point) const {
+    const RelativePosition relativePosition(const Vec<T,S>& point) const {
         typename RelativePosition::Range p[S];
         for (size_t i = 0; i < S; i++) {
             if (point[i] < min[i])
@@ -186,14 +186,14 @@ public:
         return RelativePosition(p);
     }
 
-    inline bool contains(const BBox<T,S>& bounds) const {
+    bool contains(const BBox<T,S>& bounds) const {
         for (size_t i = 0; i < S; i++)
             if (bounds.min[i] < min[i] || bounds.max[i] > max[i])
                 return false;
         return true;
     }
     
-    inline bool intersects(const BBox<T,S>& bounds) const {
+    bool intersects(const BBox<T,S>& bounds) const {
         for (size_t i = 0; i < S; i++)
             if (bounds.max[i] < min[i] || bounds.min[i] > max[i])
                 return false;
@@ -235,7 +235,7 @@ public:
         return std::numeric_limits<T>::quiet_NaN();
     }
     
-    inline BBox<T,S>& expand(const T f) {
+    BBox<T,S>& expand(const T f) {
         for (size_t i = 0; i < S; i++) {
             min[i] -= f;
             max[i] += f;
@@ -243,23 +243,23 @@ public:
         return *this;
     }
     
-    inline const BBox<T,S> expanded(const T f) const {
+    const BBox<T,S> expanded(const T f) const {
         return BBox<T,S>(*this).expand(f);
     }
     
-    inline BBox<T,S>& translate(const Vec<T,S>& delta) {
+    BBox<T,S>& translate(const Vec<T,S>& delta) {
         min += delta;
         max += delta;
         return *this;
     }
     
-    inline const BBox<T,S> translated(const Vec<T,S>& delta) const {
+    const BBox<T,S> translated(const Vec<T,S>& delta) const {
         return BBox<T,S>(*this).translate(delta);
     }
 };
 
 template <typename T, class Op>
-inline void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
+void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
     const Vec<T,3> size = bbox.size();
     const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
     const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
@@ -299,7 +299,7 @@ inline void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
 }
 
 template <typename T, class Op>
-inline void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
+void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
     const Vec<T,3> size = bbox.size();
     const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
     const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
@@ -328,7 +328,7 @@ struct RotateBBox {
     rotation(i_rotation),
     first(true) {}
     
-    inline void operator()(const Vec<T,3>& vertex) {
+    void operator()(const Vec<T,3>& vertex) {
         if (first) {
             bbox.min = bbox.max = rotation * vertex;
             first = false;
@@ -339,7 +339,7 @@ struct RotateBBox {
 };
 
 template <typename T>
-inline BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
+BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
     RotateBBox<T> rotator(rotation);
     eachBBoxVertex(bbox.translated(-center), rotator);
     return rotator.bbox.translated(center);
@@ -355,7 +355,7 @@ struct TransformBBox {
     transformation(i_transformation),
     first(true) {}
     
-    inline void operator()(const Vec<T,3>& vertex) {
+    void operator()(const Vec<T,3>& vertex) {
         if (first) {
             bbox.min = bbox.max = transformation * vertex;
             first = false;
@@ -366,7 +366,7 @@ struct TransformBBox {
 };
 
 template <typename T>
-inline BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Mat<T,4,4>& transformation) {
+BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Mat<T,4,4>& transformation) {
     TransformBBox<T> transformator(transformation);
     eachBBoxVertex(bbox, transformator);
     return transformator.bbox;

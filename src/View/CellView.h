@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            inline wxGLContext* glContext() const {
+            wxGLContext* glContext() const {
                 return m_glContext;
             }
             

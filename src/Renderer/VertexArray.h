@@ -63,11 +63,11 @@ namespace TrenchBroom {
                 }
             }
             
-            inline size_t size() const {
+            size_t size() const {
                 return m_size;
             }
             
-            inline void setup() {
+            void setup() {
                 assert(m_size > 0);
                 if (m_block == NULL) {
                     SetVboState mapVbo(m_vbo);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 VertexSpec::setup(m_block->offset());
             }
             
-            inline void cleanup() {
+            void cleanup() {
                 VertexSpec::cleanup();
             }
         };

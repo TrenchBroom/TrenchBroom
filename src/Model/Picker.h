@@ -61,7 +61,7 @@ namespace TrenchBroom {
             const Vec3& hitPoint() const;
             
             template <typename T>
-            inline T target() const {
+            T target() const {
                 return m_holder->object<T>();
             }
         };
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             void removeObject(Pickable* object);
 
             template <typename Object>
-            inline void addObjects(const std::vector<Object>& objects) {
+            void addObjects(const std::vector<Object>& objects) {
                 typename std::vector<Object>::const_iterator it, end;
                 for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                     const Object& object = *it;

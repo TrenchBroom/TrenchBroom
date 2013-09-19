@@ -52,25 +52,25 @@ public:
     r(static_cast<T>(other.r)),
     v(other.v) {}
 
-    inline const Quat<T> operator- () const {
+    const Quat<T> operator- () const {
         return Quat(-r, v);
     }
     
-    inline const Quat<T> operator* (const T right) const {
+    const Quat<T> operator* (const T right) const {
         return Quat(r * right, v);
     }
     
-    inline Quat<T>& operator*= (const T right) {
+    Quat<T>& operator*= (const T right) {
         r *= right;
         return *this;
     }
     
-    inline const Quat<T> operator* (const Quat<T>& right) const {
+    const Quat<T> operator* (const Quat<T>& right) const {
         Quat<T> result = *this;
         return result *= right;
     }
     
-    inline Quat<T>& operator*= (const Quat<T>& right) {
+    Quat<T>& operator*= (const Quat<T>& right) {
         const T& t = right.r;
         const Vec<T,3>& w = right.v;
         
@@ -85,7 +85,7 @@ public:
         return *this;
     }
     
-    inline const Vec<T,3> operator* (const Vec<T,3>& right) const {
+    const Vec<T,3> operator* (const Vec<T,3>& right) const {
         Quat<T> p;
         p.r = 0.0;
         p.v = right;
@@ -93,29 +93,29 @@ public:
         return p.v;
     }
     
-    inline Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
+    Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
         assert(Math::eq(axis.length(), static_cast<T>(1.0)));
         r = std::cos(angle / static_cast<T>(2.0));
         v = axis * std::sin(angle / static_cast<T>(2.0));
         return *this;
     }
     
-    inline float angle() const {
+    float angle() const {
         return static_cast<T>(2.0) * std::acos(r);
     }
     
-    inline Vec<T,3> axis() const {
+    Vec<T,3> axis() const {
         if (v.null())
             return v;
         return v / std::sin(angle() / static_cast<T>(2.0));
     }
     
-    inline Quat<T>& conjugate() {
+    Quat<T>& conjugate() {
         v = -v;
         return *this;
     }
     
-    inline const Quat conjugated() const {
+    const Quat conjugated() const {
         Quat<T> result;
         result.r = r;
         result.v = -v;
@@ -127,7 +127,7 @@ typedef Quat<float> Quatf;
 typedef Quat<double> Quatd;
 
 template <typename T>
-inline Quat<T> operator*(const T left, const Quat<T>& right) {
+Quat<T> operator*(const T left, const Quat<T>& right) {
     return Quat<T>(left * right.r, right.v);
 }
 

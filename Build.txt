@@ -28,11 +28,12 @@ Dependencies
 Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
 - g++ GNU c++ compiler
 - GTK2 and development packages: libgtk2.0-dev (GTK3 will NOT work)
+- FreeImage: libfreeimage-dev
 - OpenGL and GLU development headers (Mesa OpenGL development packages)
   freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
 - If you have a debian-based distribution, install them with this command:
-  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev mesa-common-dev libxxf86vm-dev
+  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev mesa-common-dev libxxf86vm-dev libfreeimage-dev
 Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
 http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html

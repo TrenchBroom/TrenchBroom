@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Vertex1(const typename A1::ElementType& i_v1) :
             v1(i_v1) {}
             
-            inline bool operator==(const Vertex1<A1>& other) const {
+            bool operator==(const Vertex1<A1>& other) const {
                 return v1 == other.v1;
             }
             
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             v1(i_v1),
             v2(i_v2) {}
             
-            inline bool operator==(const Vertex2<A1, A2>& other) const {
+            bool operator==(const Vertex2<A1, A2>& other) const {
                 return (v1 == other.v1 &&
                         v2 == other.v2);
             }
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             v2(i_v2),
             v3(i_v3) {}
             
-            inline bool operator==(const Vertex3<A1, A2, A3>& other) const {
+            bool operator==(const Vertex3<A1, A2, A3>& other) const {
                 return (v1 == other.v1 &&
                         v2 == other.v2 &&
                         v3 == other.v3);
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             v3(i_v3),
             v4(i_v4) {}
             
-            inline bool operator==(const Vertex4<A1, A2, A3, A4>& other) const {
+            bool operator==(const Vertex4<A1, A2, A3, A4>& other) const {
                 return (v1 == other.v1 &&
                         v2 == other.v2 &&
                         v3 == other.v3 &&
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             v4(i_v4),
             v5(i_v5) {}
             
-            inline bool operator==(const Vertex5<A1, A2, A3, A4, A5>& other) const {
+            bool operator==(const Vertex5<A1, A2, A3, A4, A5>& other) const {
                 return (v1 == other.v1 &&
                         v2 == other.v2 &&
                         v3 == other.v3 &&

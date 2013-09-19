@@ -32,6 +32,14 @@ namespace TrenchBroom {
         m_position(position),
         m_mark(New) {}
 
+        const Vec3& BrushVertex::position() const {
+            return m_position;
+        }
+        
+        BrushVertex::Mark BrushVertex::mark() const {
+            return m_mark;
+        }
+
         void BrushVertex::updateMark(const Plane3& plane) {
             const Math::PointStatus::Type status = plane.pointStatus(m_position);
             switch (status) {
@@ -72,6 +80,30 @@ namespace TrenchBroom {
             } while (side != result.front());
             
             return result;
+        }
+
+        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::iterator it = vertices.begin();
+            const BrushVertexList::iterator end = vertices.end();
+            while (it != end) {
+                const BrushVertex& vertex = **it;
+                if (vertex.position() == position)
+                    return it;
+                ++it;
+            }
+            return end;
+        }
+        
+        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position) {
+            BrushVertexList::const_iterator it = vertices.begin();
+            const BrushVertexList::const_iterator end = vertices.end();
+            while (it != end) {
+                const BrushVertex& vertex = **it;
+                if (vertex.position() == position)
+                    return it;
+                ++it;
+            }
+            return end;
         }
     }
 }

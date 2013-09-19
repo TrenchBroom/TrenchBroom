@@ -44,41 +44,14 @@ namespace TrenchBroom {
         public:
             BrushVertex(const Vec3& position);
             
-            inline const Vec3& position() const {
-                return m_position;
-            }
-            
-            inline Mark mark() const {
-                return m_mark;
-            }
-            
+            const Vec3& position() const;
+            Mark mark() const;
             void updateMark(const Plane3& plane);
             BrushFaceGeometryList incidentSides(const BrushEdgeList& edges) const;
         };
         
-        inline BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
-            BrushVertexList::iterator it = vertices.begin();
-            const BrushVertexList::iterator end = vertices.end();
-            while (it != end) {
-                const BrushVertex& vertex = **it;
-                if (vertex.position() == position)
-                    return it;
-                ++it;
-            }
-            return end;
-        }
-
-        inline BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position) {
-            BrushVertexList::const_iterator it = vertices.begin();
-            const BrushVertexList::const_iterator end = vertices.end();
-            while (it != end) {
-                const BrushVertex& vertex = **it;
-                if (vertex.position() == position)
-                    return it;
-                ++it;
-            }
-            return end;
-        }
+        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position);
+        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position);
     }
 }
 

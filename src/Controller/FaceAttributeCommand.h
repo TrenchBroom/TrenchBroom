@@ -86,7 +86,7 @@ namespace TrenchBroom {
             bool doPerformUndo();
             
             template <typename T>
-            inline T evaluate(const T oldValue, const T newValue, const Operation op) const {
+            T evaluate(const T oldValue, const T newValue, const Operation op) const {
                 switch (op) {
                     case OpSet:
                         return newValue;

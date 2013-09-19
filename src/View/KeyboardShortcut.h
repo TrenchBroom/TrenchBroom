@@ -34,34 +34,12 @@ namespace TrenchBroom {
         private:
             class MacModifierOrder {
             public:
-                inline bool operator()(const int lhs, const int rhs) const {
-                    if (lhs == WXK_NONE)
-                        return lhs != WXK_NONE;
-                    if (lhs == WXK_ALT)
-                        return rhs != WXK_ALT;
-                    if (lhs == WXK_SHIFT)
-                        return rhs != WXK_ALT && rhs != WXK_SHIFT;
-                    if (lhs == WXK_CONTROL)
-                        return rhs == WXK_NONE;
-                    assert(false);
-                    return false;
-                }
+                bool operator()(const int lhs, const int rhs) const;
             };
             
             class WinModifierOrder {
             public:
-                inline bool operator()(const int lhs, const int rhs) const {
-                    if (lhs == WXK_NONE)
-                        return lhs != WXK_NONE;
-                    if (lhs == WXK_CONTROL)
-                        return rhs != WXK_CONTROL;
-                    if (lhs == WXK_ALT)
-                        return rhs != WXK_CONTROL && rhs != WXK_ALT;
-                    if (lhs == WXK_SHIFT)
-                        return rhs == WXK_NONE;
-                    assert(false);
-                    return false;
-                }
+                bool operator()(const int lhs, const int rhs) const;
             };
             
 #if defined __APPLE__
@@ -106,37 +84,14 @@ namespace TrenchBroom {
             KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int modifierKey3, const int key, const int context, const String& text);
             KeyboardShortcut(const String& string);
             
-            inline int commandId() const {
-                return m_commandId;
-            }
-            
-            inline int modifierKey1() const {
-                return m_modifierKey1;
-            }
-            
-            inline int modifierKey2() const {
-                return m_modifierKey2;
-            }
-            
-            inline int modifierKey3() const {
-                return m_modifierKey3;
-            }
-            
-            inline int key() const {
-                return m_key;
-            }
-            
-            inline int context() const {
-                return m_context;
-            }
-            
-            inline const String& text() const {
-                return m_text;
-            }
-            
-            inline bool hasModifier() const {
-                return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
-            }
+            int commandId() const;
+            int modifierKey1() const;
+            int modifierKey2() const;
+            int modifierKey3() const;
+            int key() const;
+            int context() const;
+            const String& text() const;
+            bool hasModifier() const;
             
             bool matches(const int key, const int modifierKey1 = WXK_NONE, const int modifierKey2 = WXK_NONE, const int modifierKey3 = WXK_NONE) const;
             bool alwaysShowModifier() const;

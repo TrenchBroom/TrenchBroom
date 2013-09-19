@@ -40,12 +40,12 @@ namespace TrenchBroom {
         };
         
         template <class F1, class F2>
-        inline HitFilterChain chainHitFilters(const F1& f1, const F2& f2) {
+        HitFilterChain chainHitFilters(const F1& f1, const F2& f2) {
             return HitFilterChain(f1, f2);
         }
         
         template <class F1, class F2, class F3>
-        inline HitFilterChain chainHitFilters(const F1& f1, const F2& f2, const F3& f3) {
+        HitFilterChain chainHitFilters(const F1& f1, const F2& f2, const F3& f3) {
             return chainHitFilters(f1, chainHitFilters(f2, f3));
         }
         

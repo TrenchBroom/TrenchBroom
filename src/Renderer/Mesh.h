@@ -85,26 +85,26 @@ namespace TrenchBroom {
             m_currentType(Unset),
             m_vertexCount(0) {}
             
-            inline const size_t size() const {
+            const size_t size() const {
                 return m_vertexCount * VertexSpec::Size;
             }
             
-            inline const TriangleSetMap& triangleSets() const {
+            const TriangleSetMap& triangleSets() const {
                 assert(m_currentType == Unset);
                 return m_triangleSets;
             }
             
-            inline const TriangleSeriesMap& triangleFans() const {
+            const TriangleSeriesMap& triangleFans() const {
                 assert(m_currentType == Unset);
                 return m_triangleFans();
             }
             
-            inline const TriangleSeriesMap& triangleStrips() const {
+            const TriangleSeriesMap& triangleStrips() const {
                 assert(m_currentType == Unset);
                 return m_triangleStrips;
             }
             
-            inline typename MeshRenderData<Key>::List renderData(Vbo& vbo) const {
+            typename MeshRenderData<Key>::List renderData(Vbo& vbo) const {
                 typename MeshRenderData<Key>::List result;
                 typename KeySet::const_iterator keyIt, keyEnd;
                 for (keyIt = m_keys.begin(), keyEnd = m_keys.end(); keyIt != keyEnd; ++keyIt) {
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void beginTriangleSet(Key key) {
+            void beginTriangleSet(Key key) {
                 assert(m_currentType == Unset);
                 m_currentType = Set;
                 
@@ -149,7 +149,7 @@ namespace TrenchBroom {
                 m_keys.insert(key);
             }
             
-            inline void addTriangleToSet(const typename VertexSpec::Vertex& v1,
+            void addTriangleToSet(const typename VertexSpec::Vertex& v1,
                                          const typename VertexSpec::Vertex& v2,
                                          const typename VertexSpec::Vertex& v3) {
                 assert(m_currentType == Set);
@@ -159,19 +159,19 @@ namespace TrenchBroom {
                 m_vertexCount += 3;
             }
             
-            inline void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
+            void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
                 assert(m_currentType == Set);
                 typename VertexSpec::Vertex::List& setVertices = m_currentSet->second;
                 setVertices.insert(setVertices.end(), vertices.begin(), vertices.end());
                 m_vertexCount += vertices.size();
             }
 
-            inline void endTriangleSet() {
+            void endTriangleSet() {
                 assert(m_currentType == Set);
                 m_currentType = Unset;
             }
             
-            inline void addTriangleFans(Key key, const TriangleSeries& fans) {
+            void addTriangleFans(Key key, const TriangleSeries& fans) {
                 if (!fans.empty()) {
                     TriangleSeries& fansForKey = m_triangleFans[key];
                     typename TriangleSeries::const_iterator it, end;
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void beginTriangleFan(Key key) {
+            void beginTriangleFan(Key key) {
                 assert(m_currentType == Unset);
                 m_currentType = Fan;
                 
@@ -194,18 +194,18 @@ namespace TrenchBroom {
                 m_keys.insert(key);
             }
             
-            inline void addVertexToFan(const typename VertexSpec::Vertex& v) {
+            void addVertexToFan(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Fan);
                 m_currentFan->second.back().push_back(v);
                 ++m_vertexCount;
             }
             
-            inline void endTriangleFan() {
+            void endTriangleFan() {
                 assert(m_currentType == Fan);
                 m_currentType = Unset;
             }
             
-            inline void addTriangleStrips(Key key, const TriangleSeries& strips) {
+            void addTriangleStrips(Key key, const TriangleSeries& strips) {
                 if (!strips.empty()) {
                     TriangleSeries& stripsForKey = m_triangleStrips[key];
                     typename TriangleSeries::const_iterator it, end;
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void beginTriangleStrip(Key key) {
+            void beginTriangleStrip(Key key) {
                 assert(m_currentType == Unset);
                 m_currentType = Strip;
                 
@@ -228,19 +228,19 @@ namespace TrenchBroom {
                 m_keys.insert(key);
             }
 
-            inline void addVertexToStrip(const typename VertexSpec::Vertex& v) {
+            void addVertexToStrip(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == Strip);
                 m_currentStrip->second.back().push_back(v);
                 ++m_vertexCount;
             }
 
-            inline void endTriangleStrip() {
+            void endTriangleStrip() {
                 assert(m_currentType == Strip);
                 m_currentType = Unset;
             }
 
         private:
-            inline VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, const TriangleSeries& series) const {
+            VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, const TriangleSeries& series) const {
                 IndexedVertexList<VertexSpec> indexList;
                 typename TriangleSeries::const_iterator sIt, sEnd;
                 for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {

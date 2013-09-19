@@ -35,32 +35,32 @@ namespace TrenchBroom {
         CastIterator(const Iterator& iterator) :
         m_iterator(iterator) {}
         
-        inline OutType& operator*() const {
+        OutType& operator*() const {
             return (OutType&)(*m_iterator);
         }
 
-        inline OutType* operator->() const {
+        OutType* operator->() const {
             return &*m_iterator;
         }
 
         // pre-increment
-        inline CastIterator& operator++() {
+        CastIterator& operator++() {
             ++m_iterator;
             return *this;
         }
         
         // post-increment
-        inline CastIterator operator++(int) {
+        CastIterator operator++(int) {
             CastIterator<Iterator, OutType> result(*this);
             ++*this;
             return result;
         }
         
-        inline bool operator==(const CastIterator<Iterator, OutType>& other) const {
+        bool operator==(const CastIterator<Iterator, OutType>& other) const {
             return m_iterator == other.m_iterator;
         }
         
-        inline bool operator!=(const CastIterator<Iterator, OutType>& other) const {
+        bool operator!=(const CastIterator<Iterator, OutType>& other) const {
             return !(*this == other);
         }
     };

@@ -28,7 +28,7 @@
 
 template <typename T>
 struct ArrayDeleter {
-    inline void operator ()(T const* p) const {
+    void operator ()(T const* p) const {
         delete[] p;
     }
 };

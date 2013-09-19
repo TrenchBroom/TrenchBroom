@@ -41,41 +41,41 @@ namespace TrenchBroom {
             advance();
         }
         
-        inline reference operator*() const {
+        reference operator*() const {
             return *m_cur;
         }
         
-        inline reference operator*() {
+        reference operator*() {
             return *m_cur;
         }
         
-        inline pointer operator->() const {
+        pointer operator->() const {
             return &*m_cur;
         }
         
-        inline pointer operator->() {
+        pointer operator->() {
             return &*m_cur;
         }
         
         // pre-increment
-        inline FilterIterator& operator++() {
+        FilterIterator& operator++() {
             ++m_cur;
             advance();
             return *this;
         }
         
         // post-increment
-        inline FilterIterator operator++(int) {
+        FilterIterator operator++(int) {
             FilterIterator<Iterator, Filter> result(*this);
             ++*this;
             return result;
         }
         
-        inline bool operator==(const FilterIterator<Iterator, Filter>& other) const {
+        bool operator==(const FilterIterator<Iterator, Filter>& other) const {
             return m_cur == other.m_cur && m_end == other.m_end;
         }
         
-        inline bool operator!=(const FilterIterator<Iterator, Filter>& other) const {
+        bool operator!=(const FilterIterator<Iterator, Filter>& other) const {
             return !(*this == other);
         }
     private:

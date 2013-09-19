@@ -69,7 +69,7 @@ namespace TrenchBroom {
         }
         
         struct FindSpawnflagsDefinition {
-            inline bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
+            bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
                 return (propertyDefinition->type() == PropertyDefinition::FlagsProperty &&
                         propertyDefinition->name() == Model::PropertyKeys::Spawnflags);
             }
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             String name;
             FindPropertyDefinitionByName(const String& i_name) : name(i_name) {}
             
-            inline bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
+            bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
                 return propertyDefinition->name() == name;
             }
         };

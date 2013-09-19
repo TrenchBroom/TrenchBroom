@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/FaceTexture.h"
-#include "GL/GL.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"

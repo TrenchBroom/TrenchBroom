@@ -81,22 +81,14 @@ namespace TrenchBroom {
             Vbo(const size_t initialCapacity, const GLenum type = GL_ARRAY_BUFFER, const GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
-            inline VboState::Type state() const {
-                return m_state;
-            }
-            
+            VboState::Type state() const;
             VboBlock* allocateBlock(const size_t capacity);
         private:
             friend class SetVboState;
             friend class VboBlock;
             
-            inline bool isActive() const {
-                return m_state > VboState::Inactive;
-            }
-            
-            inline bool isMapped() const {
-                return m_state == VboState::Mapped;
-            }
+            bool isActive() const;
+            bool isMapped() const;
             
             void activate();
             void deactivate();
@@ -107,7 +99,7 @@ namespace TrenchBroom {
             void freeBlock(VboBlock* block);
             
             template <typename T>
-            inline size_t writeElement(const size_t address, const T& element) {
+            size_t writeElement(const size_t address, const T& element) {
                 assert(isMapped());
                 const size_t size = sizeof(T);
                 assert(address + size <= m_totalCapacity);
@@ -116,7 +108,7 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            inline size_t writeElements(const size_t address, const std::vector<T>& elements) {
+            size_t writeElements(const size_t address, const std::vector<T>& elements) {
                 assert(isMapped());
                 const size_t size = elements.size() * sizeof(T);
                 assert(address + size <= m_totalCapacity);
@@ -128,7 +120,7 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            inline size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+            size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
                 assert(isMapped());
                 const size_t size = buffer.size() * sizeof(T);
                 assert(address + size <= m_totalCapacity);

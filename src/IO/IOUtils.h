@@ -39,12 +39,12 @@
 namespace TrenchBroom {
     namespace IO {
         template <typename T>
-        inline void advance(const char*& cursor, const size_t i = 1) {
+        void advance(const char*& cursor, const size_t i = 1) {
             cursor += (i * sizeof(T));
         }
         
         template <typename T>
-        inline T read(const char*& cursor) {
+        T read(const char*& cursor) {
             T value;
             memcpy(&value, cursor, sizeof(T));
             cursor += sizeof(T);
@@ -52,101 +52,76 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        inline T read(const char* const& cursor) {
+        T read(const char* const& cursor) {
             T value;
             memcpy(&value, cursor, sizeof(T));
             return value;
         }
         
         template <typename T>
-        inline int readInt(const char*& cursor) {
+        int readInt(const char*& cursor) {
             return static_cast<int>(read<T>(cursor));
         }
         
         template <typename T>
-        inline int readInt(const char* const& cursor) {
+        int readInt(const char* const& cursor) {
             return static_cast<int>(read<T>(cursor));
         }
         
         template <typename T>
-        inline unsigned int readUnsignedInt(const char*& cursor) {
+        unsigned int readUnsignedInt(const char*& cursor) {
             return static_cast<unsigned int>(read<T>(cursor));
         }
         
         template <typename T>
-        inline unsigned int readUnsignedInt(const char* const& cursor) {
+        unsigned int readUnsignedInt(const char* const& cursor) {
             return static_cast<unsigned int>(read<T>(cursor));
         }
         
         template <typename T>
-        inline size_t readSize(const char*& cursor) {
+        size_t readSize(const char*& cursor) {
             return static_cast<size_t>(read<T>(cursor));
         }
         
         template <typename T>
-        inline size_t readSize(const char* const& cursor) {
+        size_t readSize(const char* const& cursor) {
             return static_cast<size_t>(read<T>(cursor));
         }
 
         template <typename T>
-        inline bool readBool(const char*& cursor) {
+        bool readBool(const char*& cursor) {
             return read<T>(cursor) != 0;
         }
         
         template <typename T>
-        inline bool readBool(const char* const& cursor) {
+        bool readBool(const char* const& cursor) {
             return read<T>(cursor) != 0;
         }
         
         template <typename T>
-        inline float readFloat(const char*& cursor) {
+        float readFloat(const char*& cursor) {
             return static_cast<float>(read<T>(cursor));
         }
         
         template <typename T>
-        inline float readFloat(const char* const& cursor) {
+        float readFloat(const char* const& cursor) {
             return static_cast<float>(read<T>(cursor));
         }
         
-        inline Vec3f readVec3f(const char*& cursor) {
-            Vec3f value;
-            for (size_t i = 0; i < 3; i++)
-                value[i] = readFloat<float>(cursor);
-            return value;
-        }
-        
-        inline Vec3f readVec3f(const char* const& cursor) {
-            Vec3f value;
-            for (size_t i = 0; i < 3; i++)
-                value[i] = readFloat<float>(cursor);
-            return value;
-        }
-        
-        inline void readBytes(const char*& cursor, char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-        
-        inline void readBytes(const char* const& cursor, char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
-        }
-        
-        inline void readBytes(const char*& cursor, unsigned char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-        
-        inline void readBytes(const char* const& cursor, unsigned char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
-        }
+        Vec3f readVec3f(const char*& cursor);
+        Vec3f readVec3f(const char* const& cursor);
+        void readBytes(const char*& cursor, char* buffer, size_t n);
+        void readBytes(const char* const& cursor, char* buffer, size_t n);
+        void readBytes(const char*& cursor, unsigned char* buffer, size_t n);
+        void readBytes(const char* const& cursor, unsigned char* buffer, size_t n);
         
         template <typename T>
-        inline void readVector(const char*& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
+        void readVector(const char*& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
             readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
         }
         
         template <typename T>
-        inline void readVector(const char* const& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
+        void readVector(const char* const& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
             readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
         }
     }

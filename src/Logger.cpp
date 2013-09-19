@@ -19,6 +19,8 @@
 
 #include "Logger.h"
 
+#include <cstdarg>
+
 namespace TrenchBroom {
     Logger::~Logger() {}
     

@@ -30,13 +30,13 @@ public:
     virtual ~BaseHolder() {}
     
     template <typename T>
-    inline const T& object() const {
+    const T& object() const {
         const Holder<T>& holder = static_cast<const Holder<T>&>(*this);
         return holder.object();
     }
     
     template <typename T>
-    inline T& object() {
+    T& object() {
         Holder<T>& holder = static_cast<Holder<T>&>(*this);
         return holder.object();
     }
@@ -51,11 +51,11 @@ public:
         return BaseHolder::Ptr(new Holder(object));
     }
 
-    inline T& object() {
+    T& object() {
         return m_object;
     }
     
-    inline const T& object() const {
+    const T& object() const {
         return m_object;
     }
 private:

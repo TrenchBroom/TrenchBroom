@@ -20,6 +20,7 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Controller {

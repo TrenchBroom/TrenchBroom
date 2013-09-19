@@ -209,7 +209,7 @@ namespace TrenchBroom {
             color(i_color),
             vertices(i_vertices) {}
             
-            inline void operator()(const Vec3f& v1, const Vec3f& v2) {
+            void operator()(const Vec3f& v1, const Vec3f& v2) {
                 vertices.push_back(Vertex(transformation * v1, color));
                 vertices.push_back(Vertex(transformation * v2, color));
             }

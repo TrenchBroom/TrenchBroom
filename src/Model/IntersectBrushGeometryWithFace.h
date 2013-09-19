@@ -45,17 +45,9 @@ namespace TrenchBroom {
         public:
             IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace* face);
             
-            inline const BrushVertexList& vertices() const {
-                return m_remainingVertices;
-            }
-            
-            inline const BrushEdgeList& edges() const {
-                return m_remainingEdges;
-            }
-            
-            inline const BrushFaceGeometryList& sides() const {
-                return m_remainingSides;
-            }
+            const BrushVertexList& vertices() const;
+            const BrushEdgeList& edges() const;
+            const BrushFaceGeometryList& sides() const;
         private:
             BrushGeometry::AddFaceResultCode doExecute(BrushGeometry& geometry);
             bool isFaceIdenticalWithAnySide(BrushGeometry& geometry);

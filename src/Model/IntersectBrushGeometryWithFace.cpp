@@ -38,6 +38,18 @@ namespace TrenchBroom {
             m_droppedEdges.reserve(32);
         }
         
+        const BrushVertexList& IntersectBrushGeometryWithFace::vertices() const {
+            return m_remainingVertices;
+        }
+        
+        const BrushEdgeList& IntersectBrushGeometryWithFace::edges() const {
+            return m_remainingEdges;
+        }
+        
+        const BrushFaceGeometryList& IntersectBrushGeometryWithFace::sides() const {
+            return m_remainingSides;
+        }
+
         BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {
             if (isFaceIdenticalWithAnySide(geometry))
                 return BrushGeometry::FaceIsRedundant;

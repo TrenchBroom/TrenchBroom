@@ -32,6 +32,8 @@
 
 #include <map>
 
+class Color;
+
 namespace TrenchBroom {
     namespace Renderer {
         namespace Alignment {
@@ -49,38 +51,12 @@ namespace TrenchBroom {
         protected:
             virtual const Vec3f basePosition() const = 0;
             virtual const Alignment::Type alignment() const = 0;
-            
-            inline const Vec2f alignmentFactors() const {
-                const Alignment::Type a = alignment();
-                Vec2f factors;
-                if ((a & Alignment::Left))
-                    factors[0] = +0.5f;
-                else if ((a & Alignment::Right))
-                    factors[0] = -0.5f;
-                if ((a & Alignment::Top))
-                    factors[1] = -0.5f;
-                else if ((a & Alignment::Bottom))
-                    factors[1] = +0.5f;
-                return factors;
-            }
+            const Vec2f alignmentFactors() const;
         public:
             virtual ~TextAnchor() {}
             
-            inline const Vec3f offset(const Camera& camera, const Vec2f& size) const {
-                const Vec2f halfSize = size / 2.0f;
-                const Vec2f factors = alignmentFactors();
-                Vec3f offset = camera.project(basePosition());
-                for (size_t i = 0; i < 2; i++) {
-                    offset[i] += factors[i] * size[i];
-                    offset[i] -= halfSize[i];
-                    offset[i] = Math::round(offset[i]);
-                }
-                return offset;
-            }
-            
-            inline const Vec3f position() const {
-                return basePosition();
-            }
+            const Vec3f offset(const Camera& camera, const Vec2f& size) const;
+            const Vec3f position() const;
         };
         
         class SimpleTextAnchor : public TextAnchor {
@@ -88,23 +64,16 @@ namespace TrenchBroom {
             Vec3f m_position;
             Alignment::Type m_alignment;
         protected:
-            inline const Vec3f basePosition() const {
-                return m_position;
-            }
-            
-            inline const Alignment::Type alignment() const {
-                return m_alignment;
-            }
+            const Vec3f basePosition() const;
+            const Alignment::Type alignment() const;
         public:
-            SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment) :
-            m_position(position),
-            m_alignment(alignment) {}
+            SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment);
         };
         
         template <typename Key>
         class DefaultKeyComparator {
         public:
-            inline bool operator()(const Key& lhs, const Key& rhs) const {
+            bool operator()(const Key& lhs, const Key& rhs) const {
                 return lhs < rhs;
             }
         };
@@ -120,7 +89,7 @@ namespace TrenchBroom {
             
             class SimpleTextRendererFilter : public TextRendererFilter {
             public:
-                inline bool stringVisible(RenderContext& context, const Key& key) const {
+                bool stringVisible(RenderContext& context, const Key& key) const {
                     return true;
                 }
             };
@@ -144,20 +113,20 @@ namespace TrenchBroom {
                 m_size(size),
                 m_textAnchor(textAnchor) {}
                 
-                inline const Vec2f::List& vertices() const {
+                const Vec2f::List& vertices() const {
                     return m_vertices;
                 }
                 
-                inline void update(const Vec2f::List& vertices, const Vec2f& size) {
+                void update(const Vec2f::List& vertices, const Vec2f& size) {
                     m_vertices = vertices;
                     m_size = size;
                 }
                 
-                inline const Vec2f& size() const {
+                const Vec2f& size() const {
                     return m_size;
                 }
                 
-                inline const TextAnchor& textAnchor() const {
+                const TextAnchor& textAnchor() const {
                     return *m_textAnchor.get();
                 }
             };
@@ -185,20 +154,20 @@ namespace TrenchBroom {
                 clear();
             }
             
-            inline void addString(Key key, const String& string, TextAnchor::Ptr anchor) {
+            void addString(Key key, const String& string, TextAnchor::Ptr anchor) {
                 const Vec2f::List vertices = m_font.quads(string, true);
                 const Vec2f size = m_font.measure(string);
                 addString(key, vertices, size, anchor);
             }
             
-            inline void removeString(Key key)  {
+            void removeString(Key key)  {
                 typename TextMap::iterator it = m_entries.find(key);
                 if (it != m_entries.end()) {
                     m_entries.erase(it);
                 }
             }
             
-            inline void updateString(Key key, const String& string) {
+            void updateString(Key key, const String& string) {
                 typename TextMap::iterator it = m_entries.find(key);
                 if (it != m_entries.end()) {
                     TextEntry& entry = it->second;
@@ -208,7 +177,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void transferString(Key key, TextRenderer& destination)  {
+            void transferString(Key key, TextRenderer& destination)  {
                 typename TextMap::iterator it = m_entries.find(key);
                 if (it != m_entries.end()) {
                     TextEntry& entry = it->second;
@@ -217,15 +186,15 @@ namespace TrenchBroom {
                 }
             }
             
-            inline bool empty() const {
+            bool empty() const {
                 return m_entries.empty();
             }
             
-            inline void clear()  {
+            void clear()  {
                 m_entries.clear();
             }
             
-            inline void setFadeDistance(float fadeDistance)  {
+            void setFadeDistance(float fadeDistance)  {
                 m_fadeDistance = fadeDistance;
             }
             
@@ -306,7 +275,7 @@ namespace TrenchBroom {
                 glDepthMask(GL_TRUE);
             }
         private:
-            inline void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
+            void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
                 removeString(key);
                 m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
             }

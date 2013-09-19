@@ -36,7 +36,7 @@ namespace TrenchBroom {
             AddObjectToDocument(View::MapDocumentPtr document) :
             m_document(document) {}
             
-            inline void operator()(Model::Object* object) {
+            void operator()(Model::Object* object) {
                 switch (object->type()) {
                     case Model::Object::OTEntity:
                         m_document->addEntity(static_cast<Model::Entity*>(object));
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             RemoveObjectFromDocument(View::MapDocumentPtr document) :
             m_document(document) {}
             
-            inline void operator()(Model::Object* object) {
+            void operator()(Model::Object* object) {
                 switch (object->type()) {
                     case Model::Object::OTEntity:
                         m_document->removeEntity(static_cast<Model::Entity*>(object));
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             AddObject(Model::ObjectList& i_objects) :
             objects(i_objects) {}
             
-            inline void operator()(Model::Object* object) {
+            void operator()(Model::Object* object) {
                 switch (object->type()) {
                     case Model::Object::OTEntity: {
                         Model::Entity* entity = static_cast<Model::Entity*>(object);

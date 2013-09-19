@@ -44,11 +44,11 @@ public:
     origin(other.origin),
     direction(other.direction) {}
     
-    inline const Vec<T,S> pointAtDistance(const T distance) const {
+    const Vec<T,S> pointAtDistance(const T distance) const {
         return origin + direction * distance;
     }
 
-    inline Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
+    Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
         const T dot = direction.dot(point - origin);
         if (dot >  Math::Constants<T>::PointStatusEpsilon)
             return Math::PointStatus::PSAbove;
@@ -57,7 +57,7 @@ public:
         return Math::PointStatus::PSInside;
     }
 
-    inline const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
+    const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
         const T d = direction.dot(normal);
         if (Math::zero(d))
             return Math::nan<T>();
@@ -114,7 +114,7 @@ public:
         return result;
     }
     
-    inline const PointDistance distanceToPoint(const Vec<T,S>& point) const {
+    const PointDistance distanceToPoint(const Vec<T,S>& point) const {
         PointDistance distance2 = distanceToPointSquared(point);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
@@ -126,7 +126,7 @@ public:
         T distance;
         Vec<T,S> point;
         
-        inline static const LineDistance Parallel(const T distance) {
+        static const LineDistance Parallel(const T distance) {
             LineDistance result;
             result.parallel = true;
             result.rayDistance = Math::nan<T>();
@@ -135,7 +135,7 @@ public:
             return result;
         }
 
-        inline static const LineDistance NonParallel(const T rayDistance, const T distance, const Vec<T,S>& point) {
+        static const LineDistance NonParallel(const T rayDistance, const T distance, const Vec<T,S>& point) {
             LineDistance result;
             result.parallel = false;
             result.rayDistance = rayDistance;
@@ -186,7 +186,7 @@ public:
         return LineDistance::NonParallel(tc, dP.squaredLength(), start + u);
     }
     
-    inline const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end, Vec<T,S>& pointOnSegment, T& distanceToClosestPoint) const {
+    const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end, Vec<T,S>& pointOnSegment, T& distanceToClosestPoint) const {
         LineDistance distance2 = squaredDistanceToSegment(start, end);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
@@ -212,7 +212,7 @@ public:
         return LineDistance::NonParallel(sc, (rp - lp).squaredLength(), lp);
     }
     
-    inline const LineDistance distanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
+    const LineDistance distanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
         LineDistance distance2 = distanceToLineSquared(lineAnchor, lineDir);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;

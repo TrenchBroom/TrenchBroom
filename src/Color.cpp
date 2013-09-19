@@ -1,3 +1,4 @@
+
 /*
  Copyright (C) 2010-2013 Kristian Duske
  
@@ -17,22 +18,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_HitAdapter_h
-#define TrenchBroom_HitAdapter_h
+#include "Color.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Object;
-        class Entity;
-        class Brush;
-        class BrushFace;
-        class Hit;
-        
-        Object* hitAsObject(const Hit& hit);
-        Entity* hitAsEntity(const Hit& hit);
-        Brush* hitAsBrush(const Hit& hit);
-        BrushFace* hitAsFace(const Hit& hit);
-    }
+Color::Color() :
+Vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
+
+Color::Color(const float r, const float g, const float b, const float a) :
+Vec<float, 4>(r, g, b, a) {}
+
+Color::Color(const Color& color, const float a) :
+Vec<float, 4>(color.r(), color.g(), color.b(), a) {}
+
+Color::Color(const std::string& str) :
+Vec<float, 4>(str) {}
+
+float Color::r() const {
+    return x();
 }
 
-#endif
+float Color::g() const {
+    return y();
+}
+
+float Color::b() const {
+    return z();
+}
+
+float Color::a() const {
+    return w();
+}

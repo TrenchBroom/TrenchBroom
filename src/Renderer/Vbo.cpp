@@ -96,6 +96,10 @@ namespace TrenchBroom {
             m_lastBlock = m_firstBlock = NULL;
         }
         
+        VboState::Type Vbo::state() const {
+            return m_state;
+        }
+
         VboBlock* Vbo::allocateBlock(const size_t capacity) {
             assert(checkBlockChain());
 
@@ -125,6 +129,14 @@ namespace TrenchBroom {
             
             assert(checkBlockChain());
             return block;
+        }
+
+        bool Vbo::isActive() const {
+            return m_state > VboState::Inactive;
+        }
+        
+        bool Vbo::isMapped() const {
+            return m_state == VboState::Mapped;
         }
 
         void Vbo::activate() {

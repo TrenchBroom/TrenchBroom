@@ -43,7 +43,7 @@ private:
         m_vec(vec),
         m_abs(abs) {}
         
-        inline bool operator()(size_t lhs, size_t rhs) const {
+        bool operator()(size_t lhs, size_t rhs) const {
             assert(lhs < S);
             assert(rhs < S);
             if (m_abs)
@@ -52,7 +52,7 @@ private:
         }
     };
     
-    inline int weight(T c) const {
+    int weight(T c) const {
         if (std::abs(c - static_cast<T>(1.0)) < static_cast<T>(0.9))
             return 0;
         if (std::abs(c + static_cast<T>(1.0)) < static_cast<T>(0.9))
@@ -71,7 +71,7 @@ public:
     
     class LexicographicOrder {
     public:
-        inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             for (size_t i = 0; i < S; ++i) {
                 if (Math::lt(lhs[i], rhs[i]))
                     return true;
@@ -84,7 +84,7 @@ public:
 
     class ErrorOrder {
     public:
-        inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             const T lErr = (lhs - lhs.rounded()).lengthSquared();
             const T rErr = (rhs - rhs.rounded()).lengthSquared();
             return lErr < rErr;
@@ -100,7 +100,7 @@ public:
             assert(!m_dir.null());
         }
         
-        inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             return lhs.dot(m_dir) < rhs.dot(m_dir);
         }
     };
@@ -114,7 +114,7 @@ public:
             assert(!m_dir.null());
         }
         
-        inline bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             return lhs.dot(m_dir) > rhs.dot(m_dir);
         }
     };
@@ -124,7 +124,7 @@ public:
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
     
 public:
-    inline static const Vec<T,S> axis(const size_t index) {
+    static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
         axis[index] = static_cast<T>(1.0);
         return axis;
@@ -219,19 +219,19 @@ public:
         v[S-1] = static_cast<T>(last);
     }
     
-    inline bool operator== (const Vec<T,S>& right) const {
+    bool operator== (const Vec<T,S>& right) const {
         for (size_t i = 0; i < S; ++i)
             if (v[i] != right[i])
                 return false;
         return true;
     }
     
-    inline bool operator!= (const Vec<T,S>& right) const {
+    bool operator!= (const Vec<T,S>& right) const {
         return !(*this == right);
     }
     
     template <size_t O>
-    inline Vec<T,S>& operator= (const Vec<T,O>& right) {
+    Vec<T,S>& operator= (const Vec<T,O>& right) {
         for (size_t i = 0; i < std::min(S,O); ++i)
             v[i] = right[i];
         for (size_t i = std::min(S,O); i < S; ++i)
@@ -239,191 +239,191 @@ public:
         return *this;
     }
     
-    inline const Vec<T,S> operator- () const {
+    const Vec<T,S> operator- () const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
         return result;
     }
 
-    inline const Vec<T,S> operator+ (const Vec<T,S>& right) const {
+    const Vec<T,S> operator+ (const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] + right[i];
         return result;
     }
     
-    inline const Vec<T,S> operator- (const Vec<T,S>& right) const {
+    const Vec<T,S> operator- (const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] - right[i];
         return result;
     }
     
-    inline const Vec<T,S> operator* (const T right) const {
+    const Vec<T,S> operator* (const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right;
         return result;
     }
     
-    inline const Vec<T,S> operator/ (const T right) const {
+    const Vec<T,S> operator/ (const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right;
         return result;
     }
     
-    inline Vec<T,S>& operator+= (const Vec<T,S>& right) {
+    Vec<T,S>& operator+= (const Vec<T,S>& right) {
         for (size_t i = 0; i < S; ++i)
             v[i] += right[i];
         return *this;
     }
     
-    inline Vec<T,S>& operator-= (const Vec<T,S>& right) {
+    Vec<T,S>& operator-= (const Vec<T,S>& right) {
         for (size_t i = 0; i < S; ++i)
             v[i] -= right[i];
         return *this;
     }
     
-    inline Vec<T,S>& operator*= (const T right) {
+    Vec<T,S>& operator*= (const T right) {
         for (size_t i = 0; i < S; ++i)
             v[i] *= right;
         return *this;
     }
     
-    inline Vec<T,S>& operator/= (const T right) {
+    Vec<T,S>& operator/= (const T right) {
         for (size_t i = 0; i < S; ++i)
             v[i] /= right;
         return *this;
     }
     
-    inline T& operator[] (const size_t index) {
+    T& operator[] (const size_t index) {
         assert(index < S);
         return v[index];
     }
     
-    inline const T& operator[] (const size_t index) const {
+    const T& operator[] (const size_t index) const {
         assert(index < S);
         return v[index];
     }
     
-    inline T x() const {
+    T x() const {
         assert(S > 0);
         return v[0];
     }
             
-    inline T y() const {
+    T y() const {
         assert(S > 1);
         return v[1];
     }
     
-    inline T z() const {
+    T z() const {
         assert(S > 2);
         return v[2];
     }
 
-    inline T w() const {
+    T w() const {
         assert(S > 3);
         return v[3];
     }
             
-    inline Vec<T,2> xy() const {
+    Vec<T,2> xy() const {
         return Vec<T,2>(x(), y());
     }
 
-    inline Vec<T,2> xz() const {
+    Vec<T,2> xz() const {
         return Vec<T,2>(x(), z());
     }
 
-    inline Vec<T,2> yz() const {
+    Vec<T,2> yz() const {
         return Vec<T,2>(y(), z());
     }
     
-    inline Vec<T,3> xyz() const {
+    Vec<T,3> xyz() const {
         return Vec<T,3>(x(), y(), z());
     }
             
-    inline Vec<T,4> xyzw() const {
+    Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
     }
             
-    inline Vec<T,S-1> overLast() const {
+    Vec<T,S-1> overLast() const {
         Vec<T,S-1> result;
         for (size_t i = 0; i < S-1; ++i)
             result[i] = v[i] / v[S-1];
         return result;
     }
 
-    inline const T dot(const Vec<T,S>& right) const {
+    const T dot(const Vec<T,S>& right) const {
         T result = static_cast<T>(0.0);
         for (size_t i = 0; i < S; ++i)
             result += (v[i] * right[i]);
         return result;
     }
     
-    inline T length() const {
+    T length() const {
         return std::sqrt(squaredLength());
     }
     
-    inline T squaredLength() const {
+    T squaredLength() const {
         return dot(*this);
     }
     
-    inline T distanceTo(const Vec<T,S>& other) const {
+    T distanceTo(const Vec<T,S>& other) const {
         return (*this - other).length();
     }
     
-    inline T squaredDistanceTo(const Vec<T,S>& other) const {
+    T squaredDistanceTo(const Vec<T,S>& other) const {
         return (*this - other).squaredLength();
     }
     
-    inline Vec<T,S>& normalize() {
+    Vec<T,S>& normalize() {
         *this /= length();
         return *this;
     }
     
-    inline const Vec<T,S> normalized() const {
+    const Vec<T,S> normalized() const {
         return Vec<T,S>(*this).normalize();
     }
     
-    inline bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)
                 return false;
         return true;
     }
     
-    inline bool null() const {
+    bool null() const {
         return equals(Null, Math::Constants<T>::AlmostZero);
     }
 
-    inline void setNull() {
+    void setNull() {
         for (size_t i = 0; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
             
-    inline void set(const T value) {
+    void set(const T value) {
         for (size_t i = 0; i < S; ++i)
             v[i] = value;
     }
     
-    inline bool nan() const {
+    bool nan() const {
         for (size_t i = 0; i < S; ++i)
             if (!Math::isnan(v[i]))
                 return false;
         return true;
     }
     
-            inline bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::ColinearEpsilon) const {
+            bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::ColinearEpsilon) const {
         return std::abs(dot(other) - other.length()) <= epsilon;
     }
     
-    inline int weight() const {
+    int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
             
-    inline size_t majorComponent(const size_t k) const {
+    size_t majorComponent(const size_t k) const {
         assert(k < S);
         
         if (k == 0) {
@@ -448,7 +448,7 @@ public:
         return heap[S - k - 1];
     }
 
-    inline const Vec<T,S> majorAxis(const size_t k) const {
+    const Vec<T,S> majorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         Vec<T,S> a = axis(c);
         if (v[c] < static_cast<T>(0.0))
@@ -456,44 +456,44 @@ public:
         return a;
     }
 
-    inline const Vec<T,S> absMajorAxis(const size_t k) const {
+    const Vec<T,S> absMajorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         return axis(c);
     }
     
-    inline size_t firstComponent() const {
+    size_t firstComponent() const {
         return majorComponent(0);
     }
     
-    inline size_t secondComponent() const {
+    size_t secondComponent() const {
         return majorComponent(1);
     }
     
-    inline size_t thirdComponent() const {
+    size_t thirdComponent() const {
         return majorComponent(2);
     }
     
-    inline const Vec<T,3> firstAxis() const {
+    const Vec<T,3> firstAxis() const {
         return majorAxis(0);
     }
             
-    inline const Vec<T,3> absFirstAxis() const {
+    const Vec<T,3> absFirstAxis() const {
         return absMajorAxis(0);
     }
     
-    inline const Vec<T,3> secondAxis() const {
+    const Vec<T,3> secondAxis() const {
         return majorAxis(1);
     }
     
-    inline const Vec<T,3> absSecondAxis() const {
+    const Vec<T,3> absSecondAxis() const {
         return absMajorAxis(1);
     }
     
-    inline const Vec<T,3> thirdAxis() const {
+    const Vec<T,3> thirdAxis() const {
         return majorAxis(2);
     }
     
-    inline const Vec<T,3> absThirdAxis() const {
+    const Vec<T,3> absThirdAxis() const {
         return absMajorAxis(2);
     }
     
@@ -511,40 +511,40 @@ public:
         return result.str();
     }
             
-    inline Vec<T,S>& makeAbsolute() {
+    Vec<T,S>& makeAbsolute() {
         for (size_t i = 0; i < S; ++i)
             v[i] = std::abs(v[i]);
         return *this;
     }
             
-    inline Vec<T,S> absolute() const {
+    Vec<T,S> absolute() const {
         return Vec<T,S>(*this).makeAbsolute();
     }
     
-    inline Vec<T,S>& round() {
+    Vec<T,S>& round() {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::round(v[i]);
         return *this;
     }
     
-    inline const Vec<T,S> rounded() const {
+    const Vec<T,S> rounded() const {
         return Vec<T,S>(*this).round();
     }
     
-    inline bool isInteger(const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool isInteger(const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - Math::round(v[i])) > epsilon)
                 return false;
         return true;
     }
     
-    inline Vec<T,S>& correct(const T epsilon = Math::Constants<T>::CorrectEpsilon) {
+    Vec<T,S>& correct(const T epsilon = Math::Constants<T>::CorrectEpsilon) {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::correct(v[i], epsilon);
         return *this;
     }
     
-    inline const Vec<T,S> corrected(const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
+    const Vec<T,S> corrected(const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
         return Vec<T,S>(*this).correct();
     }
 };
@@ -576,24 +576,24 @@ typedef Vec<double,3> Vec3d;
 typedef Vec<double,4> Vec4d;
             
 template <typename T, size_t S>
-inline Vec<T,S> operator*(const T left, const Vec<T,S>& right) {
+Vec<T,S> operator*(const T left, const Vec<T,S>& right) {
     return Vec<T,S>(right) * left;
 }
 
 template <typename T>
-inline Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
+Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
     return left = crossed(left, right);
 }
 
 template <typename T>
-inline const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
+const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
     return Vec<T,3>(left[1] * right[2] - left[2] * right[1],
                     left[2] * right[0] - left[0] * right[2],
                     left[0] * right[1] - left[1] * right[0]);
 }
 
 template <typename T>
-inline T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
+T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     // computes the CCW angle between axis and vector in relation to the given up vector
     // all vectors are expected to be normalized
     const T cos = vec.dot(axis);

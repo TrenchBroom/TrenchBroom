@@ -40,7 +40,7 @@ namespace TrenchBroom {
             applyTexture(i_applyTexture),
             defaultColor(i_defaultColor) {}
             
-            inline void operator()(const Assets::Texture* texture) const {
+            void operator()(const Assets::Texture* texture) const {
                 if (texture != NULL) {
                     shader.set("ApplyTexture", applyTexture);
                     shader.set("Color", texture->averageColor());

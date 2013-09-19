@@ -48,8 +48,8 @@ namespace TrenchBroom {
             private:
                 const Model::Entity* m_entity;
             protected:
-                inline const Vec3f basePosition() const;
-                inline const Alignment::Type alignment() const;
+                const Vec3f basePosition() const;
+                const Alignment::Type alignment() const;
             public:
                 EntityClassnameAnchor(const Model::Entity* entity);
             };

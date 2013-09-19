@@ -28,6 +28,11 @@ namespace TrenchBroom {
             delete valueHolder;
     }
     
+    PreferenceManager& PreferenceManager::instance() {
+        static PreferenceManager prefs;
+        return prefs;
+    }
+
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;

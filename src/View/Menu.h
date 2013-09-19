@@ -77,7 +77,7 @@ namespace TrenchBroom {
             ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent);
             virtual ~ShortcutMenuItem();
             
-            inline const String& text() const;
+            const String& text() const;
             const String longText() const;
             const KeyboardShortcut& shortcut() const;
             void setShortcut(const KeyboardShortcut& shortcut) const;

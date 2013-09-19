@@ -22,6 +22,7 @@
 #include "IO/QuakeMapParser.h"
 #include "IO/WalTextureLoader.h"
 #include "Model/GameUtils.h"
+#include "Model/Map.h"
 
 namespace TrenchBroom {
     namespace Model {

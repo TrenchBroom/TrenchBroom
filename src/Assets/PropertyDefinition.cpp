@@ -125,7 +125,7 @@ namespace TrenchBroom {
         struct FindFlagByValue {
             int value;
             FindFlagByValue(const int i_value) : value(i_value) {}
-            inline bool operator()(const FlagsPropertyOption& option) const {
+            bool operator()(const FlagsPropertyOption& option) const {
                 return option.value() == value;
             }
         };

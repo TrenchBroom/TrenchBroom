@@ -41,7 +41,7 @@ public:
     point(other.point),
     direction(other.direction) {}
     
-    inline const Vec<T,S> pointAtDistance(const T distance) const {
+    const Vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
     }
 };

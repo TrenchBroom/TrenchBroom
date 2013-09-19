@@ -38,23 +38,23 @@ public:
         m_buffer->resize(size);
     }
     
-    inline const T& operator[](const size_t index) const {
+    const T& operator[](const size_t index) const {
         return (*m_buffer)[index];
     }
     
-    inline T& operator[](const size_t index) {
+    T& operator[](const size_t index) {
         return (*m_buffer)[index];
     }
     
-    inline const T* ptr() const {
+    const T* ptr() const {
         return &((*m_buffer)[0]);
     }
     
-    inline T* ptr() {
+    T* ptr() {
         return &((*m_buffer)[0]);
     }
     
-    inline size_t size() const {
+    size_t size() const {
         return m_buffer->size();
     }
 };

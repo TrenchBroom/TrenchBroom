@@ -50,14 +50,14 @@ namespace TrenchBroom {
             SetEntityDefinition(Assets::EntityDefinitionManager& definitionManager) :
             m_definitionManager(definitionManager) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
                 entity->setDefinition(definition);
             }
         };
         
         struct UnsetEntityDefinition {
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 entity->setDefinition(NULL);
             }
         };
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             SetEntityModel(Assets::EntityModelManager& modelManager) :
             m_modelManager(modelManager) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 const Assets::ModelSpecification spec = entity->modelSpecification();
                 if (spec.path.isEmpty()) {
                     entity->setModel(NULL);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         };
         
         struct UnsetEntityModel {
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 entity->setModel(NULL);
             }
         };
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             SetFaceTexture(Assets::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
-            inline void operator()(Model::BrushFace* face) const {
+            void operator()(Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
                 Assets::FaceTexture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         };
         
         struct UnsetFaceTexture {
-            inline void operator()(Model::BrushFace* face) const {
+            void operator()(Model::BrushFace* face) const {
                 face->setTexture(NULL);
             }
         };
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             AddToPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline void operator()(Model::Object* object) const {
+            void operator()(Model::Object* object) const {
                 m_picker.addObject(object);
             }
         };
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             RemoveFromPicker(Model::Picker& picker) :
             m_picker(picker) {}
             
-            inline void operator()(Model::Object* object) const {
+            void operator()(Model::Object* object) const {
                 m_picker.removeObject(object);
             }
         };
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             AddToMap(Model::Map& map) :
             m_map(map) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 m_map.addEntity(entity);
             }
         };
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             RemoveFromMap(Model::Map& map) :
             m_map(map) {}
             
-            inline void operator()(Model::Entity* entity) const {
+            void operator()(Model::Entity* entity) const {
                 m_map.removeEntity(entity);
             }
         };
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             AddToEntity(Model::Entity& entity) :
             m_entity(entity) {}
             
-            inline void operator()(Model::Brush* brush) const {
+            void operator()(Model::Brush* brush) const {
                 m_entity.addBrush(brush);
             }
         };
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             RemoveFromEntity(Model::Entity& entity) :
             m_entity(entity) {}
             
-            inline void operator()(Model::Brush* brush) const {
+            void operator()(Model::Brush* brush) const {
                 m_entity.removeBrush(brush);
             }
         };

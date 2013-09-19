@@ -193,18 +193,18 @@ namespace TrenchBroom {
             BrushFace(point0, point1, point2, textureName),
             m_coordSystem(textureXAxis, textureYAxis, normal, rotation) {}
         private:
-            inline BrushFace* doClone() const {
+            BrushFace* doClone() const {
                 ConfigurableBrushFace<TexCoordSystem>* result = new ConfigurableBrushFace<TexCoordSystem>(points()[0], points()[1], points()[2]);
                 result->m_coordSystem = m_coordSystem;
                 result->setAttributes(*this);
                 return result;
             }
             
-            inline void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) {
+            void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) {
                 m_coordSystem.update(normal, rotation);
             }
             
-            inline Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const {
+            Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const {
                 const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
                 const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
                 const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() * safeXScale) + xOffset) / textureWidth);

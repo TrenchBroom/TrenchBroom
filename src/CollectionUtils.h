@@ -36,7 +36,7 @@ namespace VectorUtils {
     };
 
     template <typename T>
-    inline void shiftLeft(std::vector<T>& vec, const size_t offset) {
+    void shiftLeft(std::vector<T>& vec, const size_t offset) {
         if (vec.empty() || offset == 0)
             return;
 
@@ -50,7 +50,7 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline void shiftRight(std::vector<T>& vec, const size_t offset) {
+    void shiftRight(std::vector<T>& vec, const size_t offset) {
         if (vec.empty() || offset == 0)
             return;
         
@@ -60,50 +60,50 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
+    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
         std::for_each(first, last, Deleter<T>());
         vec.erase(first, last);
     }
     
     template <typename T>
-    inline void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
+    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
         eraseAndDelete(vec, first, vec.end());
     }
     
     template <typename T>
-    inline void clearAndDelete(std::vector<T*>& vec) {
+    void clearAndDelete(std::vector<T*>& vec) {
         std::for_each(vec.begin(), vec.end(), Deleter<T>());
         vec.clear();
     }
     
     template <typename T>
-    inline void remove(std::vector<T>& vec, const T& item) {
+    void remove(std::vector<T>& vec, const T& item) {
         vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
     }
     
     template <typename T>
-    inline void remove(std::vector<T*>& vec, const T* item) {
+    void remove(std::vector<T*>& vec, const T* item) {
         vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
     }
 
     template <typename T>
-    inline void removeAndDelete(std::vector<T*>& vec, const T* item) {
+    void removeAndDelete(std::vector<T*>& vec, const T* item) {
         remove(vec, item);
         delete item;
     }
     
     template <typename T>
-    inline typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
+    typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item);
     }
     
     template <typename T>
-    inline typename std::vector<T>::iterator find(std::vector<T>& vec, const T& item) {
+    typename std::vector<T>::iterator find(std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item);
     }
     
     template <typename T, class P>
-    inline T* findIf(const std::vector<T*>& vec, const P& predicate) {
+    T* findIf(const std::vector<T*>& vec, const P& predicate) {
         typename std::vector<T*>::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
         if (it == vec.end())
             return NULL;
@@ -111,7 +111,7 @@ namespace VectorUtils {
     }
     
     template <typename T, class P>
-    inline const std::tr1::shared_ptr<T> findIf(const std::vector<std::tr1::shared_ptr<T> >& vec, const P& predicate) {
+    const std::tr1::shared_ptr<T> findIf(const std::vector<std::tr1::shared_ptr<T> >& vec, const P& predicate) {
         typename std::vector<std::tr1::shared_ptr<T> >::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
         if (it == vec.end())
             return std::tr1::shared_ptr<T>();
@@ -119,7 +119,7 @@ namespace VectorUtils {
     }
     
     template <typename T, class P>
-    inline const T* findIf(const std::vector<T>& vec, const P& predicate) {
+    const T* findIf(const std::vector<T>& vec, const P& predicate) {
         typename std::vector<T>::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
         if (it == vec.end())
             return NULL;
@@ -127,12 +127,12 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline bool contains(const std::vector<T>& vec, const T& item) {
+    bool contains(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item) != vec.end();
     }
     
     template <typename T>
-    inline bool contains(std::vector<T*>& vec, const T* item) {
+    bool contains(std::vector<T*>& vec, const T* item) {
         typedef std::vector<T*> VecType;
         typedef typename VecType::const_iterator VecIter;
         
@@ -145,7 +145,7 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline size_t indexOf(const std::vector<T>& vec, const T& item) {
+    size_t indexOf(const std::vector<T>& vec, const T& item) {
         for (size_t i = 0; i < vec.size(); ++i)
             if (vec[i] == item)
                 return i;
@@ -153,7 +153,7 @@ namespace VectorUtils {
     }
     
     template <typename T1, typename T2, typename R>
-    inline void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
+    void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
         result.clear();
         result.reserve(vec1.size() + vec2.size());
         result.insert(result.end(), vec1.begin(), vec1.end());
@@ -161,12 +161,12 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    inline void concatenate(std::vector<T>& vec1, const std::vector<T>& vec2) {
+    void concatenate(std::vector<T>& vec1, const std::vector<T>& vec2) {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
     }
     
     template <typename T>
-    inline std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
+    std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         typedef std::vector<T> VecType;
         typedef typename VecType::const_iterator VecIter;
         
@@ -181,7 +181,7 @@ namespace VectorUtils {
     }
     
     template <typename O, typename I>
-    inline std::vector<O> cast(const std::vector<I>& input) {
+    std::vector<O> cast(const std::vector<I>& input) {
         std::vector<O> output;
         typename std::vector<I>::const_iterator it, end;
         for (it = input.begin(), end = input.end(); it != end; ++it)
@@ -189,8 +189,8 @@ namespace VectorUtils {
         return output;
     }
     
-    template <typename T, typename Compare = std::less<T> >
-    inline void insertOrdered(std::vector<T>& vec, T& object) {
+    template <typename T, typename Compare>
+    void insertOrdered(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
         if (it == vec.end())
             vec.push_back(object);
@@ -198,8 +198,8 @@ namespace VectorUtils {
             vec.insert(it, object);
     }
     
-    template <typename T, typename I, typename Compare = std::less<T> >
-    inline void insertOrdered(std::vector<T>& vec, I cur, const I end) {
+    template <typename T, typename I, typename Compare>
+    void insertOrdered(std::vector<T>& vec, I cur, const I end) {
         Compare cmp;
         while (cur != end) {
             typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
@@ -211,15 +211,15 @@ namespace VectorUtils {
         }
     }
     
-    template <typename T, typename Compare = std::less<T> >
-    inline void removeOrdered(std::vector<T>& vec, T& object) {
+    template <typename T, typename Compare>
+    void removeOrdered(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
         if (it != vec.end() && *it == object)
             vec.erase(it);
     }
 
-    template <typename T, typename I, typename Compare = std::less<T> >
-    inline void removeOrdered(std::vector<T>& vec, I cur, const I end) {
+    template <typename T, typename I, typename Compare>
+    void removeOrdered(std::vector<T>& vec, I cur, const I end) {
         Compare cmp;
         while (cur != end) {
             typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
@@ -227,6 +227,26 @@ namespace VectorUtils {
                 vec.erase(it);
             ++cur;
         }
+    }
+
+    template <typename T>
+    void insertOrdered(std::vector<T>& vec, T& object) {
+        insertOrdered<T, std::less<T> >(vec, object);
+    }
+    
+    template <typename T, typename I>
+    void insertOrdered(std::vector<T>& vec, I cur, const I end) {
+        insertOrdered<T, I, std::less<T> >(vec, cur, end);
+    }
+    
+    template <typename T>
+    void removeOrdered(std::vector<T>& vec, T& object) {
+        removeOrdered<T, std::less<T> >(vec, object);
+    }
+    
+    template <typename T, typename I>
+    void removeOrdered(std::vector<T>& vec, I cur, const I end) {
+        removeOrdered<T, I, std::less<T> >(vec, cur, end);
     }
 }
 
@@ -256,7 +276,7 @@ namespace MapUtils {
     };
     
     template <typename K, typename V>
-    inline typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
+    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
@@ -268,7 +288,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    inline void insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
+    void insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
@@ -283,7 +303,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    inline void insertOrReplace(std::map<K, V*>& map, const K& key, V* value) {
+    void insertOrReplace(std::map<K, V*>& map, const K& key, V* value) {
         typedef std::map<K, V*> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
@@ -299,14 +319,14 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    inline void clearAndDelete(std::map<K, V*>& map) {
+    void clearAndDelete(std::map<K, V*>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);
         map.clear();
     }
 
     template <typename K, typename V>
-    inline void clearAndDelete(std::map<K, std::vector<V*> >& map) {
+    void clearAndDelete(std::map<K, std::vector<V*> >& map) {
         VectorDeleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);
         map.clear();

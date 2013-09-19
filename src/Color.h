@@ -24,33 +24,15 @@
 
 class Color : public Vec<float, 4> {
 public:
-    Color() :
-    Vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
+    Color();
+    Color(const float r, const float g, const float b, const float a);
+    Color(const Color& color, const float a);
+    Color(const std::string& str);
     
-    Color(const float r, const float g, const float b, const float a) :
-    Vec<float, 4>(r, g, b, a) {}
-    
-    Color(const Color& color, const float a) :
-    Vec<float, 4>(color.r(), color.g(), color.b(), a) {}
-    
-    Color(const std::string& str) :
-    Vec<float, 4>(str) {}
-    
-    inline float r() const {
-        return x();
-    }
-
-    inline float g() const {
-        return y();
-    }
-
-    inline float b() const {
-        return z();
-    }
-
-    inline float a() const {
-        return w();
-    }
+    float r() const;
+    float g() const;
+    float b() const;
+    float a() const;
 };
 
 #endif

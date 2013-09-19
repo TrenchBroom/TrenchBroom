@@ -66,7 +66,7 @@ namespace Math {
     const T Constants<T>:: E                   = static_cast<T>(2.718281828459045);
 
     template <typename T>
-    inline bool isnan(const T f) {
+    bool isnan(const T f) {
 #ifdef _MSC_VER
         return _isnan(f) != 0;
 #else
@@ -75,27 +75,27 @@ namespace Math {
     }
     
     template <typename T>
-    inline T nan() {
+    T nan() {
         return std::numeric_limits<T>::quiet_NaN();
     }
     
     template <typename T>
-    inline T radians(const T d) {
+    T radians(const T d) {
         return d * Constants<T>::PiOverStraightAngle;
     }
 
     template <typename T>
-    inline T degrees(const T r) {
+    T degrees(const T r) {
         return r * Constants<T>::StraightAngleOverPi;
     }
     
     template <typename T>
-    inline T round(const T v) {
+    T round(const T v) {
         return v > 0.0 ? std::floor(v + static_cast<T>(0.5)) : std::ceil(v - static_cast<T>(0.5));
     }
     
     template <typename T>
-    inline T correct(const T v, const T epsilon = Constants<T>::CorrectEpsilon) {
+    T correct(const T v, const T epsilon = Constants<T>::CorrectEpsilon) {
         const T r = round(v);
         if (std::abs(v - r) <= epsilon)
             return r;
@@ -103,22 +103,22 @@ namespace Math {
     }
 
     template <typename T>
-    inline bool zero(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool zero(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return std::abs(v) <= epsilon;
     }
     
     template <typename T>
-    inline bool pos(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool pos(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return v > epsilon;
     }
     
     template <typename T>
-    inline bool neg(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool neg(const T v, const T epsilon = Constants<T>::AlmostZero) {
         return v < -epsilon;
     }
 
     template <typename T>
-    inline bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         const T absA = std::abs(v1);
         const T absB = std::abs(v2);
         const T diff = std::abs(v1 - v2);
@@ -135,32 +135,32 @@ namespace Math {
     }
 
     template <typename T>
-    inline bool eq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool eq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return std::abs(v1 - v2) < epsilon;
     }
     
     template <typename T>
-    inline bool gt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool gt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return v1 > v2 + epsilon;
     }
     
     template <typename T>
-    inline bool lt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool lt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return v1 < v2 - epsilon;
     }
     
     template <typename T>
-    inline bool gte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool gte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return !lt(v1, v2, epsilon);
     }
     
     template <typename T>
-    inline bool lte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool lte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
         return !gt(v1, v2, epsilon);
     }
 
     template <typename T>
-    inline bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::AlmostZero) {
+    bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::AlmostZero) {
         if (eq(v, s, epsilon) || eq(v, e, epsilon))
             return true;
         if (lt(s, e, epsilon))
@@ -169,7 +169,7 @@ namespace Math {
     }
     
     template <typename T>
-    inline T selectMin(const T v1, const T v2) {
+    T selectMin(const T v1, const T v2) {
         if (isnan(v1))
             return v2;
         if (isnan(v2))
@@ -177,11 +177,13 @@ namespace Math {
         return std::min(v1, v2);
     }
 
-    inline size_t succ(size_t index, size_t count, size_t offset = 1) {
+    template <typename T>
+    T succ(T index, T count, T offset = 1) {
         return (index + offset) % count;
     }
     
-    inline size_t pred(size_t index, size_t count, size_t offset = 1) {
+    template <typename T>
+    T pred(T index, T count, T offset = 1) {
         return ((index + count) - (offset % count)) % count;
     }
     
@@ -198,6 +200,6 @@ namespace Math {
         static const Type PSBelow = 1;
         static const Type PSInside = 2;
     }
-};
+}
 
 #endif

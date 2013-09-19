@@ -41,65 +41,38 @@ namespace TrenchBroom {
         public:
             VboBlock(Vbo& vbo, const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next);
             
-            inline Vbo& vbo() const {
-                return m_vbo;
-            }
-            
-            inline size_t offset() const {
-                return m_offset;
-            }
-            
-            inline size_t capacity() const {
-                return m_capacity;
-            }
+            Vbo& vbo() const;
+            size_t offset() const;
+            size_t capacity() const;
             
             template <typename T>
-            inline size_t writeElement(const size_t address, const T& element) {
+            size_t writeElement(const size_t address, const T& element) {
                 assert(address + sizeof(T) <= m_capacity);
                 return m_vbo.writeElement(m_offset + address, element);
             }
             
             template <typename T>
-            inline size_t writeElements(const size_t address, const std::vector<T>& elements) {
+            size_t writeElements(const size_t address, const std::vector<T>& elements) {
                 assert(address + elements.size() * sizeof(T) <= m_capacity);
                 return m_vbo.writeElements(m_offset + address, elements);
             }
             
             template <typename T>
-            inline size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+            size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
                 assert(address + buffer.size() * sizeof(T) <= m_capacity);
                 return m_vbo.writeBuffer(m_offset + address, buffer);
             }
             
             void free();
         private:
-            inline VboBlock* previous() const {
-                return m_previous;
-            }
+            VboBlock* previous() const;
+            void setPrevious(VboBlock* previous);
+            VboBlock* next() const;
+            void setNext(VboBlock* next);
             
-            inline void setPrevious(VboBlock* previous) {
-                m_previous = previous;
-            }
-            
-            inline VboBlock* next() const {
-                return m_next;
-            }
-            
-            inline void setNext(VboBlock* next) {
-                m_next = next;
-            }
-            
-            inline bool isFree() const {
-                return m_free;
-            }
-            
-            inline void setFree(const bool free) {
-                m_free = free;
-            }
-            
-            inline void setCapacity(const size_t capacity) {
-                m_capacity = capacity;
-            }
+            bool isFree() const;
+            void setFree(const bool free);
+            void setCapacity(const size_t capacity);
             
             VboBlock* mergeWithSuccessor();
             VboBlock* split(const size_t capacity);

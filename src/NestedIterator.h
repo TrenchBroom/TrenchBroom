@@ -54,16 +54,16 @@ namespace TrenchBroom {
             advancePastEmptyInner();
         }
         
-        inline reference operator*()  const {
+        reference operator*()  const {
             return *m_innerCur;
         }
         
-        inline pointer operator->() const {
+        pointer operator->() const {
             return &*m_innerCur;
         }
         
         // pre-increment
-        inline NestedIterator& operator++() {
+        NestedIterator& operator++() {
             ++m_innerCur;
             if (m_innerCur == m_innerEnd)
                 advanceOuter();
@@ -71,13 +71,13 @@ namespace TrenchBroom {
         }
         
         // post-increment
-        inline NestedIterator operator++(int) {
+        NestedIterator operator++(int) {
             NestedIterator<OuterIterator, InnerIterator> result(*this);
             ++*this;
             return result;
         }
     
-        inline bool operator==(const NestedIterator<OuterIterator, InnerAdapter>& other) const {
+        bool operator==(const NestedIterator<OuterIterator, InnerAdapter>& other) const {
             if (m_outerCur != other.m_outerCur)
                 return false;
             if (m_outerCur != m_outerEnd &&
@@ -87,16 +87,16 @@ namespace TrenchBroom {
             return true;
         }
 
-        inline bool operator!=(const NestedIterator<OuterIterator, InnerAdapter>& other) const {
+        bool operator!=(const NestedIterator<OuterIterator, InnerAdapter>& other) const {
             return !(*this == other);
         }
     private:
-        inline void advanceOuter() {
+        void advanceOuter() {
             ++m_outerCur;
             advancePastEmptyInner();
         }
         
-        inline void advancePastEmptyInner() {
+        void advancePastEmptyInner() {
             if (m_outerCur == m_outerEnd)
                 return;
             m_innerCur = m_adapter.beginInner(m_outerCur);

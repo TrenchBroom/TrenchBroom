@@ -61,7 +61,7 @@ namespace TrenchBroom {
             public:
                 PlaneWeightOrder(const bool deterministic);
                 template <typename T, size_t S>
-                inline bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
+                bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
                     int result = lhs.normal.weight() - rhs.normal.weight();
                     if (m_deterministic)
                         result += static_cast<int>(1000.0 * (lhs.distance - lhs.distance));

@@ -23,6 +23,32 @@
 
 namespace TrenchBroom {
     namespace View {
+        bool KeyboardShortcut::MacModifierOrder::operator()(const int lhs, const int rhs) const {
+            if (lhs == WXK_NONE)
+                return lhs != WXK_NONE;
+            if (lhs == WXK_ALT)
+                return rhs != WXK_ALT;
+            if (lhs == WXK_SHIFT)
+                return rhs != WXK_ALT && rhs != WXK_SHIFT;
+            if (lhs == WXK_CONTROL)
+                return rhs == WXK_NONE;
+            assert(false);
+            return false;
+        }
+
+        bool KeyboardShortcut::WinModifierOrder::operator()(const int lhs, const int rhs) const {
+            if (lhs == WXK_NONE)
+                return lhs != WXK_NONE;
+            if (lhs == WXK_CONTROL)
+                return rhs != WXK_CONTROL;
+            if (lhs == WXK_ALT)
+                return rhs != WXK_CONTROL && rhs != WXK_ALT;
+            if (lhs == WXK_SHIFT)
+                return rhs == WXK_NONE;
+            assert(false);
+            return false;
+        }
+
         const KeyboardShortcut KeyboardShortcut::Empty(wxID_ANY, SCAny, "");
         
         wxString KeyboardShortcut::contextName(const int context) {
@@ -567,6 +593,38 @@ namespace TrenchBroom {
             m_text = string.substr(index);
             
             sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
+        }
+        
+        int KeyboardShortcut::commandId() const {
+            return m_commandId;
+        }
+        
+        int KeyboardShortcut::modifierKey1() const {
+            return m_modifierKey1;
+        }
+        
+        int KeyboardShortcut::modifierKey2() const {
+            return m_modifierKey2;
+        }
+        
+        int KeyboardShortcut::modifierKey3() const {
+            return m_modifierKey3;
+        }
+        
+        int KeyboardShortcut::key() const {
+            return m_key;
+        }
+        
+        int KeyboardShortcut::context() const {
+            return m_context;
+        }
+        
+        const String& KeyboardShortcut::text() const {
+            return m_text;
+        }
+        
+        bool KeyboardShortcut::hasModifier() const {
+            return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
         }
         
         bool KeyboardShortcut::matches(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {

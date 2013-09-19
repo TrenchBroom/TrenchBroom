@@ -20,13 +20,9 @@
 #ifndef TrenchBroom_StringUtils_h
 #define TrenchBroom_StringUtils_h
 
-#include <algorithm>
 #include <cassert>
-#include <cstdarg>
-#include <cstdio>
-#include <locale>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 typedef std::string String;
@@ -35,102 +31,26 @@ typedef std::vector<String> StringList;
 static const StringList EmptyStringList;
 
 namespace StringUtils {
-    struct CaseSensitiveCharCompare {
-    public:
-        int operator()(const char& lhs, const char& rhs) const {
-            return lhs - rhs;
-        }
-    };
-    
-    struct CaseInsensitiveCharCompare {
-    private:
-        std::locale m_locale;
-    public:
-        CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
-        m_locale(loc) {}
-        
-        int operator()(const char& lhs, const char& rhs) const {
-            return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
-        }
-    };
+    String formatString(const char* format, va_list arguments);
+    String trim(const String& str, const String& chars = " \n\t\r");
 
-    template <typename Cmp>
-    struct CharEqual {
-    private:
-        Cmp m_compare;
-    public:
-        bool operator()(const char& lhs, const char& rhs) const {
-            return m_compare(lhs, rhs) == 0;
-        }
-    };
-    
-    template <typename Cmp>
-    struct CharLess {
-    private:
-        Cmp m_compare;
-    public:
-        bool operator()(const char& lhs, const char& rhs) const {
-            return m_compare(lhs, rhs) < 0;
-        }
-    };
-    
-    template <typename Cmp>
-    struct StringEqual {
-    public:
-        bool operator()(const String& lhs, const String& rhs) const {
-            if (lhs.size() != rhs.size())
-                return false;
-            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), CharEqual<Cmp>());
-        }
-    };
-    
-    template <typename Cmp>
-    struct StringLess {
-        bool operator()(const String& lhs, const String& rhs) const {
-            typedef String::iterator::difference_type StringDiff;
-
-            String::const_iterator lhsEnd, rhsEnd;
-            const size_t minSize = std::min(lhs.size(), rhs.size());
-            StringDiff difference = static_cast<StringDiff>(minSize);
-            
-            std::advance(lhsEnd = lhs.begin(), difference);
-            std::advance(rhsEnd = rhs.begin(), difference);
-            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
-        }
-    };
-
-    inline String formatString(const char* format, va_list arguments) {
-        static char buffer[4096];
-        
-#if defined _MSC_VER
-        vsprintf_s(buffer, format, arguments);
-#else
-        vsprintf(buffer, format, arguments);
-#endif
-        
-        return buffer;
-    }
-
-    inline String trim(const String& str, const String& chars = " \n\t\r") {
-        if (str.length() == 0)
-            return str;
-        
-        size_t first = str.find_first_not_of(chars.c_str());
-        if (first == String::npos)
-            return "";
-        
-        size_t last = str.find_last_not_of(chars.c_str());
-        if (first > last)
-            return "";
-        
-        return str.substr(first, last - first + 1);
-    }
+    bool isPrefix(const String& str, const String& prefix);
+    bool containsCaseSensitive(const String& haystack, const String& needle);
+    bool containsCaseInsensitive(const String& haystack, const String& needle);
+    void sortCaseSensitive(StringList& strs);
+    void sortCaseInsensitive(StringList& strs);
+    bool caseSensitiveEqual(const String& str1, const String& str2);
+    bool caseInsensitiveEqual(const String& str1, const String& str2);
+    long makeHash(const String& str);
+    String toLower(const String& str);
+    String replaceChars(const String& str, const String& needles, const String& replacements);
+    String capitalize(String str);
 
     template <typename D>
-    inline StringList split(const String& str, D d) {
+    StringList split(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
-
+        
         const size_t first = str.find_first_not_of(d);
         if (first == String::npos)
             return EmptyStringList;
@@ -139,7 +59,7 @@ namespace StringUtils {
         assert(first <= last);
         
         StringList result;
-
+        
         size_t lastPos = first;
         size_t pos = lastPos;
         while ((pos = str.find_first_of(d, pos)) < last) {
@@ -152,7 +72,7 @@ namespace StringUtils {
     }
     
     template <typename D>
-    inline String join(const StringList& strs, const D& d) {
+    String join(const StringList& strs, const D& d) {
         if (strs.empty())
             return "";
         if (strs.size() == 1)
@@ -163,90 +83,6 @@ namespace StringUtils {
         for (size_t i = 1; i < strs.size(); i++)
             result << d << strs[i];
         return result.str();
-    }
-    
-    inline bool isPrefix(const String& str, const String& prefix) {
-        if (prefix.empty())
-            return true;
-        if (prefix.size() > str.size())
-            return false;
-        
-        for (size_t i = 0; i < prefix.size(); i++)
-            if (prefix[i] != str[i])
-                return false;
-        return true;
-    }
-    
-    inline bool containsCaseSensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>()) != haystack.end();
-    }
-
-    inline bool containsCaseInsensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),  CharEqual<CaseInsensitiveCharCompare>()) != haystack.end();
-    }
-    
-    inline void sortCaseSensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
-    }
-    
-    inline void sortCaseInsensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseInsensitiveCharCompare>());
-    }
-    
-    inline bool caseSensitiveEqual(const String& str1, const String& str2) {
-        StringEqual<CaseSensitiveCharCompare> equality;
-        return equality(str1, str2);
-    }
-    
-    inline bool caseInsensitiveEqual(const String& str1, const String& str2) {
-        StringEqual<CaseInsensitiveCharCompare> equality;
-        return equality(str1, str2);
-    }
-
-    inline long makeHash(const String& str) {
-        long hash = 0;
-        String::const_iterator it, end;
-        for (it = str.begin(), end = str.end(); it != end; ++it)
-            hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
-        return hash;
-    }
-    
-    inline String toLower(const String& str) {
-        String result(str);
-        std::transform(result.begin(), result.end(), result.begin(), tolower);
-        return result;
-    }
-    
-    inline String replaceChars(const String& str, const String& needles, const String& replacements) {
-        if (needles.size() != replacements.size() || needles.empty() || str.empty())
-            return str;
-        
-        String result = str;
-        for (size_t i = 0; i < needles.size(); ++i) {
-            if (result[i] == needles[i])
-                result[i] = replacements[i];
-        }
-        return result;
-    }
-
-    inline String capitalize(String str) {
-        StringStream buffer;
-        bool initial = true;
-        for (unsigned int i = 0; i < str.size(); i++) {
-            char c = str[i];
-            if (c == ' ' || c == '\n' || c == '\t' || c == '\r') {
-                initial = true;
-                buffer << c;
-            } else if (initial) {
-                char d = static_cast<char>(toupper(c));
-                buffer << d;
-                initial = false;
-            } else {
-                buffer << c;
-                initial = false;
-            }
-        }
-        return buffer.str();
     }
 }
 

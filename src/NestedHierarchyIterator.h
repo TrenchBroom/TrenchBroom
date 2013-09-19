@@ -57,20 +57,20 @@ namespace TrenchBroom {
             resetInner();
         }
         
-        inline ValueType& operator*() {
+        ValueType& operator*() {
             if (m_returnOuter)
                 return reinterpret_cast<ValueType&>(*m_outerCur);
             return reinterpret_cast<ValueType&>(*m_innerCur);
         }
 
-        inline ValueType* operator->() const {
+        ValueType* operator->() const {
             if (m_returnOuter)
                 return &*m_outerCur;
             return &*m_innerCur;
         }
         
         // pre-increment
-        inline NestedHierarchyIterator& operator++() {
+        NestedHierarchyIterator& operator++() {
             if (m_innerCur == m_innerEnd) {
                 advanceOuter();
             } else {
@@ -86,13 +86,13 @@ namespace TrenchBroom {
         }
         
         // post-increment
-        inline NestedHierarchyIterator operator++(int) {
+        NestedHierarchyIterator operator++(int) {
             NestedHierarchyIterator<OuterIterator, InnerIterator, ValueType> result(*this);
             ++*this;
             return result;
         }
     
-        inline bool operator==(const NestedHierarchyIterator<OuterIterator, InnerAdapter, ValueType>& other) const {
+        bool operator==(const NestedHierarchyIterator<OuterIterator, InnerAdapter, ValueType>& other) const {
             if (m_outerCur != other.m_outerCur)
                 return false;
             if (m_outerCur != m_outerEnd &&
@@ -102,11 +102,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        inline bool operator!=(const NestedHierarchyIterator<OuterIterator, InnerAdapter, ValueType>& other) const {
+        bool operator!=(const NestedHierarchyIterator<OuterIterator, InnerAdapter, ValueType>& other) const {
             return !(*this == other);
         }
     private:
-        inline void advanceOuter() {
+        void advanceOuter() {
             if (m_outerCur == m_outerEnd)
                 return;
             ++m_outerCur;
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             m_returnOuter = true;
         }
         
-        inline void resetInner() {
+        void resetInner() {
             if (m_outerCur == m_outerEnd)
                 return;
             m_innerCur = m_adapter.beginInner(m_outerCur);

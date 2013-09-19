@@ -299,5 +299,29 @@ namespace TrenchBroom {
                 m_vertices.push_back(vertex);
             }
         }
+
+        BrushFaceGeometryList::iterator findBrushFaceGeometry(BrushFaceGeometryList& faceGeometries, const Vec3::List& positions) {
+            BrushFaceGeometryList::iterator it = faceGeometries.begin();
+            const BrushFaceGeometryList::iterator end = faceGeometries.end();
+            while (it != end) {
+                const BrushFaceGeometry& faceGeometry = **it;
+                if (faceGeometry.hasVertexPositions(positions))
+                    return it;
+                ++it;
+            }
+            return end;
+        }
+        
+        BrushFaceGeometryList::const_iterator findBrushFaceGeometry(const BrushFaceGeometryList& faceGeometries, const Vec3::List& positions) {
+            BrushFaceGeometryList::const_iterator it = faceGeometries.begin();
+            const BrushFaceGeometryList::const_iterator end = faceGeometries.end();
+            while (it != end) {
+                const BrushFaceGeometry& faceGeometry = **it;
+                if (faceGeometry.hasVertexPositions(positions))
+                    return it;
+                ++it;
+            }
+            return end;
+        }
     }
 }

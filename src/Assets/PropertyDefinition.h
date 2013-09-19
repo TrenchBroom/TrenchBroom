@@ -58,11 +58,11 @@ namespace TrenchBroom {
             bool m_hasDefaultValue;
             T m_defaultValue;
         public:
-            inline bool hasDefaultValue() const {
+            bool hasDefaultValue() const {
                 return m_hasDefaultValue;
             }
             
-            inline const T& defaultValue() const {
+            const T& defaultValue() const {
                 if (!hasDefaultValue())
                     throw EntityPropertyException(name() + " has no default value");
                 return m_defaultValue;

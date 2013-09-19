@@ -39,26 +39,26 @@ namespace TrenchBroom {
             
             virtual ~BrushGeometryAlgorithm() {}
 
-            inline R execute() {
+            R execute() {
                 return doExecute(m_geometry);
             }
             
-            inline const BrushFaceList& addedFaces() const {
+            const BrushFaceList& addedFaces() const {
                 return m_addedFaces;
             }
             
-            inline const BrushFaceList& removedFaces() const {
+            const BrushFaceList& removedFaces() const {
                 return m_removedFaces;
             }
         protected:
-            inline void addFace(BrushFace* face) {
+            void addFace(BrushFace* face) {
                 BrushFaceList::iterator it = VectorUtils::find(m_removedFaces, face);
                 if (it != m_removedFaces.end())
                     m_removedFaces.erase(it);
                 m_addedFaces.push_back(face);
             }
             
-            inline void removeFace(BrushFace* face) {
+            void removeFace(BrushFace* face) {
                 BrushFaceList::iterator it = VectorUtils::find(m_addedFaces, face);
                 if (it != m_addedFaces.end()) {
                     m_addedFaces.erase(it);

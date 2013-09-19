@@ -45,7 +45,7 @@ private:
                 m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
         }
         
-        inline bool contains(const T* t) const {
+        bool contains(const T* t) const {
             const unsigned char* block = reinterpret_cast<const unsigned char*>(t);
             if (block < m_blocks)
                 return false;
@@ -53,7 +53,7 @@ private:
             return offset < (BlocksPerChunk - 1) * sizeof(T);
         }
         
-        inline T* allocate() {
+        T* allocate() {
             if (m_numFreeBlocks == 0)
                 return NULL;
             
@@ -63,7 +63,7 @@ private:
             return reinterpret_cast<T*>(block);
         };
         
-        inline void deallocate(T* t) {
+        void deallocate(T* t) {
             assert(m_numFreeBlocks < BlocksPerChunk - 1);
             assert(contains(t));
             
@@ -80,11 +80,11 @@ private:
             m_numFreeBlocks++;
         }
         
-        inline bool empty() const {
+        bool empty() const {
             return m_numFreeBlocks == BlocksPerChunk - 1;
         }
         
-        inline bool full() const {
+        bool full() const {
             return m_numFreeBlocks == 0;
         }
     };
@@ -92,28 +92,28 @@ private:
     typedef std::vector<Chunk*> ChunkList;
     typedef std::stack<T*> Pool;
     
-    static inline Pool& pool() {
+    static Pool& pool() {
         static Pool p;
         return p;
     }
     
-    static inline ChunkList& fullChunks() {
+    static ChunkList& fullChunks() {
         static ChunkList chunks;
         return chunks;
     }
     
-    static inline ChunkList& mixedChunks() {
+    static ChunkList& mixedChunks() {
         static ChunkList chunks;
         return chunks;
     }
     
-    static inline ChunkList emptyChunks() {
+    static ChunkList emptyChunks() {
         static ChunkList chunks;
         return chunks;
     }
 public:
 #ifdef _ENABLE_ALLOCATOR
-    inline void* operator new(size_t size) {
+    void* operator new(size_t size) {
         assert(size == sizeof(T));
         
         if (!pool().empty()) {
@@ -145,7 +145,7 @@ public:
                 return block;
     }
     
-    inline void operator delete(void* block) {
+    void operator delete(void* block) {
         T* t = reinterpret_cast<T*>(block);
         
         size_t poolSize = PoolSize;

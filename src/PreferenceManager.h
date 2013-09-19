@@ -37,10 +37,7 @@ namespace TrenchBroom {
         
         void markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder);
     public:
-        inline static PreferenceManager& instance() {
-            static PreferenceManager prefs;
-            return prefs;
-        }
+        static PreferenceManager& instance();
         
         PreferenceBase::Set saveChanges();
         PreferenceBase::Set discardChanges();

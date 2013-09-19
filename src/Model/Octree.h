@@ -54,11 +54,11 @@ namespace TrenchBroom {
                 }
             }
             
-            inline bool contains(const BBox<F,3>& bounds) const {
+            bool contains(const BBox<F,3>& bounds) const {
                 return m_bounds.contains(bounds);
             }
             
-            inline bool containsObject(const BBox<F,3>& bounds, T object) const {
+            bool containsObject(const BBox<F,3>& bounds, T object) const {
                 assert(contains(bounds));
                 for (size_t i = 0; i < 8; ++i) {
                     if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 return it != m_objects.end();
             }
             
-            inline bool addObject(const BBox<F,3>& bounds, T object) {
+            bool addObject(const BBox<F,3>& bounds, T object) {
                 assert(contains(bounds));
                 
                 const Vec3f size = m_bounds.size();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            inline bool removeObject(const BBox<F,3>& bounds, T object) {
+            bool removeObject(const BBox<F,3>& bounds, T object) {
                 assert(contains(bounds));
                 for (size_t i = 0; i < 8; ++i) {
                     if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            inline void findObjects(const Ray<F,3>& ray, List& result) const {
+            void findObjects(const Ray<F,3>& ray, List& result) const {
                 const F distance = m_bounds.intersectWithRay(ray);
                 if (Math::isnan(distance))
                     return;
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 result.insert(result.end(), m_objects.begin(), m_objects.end());
             }
         private:
-            inline BBox<F,3> octant(const size_t index) const {
+            BBox<F,3> octant(const size_t index) const {
                 const Vec3f& min = m_bounds.min;
                 const Vec3f& max = m_bounds.max;
                 const Vec3f mid = (min + max) / 2.0f;
@@ -173,27 +173,27 @@ namespace TrenchBroom {
             m_bounds(bounds),
             m_root(new OctreeNode<F,T>(bounds, minSize)) {}
             
-            inline void addObject(const BBox<F,3>& bounds, T object) {
+            void addObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
                 if (!m_root->addObject(bounds, object))
                     throw OctreeException("Unknown error when inserting into octree");
             }
             
-            inline void removeObject(const BBox<F,3>& bounds, T object) {
+            void removeObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
                 if (!m_root->removeObject(bounds, object))
                     throw OctreeException("Cannot find object in octree");
             }
             
-            inline bool containsObject(const BBox<F,3>& bounds, T object) const {
+            bool containsObject(const BBox<F,3>& bounds, T object) const {
                 if (!m_root->contains(bounds))
                     return false;
                 return m_root->containsObject(bounds, object);
             }
             
-            inline List findObjects(const Ray<F,3>& ray) const {
+            List findObjects(const Ray<F,3>& ray) const {
                 List result;
                 m_root->findObjects(ray, result);
                 return result;

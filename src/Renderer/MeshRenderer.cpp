@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         struct NopFunc {
-            inline void operator()(const Assets::Texture* texture) const {}
+            void operator()(const Assets::Texture* texture) const {}
         };
         
         void MeshRenderer::render() {

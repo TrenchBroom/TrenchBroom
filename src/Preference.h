@@ -137,7 +137,7 @@ namespace TrenchBroom {
         ValueHolder(T value) :
         m_value(value) {}
         
-        inline const T& value() const {
+        const T& value() const {
             return m_value;
         }
     };
@@ -208,11 +208,11 @@ namespace TrenchBroom {
             m_modified = m_initialized;
         }
         
-        inline const String& name() const {
+        const String& name() const {
             return m_name;
         }
         
-        inline const T& value() const {
+        const T& value() const {
             return m_value;
         }
     };

@@ -34,7 +34,7 @@ public:
     CoordinatePlane(const Vec<T,S> axis) :
     m_axis(axis.firstComponent()) {}
     
-    inline Vec<T,S> project(const Vec<T,S>& point) const {
+    Vec<T,S> project(const Vec<T,S>& point) const {
         Vec<T,S> result = point;
         result[m_axis] = static_cast<T>(0.0);
         return result;
@@ -42,7 +42,7 @@ public:
 };
 
 template <typename T>
-inline Vec<T,3> swizzle(const Vec<T,3>& point, const size_t axis) {
+Vec<T,3> swizzle(const Vec<T,3>& point, const size_t axis) {
     assert(axis <= 3);
     switch (axis) {
         case 0:
@@ -55,7 +55,7 @@ inline Vec<T,3> swizzle(const Vec<T,3>& point, const size_t axis) {
 }
 
 template <typename T>
-inline Vec<T,3> unswizzle(const Vec<T,3>& point, const size_t axis) {
+Vec<T,3> unswizzle(const Vec<T,3>& point, const size_t axis) {
     assert(axis <= 3);
     switch (axis) {
         case 0:

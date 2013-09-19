@@ -49,43 +49,43 @@ namespace TrenchBroom {
             m_width(width),
             m_height(height) {}
 
-            inline float left() const {
+            float left() const {
                 return m_x;
             }
 
-            inline float top() const {
+            float top() const {
                 return m_y;
             }
 
-            inline float right() const {
+            float right() const {
                 return m_x + m_width;
             }
 
-            inline float bottom() const {
+            float bottom() const {
                 return m_y + m_height;
             }
 
-            inline float midX() const {
+            float midX() const {
                 return m_x + m_width / 2.0f;
             }
 
-            inline float midY() const {
+            float midY() const {
                 return m_y + m_height / 2.0f;
             }
             
-            inline float width() const {
+            float width() const {
                 return m_width;
             }
 
-            inline float height() const {
+            float height() const {
                 return m_height;
             }
 
-            inline bool containsPoint(const float x, const float y) const {
+            bool containsPoint(const float x, const float y) const {
                 return x >= left() && x <= right() && y >= top() && y <= bottom();
             }
 
-            inline bool intersectsY(const float y, const float height) const {
+            bool intersectsY(const float y, const float height) const {
                 return bottom() >= y || top() <= y + height;
             }
         };
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             LayoutBounds m_itemBounds;
             LayoutBounds m_titleBounds;
             
-            inline void doLayout(const float maxUpScale,
+            void doLayout(const float maxUpScale,
                                  const float minWidth, const float maxWidth,
                                  const float minHeight, const float maxHeight) {
                 assert(0.0f < minWidth);
@@ -163,33 +163,33 @@ namespace TrenchBroom {
                 doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
             }
 
-            inline bool hitTest(const float x, const float y) const {
+            bool hitTest(const float x, const float y) const {
                 return m_cellBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
             }
 
-            inline float scale() const {
+            float scale() const {
                 return m_scale;
             }
             
-            inline const LayoutBounds& cellBounds() const {
+            const LayoutBounds& cellBounds() const {
                 return m_cellBounds;
             }
 
-            inline const LayoutBounds& titleBounds() const {
+            const LayoutBounds& titleBounds() const {
                 return m_titleBounds;
             }
 
-            inline const LayoutBounds& itemBounds() const {
+            const LayoutBounds& itemBounds() const {
                 return m_itemBounds;
             }
 
-            inline void updateLayout(const float maxUpScale,
+            void updateLayout(const float maxUpScale,
                                      const float minWidth, const float maxWidth,
                                      const float minHeight, const float maxHeight) {
                 doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
             }
 
-            inline CellType item() const {
+            CellType item() const {
                 return m_item;
             }
 
@@ -214,7 +214,7 @@ namespace TrenchBroom {
 
             CellList m_cells;
 
-            inline void readjustItems() {
+            void readjustItems() {
                 for (size_t i = 0; i < m_cells.size(); ++i)
                     m_cells[i].updateLayout(m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight);
             }
@@ -238,12 +238,12 @@ namespace TrenchBroom {
             m_maxCellHeight(maxCellHeight),
             m_bounds(x, y, 0.0f, 0.0f) {}
 
-            inline const Cell& operator[] (const size_t index) const {
+            const Cell& operator[] (const size_t index) const {
                 assert(index >= 0 && index < m_cells.size());
                 return m_cells[index];
             }
 
-            inline bool addItem(CellType item,
+            bool addItem(CellType item,
                                 const float itemWidth, const float itemHeight,
                                 const float titleWidth, const float titleHeight) {
                 float x = m_bounds.right();
@@ -276,11 +276,11 @@ namespace TrenchBroom {
             }
 
 
-            inline const CellList& cells() const {
+            const CellList& cells() const {
                 return m_cells;
             }
 
-            inline bool cellAt(const float x, const float y, const Cell** result) const {
+            bool cellAt(const float x, const float y, const Cell** result) const {
                 for (size_t i = 0; i < m_cells.size(); ++i) {
                     const Cell& cell = m_cells[i];
                     const LayoutBounds& cellBounds = cell.cellBounds();
@@ -331,7 +331,7 @@ namespace TrenchBroom {
             RowList m_rows;
             float m_maxWidth;
         public:
-            inline const Row& operator[] (const size_t index) const {
+            const Row& operator[] (const size_t index) const {
                 assert(index >= 0 && index < m_rows.size());
                 return m_rows[index];
             }
@@ -550,35 +550,35 @@ namespace TrenchBroom {
                 invalidate();
             }
 
-            inline void setCellMargin(const float cellMargin) {
+            void setCellMargin(const float cellMargin) {
                 if (m_cellMargin == cellMargin)
                     return;
                 m_cellMargin = cellMargin;
                 invalidate();
             }
             
-            inline void setTitleMargin(const float titleMargin) {
+            void setTitleMargin(const float titleMargin) {
                 if (m_titleMargin == titleMargin)
                     return;
                 m_titleMargin = titleMargin;
                 invalidate();
             }
 
-            inline void setRowMargin(const float rowMargin) {
+            void setRowMargin(const float rowMargin) {
                 if (m_rowMargin == rowMargin)
                     return;
                 m_rowMargin = rowMargin;
                 invalidate();
             }
 
-            inline void setGroupMargin(const float groupMargin) {
+            void setGroupMargin(const float groupMargin) {
                 if (m_groupMargin == groupMargin)
                     return;
                 m_groupMargin = groupMargin;
                 invalidate();
             }
 
-            inline void setOuterMargin(const float outerMargin) {
+            void setOuterMargin(const float outerMargin) {
                 if (m_outerMargin == outerMargin)
                     return;
                 m_outerMargin = outerMargin;
@@ -619,7 +619,7 @@ namespace TrenchBroom {
                 m_height += (newGroupHeight - oldGroupHeight);
             }
 
-            inline void clear() {
+            void clear() {
                 m_groups.clear();
                 invalidate();
             }
@@ -712,32 +712,32 @@ namespace TrenchBroom {
                 return y;
             }
             
-            inline size_t size() {
+            size_t size() {
                 if (!m_valid)
                     validate();
                 return m_groups.size();
             }
 
-            inline void invalidate() {
+            void invalidate() {
                 m_valid = false;
             }
 
-            inline void setWidth(const float width) {
+            void setWidth(const float width) {
                 if (m_width == width)
                     return;
                 m_width = width;
                 invalidate();
             }
 
-            inline float minCellWidth() const {
+            float minCellWidth() const {
                 return m_minCellWidth;
             }
             
-            inline float maxCellWidth() const {
+            float maxCellWidth() const {
                 return m_maxCellWidth;
             }
             
-            inline void setCellWidth(const float minCellWidth, const float maxCellWidth) {
+            void setCellWidth(const float minCellWidth, const float maxCellWidth) {
                 assert(0.0f < minCellWidth);
                 assert(minCellWidth <= maxCellWidth);
                 
@@ -748,15 +748,15 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            inline float minCellHeight() const {
+            float minCellHeight() const {
                 return m_minCellHeight;
             }
             
-            inline float maxCellHeight() const {
+            float maxCellHeight() const {
                 return m_maxCellHeight;
             }
             
-            inline void setCellHeight(const float minCellHeight, const float maxCellHeight) {
+            void setCellHeight(const float minCellHeight, const float maxCellHeight) {
                 assert(0.0f < minCellHeight);
                 assert(minCellHeight <= maxCellHeight);
                 
@@ -767,36 +767,36 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            inline void setMaxUpScale(const float maxUpScale) {
+            void setMaxUpScale(const float maxUpScale) {
                 if (m_maxUpScale == maxUpScale)
                     return;
                 m_maxUpScale = maxUpScale;
                 invalidate();
             }
 
-            inline float width() const {
+            float width() const {
                 return m_width;
             }
 
-            inline float height() {
+            float height() {
                 if (!m_valid)
                     validate();
                 return m_height;
             }
             
-            inline float outerMargin() const {
+            float outerMargin() const {
                 return m_outerMargin();
             }
             
-            inline float groupMargin() const {
+            float groupMargin() const {
                 return m_groupMargin;
             }
             
-            inline float rowMargin() const {
+            float rowMargin() const {
                 return m_rowMargin;
             }
             
-            inline float cellMargin() const {
+            float cellMargin() const {
                 return m_cellMargin();
             }
         };

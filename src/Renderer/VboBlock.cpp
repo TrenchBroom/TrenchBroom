@@ -31,10 +31,50 @@ namespace TrenchBroom {
         m_previous(previous),
         m_next(next) {}
         
+        Vbo& VboBlock::vbo() const {
+            return m_vbo;
+        }
+        
+        size_t VboBlock::offset() const {
+            return m_offset;
+        }
+        
+        size_t VboBlock::capacity() const {
+            return m_capacity;
+        }
+
         void VboBlock::free() {
             m_vbo.freeBlock(this);
         }
         
+        VboBlock* VboBlock::previous() const {
+            return m_previous;
+        }
+        
+        void VboBlock::setPrevious(VboBlock* previous) {
+            m_previous = previous;
+        }
+        
+        VboBlock* VboBlock::next() const {
+            return m_next;
+        }
+        
+        void VboBlock::setNext(VboBlock* next) {
+            m_next = next;
+        }
+        
+        bool VboBlock::isFree() const {
+            return m_free;
+        }
+        
+        void VboBlock::setFree(const bool free) {
+            m_free = free;
+        }
+        
+        void VboBlock::setCapacity(const size_t capacity) {
+            m_capacity = capacity;
+        }
+
         VboBlock* VboBlock::mergeWithSuccessor() {
             assert(m_next != NULL);
             
