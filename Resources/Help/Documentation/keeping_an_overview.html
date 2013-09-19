@@ -61,6 +61,22 @@
 		<h2>Keeping an Overview</h2>
 		<p>Sometimes, the 3D view can get cluttered in maps with a lot of detail or many entities. That's why there are several options to reduce the amount of objects in the 3D view. You can select between textured, flat and wirefame rendering, you can filter the 3D view so that only certain objects are rendered and you can isolate, hide or freeze the current selection.</p>
 
+		<a href="infobar"></a><h3>Information Bar</h3>
+		The information bar at the top of the 3D provides you with information about the current selected, such as:
+		<ul>
+			<li><img src="images/infobar_brush_selection.jpg" width="145" height="22" style="vertical-align:-35%" /> Two brushes are selected which belong to two different entities. Both entities have three brushes in total.</li>
+			<li style="margin-top: 10px;"><img src="images/infobar_entity_selection.jpg" width="147" height="22" style="vertical-align:-35%" /> One point entity is selected, its classname is <i>info_player_coop</i>.</li>
+			<li style="margin-top: 10px;"><img src="images/infobar_vertex_tool.jpg" width="310" height="22" style="vertical-align:-35%" /> One of two world brushes is selected, the vertex tool is activated and two of the selected brush's eight vertices are selected.</li>
+		</ul>
+		<p>Note that the information bar displays its information in the form of a path. You can navigate up this path by selecting <script>print_menu_command("edit_navigate_up");</script> from the menu. In the last example above, selecting this command repeatedly will first deselect all vertices, then deactivate the vertex tool, then deselect all selected brushes.</p>
+		<p>In the right of the information bar there is a search field. Trenchbroom will display only those objects whose key names or key values match the entered text. For example, say you had two monster_shambler entities. One of them had a 'targetname' key with the value 'scary' and the other had 'target' set to 'scary'.</p>
+		<ul>
+			<li>If the filter was set to "shambler", both monsters would be visible</li>
+			<li>If the filter was set to "scary", both monsters would be visible</li>
+			<li>If the filter was set to "targetname", only the first monster would be visible</li>
+			<li>If the filter was set to "target", <b>both</b> monsters would be visible (because 'targetname' is a partial match)</li>
+		</ul>
+
 		<a name="render_modes"></a><h3>Render Modes</h3>
 		<div class="images">
 			<a href="javascript:void(0)" id="render_mode_link" onclick="cycle_image_by_id('render_mode_img', render_modes);"><img id="render_mode_img" src="images/rendering_modes_textured.jpg" width="600" height="397" alt="Render Modes"></a>
@@ -105,7 +121,7 @@
 		
 		<a name="render_filters"></a><h3>Render Filters</h3>
 		<div class="images">
-			<img src="images/render_filters.jpg" width="339" height="189" alt="Render Filters">
+			<img src="images/render_filters.jpg" width="351" height="192" alt="Render Filters">
 			<div class="imagecaption">Render Filters</div>
 		</div>
 		<p>You can select the types of objects which should be rendered in the 3D view by using the render filters in the <b>View tab</b> of the inspector. There are two categories with different checkboxes for each in the <b>Filter</b> section:</p>
@@ -120,19 +136,12 @@
 			<ul>
 				<li>Clip brushes - Render brushes entirely textured with the 'clip' texture.</li>
 				<li>Skip brushes - Render brushes entirely textured with the 'skip' texture.</li>
+				<li>Hint brushes - Render brushes entirely textured with the 'hint' texture.</li>
+				<li>Liquid brushes - Render brushes entirely textured with a liquid texture.</li>
+				<li>Trigger brushes - Render brushes entirely textured with the 'trigger' texture.</li>
 			</ul>
 		</ul>
 		<p>Unchecking a checkbox will remove the appropriate type of object from the 3D view.</p>
-		
-		<h3>Filtering by name</h3>
-		<p>Another way to filter what objects are rendered is by using the 'Show objects matching' text. Trenchbroom will display only those objects who's key names or key values match the entered text.</p>
-		<p>For example, say you had two monster_shambler entities.  One of them had a 'targetname' key with the value 'scary' and the other had 'target' set to 'scary'.</p>
-		<ul>
-			<li>If the filter was set to "shambler", both monsters would be visible</li>
-			<li>If the filter was set to "scary", both monsters would be visible</li>
-			<li>If the filter was set to "targetname", only the first monster would be visible</li>
-			<li>If the filter was set to "target", <b>both</b> monsters would be visible (because 'targetname' is a partial match)</li>
-		</ul>
 
 		<!--
 		<a name="groups"></a><h3>Groups</h3>

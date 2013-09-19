@@ -60,6 +60,7 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnChangeFocus)
+        EVT_ACTIVATE(EditorFrame::OnActivate)
         EVT_IDLE(EditorFrame::OnIdle)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
 		END_EVENT_TABLE()
@@ -257,6 +258,11 @@ namespace TrenchBroom {
             app->DetachFileHistoryMenu(oldMenuBar);
 
             m_documentViewHolder.invalidate();
+        }
+
+        void EditorFrame::OnActivate(wxActivateEvent& event) {
+            if (m_documentViewHolder.valid())
+                m_mapCanvas->setHasFocus(event.GetActive());
         }
 
         void EditorFrame::OnChangeFocus(wxCommandEvent& event) {

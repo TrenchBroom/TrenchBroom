@@ -20,7 +20,12 @@
 		</div>
 		<p>Brush resizing is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's normal as its single axis of movement. To resize a brush, click and drag one of the brush's faces with the <b>left mouse button</b> while holding the <script>print_key("Shift");</script> key. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
 		<p>You can also move faces which are facing away from the camera by clicking outside of the brush. In the screencast above, observe how the second resize operation translates such a face. Note that you can only drag faces which have at least one edge visible. If you want to drag faces which are completely on the back of the brush, you need to reposition the camera.</p>
-		<p>Note that by default, TrenchBroom snaps the distance by which you drag a face to the grid. To snap the face to the grid exactly, hold <script>print_key("Shift");</script> and <script>print_key("Alt");</script> while dragging. This works best on faces that are parallel to either of the XY, XZ and YZ planes.</p>
+		<p>TrenchBroom uses two methods to determine how to snap the distance by which you drag the face:</p>
+		<ul>
+			<li>The distance is snapped to the current grid size, i.e., if you drag a face by 17.5 units along its normal, it will be moved by 16.0 units if the current grid size is 16. This is useful if you are resizing brushes which are part of a curve because their faces will line up after the drag.</li>
+			<li>The vertices of the dragged faces are snapped to the grid planes, i.e., whenever at least one vertex component (X,Y, or Z) is a multiple of the current grid size, the face is snapped to that vertex. This makes it easy to align a face to other adjacent faces.</li>
+		</ul>
+		<p>Note that both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.</p>
 		
 		<br clear="all">
 		<a name="using_the_clip_tool"></a><h3>Using the clip Tool</h3>

@@ -29,6 +29,7 @@ Thumbs.db
 
 .DS_Store
 xcuserdata
+xcshareddata
 
 /Mac/build/
 /Mac/wxWidgets

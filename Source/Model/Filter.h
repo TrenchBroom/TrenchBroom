@@ -153,6 +153,7 @@ namespace TrenchBroom {
                                 break;
                             case Face::CTHint:
                                 hintCount++;
+                                break;
                             case Face::CTTrigger:
                                 triggerCount++;
                                 break;

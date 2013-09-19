@@ -12,6 +12,7 @@
 // Backspace:    &#x232B;
 // Return:       &#x21A9;
 // Tab:          &#x21E5;
+// Escape: 		 &#x238B;
 
 var menu_commands = new Object();
 menu_commands["Mac"] = new Object();
@@ -46,6 +47,7 @@ menu_commands["Mac"]["edit_flip_vertically"]			= "Edit &raquo; Actions &raquo; F
 menu_commands["Mac"]["edit_duplicate_selection"]		= "Edit &raquo; Actions &raquo; Duplicate - &#8984;D";
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties...";
 menu_commands["Mac"]["edit_print_file_position"]		= "Edit &raquo; Actions &raquo; Print Line Numbers"
+menu_commands["Mac"]["edit_navigate_up"]				= "Edit &raquo; Navigate Up - &#x238B;"
 
 menu_commands["Mac"]["edit_undo"]						= "Edit &raquo; Undo - &#8984;Z";
 menu_commands["Mac"]["edit_redo"]						= "Edit &raquo; Redo - &#8984;Y";
