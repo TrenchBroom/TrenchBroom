@@ -69,6 +69,8 @@ namespace TrenchBroom {
             bool clipPointValid(const Vec3& point) const;
             void addClipPoint(const Vec3& point, const Model::BrushFace& face);
             void deleteLastClipPoint();
+            Vec3::List clipPoints() const;
+
             void toggleClipSide();
             void reset();
             ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const;
@@ -77,7 +79,7 @@ namespace TrenchBroom {
             bool isLinearlyDependent(const Vec3& point) const;
             Vec3::List getNormals(const Vec3& point, const Model::BrushFace& face) const;
             Vec3::List getNormals(const Model::BrushFaceList& faces) const;
-            ClipPoints clipPoints() const;
+            ClipPoints computeClipPoints() const;
             Vec3 selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) const;
             void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
         };

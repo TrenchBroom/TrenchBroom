@@ -28,6 +28,7 @@ namespace TrenchBroom {
         void glResetEdgeOffset();
 
         Vec2f::List roundedRect(const float width, const float height, const float cornerRadius, const size_t cornerSegments);
+        Vec3f::List sphere(const float radius, const size_t iterations);
     }
 }
 

@@ -101,6 +101,13 @@ namespace TrenchBroom {
             }
         }
 
+        Vec3::List Clipper::clipPoints() const {
+            Vec3::List result(m_numPoints);
+            for (size_t i = 0; i < m_numPoints; ++i)
+                result[i] = m_points[i];
+            return result;
+        }
+
         void Clipper::reset() {
             m_clipSide = Front;
             m_numPoints = 0;
@@ -109,7 +116,7 @@ namespace TrenchBroom {
         ClipResult Clipper::clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const {
             ClipResult result;
             
-            const ClipPoints points = clipPoints();
+            const ClipPoints points = computeClipPoints();
             if (points.valid()) {
                 const BBox3& worldBounds = document->worldBounds();
                 Model::Map& map = *document->map();
@@ -191,7 +198,7 @@ namespace TrenchBroom {
             return normals;
         }
 
-        Clipper::ClipPoints Clipper::clipPoints() const {
+        Clipper::ClipPoints Clipper::computeClipPoints() const {
             assert(m_numPoints <= 3);
 
             ClipPoints result;

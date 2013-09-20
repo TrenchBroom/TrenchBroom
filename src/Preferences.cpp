@@ -52,6 +52,14 @@ namespace TrenchBroom {
         Preference<Color> SelectedInfoOverlayTextColor("Renderer/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor("Renderer/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
 
+        Preference<float> HandleRadius("Controls/Handle radius", 3.0f);
+        Preference<float> HandleScalingFactor("Controls/Handle scaling factor", 1.0f / 300.0f);
+        Preference<float> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0f);
+        Preference<Color> ClipHandleColor("Renderer/Colors/Clip handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> OccludedClipHandleColor("Renderer/Colors/Occluded clip handle", Color(1.0f, 1.0f, 1.0f, 0.5f));
+        Preference<Color> SelectedClipHandleColor("Renderer/Colors/Selected clip handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> ClipPlaneColor("Renderer/Colors/Clip plane", Color(1.0f, 1.0f, 1.0f, 0.25f));
+        
         Preference<float> Brightness("Renderer/Brightness", 1.4f);
         Preference<float> GridAlpha("Renderer/Grid/Alpha", 0.5f);
         Preference<bool> GridCheckerboard("Renderer/Grid/Checkerboard", false);

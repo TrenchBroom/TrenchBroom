@@ -47,6 +47,14 @@ namespace TrenchBroom {
         extern Preference<Color> SelectedInfoOverlayTextColor;
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         
+        extern Preference<float> HandleRadius;
+        extern Preference<float> HandleScalingFactor;
+        extern Preference<float> MaximumHandleDistance;
+        extern Preference<Color> ClipHandleColor;
+        extern Preference<Color> OccludedClipHandleColor;
+        extern Preference<Color> SelectedClipHandleColor;
+        extern Preference<Color> ClipPlaneColor;
+        
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
         extern Preference<bool> GridCheckerboard;
