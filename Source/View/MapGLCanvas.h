@@ -95,6 +95,8 @@ namespace TrenchBroom {
             }
             
             bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false);
+            void resetModifierKeys();
+            void clearModifierKeys();
             void updateMenuBar();
             
             void OnPaint(wxPaintEvent& event);

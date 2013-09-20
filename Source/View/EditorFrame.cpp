@@ -261,8 +261,12 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnActivate(wxActivateEvent& event) {
-            if (m_documentViewHolder.valid())
-                m_mapCanvas->setHasFocus(event.GetActive());
+            if (event.GetActive())
+                m_mapCanvas->resetModifierKeys();
+            else
+                m_mapCanvas->clearModifierKeys();
+            m_mapCanvas->Refresh();
+            event.Skip();
         }
 
         void EditorFrame::OnChangeFocus(wxCommandEvent& event) {

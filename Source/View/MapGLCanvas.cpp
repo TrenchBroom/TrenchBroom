@@ -167,12 +167,20 @@ namespace TrenchBroom {
             if (dontIgnoreNextClick)
                 m_ignoreNextClick = false;
             if (m_hasFocus)
-                m_inputController->resetModifierKeys();
+                resetModifierKeys();
             else
-                m_inputController->clearModifierKeys();
+                clearModifierKeys();
             Refresh();
 
             return true;
+        }
+
+        void MapGLCanvas::resetModifierKeys() {
+            m_inputController->resetModifierKeys();
+        }
+        
+        void MapGLCanvas::clearModifierKeys() {
+            m_inputController->clearModifierKeys();
         }
 
         void MapGLCanvas::updateMenuBar() {
