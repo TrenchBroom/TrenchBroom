@@ -261,10 +261,12 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnActivate(wxActivateEvent& event) {
-            if (event.GetActive())
+            if (event.GetActive()) {
                 m_mapCanvas->resetModifierKeys();
-            else
+            } else {
                 m_mapCanvas->clearModifierKeys();
+                m_mapCanvas->ignoreNextClick();
+            }
             m_mapCanvas->Refresh();
             event.Skip();
         }

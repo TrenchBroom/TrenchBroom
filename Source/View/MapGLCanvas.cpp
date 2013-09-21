@@ -158,6 +158,10 @@ namespace TrenchBroom {
             wxDELETE(m_glContext);
         }
 
+        void MapGLCanvas::ignoreNextClick() {
+            m_ignoreNextClick = true;
+        }
+
         bool MapGLCanvas::setHasFocus(bool hasFocus, bool dontIgnoreNextClick) {
             if (m_hasFocus == hasFocus)
                 return false;

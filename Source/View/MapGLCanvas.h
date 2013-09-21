@@ -94,6 +94,7 @@ namespace TrenchBroom {
                 return m_hasFocus;
             }
             
+            void ignoreNextClick();
             bool setHasFocus(bool hasFocus, bool dontIgnoreNextClick = false);
             void resetModifierKeys();
             void clearModifierKeys();
