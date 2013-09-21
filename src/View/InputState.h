@@ -56,6 +56,7 @@ namespace TrenchBroom {
         
         class InputState {
         private:
+            ModifierKeyState m_modifierKeys;
             MouseButtonState m_mouseButtons;
             int m_mouseX;
             int m_mouseY;
@@ -89,6 +90,8 @@ namespace TrenchBroom {
             float scrollX() const;
             float scrollY() const;
 
+            void setModifierKeys(const ModifierKeyState keys);
+            void clearModifierKeys();
             void mouseDown(const MouseButtonState button);
             void mouseUp(const MouseButtonState button);
             void clearMouseButtons();

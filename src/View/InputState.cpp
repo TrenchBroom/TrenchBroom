@@ -24,6 +24,7 @@
 namespace TrenchBroom {
     namespace View {
         InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid) :
+        m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(0),
         m_mouseY(0),
@@ -40,6 +41,7 @@ namespace TrenchBroom {
         }
 
         InputState::InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid, const int mouseX, const int mouseY) :
+        m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
         m_mouseY(mouseY),
@@ -54,16 +56,7 @@ namespace TrenchBroom {
         InputState::~InputState() {}
 
         ModifierKeyState InputState::modifierKeys() const {
-            const wxMouseState mouseState = wxGetMouseState();
-            
-            ModifierKeyState state = ModifierKeys::MKNone;
-            if (mouseState.CmdDown())
-                state |= ModifierKeys::MKCtrlCmd;
-            if (mouseState.ShiftDown())
-                state |= ModifierKeys::MKShift;
-            if (mouseState.AltDown())
-                state |= ModifierKeys::MKAlt;
-            return state;
+            return m_modifierKeys;
         }
         
         bool InputState::modifierKeysDown(const ModifierKeyState keys) const {
@@ -108,6 +101,14 @@ namespace TrenchBroom {
         
         float InputState::scrollY() const {
             return m_scrollY;
+        }
+
+        void InputState::setModifierKeys(const ModifierKeyState keys) {
+            m_modifierKeys = keys;
+        }
+        
+        void InputState::clearModifierKeys() {
+            m_modifierKeys = ModifierKeys::MKNone;
         }
 
         void InputState::mouseDown(const MouseButtonState button) {

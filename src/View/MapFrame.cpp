@@ -90,6 +90,7 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
             Bind(EVT_REBUILD_MENU, &MapFrame::OnRebuildMenu, this);
             
+            Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
             m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
             m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
         }

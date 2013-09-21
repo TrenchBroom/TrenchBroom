@@ -84,6 +84,7 @@ namespace TrenchBroom {
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
+            void OnActivateFrame(wxActivateEvent& event);
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
@@ -98,7 +99,9 @@ namespace TrenchBroom {
             void createTools();
             void deleteTools();
             void cancelCurrentDrag();
-            ModifierKeyState modifierKeys(wxKeyEvent& event);
+            ModifierKeyState modifierKeys();
+            void updateModifierKeys();
+            void clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
             void bindEvents();
             

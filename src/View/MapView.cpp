@@ -81,14 +81,14 @@ namespace TrenchBroom {
         }
 
         void MapView::OnKey(wxKeyEvent& event) {
-            if (modifierKeys(event) != ModifierKeys::MKNone)
-                m_toolChain->modifierKeyChange(m_inputState);
+            updateModifierKeys();
+            event.Skip();
         }
         
         void MapView::OnMouseButton(wxMouseEvent& event) {
             const MouseButtonState button = mouseButton(event);
 
-            if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
+            if (m_ignoreNextClick /* && button == MouseButtons::MBLeft */) {
                 if (event.ButtonUp())
                     m_ignoreNextClick = false;
                 event.Skip();
@@ -160,6 +160,7 @@ namespace TrenchBroom {
         }
 
         void MapView::OnSetFocus(wxFocusEvent& event) {
+            updateModifierKeys();
             Refresh();
             event.Skip();
         }
@@ -168,8 +169,15 @@ namespace TrenchBroom {
             cancelCurrentDrag();
             if (GetCapture() == this)
                 ReleaseMouse();
+            clearModifierKeys();
             m_ignoreNextClick = true;
             Refresh();
+            event.Skip();
+        }
+
+        void MapView::OnActivateFrame(wxActivateEvent& event) {
+            if (!event.GetActive())
+                m_ignoreNextClick = true;
             event.Skip();
         }
 
@@ -255,19 +263,34 @@ namespace TrenchBroom {
             }
         }
 
-        ModifierKeyState MapView::modifierKeys(wxKeyEvent& event) {
-            switch (event.GetKeyCode()) {
-                case WXK_SHIFT:
-                    return ModifierKeys::MKShift;
-                case WXK_ALT:
-                    return  ModifierKeys::MKAlt;
-                case WXK_CONTROL:
-                    return ModifierKeys::MKCtrlCmd;
-                default:
-                    return ModifierKeys::MKNone;
+        ModifierKeyState MapView::modifierKeys() {
+            const wxMouseState mouseState = wxGetMouseState();
+            
+            ModifierKeyState state = ModifierKeys::MKNone;
+            if (mouseState.CmdDown())
+                state |= ModifierKeys::MKCtrlCmd;
+            if (mouseState.ShiftDown())
+                state |= ModifierKeys::MKShift;
+            if (mouseState.AltDown())
+                state |= ModifierKeys::MKAlt;
+            return state;
+        }
+        
+        void MapView::updateModifierKeys() {
+            const ModifierKeyState keys = modifierKeys();
+            if (keys != m_inputState.modifierKeys()) {
+                m_inputState.setModifierKeys(keys);
+                m_toolChain->modifierKeyChange(m_inputState);
             }
         }
         
+        void MapView::clearModifierKeys() {
+            if (m_inputState.modifierKeys() != ModifierKeys::MKNone) {
+                m_inputState.setModifierKeys(ModifierKeys::MKNone);
+                m_toolChain->modifierKeyChange(m_inputState);
+            }
+        }
+
         MouseButtonState MapView::mouseButton(wxMouseEvent& event) {
             if (event.LeftDown() || event.LeftUp())
                 return MouseButtons::MBLeft;
