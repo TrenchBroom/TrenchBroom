@@ -36,6 +36,35 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.1.0
+- Keyboard customization
+- Restrict to X or Y axis when moving objects
+- Limit face points to integer coordinates
+- New duplication options (drag to duplicate and duplicate in specific direction)
+- New information bar at top of 3D view
+- Moved search field to information bar
+- Improved precision and stability of vertex tool
+- Select objects by line number
+- Brush resizing feels more natural and snaps more accurately
+- Autosave when the applicaton exits
+- More brush filtering options
+- Better performance for view filters
+- Clip tool remembers last clip side
+- Clip tool adds new brushes to parent entities of clipped brushes
+- Clipped brushes remain selected after deactivating the clip tool
+- Double click on brush selects all brushes belonging to the containing entity
+- Shift + double click on brush to select all of its faces
+- Paint selection
+- Show entity angle in 3D view
+- Camera tracks for point file navigation and center on selection
+- Show compass in 3D view
+- Buttons for texture flipping in face inspector
+- Hotkeys to activate inspector tabs
+- Smooth camera navigation with WASD keys
+- Customizable texture browser icon size
+- Render skip / clip / hint / trigger and liquid brushes semi-transparently
+- Numerous bug fixes
+
 ### TrenchBroom 1.0.9
 - Fix the rotation tool handle position
 

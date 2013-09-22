@@ -55,6 +55,7 @@ protected:
 	DocManager* m_docManager;
     TrenchBroom::View::PreferencesFrame* m_preferencesFrame;
     wxExtHelpController* m_helpController;
+    wxLongLong m_lastActivationEvent;
 
     wxMenu* buildMenu(const TrenchBroom::Preferences::Menu& menu, const TrenchBroom::Preferences::MultiMenuSelector& selector, wxEvtHandler* eventHandler, bool mapViewFocused);
     

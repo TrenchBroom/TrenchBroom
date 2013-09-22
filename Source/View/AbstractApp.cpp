@@ -247,6 +247,7 @@ bool AbstractApp::OnInit() {
     m_helpController = new wxExtHelpController();
     m_helpController->Initialize(helpPath);
 
+    m_lastActivationEvent = 0;
     return true;
 }
 
@@ -370,6 +371,16 @@ int AbstractApp::FilterEvent(wxEvent& event) {
             wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
             frame->ProcessWindowEventLocally(event);
             return 1;
+        } else if (event.GetEventType() == wxEVT_ACTIVATE) {
+            m_lastActivationEvent = wxGetLocalTimeMillis();
+        } else if (event.GetEventType() == wxEVT_LEFT_DOWN ||
+                   event.GetEventType() == wxEVT_MIDDLE_DOWN ||
+                   event.GetEventType() == wxEVT_RIGHT_DOWN ||
+                   event.GetEventType() == wxEVT_LEFT_UP ||
+                   event.GetEventType() == wxEVT_MIDDLE_UP ||
+                   event.GetEventType() == wxEVT_RIGHT_UP) {
+            if (wxGetLocalTimeMillis() - m_lastActivationEvent <= 10)
+                return 1;
         }
     }
 
