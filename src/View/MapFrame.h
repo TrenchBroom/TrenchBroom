@@ -71,6 +71,7 @@ namespace TrenchBroom {
             
             void OnEditUndo(wxCommandEvent& event);
             void OnEditRedo(wxCommandEvent& event);
+            void OnEditToggleClipTool(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
             

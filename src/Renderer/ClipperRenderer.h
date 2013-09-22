@@ -30,6 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class ActiveShader;
         class RenderContext;
         class VertexArray;
         
@@ -37,13 +38,17 @@ namespace TrenchBroom {
         private:
             Vbo m_vbo;
             const View::Clipper& m_clipper;
+            bool m_hasCurrentPoint;
+            Vec3 m_currentPoint;
         public:
             ClipperRenderer(const View::Clipper& clipper);
             
+            void setCurrentPoint(const bool hasPoint, const Vec3& point = Vec3::Null);
             void render(RenderContext& renderContext);
         private:
             void renderHandles(RenderContext& renderContext);
             void renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, VertexArray& handleArray);
+            void renderPointHandle(const Vec3& position, ActiveShader& shader, VertexArray& array);
             void renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray);
             VertexArray makeHandleArray();
             VertexArray makeLineArray(const Vec3::List& positions);

@@ -42,6 +42,8 @@ namespace TrenchBroom {
             Selection(Map* map = NULL);
 
             bool hasSelectedObjects() const;
+            bool hasSelectedEntities() const;
+            bool hasSelectedBrushes() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
             

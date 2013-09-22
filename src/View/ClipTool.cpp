@@ -23,12 +23,15 @@
 #include "Model/HitFilters.h"
 #include "Model/Picker.h"
 #include "View/InputState.h"
+#include "View/Grid.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
         ClipTool::ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera) :
         Tool(next, document, controller),
-        m_clipper(camera) {}
+        m_clipper(camera),
+        m_renderer(m_clipper) {}
         
         bool ClipTool::initiallyActive() const {
             return false;
@@ -48,7 +51,7 @@ namespace TrenchBroom {
                                                                      Model::DefaultHitFilter(inputState.filter()));
             Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
             if (first.matches) {
-                const Vec3& point = first.hit.hitPoint();
+                const Vec3 point = clipPoint(first.hit);
                 if (m_clipper.clipPointValid(point))
                     m_clipper.addClipPoint(point, *hitAsFace(first.hit));
             }
@@ -61,14 +64,24 @@ namespace TrenchBroom {
                                                                      Model::DefaultHitFilter(inputState.filter()));
             Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
             if (first.matches) {
-                const Vec3& point = first.hit.hitPoint();
+                const Vec3 point = clipPoint(first.hit);
                 if (m_clipper.clipPointValid(point)) {
+                    m_renderer.setCurrentPoint(true, point);
                     // set current highlight point
+                } else {
+                    m_renderer.setCurrentPoint(false);
                 }
             }
         }
         
+        Vec3 ClipTool::clipPoint(const Model::Hit& hit) const {
+            const Model::BrushFace& face = *hitAsFace(hit);
+            const Vec3& point = hit.hitPoint();
+            return document()->grid().snap(point, face.boundary());
+        }
+
         void ClipTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            m_renderer.render(renderContext);
         }
     }
 }

@@ -44,6 +44,7 @@ namespace TrenchBroom {
     namespace View {
         class BaseTool;
         class CameraTool;
+        class ClipTool;
         class CreateBrushTool;
         class SelectionTool;
         
@@ -65,10 +66,12 @@ namespace TrenchBroom {
             InputState m_inputState;
             wxPoint m_clickPos;
             CameraTool* m_cameraTool;
+            ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
             SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;
+            BaseTool* m_modalReceiver;
             
             bool m_ignoreNextClick;
         public:
@@ -76,6 +79,9 @@ namespace TrenchBroom {
             ~MapView();
             
             Renderer::RenderResources& renderResources();
+            
+            void toggleClipTool();
+            bool clipToolActive() const;
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);
@@ -98,6 +104,7 @@ namespace TrenchBroom {
         private:
             void createTools();
             void deleteTools();
+            void toggleTool(BaseTool* tool);
             void cancelCurrentDrag();
             ModifierKeyState modifierKeys();
             void updateModifierKeys();

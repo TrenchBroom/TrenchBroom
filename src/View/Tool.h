@@ -37,7 +37,7 @@ namespace TrenchBroom {
             virtual ~ActivationPolicy();
             
             virtual bool activatable() const;
-            virtual bool initiallyActive() const = 0;
+            virtual bool initiallyActive() const;
             virtual bool doActivate(const InputState& inputState) = 0;
             virtual bool doDeactivate(const InputState& inputState) = 0;
         };
@@ -131,7 +131,8 @@ namespace TrenchBroom {
         public:
             virtual ~BaseTool();
 
-            virtual void activate(const InputState& inputState) = 0;
+            virtual bool active() const = 0;
+            virtual bool activate(const InputState& inputState) = 0;
             virtual void deactivate(const InputState& inputState) = 0;
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
@@ -168,15 +169,17 @@ namespace TrenchBroom {
             }
             
             bool active() const {
-                return true;
+                return m_active;
             }
             
-            void activate(const InputState& inputState) {
+            bool activate(const InputState& inputState) {
                 if (static_cast<ActivationPolicyType&>(*this).activatable()) {
                     assert(!active());
                     if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
                         m_active = true;
+                    return m_active;
                 }
+                return false;
             }
             
             void deactivate(const InputState& inputState) {

@@ -178,6 +178,14 @@ namespace TrenchBroom {
             return !m_selectedObjects.empty();
         }
         
+        bool Selection::hasSelectedEntities() const {
+            return !m_selectedEntities.empty();
+        }
+        
+        bool Selection::hasSelectedBrushes() const {
+            return !m_selectedBrushes.empty();
+        }
+
         bool Selection::hasSelectedFaces() const {
             return !m_selectedFaces.empty();
         }

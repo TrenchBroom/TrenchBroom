@@ -29,6 +29,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CameraTool.h"
+#include "View/ClipTool.h"
 #include "View/CreateBrushTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
@@ -50,10 +51,12 @@ namespace TrenchBroom {
         m_auxVbo(0xFFF),
         m_inputState(document->filter(), m_camera, document->grid()),
         m_cameraTool(NULL),
+        m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL),
+        m_modalReceiver(NULL),
         m_ignoreNextClick(false){
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
@@ -78,6 +81,14 @@ namespace TrenchBroom {
         
         Renderer::RenderResources& MapView::renderResources() {
             return m_renderResources;
+        }
+
+        void MapView::toggleClipTool() {
+            toggleTool(m_clipTool);
+        }
+        
+        bool MapView::clipToolActive() const {
+            return m_modalReceiver == m_clipTool;
         }
 
         void MapView::OnKey(wxKeyEvent& event) {
@@ -241,7 +252,8 @@ namespace TrenchBroom {
         void MapView::createTools() {
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
             m_createBrushTool = new CreateBrushTool(m_selectionTool, m_document, m_controller);
-            m_cameraTool = new CameraTool(m_createBrushTool, m_document, m_controller, m_camera);
+            m_clipTool = new ClipTool(m_createBrushTool, m_document, m_controller, m_camera);
+            m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
         }
         
@@ -249,12 +261,31 @@ namespace TrenchBroom {
             m_toolChain = NULL;
             delete m_cameraTool;
             m_cameraTool = NULL;
+            delete m_clipTool;
+            m_clipTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
         }
 
+        void MapView::toggleTool(BaseTool* tool) {
+            if (m_modalReceiver == tool) {
+                assert(m_modalReceiver->active());
+                m_modalReceiver->deactivate(m_inputState);
+                m_modalReceiver = NULL;
+            } else {
+                if (m_modalReceiver != NULL) {
+                    assert(m_modalReceiver->active());
+                    m_modalReceiver->deactivate(m_inputState);
+                    m_modalReceiver = NULL;
+                }
+                if (m_clipTool->activate(m_inputState))
+                    m_modalReceiver = m_clipTool;
+            }
+            Refresh();
+        }
+        
         void MapView::cancelCurrentDrag() {
             if (m_dragReceiver != NULL) {
                 m_toolChain->cancelMouseDrag(m_inputState);

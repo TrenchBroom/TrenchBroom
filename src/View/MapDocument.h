@@ -98,6 +98,8 @@ namespace TrenchBroom {
             void removeBrush(Model::Entity* entity, Model::Brush* brush);
             
             bool hasSelectedObjects() const;
+            bool hasSelectedEntities() const;
+            bool hasSelectedBrushes() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
             

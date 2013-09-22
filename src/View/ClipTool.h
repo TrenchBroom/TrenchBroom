@@ -20,15 +20,23 @@
 #ifndef __TrenchBroom__ClipTool__
 #define __TrenchBroom__ClipTool__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Renderer/ClipperRenderer.h"
 #include "View/Clipper.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Hit;
+    }
+    
     namespace View {
         class ClipTool : public Tool<ActivationPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy> {
         private:
             Clipper m_clipper;
+            Renderer::ClipperRenderer m_renderer;
         public:
             ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
         private:
@@ -38,6 +46,8 @@ namespace TrenchBroom {
 
             bool doMouseUp(const InputState& inputState);
             void doMouseMove(const InputState& inputState);
+            Vec3 clipPoint(const Model::Hit& hit) const;
+            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }

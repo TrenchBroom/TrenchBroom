@@ -391,6 +391,14 @@ namespace TrenchBroom {
             return m_selection.hasSelectedObjects();
         }
         
+        bool MapDocument::hasSelectedEntities() const {
+            return m_selection.hasSelectedEntities();
+        }
+        
+        bool MapDocument::hasSelectedBrushes() const {
+            return m_selection.hasSelectedBrushes();
+        }
+
         bool MapDocument::hasSelectedFaces() const {
             return m_selection.hasSelectedFaces();
         }

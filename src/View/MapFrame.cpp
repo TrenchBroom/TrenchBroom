@@ -77,6 +77,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
@@ -158,6 +159,10 @@ namespace TrenchBroom {
             m_controller.redoNextCommand();
         }
 
+        void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
+            m_mapView->toggleClipTool();
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_CLOSE:
@@ -180,6 +185,10 @@ namespace TrenchBroom {
                         event.Enable(false);
                         event.SetText(Menu::redoShortcut().menuText());
                     }
+                    break;
+                case CommandIds::Menu::EditToggleClipTool:
+                    event.Enable(m_document->hasSelectedBrushes());
+                    event.Check(m_mapView->clipToolActive());
                     break;
                 default:
                     event.Enable(false);

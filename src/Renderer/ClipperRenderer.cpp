@@ -33,15 +33,21 @@ namespace TrenchBroom {
     namespace Renderer {
         ClipperRenderer::ClipperRenderer(const View::Clipper& clipper) :
         m_vbo(0xFFF),
-        m_clipper(clipper) {}
+        m_clipper(clipper),
+        m_hasCurrentPoint(false) {}
         
+        void ClipperRenderer::setCurrentPoint(const bool hasPoint, const Vec3& point) {
+            m_hasCurrentPoint = hasPoint;
+            m_currentPoint = point;
+        }
+
         void ClipperRenderer::render(RenderContext& renderContext) {
             renderHandles(renderContext);
         }
 
         void ClipperRenderer::renderHandles(RenderContext& renderContext) {
             const Vec3::List positions = m_clipper.clipPoints();
-            if (positions.empty())
+            if (positions.empty() && !m_hasCurrentPoint)
                 return;
             
             VertexArray handleArray = makeHandleArray();
@@ -66,16 +72,32 @@ namespace TrenchBroom {
             sphereShader.set("CameraPosition", renderContext.camera().position());
             sphereShader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
             sphereShader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+
+            bool currentPointIsHit = false;
             
             for (size_t i = 0; i < positions.size(); ++i) {
-                sphereShader.set("Position", Vec4f(Vec3f(positions[i]), 1.0f));
-                glDisable(GL_DEPTH_TEST);
-                sphereShader.set("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
-                handleArray.render();
-                glEnable(GL_DEPTH_TEST);
-                sphereShader.set("Color", prefs.getColor(Preferences::ClipHandleColor));
-                handleArray.render();
+                renderPointHandle(positions[i], sphereShader, handleArray);
+                currentPointIsHit |= (positions[i] == m_currentPoint);
             }
+            
+            if (m_hasCurrentPoint) {
+                if (currentPointIsHit) {
+                } else {
+                    renderPointHandle(m_currentPoint, sphereShader, handleArray);
+                }
+            }
+        }
+        
+        void ClipperRenderer::renderPointHandle(const Vec3& position, ActiveShader& shader, VertexArray& array) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            shader.set("Position", Vec4f(Vec3f(position), 1.0f));
+            glDisable(GL_DEPTH_TEST);
+            shader.set("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+            array.render();
+            glEnable(GL_DEPTH_TEST);
+            shader.set("Color", prefs.getColor(Preferences::ClipHandleColor));
+            array.render();
         }
         
         void ClipperRenderer::renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray) {
