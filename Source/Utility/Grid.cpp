@@ -291,6 +291,7 @@ namespace TrenchBroom {
             if (gridSkip > 0)
                 --gridSkip;
             float actualDist = std::numeric_limits<float>::max();
+            float minDistDelta = std::numeric_limits<float>::max();
             
             do {
                 // Find the smallest drag distance at which the face boundary is actually moved
@@ -308,15 +309,15 @@ namespace TrenchBroom {
                     const Vec3f vertexDelta = ray.direction * vertexDist;
                     const float vertexNormDist = vertexDelta.dot(face.boundary().normal);
                     
-                    if (std::abs(vertexNormDist) < std::abs(actualDist))
+                    const float normDistDelta = std::abs(vertexNormDist - dist);
+                    if (normDistDelta < minDistDelta) {
                         actualDist = vertexNormDist;
+                        minDistDelta = normDistDelta;
+                    }
                 }
                 ++gridSkip;
             } while (actualDist == std::numeric_limits<float>::max());
             
-            if (std::abs(actualDist) > std::abs(dist))
-                return Vec3f::Null;
-
             normDelta = face.boundary().normal * actualDist;
             const Vec3f deltaNormalized = delta.normalized();
             return deltaNormalized * normDelta.dot(deltaNormalized);
