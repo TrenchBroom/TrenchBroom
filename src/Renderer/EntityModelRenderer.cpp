@@ -26,7 +26,7 @@
 #include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Model/Entity.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Renderer/MeshRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityModelRenderer::EntityModelRenderer(const Model::Filter& filter) :
+        EntityModelRenderer::EntityModelRenderer(const Model::ModelFilter& filter) :
         m_filter(filter),
         m_vbo(new Vbo(0xFFFFF)) {}
 

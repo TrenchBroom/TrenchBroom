@@ -56,9 +56,9 @@ namespace TrenchBroom {
             
             class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
             private:
-                const Model::Filter& m_filter;
+                const Model::ModelFilter& m_filter;
             public:
-                EntityClassnameFilter(const Model::Filter& filter);
+                EntityClassnameFilter(const Model::ModelFilter& filter);
                 bool stringVisible(RenderContext& context, const Key& entity) const;
             };
 
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 Color backgroundColor(RenderContext& context, const Key& entity) const;
             };
             
-            const Model::Filter& m_filter;
+            const Model::ModelFilter& m_filter;
             Model::EntitySet m_entities;
             EdgeRenderer m_boundsRenderer;
             ClassnameRenderer m_classnameRenderer;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             bool m_renderOccludedBounds;
             Color m_occludedBoundsColor;
         public:
-            EntityRenderer(FontManager& m_fontManager, const Model::Filter& filter);
+            EntityRenderer(FontManager& m_fontManager, const Model::ModelFilter& filter);
             ~EntityRenderer();
 
             void addEntity(Model::Entity* entity);

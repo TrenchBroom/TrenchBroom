@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Entity;
-        class Filter;
+        class ModelFilter;
     }
     
     namespace Renderer {
@@ -43,13 +43,13 @@ namespace TrenchBroom {
             typedef std::map<Model::Entity*, MeshRenderer*> EntityMap;
             typedef std::set<Assets::ModelSpecification> MismatchCache;
             
-            const Model::Filter& m_filter;
+            const Model::ModelFilter& m_filter;
             Vbo::Ptr m_vbo;
             RendererCache m_renderers;
             EntityMap m_entities;
             MismatchCache m_mismatches;
         public:
-            EntityModelRenderer(const Model::Filter& filter);
+            EntityModelRenderer(const Model::ModelFilter& filter);
             ~EntityModelRenderer();
             
             void addEntity(Model::Entity* entity);

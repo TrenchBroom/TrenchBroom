@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Filter.h"
+#include "ModelFilter.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -26,31 +26,31 @@
 
 namespace TrenchBroom {
     namespace Model {
-        bool Filter::visible(const Entity* entity) const {
+        bool ModelFilter::visible(const Entity* entity) const {
             if (entity->worldspawn())
                 return false;
             return true;
         }
         
-        bool Filter::visible(const Brush* brush) const {
+        bool ModelFilter::visible(const Brush* brush) const {
             return true;
         }
         
-        bool Filter::visible(const BrushFace* face) const {
+        bool ModelFilter::visible(const BrushFace* face) const {
             return true;
         }
         
-        bool Filter::pickable(const Entity* entity) const {
+        bool ModelFilter::pickable(const Entity* entity) const {
             if (entity->worldspawn())
                 return false;
             return true;
         }
         
-        bool Filter::pickable(const Brush* brush) const {
+        bool ModelFilter::pickable(const Brush* brush) const {
             return true;
         }
         
-        bool Filter::pickable(const BrushFace* face) const {
+        bool ModelFilter::pickable(const BrushFace* face) const {
             return true;
         }
     }

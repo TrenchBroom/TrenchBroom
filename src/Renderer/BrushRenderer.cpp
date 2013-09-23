@@ -26,7 +26,7 @@
 #include "Model/BrushFacesIterator.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/VertexSpec.h"

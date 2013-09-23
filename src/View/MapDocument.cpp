@@ -211,11 +211,11 @@ namespace TrenchBroom {
             return m_map;
         }
 
-        const Model::Filter& MapDocument::filter() const {
+        const Model::ModelFilter& MapDocument::filter() const {
             return m_filter;
         }
 
-        Model::Filter& MapDocument::filter() {
+        Model::ModelFilter& MapDocument::filter() {
             return m_filter;
         }
         

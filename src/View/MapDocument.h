@@ -29,7 +29,7 @@
 #include "Assets/TextureManager.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
 #include "Model/Selection.h"
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
             Model::Picker m_picker;
-            Model::Filter m_filter;
+            Model::ModelFilter m_filter;
             View::Grid m_grid;
             
             size_t m_modificationCount;
@@ -74,8 +74,8 @@ namespace TrenchBroom {
 
             Model::GamePtr game() const;
             Model::Map* map() const;
-            const Model::Filter& filter() const;
-            Model::Filter& filter();
+            const Model::ModelFilter& filter() const;
+            Model::ModelFilter& filter();
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
             Assets::TextureManager& textureManager();

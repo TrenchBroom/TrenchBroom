@@ -28,7 +28,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/Entity.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/RenderContext.h"
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return Alignment::Bottom;
         }
 
-        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::Filter& filter) :
+        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::ModelFilter& filter) :
         m_filter(filter) {}
 
         bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const Key& entity) const {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return m_backgroundColor;
         }
 
-        EntityRenderer::EntityRenderer(FontManager& fontManager, const Model::Filter& filter) :
+        EntityRenderer::EntityRenderer(FontManager& fontManager, const Model::ModelFilter& filter) :
         m_filter(filter),
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
         m_modelRenderer(m_filter),

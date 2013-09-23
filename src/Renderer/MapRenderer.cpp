@@ -34,7 +34,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
 #include "Model/Object.h"
@@ -51,9 +51,9 @@ namespace TrenchBroom {
     namespace Renderer {
         struct UnselectedBrushRendererFilter : public BrushRenderer::Filter {
         private:
-            const Model::Filter& m_filter;
+            const Model::ModelFilter& m_filter;
         public:
-            UnselectedBrushRendererFilter(const Model::Filter& filter) :
+            UnselectedBrushRendererFilter(const Model::ModelFilter& filter) :
             m_filter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {
@@ -74,9 +74,9 @@ namespace TrenchBroom {
         };
         
         struct SelectedBrushRendererFilter : public BrushRenderer::Filter {
-            const Model::Filter& m_filter;
+            const Model::ModelFilter& m_filter;
         public:
-            SelectedBrushRendererFilter(const Model::Filter& filter) :
+            SelectedBrushRendererFilter(const Model::ModelFilter& filter) :
             m_filter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {

@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Filter__
-#define __TrenchBroom__Filter__
+#ifndef __TrenchBroom__ModelFilter__
+#define __TrenchBroom__ModelFilter__
 
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Filter {
+        class ModelFilter {
         public:
             virtual bool visible(const Entity* entity) const;
             virtual bool visible(const Brush* brush) const;
@@ -36,4 +36,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Filter__) */
+#endif /* defined(__TrenchBroom__ModelFilter__) */

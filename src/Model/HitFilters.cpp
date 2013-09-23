@@ -19,7 +19,7 @@
 
 #include "HitFilters.h"
 
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Model/Entity.h"
 #include "Model/Brush.h"
 #include "Model/BrushFAce.h"
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return (hit.type() & m_typeMask) != 0;
         }
         
-        DefaultHitFilter::DefaultHitFilter(const Filter& filter) :
+        DefaultHitFilter::DefaultHitFilter(const ModelFilter& filter) :
         m_filter(filter) {}
         
         bool DefaultHitFilter::matches(const Hit& hit) const {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             return pickResult.firstHit(TypedHitFilter(type), ignoreOccluders);
         }
         
-        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const Filter& modelFilter, const bool ignoreOccluders) {
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const ModelFilter& modelFilter, const bool ignoreOccluders) {
             return pickResult.firstHit(chainHitFilters(TypedHitFilter(type), DefaultHitFilter(modelFilter)), ignoreOccluders);
         }
     }

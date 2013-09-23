@@ -47,12 +47,12 @@ namespace TrenchBroom {
             bool matches(const Hit& hit) const;
         };
 
-        class Filter;
+        class ModelFilter;
         class DefaultHitFilter : public HitFilter {
         private:
-            const Filter& m_filter;
+            const ModelFilter& m_filter;
         public:
-            DefaultHitFilter(const Filter& filter);
+            DefaultHitFilter(const ModelFilter& filter);
             bool matches(const Hit& hit) const;
         };
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const bool ignoreOccluders);
-        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const Filter& modelFilter, const bool ignoreOccluders);
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const ModelFilter& modelFilter, const bool ignoreOccluders);
     }
 }
 

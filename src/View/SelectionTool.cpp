@@ -23,7 +23,7 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/Entity.h"
-#include "Model/Filter.h"
+#include "Model/ModelFilter.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
 #include "View/ControllerFacade.h"
