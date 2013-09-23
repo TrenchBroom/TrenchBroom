@@ -39,7 +39,7 @@ namespace TrenchBroom {
         bool TypedHitFilter::matches(const Hit& hit) const {
             return (hit.type() & m_typeMask) != 0;
         }
-
+        
         DefaultHitFilter::DefaultHitFilter(const Filter& filter) :
         m_filter(filter) {}
         
@@ -51,5 +51,12 @@ namespace TrenchBroom {
             return false;
         }
         
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const bool ignoreOccluders) {
+            return pickResult.firstHit(TypedHitFilter(type), ignoreOccluders);
+        }
+        
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const Filter& modelFilter, const bool ignoreOccluders) {
+            return pickResult.firstHit(chainHitFilters(TypedHitFilter(type), DefaultHitFilter(modelFilter)), ignoreOccluders);
+        }
     }
 }

@@ -39,16 +39,6 @@ namespace TrenchBroom {
             bool matches(const Hit& hit) const;
         };
         
-        template <class F1, class F2>
-        HitFilterChain chainHitFilters(const F1& f1, const F2& f2) {
-            return HitFilterChain(f1, f2);
-        }
-        
-        template <class F1, class F2, class F3>
-        HitFilterChain chainHitFilters(const F1& f1, const F2& f2, const F3& f3) {
-            return chainHitFilters(f1, chainHitFilters(f2, f3));
-        }
-        
         class TypedHitFilter : public HitFilter {
         private:
             Hit::HitType m_typeMask;
@@ -65,6 +55,19 @@ namespace TrenchBroom {
             DefaultHitFilter(const Filter& filter);
             bool matches(const Hit& hit) const;
         };
+
+        template <class F1, class F2>
+        HitFilterChain chainHitFilters(const F1& f1, const F2& f2) {
+            return HitFilterChain(f1, f2);
+        }
+        
+        template <class F1, class F2, class F3>
+        HitFilterChain chainHitFilters(const F1& f1, const F2& f2, const F3& f3) {
+            return chainHitFilters(f1, chainHitFilters(f2, f3));
+        }
+
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const bool ignoreOccluders);
+        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const Filter& modelFilter, const bool ignoreOccluders);
     }
 }
 

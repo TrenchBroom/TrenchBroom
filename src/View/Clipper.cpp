@@ -70,8 +70,11 @@ namespace TrenchBroom {
         bool Clipper::clipPointValid(const Vec3& point) const {
             if (m_numPoints == 3)
                 return false;
-            return (!isIdenticalWithAnyPoint(point) &&
-                    !isLinearlyDependent(point));
+            if (identicalWithAnyPoint(point, m_numPoints))
+                return false;
+            if (m_numPoints == 2 && linearlyDependent(m_points[0], m_points[1], point))
+                return false;
+            return true;
         }
         
         void Clipper::addClipPoint(const Vec3& point, const Model::BrushFace& face) {
@@ -87,6 +90,39 @@ namespace TrenchBroom {
             --m_numPoints;
         }
 
+        size_t Clipper::indexOfPoint(const Vec3& point) const {
+            for (size_t i = 0; i < m_numPoints; ++i)
+                if (m_points[i] == point)
+                    return i;
+            return 3;
+        }
+        
+        bool Clipper::pointUpdateValid(const size_t index, const Vec3& newPoint) {
+            assert(index < m_numPoints);
+            if (identicalWithAnyPoint(newPoint, index))
+                return false;
+            if (m_numPoints < 3)
+                return true;
+            
+            switch (index) {
+                case 0:
+                    return !linearlyDependent(m_points[1], m_points[2], newPoint);
+                case 1:
+                    return !linearlyDependent(m_points[0], m_points[2], newPoint);
+                case 2:
+                    return !linearlyDependent(m_points[0], m_points[1], newPoint);
+                default:
+                    return false;
+            }
+        }
+
+        void Clipper::updatePoint(const size_t index, const Vec3& point, const Model::BrushFace& face) {
+            assert(index < m_numPoints);
+            assert(pointUpdateValid(index, point));
+            m_points[index] = point;
+            m_normals[index] = getNormals(point, face);
+        }
+
         void Clipper::toggleClipSide() {
             switch (m_clipSide) {
                 case Front:
@@ -99,6 +135,10 @@ namespace TrenchBroom {
                     m_clipSide = Front;
                     break;
             }
+        }
+
+        size_t Clipper::numPoints() const {
+            return m_numPoints;
         }
 
         Vec3::List Clipper::clipPoints() const {
@@ -146,18 +186,16 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Clipper::isIdenticalWithAnyPoint(const Vec3& point) const {
+        bool Clipper::identicalWithAnyPoint(const Vec3& point, const size_t disregardIndex) const {
             for (size_t i = 0; i < m_numPoints; ++i)
-                if (m_points[i] == point)
+                if (i != disregardIndex && m_points[i] == point)
                     return true;
             return false;
         }
 
-        bool Clipper::isLinearlyDependent(const Vec3& point) const {
-            if (m_numPoints < 2)
-                return false;
-            const Vec3 v1 = (point - m_points[0]).normalized();
-            const Vec3 v2 = (point - m_points[1]).normalized();
+        bool Clipper::linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const {
+            const Vec3 v1 = (p3 - p1).normalized();
+            const Vec3 v2 = (p3 - p2).normalized();
             const FloatType dot = v1.dot(v2);
             return Math::eq(std::abs(dot), 1.0);
         }

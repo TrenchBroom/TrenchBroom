@@ -43,8 +43,7 @@ namespace TrenchBroom {
             const bool faces = inputState.modifierKeysDown(ModifierKeys::MKShift);
             
             if (faces) {
-                Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit), Model::DefaultHitFilter(inputState.filter()));
-                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
+                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
                 if (first.matches) {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
@@ -60,8 +59,7 @@ namespace TrenchBroom {
                     controller().deselectAll();
                 }
             } else {
-                Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit | Model::Entity::EntityHit), Model::DefaultHitFilter(inputState.filter()));
-                const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
+                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
                 if (first.matches) {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {

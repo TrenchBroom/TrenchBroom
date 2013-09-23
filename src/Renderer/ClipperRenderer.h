@@ -20,8 +20,11 @@
 #ifndef __TrenchBroom__ClipperRenderer__
 #define __TrenchBroom__ClipperRenderer__
 
+#include "Color.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Renderer/Circle.h"
+#include "Renderer/Sphere.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -36,21 +39,21 @@ namespace TrenchBroom {
         
         class ClipperRenderer {
         private:
-            Vbo m_vbo;
             const View::Clipper& m_clipper;
-            bool m_hasCurrentPoint;
-            Vec3 m_currentPoint;
+            Vbo m_vbo;
         public:
             ClipperRenderer(const View::Clipper& clipper);
             
-            void setCurrentPoint(const bool hasPoint, const Vec3& point = Vec3::Null);
-            void render(RenderContext& renderContext);
+            void renderClipPoints(RenderContext& renderContext);
+            void renderHighlight(RenderContext& renderContext, const size_t index);
+            void renderBrushes(RenderContext& renderContext);
+            void renderCurrentPoint(RenderContext& renderContext, const Vec3& position);
         private:
-            void renderHandles(RenderContext& renderContext);
-            void renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, VertexArray& handleArray);
-            void renderPointHandle(const Vec3& position, ActiveShader& shader, VertexArray& array);
+            void renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle);
+            void renderPointHandle(const Vec3& position, ActiveShader& shader, Sphere& pointHandle, const Color& color, const Color& occludedColor);
             void renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray);
-            VertexArray makeHandleArray();
+            Sphere makePointHandle();
+            Circle makePointHandleHighlight();
             VertexArray makeLineArray(const Vec3::List& positions);
             VertexArray makeTriangleArray(const Vec3::List& positions);
         };

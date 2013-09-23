@@ -33,6 +33,23 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
+        Vec2f::List circle(const float radius, const float startAngle, const float angleLength, const size_t segments) {
+            assert(radius > 0.0f);
+            assert(segments > 0);
+            
+            Vec2f::List vertices(segments + 1);
+            
+            const float d = angleLength / segments;
+            float a = startAngle;
+            for (size_t i = 0; i <= segments; ++i) {
+                vertices[i][0] = radius * std::sin(a);
+                vertices[i][1] = radius * std::cos(a);
+                a += d;
+            }
+            
+            return vertices;
+        }
+        
         Vec2f::List roundedRect(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&

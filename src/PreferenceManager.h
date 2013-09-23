@@ -49,7 +49,12 @@ namespace TrenchBroom {
         void setInt(Preference<int>& preference, int value);
         
         float getFloat(Preference<float>& preference) const;
+        float getFloat(Preference<double>& preference) const;
         void setFloat(Preference<float>& preference, float value);
+        
+        double getDouble(Preference<double>& preference) const;
+        double getDouble(Preference<float>& preference) const;
+        void setDouble(Preference<double>& preference, double value);
         
         const String& getString(Preference<String>& preference) const;
         void setString(Preference<String>& preference, const String& value);

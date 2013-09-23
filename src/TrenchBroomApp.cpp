@@ -106,6 +106,7 @@ namespace TrenchBroom {
                 return newDocument(true);
             }
 #endif
+            m_lastActivation = 0;
             return true;
         }
         
@@ -185,6 +186,16 @@ namespace TrenchBroom {
                     wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
                     frame->ProcessWindowEventLocally(event);
                     return 1;
+                } else if (event.GetEventType() == wxEVT_ACTIVATE) {
+                    m_lastActivation = wxGetLocalTimeMillis();
+                } else if (event.GetEventType() == wxEVT_LEFT_DOWN ||
+                           event.GetEventType() == wxEVT_MIDDLE_DOWN ||
+                           event.GetEventType() == wxEVT_RIGHT_DOWN ||
+                           event.GetEventType() == wxEVT_LEFT_UP ||
+                           event.GetEventType() == wxEVT_MIDDLE_UP ||
+                           event.GetEventType() == wxEVT_RIGHT_UP) {
+                    if (wxGetLocalTimeMillis() - m_lastActivation <= 10)
+                        return 1;
                 }
             }
             return wxApp::FilterEvent(event);

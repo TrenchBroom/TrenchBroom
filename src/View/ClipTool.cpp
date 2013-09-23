@@ -18,6 +18,8 @@
  */
 
 #include "ClipTool.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
@@ -28,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const Model::Hit::HitType ClipTool::HandleHit = Model::Hit::freeHitType();
+
         ClipTool::ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera) :
         Tool(next, document, controller),
         m_clipper(camera),
@@ -46,10 +50,30 @@ namespace TrenchBroom {
             return true;
         }
 
+        void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const double radius = prefs.getDouble(Preferences::HandleRadius);
+            const double scaling = prefs.getDouble(Preferences::HandleScalingFactor);
+            const double maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
+            const Ray3& ray = inputState.pickRay();
+            
+            const Vec3::List clipPoints = m_clipper.clipPoints();
+            for (size_t i = 0; i < clipPoints.size(); ++i) {
+                const FloatType dist = ray.intersectWithSphere(clipPoints[i],
+                                                               radius, scaling, maxDist);
+                if (!Math::isnan(dist)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(dist);
+                    pickResult.addHit(Model::Hit(HandleHit, dist, hitPoint, i));
+                }
+            }
+        }
+
         bool ClipTool::doMouseUp(const InputState& inputState) {
-            Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit),
-                                                                     Model::DefaultHitFilter(inputState.filter()));
-            Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                inputState.modifierKeys() != ModifierKeys::MKNone)
+                return false;
+
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
                 if (m_clipper.clipPointValid(point))
@@ -59,17 +83,51 @@ namespace TrenchBroom {
             return true;
         }
         
-        void ClipTool::doMouseMove(const InputState& inputState) {
-            Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit),
-                                                                     Model::DefaultHitFilter(inputState.filter()));
-            Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
+        bool ClipTool::doStartMouseDrag(const InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                inputState.modifierKeys() != ModifierKeys::MKNone)
+                return false;
+            
+            const Model::PickResult::FirstHit firstHandleHit = Model::firstHit(inputState.pickResult(), HandleHit, true);
+            if (!firstHandleHit.matches)
+                return false;
+            
+            m_dragPointIndex = firstHandleHit.hit.target<size_t>();
+            return true;
+        }
+        
+        bool ClipTool::doMouseDrag(const InputState& inputState) {
+            Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
-                if (m_clipper.clipPointValid(point)) {
-                    m_renderer.setCurrentPoint(true, point);
-                    // set current highlight point
-                } else {
-                    m_renderer.setCurrentPoint(false);
+                if (m_clipper.pointUpdateValid(m_dragPointIndex, point))
+                    m_clipper.updatePoint(m_dragPointIndex, point, *hitAsFace(first.hit));
+            }
+            return true;
+        }
+        
+        void ClipTool::doEndMouseDrag(const InputState& inputState) {
+        }
+        
+        void ClipTool::doCancelMouseDrag(const InputState& inputState) {
+        }
+
+        void ClipTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            m_renderer.renderClipPoints(renderContext);
+            
+            if (dragging()) {
+                m_renderer.renderHighlight(renderContext, m_dragPointIndex);
+            } else {
+                const Model::PickResult::FirstHit firstBrushHit = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+                const Model::PickResult::FirstHit firstHandleHit = Model::firstHit(inputState.pickResult(), HandleHit, true);
+                
+                if (firstHandleHit.matches) {
+                    const size_t index = firstHandleHit.hit.target<size_t>();
+                    m_renderer.renderHighlight(renderContext, index);
+                } else if (firstBrushHit.matches) {
+                    const Vec3 point = clipPoint(firstBrushHit.hit);
+                    if (m_clipper.clipPointValid(point))
+                        m_renderer.renderCurrentPoint(renderContext, point);
                 }
             }
         }
@@ -78,10 +136,6 @@ namespace TrenchBroom {
             const Model::BrushFace& face = *hitAsFace(hit);
             const Vec3& point = hit.hitPoint();
             return document()->grid().snap(point, face.boundary());
-        }
-
-        void ClipTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            m_renderer.render(renderContext);
         }
     }
 }

@@ -17,23 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Filter__
-#define __TrenchBroom__Filter__
+#ifndef __TrenchBroom__Sphere__
+#define __TrenchBroom__Sphere__
 
-#include "Model/ModelTypes.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter {
+    namespace Renderer {
+        class Vbo;
+        
+        class Sphere {
+        private:
+            VertexArray m_array;
         public:
-            virtual bool visible(const Entity* entity) const;
-            virtual bool visible(const Brush* brush) const;
-            virtual bool visible(const BrushFace* face) const;
-            virtual bool pickable(const Entity* entity) const;
-            virtual bool pickable(const Brush* brush) const;
-            virtual bool pickable(const BrushFace* face) const;
+            Sphere(Vbo& vbo, const float radius, const size_t iterations);
+            void prepare();
+            void render();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Filter__) */
+#endif /* defined(__TrenchBroom__Sphere__) */

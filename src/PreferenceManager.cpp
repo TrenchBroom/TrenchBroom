@@ -98,6 +98,13 @@ namespace TrenchBroom {
         return preference.value();
     }
     
+    float PreferenceManager::getFloat(Preference<double>& preference) const {
+        if (!preference.initialized())
+            preference.load(wxConfig::Get());
+        
+        return static_cast<float>(preference.value());
+    }
+
     void PreferenceManager::setFloat(Preference<float>& preference, float value) {
         float previousValue = preference.value();
         preference.setValue(value);
@@ -105,6 +112,29 @@ namespace TrenchBroom {
             preference.save(wxConfig::Get());
         else
             markAsUnsaved(&preference, new ValueHolder<float>(previousValue));
+    }
+    
+    double PreferenceManager::getDouble(Preference<double>& preference) const {
+        if (!preference.initialized())
+            preference.load(wxConfig::Get());
+        
+        return preference.value();
+    }
+    
+    double PreferenceManager::getDouble(Preference<float>& preference) const {
+        if (!preference.initialized())
+            preference.load(wxConfig::Get());
+        
+        return static_cast<double>(preference.value());
+    }
+    
+    void PreferenceManager::setDouble(Preference<double>& preference, double value) {
+        double previousValue = preference.value();
+        preference.setValue(value);
+        if (m_saveInstantly)
+            preference.save(wxConfig::Get());
+        else
+            markAsUnsaved(&preference, new ValueHolder<double>(previousValue));
     }
     
     const String& PreferenceManager::getString(Preference<String>& preference) const {

@@ -215,6 +215,10 @@ namespace TrenchBroom {
             return m_filter;
         }
 
+        Model::Filter& MapDocument::filter() {
+            return m_filter;
+        }
+        
         Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
             return m_entityDefinitionManager;
         }

@@ -102,6 +102,8 @@ namespace TrenchBroom {
             void commandUndone(Controller::Command::Ptr command);
             void commandUndoFailed(Controller::Command::Ptr command);
         private:
+            void updatePickResults(const int x, const int y);
+            
             void createTools();
             void deleteTools();
             void toggleTool(BaseTool* tool);

@@ -35,6 +35,7 @@ namespace TrenchBroom {
         private:
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp> m_recentDocuments;
+            wxLongLong m_lastActivation;
         public:
             TrenchBroomApp();
             

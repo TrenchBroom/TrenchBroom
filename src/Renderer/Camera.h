@@ -63,6 +63,8 @@ namespace TrenchBroom {
             const Vec3f& right() const;
             const Mat4x4f& projectionMatrix() const;
             const Mat4x4f& viewMatrix() const;
+            const Mat4x4f orthogonalBillboardMatrix() const;
+            const Mat4x4f verticalBillboardMatrix() const;
             
             Ray3f viewRay() const;
             Ray3f pickRay(const int x, const int y) const;

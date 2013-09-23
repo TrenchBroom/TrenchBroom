@@ -62,8 +62,7 @@ namespace TrenchBroom {
             if (document()->hasSelectedObjects())
                 return false;
             
-            Model::HitFilterChain hitFilter = Model::chainHitFilters(Model::TypedHitFilter(Model::Brush::BrushHit), Model::DefaultHitFilter(inputState.filter()));
-            const Model::PickResult::FirstHit first = inputState.pickResult().firstHit(hitFilter, true);
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches)
                 initialPoint = first.hit.hitPoint();
             else

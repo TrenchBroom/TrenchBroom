@@ -17,23 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Filter__
-#define __TrenchBroom__Filter__
+#include "Sphere.h"
 
-#include "Model/ModelTypes.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+
+#include "Renderer/RenderUtils.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter {
-        public:
-            virtual bool visible(const Entity* entity) const;
-            virtual bool visible(const Brush* brush) const;
-            virtual bool visible(const BrushFace* face) const;
-            virtual bool pickable(const Entity* entity) const;
-            virtual bool pickable(const Brush* brush) const;
-            virtual bool pickable(const BrushFace* face) const;
-        };
+    namespace Renderer {
+        Sphere::Sphere(Vbo& vbo, const float radius, const size_t iterations) {
+            typedef VertexSpecs::P3::Vertex Vertex;
+            
+            const Vec3f::List positions = sphere(radius, iterations);
+            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            m_array = VertexArray(vbo, GL_TRIANGLES, vertices);
+        }
+        
+        void Sphere::prepare() {
+            m_array.prepare();
+        }
+        
+        void Sphere::render() {
+            m_array.render();
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__Filter__) */

@@ -36,6 +36,7 @@
 
 #include <wx/dcclient.h>
 #include <wx/settings.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_document, m_renderResources.fontManager()),
         m_auxVbo(0xFFF),
-        m_inputState(document->filter(), m_camera, document->grid()),
+        m_inputState(m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
@@ -57,7 +58,7 @@ namespace TrenchBroom {
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
-        m_ignoreNextClick(false){
+        m_ignoreNextClick(false) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
@@ -93,6 +94,7 @@ namespace TrenchBroom {
 
         void MapView::OnKey(wxKeyEvent& event) {
             updateModifierKeys();
+            updatePickResults(event.GetX(), event.GetY());
             event.Skip();
         }
         
@@ -123,19 +125,18 @@ namespace TrenchBroom {
                     ReleaseMouse();
             }
 
+            updatePickResults(event.GetX(), event.GetY());
             Refresh();
             event.Skip();
         }
         
         void MapView::OnMouseMotion(wxMouseEvent& event) {
-            m_inputState.setPickRay(m_camera.pickRay(event.GetX(), event.GetY()));
-            Model::PickResult pickResult = m_document->pick(m_inputState.pickRay());
-            m_inputState.setPickResult(pickResult);
-            
+            updatePickResults(event.GetX(), event.GetY());
             if (m_dragReceiver != NULL) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
                 m_dragReceiver->mouseDrag(m_inputState);
             } else {
+
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
                     (std::abs(event.GetX() - m_clickPos.x) > 1 ||
                      std::abs(event.GetY() - m_clickPos.y) > 1)) {
@@ -160,6 +161,8 @@ namespace TrenchBroom {
             else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
                 m_inputState.scroll(0.0f, delta);
             m_toolChain->scroll(m_inputState);
+
+            updatePickResults(event.GetX(), event.GetY());
             Refresh();
             event.Skip();
         }
@@ -183,12 +186,6 @@ namespace TrenchBroom {
             clearModifierKeys();
             m_ignoreNextClick = true;
             Refresh();
-            event.Skip();
-        }
-
-        void MapView::OnActivateFrame(wxActivateEvent& event) {
-            if (!event.GetActive())
-                m_ignoreNextClick = true;
             event.Skip();
         }
 
@@ -247,6 +244,14 @@ namespace TrenchBroom {
 
         void MapView::commandUndoFailed(Controller::Command::Ptr command) {
             Refresh();
+        }
+
+        void MapView::updatePickResults(const int x, const int y) {
+            m_inputState.setPickRay(m_camera.pickRay(x, y));
+            Model::PickResult pickResult = m_document->pick(m_inputState.pickRay());
+            m_toolChain->pick(m_inputState, pickResult);
+            pickResult.sortHits();
+            m_inputState.setPickResult(pickResult);
         }
 
         void MapView::createTools() {

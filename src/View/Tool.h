@@ -25,6 +25,10 @@
 #include "ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class RenderContext;
     }
@@ -50,6 +54,18 @@ namespace TrenchBroom {
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
+        };
+        
+        class PickingPolicy {
+        public:
+            virtual ~PickingPolicy();
+            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) const = 0;
+        };
+        
+        class NoPickingPolicy {
+        public:
+            virtual ~NoPickingPolicy();
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
         };
         
         class MousePolicy {
@@ -135,6 +151,8 @@ namespace TrenchBroom {
             virtual bool activate(const InputState& inputState) = 0;
             virtual void deactivate(const InputState& inputState) = 0;
             
+            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) const = 0;
+            
             virtual void modifierKeyChange(const InputState& inputState) = 0;
             virtual bool mouseDown(const InputState& inputState) = 0;
             virtual bool mouseUp(const InputState& inputState) = 0;
@@ -150,8 +168,8 @@ namespace TrenchBroom {
             virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
-        template <class ActivationPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
-        class Tool : public BaseTool, protected ActivationPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
+        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
+        class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             BaseTool* m_next;
             MapDocumentPtr m_document;
@@ -190,6 +208,13 @@ namespace TrenchBroom {
                 }
             }
             
+            void pick(const InputState& inputState, Model::PickResult& pickResult) const {
+                if (active())
+                    static_cast<const PickingPolicyType&>(*this).doPick(inputState, pickResult);
+                if (m_next != NULL)
+                    m_next->pick(inputState, pickResult);
+            }
+
             void modifierKeyChange(const InputState& inputState) {
                 if (active())
                     doModifierKeyChange(inputState);

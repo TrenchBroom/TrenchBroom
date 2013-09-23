@@ -105,6 +105,36 @@ namespace TrenchBroom {
             return m_viewMatrix;
         }
 
+        const Mat4x4f Camera::orthogonalBillboardMatrix() const {
+            Vec3f bbLook, bbUp, bbRight;
+            bbLook = -m_direction;
+            bbUp = m_up;
+            bbRight = crossed(bbUp, bbLook);
+            
+            return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
+                           bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
+                           bbRight.z(),   bbUp.z(),   bbLook.z(), 0.0f,
+                           0.0f,          0.0f,       0.0f,       1.0f);
+        }
+        
+        const Mat4x4f Camera::verticalBillboardMatrix() const {
+            Vec3f bbLook, bbUp, bbRight;
+            bbLook = -m_direction;
+            bbLook[2] = 0.0f;
+            if (bbLook.null()) {
+                bbLook = -m_up;
+                bbLook[2] = 0.0f;
+            }
+            bbLook.normalize();
+            bbUp = Vec3f::PosZ;
+            bbRight = crossed(bbUp, bbLook);
+            
+            return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
+                           bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
+                           bbRight.z(),   bbUp.z(),   bbLook.z(), 0.0f,
+                           0.0f,          0.0f,       0.0f,       1.0f);
+        }
+
         Ray3f Camera::viewRay() const {
             return Ray3f(m_position, m_direction);
         }

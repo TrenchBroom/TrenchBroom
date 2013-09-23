@@ -69,14 +69,20 @@ namespace TrenchBroom {
             bool clipPointValid(const Vec3& point) const;
             void addClipPoint(const Vec3& point, const Model::BrushFace& face);
             void deleteLastClipPoint();
+            size_t numPoints() const;
             Vec3::List clipPoints() const;
+
+            size_t indexOfPoint(const Vec3& point) const;
+            bool pointUpdateValid(const size_t index, const Vec3& newPoint);
+            void updatePoint(const size_t index, const Vec3& point, const Model::BrushFace& face);
 
             void toggleClipSide();
             void reset();
             ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const;
         private:
-            bool isIdenticalWithAnyPoint(const Vec3& point) const;
-            bool isLinearlyDependent(const Vec3& point) const;
+            bool identicalWithAnyPoint(const Vec3& point, const size_t disregardIndex) const;
+            bool linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
+
             Vec3::List getNormals(const Vec3& point, const Model::BrushFace& face) const;
             Vec3::List getNormals(const Model::BrushFaceList& faces) const;
             ClipPoints computeClipPoints() const;

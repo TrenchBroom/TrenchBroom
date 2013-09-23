@@ -92,6 +92,23 @@ namespace TrenchBroom {
     };
     
     template <>
+    class Converter<double> {
+    public:
+        wxString toWxString(const double& value) const {
+            wxString string;
+            string << value;
+            return string;
+        }
+        
+        double fromWxString(const wxString& string) const {
+            double doubleValue;
+            if (string.ToDouble(&doubleValue))
+                return doubleValue;
+            return 0.0;
+        }
+    };
+    
+    template <>
     class Converter<String> {
     public:
         wxString toWxString(const String& value) const {

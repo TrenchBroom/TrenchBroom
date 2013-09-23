@@ -24,6 +24,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -32,72 +33,101 @@
 namespace TrenchBroom {
     namespace Renderer {
         ClipperRenderer::ClipperRenderer(const View::Clipper& clipper) :
-        m_vbo(0xFFF),
         m_clipper(clipper),
-        m_hasCurrentPoint(false) {}
+        m_vbo(0xFFF) {}
         
-        void ClipperRenderer::setCurrentPoint(const bool hasPoint, const Vec3& point) {
-            m_hasCurrentPoint = hasPoint;
-            m_currentPoint = point;
-        }
-
-        void ClipperRenderer::render(RenderContext& renderContext) {
-            renderHandles(renderContext);
-        }
-
-        void ClipperRenderer::renderHandles(RenderContext& renderContext) {
+        void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {
             const Vec3::List positions = m_clipper.clipPoints();
-            if (positions.empty() && !m_hasCurrentPoint)
+            if (positions.empty())
                 return;
             
-            VertexArray handleArray = makeHandleArray();
+            Sphere pointHandle = makePointHandle();
             VertexArray lineArray = makeLineArray(positions);
             VertexArray triangleArray = makeTriangleArray(positions);
             
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            handleArray.prepare();
+            pointHandle.prepare();
             lineArray.prepare();
             triangleArray.prepare();
             setVboState.active();
             
-            renderPointHandles(renderContext, positions, handleArray);
+            renderPointHandles(renderContext, positions, pointHandle);
             renderPlaneIndicators(renderContext, lineArray, triangleArray);
         }
+        
+        void ClipperRenderer::renderHighlight(RenderContext& renderContext, const size_t index) {
+            assert(index < m_clipper.numPoints());
 
-        void ClipperRenderer::renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, VertexArray& handleArray) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const float scaling = prefs.getFloat(Preferences::HandleScalingFactor);
+            const Vec3 position = m_clipper.clipPoints()[index];
+
+            const Camera& camera = renderContext.camera();
+            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
+            const float factor = camera.distanceTo(position) * scaling;
+            const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
+            MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
+            
+            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
+            shader.set("Color", prefs.getColor(Preferences::SelectedHandleColor));
+
+            Circle highlight = makePointHandleHighlight();
+            SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            highlight.prepare();
+            setVboState.active();
+
+            glDisable(GL_DEPTH_TEST);
+            highlight.render();
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        void ClipperRenderer::renderBrushes(RenderContext& renderContext) {
+        }
+        
+        void ClipperRenderer::renderCurrentPoint(RenderContext& renderContext, const Vec3& position) {
+            Sphere pointHandle = makePointHandle();
+            
+            SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            pointHandle.prepare();
+            setVboState.active();
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
+            sphereShader.set("CameraPosition", renderContext.camera().position());
+            sphereShader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
+            sphereShader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+
+            renderPointHandle(position, sphereShader, pointHandle,
+                              prefs.getColor(Preferences::HandleColor),
+                              prefs.getColor(Preferences::OccludedHandleColor));
+        }
+
+        void ClipperRenderer::renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle) {
             PreferenceManager& prefs = PreferenceManager::instance();
             ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
             
             sphereShader.set("CameraPosition", renderContext.camera().position());
             sphereShader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
             sphereShader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
-
-            bool currentPointIsHit = false;
             
             for (size_t i = 0; i < positions.size(); ++i) {
-                renderPointHandle(positions[i], sphereShader, handleArray);
-                currentPointIsHit |= (positions[i] == m_currentPoint);
-            }
-            
-            if (m_hasCurrentPoint) {
-                if (currentPointIsHit) {
-                } else {
-                    renderPointHandle(m_currentPoint, sphereShader, handleArray);
-                }
+                renderPointHandle(positions[i], sphereShader, pointHandle,
+                                  prefs.getColor(Preferences::HandleColor),
+                                  prefs.getColor(Preferences::OccludedHandleColor));
             }
         }
         
-        void ClipperRenderer::renderPointHandle(const Vec3& position, ActiveShader& shader, VertexArray& array) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-
+        void ClipperRenderer::renderPointHandle(const Vec3& position, ActiveShader& shader, Sphere& pointHandle, const Color& color, const Color& occludedColor) {
             shader.set("Position", Vec4f(Vec3f(position), 1.0f));
             glDisable(GL_DEPTH_TEST);
-            shader.set("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
-            array.render();
+            shader.set("Color", color);
+            pointHandle.render();
             glEnable(GL_DEPTH_TEST);
-            shader.set("Color", prefs.getColor(Preferences::ClipHandleColor));
-            array.render();
+            shader.set("Color", occludedColor);
+            pointHandle.render();
         }
         
         void ClipperRenderer::renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray) {
@@ -110,20 +140,21 @@ namespace TrenchBroom {
             triangleArray.render();
             glEnable(GL_CULL_FACE);
             
-            planeShader.set("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+            planeShader.set("Color", prefs.getColor(Preferences::OccludedHandleColor));
             lineArray.render();
             glEnable(GL_DEPTH_TEST);
-            planeShader.set("Color", prefs.getColor(Preferences::ClipHandleColor));
+            planeShader.set("Color", prefs.getColor(Preferences::HandleColor));
             lineArray.render();
         }
 
-        VertexArray ClipperRenderer::makeHandleArray() {
+        Sphere ClipperRenderer::makePointHandle() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            typedef VertexSpecs::P3::Vertex Vertex;
-
-            const Vec3f::List positions = sphere(prefs.getFloat(Preferences::HandleRadius), 1);
-            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            return VertexArray(m_vbo, GL_TRIANGLES, vertices);
+            return Sphere(m_vbo, prefs.getFloat(Preferences::HandleRadius), 1);
+        }
+        
+        Circle ClipperRenderer::makePointHandleHighlight() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return Circle(m_vbo, 2.0f * prefs.getFloat(Preferences::HandleRadius), 16, false);
         }
         
         VertexArray ClipperRenderer::makeLineArray(const Vec3::List& positions) {

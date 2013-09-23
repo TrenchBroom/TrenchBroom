@@ -52,12 +52,13 @@ namespace TrenchBroom {
         Preference<Color> SelectedInfoOverlayTextColor("Renderer/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor("Renderer/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
 
-        Preference<float> HandleRadius("Controls/Handle radius", 3.0f);
-        Preference<float> HandleScalingFactor("Controls/Handle scaling factor", 1.0f / 300.0f);
-        Preference<float> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0f);
-        Preference<Color> ClipHandleColor("Renderer/Colors/Clip handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> OccludedClipHandleColor("Renderer/Colors/Occluded clip handle", Color(1.0f, 1.0f, 1.0f, 0.5f));
-        Preference<Color> SelectedClipHandleColor("Renderer/Colors/Selected clip handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<double> HandleRadius("Controls/Handle radius", 3.0f);
+        Preference<double> HandleScalingFactor("Controls/Handle scaling factor", 1.0f / 300.0f);
+        Preference<double> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0f);
+        Preference<Color> HandleColor("Renderer/Colors/Handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> OccludedHandleColor("Renderer/Colors/Occluded handle", Color(1.0f, 1.0f, 1.0f, 0.5f));
+        Preference<Color> SelectedHandleColor("Renderer/Colors/Selected handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> OccludedSelectedHandleColor("Renderer/Colors/Occluded selected handle", Color(1.0f, 0.0f, 0.0f, 0.5f));
         Preference<Color> ClipPlaneColor("Renderer/Colors/Clip plane", Color(1.0f, 1.0f, 1.0f, 0.25f));
         
         Preference<float> Brightness("Renderer/Brightness", 1.4f);

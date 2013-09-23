@@ -31,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Filter;
-        
         class Hit {
         public:
             typedef unsigned long HitType;

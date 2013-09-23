@@ -25,10 +25,6 @@
 #include "Model/Picker.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-    }
-    
     namespace Renderer {
         class Camera;
     }
@@ -66,12 +62,11 @@ namespace TrenchBroom {
             float m_scrollY;
             Ray3 m_pickRay;
             mutable Model::PickResult m_pickResult;
-            const Model::Filter& m_filter;
-            Renderer::Camera& m_camera;
-            const Grid& m_grid;
+
+            const Renderer::Camera& m_camera;
         public:
-            InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid);
-            InputState(const Model::Filter& filter, Renderer::Camera& camera, const Grid& grid, const int mouseX, const int mouseY);
+            InputState(const Renderer::Camera& camera);
+            InputState(const Renderer::Camera& camera, const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -102,9 +97,8 @@ namespace TrenchBroom {
             void setPickRay(const Ray3& pickRay);
             Model::PickResult& pickResult() const;
             void setPickResult(Model::PickResult& pickResult);
-            const Model::Filter& filter() const;
+
             const Renderer::Camera& camera() const;
-            const Grid& grid() const;
         };
     }
 }

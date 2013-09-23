@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/Picker.h"
 #include "Renderer/ClipperRenderer.h"
 #include "View/Clipper.h"
 #include "View/Tool.h"
@@ -33,22 +34,31 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class ClipTool : public Tool<ActivationPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy> {
+        class ClipTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
         private:
+            static const Model::Hit::HitType HandleHit;
+
             Clipper m_clipper;
             Renderer::ClipperRenderer m_renderer;
+            size_t m_dragPointIndex;
         public:
             ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
+            
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
 
             bool doMouseUp(const InputState& inputState);
-            void doMouseMove(const InputState& inputState);
-            Vec3 clipPoint(const Model::Hit& hit) const;
-            
+
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            Vec3 clipPoint(const Model::Hit& hit) const;
         };
     }
 }

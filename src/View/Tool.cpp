@@ -35,6 +35,10 @@ namespace TrenchBroom {
         bool NoActivationPolicy::doActivate(const InputState& inputState) { return true; }
         bool NoActivationPolicy::doDeactivate(const InputState& inputState) { return true; }
 
+        PickingPolicy::~PickingPolicy() {}
+        NoPickingPolicy::~NoPickingPolicy() {}
+        void NoPickingPolicy::doPick(const InputState& inputState, Model::PickResult& pickResult) const {}
+
         MousePolicy::~MousePolicy() {}
         bool MousePolicy::doMouseDown(const InputState& inputState) { return false;}
         bool MousePolicy::doMouseUp(const InputState& inputState) { return false; }
