@@ -33,7 +33,6 @@ namespace TrenchBroom {
             static const unsigned int DirEntryNameLength    = 16;
             static const unsigned int PalLength             = 256;
             static const unsigned int TexWidthOffset        = 16;
-            static const unsigned int MaxTextureSize        = 512;
         }
 
         Mip* Wad::loadMip(const WadEntry& entry, unsigned int mipCount) const throw (IOException) {
@@ -47,8 +46,7 @@ namespace TrenchBroom {
             unsigned int mip0Offset = readUnsignedInt<int32_t>(cursor);
             
             
-            if (width == 0 || height == 0 ||
-                width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
+            if (width == 0 || height == 0)
                 throw IOException("Invalid mip dimensions (%ix%i)", width, height);
             if (mip0Offset + mip0Size > entry.length())
                 throw IOException("Mip data beyond wad entry");
