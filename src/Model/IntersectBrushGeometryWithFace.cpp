@@ -161,6 +161,8 @@ namespace TrenchBroom {
                 switch (side->mark()) {
                     case BrushFaceGeometry::Drop: {
                         m_droppedSides.push_back(side);
+                        if (side->face() != NULL)
+                            removeFace(side->face());
                         break;
                     }
                     case BrushFaceGeometry::Keep: {

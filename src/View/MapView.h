@@ -115,6 +115,7 @@ namespace TrenchBroom {
             void bindEvents();
             
             void setupGL(Renderer::RenderContext& context);
+            void setRenderOptions(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);

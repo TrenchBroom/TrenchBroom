@@ -159,16 +159,17 @@ namespace TrenchBroom {
 
             m_unselectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
             m_unselectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::EdgeColor));
-            
-            m_selectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-            m_selectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
-            m_selectedBrushRenderer.setTintFaces(true);
-            m_selectedBrushRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
-            m_selectedBrushRenderer.setRenderOccludedEdges(true);
-            m_selectedBrushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-
             m_unselectedBrushRenderer.render(context);
-            m_selectedBrushRenderer.render(context);
+            
+            if (!context.hideSelection()) {
+                m_selectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
+                m_selectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
+                m_selectedBrushRenderer.setTintFaces(true);
+                m_selectedBrushRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
+                m_selectedBrushRenderer.setRenderOccludedEdges(true);
+                m_selectedBrushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedBrushRenderer.render(context);
+            }
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {
@@ -176,16 +177,17 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::InfoOverlayTextColor));
             m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::InfoOverlayBackgroundColor));
-            
-            m_selectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor));
-            m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-            m_selectedEntityRenderer.setOverrideBoundsColor(true);
-            m_selectedEntityRenderer.setBoundsColor(prefs.getColor(Preferences::SelectedEdgeColor));
-            m_selectedEntityRenderer.setRenderOccludedBounds(true);
-            m_selectedEntityRenderer.setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-            
             m_unselectedEntityRenderer.render(context);
-            m_selectedEntityRenderer.render(context);
+            
+            if (!context.hideSelection()) {
+                m_selectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor));
+                m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+                m_selectedEntityRenderer.setOverrideBoundsColor(true);
+                m_selectedEntityRenderer.setBoundsColor(prefs.getColor(Preferences::SelectedEdgeColor));
+                m_selectedEntityRenderer.setRenderOccludedBounds(true);
+                m_selectedEntityRenderer.setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedEntityRenderer.render(context);
+            }
         }
 
         void MapRenderer::clearState() {

@@ -76,6 +76,8 @@ namespace TrenchBroom {
             bool pointUpdateValid(const size_t index, const Vec3& newPoint);
             void updatePoint(const size_t index, const Vec3& point, const Model::BrushFace& face);
 
+            bool keepFrontBrushes() const;
+            bool keepBackBrushes() const;
             void toggleClipSide();
             void reset();
             ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const;

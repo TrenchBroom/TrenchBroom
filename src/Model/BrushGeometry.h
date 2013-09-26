@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "CollectionUtils.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushEdge.h"
 #include "Model/ModelTypes.h"
@@ -48,8 +49,11 @@ namespace TrenchBroom {
                 droppedFaces(i_droppedFaces) {}
                 
                 void append(const Result<T>& other) {
-                    addedFaces.insert(addedFaces.end(), other.addedFaces.begin(), other.addedFaces.end());
-                    droppedFaces.insert(droppedFaces.end(), other.droppedFaces.begin(), other.droppedFaces.end());
+                    addedFaces = VectorUtils::difference(addedFaces, other.droppedFaces);
+                    VectorUtils::concatenate(addedFaces, other.addedFaces);
+                    
+                    droppedFaces = VectorUtils::difference(droppedFaces, other.addedFaces);
+                    VectorUtils::concatenate(droppedFaces, other.droppedFaces);
                 }
             };
             

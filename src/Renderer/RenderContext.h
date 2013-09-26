@@ -32,12 +32,17 @@ namespace TrenchBroom {
             const Camera& m_camera;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
+            
+            bool m_hideSelection;
         public:
             RenderContext(const Camera& camera, ShaderManager& shaderManager);
             
             const Camera& camera() const;
             Transformation& transformation();
             ShaderManager& shaderManager();
+            
+            bool hideSelection() const;
+            void setHideSelection();
         };
     }
 }

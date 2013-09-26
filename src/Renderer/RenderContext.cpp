@@ -25,7 +25,8 @@ namespace TrenchBroom {
         RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager) :
         m_camera(camera),
         m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
-        m_shaderManager(shaderManager) {}
+        m_shaderManager(shaderManager),
+        m_hideSelection(false) {}
         
         const Camera& RenderContext::camera() const {
             return m_camera;
@@ -37,6 +38,14 @@ namespace TrenchBroom {
 
         ShaderManager& RenderContext::shaderManager() {
             return m_shaderManager;
+        }
+
+        bool RenderContext::hideSelection() const {
+            return m_hideSelection;
+        }
+        
+        void RenderContext::setHideSelection() {
+            m_hideSelection = true;
         }
     }
 }

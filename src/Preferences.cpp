@@ -59,7 +59,11 @@ namespace TrenchBroom {
         Preference<Color> OccludedHandleColor("Renderer/Colors/Occluded handle", Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> SelectedHandleColor("Renderer/Colors/Selected handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> OccludedSelectedHandleColor("Renderer/Colors/Occluded selected handle", Color(1.0f, 0.0f, 0.0f, 0.5f));
+
         Preference<Color> ClipPlaneColor("Renderer/Colors/Clip plane", Color(1.0f, 1.0f, 1.0f, 0.25f));
+        Preference<Color> ClipFaceColor("Renderer/Colors/Clip face", Color(0.6f,  0.35f, 0.35f, 1.0f));
+        Preference<Color> ClipEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  1.0f));
+        Preference<Color> ClipOccludedEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  0.5f));
         
         Preference<float> Brightness("Renderer/Brightness", 1.4f);
         Preference<float> GridAlpha("Renderer/Grid/Alpha", 0.5f);

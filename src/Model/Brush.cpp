@@ -150,6 +150,8 @@ namespace TrenchBroom {
                 Model::BrushFaceList newFaces = m_faces;
                 newFaces.push_back(face);
                 face->setParent(this);
+                m_faces.clear();
+
                 rebuildGeometry(worldBounds, newFaces);
                 return !m_faces.empty();
             } catch (GeometryException&) {

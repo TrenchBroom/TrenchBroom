@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/ModelTypes.h"
 #include "Model/Picker.h"
 #include "Renderer/ClipperRenderer.h"
 #include "View/Clipper.h"
@@ -40,6 +41,8 @@ namespace TrenchBroom {
 
             Clipper m_clipper;
             Renderer::ClipperRenderer m_renderer;
+            Model::EntityBrushesMap m_frontBrushes;
+            Model::EntityBrushesMap m_backBrushes;
             size_t m_dragPointIndex;
         public:
             ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
@@ -57,8 +60,12 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
 
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            
             Vec3 clipPoint(const Model::Hit& hit) const;
+            void updateBrushes();
+            void clearAndDelete(Model::EntityBrushesMap& brushes);
         };
     }
 }

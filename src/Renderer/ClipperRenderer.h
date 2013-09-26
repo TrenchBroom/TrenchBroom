@@ -23,6 +23,8 @@
 #include "Color.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/ModelTypes.h"
+#include "Renderer/BrushRenderer.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Sphere.h"
 #include "Renderer/Vbo.h"
@@ -40,6 +42,8 @@ namespace TrenchBroom {
         class ClipperRenderer {
         private:
             const View::Clipper& m_clipper;
+            BrushRenderer m_frontRenderer;
+            BrushRenderer m_backRenderer;
             Vbo m_vbo;
         public:
             ClipperRenderer(const View::Clipper& clipper);
@@ -48,6 +52,8 @@ namespace TrenchBroom {
             void renderHighlight(RenderContext& renderContext, const size_t index);
             void renderBrushes(RenderContext& renderContext);
             void renderCurrentPoint(RenderContext& renderContext, const Vec3& position);
+            
+            void setBrushes(const Model::BrushList& frontBrushes, const Model::BrushList& backBrushes);
         private:
             void renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle);
             void renderPointHandle(const Vec3& position, ActiveShader& shader, Sphere& pointHandle, const Color& color, const Color& occludedColor);
@@ -56,6 +62,7 @@ namespace TrenchBroom {
             Circle makePointHandleHighlight();
             VertexArray makeLineArray(const Vec3::List& positions);
             VertexArray makeTriangleArray(const Vec3::List& positions);
+            void setupBrushRenderer(BrushRenderer& renderer, const bool keep);
         };
     }
 }

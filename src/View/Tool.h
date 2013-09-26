@@ -134,12 +134,14 @@ namespace TrenchBroom {
         class RenderPolicy {
         public:
             virtual ~RenderPolicy();
+            virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
         class NoRenderPolicy {
         public:
             virtual ~NoRenderPolicy();
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
         
@@ -165,6 +167,7 @@ namespace TrenchBroom {
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
             
+            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
             virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
@@ -290,6 +293,13 @@ namespace TrenchBroom {
                 m_dragging = false;
             }
             
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                if (active())
+                    static_cast<const RenderPolicyType&>(*this).doSetRenderOptions(inputState, renderContext);
+                if (m_next != NULL)
+                    m_next->setRenderOptions(inputState, renderContext);
+            }
+
             void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 if (active())
                     static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);

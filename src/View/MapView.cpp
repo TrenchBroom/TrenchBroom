@@ -204,6 +204,7 @@ namespace TrenchBroom {
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
                     Renderer::RenderContext context(m_camera, m_renderResources.shaderManager());
                     setupGL(context);
+                    setRenderOptions(context);
                     clearBackground(context);
                     renderCoordinateSystem(context);
                     renderMap(context);
@@ -372,6 +373,10 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glShadeModel(GL_SMOOTH);
+        }
+
+        void MapView::setRenderOptions(Renderer::RenderContext& context) {
+            m_toolChain->setRenderOptions(m_inputState, context);
         }
 
         void MapView::clearBackground(Renderer::RenderContext& context) {

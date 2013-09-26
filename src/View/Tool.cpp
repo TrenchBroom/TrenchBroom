@@ -99,8 +99,10 @@ namespace TrenchBroom {
         }
         
         RenderPolicy::~RenderPolicy() {}
+        void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
         NoRenderPolicy::~NoRenderPolicy() {}
+        void NoRenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         void NoRenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {}
 
         BaseTool::~BaseTool() {}

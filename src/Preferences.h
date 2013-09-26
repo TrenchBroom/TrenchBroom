@@ -54,7 +54,11 @@ namespace TrenchBroom {
         extern Preference<Color> OccludedHandleColor;
         extern Preference<Color> SelectedHandleColor;
         extern Preference<Color> OccludedSelectedHandleColor;
+
         extern Preference<Color> ClipPlaneColor;
+        extern Preference<Color> ClipFaceColor;
+        extern Preference<Color> ClipEdgeColor;
+        extern Preference<Color> ClipOccludedEdgeColor;
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;

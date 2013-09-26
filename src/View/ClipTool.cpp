@@ -18,12 +18,15 @@
  */
 
 #include "ClipTool.h"
+#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
+#include "Model/ModelUtils.h"
 #include "Model/Picker.h"
+#include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -43,10 +46,13 @@ namespace TrenchBroom {
         
         bool ClipTool::doActivate(const InputState& inputState) {
             m_clipper.reset();
+            updateBrushes();
             return true;
         }
         
         bool ClipTool::doDeactivate(const InputState& inputState) {
+            clearAndDelete(m_frontBrushes);
+            clearAndDelete(m_backBrushes);
             return true;
         }
 
@@ -76,8 +82,10 @@ namespace TrenchBroom {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
-                if (m_clipper.clipPointValid(point))
+                if (m_clipper.clipPointValid(point)) {
                     m_clipper.addClipPoint(point, *hitAsFace(first.hit));
+                    updateBrushes();
+                }
             }
             
             return true;
@@ -100,8 +108,10 @@ namespace TrenchBroom {
             Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
-                if (m_clipper.pointUpdateValid(m_dragPointIndex, point))
+                if (m_clipper.pointUpdateValid(m_dragPointIndex, point)) {
                     m_clipper.updatePoint(m_dragPointIndex, point, *hitAsFace(first.hit));
+                    updateBrushes();
+                }
             }
             return true;
         }
@@ -112,7 +122,12 @@ namespace TrenchBroom {
         void ClipTool::doCancelMouseDrag(const InputState& inputState) {
         }
 
+        void ClipTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            renderContext.setHideSelection();
+        }
+
         void ClipTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            m_renderer.renderBrushes(renderContext);
             m_renderer.renderClipPoints(renderContext);
             
             if (dragging()) {
@@ -136,6 +151,26 @@ namespace TrenchBroom {
             const Model::BrushFace& face = *hitAsFace(hit);
             const Vec3& point = hit.hitPoint();
             return document()->grid().snap(point, face.boundary());
+        }
+
+        void ClipTool::updateBrushes() {
+            clearAndDelete(m_frontBrushes);
+            clearAndDelete(m_backBrushes);
+            
+            const Model::BrushList& brushes = document()->selectedBrushes();
+            const ClipResult result = m_clipper.clip(brushes, document());
+            m_frontBrushes = result.frontBrushes;
+            m_backBrushes = result.backBrushes;
+            
+            m_renderer.setBrushes(Model::mergeEntityBrushesMap(m_frontBrushes),
+                                  Model::mergeEntityBrushesMap(m_backBrushes));
+        }
+
+        void ClipTool::clearAndDelete(Model::EntityBrushesMap& brushes) {
+            Model::EntityBrushesMap::iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                VectorUtils::clearAndDelete(it->second);
+            brushes.clear();
         }
     }
 }

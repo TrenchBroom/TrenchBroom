@@ -43,6 +43,16 @@ namespace TrenchBroom {
             return map.createBrush(worldBounds, faces);
         }
 
+        BrushList mergeEntityBrushesMap(const EntityBrushesMap& map) {
+            BrushList result;
+            EntityBrushesMap::const_iterator it, end;
+            for (it = map.begin(), end = map.end(); it != end; ++it) {
+                const BrushList& entityBrushes = it->second;
+                result.insert(result.end(), entityBrushes.begin(), entityBrushes.end());
+            }
+            return result;
+        }
+
         bool MatchAll::operator()(const Object* object) const {
             return true;
         }

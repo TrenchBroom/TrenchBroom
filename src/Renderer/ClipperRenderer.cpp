@@ -32,9 +32,38 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        struct BrushFilter : public Renderer::BrushRenderer::Filter {
+            bool operator()(const Model::Brush* brush) const {
+                return true;
+            }
+            
+            bool operator()(const Model::BrushFace* face) const {
+                return true;
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                return true;
+            }
+        };
+
+        
         ClipperRenderer::ClipperRenderer(const View::Clipper& clipper) :
         m_clipper(clipper),
-        m_vbo(0xFFF) {}
+        m_frontRenderer(BrushFilter()),
+        m_backRenderer(BrushFilter()),
+        m_vbo(0xFFF) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            m_frontRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
+            m_frontRenderer.setEdgeColor(prefs.getColor(Preferences::ClipEdgeColor));
+            m_frontRenderer.setTintColor(prefs.getColor(Preferences::ClipFaceColor));
+            m_frontRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::ClipOccludedEdgeColor));
+            
+            m_backRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
+            m_backRenderer.setEdgeColor(prefs.getColor(Preferences::ClipEdgeColor));
+            m_backRenderer.setTintColor(prefs.getColor(Preferences::ClipFaceColor));
+            m_backRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::ClipOccludedEdgeColor));
+        }
         
         void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {
             const Vec3::List positions = m_clipper.clipPoints();
@@ -84,6 +113,11 @@ namespace TrenchBroom {
         }
 
         void ClipperRenderer::renderBrushes(RenderContext& renderContext) {
+            setupBrushRenderer(m_frontRenderer, m_clipper.keepFrontBrushes());
+            setupBrushRenderer(m_backRenderer, m_clipper.keepBackBrushes());
+            
+            m_frontRenderer.render(renderContext);
+            m_backRenderer.render(renderContext);
         }
         
         void ClipperRenderer::renderCurrentPoint(RenderContext& renderContext, const Vec3& position) {
@@ -103,6 +137,11 @@ namespace TrenchBroom {
             renderPointHandle(position, sphereShader, pointHandle,
                               prefs.getColor(Preferences::HandleColor),
                               prefs.getColor(Preferences::OccludedHandleColor));
+        }
+
+        void ClipperRenderer::setBrushes(const Model::BrushList& frontBrushes, const Model::BrushList& backBrushes) {
+            m_frontRenderer.setBrushes(frontBrushes);
+            m_backRenderer.setBrushes(backBrushes);
         }
 
         void ClipperRenderer::renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle) {
@@ -181,6 +220,18 @@ namespace TrenchBroom {
             for (size_t i = 0; i < positions.size(); ++i)
                 vertices.push_back(Vertex(Vec3f(positions[i])));
             return VertexArray(m_vbo, GL_TRIANGLE_FAN, vertices);
+        }
+
+        void ClipperRenderer::setupBrushRenderer(BrushRenderer& renderer, const bool keep) {
+            if (keep) {
+                renderer.setTintFaces(true);
+                renderer.setRenderOccludedEdges(true);
+                renderer.setGrayscale(false);
+            } else {
+                renderer.setTintFaces(false);
+                renderer.setRenderOccludedEdges(false);
+                renderer.setGrayscale(true);
+            }
         }
     }
 }

@@ -123,6 +123,14 @@ namespace TrenchBroom {
             m_normals[index] = getNormals(point, face);
         }
 
+        bool Clipper::keepFrontBrushes() const {
+            return m_clipSide != Back;
+        }
+        
+        bool Clipper::keepBackBrushes() const {
+            return m_clipSide != Front;
+        }
+
         void Clipper::toggleClipSide() {
             switch (m_clipSide) {
                 case Front:
@@ -156,9 +164,9 @@ namespace TrenchBroom {
         ClipResult Clipper::clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const {
             ClipResult result;
             
+            const BBox3& worldBounds = document->worldBounds();
             const ClipPoints points = computeClipPoints();
             if (points.valid()) {
-                const BBox3& worldBounds = document->worldBounds();
                 Model::Map& map = *document->map();
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
@@ -180,6 +188,15 @@ namespace TrenchBroom {
                         result.backBrushes[entity].push_back(backBrush);
                     else
                         delete backBrush;
+                }
+            } else {
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    Model::Brush* brush = *bIt;
+                    Model::Entity* entity = brush->parent();
+                    
+                    Model::Brush* frontBrush = brush->clone(worldBounds);
+                    result.frontBrushes[entity].push_back(frontBrush);
                 }
             }
             
@@ -265,7 +282,7 @@ namespace TrenchBroom {
                 result = ClipPoints(m_points[0].rounded(),
                                     m_points[0].rounded() + 128.0 * normal.firstAxis(),
                                     m_points[2]);
-            } else {
+            } else if (m_numPoints == 3) {
                 result = ClipPoints(m_points[0].rounded(),
                                     m_points[1].rounded(),
                                     m_points[2].rounded());
@@ -309,6 +326,8 @@ namespace TrenchBroom {
         }
 
         void Clipper::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {
+            assert(!faces.empty());
+            
             Model::BrushFaceList::const_iterator faceIt = faces.begin();
             Model::BrushFaceList::const_iterator faceEnd = faces.end();
             const Model::BrushFace* bestFrontFace = *faceIt++;
@@ -326,6 +345,7 @@ namespace TrenchBroom {
                 const Vec3f backDiff = face->boundary().normal - backFace.boundary().normal;
                 if (backDiff.squaredLength() < bestBackDiff.squaredLength())
                     bestBackFace = face;
+                ++faceIt;
             }
             
             assert(bestFrontFace != NULL);
