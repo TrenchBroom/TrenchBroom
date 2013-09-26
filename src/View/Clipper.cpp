@@ -174,7 +174,7 @@ namespace TrenchBroom {
                     Model::Entity* entity = brush->parent();
                     
                     Model::BrushFace* frontFace = map.createFace(points[0], points[1], points[2], document->currentTextureName());
-                    Model::BrushFace* backFace = map.createFace(points[0], points[1], points[2], document->currentTextureName());
+                    Model::BrushFace* backFace = map.createFace(points[0], points[2], points[1], document->currentTextureName());
                     setFaceAttributes(brush->faces(), *frontFace, *backFace);
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);
@@ -281,7 +281,7 @@ namespace TrenchBroom {
                 const Vec3 normal = selectNormal(m_normals[0], m_normals[1]);
                 result = ClipPoints(m_points[0].rounded(),
                                     m_points[0].rounded() + 128.0 * normal.firstAxis(),
-                                    m_points[2]);
+                                    m_points[1]);
             } else if (m_numPoints == 3) {
                 result = ClipPoints(m_points[0].rounded(),
                                     m_points[1].rounded(),
