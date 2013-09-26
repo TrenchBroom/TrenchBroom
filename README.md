@@ -36,6 +36,11 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.1.1
+- More natural snapping when resizing brushes
+- Remove limit on maximum mip texture dimensions
+- Don't fall back to software renderer on OS X
+
 ### TrenchBroom 1.1.0
 - Keyboard customization
 - Restrict to X or Y axis when moving objects
