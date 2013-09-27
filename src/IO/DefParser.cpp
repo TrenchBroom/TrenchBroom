@@ -443,6 +443,8 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; i++) {
                 expect(DefToken::Decimal | DefToken::Integer, token = m_tokenizer.nextToken());
                 color[i] = token.toFloat<float>();
+                if (color[i] > 1.0f)
+                    color[i] /= 255.0f;
             }
             expect(DefToken::CParenthesis, token = m_tokenizer.nextToken());
             color[3] = 1.0f;
