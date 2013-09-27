@@ -177,6 +177,7 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::InfoOverlayTextColor));
             m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            m_unselectedEntityRenderer.setApplyTinting(false);
             m_unselectedEntityRenderer.render(context);
             
             if (!context.hideSelection()) {
@@ -186,6 +187,8 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.setBoundsColor(prefs.getColor(Preferences::SelectedEdgeColor));
                 m_selectedEntityRenderer.setRenderOccludedBounds(true);
                 m_selectedEntityRenderer.setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedEntityRenderer.setApplyTinting(true);
+                m_selectedEntityRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }
         }

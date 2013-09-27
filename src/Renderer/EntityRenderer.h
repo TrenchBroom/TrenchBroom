@@ -26,6 +26,7 @@
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/TextRenderer.h"
+#include "Renderer/TriangleRenderer.h"
 
 #include <map>
 
@@ -75,7 +76,8 @@ namespace TrenchBroom {
             
             const Model::ModelFilter& m_filter;
             Model::EntitySet m_entities;
-            EdgeRenderer m_boundsRenderer;
+            EdgeRenderer m_wireframeBoundsRenderer;
+            TriangleRenderer m_solidBoundsRenderer;
             ClassnameRenderer m_classnameRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
@@ -86,6 +88,8 @@ namespace TrenchBroom {
             Color m_boundsColor;
             bool m_renderOccludedBounds;
             Color m_occludedBoundsColor;
+            bool m_applyTinting;
+            Color m_tintColor;
         public:
             EntityRenderer(FontManager& m_fontManager, const Model::ModelFilter& filter);
             ~EntityRenderer();
@@ -134,8 +138,15 @@ namespace TrenchBroom {
             void setRenderOccludedBounds(const bool renderOccludedBounds);
             const Color& occludedBoundsColor() const;
             void setOccludedBoundsColor(const Color& occludedBoundsColor);
+            
+            bool applyTinting() const;
+            void setApplyTinting(const bool applyTinting);
+            const Color& tintColor() const;
+            void setTintColor(const Color& tintColor);
         private:
             void renderBounds(RenderContext& context);
+            void renderWireframeBounds(RenderContext& context);
+            void renderSolidBounds(RenderContext& renderContext);
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
             static TextureFont& font(FontManager& fontManager);

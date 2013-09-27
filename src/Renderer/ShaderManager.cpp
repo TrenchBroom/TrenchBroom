@@ -45,23 +45,23 @@ namespace TrenchBroom {
         }
 
         namespace Shaders {
-            const ShaderConfig ColoredEdgeShader = ShaderConfig("Colored Edge Shader Program", "ColoredEdge.vertsh", "Edge.fragsh");
-            const ShaderConfig EdgeShader = ShaderConfig("Edge Shader Program", "Edge.vertsh", "Edge.fragsh");
-            const ShaderConfig EntityModelShader = ShaderConfig("Entity Model Shader Program", "EntityModel.vertsh", "EntityModel.fragsh");
-            const ShaderConfig FaceShader = ShaderConfig("Face Shader Program", "Face.vertsh", "Face.fragsh");
-            const ShaderConfig ColoredTextShader = ShaderConfig("Colored Text Shader Program", "ColoredText.vertsh", "Text.fragsh");
-            const ShaderConfig TextShader = ShaderConfig("Text Shader Program", "Text.vertsh", "Text.fragsh");
-            const ShaderConfig TextBackgroundShader = ShaderConfig("Text Background Shader Program", "TextBackground.vertsh", "TextBackground.fragsh");
-            const ShaderConfig TextureBrowserShader = ShaderConfig("FaceTexture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");
-            const ShaderConfig TextureBrowserBorderShader = ShaderConfig("FaceTexture Browser Border Shader Program", "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
-            const ShaderConfig BrowserGroupShader = ShaderConfig("Browser Group Shader Program", "BrowserGroup.vertsh", "BrowserGroup.fragsh");
-            const ShaderConfig HandleShader = ShaderConfig("Handle Shader Program", "Handle.vertsh", "Handle.fragsh");
-            const ShaderConfig PointHandleShader = ShaderConfig("Point Handle Shader Program", "PointHandle.vertsh", "Handle.fragsh");
-            const ShaderConfig InstancedPointHandleShader = ShaderConfig("Instanced Point Handle Shader Program", "InstancedPointHandle.vertsh", "Handle.fragsh");
-            const ShaderConfig ColoredHandleShader = ShaderConfig("Colored Handle Shader Program", "ColoredHandle.vertsh", "Handle.fragsh");
-            const ShaderConfig CompassShader = ShaderConfig("Compass Shader Program", "Compass.vertsh", "Compass.fragsh");
-            const ShaderConfig CompassOutlineShader = ShaderConfig("Compass Outline Shader Program", "CompassOutline.vertsh", "Compass.fragsh");
-            const ShaderConfig EntityLinkShader = ShaderConfig("Entity Link Shader Program", "EntityLink.vertsh", "EntityLink.fragsh");
+            const ShaderConfig VaryingPCShader            = ShaderConfig("Varying Position / Color",         "VaryingPC.vertsh",            "VaryingPC.fragsh");
+            const ShaderConfig VaryingPUniformCShader     = ShaderConfig("Varying Position / Uniform Color", "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
+            const ShaderConfig EntityModelShader          = ShaderConfig("Entity Model",                     "EntityModel.vertsh",          "EntityModel.fragsh");
+            const ShaderConfig FaceShader                 = ShaderConfig("Face",                             "Face.vertsh",                 "Face.fragsh");
+            const ShaderConfig ColoredTextShader          = ShaderConfig("Colored Text",                     "ColoredText.vertsh",          "Text.fragsh");
+            const ShaderConfig TextShader                 = ShaderConfig("Text",                             "Text.vertsh",                 "Text.fragsh");
+            const ShaderConfig TextBackgroundShader       = ShaderConfig("Text Background",                  "TextBackground.vertsh",       "TextBackground.fragsh");
+            const ShaderConfig TextureBrowserShader       = ShaderConfig("FaceTexture Browser",              "TextureBrowser.vertsh",       "TextureBrowser.fragsh");
+            const ShaderConfig TextureBrowserBorderShader = ShaderConfig("FaceTexture Browser Border",       "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
+            const ShaderConfig BrowserGroupShader         = ShaderConfig("Browser Group",                    "BrowserGroup.vertsh",         "BrowserGroup.fragsh");
+            const ShaderConfig HandleShader               = ShaderConfig("Handle",                           "Handle.vertsh",               "Handle.fragsh");
+            const ShaderConfig PointHandleShader          = ShaderConfig("Point Handle",                     "PointHandle.vertsh",          "Handle.fragsh");
+            const ShaderConfig InstancedPointHandleShader = ShaderConfig("Instanced Point Handle",           "InstancedPointHandle.vertsh", "Handle.fragsh");
+            const ShaderConfig ColoredHandleShader        = ShaderConfig("Colored Handle",                   "ColoredHandle.vertsh",        "Handle.fragsh");
+            const ShaderConfig CompassShader              = ShaderConfig("Compass",                          "Compass.vertsh",              "Compass.fragsh");
+            const ShaderConfig CompassOutlineShader       = ShaderConfig("Compass Outline",                  "CompassOutline.vertsh",       "Compass.fragsh");
+            const ShaderConfig EntityLinkShader           = ShaderConfig("Entity Link",                      "EntityLink.vertsh",           "EntityLink.fragsh");
         }
 
         ShaderManager::~ShaderManager() {

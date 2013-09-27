@@ -19,8 +19,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+uniform bool ApplyTinting;
+uniform vec4 TintColor;
+
 varying vec4 vertexColor;
 
 void main() {
     gl_FragColor = vertexColor;
+    
+    if (ApplyTinting) {
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+    }
 }

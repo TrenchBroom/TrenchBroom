@@ -94,6 +94,22 @@ namespace TrenchBroom {
             m_mismatches.clear();
         }
         
+        bool EntityModelRenderer::applyTinting() const {
+            return m_applyTinting;
+        }
+        
+        void EntityModelRenderer::setApplyTinting(const bool applyTinting) {
+            m_applyTinting = applyTinting;
+        }
+        
+        const Color& EntityModelRenderer::tintColor() const {
+            return m_tintColor;
+        }
+        
+        void EntityModelRenderer::setTintColor(const Color& tintColor) {
+            m_tintColor = tintColor;
+        }
+        
         void EntityModelRenderer::render(RenderContext& context) {
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();
@@ -107,8 +123,8 @@ namespace TrenchBroom {
             
             ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
-            shader.set("ApplyTinting", false);
-            shader.set("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+            shader.set("ApplyTinting", m_applyTinting);
+            shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
             
@@ -126,8 +142,7 @@ namespace TrenchBroom {
                 const Quatf rotation = entity->rotation();
                 const Mat4x4f matrix = translationMatrix(position) * rotationMatrix(rotation);
                 MultiplyModelMatrix multMatrix(context.transformation(), matrix);
-                
-                shader.set("ApplyTinting", entity->selected());
+
                 renderer->render();
             }
         }

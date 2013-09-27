@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EdgeRenderer.h"
+#include "TriangleRenderer.h"
 
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -25,22 +25,24 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EdgeRenderer::EdgeRenderer() :
+        TriangleRenderer::TriangleRenderer() :
         m_prepared(true) {}
         
-        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
-        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
         m_useColor(true),
+        m_applyTinting(false),
         m_prepared(false) {}
         
-        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3C4::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3C4::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
-        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
         m_useColor(false),
+        m_applyTinting(false),
         m_prepared(false)  {}
         
-        EdgeRenderer::EdgeRenderer(const EdgeRenderer& other) {
+        TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) {
             m_vertexArray = other.m_vertexArray;
             m_vbo = other.m_vbo;
             m_color = other.m_color;
@@ -48,13 +50,13 @@ namespace TrenchBroom {
             m_prepared = other.m_prepared;
         }
         
-        EdgeRenderer& EdgeRenderer::operator= (EdgeRenderer other) {
+        TriangleRenderer& TriangleRenderer::operator= (TriangleRenderer other) {
             using std::swap;
             swap(*this, other);
             return *this;
         }
         
-        void swap(EdgeRenderer& left, EdgeRenderer& right) {
+        void swap(TriangleRenderer& left, TriangleRenderer& right) {
             using std::swap;
             swap(left.m_vbo, right.m_vbo);
             swap(left.m_vertexArray, right.m_vertexArray);
@@ -62,12 +64,20 @@ namespace TrenchBroom {
             swap(left.m_useColor, right.m_useColor);
             swap(left.m_prepared, right.m_prepared);
         }
-
-        void EdgeRenderer::setColor(const Color& color) {
+        
+        void TriangleRenderer::setColor(const Color& color) {
             m_color = color;
         }
+        
+        void TriangleRenderer::setApplyTinting(const bool applyTinting) {
+            m_applyTinting = applyTinting;
+        }
 
-        void EdgeRenderer::render(RenderContext& context) {
+        void TriangleRenderer::setTintColor(const Color& tintColor) {
+            m_tintColor = tintColor;
+        }
+
+        void TriangleRenderer::render(RenderContext& context) {
             if (m_vertexArray.vertexCount() == 0)
                 return;
             
@@ -78,14 +88,18 @@ namespace TrenchBroom {
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_color);
+                shader.set("ApplyTinting", m_applyTinting);
+                shader.set("TintColor", m_tintColor);
                 m_vertexArray.render();
             } else {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPCShader);
+                shader.set("ApplyTinting", m_applyTinting);
+                shader.set("TintColor", m_tintColor);
                 m_vertexArray.render();
             }
         }
         
-        void EdgeRenderer::prepare() {
+        void TriangleRenderer::prepare() {
             assert(!m_prepared);
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();

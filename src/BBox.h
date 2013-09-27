@@ -259,6 +259,21 @@ public:
 };
 
 template <typename T, class Op>
+void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
+    const Vec<T,3> size = bbox.size();
+    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    
+    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x); // top
+    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y); // bottom
+    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x); // front
+    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z); // back
+    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z); // left
+    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y); // right
+}
+
+template <typename T, class Op>
 void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
     const Vec<T,3> size = bbox.size();
     const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
@@ -268,34 +283,22 @@ void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
     Vec<T,3> v1, v2;
     
     // top edges clockwise (viewed from above)
-    v1 = bbox.max; v2 = bbox.max - y;
-    op(v1, v2);
-    v1 = v2; v2 -= x;
-    op(v1, v2);
-    v1 = v2; v2 += y;
-    op(v1, v2);
-    v1 = v2; v2 += x;
-    op(v1, v2);
+    op(bbox.max,         bbox.max - y    );
+    op(bbox.max - y,     bbox.max - y - x);
+    op(bbox.max - y - x, bbox.max - x    );
+    op(bbox.max - x,     bbox.max        );
     
     // bottom edges clockwise (viewed from below)
-    v1 = bbox.min; v2 = bbox.min + x;
-    op(v1, v2);
-    v1 = v2; v2 += y;
-    op(v1, v2);
-    v1 = v2; v2 -= x;
-    op(v1, v2);
-    v1 = v2; v2 -= y;
-    op(v1, v2);
+    op(bbox.min,         bbox.min + x    );
+    op(bbox.min + x,     bbox.min + x + y);
+    op(bbox.min + x + y, bbox.min + y    );
+    op(bbox.min + y,     bbox.min        );
     
-    // side edges clockwise (viewed from above
-    v1 = bbox.min; v2 = bbox.min + z;
-    op(v1, v2);
-    v1 += y; v2 += y;
-    op(v1, v2);
-    v1 += x; v2 += x;
-    op(v1, v2);
-    v1 -= y; v2 -= y;
-    op(v1, v2);
+    // side edges clockwise (viewed from above)
+    op(bbox.min,         bbox.min + z        );
+    op(bbox.min + y,     bbox.min + y + z    );
+    op(bbox.min + x + y, bbox.min + x + y + z);
+    op(bbox.min + x,     bbox.min + x + z    );
 }
 
 template <typename T, class Op>

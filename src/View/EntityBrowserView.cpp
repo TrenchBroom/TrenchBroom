@@ -242,7 +242,7 @@ namespace TrenchBroom {
             }
             
             Renderer::VertexArray vertexArray(m_vbo, GL_LINES, vertices);
-            Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::ColoredEdgeShader);
+            Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::VaryingPCShader);
             vertexArray.render();
         }
 

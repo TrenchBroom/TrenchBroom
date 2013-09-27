@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityModelRenderer__
 #define __TrenchBroom__EntityModelRenderer__
 
+#include "Color.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
@@ -48,6 +49,9 @@ namespace TrenchBroom {
             RendererCache m_renderers;
             EntityMap m_entities;
             MismatchCache m_mismatches;
+            
+            bool m_applyTinting;
+            Color m_tintColor;
         public:
             EntityModelRenderer(const Model::ModelFilter& filter);
             ~EntityModelRenderer();
@@ -59,6 +63,11 @@ namespace TrenchBroom {
             void removeEntity(Model::Entity* entity);
             void removeEntities(const Model::EntityList& entities);
             void clear();
+            
+            bool applyTinting() const;
+            void setApplyTinting(const bool applyTinting);
+            const Color& tintColor() const;
+            void setTintColor(const Color& tintColor);
             
             void render(RenderContext& context);
         };
