@@ -26,7 +26,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
-#include "Model/Picker.h"
 #include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"

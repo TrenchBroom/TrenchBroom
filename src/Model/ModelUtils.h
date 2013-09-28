@@ -31,6 +31,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushEdge;
+        class BrushVertex;
         class Map;
         
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
@@ -46,6 +48,8 @@ namespace TrenchBroom {
             bool operator()(const Entity* entity) const;
             bool operator()(const Brush* brush) const;
             bool operator()(const BrushFace* face) const;
+            bool operator()(const BrushEdge* edge) const;
+            bool operator()(const BrushVertex* vertex) const;
         };
         
         struct MatchObjectByType {

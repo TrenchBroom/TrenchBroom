@@ -65,6 +65,8 @@ namespace TrenchBroom {
         Preference<Color> ClipEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> ClipOccludedEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  0.5f));
         
+        Preference<Color> ResizeHandleColor("Renderer/Colors/Resize handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
+
         Preference<float> Brightness("Renderer/Brightness", 1.4f);
         Preference<float> GridAlpha("Renderer/Grid/Alpha", 0.5f);
         Preference<bool> GridCheckerboard("Renderer/Grid/Checkerboard", false);

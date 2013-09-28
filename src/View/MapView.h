@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class CameraTool;
         class ClipTool;
         class CreateBrushTool;
+        class ResizeBrushesTool;
         class SelectionTool;
         
         class MapView : public wxGLCanvas {
@@ -68,6 +69,7 @@ namespace TrenchBroom {
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
+            ResizeBrushesTool* m_resizeBrushesTool;
             SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;

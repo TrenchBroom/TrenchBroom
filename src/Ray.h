@@ -145,7 +145,13 @@ public:
         }
     };
 
-    const LineDistance distanceToSegmentSquared(const Vec<T,S>& start, const Vec<T,3>& end) const {
+    const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
+        LineDistance distance2 = squaredDistanceToSegment(start, end);
+        distance2.distance = std::sqrt(distance2.distance);
+        return distance2;
+    }
+    
+    const LineDistance squaredDistanceToSegment(const Vec<T,S>& start, const Vec<T,3>& end) const {
         Vec<T,S> u, v, w;
         u = end - start;
         v = direction;
@@ -162,7 +168,7 @@ public:
         
         if (Math::zero(D))
             return LineDistance::Parallel(w.squaredLength());
-
+        
         sN = (b * e - c * d);
         tN = (a * e - b * d);
         if (sN < static_cast<T>(0.0)) {
@@ -177,19 +183,13 @@ public:
         
         const T sc = Math::zero(sN) ? static_cast<T>(0.0) : sN / sD;
         const T tc = std::max(Math::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
-
+        
         u = u * sc; // vector from segment start to the closest point on the segment
         v = v * tc; // vector from ray origin to closest point on the ray
         w = w + u;
         const Vec<T,S> dP = w - v;
-
+        
         return LineDistance::NonParallel(tc, dP.squaredLength(), start + u);
-    }
-    
-    const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end, Vec<T,S>& pointOnSegment, T& distanceToClosestPoint) const {
-        LineDistance distance2 = squaredDistanceToSegment(start, end);
-        distance2.distance = std::sqrt(distance2.distance);
-        return distance2;
     }
     
     const LineDistance distanceToLineSquared(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {

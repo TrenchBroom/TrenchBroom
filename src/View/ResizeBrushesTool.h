@@ -17,58 +17,44 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ClipTool__
-#define __TrenchBroom__ClipTool__
+#ifndef __TrenchBroom__ResizeBrushesTool__
+#define __TrenchBroom__ResizeBrushesTool__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
-#include "Renderer/ClipperRenderer.h"
-#include "View/Clipper.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class EdgeRenderer;
+    }
+    
     namespace View {
-        class ClipTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
+        class ResizeBrushesTool : public Tool<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy> {
         private:
-            static const Model::Hit::HitType HandleHit;
-
-            Clipper m_clipper;
-            Renderer::ClipperRenderer m_renderer;
-            Model::EntityBrushesMap m_frontBrushes;
-            Model::EntityBrushesMap m_backBrushes;
-            size_t m_dragPointIndex;
+            Vec3 m_totalDelta;
+            Vec3 m_dragOrigin;
         public:
-            ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
-            
-            bool canToggleClipSide() const;
-            void toggleClipSide();
-            bool canPerformClip() const;
-            void performClip();
+            static const Model::Hit::HitType ResizeHit;
+            ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
         private:
-            bool initiallyActive() const;
-            bool doActivate(const InputState& inputState);
-            bool doDeactivate(const InputState& inputState);
-            
             void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
-
-            bool doMouseUp(const InputState& inputState);
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
-
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
-            Vec3 clipPoint(const Model::Hit& hit) const;
-            void updateBrushes();
-            void clearAndDelete(Model::EntityBrushesMap& brushes);
+            bool applies(const InputState& inputState) const;
+            void pickNearFaceHit(const InputState& inputState, Model::PickResult& pickResult) const;
+            Model::BrushFaceList collectDragFaces(Model::BrushFace& dragFace) const;
+            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ClipTool__) */
+#endif /* defined(__TrenchBroom__ResizeBrushesTool__) */

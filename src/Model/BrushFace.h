@@ -27,6 +27,7 @@
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
+#include "Model/BrushGeometryTypes.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
 
@@ -157,6 +158,8 @@ namespace TrenchBroom {
             void setSurfaceValue(const float surfaceValue);
             void setAttributes(const BrushFace& other);
 
+            const BrushEdgeList& edges() const;
+            
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);
             

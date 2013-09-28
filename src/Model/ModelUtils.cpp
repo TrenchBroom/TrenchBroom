@@ -111,6 +111,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MatchAll::operator()(const BrushEdge* edge) const {
+            return true;
+        }
+        
+        bool MatchAll::operator()(const BrushVertex* vertex) const {
+            return true;
+        }
+
         MatchObjectByType::MatchObjectByType(const Object::Type type) :
         m_type(type) {}
         

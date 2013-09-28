@@ -315,6 +315,11 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
+        const BrushEdgeList& BrushFace::edges() const {
+            assert(m_side != NULL);
+            return m_side->edges();
+        }
+
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;

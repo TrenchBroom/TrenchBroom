@@ -31,6 +31,7 @@
 #include "View/CameraTool.h"
 #include "View/ClipTool.h"
 #include "View/CreateBrushTool.h"
+#include "View/ResizeBrushesTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
 
@@ -54,11 +55,12 @@ namespace TrenchBroom {
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
+        m_resizeBrushesTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
-        m_ignoreNextClick(false) {
+        m_ignoreNextClick(true) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
@@ -116,19 +118,21 @@ namespace TrenchBroom {
         void MapView::OnKey(wxKeyEvent& event) {
             updateModifierKeys();
             updatePickResults(event.GetX(), event.GetY());
+            Refresh();
             event.Skip();
         }
         
         void MapView::OnMouseButton(wxMouseEvent& event) {
             const MouseButtonState button = mouseButton(event);
 
-            if (m_ignoreNextClick /* && button == MouseButtons::MBLeft */) {
+            if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
                 if (event.ButtonUp())
                     m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
             
+            updateModifierKeys();
             if (event.ButtonDown()) {
                 CaptureMouse();
                 m_clickPos = event.GetPosition();
@@ -152,6 +156,7 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMouseMotion(wxMouseEvent& event) {
+            updateModifierKeys();
             updatePickResults(event.GetX(), event.GetY());
             if (m_dragReceiver != NULL) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
@@ -176,6 +181,7 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMouseWheel(wxMouseEvent& event) {
+            updateModifierKeys();
             const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
                 m_inputState.scroll(delta, 0.0f);
@@ -278,7 +284,8 @@ namespace TrenchBroom {
 
         void MapView::createTools() {
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
-            m_createBrushTool = new CreateBrushTool(m_selectionTool, m_document, m_controller);
+            m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
+            m_createBrushTool = new CreateBrushTool(m_resizeBrushesTool, m_document, m_controller);
             m_clipTool = new ClipTool(m_createBrushTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
@@ -292,6 +299,8 @@ namespace TrenchBroom {
             m_clipTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
+            delete m_resizeBrushesTool;
+            m_resizeBrushesTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
         }
