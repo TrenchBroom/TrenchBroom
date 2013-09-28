@@ -116,8 +116,10 @@ namespace TrenchBroom {
         }
 
         void MapView::OnKey(wxKeyEvent& event) {
-            updateModifierKeys();
-            updatePickResults(event.GetX(), event.GetY());
+            if (updateModifierKeys()) {
+                updatePickResults(event.GetX(), event.GetY());
+                m_toolChain->modifierKeyChange(m_inputState);
+            }
             Refresh();
             event.Skip();
         }
@@ -201,7 +203,8 @@ namespace TrenchBroom {
         }
 
         void MapView::OnSetFocus(wxFocusEvent& event) {
-            updateModifierKeys();
+            if (updateModifierKeys())
+                m_toolChain->modifierKeyChange(m_inputState);
             Refresh();
             event.Skip();
         }
@@ -210,7 +213,8 @@ namespace TrenchBroom {
             cancelCurrentDrag();
             if (GetCapture() == this)
                 ReleaseMouse();
-            clearModifierKeys();
+            if (clearModifierKeys())
+                m_toolChain->modifierKeyChange(m_inputState);
             m_ignoreNextClick = true;
             Refresh();
             event.Skip();
@@ -343,19 +347,21 @@ namespace TrenchBroom {
             return state;
         }
         
-        void MapView::updateModifierKeys() {
+        bool MapView::updateModifierKeys() {
             const ModifierKeyState keys = modifierKeys();
             if (keys != m_inputState.modifierKeys()) {
                 m_inputState.setModifierKeys(keys);
-                m_toolChain->modifierKeyChange(m_inputState);
+                return true;
             }
+            return false;
         }
         
-        void MapView::clearModifierKeys() {
+        bool MapView::clearModifierKeys() {
             if (m_inputState.modifierKeys() != ModifierKeys::MKNone) {
                 m_inputState.setModifierKeys(ModifierKeys::MKNone);
-                m_toolChain->modifierKeyChange(m_inputState);
+                return true;
             }
+            return false;
         }
 
         MouseButtonState MapView::mouseButton(wxMouseEvent& event) {

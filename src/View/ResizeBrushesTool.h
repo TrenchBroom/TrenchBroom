@@ -32,8 +32,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class ResizeBrushesTool : public Tool<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy> {
+        class ResizeBrushesTool : public Tool<NoActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
         private:
+            Model::BrushFaceList m_dragFaces;
             Vec3 m_totalDelta;
             Vec3 m_dragOrigin;
         public:
@@ -41,6 +42,9 @@ namespace TrenchBroom {
             ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+
+            void doModifierKeyChange(const InputState& inputState);
+            void doMouseMove(const InputState& inputState);
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -51,6 +55,7 @@ namespace TrenchBroom {
             
             bool applies(const InputState& inputState) const;
             void pickNearFaceHit(const InputState& inputState, Model::PickResult& pickResult) const;
+            void updateDragFaces(const InputState& inputState);
             Model::BrushFaceList collectDragFaces(Model::BrushFace& dragFace) const;
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
         };

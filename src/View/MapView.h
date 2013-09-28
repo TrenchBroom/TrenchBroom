@@ -115,8 +115,8 @@ namespace TrenchBroom {
             void toggleTool(BaseTool* tool);
             void cancelCurrentDrag();
             ModifierKeyState modifierKeys();
-            void updateModifierKeys();
-            void clearModifierKeys();
+            bool updateModifierKeys();
+            bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
             void bindEvents();
             

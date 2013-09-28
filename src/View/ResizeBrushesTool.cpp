@@ -59,6 +59,16 @@ namespace TrenchBroom {
                 pickNearFaceHit(inputState, pickResult);
         }
 
+        void ResizeBrushesTool::doModifierKeyChange(const InputState& inputState) {
+            if (applies(inputState) && !dragging())
+                updateDragFaces(inputState);
+        }
+
+        void ResizeBrushesTool::doMouseMove(const InputState& inputState) {
+            if (applies(inputState) && !dragging())
+                updateDragFaces(inputState);
+        }
+
         bool ResizeBrushesTool::doStartMouseDrag(const InputState& inputState) {
             if (!applies(inputState))
                 return false;
@@ -76,17 +86,11 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            if (!applies(inputState))
+            if (!applies(inputState) || m_dragFaces.empty())
                 return;
 
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
-            if (!first.matches)
-                return;
-            
             PreferenceManager& prefs = PreferenceManager::instance();
-
-            const Model::BrushFaceList faces = collectDragFaces(*first.hit.target<Model::BrushFace*>());
-            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(faces);
+            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(m_dragFaces);
             
             glDisable(GL_DEPTH_TEST);
             edgeRenderer.setColor(prefs.getColor(Preferences::ResizeHandleColor));
@@ -163,6 +167,14 @@ namespace TrenchBroom {
             }
         };
         
+        void ResizeBrushesTool::updateDragFaces(const InputState& inputState) {
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
+            if (!first.matches)
+                m_dragFaces.clear();
+            else
+                m_dragFaces = collectDragFaces(*first.hit.target<Model::BrushFace*>());
+        }
+
         Model::BrushFaceList ResizeBrushesTool::collectDragFaces(Model::BrushFace& dragFace) const {
             Model::BrushFaceList result;
             
