@@ -31,10 +31,12 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
+#include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -72,17 +74,61 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::doStartMouseDrag(const InputState& inputState) {
             if (!applies(inputState))
                 return false;
+
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
+            if (!first.matches)
+                return false;
+
+            m_dragOrigin = first.hit.hitPoint();
+            m_totalDelta = Vec3::Null;
+            updateDragFaces(inputState);
+            
+            controller().beginUndoableGroup(document()->selectedBrushes().size() == 1 ? "Resize Brush" : "Resize Brushes");
             return true;
         }
         
         bool ResizeBrushesTool::doMouseDrag(const InputState& inputState) {
+            assert(!m_dragFaces.empty());
+            
+            const Plane3 dragPlane = orthogonalDragPlane(m_dragOrigin, Vec3(inputState.camera().direction()));
+            
+            Model::BrushFace& dragFace = *m_dragFaces.front();
+            const Vec3& faceNormal3D = dragFace.boundary().normal;
+            const Vec3 faceNormal2D = dragPlane.project(faceNormal3D);
+            const FloatType rayPointDist = dragPlane.intersectWithRay(inputState.pickRay());
+            const Vec3 rayPoint = inputState.pickRay().pointAtDistance(rayPointDist);
+            const Vec3 dragVector2D = rayPoint - m_dragOrigin;
+            const FloatType dragDist = dragVector2D.dot(faceNormal2D);
+            
+            const View::Grid& grid = document()->grid();
+            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal3D;
+            const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDist);
+            
+            // select the delta that is closest to the actual delta indicated by the mouse cursor
+            const Vec3f faceDelta = (std::abs(relativeFaceDelta.length() - dragDist) <
+                                     std::abs(absoluteFaceDelta.length() - dragDist) ?
+                                     relativeFaceDelta :
+                                     absoluteFaceDelta);
+            
+            if (faceDelta.null())
+                return true;
+            
+            // fire command
+            
             return true;
         }
         
         void ResizeBrushesTool::doEndMouseDrag(const InputState& inputState) {
+            if (m_totalDelta.null())
+                controller().rollbackGroup();
+            controller().closeGroup();
+            m_dragFaces.clear();
         }
         
         void ResizeBrushesTool::doCancelMouseDrag(const InputState& inputState) {
+            controller().rollbackGroup();
+            controller().closeGroup();
+            m_dragFaces.clear();
         }
         
         void ResizeBrushesTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
@@ -151,6 +197,14 @@ namespace TrenchBroom {
                 pickResult.addHit(findHit.hit());
         }
 
+        void ResizeBrushesTool::updateDragFaces(const InputState& inputState) {
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
+            if (!first.matches)
+                m_dragFaces.clear();
+            else
+                m_dragFaces = collectDragFaces(*first.hit.target<Model::BrushFace*>());
+        }
+
         struct CollectDragFaces {
         private:
             const Model::BrushFace& m_dragFace;
@@ -162,21 +216,14 @@ namespace TrenchBroom {
             m_faces(faces) {}
             
             void operator()(Model::BrushFace* face) {
-                if (face->boundary().equals(m_dragFace.boundary()))
+                if (face != &m_dragFace && face->boundary().equals(m_dragFace.boundary()))
                     m_faces.push_back(face);
             }
         };
         
-        void ResizeBrushesTool::updateDragFaces(const InputState& inputState) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
-            if (!first.matches)
-                m_dragFaces.clear();
-            else
-                m_dragFaces = collectDragFaces(*first.hit.target<Model::BrushFace*>());
-        }
-
         Model::BrushFaceList ResizeBrushesTool::collectDragFaces(Model::BrushFace& dragFace) const {
             Model::BrushFaceList result;
+            result.push_back(&dragFace);
             
             const Model::BrushList& brushes = document()->selectedBrushes();
             assert(!brushes.empty());

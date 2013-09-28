@@ -159,6 +159,7 @@ namespace TrenchBroom {
             void setAttributes(const BrushFace& other);
 
             const BrushEdgeList& edges() const;
+            const BrushVertexList& vertices() const;
             
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             void setSide(BrushFaceGeometry* side);

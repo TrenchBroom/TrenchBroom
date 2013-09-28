@@ -320,6 +320,11 @@ namespace TrenchBroom {
             return m_side->edges();
         }
 
+        const BrushVertexList& BrushFace::vertices() const {
+            assert(m_side != NULL);
+            return m_side->vertices();
+        }
+
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;

@@ -19,7 +19,11 @@
 
 #include "Grid.h"
 
+#include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -27,7 +31,7 @@ namespace TrenchBroom {
         m_size(size),
         m_snap(true),
         m_visible(true) {}
-
+        
         size_t Grid::size() const {
             return m_size;
         }
@@ -157,7 +161,7 @@ namespace TrenchBroom {
                 return Vec3::Null;
             return p - snap(p);
         }
-
+        
         Vec3 Grid::snap(const Vec3& p, const Plane3& onPlane) const {
             Vec3 result;
             switch(onPlane.normal.firstComponent()) {
@@ -201,7 +205,7 @@ namespace TrenchBroom {
         Vec3 Grid::moveDeltaForPoint(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const {
             const Vec3 newPoint = snap(point + delta);
             Vec3 actualDelta = newPoint - point;
-
+            
             for (size_t i = 0; i < 3; ++i)
                 if ((actualDelta[i] > 0.0) != (delta[i] > 0.0))
                     actualDelta[i] = 0.0;
@@ -273,6 +277,94 @@ namespace TrenchBroom {
                 actualDelta = Vec3::Null;
             
             return actualDelta;
+        }
+        
+        Vec3 Grid::moveDelta(const Model::BrushFace& face, const Vec3& delta) const {
+            const FloatType dist = delta.dot(face.boundary().normal);
+            if (Math::zero(dist))
+                return Vec3::Null;
+            
+            const Model::BrushEdgeList& brushEdges = face.parent()->edges();
+            const Model::BrushVertexList& faceVertices = face.vertices();
+            
+            // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
+            std::vector<Ray3> edgeRays;
+            for (size_t i = 0; i < brushEdges.size(); ++i) {
+                const Model::BrushEdge* edge = brushEdges[i];
+                size_t c = 0;
+                bool originAtStart = true;
+
+                bool startFound = false;
+                bool endFound = false;
+                for (size_t j = 0; j < faceVertices.size(); j++) {
+                    const Model::BrushVertex* vertex = faceVertices[j];
+                    startFound |= (vertex->position() == edge->start()->position());
+                    endFound |= (vertex->position() == edge->end()->position());
+                    if (startFound && endFound)
+                        break;
+                }
+                
+                if (startFound)
+                    c++;
+                if (endFound) {
+                    c++;
+                    originAtStart = false;
+                }
+                
+                if (c == 1) {
+                    Ray3 ray;
+                    if (originAtStart) {
+                        ray.origin = edge->start()->position();
+                        ray.direction = edge->vector().normalized();
+                    } else {
+                        ray.origin = edge->end()->position();
+                        ray.direction = -edge->vector().normalized();
+                    }
+                    
+                    // depending on the direction of the drag vector, the rays must be inverted to reflect the
+                    // actual movement of the vertices
+                    if (delta.dot(ray.direction) < 0.0)
+                        ray.direction = -ray.direction;
+                    
+                    edgeRays.push_back(ray);
+                }
+            }
+            
+            Vec3 normDelta = face.boundary().normal * dist;
+            size_t gridSkip = static_cast<size_t>(normDelta.dot(normDelta.firstAxis())) / actualSize();
+            if (gridSkip > 0)
+                --gridSkip;
+            FloatType actualDist = std::numeric_limits<FloatType>::max();
+            FloatType minDistDelta = std::numeric_limits<FloatType>::max();
+            
+            do {
+                // Find the smallest drag distance at which the face boundary is actually moved
+                // by intersecting the edge rays with the grid planes.
+                // The distance of the ray origin to the closest grid plane is then multiplied by the ray
+                // direction to yield the vector by which the vertex would be moved if the face was dragged
+                // and the drag would snap the vertex onto the previously selected grid plane.
+                // This vector is then projected onto the face normal to yield the distance by which the face
+                // must be dragged so that the vertex snaps to its closest grid plane.
+                // Then, test if the resulting drag distance is smaller than the current candidate.
+                
+                for (size_t i = 0; i < edgeRays.size(); ++i) {
+                    const Ray3& ray = edgeRays[i];
+                    const FloatType vertexDist = intersectWithRay(ray, gridSkip);
+                    const Vec3 vertexDelta = ray.direction * vertexDist;
+                    const FloatType vertexNormDist = vertexDelta.dot(face.boundary().normal);
+                    
+                    const FloatType normDistDelta = std::abs(vertexNormDist - dist);
+                    if (normDistDelta < minDistDelta) {
+                        actualDist = vertexNormDist;
+                        minDistDelta = normDistDelta;
+                    }
+                }
+                ++gridSkip;
+            } while (actualDist == std::numeric_limits<FloatType>::max());
+            
+            normDelta = face.boundary().normal * actualDist;
+            const Vec3 deltaNormalized = delta.normalized();
+            return deltaNormalized * normDelta.dot(deltaNormalized);
         }
         
         Vec3 Grid::combineDeltas(const Vec3& delta1, const Vec3& delta2) const {

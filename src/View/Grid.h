@@ -68,6 +68,7 @@ namespace TrenchBroom {
             Vec3 moveDelta(const BBox3& bounds, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& delta) const;
+            Vec3 moveDelta(const Model::BrushFace& face, const Vec3& delta) const;
             Vec3 combineDeltas(const Vec3& delta1, const Vec3& delta2) const;
             Vec3 referencePoint(const BBox3& bounds);
         };
