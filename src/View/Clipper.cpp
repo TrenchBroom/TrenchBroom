@@ -35,18 +35,129 @@
 
 namespace TrenchBroom {
     namespace View {
-        Clipper::ClipPoints::ClipPoints() :
-        m_valid(false) {}
+        Clipper::ClipHandlePoints::ClipHandlePoints() :
+        m_numPoints(0) {}
         
-        Clipper::ClipPoints::ClipPoints(const Vec3& point1, const Vec3& point2, const Vec3& point3) :
-        m_valid(true) {
-            m_points[0] = point1;
-            m_points[1] = point2;
-            m_points[2] = point3;
+        size_t Clipper::ClipHandlePoints::numPoints() const {
+            return m_numPoints;
+        }
+        
+        size_t Clipper::ClipHandlePoints::indexOfPoint(const Vec3& position) const {
+            for (size_t i = 0; i < m_numPoints; ++i)
+                if (m_points[i].position == position)
+                    return i;
+            return 3;
         }
 
-        void Clipper::ClipPoints::invert() {
-            std::swap(m_points[1], m_points[2]);
+        const Clipper::ClipHandlePoint& Clipper::ClipHandlePoints::operator[](const size_t index) const {
+            assert(index < m_numPoints);
+            return m_points[index];
+        }
+
+        bool Clipper::ClipHandlePoints::canAddPoint(const Vec3& position) const {
+            if (m_numPoints == 3)
+                return false;
+            if (identicalWithAnyPoint(position, m_numPoints))
+                return false;
+            if (m_numPoints == 2 && linearlyDependent(m_points[0].position, m_points[1].position, position))
+                return false;
+            return true;
+        }
+        
+        void Clipper::ClipHandlePoints::addPoint(const Vec3& position, const Vec3::List& normals) {
+            assert(m_numPoints < 3);
+            assert(canAddPoint(position));
+            m_points[m_numPoints].position = position;
+            m_points[m_numPoints].normals = normals;
+            ++m_numPoints;
+        }
+        
+        bool Clipper::ClipHandlePoints::canUpdatePoint(const size_t index, const Vec3& position) {
+            assert(index < m_numPoints);
+            if (identicalWithAnyPoint(position, index))
+                return false;
+            if (m_numPoints < 3)
+                return true;
+            
+            switch (index) {
+                case 0:
+                    return !linearlyDependent(m_points[1].position, m_points[2].position, position);
+                case 1:
+                    return !linearlyDependent(m_points[0].position, m_points[2].position, position);
+                case 2:
+                    return !linearlyDependent(m_points[0].position, m_points[1].position, position);
+                default:
+                    return false;
+            }
+        }
+        
+        void Clipper::ClipHandlePoints::updatePoint(const size_t index, const Vec3& position, const Vec3::List& normals) {
+            assert(index < m_numPoints);
+            assert(canUpdatePoint(index, position));
+            m_points[index].position = position;
+            m_points[index].normals = normals;
+        }
+        
+        void Clipper::ClipHandlePoints::deleteLastPoint() {
+            assert(m_numPoints > 0);
+            --m_numPoints;
+        }
+        
+        void Clipper::ClipHandlePoints::deleteAllPoints() {
+            m_numPoints = 0;
+        }
+        
+        bool Clipper::ClipHandlePoints::identicalWithAnyPoint(const Vec3& position, const size_t disregardIndex) const {
+            for (size_t i = 0; i < m_numPoints; ++i)
+                if (i != disregardIndex && m_points[i].position == position)
+                    return true;
+            return false;
+        }
+        
+        bool Clipper::ClipHandlePoints::linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const {
+            const Vec3 v1 = (p3 - p1).normalized();
+            const Vec3 v2 = (p3 - p2).normalized();
+            const FloatType dot = v1.dot(v2);
+            return Math::eq(std::abs(dot), 1.0);
+        }
+        
+        Clipper::ClipPoints::ClipPoints(const ClipHandlePoints& handlePoints, const Vec3& viewDirection) :
+        m_valid(handlePoints.numPoints() > 0) {
+            const size_t numPoints = handlePoints.numPoints();
+            if (numPoints == 1) {
+                const ClipHandlePoint& point = handlePoints[0];
+                assert(!point.normals.empty());
+                
+                if (point.normals.size() <= 2) { // the point is not on a vertex
+                    const Vec3 normal = selectNormal(point.normals, Vec3::List());
+                    Vec3 dir;
+                    if (normal.firstComponent() == Math::Axis::AZ) {
+                        if (viewDirection.firstComponent() != Math::Axis::AZ)
+                            dir = viewDirection.firstAxis();
+                        else
+                            dir = viewDirection.secondAxis();
+                    } else {
+                        dir = normal.firstAxis();
+                    }
+                    m_points[0] = point.position.rounded();
+                    m_points[1] = point.position.rounded() + 128.0 * Vec3::PosZ;
+                    m_points[2] = point.position.rounded() + 128.0 * dir;
+                }
+            } else if (numPoints == 2) {
+                const ClipHandlePoint& point0 = handlePoints[0];
+                const ClipHandlePoint& point1 = handlePoints[1];
+                
+                assert(!point0.normals.empty());
+                assert(!point1.normals.empty());
+                
+                const Vec3 normal = selectNormal(point0.normals, point1.normals);
+                m_points[0] = point0.position.rounded();
+                m_points[1] = point0.position.rounded() + 128.0 * normal.firstAxis();
+                m_points[2] = point1.position.rounded();
+            } else if (numPoints == 3) {
+                for (size_t i = 0; i < 3; ++i)
+                    m_points[i] = handlePoints[i].position.rounded();
+            }
         }
 
         bool Clipper::ClipPoints::valid() const {
@@ -62,67 +173,51 @@ namespace TrenchBroom {
             return m_points;
         }
 
+        void Clipper::ClipPoints::invertPlaneNormal() {
+            std::swap(m_points[1], m_points[2]);
+        }
+        
+        Vec3 Clipper::ClipPoints::selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) {
+            assert(!normals1.empty());
+            
+            Vec3f sum;
+            // first, try to find two normals with the same first axis
+            for (size_t i = 0; i < normals1.size(); ++i) {
+                const Vec3& normal1 = normals1[i];
+                for (size_t j =  0; j < normals2.size(); ++j) {
+                    const Vec3& normal2 = normals2[j];
+                    if (normal1.firstAxis() == normal2.firstAxis())
+                        return normal1;
+                }
+                sum += normal1;
+            }
+            
+            for (size_t i = 0; i < normals2.size(); ++i)
+                sum += normals2[i];
+            
+            return sum / static_cast<float>((normals1.size() + normals2.size()));
+        }
+
         Clipper::Clipper(const Renderer::Camera& camera) :
         m_camera(camera),
-        m_clipSide(Front),
-        m_numPoints(0) {}
+        m_clipPoints(m_handlePoints, m_camera.direction()),
+        m_clipSide(Front) {}
 
-        bool Clipper::clipPointValid(const Vec3& point) const {
-            if (m_numPoints == 3)
-                return false;
-            if (identicalWithAnyPoint(point, m_numPoints))
-                return false;
-            if (m_numPoints == 2 && linearlyDependent(m_points[0], m_points[1], point))
-                return false;
-            return true;
+        size_t Clipper::numPoints() const {
+            return m_handlePoints.numPoints();
         }
         
-        void Clipper::addClipPoint(const Vec3& point, const Model::BrushFace& face) {
-            assert(m_numPoints < 3);
-            assert(clipPointValid(point));
-            m_points[m_numPoints] = point;
-            m_normals[m_numPoints] = getNormals(point, face);
-            ++m_numPoints;
-        }
-
-        void Clipper::deleteLastClipPoint() {
-            assert(m_numPoints > 0);
-            --m_numPoints;
-        }
-
-        size_t Clipper::indexOfPoint(const Vec3& point) const {
-            for (size_t i = 0; i < m_numPoints; ++i)
-                if (m_points[i] == point)
-                    return i;
-            return 3;
+        Vec3::List Clipper::clipPointPositions() const {
+            Vec3::List result(numPoints());
+            for (size_t i = 0; i < numPoints(); ++i)
+                result[i] = m_handlePoints[i].position;
+            return result;
         }
         
-        bool Clipper::pointUpdateValid(const size_t index, const Vec3& newPoint) {
-            assert(index < m_numPoints);
-            if (identicalWithAnyPoint(newPoint, index))
-                return false;
-            if (m_numPoints < 3)
-                return true;
-            
-            switch (index) {
-                case 0:
-                    return !linearlyDependent(m_points[1], m_points[2], newPoint);
-                case 1:
-                    return !linearlyDependent(m_points[0], m_points[2], newPoint);
-                case 2:
-                    return !linearlyDependent(m_points[0], m_points[1], newPoint);
-                default:
-                    return false;
-            }
+        size_t Clipper::indexOfPoint(const Vec3& position) const {
+            return m_handlePoints.indexOfPoint(position);
         }
-
-        void Clipper::updatePoint(const size_t index, const Vec3& point, const Model::BrushFace& face) {
-            assert(index < m_numPoints);
-            assert(pointUpdateValid(index, point));
-            m_points[index] = point;
-            m_normals[index] = getNormals(point, face);
-        }
-
+        
         bool Clipper::keepFrontBrushes() const {
             return m_clipSide != Back;
         }
@@ -130,7 +225,34 @@ namespace TrenchBroom {
         bool Clipper::keepBackBrushes() const {
             return m_clipSide != Front;
         }
+        
+        bool Clipper::canAddClipPoint(const Vec3& position) const {
+            return m_handlePoints.canAddPoint(position);
+        }
+        
+        void Clipper::addClipPoint(const Vec3& position, const Model::BrushFace& face) {
+            m_handlePoints.addPoint(position, getNormals(position, face));
+            updateClipPoints();
+            setClipPlaneNormal();
+        }
 
+        bool Clipper::canUpdateClipPoint(const size_t index, const Vec3& position) {
+            return m_handlePoints.canUpdatePoint(index, position);
+        }
+
+        void Clipper::updateClipPoint(const size_t index, const Vec3& position, const Model::BrushFace& face) {
+            m_handlePoints.updatePoint(index, position, getNormals(position, face));
+            updateClipPoints();
+        }
+
+        void Clipper::deleteLastClipPoint() {
+            m_handlePoints.deleteLastPoint();
+        }
+        
+        void Clipper::reset() {
+            m_handlePoints.deleteAllPoints();
+        }
+        
         void Clipper::toggleClipSide() {
             switch (m_clipSide) {
                 case Front:
@@ -145,36 +267,19 @@ namespace TrenchBroom {
             }
         }
 
-        size_t Clipper::numPoints() const {
-            return m_numPoints;
-        }
-
-        Vec3::List Clipper::clipPoints() const {
-            Vec3::List result(m_numPoints);
-            for (size_t i = 0; i < m_numPoints; ++i)
-                result[i] = m_points[i];
-            return result;
-        }
-
-        void Clipper::reset() {
-            m_clipSide = Front;
-            m_numPoints = 0;
-        }
-
         ClipResult Clipper::clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const {
             ClipResult result;
             
             const BBox3& worldBounds = document->worldBounds();
-            const ClipPoints points = computeClipPoints();
-            if (points.valid()) {
+            if (m_clipPoints.valid()) {
                 Model::Map& map = *document->map();
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     Model::Entity* entity = brush->parent();
                     
-                    Model::BrushFace* frontFace = map.createFace(points[0], points[1], points[2], document->currentTextureName());
-                    Model::BrushFace* backFace = map.createFace(points[0], points[2], points[1], document->currentTextureName());
+                    Model::BrushFace* frontFace = map.createFace(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2], document->currentTextureName());
+                    Model::BrushFace* backFace = map.createFace(m_clipPoints[0], m_clipPoints[2], m_clipPoints[1], document->currentTextureName());
                     setFaceAttributes(brush->faces(), *frontFace, *backFace);
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);
@@ -201,20 +306,6 @@ namespace TrenchBroom {
             }
             
             return result;
-        }
-
-        bool Clipper::identicalWithAnyPoint(const Vec3& point, const size_t disregardIndex) const {
-            for (size_t i = 0; i < m_numPoints; ++i)
-                if (i != disregardIndex && m_points[i] == point)
-                    return true;
-            return false;
-        }
-
-        bool Clipper::linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const {
-            const Vec3 v1 = (p3 - p1).normalized();
-            const Vec3 v2 = (p3 - p2).normalized();
-            const FloatType dot = v1.dot(v2);
-            return Math::eq(std::abs(dot), 1.0);
         }
 
         Vec3::List Clipper::getNormals(const Vec3& point, const Model::BrushFace& face) const {
@@ -253,76 +344,23 @@ namespace TrenchBroom {
             return normals;
         }
 
-        Clipper::ClipPoints Clipper::computeClipPoints() const {
-            assert(m_numPoints <= 3);
-
-            ClipPoints result;
-            if (m_numPoints == 1) {
-                assert(!m_normals[0].empty());
-                if (m_normals[0].size() <= 2) { // the point is not on a vertex
-                    const Vec3 normal = selectNormal(m_normals[0], Vec3::List());
-                    Vec3 dir;
-                    if (normal.firstComponent() == Math::Axis::AZ) {
-                        if (m_camera.direction().firstComponent() != Math::Axis::AZ)
-                            dir = m_camera.direction().firstAxis();
-                        else
-                            dir = m_camera.direction().secondAxis();
-                    } else {
-                        dir = normal.firstAxis();
-                    }
-                    result = ClipPoints(m_points[0].rounded(),
-                                        m_points[0].rounded() + 128.0 * Vec3::PosZ,
-                                        m_points[0].rounded() + 128.0 * dir);
-                }
-            } else if (m_numPoints == 2) {
-                assert(!m_normals[0].empty());
-                assert(!m_normals[1].empty());
-                
-                const Vec3 normal = selectNormal(m_normals[0], m_normals[1]);
-                result = ClipPoints(m_points[0].rounded(),
-                                    m_points[0].rounded() + 128.0 * normal.firstAxis(),
-                                    m_points[1]);
-            } else if (m_numPoints == 3) {
-                result = ClipPoints(m_points[0].rounded(),
-                                    m_points[1].rounded(),
-                                    m_points[2].rounded());
-            }
+        void Clipper::updateClipPoints() {
+            m_clipPoints = ClipPoints(m_handlePoints, m_camera.direction());
+        }
+        
+        void Clipper::setClipPlaneNormal() {
+            assert(m_clipPoints.valid());
             
             // make sure the plane's normal points towards the camera or to its left if the camera position is on the plane
-            if (result.valid()) {
-                Plane3 plane;
-                setPlanePoints(plane, result.points());
-                if (plane.pointStatus(m_camera.position()) == Math::PointStatus::PSInside) {
-                    if (plane.normal.dot(m_camera.right()) < 0.0)
-                        result.invert();
-                } else {
-                    if (plane.normal.dot(m_camera.direction()) > 0.0)
-                        result.invert();
-                }
+            Plane3 plane;
+            setPlanePoints(plane, m_clipPoints[0], m_clipPoints[1], m_clipPoints[2]);
+            if (plane.pointStatus(m_camera.position()) == Math::PointStatus::PSInside) {
+                if (plane.normal.dot(m_camera.right()) < 0.0)
+                    m_clipPoints.invertPlaneNormal();
+            } else {
+                if (plane.normal.dot(m_camera.direction()) > 0.0)
+                    m_clipPoints.invertPlaneNormal();
             }
-            
-            return result;
-        }
-
-        Vec3 Clipper::selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) const {
-            assert(!normals1.empty());
-            
-            Vec3f sum;
-            // first, try to find two normals with the same first axis
-            for (size_t i = 0; i < normals1.size(); ++i) {
-                const Vec3& normal1 = normals1[i];
-                for (size_t j =  0; j < normals2.size(); ++j) {
-                    const Vec3& normal2 = normals2[j];
-                    if (normal1.firstAxis() == normal2.firstAxis())
-                        return normal1;
-                }
-                sum += normal1;
-            }
-            
-            for (size_t i = 0; i < normals2.size(); ++i)
-                sum += normals2[i];
-            
-            return sum / static_cast<float>((normals1.size() + normals2.size()));
         }
 
         void Clipper::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {

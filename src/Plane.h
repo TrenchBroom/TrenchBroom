@@ -159,16 +159,21 @@ public:
 
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
-    const Vec<T,3> v1 = points[2] - points[0];
-    const Vec<T,3> v2 = points[1] - points[0];
+    return setPlanePoints(plane, points[0], points[1], points[2]);
+}
+            
+template <typename T>
+bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
     const Vec<T,3> normal = crossed(v1, v2);
     if (normal.equals(Vec<T,3>::Null, Math::Constants<T>::AlmostZero))
         return false;
     plane.normal = normal.normalized();
-    plane.distance = points[0].dot(plane.normal);
+    plane.distance = point0.dot(plane.normal);
     return true;
 }
-            
+
 template <typename T>
 const Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
     return Plane<T,3>(position, Vec<T,3>::PosZ);

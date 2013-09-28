@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
         
         void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {
-            const Vec3::List positions = m_clipper.clipPoints();
+            const Vec3::List positions = m_clipper.clipPointPositions();
             if (positions.empty())
                 return;
             
@@ -90,7 +90,7 @@ namespace TrenchBroom {
 
             PreferenceManager& prefs = PreferenceManager::instance();
             const float scaling = prefs.getFloat(Preferences::HandleScalingFactor);
-            const Vec3 position = m_clipper.clipPoints()[index];
+            const Vec3 position = m_clipper.clipPointPositions()[index];
 
             const Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();

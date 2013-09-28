@@ -58,12 +58,12 @@ namespace TrenchBroom {
 
         void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const double radius = prefs.getDouble(Preferences::HandleRadius);
+            const double radius = 2.0 * prefs.getDouble(Preferences::HandleRadius);
             const double scaling = prefs.getDouble(Preferences::HandleScalingFactor);
             const double maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
             const Ray3& ray = inputState.pickRay();
             
-            const Vec3::List clipPoints = m_clipper.clipPoints();
+            const Vec3::List clipPoints = m_clipper.clipPointPositions();
             for (size_t i = 0; i < clipPoints.size(); ++i) {
                 const FloatType dist = ray.intersectWithSphere(clipPoints[i],
                                                                radius, scaling, maxDist);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
-                if (m_clipper.clipPointValid(point)) {
+                if (m_clipper.canAddClipPoint(point)) {
                     m_clipper.addClipPoint(point, *hitAsFace(first.hit));
                     updateBrushes();
                 }
@@ -108,8 +108,8 @@ namespace TrenchBroom {
             Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             if (first.matches) {
                 const Vec3 point = clipPoint(first.hit);
-                if (m_clipper.pointUpdateValid(m_dragPointIndex, point)) {
-                    m_clipper.updatePoint(m_dragPointIndex, point, *hitAsFace(first.hit));
+                if (m_clipper.canUpdateClipPoint(m_dragPointIndex, point)) {
+                    m_clipper.updateClipPoint(m_dragPointIndex, point, *hitAsFace(first.hit));
                     updateBrushes();
                 }
             }
@@ -141,7 +141,7 @@ namespace TrenchBroom {
                     m_renderer.renderHighlight(renderContext, index);
                 } else if (firstBrushHit.matches) {
                     const Vec3 point = clipPoint(firstBrushHit.hit);
-                    if (m_clipper.clipPointValid(point))
+                    if (m_clipper.canAddClipPoint(point))
                         m_renderer.renderCurrentPoint(renderContext, point);
                 }
             }

@@ -45,50 +45,81 @@ namespace TrenchBroom {
                 Both
             };
             
+            struct ClipHandlePoint {
+                Vec3 position;
+                Vec3::List normals;
+            };
+            
+            class ClipHandlePoints {
+            private:
+                ClipHandlePoint m_points[3];
+                size_t m_numPoints;
+            public:
+                ClipHandlePoints();
+                
+                size_t numPoints() const;
+                size_t indexOfPoint(const Vec3& position) const;
+                const ClipHandlePoint& operator[](const size_t index) const;
+
+                bool canAddPoint(const Vec3& position) const;
+                void addPoint(const Vec3& position, const Vec3::List& normals);
+                
+                bool canUpdatePoint(const size_t index, const Vec3& position);
+                void updatePoint(const size_t index, const Vec3& position, const Vec3::List& normals);
+                
+                void deleteLastPoint();
+                void deleteAllPoints();
+            private:
+                bool identicalWithAnyPoint(const Vec3& position, const size_t disregardIndex) const;
+                bool linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
+            };
+            
             class ClipPoints {
             private:
                 bool m_valid;
                 Vec3 m_points[3];
             public:
-                ClipPoints();
-                ClipPoints(const Vec3& point1, const Vec3& point2, const Vec3& point3);
-                void invert();
+                ClipPoints(const ClipHandlePoints& handlePoints, const Vec3& viewDirection);
+
                 bool valid() const;
                 const Vec3& operator[](const size_t index) const;
                 const Vec3* points() const;
+                
+                void invertPlaneNormal();
+            private:
+                static Vec3 selectNormal(const Vec3::List& normals1, const Vec3::List& normals2);
             };
             
             const Renderer::Camera& m_camera;
+            ClipHandlePoints m_handlePoints;
+            ClipPoints m_clipPoints;
             ClipSide m_clipSide;
-            Vec3 m_points[3];
-            Vec3::List m_normals[3];
-            size_t m_numPoints;
-
     public:
             Clipper(const Renderer::Camera& camera);
-            bool clipPointValid(const Vec3& point) const;
-            void addClipPoint(const Vec3& point, const Model::BrushFace& face);
-            void deleteLastClipPoint();
-            size_t numPoints() const;
-            Vec3::List clipPoints() const;
 
-            size_t indexOfPoint(const Vec3& point) const;
-            bool pointUpdateValid(const size_t index, const Vec3& newPoint);
-            void updatePoint(const size_t index, const Vec3& point, const Model::BrushFace& face);
+            size_t numPoints() const;
+            Vec3::List clipPointPositions() const;
+            size_t indexOfPoint(const Vec3& position) const;
 
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
-            void toggleClipSide();
+
+            bool canAddClipPoint(const Vec3& position) const;
+            void addClipPoint(const Vec3& position, const Model::BrushFace& face);
+
+            bool canUpdateClipPoint(const size_t index, const Vec3& position);
+            void updateClipPoint(const size_t index, const Vec3& position, const Model::BrushFace& face);
+
+            void deleteLastClipPoint();
             void reset();
+
+            void toggleClipSide();
             ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const;
         private:
-            bool identicalWithAnyPoint(const Vec3& point, const size_t disregardIndex) const;
-            bool linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
-
             Vec3::List getNormals(const Vec3& point, const Model::BrushFace& face) const;
             Vec3::List getNormals(const Model::BrushFaceList& faces) const;
-            ClipPoints computeClipPoints() const;
-            Vec3 selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) const;
+            void updateClipPoints();
+            void setClipPlaneNormal();
             void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
         };
     }
