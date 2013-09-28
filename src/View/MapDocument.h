@@ -91,13 +91,11 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
-            void addEntity(Model::Entity* entity);
-            void addWorldBrush(Model::Brush* brush);
-            void addBrush(Model::Entity* entity, Model::Brush* brush);
-            void removeEntity(Model::Entity* entity);
-            void removeWorldBrush(Model::Brush* brush);
-            void removeBrush(Model::Entity* entity, Model::Brush* brush);
+            Model::Entity* worldspawn();
             
+            void addObject(Model::Object* object, Model::Object* parent = NULL);
+            void removeObject(Model::Object* object);
+
             bool hasSelectedObjects() const;
             bool hasSelectedEntities() const;
             bool hasSelectedBrushes() const;
@@ -138,6 +136,11 @@ namespace TrenchBroom {
         private:
             MapDocument();
             
+            void addEntity(Model::Entity* entity);
+            void addBrush(Model::Brush* brush, Model::Entity* entity);
+            void removeEntity(Model::Entity* entity);
+            void removeBrush(Model::Brush* brush, Model::Entity* entity);
+            
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
             void updateEntityDefinitions(const Model::EntityList& entities);
@@ -146,8 +149,6 @@ namespace TrenchBroom {
             void loadAndUpdateTextures();
             void loadTextures();
             void updateTextures();
-            
-            Model::Entity* worldspawn();
             
             void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);

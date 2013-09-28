@@ -36,8 +36,12 @@ namespace TrenchBroom {
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         
         BrushList mergeEntityBrushesMap(const EntityBrushesMap& map);
+        ObjectParentList makeObjectParentList(const EntityBrushesMap& map);
+        ObjectParentList makeObjectParentList(const ObjectList& list);
+        ObjectList makeObjectList(const ObjectParentList& list);
         
         struct MatchAll {
+            bool operator()(const ObjectParentPair& pair) const;
             bool operator()(const Object* object) const;
             bool operator()(const Entity* entity) const;
             bool operator()(const Brush* brush) const;

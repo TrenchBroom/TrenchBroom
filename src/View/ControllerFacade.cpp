@@ -25,6 +25,7 @@
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/SelectionCommand.h"
+#include "Model/ModelUtils.h"
 #include "View/ViewTypes.h"
 #include "TrenchBroomApp.h"
 
@@ -187,9 +188,24 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::addObjects(const Model::ObjectList& objects) {
+            return addObjects(Model::makeObjectParentList(objects));
+        }
+        
+        bool ControllerFacade::addObjects(const Model::ObjectParentList& objects) {
             using namespace Controller;
             
             Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::removeObjects(const Model::ObjectList& objects) {
+            return removeObjects(Model::makeObjectParentList(objects));
+        }
+        
+        bool ControllerFacade::removeObjects(const Model::ObjectParentList& objects) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::removeObjects(m_document, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

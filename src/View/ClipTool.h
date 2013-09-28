@@ -46,6 +46,11 @@ namespace TrenchBroom {
             size_t m_dragPointIndex;
         public:
             ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera);
+            
+            bool canToggleClipSide() const;
+            void toggleClipSide();
+            bool canPerformClip() const;
+            void performClip();
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);

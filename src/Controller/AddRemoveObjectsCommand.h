@@ -38,24 +38,27 @@ namespace TrenchBroom {
             
             View::MapDocumentPtr m_document;
             Action m_action;
-            Model::ObjectList m_objectsToAdd;
-            Model::ObjectList m_objectsToRemove;
+            Model::ObjectParentList m_objectsToAdd;
+            Model::ObjectParentList m_objectsToRemove;
+            Model::ObjectList m_addedObjects;
+            Model::ObjectList m_removedObjects;
         public:
             ~AddRemoveObjectsCommand();
             
-            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentPtr document, const Model::ObjectList& objects);
+            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects);
+            static AddRemoveObjectsCommand::Ptr removeObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects);
             
             const Model::ObjectList& addedObjects() const;
             const Model::ObjectList& removedObjects() const;
         private:
-            AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectList& objects);
-            static String makeName(const Action action, const Model::ObjectList& objects);
+            AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectParentList& objects);
+            static String makeName(const Action action, const Model::ObjectParentList& objects);
 
             bool doPerformDo();
             bool doPerformUndo();
             
-            void addObjects(const Model::ObjectList& objects);
-            void removeObjects(const Model::ObjectList& objects);
+            void addObjects(const Model::ObjectParentList& objects);
+            void removeObjects(const Model::ObjectParentList& objects);
         };
     }
 }

@@ -247,10 +247,14 @@ namespace TrenchBroom {
 
         void Clipper::deleteLastClipPoint() {
             m_handlePoints.deleteLastPoint();
+            updateClipPoints();
+            if (m_clipPoints.valid())
+                setClipPlaneNormal();
         }
         
         void Clipper::reset() {
             m_handlePoints.deleteAllPoints();
+            updateClipPoints();
         }
         
         void Clipper::toggleClipSide() {

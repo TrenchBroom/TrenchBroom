@@ -29,102 +29,37 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType AddRemoveObjectsCommand::Type = Command::freeType();
 
-        class AddObjectToDocument {
-        private:
-            View::MapDocumentPtr m_document;
-        public:
-            AddObjectToDocument(View::MapDocumentPtr document) :
-            m_document(document) {}
-            
-            void operator()(Model::Object* object) {
-                switch (object->type()) {
-                    case Model::Object::OTEntity:
-                        m_document->addEntity(static_cast<Model::Entity*>(object));
-                        break;
-                    case Model::Object::OTBrush:
-                        m_document->addWorldBrush(static_cast<Model::Brush*>(object));
-                        break;
-                }
-            }
-        };
-        
-        class RemoveObjectFromDocument {
-        private:
-            View::MapDocumentPtr m_document;
-        public:
-            RemoveObjectFromDocument(View::MapDocumentPtr document) :
-            m_document(document) {}
-            
-            void operator()(Model::Object* object) {
-                switch (object->type()) {
-                    case Model::Object::OTEntity:
-                        m_document->removeEntity(static_cast<Model::Entity*>(object));
-                        break;
-                    case Model::Object::OTBrush:
-                        m_document->removeWorldBrush(static_cast<Model::Brush*>(object));
-                        break;
-                }
-            }
-        };
-
-        struct AddObject {
-            Model::ObjectList& objects;
-            
-            AddObject(Model::ObjectList& i_objects) :
-            objects(i_objects) {}
-            
-            void operator()(Model::Object* object) {
-                switch (object->type()) {
-                    case Model::Object::OTEntity: {
-                        Model::Entity* entity = static_cast<Model::Entity*>(object);
-                        if (entity->worldspawn()) {
-                            const Model::BrushList& worldBrushes = entity->brushes();
-                            objects.insert(objects.end(), worldBrushes.begin(), worldBrushes.end());
-                            delete entity; // we take ownership of all objects, and since we discard worldspawn, we must delete it
-                        } else {
-                            objects.push_back(object);
-                        }
-                        break;
-                    }
-                    case Model::Object::OTBrush:
-                        objects.push_back(object);
-                        break;
-                }
-            }
-        };
-        
         AddRemoveObjectsCommand::~AddRemoveObjectsCommand() {
-            if (m_action == AAdd)
-                VectorUtils::clearAndDelete(m_objectsToAdd);
-            else if (m_action == ARemove)
-                VectorUtils::clearAndDelete(m_objectsToRemove);
+            VectorUtils::clearAndDelete(m_removedObjects);
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentPtr document, const Model::ObjectList& objects) {
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects) {
             return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, AAdd, objects));
         }
 
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects) {
+            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, ARemove, objects));
+        }
+
         const Model::ObjectList& AddRemoveObjectsCommand::addedObjects() const {
-            if (m_action == AAdd)
-                return m_objectsToRemove;
-            return m_objectsToAdd;
+            return m_addedObjects;
         }
         
         const Model::ObjectList& AddRemoveObjectsCommand::removedObjects() const {
-            if (m_action == AAdd)
-                return m_objectsToAdd;
-            return m_objectsToRemove;
+            return m_removedObjects;
         }
 
-        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectList& objects) :
+        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectParentList& objects) :
         Command(Type, makeName(action, objects), true),
         m_document(document),
         m_action(action) {
-            AddObject addObject(m_action == AAdd ? m_objectsToAdd : m_objectsToRemove);
-            Model::each(objects.begin(), objects.end(), addObject, Model::MatchAll());
+            if (action == AAdd)
+                m_objectsToAdd = objects;
+            else
+                m_objectsToRemove = objects;
         }
 
-        String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectList& objects) {
+        String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectParentList& objects) {
             StringStream name;
             name << (action == AAdd ? "Add " : "Remove ");
             name << (objects.size() == 1 ? "object" : "objects");
@@ -132,6 +67,9 @@ namespace TrenchBroom {
         }
 
         bool AddRemoveObjectsCommand::doPerformDo() {
+            m_addedObjects.clear();
+            m_removedObjects.clear();
+            
             if (m_action == AAdd)
                 addObjects(m_objectsToAdd);
             else
@@ -141,6 +79,9 @@ namespace TrenchBroom {
         }
         
         bool AddRemoveObjectsCommand::doPerformUndo() {
+            m_addedObjects.clear();
+            m_removedObjects.clear();
+            
             if (m_action == AAdd)
                 removeObjects(m_objectsToRemove);
             else
@@ -149,13 +90,43 @@ namespace TrenchBroom {
             return true;
         }
 
-        void AddRemoveObjectsCommand::addObjects(const Model::ObjectList& objects) {
-            AddObjectToDocument addObjectToDocument(m_document);
+        struct AddObjectToDocument {
+        private:
+            View::MapDocumentPtr m_document;
+            Model::ObjectList& m_addedObjects;
+        public:
+            AddObjectToDocument(View::MapDocumentPtr document, Model::ObjectList& addedObjects) :
+            m_document(document),
+            m_addedObjects(addedObjects) {}
+            
+            void operator()(const Model::ObjectParentPair& pair) {
+                m_document->addObject(pair.object, pair.parent);
+                m_addedObjects.push_back(pair.object);
+            }
+        };
+        
+        struct RemoveObjectFromDocument {
+        private:
+            View::MapDocumentPtr m_document;
+            Model::ObjectList& m_removedObjects;
+        public:
+            RemoveObjectFromDocument(View::MapDocumentPtr document, Model::ObjectList& removedObjects) :
+            m_document(document),
+            m_removedObjects(removedObjects) {}
+            
+            void operator()(const Model::ObjectParentPair& pair) {
+                m_document->removeObject(pair.object);
+                m_removedObjects.push_back(pair.object);
+            }
+        };
+        
+        void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
+            AddObjectToDocument addObjectToDocument(m_document, m_addedObjects);
             Model::each(objects.begin(), objects.end(), addObjectToDocument, Model::MatchAll());
         }
         
-        void AddRemoveObjectsCommand::removeObjects(const Model::ObjectList& objects) {
-            RemoveObjectFromDocument removeObjectFromDocument(m_document);
+        void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
+            RemoveObjectFromDocument removeObjectFromDocument(m_document, m_removedObjects);
             Model::each(objects.begin(), objects.end(), removeObjectFromDocument, Model::MatchAll());
         }
     }

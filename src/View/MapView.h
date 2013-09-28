@@ -82,6 +82,10 @@ namespace TrenchBroom {
             
             void toggleClipTool();
             bool clipToolActive() const;
+            bool canToggleClipSide() const;
+            void toggleClipSide();
+            bool canPerformClip() const;
+            void performClip();
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);

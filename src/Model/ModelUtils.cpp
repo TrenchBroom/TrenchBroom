@@ -53,6 +53,48 @@ namespace TrenchBroom {
             return result;
         }
 
+        ObjectParentList makeObjectParentList(const EntityBrushesMap& map) {
+            Model::ObjectParentList result;
+            
+            Model::EntityBrushesMap::const_iterator eIt, eEnd;
+            for (eIt = map.begin(), eEnd = map.end(); eIt != eEnd; ++eIt) {
+                Model::Entity* entity = eIt->first;
+                const Model::BrushList& brushes = eIt->second;
+                
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    Model::Brush* brush = *bIt;
+                    result.push_back(Model::ObjectParentPair(brush, entity));
+                }
+            }
+            
+            return result;
+        }
+
+        ObjectParentList makeObjectParentList(const ObjectList& list) {
+            ObjectParentList result;
+            result.reserve(list.size());
+            
+            ObjectList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it)
+                result.push_back(ObjectParentPair(*it));
+            return result;
+        }
+
+        ObjectList makeObjectList(const ObjectParentList& list) {
+            ObjectList result;
+            result.reserve(list.size());
+            
+            ObjectParentList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it)
+                result.push_back(it->object);
+            return result;
+        }
+
+        bool MatchAll::operator()(const ObjectParentPair& pair) const {
+            return true;
+        }
+
         bool MatchAll::operator()(const Object* object) const {
             return true;
         }

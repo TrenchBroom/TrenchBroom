@@ -307,88 +307,42 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
-        void MapDocument::addEntity(Model::Entity* entity) {
-            SetEntityDefinition setDefinition(m_entityDefinitionManager);
-            SetEntityModel setModel(m_entityModelManager);
-            AddToMap addToMap(*m_map);
-            AddToPicker addToPicker(m_picker);
-            SetFaceTexture setTexture(m_textureManager);
-            
-            setDefinition(entity);
-            setModel(entity);
-            addToMap(entity);
-            addToPicker(entity);
-            
-            Model::each(entity->brushes().begin(),
-                        entity->brushes().end(),
-                        addToPicker,
-                        Model::MatchAll());
-            Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
-                        Model::BrushFacesIterator::end(entity->brushes()),
-                        setTexture, Model::MatchAll());
+        Model::Entity* MapDocument::worldspawn() {
+            Model::Entity* worldspawn = m_map->worldspawn();
+            if (worldspawn == NULL) {
+                worldspawn = m_map->createEntity();
+                worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
+                addEntity(worldspawn);
+            }
+            return worldspawn;
         }
         
-        void MapDocument::addWorldBrush(Model::Brush* brush) {
-            addBrush(worldspawn(), brush);
-        }
-        
-        void MapDocument::addBrush(Model::Entity* entity, Model::Brush* brush) {
-            AddToEntity addToEntity(*entity);
-            AddToPicker addToPicker(m_picker);
-            RemoveFromPicker removeFromPicker(m_picker);
-            SetFaceTexture setTexture(m_textureManager);
-            
-            removeFromPicker(entity);
-            addToEntity(brush);
-            addToPicker(brush);
-            Model::each(brush->faces().begin(),
-                        brush->faces().end(),
-                        setTexture,
-                        Model::MatchAll());
-            addToPicker(entity);
-        }
+        void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
+            assert(object != NULL);
 
-        void MapDocument::removeEntity(Model::Entity* entity) {
-            assert(!entity->worldspawn());
-            
-            UnsetEntityDefinition unsetDefinition;
-            UnsetEntityModel unsetModel;
-            RemoveFromMap removeFromMap(*m_map);
-            RemoveFromPicker removeFromPicker(m_picker);
-            UnsetFaceTexture unsetTexture;
-            
-            unsetDefinition(entity);
-            unsetModel(entity);
-            removeFromMap(entity);
-            removeFromPicker(entity);
-            
-            Model::each(entity->brushes().begin(),
-                        entity->brushes().end(),
-                        removeFromPicker,
-                        Model::MatchAll());
-            Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
-                        Model::BrushFacesIterator::end(entity->brushes()),
-                        unsetTexture, Model::MatchAll());
+            if (object->type() == Model::Object::OTEntity)
+                addEntity(static_cast<Model::Entity*>(object));
+            else if (object->type() == Model::Object::OTBrush) {
+                if (parent == NULL) {
+                    addBrush(static_cast<Model::Brush*>(object), worldspawn());
+                } else {
+                    assert(parent->type() == Model::Brush::OTEntity);
+                    addBrush(static_cast<Model::Brush*>(object), static_cast<Model::Entity*>(parent));
+                }
+            }
         }
         
-        void MapDocument::removeWorldBrush(Model::Brush* brush) {
-            removeBrush(worldspawn(), brush);
-        }
-
-        void MapDocument::removeBrush(Model::Entity* entity, Model::Brush* brush) {
-            RemoveFromEntity removeFromEntity(*entity);
-            RemoveFromPicker removeFromPicker(m_picker);
-            UnsetFaceTexture unsetTexture;
-            AddToPicker addToPicker(m_picker);
+        void MapDocument::removeObject(Model::Object* object) {
+            assert(object != NULL);
+            assert(object->type() == Model::Object::OTEntity ||
+                   object->type() == Model::Object::OTBrush);
             
-            removeFromPicker(entity);
-            removeFromEntity(brush);
-            removeFromPicker(brush);
-            Model::each(brush->faces().begin(),
-                        brush->faces().end(),
-                        unsetTexture,
-                        Model::MatchAll());
-            addToPicker(entity);
+            if (object->type() == Model::Object::OTEntity)
+                removeEntity(static_cast<Model::Entity*>(object));
+            else if (object->type() == Model::Object::OTBrush) {
+                Model::Brush* brush = static_cast<Model::Brush*>(object);
+                removeBrush(brush, brush->parent());
+            }
         }
 
         bool MapDocument::hasSelectedObjects() const {
@@ -536,7 +490,81 @@ namespace TrenchBroom {
         m_grid(5),
         m_modificationCount(0) {}
         
-        void MapDocument::loadAndUpdateEntityDefinitions() {
+        void MapDocument::addEntity(Model::Entity* entity) {
+            SetEntityDefinition setDefinition(m_entityDefinitionManager);
+            SetEntityModel setModel(m_entityModelManager);
+            AddToMap addToMap(*m_map);
+            AddToPicker addToPicker(m_picker);
+            SetFaceTexture setTexture(m_textureManager);
+            
+            setDefinition(entity);
+            setModel(entity);
+            addToMap(entity);
+            addToPicker(entity);
+            
+            Model::each(entity->brushes().begin(),
+                        entity->brushes().end(),
+                        addToPicker,
+                        Model::MatchAll());
+            Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
+                        Model::BrushFacesIterator::end(entity->brushes()),
+                        setTexture, Model::MatchAll());
+        }
+        
+        void MapDocument::addBrush(Model::Brush* brush, Model::Entity* entity) {
+            AddToEntity addToEntity(*entity);
+            AddToPicker addToPicker(m_picker);
+            RemoveFromPicker removeFromPicker(m_picker);
+            SetFaceTexture setTexture(m_textureManager);
+            
+            removeFromPicker(entity);
+            addToEntity(brush);
+            addToPicker(brush);
+            Model::each(brush->faces().begin(),
+                        brush->faces().end(),
+                        setTexture,
+                        Model::MatchAll());
+            addToPicker(entity);
+        }
+        
+        void MapDocument::removeEntity(Model::Entity* entity) {
+            assert(!entity->worldspawn());
+            
+            UnsetEntityDefinition unsetDefinition;
+            UnsetEntityModel unsetModel;
+            RemoveFromMap removeFromMap(*m_map);
+            RemoveFromPicker removeFromPicker(m_picker);
+            UnsetFaceTexture unsetTexture;
+            
+            unsetDefinition(entity);
+            unsetModel(entity);
+            removeFromMap(entity);
+            removeFromPicker(entity);
+            
+            Model::each(entity->brushes().begin(),
+                        entity->brushes().end(),
+                        removeFromPicker,
+                        Model::MatchAll());
+            Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
+                        Model::BrushFacesIterator::end(entity->brushes()),
+                        unsetTexture, Model::MatchAll());
+        }
+        
+        void MapDocument::removeBrush(Model::Brush* brush, Model::Entity* entity) {
+            RemoveFromEntity removeFromEntity(*entity);
+            RemoveFromPicker removeFromPicker(m_picker);
+            UnsetFaceTexture unsetTexture;
+            AddToPicker addToPicker(m_picker);
+            
+            removeFromPicker(entity);
+            removeFromEntity(brush);
+            removeFromPicker(brush);
+            Model::each(brush->faces().begin(),
+                        brush->faces().end(),
+                        unsetTexture,
+                        Model::MatchAll());
+            addToPicker(entity);
+        }        void MapDocument::loadAndUpdateEntityDefinitions() {
             loadEntityDefinitions();
             updateEntityDefinitions(m_map->entities());
             updateEntityModels(m_map->entities());
@@ -593,16 +621,6 @@ namespace TrenchBroom {
                         Model::MapFacesIterator::end(*m_map),
                         SetFaceTexture(m_textureManager),
                         Model::MatchAll());
-        }
-
-        Model::Entity* MapDocument::worldspawn() {
-            Model::Entity* worldspawn = m_map->worldspawn();
-            if (worldspawn == NULL) {
-                worldspawn = m_map->createEntity();
-                worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
-                addEntity(worldspawn);
-            }
-            return worldspawn;
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

@@ -92,6 +92,27 @@ namespace TrenchBroom {
             return m_modalReceiver == m_clipTool;
         }
 
+        bool MapView::canToggleClipSide() const {
+            assert(clipToolActive());
+            return m_clipTool->canToggleClipSide();
+        }
+
+        void MapView::toggleClipSide() {
+            assert(clipToolActive());
+            m_clipTool->toggleClipSide();
+            Refresh();
+        }
+        
+        bool MapView::canPerformClip() const {
+            assert(clipToolActive());
+            return m_clipTool->canPerformClip();
+        }
+
+        void MapView::performClip() {
+            assert(clipToolActive());
+            m_clipTool->performClip();
+        }
+
         void MapView::OnKey(wxKeyEvent& event) {
             updateModifierKeys();
             updatePickResults(event.GetX(), event.GetY());

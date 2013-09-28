@@ -22,11 +22,13 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
+#include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
 #include "Model/Picker.h"
 #include "Renderer/RenderContext.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -40,6 +42,48 @@ namespace TrenchBroom {
         m_clipper(camera),
         m_renderer(m_clipper) {}
         
+        bool ClipTool::canToggleClipSide() const {
+            return m_clipper.numPoints() > 0;
+        }
+
+        void ClipTool::toggleClipSide() {
+            m_clipper.toggleClipSide();
+            updateBrushes();
+        }
+        
+        bool ClipTool::canPerformClip() const {
+            return m_clipper.numPoints() > 0;
+        }
+
+        void ClipTool::performClip() {
+            // need to make a copy here so that it is not affected by the deselection
+            const Model::ObjectList objects = document()->selectedObjects();
+            
+            controller().beginUndoableGroup(objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
+            controller().deselectAll();
+            controller().removeObjects(objects);
+            if (!m_frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
+                const Model::ObjectParentList frontBrushes = Model::makeObjectParentList(m_frontBrushes);
+                controller().addObjects(frontBrushes);
+                controller().selectObjects(makeObjectList(frontBrushes));
+                m_frontBrushes.clear();
+            } else {
+                clearAndDelete(m_frontBrushes);
+            }
+            if (!m_backBrushes.empty() && m_clipper.keepBackBrushes()) {
+                const Model::ObjectParentList backBrushes = Model::makeObjectParentList(m_backBrushes);
+                controller().addObjects(backBrushes);
+                controller().selectObjects(makeObjectList(backBrushes));
+                m_backBrushes.clear();
+            } else {
+                clearAndDelete(m_backBrushes);
+            }
+            controller().closeGroup();
+            
+            m_clipper.reset();
+            updateBrushes();
+        }
+
         bool ClipTool::initiallyActive() const {
             return false;
         }
@@ -158,9 +202,11 @@ namespace TrenchBroom {
             clearAndDelete(m_backBrushes);
             
             const Model::BrushList& brushes = document()->selectedBrushes();
-            const ClipResult result = m_clipper.clip(brushes, document());
-            m_frontBrushes = result.frontBrushes;
-            m_backBrushes = result.backBrushes;
+            if (!brushes.empty()) {
+                const ClipResult result = m_clipper.clip(brushes, document());
+                m_frontBrushes = result.frontBrushes;
+                m_backBrushes = result.backBrushes;
+            }
             
             m_renderer.setBrushes(Model::mergeEntityBrushesMap(m_frontBrushes),
                                   Model::mergeEntityBrushesMap(m_backBrushes));

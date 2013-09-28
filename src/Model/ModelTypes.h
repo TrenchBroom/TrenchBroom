@@ -51,6 +51,15 @@ namespace TrenchBroom {
         static const ObjectList EmptyObjectList(0);
         typedef std::set<Object*> ObjectSet;
         
+        struct ObjectParentPair {
+            Object* object;
+            Object* parent;
+            
+            ObjectParentPair(Object* i_object, Object* i_parent = NULL);
+        };
+        
+        typedef std::vector<ObjectParentPair> ObjectParentList;
+        
         class Brush;
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList(0);

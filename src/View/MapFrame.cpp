@@ -78,6 +78,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
@@ -160,6 +162,15 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
+            updateMenuBar(m_mapView->HasFocus());
+        }
+
+        void MapFrame::OnEditToggleClipSide(wxCommandEvent& event) {
+            m_mapView->toggleClipSide();
+        }
+        
+        void MapFrame::OnEditPerformClip(wxCommandEvent& event) {
+            m_mapView->performClip();
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
@@ -188,6 +199,15 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Enable(m_document->hasSelectedBrushes());
                     event.Check(m_mapView->clipToolActive());
+                    break;
+                case CommandIds::Menu::EditActions:
+                    event.Enable(m_mapView->clipToolActive());
+                    break;
+                case CommandIds::Menu::EditToggleClipSide:
+                    event.Enable(m_mapView->clipToolActive() && m_mapView->canToggleClipSide());
+                    break;
+                case CommandIds::Menu::EditPerformClip:
+                    event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
                     break;
                 default:
                     event.Enable(false);
@@ -285,8 +305,23 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
         }
         
+        class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {
+        private:
+            const MapView* m_mapView;
+        public:
+            FrameMenuSelector(const MapView* mapView) :
+            m_mapView(mapView) {}
+            
+            const Menu* select(const MultiMenu& multiMenu) const {
+                if (m_mapView->clipToolActive())
+                    return multiMenu.menuById(CommandIds::Menu::EditClipActions);
+                
+                return NULL;
+            }
+        };
+        
         void MapFrame::createMenuBar(const bool showModifiers) {
-            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), showModifiers);
+            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView), showModifiers);
             SetMenuBar(menuBar);
             
             View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
