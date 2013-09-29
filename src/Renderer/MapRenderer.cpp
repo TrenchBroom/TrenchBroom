@@ -28,6 +28,7 @@
 #include "Controller/FaceAttributeCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
 #include "GL/GL.h"
 #include "Model/Brush.h"
@@ -127,6 +128,8 @@ namespace TrenchBroom {
                 updateEntities(command);
             } else if (command->type() == FaceAttributeCommand::Type) {
                 updateBrushes(command);
+            } else if (command->type() == ResizeBrushesCommand::Type) {
+                updateBrushes(command);
             }
         }
         
@@ -138,6 +141,8 @@ namespace TrenchBroom {
                 addRemoveObjects(command);
             } else if (command->type() == EntityPropertyCommand::Type) {
                 updateEntities(command);
+            } else if (command->type() == ResizeBrushesCommand::Type) {
+                updateBrushes(command);
             }
         }
 

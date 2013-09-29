@@ -134,7 +134,7 @@ public:
         Mat<T,R,C> result(Mat<T,R,C>::Null);
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
-                for (size_t i = 0; i < C; i++)
+                for (size_t i = 0; i < C; ++i)
                     result[c][r] += v[i][r] * right[c][i];
         return result;
     }
@@ -170,7 +170,7 @@ public:
     const Vec<T,C> operator* (const Vec<T,C>& right) const {
         Vec<T,C> result;
         for (size_t r = 0; r < R; r++)
-            for (size_t i = 0; i < C; i++)
+            for (size_t i = 0; i < C; ++i)
                 result[r] += v[i][r] * right[i];
         return result;
     }
@@ -543,15 +543,23 @@ const Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
 template <typename T, size_t S>
 const Mat<T,S+1,S+1> translationMatrix(const Vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
-    for (size_t i = 0; i < S; i++)
+    for (size_t i = 0; i < S; ++i)
         translation[S][i] = delta[i];
     return translation;
 }
 
 template <typename T, size_t S>
+const Mat<T,S,S> stripTranslation(const Mat<T,S,S>& mat) {
+    Mat<T,S,S> result(mat);
+    for (size_t i = 0; i < S-1; ++i)
+        result[S-1][i] = static_cast<T>(0.0);
+    return result;
+}
+
+template <typename T, size_t S>
 const Mat<T,S+1,S+1> scalingMatrix(const Vec<T,S>& factors) {
     Mat<T,S+1,S+1> scaling;
-    for (size_t i = 0; i < S; i++)
+    for (size_t i = 0; i < S; ++i)
         scaling[i][i] = factors[i];
     return scaling;
 }
@@ -559,7 +567,7 @@ const Mat<T,S+1,S+1> scalingMatrix(const Vec<T,S>& factors) {
 template <size_t S, typename T>
 const Mat<T,S,S> scalingMatrix(const T f) {
     Mat<T,S,S> scaling;
-    for (size_t i = 0; i < S-1; i++)
+    for (size_t i = 0; i < S-1; ++i)
         scaling[i][i] = f;
     return scaling;
 }

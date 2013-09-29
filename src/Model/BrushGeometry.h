@@ -74,6 +74,7 @@ namespace TrenchBroom {
             BrushFaceGeometryList incidentSides(const BrushVertex& vertex) const;
 
             AddFaceResult addFaces(const BrushFaceList& faces);
+            void restoreFaceGeometries();
         private:
             AddFaceResult addFace(BrushFace* face);
             void initializeWithBounds(const BBox3& bounds);

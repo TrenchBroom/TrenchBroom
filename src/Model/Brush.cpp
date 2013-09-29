@@ -147,10 +147,9 @@ namespace TrenchBroom {
         
         bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
             try {
-                Model::BrushFaceList newFaces = m_faces;
+                Model::BrushFaceList newFaces(m_faces);
                 newFaces.push_back(face);
                 face->setParent(this);
-                m_faces.clear();
 
                 rebuildGeometry(worldBounds, newFaces);
                 return !m_faces.empty();
@@ -159,13 +158,49 @@ namespace TrenchBroom {
             }
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces) {
+        bool Brush::canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const {
+            BrushFace* testFace = face.clone();
+            testFace->transform(translationMatrix(delta), false, false);
+            
+            BrushFaceList testFaces;
+            testFaces.push_back(testFace);
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                if (brushFace != &face)
+                    testFaces.push_back(brushFace);
+            }
+            
+            BrushGeometry testGeometry(worldBounds);
+            const BrushGeometry::AddFaceResult result = testGeometry.addFaces(testFaces);
+            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds());
+            
+            m_geometry->restoreFaceGeometries();
+            delete testFace;
+            
+            return (inWorldBounds &&
+                    result.resultCode != BrushGeometry::BrushIsNull &&
+                    result.resultCode != BrushGeometry::FaceIsRedundant &&
+                    result.droppedFaces.empty());
+        }
+        
+        void Brush::moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture) {
+            assert(canMoveBoundary(worldBounds, face, delta));
+            
+            face.transform(translationMatrix(delta), lockTexture, false);
+            rebuildGeometry(worldBounds, m_faces);
+        }
+
+        void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList faces) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
             
             BrushFaceList deleteFaces = VectorUtils::difference(m_faces, result.addedFaces);
             VectorUtils::clearAndDelete(deleteFaces);
+            
+            m_faces.clear();
             addFaces(result.addedFaces);
         }
 

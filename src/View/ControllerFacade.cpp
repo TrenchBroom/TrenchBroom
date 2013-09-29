@@ -24,6 +24,7 @@
 #include "Controller/FaceAttributeCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
 #include "Model/ModelUtils.h"
 #include "View/ViewTypes.h"
@@ -230,6 +231,13 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures) {
+            using namespace Controller;
+            
+            Command::Ptr command = ResizeBrushesCommand::resizeBrushes(m_document, faces, delta, lockTextures);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
         bool ControllerFacade::setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture) {
             using namespace Controller;
             

@@ -113,8 +113,10 @@ namespace TrenchBroom {
             if (faceDelta.null())
                 return true;
             
-            // fire command
-            
+            if (controller().resizeBrushes(m_dragFaces, faceDelta, document()->textureLock())) {
+                m_totalDelta += faceDelta;
+                m_dragOrigin += faceDelta;
+            }
             return true;
         }
         

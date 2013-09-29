@@ -90,6 +90,8 @@ namespace TrenchBroom {
             bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
             
+            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+
             bool setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset);
             bool setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset);

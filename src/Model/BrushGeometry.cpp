@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Model/BrushEdge.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/IntersectBrushGeometryWithFace.h"
@@ -74,6 +75,15 @@ namespace TrenchBroom {
             return totalResult;
         }
         
+        void BrushGeometry::restoreFaceGeometries() {
+            BrushFaceGeometryList::iterator it, end;
+            for (it = m_sides.begin(), end = m_sides.end(); it != end; ++it) {
+                BrushFaceGeometry* side = *it;
+                if (side->face() != NULL)
+                    side->face()->setSide(side);
+            }
+        }
+
         BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace* face) {
             IntersectBrushGeometryWithFace algorithm(*this, face);
             const AddFaceResultCode resultCode = algorithm.execute();

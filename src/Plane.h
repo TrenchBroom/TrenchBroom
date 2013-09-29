@@ -126,19 +126,19 @@ public:
         return Math::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
     }
             
-            /*
-    Plane<T,S>& transform(const Mat4f& pointTransform, const Mat4f& vectorTransform) {
+    Plane<T,S>& transform(const Mat<T,S+1,S+1>& transform) {
         const Vec<T,3> oldAnchor = anchor();
-        normal = vectorTransform * normal;
+        normal = stripTranslation(transform) * normal;
         normal.normalize();
-        distance = (pointTransform * oldAnchor).dot(normal);
+        distance = (transform * oldAnchor).dot(normal);
         return *this;
     }
             
-    Plane<T> transformed(const Mat4f& pointTransform, const Mat4f& vectorTransform) const {
-        return Plane<T>(*this).transform(pointTransform, vectorTransform);
+    Plane<T,S> transformed(const Mat<T,S+1,S+1>& transform) const {
+        return Plane<T,S>(*this).transform(transform);
     }
     
+    /*
     Plane<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
         const Vec<T,3> oldAnchor = anchor();
         normal = rotation * normal;

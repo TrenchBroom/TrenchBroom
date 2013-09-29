@@ -158,6 +158,8 @@ namespace TrenchBroom {
             void setSurfaceValue(const float surfaceValue);
             void setAttributes(const BrushFace& other);
 
+            void transform(const Mat4x4& transform, const bool lockTexture, const bool invertOrientation);
+            
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;
             
@@ -174,12 +176,14 @@ namespace TrenchBroom {
             virtual BrushFace* doClone() const = 0;
             
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            void correctPoints();
             void validateVertexCache() const;
             void invalidateVertexCache();
 
             virtual void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
             virtual Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const = 0;
-
+            virtual void compensateTransformation(const Mat4x4& transformation) = 0;
+            
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };
@@ -214,6 +218,9 @@ namespace TrenchBroom {
                 const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() * safeXScale) + xOffset) / textureWidth);
                 const float y = static_cast<float>((point.dot(m_coordSystem.yAxis() * safeYScale) + yOffset) / textureHeight);
                 return Vec2f(x, y);
+            }
+
+            void compensateTransformation(const Mat4x4& transformation) {
             }
         };
     }

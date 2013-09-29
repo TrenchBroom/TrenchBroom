@@ -437,6 +437,10 @@ namespace TrenchBroom {
             return Model::BrushFace::NoTextureName;
         }
 
+        bool MapDocument::textureLock() const {
+            return m_textureLock;
+        }
+
         void MapDocument::commitPendingRenderStateChanges() {
             m_textureManager.commitChanges();
         }
@@ -488,6 +492,7 @@ namespace TrenchBroom {
         m_map(NULL),
         m_picker(m_worldBounds),
         m_grid(5),
+        m_textureLock(true),
         m_modificationCount(0) {}
         
         void MapDocument::addEntity(Model::Entity* entity) {

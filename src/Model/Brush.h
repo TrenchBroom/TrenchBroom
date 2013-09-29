@@ -70,8 +70,10 @@ namespace TrenchBroom {
             void addEdges(Vertex::List& vertices) const;
             
             bool clip(const BBox3& worldBounds, BrushFace* face);
+            bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
+            void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
-            void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList& faces);
+            void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList faces);
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
 

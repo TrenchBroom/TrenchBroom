@@ -315,6 +315,19 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
+        void BrushFace::transform(const Mat4x4& transform, const bool lockTexture, const bool invertOrientation) {
+            if (lockTexture)
+                compensateTransformation(transform);
+            
+            m_boundary.transform(transform);
+            for (size_t i = 0; i < 3; ++i)
+                m_points[i] = transform * m_points[i];
+            if (invertOrientation)
+                std::swap(m_points[1], m_points[2]);
+            correctPoints();
+            invalidateVertexCache();
+        }
+
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
             return m_side->edges();
@@ -331,7 +344,10 @@ namespace TrenchBroom {
         }
         
         void BrushFace::setSide(BrushFaceGeometry* side) {
+            if (m_side == side)
+                return;
             m_side = side;
+            invalidateVertexCache();
         }
         
         bool BrushFace::selected() const {
@@ -448,6 +464,11 @@ namespace TrenchBroom {
             }
         }
         
+        void BrushFace::correctPoints() {
+            for (size_t i = 0; i < 3; ++i)
+                m_points[i].correct();
+        }
+
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
             

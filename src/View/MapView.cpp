@@ -164,7 +164,6 @@ namespace TrenchBroom {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
                 m_dragReceiver->mouseDrag(m_inputState);
             } else {
-
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
                     (std::abs(event.GetX() - m_clickPos.x) > 1 ||
                      std::abs(event.GetY() - m_clickPos.y) > 1)) {

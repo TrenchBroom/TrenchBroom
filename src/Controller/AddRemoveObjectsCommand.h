@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 #include "Controller/Command.h"
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

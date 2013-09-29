@@ -63,6 +63,7 @@ namespace TrenchBroom {
             Model::ModelFilter m_filter;
             View::Grid m_grid;
             
+            bool m_textureLock;
             size_t m_modificationCount;
         public:
             static MapDocumentPtr newMapDocument();
@@ -92,7 +93,7 @@ namespace TrenchBroom {
             void saveDocumentAs(const IO::Path& path);
             
             Model::Entity* worldspawn();
-            
+
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);
 
@@ -122,6 +123,8 @@ namespace TrenchBroom {
             Model::SelectionResult deselectAll();
             Assets::FaceTexture* currentTexture() const;
             String currentTextureName() const;
+            
+            bool textureLock() const;
             
             void commitPendingRenderStateChanges();
 
