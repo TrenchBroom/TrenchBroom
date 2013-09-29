@@ -24,6 +24,7 @@
 #include "IO/GameFS.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
+#include "IO/QuakeMapWriter.h"
 #include "IO/WadTextureLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -59,6 +60,11 @@ namespace TrenchBroom {
             IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(worldBounds);
+        }
+
+        void QuakeGame::doWriteMap(Map& map, const IO::Path& path) const {
+            IO::QuakeMapWriter writer;
+            writer.writeToFileAtPath(map, path, true);
         }
 
         IO::Path::List QuakeGame::doExtractTexturePaths(const Map* map) const {

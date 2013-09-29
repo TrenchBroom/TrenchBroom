@@ -101,6 +101,10 @@ namespace TrenchBroom {
             return doLoadMap(worldBounds, path);
         }
 
+        void Game::writeMap(Map& map, const IO::Path& path) const {
+            return doWriteMap(map, path);
+        }
+
         IO::Path::List Game::extractTexturePaths(const Map* map) const {
             return doExtractTexturePaths(map);
         }

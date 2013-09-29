@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         Shader::Shader(const IO::Path& path, const GLenum type) :
-        m_name(path.lastComponent()),
+        m_name(path.lastComponent().asString()),
         m_type(type),
         m_shaderId(0) {
             assert(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);

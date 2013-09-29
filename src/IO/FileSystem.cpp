@@ -21,6 +21,7 @@
 #include "IO/FileSystem.h"
 
 #include <wx/dir.h>
+#include <wx/filefn.h>
 
 #if defined __APPLE__
 #include "CoreFoundation/CoreFoundation.h"
@@ -146,6 +147,30 @@ namespace TrenchBroom {
                 }
             }
             return result;
+        }
+
+        void FileSystem::createDirectory(const Path& path) const {
+            if (!::wxMkdir(path.asString())) {
+                FileSystemException e;
+                e << "Directory " << path.asString() << " could not be created";
+                throw e;
+            }
+        }
+
+        void FileSystem::deleteFile(const Path& path) const {
+            if (!::wxRemoveFile(path.asString())) {
+                FileSystemException e;
+                e << "File " << path.asString() << " could not be deleted";
+                throw e;
+            }
+        }
+        
+        void FileSystem::moveFile(const Path& sourcePath, const Path& destPath, bool overwrite) const {
+            if (!::wxRenameFile(sourcePath.asString(), destPath.asString(), overwrite)) {
+                FileSystemException e;
+                e << "File " << sourcePath.asString() << " could not be moved to " << destPath.asString();
+                throw e;
+            }
         }
 
         MappedFile::Ptr FileSystem::mapFile(const Path& path, const std::ios_base::openmode mode) const {

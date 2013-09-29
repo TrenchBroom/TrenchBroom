@@ -86,6 +86,10 @@ namespace TrenchBroom {
             return compare(rhs) == 0;
         }
 
+        bool Path::operator!= (const Path& rhs) const {
+            return !(*this == rhs);
+        }
+
         bool Path::operator< (const Path& rhs) const {
             return compare(rhs) < 0;
         }
@@ -116,10 +120,10 @@ namespace TrenchBroom {
             return !m_absolute && m_components.empty();
         }
 
-        String Path::firstComponent() const {
+        Path Path::firstComponent() const {
             if (isEmpty())
                 throw PathException("Cannot return last component of empty path");
-            return m_components.front();
+            return Path(m_components.front());
         }
 
         Path Path::deleteFirstComponent() const {
@@ -131,10 +135,10 @@ namespace TrenchBroom {
             return Path(false, components);
         }
 
-        String Path::lastComponent() const {
+        Path Path::lastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot return last component of empty path");
-            return m_components.back();
+            return Path(m_components.back());
         }
 
         Path Path::deleteLastComponent() const {

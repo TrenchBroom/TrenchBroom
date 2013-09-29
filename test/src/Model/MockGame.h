@@ -28,6 +28,7 @@
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
+#include "Model/Map.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -46,6 +47,7 @@ namespace TrenchBroom {
 
             MOCK_CONST_METHOD0(doNewMap, Map*());
             MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
+            MOCK_CONST_METHOD2(doWriteMap, void(Map&, const IO::Path&));
             MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(const Map*));
             MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::FaceTextureCollection*(const IO::Path&));
             MOCK_CONST_METHOD1(doUploadTextureCollection, void(Assets::FaceTextureCollection*));

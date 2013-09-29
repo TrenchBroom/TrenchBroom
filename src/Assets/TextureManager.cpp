@@ -161,7 +161,7 @@ namespace TrenchBroom {
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
                 FaceTextureCollection* collection = *cIt;
-                const String collectionName = collection->path().lastComponent();
+                const String collectionName = collection->path().lastComponent().asString();
                 const FaceTextureList textures = collection->textures();
                 
                 FaceTextureList::const_iterator tIt, tEnd;

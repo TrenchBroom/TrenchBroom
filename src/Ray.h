@@ -103,7 +103,7 @@ public:
         T distance;
     };
     
-    const PointDistance distanceToPointSquared(const Vec<T,S>& point) const {
+    const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         const Vec3f originToPoint = point - origin;
         PointDistance result;
         result.rayDistance = std::max(originToPoint.dot(direction), static_cast<T>(0.0));
@@ -115,7 +115,7 @@ public:
     }
     
     const PointDistance distanceToPoint(const Vec<T,S>& point) const {
-        PointDistance distance2 = distanceToPointSquared(point);
+        PointDistance distance2 = squaredDistanceToPoint(point);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
     }

@@ -43,6 +43,7 @@ namespace TrenchBroom {
             Path operator+ (const Path& rhs) const;
             int compare(const Path& rhs) const;
             bool operator== (const Path& rhs) const;
+            bool operator!= (const Path& rhs) const;
             bool operator< (const Path& rhs) const;
             bool operator> (const Path& rhs) const;
             
@@ -50,9 +51,9 @@ namespace TrenchBroom {
             static StringList asStrings(const Path::List& paths, const char separator = Separator);
             
             bool isEmpty() const;
-            String firstComponent() const;
+            Path firstComponent() const;
             Path deleteFirstComponent() const;
-            String lastComponent() const;
+            Path lastComponent() const;
             Path deleteLastComponent() const;
             Path prefix(const size_t count) const;
             Path suffix(const size_t count) const;

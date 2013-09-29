@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <set>

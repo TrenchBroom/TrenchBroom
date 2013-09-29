@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 Assets::TextureManager::GroupList::const_iterator gIt, gEnd;
                 for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
                     const IO::Path& path = gIt->first;
-                    const String groupName = path.lastComponent();
+                    const String groupName = path.lastComponent().asString();
                     const Assets::FaceTextureList& textures = gIt->second;
                     
                     layout.addGroup(groupName, fontSize + 2.0f);

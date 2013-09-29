@@ -62,10 +62,10 @@ namespace TrenchBroom {
         }
         
         TEST(PathTest, getLastComponent) {
-            ASSERT_THROW(Path("").lastComponent(), PathException);
-            ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent());
-            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
-            ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent());
+            ASSERT_THROW(Path("").lastComponent().asString(), PathException);
+            ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent().asString());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent().asString());
+            ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent().asString());
         }
         
         TEST(PathTest, deleteLastComponent) {
@@ -161,10 +161,10 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, getLastComponent) {
-            ASSERT_THROW(Path("").lastComponent(), PathException);
-            ASSERT_EQ("asdf", Path("/asdf").lastComponent());
-            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
-            ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent());
+            ASSERT_THROW(Path("").lastComponent().asString(), PathException);
+            ASSERT_EQ("asdf", Path("/asdf").lastComponent().asString());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent().asString());
+            ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent().asString());
         }
         
         TEST(PathTest, deleteLastComponent) {

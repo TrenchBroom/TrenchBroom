@@ -163,7 +163,7 @@ namespace TrenchBroom {
             void createMenuItems(wxMenu* menu) {
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     const IO::Path& path = m_recentDocuments[i];
-                    menu->Append(m_baseId + i, path.lastComponent());
+                    menu->Append(m_baseId + i, path.lastComponent().asString());
                 }
             }
         };

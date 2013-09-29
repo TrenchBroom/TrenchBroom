@@ -136,6 +136,8 @@ namespace TrenchBroom {
             void commandUndoFailed(Controller::Command::Ptr command);
 
             Model::PickResult pick(const Ray3& ray);
+            
+            void saveBackup(const IO::Path& path);
         private:
             MapDocument();
             

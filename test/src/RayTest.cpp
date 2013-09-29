@@ -59,37 +59,37 @@ TEST(RayTest, distanceToPoint) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     
     // point is behind ray
-    ASSERT_FLOAT_EQ(0.0f, ray.distanceToPointSquared(Vec3f(-1.0f, -1.0f, -1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(3.0f, ray.distanceToPointSquared(Vec3f(-1.0f, -1.0f, -1.0f)).distance);
+    ASSERT_FLOAT_EQ(0.0f, ray.squaredDistanceToPoint(Vec3f(-1.0f, -1.0f, -1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(3.0f, ray.squaredDistanceToPoint(Vec3f(-1.0f, -1.0f, -1.0f)).distance);
     
     // point is in front of ray
-    ASSERT_FLOAT_EQ(1.0f, ray.distanceToPointSquared(Vec3f(1.0f, 1.0f, 1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(2.0f, ray.distanceToPointSquared(Vec3f(1.0f, 1.0f, 1.0f)).distance);
+    ASSERT_FLOAT_EQ(1.0f, ray.squaredDistanceToPoint(Vec3f(1.0f, 1.0f, 1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(2.0f, ray.squaredDistanceToPoint(Vec3f(1.0f, 1.0f, 1.0f)).distance);
     
     // point is on ray
-    ASSERT_FLOAT_EQ(1.0f, ray.distanceToPointSquared(Vec3f(0.0f, 0.0f, 1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(0.0f, ray.distanceToPointSquared(Vec3f(0.0f, 0.0f, 1.0f)).distance);
+    ASSERT_FLOAT_EQ(1.0f, ray.squaredDistanceToPoint(Vec3f(0.0f, 0.0f, 1.0f)).rayDistance);
+    ASSERT_FLOAT_EQ(0.0f, ray.squaredDistanceToPoint(Vec3f(0.0f, 0.0f, 1.0f)).distance);
 }
 
 TEST(RayTest, distanceToSegment) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     Ray3f::LineDistance segDist;
     
-    segDist = ray.distanceToSegmentSquared(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f));
+    segDist = ray.squaredDistanceToSegment(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f));
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.distance);
 
-    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 1.0f, 0.0f), Vec3f(1.0f, 1.0f, 1.0f));
+    segDist = ray.squaredDistanceToSegment(Vec3f(1.0f, 1.0f, 0.0f), Vec3f(1.0f, 1.0f, 1.0f));
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(2.0f, segDist.distance);
     
-    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
+    segDist = ray.squaredDistanceToSegment(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
     ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
     
-    segDist = ray.distanceToSegmentSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(2.0f, -1.0f, 0.0f));
+    segDist = ray.squaredDistanceToSegment(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(2.0f, -1.0f, 0.0f));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(1.0f, segDist.distance);

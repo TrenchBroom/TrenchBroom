@@ -50,6 +50,7 @@ namespace TrenchBroom {
             virtual ~Game();
             Map* newMap() const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            void writeMap(Map& map, const IO::Path& path) const;
             
             IO::Path::List extractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* loadTextureCollection(const IO::Path& path) const;
@@ -64,6 +65,7 @@ namespace TrenchBroom {
         private:
             virtual Map* doNewMap() const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
+            virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
             
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
             virtual Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;

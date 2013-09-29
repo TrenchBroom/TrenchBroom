@@ -105,13 +105,13 @@ namespace TrenchBroom {
                 return NULL;
             
             if (StringUtils::caseInsensitiveEqual(path.extension(), "mdl")) {
-                IO::MdlParser parser(path.lastComponent(), file->begin(), file->end(), palette);
+                IO::MdlParser parser(path.lastComponent().asString(), file->begin(), file->end(), palette);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "md2")) {
-                IO::Md2Parser parser(path.lastComponent(), file->begin(), file->end(), palette, gameFs);
+                IO::Md2Parser parser(path.lastComponent().asString(), file->begin(), file->end(), palette, gameFs);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
-                IO::Bsp29Parser parser(path.lastComponent(), file->begin(), file->end(), palette);
+                IO::Bsp29Parser parser(path.lastComponent().asString(), file->begin(), file->end(), palette);
                 return parser.parseModel();
             } else {
                 throw GameException("Unknown model type " + path.asString());

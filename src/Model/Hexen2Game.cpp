@@ -18,6 +18,7 @@
  */
 
 #include "Hexen2Game.h"
+#include "IO/Hexen2MapWriter.h"
 #include "IO/FileSystem.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/WadTextureLoader.h"
@@ -54,6 +55,11 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
         
+        void Hexen2Game::doWriteMap(Map& map, const IO::Path& path) const {
+            IO::Hexen2MapWriter writer;
+            writer.writeToFileAtPath(map, path, true);
+        }
+
         IO::Path::List Hexen2Game::doExtractTexturePaths(const Map* map) const {
             using TrenchBroom::Model::extractTexturePaths;
             return extractTexturePaths(map, Model::PropertyKeys::Wad);

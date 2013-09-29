@@ -22,6 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Line.h"
 #include "MathUtils.h"
+#include "Mat.h"
 #include "Ray.h"
 #include "Vec.h"
 

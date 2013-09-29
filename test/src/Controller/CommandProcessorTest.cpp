@@ -34,7 +34,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(doPerformUndo, bool());
         public:
             MockCommand(const String& name, const bool undoable = true) :
-            Command(freeType(), name, undoable) {}
+            Command(freeType(), name, undoable, true) {}
         };
         
         class MockListener : public CommandListener {

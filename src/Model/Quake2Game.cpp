@@ -20,6 +20,7 @@
 #include "Quake2Game.h"
 #include "IO/FileSystem.h"
 #include "IO/QuakeMapParser.h"
+#include "IO/Quake2MapWriter.h"
 #include "IO/WalTextureLoader.h"
 #include "Model/GameUtils.h"
 #include "Model/Map.h"
@@ -55,6 +56,11 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
         
+        void Quake2Game::doWriteMap(Map& map, const IO::Path& path) const {
+            IO::Quake2MapWriter writer;
+            writer.writeToFileAtPath(map, path, true);
+        }
+
         IO::Path::List Quake2Game::doExtractTexturePaths(const Map* map) const {
             using TrenchBroom::Model::extractTexturePaths;
             return extractTexturePaths(map, Model::PropertyKeys::Wal);

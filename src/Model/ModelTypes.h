@@ -36,6 +36,8 @@ namespace TrenchBroom {
             MFHexen2
         } MapFormat;
         
+        class Map;
+        
         typedef String PropertyKey;
         typedef std::vector<PropertyKey> PropertyKeyList;
         typedef String PropertyValue;
@@ -69,6 +71,8 @@ namespace TrenchBroom {
         typedef std::vector<Entity*> EntityList;
         static const EntityList EmptyEntityList(0);
         typedef std::set<Entity*> EntitySet;
+        
+        struct EntityProperty;
         
         typedef std::map<Entity*, BrushList> EntityBrushesMap;
         

@@ -23,6 +23,8 @@
 #include "Controller/Command.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "IO/FileSystem.h"
+#include "View/Autosaver.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/FrameManager.h"
@@ -46,6 +48,8 @@ namespace TrenchBroom {
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
+        m_autosaver(NULL),
+        m_autosaveTimer(NULL),
         m_console(NULL),
         m_navBar(NULL),
         m_mapView(NULL),
@@ -54,6 +58,8 @@ namespace TrenchBroom {
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentPtr document) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_frameManager(NULL),
+        m_autosaver(NULL),
+        m_autosaveTimer(NULL),
         m_console(NULL),
         m_navBar(NULL),
         m_mapView(NULL),
@@ -64,6 +70,7 @@ namespace TrenchBroom {
         void MapFrame::Create(FrameManager* frameManager, MapDocumentPtr document) {
             m_frameManager = frameManager;
             m_document = document;
+            m_autosaver = new Autosaver(m_document);
             m_controller.setDocument(m_document);
             m_controller.addCommandListener(this);
             
@@ -74,6 +81,8 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
 
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSave, this, wxID_SAVE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
@@ -92,12 +101,21 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
             Bind(EVT_REBUILD_MENU, &MapFrame::OnRebuildMenu, this);
+            Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
             m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
             m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
+            
+            m_autosaveTimer = new wxTimer(this);
+            m_autosaveTimer->Start(1000);
         }
 
         MapFrame::~MapFrame() {
+            delete m_autosaveTimer;
+            m_autosaveTimer = NULL;
+            delete m_autosaver;
+            m_autosaver = NULL;
+            
             m_controller.removeCommandListener(this);
             View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
             if (app != NULL)
@@ -148,6 +166,14 @@ namespace TrenchBroom {
                 m_frameManager->removeAndDestroyFrame(this);
         }
 
+        void MapFrame::OnFileSave(wxCommandEvent& event) {
+            saveDocument();
+        }
+        
+        void MapFrame::OnFileSaveAs(wxCommandEvent& event) {
+            saveDocumentAs();
+        }
+
         void MapFrame::OnFileClose(wxCommandEvent& event) {
             Close();
         }
@@ -175,6 +201,9 @@ namespace TrenchBroom {
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
+                case wxID_OPEN:
+                case wxID_SAVE:
+                case wxID_SAVEAS:
                 case wxID_CLOSE:
                     event.Enable(true);
                     break;
@@ -232,6 +261,10 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
+            m_autosaver->triggerAutosave(m_console);
+        }
+
         void MapFrame::commandDo(Controller::Command::Ptr command) {
             m_document->commandDo(command);
             m_mapView->commandDo(command);
@@ -243,6 +276,8 @@ namespace TrenchBroom {
             m_inspector->update(command);
             updateTitle();
             
+            if (command->modifiesDocument())
+                m_autosaver->updateLastModificationTime();
         }
         
         void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
@@ -341,7 +376,7 @@ namespace TrenchBroom {
             SetTitle(m_document->filename());
             OSXSetModified(m_document->modified());
 #else
-            SetTitle(m_document->filename() + m_document->modified() ? "*" : "");
+            SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : ""));
 #endif
         }
 
@@ -360,11 +395,42 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::saveDocument() {
-            return true;
+            try {
+                IO::FileSystem fs;
+                if (fs.exists(m_document->path())) {
+                    m_document->saveDocument();
+                    updateTitle();
+                    logger()->info("Saved " + m_document->path().asString());
+                    return true;
+                }
+                return saveDocumentAs();
+            } catch (FileSystemException e) {
+                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            } catch (...) {
+                ::wxMessageBox("Unknown error while saving " + m_document->path().asString(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            }
         }
         
-        bool MapFrame::saveDocumentAs(const IO::Path& path) {
-            return true;
+        bool MapFrame::saveDocumentAs() {
+            try {
+                wxFileDialog saveDialog(this, _("Save map file"), "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                if (saveDialog.ShowModal() == wxID_CANCEL)
+                    return false;
+                
+                const IO::Path path(saveDialog.GetPath().ToStdString());
+                m_document->saveDocumentAs(path);
+                updateTitle();
+                logger()->info("Saved " + m_document->path().asString());
+                return true;
+            } catch (FileSystemException e) {
+                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            } catch (...) {
+                ::wxMessageBox("Unknown error while saving " + m_document->filename(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            }
         }
     }
 }

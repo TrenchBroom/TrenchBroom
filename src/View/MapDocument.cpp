@@ -200,7 +200,7 @@ namespace TrenchBroom {
         String MapDocument::filename() const {
             if (m_path.isEmpty())
                 return "";
-            return  m_path.lastComponent();
+            return  m_path.lastComponent().asString();
         }
         
         Model::GamePtr MapDocument::game() const {
@@ -491,6 +491,10 @@ namespace TrenchBroom {
             return m_picker.pick(ray);
         }
 
+        void MapDocument::saveBackup(const IO::Path& path) {
+            m_game->writeMap(*m_map, path);
+        }
+
         MapDocument::MapDocument() :
         CachingLogger(),
         m_worldBounds(DefaultWorldBounds),
@@ -635,6 +639,8 @@ namespace TrenchBroom {
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {
+            m_game->writeMap(*m_map, path);
+            clearModificationCount();
             setDocumentPath(path);
         }
 

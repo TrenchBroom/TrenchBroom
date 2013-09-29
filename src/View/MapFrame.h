@@ -29,10 +29,14 @@
 
 #include <wx/frame.h>
 
+class wxTimer;
+class wxTimerEvent;
+
 namespace TrenchBroom {
     class Logger;
 
     namespace View {
+        class Autosaver;
         class Console;
         class FrameManager;
         class Inspector;
@@ -47,6 +51,8 @@ namespace TrenchBroom {
             FrameManager* m_frameManager;
             ControllerFacade m_controller;
             MapDocumentPtr m_document;
+            Autosaver* m_autosaver;
+            wxTimer* m_autosaveTimer;
 
             Console* m_console;
             NavBar* m_navBar;
@@ -67,6 +73,8 @@ namespace TrenchBroom {
             
             void OnClose(wxCloseEvent& event);
             
+            void OnFileSave(wxCommandEvent& event);
+            void OnFileSaveAs(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
             
             void OnEditUndo(wxCommandEvent& event);
@@ -81,6 +89,7 @@ namespace TrenchBroom {
             void OnMapViewKillFocus(wxFocusEvent& event);
             
             void OnRebuildMenu(wxEvent& event);
+            void OnAutosaveTimer(wxTimerEvent& event);
             
             void commandDo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
@@ -99,7 +108,7 @@ namespace TrenchBroom {
             bool confirmOrDiscardChanges();
             
             bool saveDocument();
-            bool saveDocumentAs(const IO::Path& path);
+            bool saveDocumentAs();
         };
     }
 }
