@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectParentList& objects) :
-        Command(Type, makeName(action, objects), true),
+        Command(Type, makeName(action, objects), true, true),
         m_document(document),
         m_action(action) {
             if (action == AAdd)

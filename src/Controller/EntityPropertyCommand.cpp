@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
         
         EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force) :
-        Command(Type, makeName(command), true),
+        Command(Type, makeName(command), true, true),
         m_command(command),
         m_document(document),
         m_entities(entities),
@@ -183,11 +183,11 @@ namespace TrenchBroom {
             }
         }
 
-        const Model::ObjectList EntityPropertyCommand::doAffectedObjects() const {
+        Model::ObjectList EntityPropertyCommand::doAffectedObjects() const {
             return VectorUtils::cast<Model::Object*>(m_entities);
         }
 
-        const Model::EntityList EntityPropertyCommand::doAffectedEntities() const {
+        Model::EntityList EntityPropertyCommand::doAffectedEntities() const {
             return m_entities;
         }
         

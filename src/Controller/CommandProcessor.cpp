@@ -85,7 +85,7 @@ namespace TrenchBroom {
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
         CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands, CommandListenerNotifier& notifier) :
-        Command(Type, name, undoable),
+        Command(Type, name, undoable, false),
         m_commands(commands),
         m_notifier(notifier) {}
 

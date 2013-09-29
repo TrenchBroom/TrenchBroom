@@ -20,6 +20,8 @@
 #include "SelectionResult.h"
 #include "CollectionUtils.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
         SelectionResult::SelectionResult() :
@@ -77,18 +79,20 @@ namespace TrenchBroom {
         }
 
         void SelectionResult::mergeWith(const SelectionResult& other) {
+            assert(this != &other);
+            
             const Model::ObjectSet& otherSelectedObjects = other.selectedObjects();
             const Model::ObjectSet& otherDeselectedObjects = other.deselectedObjects();
             const Model::BrushFaceSet& otherSelectedFaces = other.selectedFaces();
             const Model::BrushFaceSet& otherDeselectedFaces = other.deselectedFaces();
             
-            m_deselectedObjects.erase(otherSelectedObjects.begin(), otherSelectedObjects.end());
-            m_selectedObjects.erase(otherDeselectedObjects.begin(), otherDeselectedObjects.end());
+            m_deselectedObjects = SetUtils::minus(m_deselectedObjects, otherSelectedObjects);
+            m_selectedObjects = SetUtils::minus(m_selectedObjects, otherDeselectedObjects);
             m_selectedObjects.insert(otherSelectedObjects.begin(), otherSelectedObjects.end());
             m_deselectedObjects.insert(otherDeselectedObjects.begin(), otherDeselectedObjects.end());
             
-            m_deselectedFaces.erase(otherSelectedFaces.begin(), otherSelectedFaces.end());
-            m_selectedFaces.erase(otherDeselectedFaces.begin(), otherDeselectedFaces.end());
+            m_deselectedFaces = SetUtils::minus(m_deselectedFaces, otherSelectedFaces);
+            m_selectedFaces = SetUtils::minus(m_selectedFaces, otherDeselectedFaces);
             m_selectedFaces.insert(otherSelectedFaces.begin(), otherSelectedFaces.end());
             m_deselectedFaces.insert(otherDeselectedFaces.begin(), otherDeselectedFaces.end());
             

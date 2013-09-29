@@ -26,7 +26,7 @@ namespace TrenchBroom {
         const Command::CommandType NewDocumentCommand::Type = Command::freeType();
 
         NewDocumentCommand::NewDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game) :
-        Command(Type, "New Document", false),
+        Command(Type, "New Document", false, false),
         m_document(document),
         m_worldBounds(worldBounds),
         m_game(game) {}

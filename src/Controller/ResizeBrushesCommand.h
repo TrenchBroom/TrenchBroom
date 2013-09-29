@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
-            const Model::ObjectList doAffectedObjects() const;
+            Model::ObjectList doAffectedObjects() const;
             
             bool moveBoundary(const Vec3& delta);
         };

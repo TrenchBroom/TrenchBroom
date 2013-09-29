@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <limits>
 #include <map>
+#include <set>
 #include <vector>
 #include "SharedPointer.h"
 
@@ -247,6 +248,15 @@ namespace VectorUtils {
     template <typename T, typename I>
     void removeOrdered(std::vector<T>& vec, I cur, const I end) {
         removeOrdered<T, I, std::less<T> >(vec, cur, end);
+    }
+}
+
+namespace SetUtils {
+    template <typename T>
+    std::set<T> minus(const std::set<T>& lhs, const std::set<T>& rhs) {
+        std::set<T> result;
+        std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+        return result;
     }
 }
 

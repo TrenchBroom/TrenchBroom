@@ -27,11 +27,12 @@ namespace TrenchBroom {
             return type++;
         }
 
-        Command::Command(const CommandType type, const String& name, const bool undoable) :
+        Command::Command(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument) :
         m_type(type),
         m_state(Default),
         m_name(name),
-        m_undoable(undoable) {}
+        m_undoable(undoable),
+        m_modifiesDocument(modifiesDocument) {}
         
         Command::CommandType Command::type() const {
             return m_type;
@@ -73,15 +74,19 @@ namespace TrenchBroom {
             }
         }
         
-        const Model::ObjectList Command::affectedObjects() const {
+        bool Command::modifiesDocument() const {
+            return m_modifiesDocument;
+        }
+
+        Model::ObjectList Command::affectedObjects() const {
             return doAffectedObjects();
         }
 
-        const Model::EntityList Command::affectedEntities() const {
+        Model::EntityList Command::affectedEntities() const {
             return doAffectedEntities();
         }
         
-        const Model::BrushList Command::affectedBrushes() const {
+        Model::BrushList Command::affectedBrushes() const {
             return doAffectedBrushes();
         }
 
@@ -89,15 +94,15 @@ namespace TrenchBroom {
             throw CommandProcessorException("Undo not implemented");
         }
 
-        const Model::ObjectList Command::doAffectedObjects() const {
+        Model::ObjectList Command::doAffectedObjects() const {
             return Model::EmptyObjectList;
         }
 
-        const Model::EntityList Command::doAffectedEntities() const {
+        Model::EntityList Command::doAffectedEntities() const {
             return Model::EmptyEntityList;
         }
         
-        const Model::BrushList Command::doAffectedBrushes() const {
+        Model::BrushList Command::doAffectedBrushes() const {
             return Model::EmptyBrushList;
         }
     }

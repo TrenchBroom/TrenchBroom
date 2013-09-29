@@ -241,10 +241,7 @@ namespace TrenchBroom {
             m_document->commandDone(command);
             m_mapView->commandDone(command);
             m_inspector->update(command);
-
-            if (command->type() == Controller::NewDocumentCommand::Type ||
-                command->type() == Controller::OpenDocumentCommand::Type)
-                updateTitle();
+            updateTitle();
             
         }
         
@@ -262,6 +259,7 @@ namespace TrenchBroom {
             m_document->commandUndone(command);
             m_mapView->commandUndone(command);
             m_inspector->update(command);
+            updateTitle();
         }
 
         void MapFrame::commandUndoFailed(Controller::Command::Ptr command) {
@@ -339,7 +337,12 @@ namespace TrenchBroom {
         }
 
         void MapFrame::updateTitle() {
+#ifdef __APPLE__
             SetTitle(m_document->filename());
+            OSXSetModified(m_document->modified());
+#else
+            SetTitle(m_document->filename() + m_document->modified() ? "*" : "");
+#endif
         }
 
         bool MapFrame::confirmOrDiscardChanges() {

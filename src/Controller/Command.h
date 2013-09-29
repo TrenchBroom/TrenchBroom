@@ -45,10 +45,11 @@ namespace TrenchBroom {
             CommandState m_state;
             String m_name;
             bool m_undoable;
+            bool m_modifiesDocument;
         public:
             static CommandType freeType();
             
-            Command(const CommandType type, const String& name, const bool undoable);
+            Command(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument);
 
             CommandType type() const;
             CommandState state() const;
@@ -57,9 +58,11 @@ namespace TrenchBroom {
             bool performDo();
             bool performUndo();
             
-            const Model::ObjectList affectedObjects() const;
-            const Model::EntityList affectedEntities() const;
-            const Model::BrushList affectedBrushes() const;
+            bool modifiesDocument() const;
+            
+            Model::ObjectList affectedObjects() const;
+            Model::EntityList affectedEntities() const;
+            Model::BrushList affectedBrushes() const;
             
             template <class T>
             static std::tr1::shared_ptr<T> cast(Ptr& command) {
@@ -68,9 +71,9 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
-            virtual const Model::ObjectList doAffectedObjects() const;
-            virtual const Model::EntityList doAffectedEntities() const;
-            virtual const Model::BrushList doAffectedBrushes() const;
+            virtual Model::ObjectList doAffectedObjects() const;
+            virtual Model::EntityList doAffectedEntities() const;
+            virtual Model::BrushList doAffectedBrushes() const;
         };
     }
 }

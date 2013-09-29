@@ -26,7 +26,7 @@ namespace TrenchBroom {
         const Command::CommandType FaceAttributeCommand::Type = Command::freeType();
 
         FaceAttributeCommand::FaceAttributeCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces) :
-        Command(Type, "Change face attributes", true),
+        Command(Type, "Change face attributes", true, true),
         m_document(document),
         m_faces(faces),
         m_texture(NULL),

@@ -457,6 +457,9 @@ namespace TrenchBroom {
                 updateEntityDefinitions(entities);
                 updateEntityModels(entities);
             }
+            
+            if (command->modifiesDocument())
+                incModificationCount();
         }
         
         void MapDocument::commandDoFailed(Controller::Command::Ptr command) {
@@ -475,6 +478,9 @@ namespace TrenchBroom {
                 updateEntityDefinitions(entities);
                 updateEntityModels(entities);
             }
+            
+            if (command->modifiesDocument())
+                decModificationCount();
         }
         
         void MapDocument::commandUndoFailed(Controller::Command::Ptr command) {

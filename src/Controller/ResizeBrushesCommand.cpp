@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures) :
-        Command(Type, makeName(brushes), true),
+        Command(Type, makeName(brushes), true, true),
         m_document(document),
         m_faces(faces),
         m_brushes(brushes),
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
-        const Model::ObjectList ResizeBrushesCommand::doAffectedObjects() const {
+        Model::ObjectList ResizeBrushesCommand::doAffectedObjects() const {
             return VectorUtils::cast<Model::Object*>(m_brushes);
         }
 

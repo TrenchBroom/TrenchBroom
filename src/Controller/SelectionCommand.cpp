@@ -28,7 +28,7 @@ namespace TrenchBroom {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
         SelectionCommand::SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces) :
-        Command(Type, makeName(command, target, objects, faces), true),
+        Command(Type, makeName(command, target, objects, faces), true, false),
         m_document(document),
         m_command(command),
         m_target(target),

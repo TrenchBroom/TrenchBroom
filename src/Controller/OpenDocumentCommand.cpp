@@ -26,7 +26,7 @@ namespace TrenchBroom {
         const Command::CommandType OpenDocumentCommand::Type = Command::freeType();
         
         OpenDocumentCommand::OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) :
-        Command(Type, "Open Document", false),
+        Command(Type, "Open Document", false, false),
         m_document(document),
         m_worldBounds(worldBounds),
         m_game(game),
