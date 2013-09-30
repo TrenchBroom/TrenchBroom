@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Picker.h"
+#include "View/MovementRestriction.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -60,9 +61,12 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
+            
             Ray3 m_pickRay;
             mutable Model::PickResult m_pickResult;
 
+            MovementRestriction m_movementRestriction;
+            
             const Renderer::Camera& m_camera;
         public:
             InputState(const Renderer::Camera& camera);
@@ -98,6 +102,9 @@ namespace TrenchBroom {
             Model::PickResult& pickResult() const;
             void setPickResult(Model::PickResult& pickResult);
 
+            const MovementRestriction& movementRestriction() const;
+            MovementRestriction& movementRestriction();
+            
             const Renderer::Camera& camera() const;
         };
     }

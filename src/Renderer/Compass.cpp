@@ -30,6 +30,7 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
+#include "View/MovementRestriction.h"
 
 #include <cassert>
 
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             m_background.prepare();
         }
         
-        void Compass::render(RenderContext& renderContext) {
+        void Compass::render(RenderContext& renderContext, const View::MovementRestriction& restriction) {
             glClear(GL_DEPTH_BUFFER_BIT);
             
             const int viewWidth = renderContext.camera().viewport().width;
@@ -74,9 +75,26 @@ namespace TrenchBroom {
             glClear(GL_DEPTH_BUFFER_BIT);
 
             glFrontFace(GL_CCW);
-            renderSolidAxis(renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-            renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
-            renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+            if (restriction.isRestricted(Math::Axis::AX)) {
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+            } else if (restriction.isRestricted(Math::Axis::AY)) {
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
+            } else if (restriction.isRestricted(Math::Axis::AZ)) {
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+            } else {
+                renderSolidAxis(renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+            }
             glFrontFace(GL_CW);
         }
 
@@ -93,12 +111,16 @@ namespace TrenchBroom {
                 head.vertices[i] += headOffset;
             
             VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
-            for (size_t i = 0; i < shaftCap.vertices.size(); ++i)
+            for (size_t i = 0; i < shaftCap.vertices.size(); ++i) {
                 shaftCap.vertices[i] = Mat4x4f::Rot180X * shaftCap.vertices[i] + shaftOffset;
+                shaftCap.normals[i] = Mat4x4f::Rot180X * shaftCap.normals[i];
+            }
             
             VertsAndNormals headCap = circle3D(m_headRadius, m_segments);
-            for (size_t i = 0; i < headCap.vertices.size(); ++i)
+            for (size_t i = 0; i < headCap.vertices.size(); ++i) {
                 headCap.vertices[i] = Mat4x4f::Rot180X * headCap.vertices[i] + headOffset;
+                headCap.normals[i] = Mat4x4f::Rot180X * headCap.normals[i];
+            }
             
             typedef VertexSpecs::P3N::Vertex Vertex;
             const Vertex::List shaftVertices = Vertex::fromLists(shaft.vertices, shaft.normals, shaft.vertices.size());
@@ -139,12 +161,13 @@ namespace TrenchBroom {
         }
 
         void Compass::renderBackground(RenderContext& renderContext) {
-            const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
+            PreferenceManager& prefs = PreferenceManager::instance();
 
+            const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
-            shader.set("Color", Vec4f(0.5f, 0.5f, 0.5f, 0.5f));
+            shader.set("Color", prefs.getColor(Preferences::CompassBackgroundColor));
             m_background.render();
-            shader.set("Color", Vec4f(1.0f, 1.0f, 1.0f, 0.5f));
+            shader.set("Color", prefs.getColor(Preferences::CompassBackgroundOutlineColor));
             m_backgroundOutline.render();
         }
 

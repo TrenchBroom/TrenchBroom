@@ -26,6 +26,10 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace View {
+        class MovementRestriction;
+    }
+    
     namespace Renderer {
         class Camera;
         class RenderContext;
@@ -48,7 +52,7 @@ namespace TrenchBroom {
         public:
             Compass(Vbo& vbo);
             void prepare();
-            void render(RenderContext& renderContext);
+            void render(RenderContext& renderContext, const View::MovementRestriction& restriction);
         private:
             void makeArrows(Vbo& vbo);
             void makeBackground(Vbo& vbo);

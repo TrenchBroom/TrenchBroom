@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 const int EditObjectActions                  = Lowest +  99;
                 const int EditFaceActions                    = Lowest + 100;
                 const int EditPrintFilePositions             = Lowest + 101;
-                const int EditToggleAxisRestriction          = Lowest + 102;
+                const int EditToggleMovementRestriction          = Lowest + 102;
                 const int FileRecentDocuments                = Lowest + 190;
                 const int Highest                            = Lowest + 200;
             }

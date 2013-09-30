@@ -446,9 +446,9 @@ namespace TrenchBroom {
             MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices"));
             objectActionMenu.addSeparator();
 #ifdef __linux__ // tab is not allowed as a menu accelerator on GTK
-            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleAxisRestriction, 'X', KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, 'X', KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
 #else
-            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleAxisRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
 #endif
             objectActionMenu.addSeparator();
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures, "Print Line Numbers"));
