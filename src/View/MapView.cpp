@@ -46,11 +46,12 @@ namespace TrenchBroom {
         m_logger(logger),
         m_initialized(false),
         m_glContext(new wxGLContext(this)),
+        m_auxVbo(0xFFF),
         m_document(document),
         m_controller(controller),
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_document, m_renderResources.fontManager()),
-        m_auxVbo(0xFFF),
+        m_compass(m_auxVbo),
         m_inputState(m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
@@ -455,7 +456,9 @@ namespace TrenchBroom {
         }
 
         void MapView::renderCompass(Renderer::RenderContext& context) {
-            
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.active();
+            m_compass.render(context);
         }
 
         void MapView::renderFocusRect(Renderer::RenderContext& context) {
@@ -526,9 +529,14 @@ namespace TrenchBroom {
                 if (glewState != GLEW_OK)
                     m_logger->error("Error initializing glew: %s", glewGetErrorString(glewState));
 #endif
+
+                Renderer::SetVboState setVboState(m_auxVbo);
+                setVboState.mapped();
+                m_compass.prepare();
             } else {
                 m_logger->info("Cannot set current GL context");
             }
+
             m_initialized = true;
         }
         

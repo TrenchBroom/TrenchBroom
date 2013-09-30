@@ -24,6 +24,7 @@
 #include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
+#include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
@@ -55,14 +56,15 @@ namespace TrenchBroom {
             bool m_initialized;
             wxGLContext* m_glContext;
             
+            Renderer::Vbo m_auxVbo;
+            Color m_focusColor;
+            
             View::MapDocumentPtr m_document;
             ControllerFacade& m_controller;
             Renderer::Camera m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
-            
-            Renderer::Vbo m_auxVbo;
-            Color m_focusColor;
+            Renderer::Compass m_compass;
             
             InputState m_inputState;
             wxPoint m_clickPos;

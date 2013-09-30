@@ -19,12 +19,19 @@
 
 #include "Compass.h"
 
-#include "VecMath.h"
-
 #include "CollectionUtils.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "Renderer/Camera.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,17 +48,17 @@ namespace TrenchBroom {
             for (size_t i = 0; i < shaft.vertices.size(); ++i)
                 shaft.vertices[i] -= offset;
             
-            VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
-            for (size_t i = 0; i < shaftCap.vertices.size(); ++i)
-                shaftCap.vertices[i] -= offset;
-            
             VertsAndNormals head = cone3D(m_headRadius, m_headLength, m_segments);
             for (size_t i = 0; i < head.vertices.size(); ++i)
                 head.vertices[i] += offset;
             
+            VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
+            for (size_t i = 0; i < shaftCap.vertices.size(); ++i)
+                shaftCap.vertices[i] = Mat4x4f::Rot180X * shaftCap.vertices[i] - offset;
+            
             VertsAndNormals headCap = circle3D(m_headRadius, m_segments);
             for (size_t i = 0; i < headCap.vertices.size(); ++i)
-                headCap.vertices[i] += offset;
+                headCap.vertices[i] = Mat4x4f::Rot180X * headCap.vertices[i] + offset;
 
             typedef VertexSpecs::P3N::Vertex Vertex;
             const Vertex::List shaftVertices = Vertex::fromLists(shaft.vertices, shaft.normals, shaft.vertices.size());
@@ -77,7 +84,77 @@ namespace TrenchBroom {
         }
         
         void Compass::render(RenderContext& renderContext) {
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glFrontFace(GL_CCW);
             
+            const int viewWidth = renderContext.camera().viewport().width;
+            const int viewHeight = renderContext.camera().viewport().height;
+            
+            const Mat4x4f projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
+            const Mat4x4f view = viewMatrix(Vec3f::PosY, Vec3f::PosZ) * translationMatrix(500.0f * Vec3f::PosY);
+            const ReplaceTransformation ortho(renderContext.transformation(), projection, view);
+            
+            const Mat4x4f compassTransformation = translationMatrix(Vec3f(-viewWidth / 2.0f + 50.0f, 0.0f, -viewHeight / 2.0f + 50.0f)) * scalingMatrix<4>(2.0f);
+            const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Mat4x4f cameraTransformation = cameraRotationMatrix(renderContext.camera());
+            
+            renderSolidAxis(renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+            renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+            renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+            
+            glFrontFace(GL_CW);
+        }
+
+        Mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {
+            Mat4x4f rotation;
+            rotation[0] = camera.right();
+            rotation[1] = camera.direction();
+            rotation[2] = camera.up();
+            
+            bool invertible = true;
+            invertMatrix(rotation, invertible);
+            assert(invertible);
+            return rotation;
+        }
+
+        void Compass::renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
+            ActiveShader shader(renderContext.shaderManager(), Shaders::CompassShader);
+            shader.set("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
+            shader.set("LightDirection", Vec3f(0.0f, 0.5f, 1.0f).normalized());
+            shader.set("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
+            shader.set("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
+            shader.set("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));
+            shader.set("MaterialShininess", 32.0f);
+            
+            shader.set("MaterialDiffuse", color);
+            shader.set("MaterialAmbient", color);
+            shader.set("MaterialSpecular", color);
+            
+            renderAxis(renderContext, transformation);
+        }
+        
+        void Compass::renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
+            glDepthMask(GL_FALSE);
+            glLineWidth(3.0f);
+            glPolygonMode(GL_FRONT, GL_LINE);
+            
+            ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
+            shader.set("Color", color);
+            renderAxis(renderContext, transformation);
+            
+            glDepthMask(GL_TRUE);
+            glLineWidth(1.0f);
+            glPolygonMode(GL_FRONT, GL_FILL);
+        }
+
+        void Compass::renderAxis(RenderContext& renderContext, const Mat4x4f& transformation) {
+            const MultiplyModelMatrix apply(renderContext.transformation(), transformation);
+            
+            m_strip.render();
+            m_set.render();
+            m_fans.render();
         }
     }
 }

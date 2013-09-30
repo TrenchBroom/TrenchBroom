@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_dirty(false) {}
         
         Autosaver::~Autosaver() {
-            autosave();
+            triggerAutosave(NULL);
         }
         
         void Autosaver::triggerAutosave(Logger* logger) {

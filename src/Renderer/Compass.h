@@ -22,8 +22,12 @@
 
 #include "Renderer/VertexArray.h"
 
+#include "Color.h"
+#include "VecMath.h"
+
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderContext;
         class Vbo;
         
@@ -42,6 +46,11 @@ namespace TrenchBroom {
             Compass(Vbo& vbo);
             void prepare();
             void render(RenderContext& renderContext);
+        private:
+            Mat4x4f cameraRotationMatrix(const Camera& camera) const;
+            void renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
+            void renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
+            void renderAxis(RenderContext& renderContext, const Mat4x4f& transformation);
         };
     }
 }
