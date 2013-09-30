@@ -42,12 +42,19 @@ namespace TrenchBroom {
             VertexArray m_strip;
             VertexArray m_set;
             VertexArray m_fans;
+            
+            VertexArray m_backgroundOutline;
+            VertexArray m_background;
         public:
             Compass(Vbo& vbo);
             void prepare();
             void render(RenderContext& renderContext);
         private:
+            void makeArrows(Vbo& vbo);
+            void makeBackground(Vbo& vbo);
+            
             Mat4x4f cameraRotationMatrix(const Camera& camera) const;
+            void renderBackground(RenderContext& renderContext);
             void renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
             void renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
             void renderAxis(RenderContext& renderContext, const Mat4x4f& transformation);
