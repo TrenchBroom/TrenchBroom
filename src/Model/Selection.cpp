@@ -214,15 +214,11 @@ namespace TrenchBroom {
         }
         
         EntityList Selection::allSelectedEntities() const {
-            EntityList result;
-            VectorUtils::concatenate(m_selectedEntities, m_partiallySelectedEntities, result);
-            return result;
+            return VectorUtils::concatenate(m_selectedEntities, m_partiallySelectedEntities);
         }
         
         BrushList Selection::allSelectedBrushes() const {
-            BrushList result;
-            VectorUtils::concatenate(m_selectedBrushes, m_partiallySelectedBrushes, result);
-            return result;
+            return VectorUtils::concatenate(m_selectedBrushes, m_partiallySelectedBrushes);
         }
         
         const BrushFaceList& Selection::allSelectedFaces() const {

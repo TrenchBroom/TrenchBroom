@@ -126,6 +126,7 @@ namespace TrenchBroom {
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);
             void renderTools(Renderer::RenderContext& context);
+            void renderCompass(Renderer::RenderContext& context);
             void renderFocusRect(Renderer::RenderContext& context);
             
             void initializeGL();

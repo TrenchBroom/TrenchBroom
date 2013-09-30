@@ -27,9 +27,20 @@ namespace TrenchBroom {
         void glSetEdgeOffset(const float f);
         void glResetEdgeOffset();
 
-        Vec2f::List circle(const float radius, const float startAngle, const float angleLength, const size_t segments);
-        Vec2f::List roundedRect(const float width, const float height, const float cornerRadius, const size_t cornerSegments);
-        Vec3f::List sphere(const float radius, const size_t iterations);
+        Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments);
+        Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments);
+        
+        struct VertsAndNormals {
+            Vec3f::List vertices;
+            Vec3f::List normals;
+            
+            VertsAndNormals(const size_t vertexCount);
+        };
+        
+        Vec3f::List sphere3D(const float radius, const size_t iterations);
+        VertsAndNormals circle3D(const float radius, const size_t segments);
+        VertsAndNormals cylinder3D(const float radius, const float length, const size_t segments);
+        VertsAndNormals cone3D(const float radius, const float length, const size_t segments);
     }
 }
 

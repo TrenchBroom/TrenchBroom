@@ -33,7 +33,7 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
-        Vec2f::List circle(const float radius, const float startAngle, const float angleLength, const size_t segments) {
+        Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        Vec2f::List roundedRect(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
+        Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3f::List sphere(const float radius, const size_t iterations) {
+        Vec3f::List sphere3D(const float radius, const size_t iterations) {
             assert(radius > 0.0f);
             assert(iterations > 0);
             
@@ -277,6 +277,85 @@ namespace TrenchBroom {
             }
             
             return allVertices;
+        }
+
+        VertsAndNormals::VertsAndNormals(const size_t vertexCount) :
+        vertices(vertexCount),
+        normals(vertexCount) {}
+
+        VertsAndNormals circle3D(const float radius, const size_t segments) {
+            assert(radius > 0.0f);
+            assert(segments > 2);
+            
+            VertsAndNormals result(segments);
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            for (size_t i = 0; i < segments; i++) {
+                const float s = std::sin(a);
+                const float c = std::cos(a);
+                result.vertices[i] = Vec3f(radius * c, radius * s, 0.0f);
+                result.normals[i] = Vec3f::PosZ;
+                a += d;
+            }
+            return result;
+        }
+
+        VertsAndNormals cylinder3D(const float radius, const float length, const size_t segments) {
+            assert(radius > 0.0f);
+            assert(length > 0.0f);
+            assert(segments > 2);
+            
+            VertsAndNormals result(2 * (segments + 1));
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            for (size_t i = 0; i <= segments; ++i) {
+                const float s = std::sin(a);
+                const float c = std::cos(a);
+                const float x = radius * c;
+                const float y = radius * s;
+                result.vertices[2*i+0] = Vec3f(x, y, length);
+                result.vertices[2*i+1] = Vec3f(x, y, 0.0f);
+                result.normals[2*i+0] = result.normals[2*i+1] = Vec3f(c, s, 0.0f);
+                a += d;
+            }
+            return result;
+        }
+
+        VertsAndNormals cone3D(const float radius, const float length, const size_t segments) {
+            assert(radius > 0.0f);
+            assert(length > 0.0f);
+            assert(segments > 2);
+            
+            VertsAndNormals result(3 * segments);
+            
+            const float t = std::atan(length / radius);
+            const float n = std::cos(Math::Constants<float>::PiOverTwo - t);
+            
+            float a = 0.0f;
+            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            float lastS = std::sin(a);
+            float lastC = std::cos(a);
+            a += d;
+            
+            for (size_t i = 0; i <= segments; ++i) {
+                const float s = std::sin(a);
+                const float c = std::cos(a);
+                
+                result.vertices[3*i+0] = Vec3f(0.0f, 0.0f, length);
+                result.vertices[3*i+1] = Vec3f(radius * lastC, radius * lastS, 0.0f);
+                result.vertices[3*i+2] = Vec3f(radius * c, radius * s, 0.0f);
+                
+                result.normals[3*i+0] = Vec3f(std::cos(a - d / 2.0f), std::sin(a - d / 2.0f), n).normalize();
+                result.normals[3*i+1] = Vec3f(lastC, lastS, n).normalize();
+                result.normals[3*i+2] = Vec3f(c, s, n).normalize();
+                
+                lastS = s;
+                lastC = c;
+                a += d;
+            }
+            return result;
         }
     }
 }

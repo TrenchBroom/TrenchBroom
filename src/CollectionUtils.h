@@ -163,7 +163,14 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    void concatenate(std::vector<T>& vec1, const std::vector<T>& vec2) {
+    std::vector<T> concatenate(const std::vector<T>& vec1, const std::vector<T>& vec2) {
+        std::vector<T> result;
+        concatenate(vec1, vec2, result);
+        return result;
+    }
+    
+    template <typename T>
+    void append(std::vector<T>& vec1, const std::vector<T>& vec2) {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
     }
     

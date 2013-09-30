@@ -64,7 +64,7 @@ namespace TrenchBroom {
         void Circle::init(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
-            const Vec2f::List positions = circle(radius, startAngle, angleLength, segments);
+            const Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
             const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }

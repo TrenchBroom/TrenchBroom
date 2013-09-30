@@ -50,10 +50,10 @@ namespace TrenchBroom {
                 
                 void append(const Result<T>& other) {
                     addedFaces = VectorUtils::difference(addedFaces, other.droppedFaces);
-                    VectorUtils::concatenate(addedFaces, other.addedFaces);
+                    VectorUtils::append(addedFaces, other.addedFaces);
                     
                     droppedFaces = VectorUtils::difference(droppedFaces, other.addedFaces);
-                    VectorUtils::concatenate(droppedFaces, other.droppedFaces);
+                    VectorUtils::append(droppedFaces, other.droppedFaces);
                 }
             };
             

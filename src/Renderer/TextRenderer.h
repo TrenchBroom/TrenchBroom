@@ -231,7 +231,7 @@ namespace TrenchBroom {
                         fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(context, key)));
                     }
 
-                    const Vec2f::List tempRect = roundedRect(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
+                    const Vec2f::List tempRect = roundedRect2D(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
                     for (size_t j = 0; j < tempRect.size(); ++j) {
                         const Vec2f& vertex = tempRect[j];
                         const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,

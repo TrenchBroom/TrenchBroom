@@ -239,6 +239,7 @@ namespace TrenchBroom {
                     renderCoordinateSystem(context);
                     renderMap(context);
                     renderTools(context);
+                    renderCompass(context);
                     renderFocusRect(context);
                 }
                 SwapBuffers();
@@ -451,6 +452,10 @@ namespace TrenchBroom {
         
         void MapView::renderTools(Renderer::RenderContext& context) {
             m_toolChain->render(m_inputState, context);
+        }
+
+        void MapView::renderCompass(Renderer::RenderContext& context) {
+            
         }
 
         void MapView::renderFocusRect(Renderer::RenderContext& context) {

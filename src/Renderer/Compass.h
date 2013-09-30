@@ -17,31 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Sphere.h"
+#ifndef __TrenchBroom__Compass__
+#define __TrenchBroom__Compass__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
-
-#include "Renderer/RenderUtils.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        Sphere::Sphere(Vbo& vbo, const float radius, const size_t iterations) {
-            typedef VertexSpecs::P3::Vertex Vertex;
-            
-            const Vec3f::List positions = sphere3D(radius, iterations);
-            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray(vbo, GL_TRIANGLES, vertices);
-        }
+        class RenderContext;
+        class Vbo;
         
-        void Sphere::prepare() {
-            m_array.prepare();
-        }
-        
-        void Sphere::render() {
-            m_array.render();
-        }
+        class Compass {
+        private:
+            static const size_t m_segments;
+            static const float m_shaftLength;
+            static const float m_shaftRadius;
+            static const float m_headLength;
+            static const float m_headRadius;
+
+            VertexArray m_strip;
+            VertexArray m_set;
+            VertexArray m_fans;
+        public:
+            Compass(Vbo& vbo);
+            void prepare();
+            void render(RenderContext& renderContext);
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__Compass__) */
