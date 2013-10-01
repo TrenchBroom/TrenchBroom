@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/SelectionCommand.h"
 #include "IO/FileSystem.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
@@ -41,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const wxEventType MapFrame::EVT_REBUILD_MENU = wxNewEventType();
+        const wxEventType MapFrame::EVT_REBUILD_MENUBAR = wxNewEventType();
 
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
@@ -89,6 +90,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
@@ -100,7 +102,7 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-            Bind(EVT_REBUILD_MENU, &MapFrame::OnRebuildMenu, this);
+            Bind(EVT_REBUILD_MENUBAR, &MapFrame::OnRebuildMenuBar, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
             m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
@@ -199,6 +201,10 @@ namespace TrenchBroom {
             m_mapView->performClip();
         }
 
+        void MapFrame::OnEditToggleMovementRestriction(wxCommandEvent& event) {
+            m_mapView->toggleMovementRestriction();
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -230,13 +236,17 @@ namespace TrenchBroom {
                     event.Check(m_mapView->clipToolActive());
                     break;
                 case CommandIds::Menu::EditActions:
-                    event.Enable(m_mapView->clipToolActive());
+                    event.Enable(m_mapView->clipToolActive() ||
+                                 m_document->hasSelectedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canToggleClipSide());
                     break;
                 case CommandIds::Menu::EditPerformClip:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
+                    break;
+                case CommandIds::Menu::EditToggleMovementRestriction:
+                    event.Enable(true);
                     break;
                 default:
                     event.Enable(false);
@@ -254,11 +264,9 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        void MapFrame::OnRebuildMenu(wxEvent& event) {
-            if (m_menuNeedsRebuilding) {
-                updateMenuBar(m_mapView->HasFocus());
-                m_menuNeedsRebuilding = false;
-            }
+        void MapFrame::OnRebuildMenuBar(wxEvent& event) {
+            if (m_menuNeedsRebuilding)
+                rebuildMenuBar();
         }
 
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
@@ -278,6 +286,8 @@ namespace TrenchBroom {
             
             if (command->modifiesDocument())
                 m_autosaver->updateLastModificationTime();
+            if (command->type() == Controller::SelectionCommand::Type)
+                rebuildMenuBar();
         }
         
         void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
@@ -295,6 +305,9 @@ namespace TrenchBroom {
             m_mapView->commandUndone(command);
             m_inspector->update(command);
             updateTitle();
+
+            if (command->type() == Controller::SelectionCommand::Type)
+                rebuildMenuBar();
         }
 
         void MapFrame::commandUndoFailed(Controller::Command::Ptr command) {
@@ -341,20 +354,29 @@ namespace TrenchBroom {
         class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {
         private:
             const MapView* m_mapView;
+            const MapDocumentPtr m_document;
         public:
-            FrameMenuSelector(const MapView* mapView) :
-            m_mapView(mapView) {}
+            FrameMenuSelector(const MapView* mapView, const MapDocumentPtr document) :
+            m_mapView(mapView),
+            m_document(document) {}
             
             const Menu* select(const MultiMenu& multiMenu) const {
                 if (m_mapView->clipToolActive())
                     return multiMenu.menuById(CommandIds::Menu::EditClipActions);
+                if (m_document->hasSelectedObjects())
+                    return multiMenu.menuById(CommandIds::Menu::EditObjectActions);
                 
                 return NULL;
             }
         };
         
+        void MapFrame::rebuildMenuBar() {
+            updateMenuBar(m_mapView->HasFocus());
+            m_menuNeedsRebuilding = false;
+        }
+        
         void MapFrame::createMenuBar(const bool showModifiers) {
-            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView), showModifiers);
+            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView, m_document), showModifiers);
             SetMenuBar(menuBar);
             
             View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
@@ -370,7 +392,7 @@ namespace TrenchBroom {
             createMenuBar(showModifiers);
             delete oldMenuBar;
         }
-
+        
         void MapFrame::updateTitle() {
 #ifdef __APPLE__
             SetTitle(m_document->filename());

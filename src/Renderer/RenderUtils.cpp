@@ -328,7 +328,7 @@ namespace TrenchBroom {
             assert(length > 0.0f);
             assert(segments > 2);
             
-            VertsAndNormals result(3 * segments);
+            VertsAndNormals result(3 * (segments + 1));
             
             const float t = std::atan(length / radius);
             const float n = std::cos(Math::Constants<float>::PiOverTwo - t);

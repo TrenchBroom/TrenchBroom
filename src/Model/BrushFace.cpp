@@ -144,7 +144,12 @@ namespace TrenchBroom {
         BrushFace::~BrushFace() {}
         
         BrushFace* BrushFace::clone() const {
-            return doClone();
+            BrushFace* result = doClone();
+            result->setAttributes(*this);
+            result->setFilePosition(m_lineNumber, m_lineCount);
+            if (m_selected)
+                result->select();
+            return result;
         }
 
         BrushFaceSnapshot BrushFace::takeSnapshot() {

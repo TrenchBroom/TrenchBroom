@@ -78,18 +78,18 @@ namespace TrenchBroom {
             if (restriction.isRestricted(Math::Axis::AX)) {
                 renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
             } else if (restriction.isRestricted(Math::Axis::AY)) {
                 renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
             } else if (restriction.isRestricted(Math::Axis::AZ)) {
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation, prefs.getColor(Preferences::CompassAxisOutlineColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation, prefs.getColor(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
             } else {
                 renderSolidAxis(renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
                 renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));

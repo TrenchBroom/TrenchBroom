@@ -20,6 +20,9 @@
 #ifndef __TrenchBroom__Snapshot__
 #define __TrenchBroom__Snapshot__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/ModelTypes.h"
@@ -31,14 +34,19 @@ namespace TrenchBroom {
         class Snapshot {
         private:
             typedef std::vector<Model::EntitySnapshot> EntitySnapshotList;
+            typedef std::vector<Model::BrushSnapshot> BrushSnapshotList;
             typedef std::vector<Model::BrushFaceSnapshot> BrushFaceSnapshotList;
+            
             EntitySnapshotList m_entitySnapshots;
+            BrushSnapshotList m_brushSnapshots;
             BrushFaceSnapshotList m_faceSnapshots;
         public:
             Snapshot();
+            Snapshot(const Model::ObjectList& objects);
             Snapshot(const Model::EntityList& entities);
+            Snapshot(const Model::BrushList& brushes);
             Snapshot(const Model::BrushFaceList& faces);
-            void restore();
+            void restore(const BBox3& worldBounds);
         };
     }
 }

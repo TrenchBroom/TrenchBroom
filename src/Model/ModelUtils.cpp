@@ -21,6 +21,7 @@
 
 #include "Model/Map.h"
 #include "Model/Entity.h"
+#include "Model/BrushFace.h"
 #include "Model/Brush.h"
 
 namespace TrenchBroom {
@@ -124,6 +125,27 @@ namespace TrenchBroom {
         
         bool MatchObjectByType::operator()(const Object* object) const {
             return object->type() == m_type;
+        }
+
+        Transform::Transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) :
+        m_transformation(transformation),
+        m_lockTextures(lockTextures),
+        m_invertFaceOrientation(isFaceOrientationInverted(m_transformation)),
+        m_worldBounds(worldBounds) {}
+        
+        void Transform::operator()(Model::Object* object) const {
+            object->transform(m_transformation, m_lockTextures, m_invertFaceOrientation, m_worldBounds);
+        }
+        
+        void Transform::operator()(Model::BrushFace* face) const {
+            face->transform(m_transformation, m_lockTextures, m_invertFaceOrientation);
+        }
+        
+        bool Transform::isFaceOrientationInverted(const Mat4x4 &transformation) const {
+            const Vec3 x = transformation * Vec3::PosX;
+            const Vec3 y = transformation * Vec3::PosY;
+            const Vec3 z = transformation * Vec3::PosZ;
+            return crossed(x, y).dot(z) < 0.0;
         }
     }
 }

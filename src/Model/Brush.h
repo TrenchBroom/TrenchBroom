@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Allocator.h"
+#include "SharedPointer.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelTypes.h"
@@ -36,6 +37,22 @@ namespace TrenchBroom {
     namespace Model {
         class BrushGeometry;
         class Entity;
+        class Brush;
+
+        class BrushSnapshot {
+        private:
+            struct FacesHolder {
+                typedef std::tr1::shared_ptr<FacesHolder> Ptr;
+                BrushFaceList faces;
+                ~FacesHolder();
+            };
+            
+            Brush* m_brush;
+            FacesHolder::Ptr m_holder;
+        public:
+            BrushSnapshot(Brush& brush);
+            void restore(const BBox3& worldBounds);
+        };
         
         class Brush : public Object, public Allocator<Brush> {
         public:
@@ -53,6 +70,7 @@ namespace TrenchBroom {
             ~Brush();
             
             Brush* clone(const BBox3& worldBounds) const;
+            BrushSnapshot takeSnapshot();
             
             Entity* parent() const;
             void setParent(Entity* parent);
@@ -73,9 +91,15 @@ namespace TrenchBroom {
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
+            void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
+        private:
+            friend class BrushSnapshot;
+            void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);
+            
             void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList faces);
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
+            void detachFaces(const BrushFaceList& faces);
 
             Brush(const Brush& other);
             Brush& operator=(const Brush& other);

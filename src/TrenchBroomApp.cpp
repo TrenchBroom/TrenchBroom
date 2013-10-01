@@ -175,14 +175,14 @@ namespace TrenchBroom {
                          focus states!
                          */
                         if (frame != NULL) {
-                            wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENU);
+                            wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
                             buildMenuEvent.SetClientData(event.GetEventObject());
                             buildMenuEvent.SetEventObject(frame);
                             buildMenuEvent.SetId(event.GetId());
                             AddPendingEvent(buildMenuEvent);
                         }
                     }
-                } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENU) {
+                } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENUBAR) {
                     wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
                     frame->ProcessWindowEventLocally(event);
                     return 1;

@@ -19,9 +19,22 @@
 
 #include "Snapshot.h"
 
+#include "Model/Object.h"
+
 namespace TrenchBroom {
     namespace Model {
         Snapshot::Snapshot() {}
+
+        Snapshot::Snapshot(const Model::ObjectList& objects) {
+            Model::ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object& object = **it;
+                if (object.type() == Model::Object::OTEntity)
+                    m_entitySnapshots.push_back(static_cast<Model::Entity&>(object).takeSnapshot());
+                else if (object.type() == Model::Object::OTBrush)
+                    m_brushSnapshots.push_back(static_cast<Model::Brush&>(object).takeSnapshot());
+            }
+        }
 
         Snapshot::Snapshot(const Model::EntityList& entities) {
             Model::EntityList::const_iterator it, end;
@@ -31,6 +44,14 @@ namespace TrenchBroom {
             }
         }
         
+        Snapshot::Snapshot(const Model::BrushList& brushes) {
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush& brush = **it;
+                m_brushSnapshots.push_back(brush.takeSnapshot());
+            }
+        }
+
         Snapshot::Snapshot(const Model::BrushFaceList& faces) {
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
@@ -39,11 +60,17 @@ namespace TrenchBroom {
             }
         }
 
-        void Snapshot::restore() {
+        void Snapshot::restore(const BBox3& worldBounds) {
             EntitySnapshotList::iterator eIt, eEnd;
             for (eIt = m_entitySnapshots.begin(), eEnd = m_entitySnapshots.end(); eIt != eEnd; ++eIt) {
                 Model::EntitySnapshot& snapshot = *eIt;
                 snapshot.restore();
+            }
+            
+            BrushSnapshotList::iterator bIt, bEnd;
+            for (bIt = m_brushSnapshots.begin(), bEnd = m_brushSnapshots.end(); bIt != bEnd; ++bIt) {
+                Model::BrushSnapshot& snapshot = *bIt;
+                snapshot.restore(worldBounds);
             }
             
             BrushFaceSnapshotList::iterator fIt, fEnd;
@@ -51,6 +78,10 @@ namespace TrenchBroom {
                 Model::BrushFaceSnapshot& snapshot = *fIt;
                 snapshot.restore();
             }
+            
+            m_entitySnapshots.clear();
+            m_brushSnapshots.clear();
+            m_faceSnapshots.clear();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace TrenchBroom {
         
         class MapFrame : public wxFrame, public Controller::CommandListener {
         public:
-            static const wxEventType EVT_REBUILD_MENU;
+            static const wxEventType EVT_REBUILD_MENUBAR;
         private:
             FrameManager* m_frameManager;
             ControllerFacade m_controller;
@@ -82,13 +82,14 @@ namespace TrenchBroom {
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleClipSide(wxCommandEvent& event);
             void OnEditPerformClip(wxCommandEvent& event);
+            void OnEditToggleMovementRestriction(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
             
             void OnMapViewSetFocus(wxFocusEvent& event);
             void OnMapViewKillFocus(wxFocusEvent& event);
             
-            void OnRebuildMenu(wxEvent& event);
+            void OnRebuildMenuBar(wxEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
             
             void commandDo(Controller::Command::Ptr command);
@@ -101,6 +102,7 @@ namespace TrenchBroom {
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:
             void createGui();
+            void rebuildMenuBar();
             void createMenuBar(const bool showModifiers);
             void updateMenuBar(const bool showModifiers);
             void updateTitle();

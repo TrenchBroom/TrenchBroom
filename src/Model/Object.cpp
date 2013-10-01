@@ -66,6 +66,10 @@ namespace TrenchBroom {
             --m_childSelectionCount;
         }
 
+        void Object::transform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
+            doTransform(transformation, lockTextures, invertFaceOrientation, worldBounds);
+        }
+
         Object::Object(const Type type) :
         m_type(type),
         m_lineNumber(0),

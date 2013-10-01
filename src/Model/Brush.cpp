@@ -23,9 +23,30 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
+#include "Model/ModelUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
+        BrushSnapshot::FacesHolder::~FacesHolder() {
+            VectorUtils::clearAndDelete(faces);
+        }
+
+        BrushSnapshot::BrushSnapshot(Brush& brush) :
+        m_brush(&brush),
+        m_holder(new FacesHolder()) {
+            const Model::BrushFaceList& faces = m_brush->faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                m_holder->faces.push_back(face->clone());
+            }
+        }
+        
+        void BrushSnapshot::restore(const BBox3& worldBounds) {
+            m_brush->restoreFaces(worldBounds, m_holder->faces);
+            m_holder->faces.clear(); // must not delete the faces if restored
+        }
+
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
         
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
@@ -54,6 +75,10 @@ namespace TrenchBroom {
             }
             
             return new Brush(worldBounds, newFaces);
+        }
+
+        BrushSnapshot Brush::takeSnapshot() {
+            return BrushSnapshot(*this);
         }
 
         Entity* Brush::parent() const {
@@ -192,12 +217,24 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds, m_faces);
         }
 
+        void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
+            each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, invertFaceOrientation), MatchAll());
+            rebuildGeometry(worldBounds, m_faces);
+        }
+
+        void Brush::restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
+            detachFaces(m_faces);
+            VectorUtils::clearAndDelete(m_faces);
+            rebuildGeometry(worldBounds, faces);
+        }
+
         void Brush::rebuildGeometry(const BBox3& worldBounds, const BrushFaceList faces) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
             
             BrushFaceList deleteFaces = VectorUtils::difference(m_faces, result.addedFaces);
+            detachFaces(deleteFaces);
             VectorUtils::clearAndDelete(deleteFaces);
             
             m_faces.clear();
@@ -215,6 +252,14 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             m_faces.push_back(face);
             face->setParent(this);
+        }
+
+        void Brush::detachFaces(const BrushFaceList& faces) {
+            BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                face->setParent(NULL);
+            }
         }
     }
 }

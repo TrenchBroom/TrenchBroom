@@ -37,11 +37,6 @@ namespace TrenchBroom {
         const String Entity::DefaultPropertyValue = "";
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         
-        Entity::Entity() :
-        Object(OTEntity),
-        m_definition(NULL),
-        m_model(NULL) {}
-
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
         }
@@ -170,6 +165,14 @@ namespace TrenchBroom {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
+        }
+
+        Entity::Entity() :
+        Object(OTEntity),
+        m_definition(NULL),
+        m_model(NULL) {}
+        
+        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
         }
     }
 }

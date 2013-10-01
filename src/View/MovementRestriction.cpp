@@ -56,8 +56,8 @@ namespace TrenchBroom {
             }
         }
         
-        void MovementRestriction::toggleVerticalRestriction() {
-            m_verticalRestriction = !m_verticalRestriction;
+        void MovementRestriction::setVerticalRestriction(const bool verticalRestriction) {
+            m_verticalRestriction = verticalRestriction;
         }
         
         bool MovementRestriction::isRestricted(const Math::Axis::Type axis) const {

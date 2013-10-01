@@ -29,6 +29,7 @@
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
 #include "View/InputState.h"
+#include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -67,6 +68,7 @@ namespace TrenchBroom {
             Renderer::Compass m_compass;
             
             InputState m_inputState;
+            MovementRestriction m_movementRestriction;
             wxPoint m_clickPos;
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
@@ -90,6 +92,7 @@ namespace TrenchBroom {
             void toggleClipSide();
             bool canPerformClip() const;
             void performClip();
+            void toggleMovementRestriction();
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);

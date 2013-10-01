@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
         
         bool FaceAttributeCommand::doPerformUndo() {
-            m_snapshot.restore();
+            m_snapshot.restore(m_document->worldBounds());
             return true;
         }
     }

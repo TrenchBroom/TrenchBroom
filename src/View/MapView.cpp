@@ -116,6 +116,11 @@ namespace TrenchBroom {
             m_clipTool->performClip();
         }
 
+        void MapView::toggleMovementRestriction() {
+            m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            Refresh();
+        }
+
         void MapView::OnKey(wxKeyEvent& event) {
             if (updateModifierKeys()) {
                 updatePickResults(event.GetX(), event.GetY());
@@ -458,7 +463,7 @@ namespace TrenchBroom {
         void MapView::renderCompass(Renderer::RenderContext& context) {
             Renderer::SetVboState setVboState(m_auxVbo);
             setVboState.active();
-            m_compass.render(context);
+            m_compass.render(context, m_movementRestriction);
         }
 
         void MapView::renderFocusRect(Renderer::RenderContext& context) {

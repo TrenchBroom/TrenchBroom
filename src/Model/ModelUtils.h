@@ -60,6 +60,21 @@ namespace TrenchBroom {
             bool operator()(const Object* object) const;
         };
         
+        struct Transform {
+        private:
+            const Mat4x4& m_transformation;
+            const bool m_lockTextures;
+            const bool m_invertFaceOrientation;
+            const BBox3& m_worldBounds;
+        public:
+            Transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            void operator()(Model::Object* object) const;
+            void operator()(Model::BrushFace* face) const;
+        private:
+            bool isFaceOrientationInverted(const Mat4x4& transformation) const;
+        };
+        
+
         template <typename Iter, class Operator, class Filter>
         void each(Iter cur, Iter end, const Operator& op, const Filter& filter) {
             while (cur != end) {

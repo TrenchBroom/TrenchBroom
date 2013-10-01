@@ -52,8 +52,12 @@ namespace TrenchBroom {
             size_t childSelectionCount() const;
             void incChildSelectionCount();
             void decChildSelectionCount();
+            
+            void transform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
         protected:
             Object(const Type type);
+        private:
+            virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) = 0;
         };
     }
 }

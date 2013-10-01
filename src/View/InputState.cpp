@@ -147,14 +147,6 @@ namespace TrenchBroom {
             m_pickResult = pickResult;
         }
 
-        const MovementRestriction& InputState::movementRestriction() const {
-            return m_movementRestriction;
-        }
-        
-        MovementRestriction& InputState::movementRestriction() {
-            return m_movementRestriction;
-        }
-
         const Renderer::Camera& InputState::camera() const {
             return m_camera;
         }

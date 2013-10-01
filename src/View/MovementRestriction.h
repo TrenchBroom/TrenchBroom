@@ -45,7 +45,7 @@ namespace TrenchBroom {
             MovementRestriction();
             
             void toggleHorizontalRestriction(const Renderer::Camera& camera);
-            void toggleVerticalRestriction();
+            void setVerticalRestriction(const bool verticalRestriction);
             
             bool isRestricted(const Math::Axis::Type axis) const;
             Vec3 apply(const Vec3& v) const;
