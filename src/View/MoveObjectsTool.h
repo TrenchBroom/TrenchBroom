@@ -20,12 +20,26 @@
 #ifndef __TrenchBroom__MoveObjectsTool__
 #define __TrenchBroom__MoveObjectsTool__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/MoveTool.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
     namespace View {
+        class InputState;
+        class MovementRestriction;
+        
         class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoRenderPolicy> {
+        public:
+            MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction);
+        private:
+            bool doHandleEvent(const InputState& inputState) const;
+            String doGetActionName(const InputState& inputState) const;
+            void doStartMove(const InputState& inputState);
+            Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
+            MoveResult doMove(const Vec3& delta);
+            void doEndMove(const InputState& inputState);
         };
     }
 }

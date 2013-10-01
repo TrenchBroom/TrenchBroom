@@ -27,7 +27,9 @@
 #include "StringUtils.h"
 #include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
+#include "View/Grid.h"
 #include "View/InputState.h"
+#include "View/MapDocument.h"
 #include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
@@ -68,10 +70,11 @@ namespace TrenchBroom {
                 
                 startMove(inputState);
                 Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().beginUndoableGroup(getActionName(inputState));
+                return true;
             }
             
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-                const Vec3 delta = snapDelta(m_movementRestriction.apply(curPoint - refPoint));
+                const Vec3 delta = snapDelta(inputState, m_movementRestriction.apply(curPoint - refPoint));
                 if (delta.null())
                     return true;
                 
@@ -140,7 +143,7 @@ namespace TrenchBroom {
             virtual bool doHandleEvent(const InputState& inputState) const = 0;
             virtual String doGetActionName(const InputState& inputState) const = 0;
             virtual void doStartMove(const InputState& inputState) = 0;
-            virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
+            virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
             virtual MoveResult doMove(const Vec3& delta) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
         };

@@ -18,3 +18,39 @@
  */
 
 #include "MoveObjectsTool.h"
+
+#include "View/ControllerFacade.h"
+#include "View/Grid.h"
+#include "View/MapDocument.h"
+
+namespace TrenchBroom {
+    namespace View {
+        MoveObjectsTool::MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction) :
+        MoveTool(next, document, controller, movementRestriction) {}
+
+        bool MoveObjectsTool::doHandleEvent(const InputState& inputState) const {
+            return (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                    inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+        }
+        
+        String MoveObjectsTool::doGetActionName(const InputState& inputState) const {
+            return "Move";
+        }
+        
+        void MoveObjectsTool::doStartMove(const InputState& inputState) {
+        }
+        
+        Vec3 MoveObjectsTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
+            Grid& grid = document()->grid();
+            return grid.snap(delta);
+        }
+        
+        MoveObjectsTool::MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
+            if (!controller().moveObjects(document()->selectedObjects(), delta, document()->textureLock()))
+                return Deny;
+            return Continue;
+        }
+        
+        void MoveObjectsTool::doEndMove(const InputState& inputState) {}
+    }
+}

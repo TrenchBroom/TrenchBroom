@@ -26,6 +26,7 @@
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
+#include "Controller/TransformObjectsCommand.h"
 #include "Model/ModelUtils.h"
 #include "View/ViewTypes.h"
 #include "TrenchBroomApp.h"
@@ -228,6 +229,14 @@ namespace TrenchBroom {
             using namespace Controller;
 
             Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures) {
+            using namespace Controller;
+            
+            const Mat4x4 transformation = translationMatrix(delta);
+            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Move", objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

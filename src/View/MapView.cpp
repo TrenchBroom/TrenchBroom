@@ -31,6 +31,7 @@
 #include "View/CameraTool.h"
 #include "View/ClipTool.h"
 #include "View/CreateBrushTool.h"
+#include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
@@ -56,6 +57,7 @@ namespace TrenchBroom {
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
+        m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
@@ -295,7 +297,8 @@ namespace TrenchBroom {
         void MapView::createTools() {
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
-            m_createBrushTool = new CreateBrushTool(m_resizeBrushesTool, m_document, m_controller);
+            m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
+            m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller);
             m_clipTool = new ClipTool(m_createBrushTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
@@ -309,6 +312,8 @@ namespace TrenchBroom {
             m_clipTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
+            delete m_moveObjectsTool;
+            m_moveObjectsTool = NULL;
             delete m_resizeBrushesTool;
             m_resizeBrushesTool = NULL;
             delete m_selectionTool;
