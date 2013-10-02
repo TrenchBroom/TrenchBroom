@@ -60,10 +60,6 @@ namespace TrenchBroom {
             
             bool modifiesDocument() const;
             
-            Model::ObjectList affectedObjects() const;
-            Model::EntityList affectedEntities() const;
-            Model::BrushList affectedBrushes() const;
-            
             template <class T>
             static std::tr1::shared_ptr<T> cast(Ptr& command) {
                 return std::tr1::static_pointer_cast<T>(command);
@@ -71,9 +67,6 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
-            virtual Model::ObjectList doAffectedObjects() const;
-            virtual Model::EntityList doAffectedEntities() const;
-            virtual Model::BrushList doAffectedBrushes() const;
         };
     }
 }

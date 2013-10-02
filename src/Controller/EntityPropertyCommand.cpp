@@ -187,14 +187,6 @@ namespace TrenchBroom {
             }
         }
 
-        Model::ObjectList EntityPropertyCommand::doAffectedObjects() const {
-            return VectorUtils::cast<Model::Object*>(m_entities);
-        }
-
-        Model::EntityList EntityPropertyCommand::doAffectedEntities() const {
-            return m_entities;
-        }
-        
         bool EntityPropertyCommand::affectsImmutablePropertyKey() const {
             return (!Model::isPropertyKeyMutable(m_newKey) ||
                     !Model::isPropertyKeyMutable(key()));

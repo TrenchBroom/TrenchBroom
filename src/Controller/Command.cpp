@@ -78,32 +78,8 @@ namespace TrenchBroom {
             return m_modifiesDocument;
         }
 
-        Model::ObjectList Command::affectedObjects() const {
-            return doAffectedObjects();
-        }
-
-        Model::EntityList Command::affectedEntities() const {
-            return doAffectedEntities();
-        }
-        
-        Model::BrushList Command::affectedBrushes() const {
-            return doAffectedBrushes();
-        }
-
         bool Command::doPerformUndo() {
             throw CommandProcessorException("Undo not implemented");
-        }
-
-        Model::ObjectList Command::doAffectedObjects() const {
-            return Model::EmptyObjectList;
-        }
-
-        Model::EntityList Command::doAffectedEntities() const {
-            return Model::EmptyEntityList;
-        }
-        
-        Model::BrushList Command::doAffectedBrushes() const {
-            return Model::EmptyBrushList;
         }
     }
 }

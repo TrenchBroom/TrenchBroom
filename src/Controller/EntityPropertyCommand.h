@@ -79,9 +79,6 @@ namespace TrenchBroom {
             void setValue();
             void remove();
             
-            Model::ObjectList doAffectedObjects() const;
-            Model::EntityList doAffectedEntities() const;
-            
             bool affectsImmutablePropertyKey() const;
             bool affectsImmutablePropertyValue() const;
             bool canSetKey() const;

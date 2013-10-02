@@ -73,10 +73,6 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
-        Model::ObjectList ResizeBrushesCommand::doAffectedObjects() const {
-            return VectorUtils::cast<Model::Object*>(m_brushes);
-        }
-
         bool ResizeBrushesCommand::moveBoundary(const Vec3& delta) {
             const BBox3& worldBounds = m_document->worldBounds();
             
