@@ -20,11 +20,9 @@
 #include "EntityInspector.h"
 
 #include "StringUtils.h"
-#include "Controller/EntityPropertyCommand.h"
-#include "Controller/NewDocumentCommand.h"
-#include "Controller/OpenDocumentCommand.h"
-#include "Controller/SelectionCommand.h"
+#include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Object.h"
 #include "View/CommandIds.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityPropertyGridTable.h"
@@ -45,24 +43,12 @@ namespace TrenchBroom {
             outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
-        }
-
-        void EntityInspector::update(Controller::Command::Ptr command) {
-            using namespace Controller;
             
-            if (command->type() == NewDocumentCommand::Type ||
-                command->type() == OpenDocumentCommand::Type) {
-                updatePropertyGrid();
-                updateEntityBrowser();
-            } else if (command->type() == EntityPropertyCommand::Type) {
-                updatePropertyGrid();
-                EntityPropertyCommand::Ptr entityPropertyCommand = Command::cast<EntityPropertyCommand>(command);
-                if (entityPropertyCommand->propertyAffected(Model::PropertyKeys::Mod) ||
-                    entityPropertyCommand->propertyAffected(Model::PropertyKeys::EntityDefinitions))
-                    updateEntityBrowser();
-            } else if (command->type() == SelectionCommand::Type) {
-                updatePropertyGrid();
-            }
+            bindObservers();
+        }
+        
+        EntityInspector::~EntityInspector() {
+            unbindObservers();
         }
 
         void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {
@@ -145,6 +131,51 @@ namespace TrenchBroom {
             }
         }
 
+        void EntityInspector::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasLoaded);
+            m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
+        }
+        
+        void EntityInspector::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasLoaded);
+            m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
+        }
+
+        void EntityInspector::documentWasNewed() {
+            updatePropertyGrid();
+            updateEntityBrowser();
+        }
+        
+        void EntityInspector::documentWasLoaded() {
+            updatePropertyGrid();
+            updateEntityBrowser();
+        }
+        
+        void EntityInspector::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity) {
+                updatePropertyGrid();
+                Model::Entity* entity = static_cast<Model::Entity*>(object);
+                if (entity->worldspawn())
+                    updateEntityBrowser();
+            }
+        }
+        
+        void EntityInspector::selectionDidChange(const Model::SelectionResult& result) {
+            updatePropertyGrid();
+        }
+
+        void EntityInspector::updatePropertyGrid() {
+            m_propertyTable->update();
+        }
+        
+        void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
+        }
+
         wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {
             wxPanel* propertyEditorPanel = new wxPanel(parent);
             
@@ -174,14 +205,14 @@ namespace TrenchBroom {
             // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
             
             /*
-            wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
-            m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel, m_documentViewHolder);
-            
-            wxSizer* propertyEditorSizer = new wxBoxSizer(wxVERTICAL);
-            propertyEditorSizer->Add(m_propertyGrid, 1, wxEXPAND);
-            propertyEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
-            propertyEditorSizer->Add(smartPropertyEditorPanel, 0, wxEXPAND);
-            propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
+             wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
+             m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel, m_documentViewHolder);
+             
+             wxSizer* propertyEditorSizer = new wxBoxSizer(wxVERTICAL);
+             propertyEditorSizer->Add(m_propertyGrid, 1, wxEXPAND);
+             propertyEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
+             propertyEditorSizer->Add(smartPropertyEditorPanel, 0, wxEXPAND);
+             propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
              */
             
             m_addPropertyButton = new wxButton(propertyEditorPanel, wxID_ANY, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
@@ -208,14 +239,6 @@ namespace TrenchBroom {
             return propertyEditorPanel;
         }
         
-        void EntityInspector::updatePropertyGrid() {
-            m_propertyTable->update();
-        }
-        
-        void EntityInspector::updateEntityBrowser() {
-            m_entityBrowser->reload();
-        }
-
         wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
             m_entityBrowser = new EntityBrowser(this, wxID_ANY, resources, m_document);
             return m_entityBrowser;

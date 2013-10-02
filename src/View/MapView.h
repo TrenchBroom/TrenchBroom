@@ -21,7 +21,6 @@
 #define __TrenchBroom__MapView__
 
 #include "Color.h"
-#include "Controller/Command.h"
 #include "GL/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -38,6 +37,12 @@
 
 namespace TrenchBroom {
     class Logger;
+    
+    namespace Model {
+        class BrushFace;
+        class Object;
+        class SelectionResult;
+    }
     
     namespace Renderer {
         class RenderContext;
@@ -107,14 +112,17 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
-
-            void commandDo(Controller::Command::Ptr command);
-            void commandDone(Controller::Command::Ptr command);
-            void commandDoFailed(Controller::Command::Ptr command);
-            void commandUndo(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
-            void commandUndoFailed(Controller::Command::Ptr command);
         private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectWasAdded(Model::Object* object);
+            void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void updatePickResults(const int x, const int y);
             
             void createTools();

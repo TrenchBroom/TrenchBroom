@@ -23,7 +23,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/FaceTexture.h"
 #include "Assets/ModelDefinition.h"
-#include "Controller/EntityPropertyCommand.h"
 #include "IO/FileSystem.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityBrushesIterator.h"
@@ -445,54 +444,59 @@ namespace TrenchBroom {
             m_textureManager.commitChanges();
         }
 
-        void MapDocument::commandDo(Controller::Command::Ptr command) {
-            m_picker.removeObjects(command->affectedObjects());
-        }
-        
-        void MapDocument::commandDone(Controller::Command::Ptr command) {
-            m_picker.addObjects(command->affectedObjects());
-            
-            if (command->type() == Controller::EntityPropertyCommand::Type) {
-                const Model::EntityList entities = command->affectedEntities();
-                updateEntityDefinitions(entities);
-                updateEntityModels(entities);
-            }
-            
-            if (command->modifiesDocument())
-                incModificationCount();
-        }
-        
-        void MapDocument::commandDoFailed(Controller::Command::Ptr command) {
-            m_picker.addObjects(command->affectedObjects());
-        }
-        
-        void MapDocument::commandUndo(Controller::Command::Ptr command) {
-            m_picker.removeObjects(command->affectedObjects());
-        }
-        
-        void MapDocument::commandUndone(Controller::Command::Ptr command) {
-            m_picker.addObjects(command->affectedObjects());
-
-            if (command->type() == Controller::EntityPropertyCommand::Type) {
-                const Model::EntityList entities = command->affectedEntities();
-                updateEntityDefinitions(entities);
-                updateEntityModels(entities);
-            }
-            
-            if (command->modifiesDocument())
-                decModificationCount();
-        }
-        
-        void MapDocument::commandUndoFailed(Controller::Command::Ptr command) {
-            m_picker.addObjects(command->affectedObjects());
-        }
-
         Model::PickResult MapDocument::pick(const Ray3& ray) {
             return m_picker.pick(ray);
         }
 
         void MapDocument::saveBackup(const IO::Path& path) {
             m_game->writeMap(*m_map, path);
+        }
+
+        void MapDocument::bindObservers() {
+            documentWasNewedNotifier.addObserver(this, &MapDocument::documentWasNewed);
+            documentWasLoadedNotifier.addObserver(this, &MapDocument::documentWasLoaded);
+            objectWasAddedNotifier.addObserver(this, &MapDocument::objectWasAdded);
+            objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
+            objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
+            faceDidChangeNotifier.addObserver(this, &MapDocument::faceDidChange);
+            selectionDidChangeNotifier.addObserver(this, &MapDocument::selectionDidChange);
+        }
+        
+        void MapDocument::unbindObservers() {
+            documentWasNewedNotifier.removeObserver(this, &MapDocument::documentWasNewed);
+            documentWasLoadedNotifier.removeObserver(this, &MapDocument::documentWasLoaded);
+            objectWasAddedNotifier.removeObserver(this, &MapDocument::objectWasAdded);
+            objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
+            objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
+            faceDidChangeNotifier.removeObserver(this, &MapDocument::faceDidChange);
+            selectionDidChangeNotifier.removeObserver(this, &MapDocument::selectionDidChange);
+        }
+
+        void MapDocument::documentWasNewed() {
+        }
+        
+        void MapDocument::documentWasLoaded() {
+        }
+        
+        void MapDocument::objectWasAdded(Model::Object* object) {
+            m_picker.addObject(object);
+        }
+        
+        void MapDocument::objectWillBeRemoved(Model::Object* object) {
+        }
+        
+        void MapDocument::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity) {
+                Model::Entity* entity = static_cast<Model::Entity*>(object);
+                updateEntityDefinition(entity);
+                updateEntityModel(entity);
+            }
+        }
+        
+        void MapDocument::faceDidChange(Model::BrushFace* face) {
+        }
+        
+        void MapDocument::selectionDidChange(const Model::SelectionResult& result) {
         }
 
         MapDocument::MapDocument() :
@@ -598,11 +602,21 @@ namespace TrenchBroom {
                         Model::MatchAll());
         }
 
+        void MapDocument::updateEntityDefinition(Model::Entity* entity) {
+            SetEntityDefinition setDefinition(m_entityDefinitionManager);
+            setDefinition(entity);
+        }
+
         void MapDocument::updateEntityModels(const Model::EntityList& entities) {
             Model::each(entities.begin(),
                         entities.end(),
                         SetEntityModel(m_entityModelManager),
                         Model::MatchAll());
+        }
+
+        void MapDocument::updateEntityModel(Model::Entity* entity) {
+            SetEntityModel setModel(m_entityModelManager);
+            setModel(entity);
         }
 
         void MapDocument::loadAndUpdateTextures() {

@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "Observer.h"
+#include "Notifier.h"
 
 namespace TrenchBroom {
     class Observed {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         MOCK_METHOD2(notify2, void(const int&, const int&));
     };
     
-    TEST(ObserverTest, testAddRemoveObservers) {
+    TEST(NotifierTest, testAddRemoveObservers) {
         Observer o1;
         Observer o2;
         
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         ASSERT_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
     }
     
-    TEST(ObserverTest, testNotifyObservers) {
+    TEST(NotifierTest, testNotifyObservers) {
         Observer o1;
         Observer o2;
         

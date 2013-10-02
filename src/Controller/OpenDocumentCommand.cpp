@@ -38,6 +38,7 @@ namespace TrenchBroom {
 
         bool OpenDocumentCommand::doPerformDo() {
             m_document->openDocument(m_worldBounds, m_game, m_path);
+            m_document->documentWasLoadedNotifier();
             return true;
         }
     }

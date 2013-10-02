@@ -19,6 +19,7 @@
 
 #include "SelectionCommand.h"
 
+#include "Notifier.h"
 #include "View/MapDocument.h"
 
 #include <cassert>
@@ -99,6 +100,7 @@ namespace TrenchBroom {
                     }
                     break;
             }
+            m_document->selectionDidChangeNotifier(m_lastResult);
             return true;
         }
         
@@ -106,6 +108,7 @@ namespace TrenchBroom {
             m_lastResult = m_document->deselectAll();
             m_lastResult += m_document->selectObjects(m_previouslySelectedObjects);
             m_lastResult += m_document->selectFaces(m_previouslySelectedFaces);
+            m_document->selectionDidChangeNotifier(m_lastResult);
             return true;
         }
     }

@@ -131,6 +131,7 @@ namespace TrenchBroom {
             
             m_snapshot = Model::Snapshot(m_entities);
             
+            m_document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
             switch (m_command) {
                 case PCRenameProperty:
                     rename();
@@ -144,12 +145,15 @@ namespace TrenchBroom {
                 default:
                     break;
             }
+            m_document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
             
             return true;
         }
         
         bool EntityPropertyCommand::doPerformUndo() {
+            m_document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
             m_snapshot.restore(m_document->worldBounds());
+            m_document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
             return true;
         }
 

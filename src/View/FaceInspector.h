@@ -20,12 +20,17 @@
 #ifndef __TrenchBroom__FaceInspector__
 #define __TrenchBroom__FaceInspector__
 
-#include "Controller/Command.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class Object;
+        class SelectionResult;
+    }
+
     namespace Renderer {
         class RenderResources;
     }
@@ -44,10 +49,18 @@ namespace TrenchBroom {
             TextureBrowser* m_textureBrowser;
         public:
             FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
-
-            void update(Controller::Command::Ptr command);
+            ~FaceInspector();
 
             void OnTextureSelected(TextureSelectedCommand& event);
+        private:
+            void bindObservers();
+            void unbindObservers();
+
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
         };
     }
 }

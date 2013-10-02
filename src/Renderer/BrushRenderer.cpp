@@ -69,6 +69,15 @@ namespace TrenchBroom {
             m_filter = NULL;
         }
 
+        void BrushRenderer::addBrush(Model::Brush* brush) {
+            m_brushes.push_back(brush);
+            invalidate();
+        }
+        
+        void BrushRenderer::removeBrush(Model::Brush* brush) {
+            VectorUtils::remove(m_brushes, brush);
+        }
+
         void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
             m_brushes = brushes;
             invalidate();

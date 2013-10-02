@@ -24,79 +24,28 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void CommandListenerNotifier::addCommandListener(CommandListener::Ptr listener) {
-            m_listeners.push_back(listener);
-        }
-        
-        void CommandListenerNotifier::removeCommandListener(CommandListener::Ptr listener) {
-            CommandListener::List::iterator it = std::find(m_listeners.begin(), m_listeners.end(), listener);
-            if (it != m_listeners.end())
-                m_listeners.erase(it);
-        }
-        
-        void CommandListenerNotifier::commandDo(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandDo(command);
-            }
-        }
-        
-        void CommandListenerNotifier::commandDone(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandDone(command);
-            }
-        }
-        
-        void CommandListenerNotifier::commandDoFailed(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandDoFailed(command);
-            }
-        }
-        
-        void CommandListenerNotifier::commandUndo(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandUndo(command);
-            }
-        }
-        
-        void CommandListenerNotifier::commandUndone(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandUndone(command);
-            }
-        }
-
-        void CommandListenerNotifier::commandUndoFailed(Command::Ptr command) {
-            CommandListener::List::const_iterator it, end;
-            for (it = m_listeners.begin(), end = m_listeners.end(); it != end; ++it) {
-                CommandListener::Ptr listener = *it;
-                listener->commandUndoFailed(command);
-            }
-        }
-
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
-        CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands, CommandListenerNotifier& notifier) :
+        CommandGroup::CommandGroup(const String& name, const bool undoable, const Command::List& commands,
+                                   Notifier1<Command::Ptr>& commandDoNotifier,
+                                   Notifier1<Command::Ptr>& commandDoneNotifier,
+                                   Notifier1<Command::Ptr>& commandUndoNotifier,
+                                   Notifier1<Command::Ptr>& commandUndoneNotifier) :
         Command(Type, name, undoable, false),
         m_commands(commands),
-        m_notifier(notifier) {}
+        m_commandDoNotifier(commandDoNotifier),
+        m_commandDoneNotifier(commandDoneNotifier),
+        m_commandUndoNotifier(commandUndoNotifier),
+        m_commandUndoneNotifier(commandUndoneNotifier) {}
 
         bool CommandGroup::doPerformDo() {
             List::iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
                 Command::Ptr command = *it;
-                m_notifier.commandDo(command);
+                m_commandDoNotifier(command);
                 if (!command->performDo())
                     throw CommandProcessorException("Partial failure while executing command group");
-                m_notifier.commandDone(command);
+                m_commandDoneNotifier(command);
             }
             return true;
         }
@@ -105,10 +54,10 @@ namespace TrenchBroom {
             List::reverse_iterator it, end;
             for (it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
                 Command::Ptr command = *it;
-                m_notifier.commandUndo(command);
+                m_commandUndoNotifier(command);
                 if (!command->performUndo())
                     throw CommandProcessorException("Partial failure while undoing command group");
-                m_notifier.commandUndone(command);
+                m_commandUndoneNotifier(command);
             }
             return true;
         }
@@ -116,14 +65,6 @@ namespace TrenchBroom {
         CommandProcessor::CommandProcessor() :
         m_groupUndoable(false),
         m_groupLevel(0) {}
-
-        void CommandProcessor::addCommandListener(CommandListener::Ptr listener) {
-            m_notifier.addCommandListener(listener);
-        }
-        
-        void CommandProcessor::removeCommandListener(CommandListener::Ptr listener) {
-            m_notifier.removeCommandListener(listener);
-        }
 
         bool CommandProcessor::hasLastCommand() const {
             return !m_lastCommandStack.empty();
@@ -212,27 +153,27 @@ namespace TrenchBroom {
 
         bool CommandProcessor::doCommand(Command::Ptr command) {
             if (command->type() != CommandGroup::Type)
-                m_notifier.commandDo(command);
+                commandDoNotifier(command);
             if (command->performDo()) {
                 if (command->type() != CommandGroup::Type)
-                    m_notifier.commandDone(command);
+                    commandDoneNotifier(command);
                 return true;
             }
             if (command->type() != CommandGroup::Type)
-                m_notifier.commandDoFailed(command);
+                commandDoFailedNotifier(command);
             return false;
         }
         
         bool CommandProcessor::undoCommand(Command::Ptr command) {
             if (command->type() != CommandGroup::Type)
-                m_notifier.commandUndo(command);
+                commandUndoNotifier(command);
             if (command->performUndo()) {
                 if (command->type() != CommandGroup::Type)
-                    m_notifier.commandUndone(command);
+                    commandUndoneNotifier(command);
                 return true;
             }
             if (command->type() != CommandGroup::Type)
-                m_notifier.commandUndoFailed(command);
+                commandUndoFailedNotifier(command);
             return false;
         }
 
@@ -269,7 +210,11 @@ namespace TrenchBroom {
 
         void CommandProcessor::createAndStoreCommandGroup() {
             if (!m_groupedCommands.empty()) {
-                Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands, m_notifier));
+                Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands,
+                                                                   commandDoNotifier,
+                                                                   commandDoneNotifier,
+                                                                   commandUndoNotifier,
+                                                                   commandUndoneNotifier));
                 m_groupedCommands.clear();
                 pushLastCommand(group);
             }

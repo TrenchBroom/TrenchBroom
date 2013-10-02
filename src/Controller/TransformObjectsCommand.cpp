@@ -47,12 +47,16 @@ namespace TrenchBroom {
         
         bool TransformObjectsCommand::doPerformDo() {
             m_snapshot = Model::Snapshot(m_objects);
+            m_document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
             Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, m_document->worldBounds()), Model::MatchAll());
+            m_document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
             return true;
         }
         
         bool TransformObjectsCommand::doPerformUndo() {
+            m_document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
             m_snapshot.restore(m_document->worldBounds());
+            m_document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
             return true;
         }
     }

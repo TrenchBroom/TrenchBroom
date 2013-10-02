@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
+#include "Notifier.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -76,9 +77,11 @@ namespace TrenchBroom {
 
             createTools();
             bindEvents();
+            bindObservers();
         }
         
         MapView::~MapView() {
+            unbindObservers();
             deleteTools();
             delete m_glContext;
             m_glContext = NULL;
@@ -261,28 +264,46 @@ namespace TrenchBroom {
             m_camera.setViewport(viewport);
             event.Skip();
         }
+
+        void MapView::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &MapView::documentWasLoaded);
+            m_document->objectWasAddedNotifier.addObserver(this, &MapView::objectWasAdded);
+            m_document->objectDidChangeNotifier.addObserver(this, &MapView::objectDidChange);
+            m_document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+        }
         
-        void MapView::commandDo(Controller::Command::Ptr command) {
+        void MapView::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &MapView::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &MapView::documentWasLoaded);
+            m_document->objectWasAddedNotifier.removeObserver(this, &MapView::objectWasAdded);
+            m_document->objectDidChangeNotifier.removeObserver(this, &MapView::objectDidChange);
+            m_document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
         }
 
-        void MapView::commandDone(Controller::Command::Ptr command) {
-            m_renderer.commandDone(command);
+        void MapView::documentWasNewed() {
             Refresh();
         }
         
-        void MapView::commandDoFailed(Controller::Command::Ptr command) {
+        void MapView::documentWasLoaded() {
             Refresh();
         }
         
-        void MapView::commandUndo(Controller::Command::Ptr command) {
-        }
-
-        void MapView::commandUndone(Controller::Command::Ptr command) {
-            m_renderer.commandUndone(command);
+        void MapView::objectWasAdded(Model::Object* object) {
             Refresh();
         }
-
-        void MapView::commandUndoFailed(Controller::Command::Ptr command) {
+        
+        void MapView::objectDidChange(Model::Object* object) {
+            Refresh();
+        }
+        
+        void MapView::faceDidChange(Model::BrushFace* face) {
+            Refresh();
+        }
+        
+        void MapView::selectionDidChange(const Model::SelectionResult& result) {
             Refresh();
         }
 

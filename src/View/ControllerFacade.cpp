@@ -35,18 +35,20 @@
 
 namespace TrenchBroom {
     namespace View {
+        ControllerFacade::ControllerFacade() {
+            m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
+            m_commandProcessor.commandUndoneNotifier.addObserver(this, &ControllerFacade::commandUndone);
+        }
+        
+        ControllerFacade::~ControllerFacade() {
+            m_commandProcessor.commandDoneNotifier.removeObserver(this, &ControllerFacade::commandDone);
+            m_commandProcessor.commandUndoneNotifier.removeObserver(this, &ControllerFacade::commandUndone);
+        }
+
         void ControllerFacade::setDocument(MapDocumentPtr document) {
             assert(m_document == NULL);
             assert(document != NULL);
             m_document = document;
-        }
-
-        void ControllerFacade::addCommandListener(Controller::CommandListener::Ptr listener) {
-            m_commandProcessor.addCommandListener(listener);
-        }
-        
-        void ControllerFacade::removeCommandListener(Controller::CommandListener::Ptr listener) {
-            m_commandProcessor.removeCommandListener(listener);
         }
 
         bool ControllerFacade::hasLastCommand() const {
@@ -293,6 +295,14 @@ namespace TrenchBroom {
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
             command->setYScale(yScale);
             return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        void ControllerFacade::commandDone(Controller::Command::Ptr command) {
+            commandDoneNotifier(command);
+        }
+        
+        void ControllerFacade::commandUndone(Controller::Command::Ptr command) {
+            commandUndoneNotifier(command);
         }
     }
 }

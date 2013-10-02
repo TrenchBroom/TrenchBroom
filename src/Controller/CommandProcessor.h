@@ -20,38 +20,33 @@
 #ifndef __TrenchBroom__CommandProcessor__
 #define __TrenchBroom__CommandProcessor__
 
+#include "Notifier.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
-#include "Controller/CommandListener.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Controller {
-        class CommandListenerNotifier {
-        private:
-            CommandListener::List m_listeners;
-        public:
-            void addCommandListener(CommandListener::Ptr listener);
-            void removeCommandListener(CommandListener::Ptr listener);
-
-            void commandDo(Command::Ptr command);
-            void commandDone(Command::Ptr command);
-            void commandDoFailed(Command::Ptr command);
-            void commandUndo(Command::Ptr command);
-            void commandUndone(Command::Ptr command);
-            void commandUndoFailed(Command::Ptr command);
-        };
+        class CommandProcessor;
         
         class CommandGroup : public Command {
         public:
             static const CommandType Type;
         private:
             List m_commands;
-            CommandListenerNotifier& m_notifier;
+
+            Notifier1<Command::Ptr>& m_commandDoNotifier;
+            Notifier1<Command::Ptr>& m_commandDoneNotifier;
+            Notifier1<Command::Ptr>& m_commandUndoNotifier;
+            Notifier1<Command::Ptr>& m_commandUndoneNotifier;
         public:
-            CommandGroup(const String& name, const bool undoable, const Command::List& commands, CommandListenerNotifier& notifier);
+            CommandGroup(const String& name, const bool undoable, const Command::List& commands,
+                         Notifier1<Command::Ptr>& commandDoNotifier,
+                         Notifier1<Command::Ptr>& commandDoneNotifier,
+                         Notifier1<Command::Ptr>& commandUndoNotifier,
+                         Notifier1<Command::Ptr>& commandUndoneNotifier);
         private:
             bool doPerformDo();
             bool doPerformUndo();
@@ -59,8 +54,6 @@ namespace TrenchBroom {
         
         class CommandProcessor {
         private:
-            CommandListenerNotifier m_notifier;
-            
             typedef Command::List CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
@@ -72,8 +65,12 @@ namespace TrenchBroom {
         public:
             CommandProcessor();
             
-            void addCommandListener(CommandListener::Ptr listener);
-            void removeCommandListener(CommandListener::Ptr listener);
+            Notifier1<Command::Ptr> commandDoNotifier;
+            Notifier1<Command::Ptr> commandDoneNotifier;
+            Notifier1<Command::Ptr> commandDoFailedNotifier;
+            Notifier1<Command::Ptr> commandUndoNotifier;
+            Notifier1<Command::Ptr> commandUndoneNotifier;
+            Notifier1<Command::Ptr> commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;

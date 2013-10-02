@@ -37,6 +37,7 @@ namespace TrenchBroom {
 
         bool NewDocumentCommand::doPerformDo() {
             m_document->newDocument(m_worldBounds, m_game);
+            m_document->documentWasNewedNotifier();
             return true;
         }
     }

@@ -20,6 +20,7 @@
 #include "AddRemoveObjectsCommand.h"
 
 #include "CollectionUtils.h"
+#include "Notifier.h"
 #include "Model/Entity.h"
 #include "Model/Object.h"
 #include "Model/ModelUtils.h"
@@ -101,6 +102,7 @@ namespace TrenchBroom {
             
             void operator()(const Model::ObjectParentPair& pair) {
                 m_document->addObject(pair.object, pair.parent);
+                m_document->objectWasAddedNotifier(pair.object);
                 m_addedObjects.push_back(pair.object);
             }
         };
@@ -115,6 +117,7 @@ namespace TrenchBroom {
             m_removedObjects(removedObjects) {}
             
             void operator()(const Model::ObjectParentPair& pair) {
+                m_document->objectWillBeRemovedNotifier(pair.object);
                 m_document->removeObject(pair.object);
                 m_removedObjects.push_back(pair.object);
             }

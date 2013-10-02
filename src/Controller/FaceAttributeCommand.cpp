@@ -127,20 +127,24 @@ namespace TrenchBroom {
             
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                Model::BrushFace& face = **it;
+                Model::BrushFace* face = *it;
+                m_document->faceWillChangeNotifier(face);
                 if (m_setTexture)
-                    face.setTexture(m_texture);
-                face.setXOffset(evaluate(face.xOffset(), m_xOffset, m_xOffsetOp));
-                face.setYOffset(evaluate(face.yOffset(), m_yOffset, m_yOffsetOp));
-                face.setRotation(evaluate(face.rotation(), m_rotation, m_rotationOp));
-                face.setXScale(evaluate(face.xScale(), m_xScale, m_xScaleOp));
-                face.setYScale(evaluate(face.yScale(), m_yScale, m_yScaleOp));
+                    face->setTexture(m_texture);
+                face->setXOffset(evaluate(face->xOffset(), m_xOffset, m_xOffsetOp));
+                face->setYOffset(evaluate(face->yOffset(), m_yOffset, m_yOffsetOp));
+                face->setRotation(evaluate(face->rotation(), m_rotation, m_rotationOp));
+                face->setXScale(evaluate(face->xScale(), m_xScale, m_xScaleOp));
+                face->setYScale(evaluate(face->yScale(), m_yScale, m_yScaleOp));
+                m_document->faceDidChangeNotifier(face);
             }
             return true;
         }
         
         bool FaceAttributeCommand::doPerformUndo() {
+            m_document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
             m_snapshot.restore(m_document->worldBounds());
+            m_document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
             return true;
         }
     }

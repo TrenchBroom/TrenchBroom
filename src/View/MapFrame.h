@@ -20,9 +20,8 @@
 #ifndef __TrenchBroom__MapFrame__
 #define __TrenchBroom__MapFrame__
 
-#include "Controller/Command.h"
-#include "Controller/CommandListener.h"
 #include "IO/Path.h"
+#include "Controller/Command.h"
 #include "Model/ModelTypes.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
@@ -35,6 +34,12 @@ class wxTimerEvent;
 namespace TrenchBroom {
     class Logger;
 
+    namespace Model {
+        class BrushFace;
+        class Model;
+        class SelectionResult;
+    }
+    
     namespace View {
         class Autosaver;
         class Console;
@@ -44,7 +49,7 @@ namespace TrenchBroom {
         class MapView;
         class NavBar;
         
-        class MapFrame : public wxFrame, public Controller::CommandListener {
+        class MapFrame : public wxFrame {
         public:
             static const wxEventType EVT_REBUILD_MENUBAR;
         private:
@@ -91,16 +96,16 @@ namespace TrenchBroom {
             
             void OnRebuildMenuBar(wxEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
-            
-            void commandDo(Controller::Command::Ptr command);
-            void commandDone(Controller::Command::Ptr command);
-            void commandDoFailed(Controller::Command::Ptr command);
-            void commandUndo(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
-            void commandUndoFailed(Controller::Command::Ptr command);
 
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void selectionDidChange(const Model::SelectionResult& result);
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
+
             void createGui();
             void rebuildMenuBar();
             void createMenuBar(const bool showModifiers);

@@ -21,8 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Controller/AddRemoveObjectsCommand.h"
-#include "Controller/SelectionCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitFilters.h"
 #include "Model/Map.h"

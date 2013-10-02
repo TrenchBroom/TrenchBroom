@@ -19,9 +19,8 @@
 
 #include "FaceInspector.h"
 
-#include "Controller/NewDocumentCommand.h"
-#include "Controller/OpenDocumentCommand.h"
-#include "Controller/SelectionCommand.h"
+#include "Model/Entity.h"
+#include "Model/Object.h"
 #include "View/ControllerFacade.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/LayoutConstants.h"
@@ -49,23 +48,59 @@ namespace TrenchBroom {
             m_textureBrowser->Bind(EVT_TEXTURE_SELECTED_EVENT,
                                    EVT_TEXTURE_SELECTED_HANDLER(FaceInspector::OnTextureSelected),
                                    this);
-        }
-
-        void FaceInspector::update(Controller::Command::Ptr command) {
-            using namespace Controller;
             
-            if (command->type() == NewDocumentCommand::Type ||
-                command->type() == OpenDocumentCommand::Type) {
-                m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
-                m_textureBrowser->reload();
-            } else if (command->type() == SelectionCommand::Type) {
-                m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
-            }
+            bindObservers();
+        }
+        
+        FaceInspector::~FaceInspector() {
+            unbindObservers();
         }
 
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
             if (!m_controller.setFaceTexture(m_document->allSelectedFaces(), event.texture()))
                 event.Veto();
+        }
+
+        void FaceInspector::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &FaceInspector::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &FaceInspector::documentWasLoaded);
+            m_document->objectDidChangeNotifier.addObserver(this, &FaceInspector::objectDidChange);
+            m_document->faceDidChangeNotifier.addObserver(this, &FaceInspector::faceDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &FaceInspector::selectionDidChange);
+        }
+        
+        void FaceInspector::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &FaceInspector::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &FaceInspector::documentWasLoaded);
+            m_document->objectDidChangeNotifier.removeObserver(this, &FaceInspector::objectDidChange);
+            m_document->faceDidChangeNotifier.removeObserver(this, &FaceInspector::faceDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &FaceInspector::selectionDidChange);
+        }
+
+        void FaceInspector::documentWasNewed() {
+            m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
+            m_textureBrowser->reload();
+        }
+        
+        void FaceInspector::documentWasLoaded() {
+            m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
+            m_textureBrowser->reload();
+        }
+        
+        void FaceInspector::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity) {
+                const Model::Entity* entity = static_cast<Model::Entity*>(object);
+                if (entity->worldspawn())
+                    m_textureBrowser->reload();
+            }
+        }
+
+        void FaceInspector::faceDidChange(Model::BrushFace* face) {
+            m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
+        }
+        
+        void FaceInspector::selectionDidChange(const Model::SelectionResult& result) {
+            m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
         }
     }
 }

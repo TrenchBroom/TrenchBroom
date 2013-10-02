@@ -20,10 +20,6 @@
 #include "MapFrame.h"
 
 #include "TrenchBroomApp.h"
-#include "Controller/Command.h"
-#include "Controller/NewDocumentCommand.h"
-#include "Controller/OpenDocumentCommand.h"
-#include "Controller/SelectionCommand.h"
 #include "IO/FileSystem.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
@@ -73,7 +69,6 @@ namespace TrenchBroom {
             m_document = document;
             m_autosaver = new Autosaver(m_document);
             m_controller.setDocument(m_document);
-            m_controller.addCommandListener(this);
             
             createGui();
             createMenuBar(false);
@@ -110,15 +105,18 @@ namespace TrenchBroom {
             
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
+            
+            bindObservers();
         }
 
         MapFrame::~MapFrame() {
+            unbindObservers();
+            
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
             delete m_autosaver;
             m_autosaver = NULL;
             
-            m_controller.removeCommandListener(this);
             View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
             if (app != NULL)
                 app->removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(GetMenuBar()));
@@ -273,46 +271,31 @@ namespace TrenchBroom {
             m_autosaver->triggerAutosave(m_console);
         }
 
-        void MapFrame::commandDo(Controller::Command::Ptr command) {
-            m_document->commandDo(command);
-            m_mapView->commandDo(command);
+        void MapFrame::bindObservers() {
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
+            m_controller.commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
+            m_controller.commandUndoneNotifier.addObserver(this, &MapFrame::commandUndone);
+        }
+        
+        void MapFrame::unbindObservers() {
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapFrame::selectionDidChange);
+            m_controller.commandDoneNotifier.removeObserver(this, &MapFrame::commandDone);
+            m_controller.commandUndoneNotifier.removeObserver(this, &MapFrame::commandUndone);
+        }
+        
+        void MapFrame::selectionDidChange(const Model::SelectionResult& result) {
+            rebuildMenuBar();
         }
 
         void MapFrame::commandDone(Controller::Command::Ptr command) {
-            m_document->commandDone(command);
-            m_mapView->commandDone(command);
-            m_inspector->update(command);
+            m_document->incModificationCount();
             updateTitle();
-            
-            if (command->modifiesDocument())
-                m_autosaver->updateLastModificationTime();
-            if (command->type() == Controller::SelectionCommand::Type)
-                rebuildMenuBar();
         }
         
-        void MapFrame::commandDoFailed(Controller::Command::Ptr command) {
-            m_document->commandDoFailed(command);
-            m_mapView->commandDoFailed(command);
-        }
-        
-        void MapFrame::commandUndo(Controller::Command::Ptr command) {
-            m_document->commandUndo(command);
-            m_mapView->commandUndo(command);
-        }
-
         void MapFrame::commandUndone(Controller::Command::Ptr command) {
-            m_document->commandUndone(command);
-            m_mapView->commandUndone(command);
-            m_inspector->update(command);
+            m_document->decModificationCount();
             updateTitle();
-
-            if (command->type() == Controller::SelectionCommand::Type)
-                rebuildMenuBar();
-        }
-
-        void MapFrame::commandUndoFailed(Controller::Command::Ptr command) {
-            m_document->commandUndoFailed(command);
-            m_mapView->commandUndoFailed(command);
+            m_autosaver->updateLastModificationTime();
         }
 
         void MapFrame::createGui() {

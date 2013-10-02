@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__EntityInspector__
 #define __TrenchBroom__EntityInspector__
 
-#include "Controller/Command.h"
 #include "View/ViewTypes.h"
 
 #include <wx/grid.h>
@@ -29,6 +28,11 @@
 class wxButton;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Object;
+        class SelectionResult;
+    }
+    
     namespace Renderer {
         class RenderResources;
     }
@@ -51,9 +55,8 @@ namespace TrenchBroom {
             EntityBrowser* m_entityBrowser;
         public:
             EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
+            ~EntityInspector();
 
-            void update(Controller::Command::Ptr command);
-            
             void OnPropertyGridSize(wxSizeEvent& event);
             void OnPropertyGridSelectCell(wxGridEvent& event);
             void OnPropertyGridTab(wxGridEvent& event);
@@ -64,6 +67,14 @@ namespace TrenchBroom {
             void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
         private:
+            void bindObservers();
+            void unbindObservers();
+
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectDidChange(Model::Object* object);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void updatePropertyGrid();
             void updateEntityBrowser();
             wxWindow* createPropertyEditor(wxWindow* parent);

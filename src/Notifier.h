@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Observer_h
-#define TrenchBroom_Observer_h
+#ifndef TrenchBroom_Notifier_h
+#define TrenchBroom_Notifier_h
 
 #include "CollectionUtils.h"
 #include <algorithm>
@@ -125,6 +125,10 @@ namespace TrenchBroom {
                 observer();
             }
         }
+        
+        void operator()() {
+            notify();
+        }
     };
     
     template <typename A1>
@@ -220,11 +224,33 @@ namespace TrenchBroom {
             return true;
         }
         
-        void notify(A1 a1) {
+        template <typename A>
+        void notify(A a1) {
             typename Observer::List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 Observer& observer = **it;
                 observer(a1);
+            }
+        }
+
+        template <typename A>
+        void operator()(A a1) {
+            notify(a1);
+        }
+        
+        template <typename I>
+        void notify(I it, I end) {
+            while (it != end) {
+                notify(*it);
+                ++it;
+            }
+        }
+        
+        template <typename I>
+        void operator()(I it, I end) {
+            while (it != end) {
+                notify(*it);
+                ++it;
             }
         }
     };
@@ -329,6 +355,10 @@ namespace TrenchBroom {
                 Observer& observer = **it;
                 observer(a1, a2);
             }
+        }
+        
+        void operator()(A1 a1, A2 a2) {
+            notify(a1, a2);
         }
     };
 }

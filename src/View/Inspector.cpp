@@ -43,10 +43,5 @@ namespace TrenchBroom {
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
         }
-
-        void Inspector::update(Controller::Command::Ptr command) {
-            m_entityInspector->update(command);
-            m_faceInspector->update(command);
-        }
     }
 }

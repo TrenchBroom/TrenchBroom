@@ -20,11 +20,12 @@
 #ifndef __TrenchBroom__ControllerFacade__
 #define __TrenchBroom__ControllerFacade__
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Controller/Command.h"
 #include "Controller/CommandProcessor.h"
-#include "Controller/CommandListener.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
@@ -51,11 +52,14 @@ namespace TrenchBroom {
             MapDocumentPtr m_document;
             Controller::CommandProcessor m_commandProcessor;
         public:
+            ControllerFacade();
+            ~ControllerFacade();
+            
+            Notifier1<Controller::Command::Ptr> commandDoneNotifier;
+            Notifier1<Controller::Command::Ptr> commandUndoneNotifier;
+            
             void setDocument(MapDocumentPtr document);
             
-            void addCommandListener(Controller::CommandListener::Ptr listener);
-            void removeCommandListener(Controller::CommandListener::Ptr listener);
-
             bool hasLastCommand() const;
             bool hasNextCommand() const;
             const String& lastCommandName() const;
@@ -99,6 +103,9 @@ namespace TrenchBroom {
             bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);
             bool setFaceXScale(const Model::BrushFaceList& faces, const float xScale);
             bool setFaceYScale(const Model::BrushFaceList& faces, const float yScale);
+        private:
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
         };
     }
 }

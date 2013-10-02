@@ -23,13 +23,6 @@
 #include "Preferences.h"
 #include "CastIterator.h"
 #include "FilterIterator.h"
-#include "Controller/AddRemoveObjectsCommand.h"
-#include "Controller/EntityPropertyCommand.h"
-#include "Controller/FaceAttributeCommand.h"
-#include "Controller/NewDocumentCommand.h"
-#include "Controller/OpenDocumentCommand.h"
-#include "Controller/ResizeBrushesCommand.h"
-#include "Controller/SelectionCommand.h"
 #include "GL/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
@@ -103,47 +96,31 @@ namespace TrenchBroom {
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_document->filter())),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_document->filter())),
         m_unselectedEntityRenderer(m_fontManager, m_document->filter()),
-        m_selectedEntityRenderer(m_fontManager, m_document->filter()) {}
+        m_selectedEntityRenderer(m_fontManager, m_document->filter()) {
+            m_document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
+            m_document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
+            m_document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
+            m_document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
+            m_document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+        }
         
+        MapRenderer::~MapRenderer() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
+            m_document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
+            m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
+            m_document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
+            m_document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+        }
+
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
             renderGeometry(context);
             renderEntities(context);
-        }
-        
-        void MapRenderer::commandDone(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == NewDocumentCommand::Type) {
-                clearState();
-                loadMap(*m_document->map());
-            } else if (command->type() == OpenDocumentCommand::Type) {
-                clearState();
-                loadMap(*m_document->map());
-            } else if (command->type() == SelectionCommand::Type) {
-                updateSelection(command);
-            } else if (command->type() == AddRemoveObjectsCommand::Type) {
-                addRemoveObjects(command);
-            } else if (command->type() == EntityPropertyCommand::Type) {
-                updateEntities(command);
-            } else if (command->type() == FaceAttributeCommand::Type) {
-                updateBrushes(command);
-            } else if (command->type() == ResizeBrushesCommand::Type) {
-                updateBrushes(command);
-            }
-        }
-        
-        void MapRenderer::commandUndone(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == SelectionCommand::Type) {
-                updateSelection(command);
-            } else if (command->type() == AddRemoveObjectsCommand::Type) {
-                addRemoveObjects(command);
-            } else if (command->type() == EntityPropertyCommand::Type) {
-                updateEntities(command);
-            } else if (command->type() == ResizeBrushesCommand::Type) {
-                updateBrushes(command);
-            }
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
@@ -175,6 +152,55 @@ namespace TrenchBroom {
                 m_selectedBrushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
                 m_selectedBrushRenderer.render(context);
             }
+        }
+
+        void MapRenderer::documentWasNewed() {
+            clearState();
+            loadMap(*m_document->map());
+        }
+        
+        void MapRenderer::documentWasLoaded() {
+            clearState();
+            loadMap(*m_document->map());
+        }
+        
+        void MapRenderer::objectWasAdded(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity)
+                m_unselectedEntityRenderer.addEntity(static_cast<Model::Entity*>(object));
+            else if (object->type() == Model::Object::OTBrush)
+                m_unselectedBrushRenderer.addBrush(static_cast<Model::Brush*>(object));
+        }
+        
+        void MapRenderer::objectWillBeRemoved(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity)
+                m_unselectedEntityRenderer.removeEntity(static_cast<Model::Entity*>(object));
+            else if (object->type() == Model::Object::OTBrush)
+                m_unselectedBrushRenderer.removeBrush(static_cast<Model::Brush*>(object));
+        }
+        
+        void MapRenderer::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity)
+                m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
+            else if (object->type() == Model::Object::OTBrush)
+                m_selectedBrushRenderer.invalidate();
+        }
+        
+        void MapRenderer::faceDidChange(Model::BrushFace* face) {
+            m_selectedBrushRenderer.invalidate();
+        }
+
+        void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
+            m_unselectedBrushRenderer.setBrushes(m_document->unselectedBrushes());
+            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
+            
+            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
+                                                      Model::entityIterator(result.selectedObjects().end()));
+            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
+                                                   Model::entityIterator(result.deselectedObjects().end()));
+            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
+                                                    Model::entityIterator(result.deselectedObjects().end()));
+            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
+                                                 Model::entityIterator(result.selectedObjects().end()));
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {
@@ -210,46 +236,6 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.addEntities(map.entities().begin(),
                                                    map.entities().end());
-        }
-
-        void MapRenderer::updateSelection(Controller::Command::Ptr command) {
-            using namespace Controller;
-            SelectionCommand::Ptr selectionCommand = Command::cast<SelectionCommand>(command);
-
-            m_unselectedBrushRenderer.setBrushes(m_document->unselectedBrushes());
-            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
-            
-            const Model::SelectionResult& result = selectionCommand->lastResult();
-            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
-                                                      Model::entityIterator(result.selectedObjects().end()));
-            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
-                                                   Model::entityIterator(result.deselectedObjects().end()));
-            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
-                                                    Model::entityIterator(result.deselectedObjects().end()));
-            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
-                                                 Model::entityIterator(result.selectedObjects().end()));
-        }
-        
-        void MapRenderer::addRemoveObjects(Controller::Command::Ptr command) {
-            using namespace Controller;
-            AddRemoveObjectsCommand::Ptr addRemoveCommand = Command::cast<AddRemoveObjectsCommand>(command);
-
-            const Model::ObjectList& addObjects = addRemoveCommand->addedObjects();
-            m_unselectedBrushRenderer.addBrushes(Model::brushIterator(addObjects.begin(), addObjects.end()),
-                                                 Model::brushIterator(addObjects.end()));
-
-            const Model::ObjectList& removedObjects = addRemoveCommand->removedObjects();
-            m_unselectedBrushRenderer.removeBrushes(Model::brushIterator(removedObjects.begin(), removedObjects.end()),
-                                                    Model::brushIterator(removedObjects.end()));
-        }
-
-        void MapRenderer::updateEntities(Controller::Command::Ptr command) {
-            m_selectedEntityRenderer.updateEntities(Model::entityIterator(command->affectedEntities().begin(), command->affectedEntities().end()),
-                                                    Model::entityIterator(command->affectedEntities().end()));
-        }
-
-        void MapRenderer::updateBrushes(Controller::Command::Ptr command) {
-            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
         }
     }
 }

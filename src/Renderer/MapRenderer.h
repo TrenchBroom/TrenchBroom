@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__MapRenderer__
 #define __TrenchBroom__MapRenderer__
 
-#include "Controller/Command.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
@@ -31,6 +30,7 @@ namespace TrenchBroom {
     namespace Model {
         class Filter;
         class Map;
+        class SelectionResult;
     }
     
     namespace Renderer {
@@ -47,21 +47,24 @@ namespace TrenchBroom {
             EntityRenderer m_selectedEntityRenderer;
         public:
             MapRenderer(View::MapDocumentPtr document, FontManager& fontManager);
+            ~MapRenderer();
             
             void render(RenderContext& context);
-
-            void commandDone(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
         private:
             void setupGL(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectWasAdded(Model::Object* object);
+            void objectWillBeRemoved(Model::Object* object);
+            void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void clearState();
             void loadMap(Model::Map& map);
-            void updateSelection(Controller::Command::Ptr command);
-            void addRemoveObjects(Controller::Command::Ptr command);
-            void updateEntities(Controller::Command::Ptr command);
-            void updateBrushes(Controller::Command::Ptr command);
         };
     }
 }

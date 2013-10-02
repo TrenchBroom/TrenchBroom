@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Notifier.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -41,6 +42,8 @@ namespace TrenchBroom {
     class Logger;
 
     namespace Model {
+        class BrushFace;
+        class Object;
         class SelectionResult;
     }
     
@@ -65,6 +68,18 @@ namespace TrenchBroom {
             
             bool m_textureLock;
             size_t m_modificationCount;
+        public:
+            Notifier0 documentWasNewedNotifier;
+            Notifier0 documentWasLoadedNotifier;
+            
+            Notifier1<Model::Object*> objectWasAddedNotifier;
+            Notifier1<Model::Object*> objectWillBeRemovedNotifier;
+            Notifier1<Model::Object*> objectWillChangeNotifier;
+            Notifier1<Model::Object*> objectDidChangeNotifier;
+            Notifier1<Model::BrushFace*> faceWillChangeNotifier;
+            Notifier1<Model::BrushFace*> faceDidChangeNotifier;
+            
+            Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
             static MapDocumentPtr newMapDocument();
             ~MapDocument();
@@ -141,6 +156,17 @@ namespace TrenchBroom {
         private:
             MapDocument();
             
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectWasAdded(Model::Object* object);
+            void objectWillBeRemoved(Model::Object* object);
+            void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void addEntity(Model::Entity* entity);
             void addBrush(Model::Brush* brush, Model::Entity* entity);
             void removeEntity(Model::Entity* entity);
@@ -149,7 +175,9 @@ namespace TrenchBroom {
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
             void updateEntityDefinitions(const Model::EntityList& entities);
+            void updateEntityDefinition(Model::Entity* entity);
             void updateEntityModels(const Model::EntityList& entities);
+            void updateEntityModel(Model::Entity* entity);
 
             void loadAndUpdateTextures();
             void loadTextures();
