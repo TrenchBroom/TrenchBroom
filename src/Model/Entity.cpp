@@ -41,6 +41,10 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_brushes);
         }
 
+        Entity* Entity::clone(const BBox3& worldBounds) const {
+            return static_cast<Entity*>(doClone(worldBounds));
+        }
+
         EntitySnapshot Entity::takeSnapshot() {
             return EntitySnapshot(*this);
         }

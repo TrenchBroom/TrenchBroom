@@ -62,6 +62,7 @@ namespace TrenchBroom {
         public:
             virtual ~Entity();
             
+            Entity* clone(const BBox3& worldBounds) const;
             EntitySnapshot takeSnapshot();
             
             BBox3 bounds() const;
@@ -107,6 +108,12 @@ namespace TrenchBroom {
             
             Quatf rotation() const {
                 return RotationPolicy::getRotation(*this);
+            }
+        private:
+            Object* doClone(const BBox3& worldBounds) const {
+                ConfigurableEntity<RotationPolicy>* entity = new ConfigurableEntity<RotationPolicy>();
+                entity->setProperties(properties());
+                return entity;
             }
         };
     }

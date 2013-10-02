@@ -66,9 +66,12 @@ namespace TrenchBroom {
                     return false;
                 if (!handleEvent(inputState))
                     return false;
+                initialPoint = getInitialPoint(inputState);
                 plane = dragPlane(inputState, initialPoint);
                 
-                startMove(inputState);
+                if (!startMove(inputState))
+                    return false;
+                
                 Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().beginUndoableGroup(getActionName(inputState));
                 return true;
             }
@@ -110,12 +113,16 @@ namespace TrenchBroom {
                 return doHandleEvent(inputState);
             }
             
+            Vec3 getInitialPoint(const InputState& inputState) const {
+                return doGetInitialPoint(inputState);
+            }
+            
             String getActionName(const InputState& inputState) const {
                 return doGetActionName(inputState);
             }
             
-            void startMove(const InputState& inputState) {
-                doStartMove(inputState);
+            bool startMove(const InputState& inputState) {
+                return doStartMove(inputState);
             }
             
             Vec3 snapDelta(const InputState& inputState, const Vec3& delta) const {
@@ -141,8 +148,9 @@ namespace TrenchBroom {
             }
             
             virtual bool doHandleEvent(const InputState& inputState) const = 0;
+            virtual Vec3 doGetInitialPoint(const InputState& inputState) const = 0;
             virtual String doGetActionName(const InputState& inputState) const = 0;
-            virtual void doStartMove(const InputState& inputState) = 0;
+            virtual bool doStartMove(const InputState& inputState) = 0;
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
             virtual MoveResult doMove(const Vec3& delta) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;

@@ -64,17 +64,7 @@ namespace TrenchBroom {
         }
 
         Brush* Brush::clone(const BBox3& worldBounds) const {
-            BrushFaceList newFaces;
-            newFaces.reserve(m_faces.size());
-            
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                const BrushFace* face = *it;
-                BrushFace* newFace = face->clone();
-                newFaces.push_back(newFace);
-            }
-            
-            return new Brush(worldBounds, newFaces);
+            return static_cast<Brush*>(doClone(worldBounds));
         }
 
         BrushSnapshot Brush::takeSnapshot() {
@@ -220,6 +210,20 @@ namespace TrenchBroom {
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, invertFaceOrientation), MatchAll());
             rebuildGeometry(worldBounds, m_faces);
+        }
+
+        Object* Brush::doClone(const BBox3& worldBounds) const {
+            BrushFaceList newFaces;
+            newFaces.reserve(m_faces.size());
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                const BrushFace* face = *it;
+                BrushFace* newFace = face->clone();
+                newFaces.push_back(newFace);
+            }
+            
+            return new Brush(worldBounds, newFaces);
         }
 
         void Brush::restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces) {

@@ -92,6 +92,7 @@ namespace TrenchBroom {
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
+            Object* doClone(const BBox3& worldBounds) const;
         private:
             friend class BrushSnapshot;
             void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);

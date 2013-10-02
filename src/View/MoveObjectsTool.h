@@ -31,15 +31,19 @@ namespace TrenchBroom {
         class MovementRestriction;
         
         class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoRenderPolicy> {
+        private:
         public:
             MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction);
         private:
             bool doHandleEvent(const InputState& inputState) const;
+            Vec3 doGetInitialPoint(const InputState& inputState) const;
             String doGetActionName(const InputState& inputState) const;
-            void doStartMove(const InputState& inputState);
+            bool doStartMove(const InputState& inputState);
             Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
             MoveResult doMove(const Vec3& delta);
             void doEndMove(const InputState& inputState);
+            
+            bool duplicateObjects(const InputState& inputState) const;
         };
     }
 }

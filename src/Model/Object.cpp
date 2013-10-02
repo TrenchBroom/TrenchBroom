@@ -66,6 +66,10 @@ namespace TrenchBroom {
             --m_childSelectionCount;
         }
 
+        Object* Object::clone(const BBox3& worldBounds) const {
+            return doClone(worldBounds);
+        }
+
         void Object::transform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
             doTransform(transformation, lockTextures, invertFaceOrientation, worldBounds);
         }

@@ -19,9 +19,15 @@
 
 #include "MoveObjectsTool.h"
 
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitFilters.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -29,15 +35,36 @@ namespace TrenchBroom {
         MoveTool(next, document, controller, movementRestriction) {}
 
         bool MoveObjectsTool::doHandleEvent(const InputState& inputState) const {
-            return (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                    inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
+                return false;
+            
+            if (!document()->hasSelectedObjects())
+                return false;
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            if (!first.matches)
+                return false;
+            return true;
         }
         
+        Vec3 MoveObjectsTool::doGetInitialPoint(const InputState& inputState) const {
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            assert(first.matches);
+            return first.hit.hitPoint();
+        }
+
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {
-            return "Move";
+            return duplicateObjects(inputState) ? "Duplicate" : "Move";
         }
         
-        void MoveObjectsTool::doStartMove(const InputState& inputState) {
+        bool MoveObjectsTool::doStartMove(const InputState& inputState) {
+            if (duplicateObjects(inputState)) {
+                if (!controller().duplicateObjects(document()->selectedObjects(), document()->worldBounds()))
+                    return false;
+            }
+            return true;
         }
         
         Vec3 MoveObjectsTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
@@ -52,5 +79,9 @@ namespace TrenchBroom {
         }
         
         void MoveObjectsTool::doEndMove(const InputState& inputState) {}
+        
+        bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
+            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
     }
 }
