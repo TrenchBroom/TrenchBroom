@@ -288,14 +288,17 @@ namespace TrenchBroom {
         }
 
         void MapFrame::commandDone(Controller::Command::Ptr command) {
-            m_document->incModificationCount();
+            if (command->modifiesDocument()) {
+                m_document->incModificationCount();
+                m_autosaver->updateLastModificationTime();
+            }
             updateTitle();
         }
         
         void MapFrame::commandUndone(Controller::Command::Ptr command) {
-            m_document->decModificationCount();
+            if (command->modifiesDocument())
+                m_document->decModificationCount();
             updateTitle();
-            m_autosaver->updateLastModificationTime();
         }
 
         void MapFrame::createGui() {
