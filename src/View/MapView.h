@@ -140,6 +140,7 @@ namespace TrenchBroom {
             void setRenderOptions(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
+            void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);
             void renderTools(Renderer::RenderContext& context);
             void renderCompass(Renderer::RenderContext& context);

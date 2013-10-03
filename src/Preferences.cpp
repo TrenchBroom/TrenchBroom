@@ -35,7 +35,7 @@ namespace TrenchBroom {
         Preference<String> Hexen2Path("Hexen2 Path", "");
 #endif
 
-        Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.0f, 0.0f, 0.0f, 1.0f));
+        Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.25f, 0.25f, 0.25f, 1.0f));
         Preference<float> AxisLength("Renderer/Axis length", 128.0f);
         Preference<Color> XAxisColor("Renderer/Colors/X axis", Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> YAxisColor("Renderer/Colors/Y axis", Color(0.0f, 1.0f, 0.0f, 1.0f));

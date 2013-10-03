@@ -252,9 +252,9 @@ namespace TrenchBroom {
                     setupGL(context);
                     setRenderOptions(context);
                     clearBackground(context);
-                    renderCoordinateSystem(context);
                     renderMap(context);
                     renderTools(context);
+                    renderCoordinateSystem(context);
                     renderCompass(context);
                     renderFocusRect(context);
                 }
@@ -461,24 +461,31 @@ namespace TrenchBroom {
 
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const float axisLength = prefs.getFloat(Preferences::AxisLength);
-            const Color& xAxisColor = prefs.getColor(Preferences::XAxisColor);
-            const Color& yAxisColor = prefs.getColor(Preferences::YAxisColor);
-            const Color& zAxisColor = prefs.getColor(Preferences::ZAxisColor);
-            
+            const Color& xColor = prefs.getColor(Preferences::XAxisColor);
+            const Color& yColor = prefs.getColor(Preferences::YAxisColor);
+            const Color& zColor = prefs.getColor(Preferences::ZAxisColor);
+
+            Renderer::ActiveShader shader(context.shaderManager(), Renderer::Shaders::VaryingPCShader);
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.active();
+            glDisable(GL_DEPTH_TEST);
+            renderCoordinateSystem(Color(xColor, 0.3f), Color(yColor, 0.3f), Color(zColor, 0.3f));
+            glEnable(GL_DEPTH_TEST);
+            renderCoordinateSystem(xColor, yColor, zColor);
+        }
+        
+        void MapView::renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor) {
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices(6);
             
-            vertices[0] = Vertex(Vec3f(-axisLength,        0.0f,        0.0f), xAxisColor);
-            vertices[1] = Vertex(Vec3f( axisLength,        0.0f,        0.0f), xAxisColor);
-            vertices[2] = Vertex(Vec3f(       0.0f, -axisLength,        0.0f), yAxisColor);
-            vertices[3] = Vertex(Vec3f(       0.0f,  axisLength,        0.0f), yAxisColor);
-            vertices[4] = Vertex(Vec3f(       0.0f,        0.0f, -axisLength), zAxisColor);
-            vertices[5] = Vertex(Vec3f(       0.0f,        0.0f,  axisLength), zAxisColor);
+            const BBox3& wb = m_document->worldBounds();
+            vertices[0] = Vertex(Vec3f(wb.min.x(),       0.0f,       0.0f), xColor);
+            vertices[1] = Vertex(Vec3f(wb.max.x(),       0.0f,       0.0f), xColor);
+            vertices[2] = Vertex(Vec3f(      0.0f, wb.min.y(),       0.0f), yColor);
+            vertices[3] = Vertex(Vec3f(      0.0f, wb.max.y(),       0.0f), yColor);
+            vertices[4] = Vertex(Vec3f(      0.0f,       0.0f, wb.min.z()), zColor);
+            vertices[5] = Vertex(Vec3f(      0.0f,       0.0f, wb.max.z()), zColor);
             
-            Renderer::SetVboState setVboState(m_auxVbo);
-            setVboState.active();
-
             Renderer::VertexArray array(m_auxVbo, GL_LINES, vertices);
             array.render();
         }
