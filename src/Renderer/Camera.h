@@ -71,6 +71,7 @@ namespace TrenchBroom {
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
             Vec3f defaultPoint() const;
+            Vec3f defaultPoint(const int x, const int y) const;
             Vec3f defaultPoint(const Vec3f& direction) const;
             
             Vec3f project(const Vec3f& point) const;

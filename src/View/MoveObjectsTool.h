@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class InputState;
         class MovementRestriction;
         
-        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoRenderPolicy> {
+        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, RenderPolicy> {
         private:
             bool m_duplicateObjects;
         public:
@@ -44,6 +44,8 @@ namespace TrenchBroom {
             MoveResult doMove(const Vec3& delta);
             void doEndMove(const InputState& inputState);
             
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+
             bool duplicateObjects(const InputState& inputState) const;
         };
     }

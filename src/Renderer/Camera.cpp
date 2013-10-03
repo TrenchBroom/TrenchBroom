@@ -156,6 +156,11 @@ namespace TrenchBroom {
             return defaultPoint(m_direction);
         }
         
+        Vec3f Camera::defaultPoint(const int x, const int y) const {
+            const Vec3f point = unproject(static_cast<float>(x), static_cast<float>(y), 0.5f);
+            return defaultPoint((point - m_position).normalized());
+        }
+
         Vec3f Camera::defaultPoint(const Vec3f& direction) const {
             return m_position + 256.0f*direction;
         }

@@ -67,6 +67,9 @@ namespace TrenchBroom {
         
         extern Preference<Color> ResizeHandleColor;
         
+        extern Preference<Color> MoveIndicatorOutlineColor;
+        extern Preference<Color> MoveIndicatorFillColor;
+        
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
         extern Preference<bool> GridCheckerboard;

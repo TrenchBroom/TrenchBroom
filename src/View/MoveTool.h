@@ -25,6 +25,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
+#include "Renderer/Camera.h"
+#include "Renderer/MoveIndicatorRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
@@ -46,18 +48,30 @@ namespace TrenchBroom {
                 Continue
             } MoveResult;
         private:
+            typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType> Super;
             MovementRestriction& m_movementRestriction;
         public:
             MoveTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction) :
             Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>(next, document, controller),
             m_movementRestriction(movementRestriction) {}
+        protected:
+            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
+                if (!Super::dragging() && !handleEvent(inputState))
+                    return;
+                
+                const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
+                const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
+
+                Renderer::MoveIndicatorRenderer indicatorRenderer;
+                indicatorRenderer.render(renderContext, position, direction);
+            }
         private:
             void doModifierKeyChange(const InputState& inputState) {
                 if (!handleEvent(inputState))
                     return;
                 
                 m_movementRestriction.setVerticalRestriction(inputState.modifierKeysPressed(ModifierKeys::MKAlt));
-                if (Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::dragging())
+                if (Super::dragging())
                     PlaneDragPolicy::resetPlane(inputState);
             }
 
@@ -72,7 +86,7 @@ namespace TrenchBroom {
                 if (!startMove(inputState))
                     return false;
                 
-                Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().beginUndoableGroup(getActionName(inputState));
+                Super::controller().beginUndoableGroup(getActionName(inputState));
                 return true;
             }
             
@@ -90,12 +104,12 @@ namespace TrenchBroom {
             }
             
             void doEndPlaneDrag(const InputState& inputState) {
-                Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().closeGroup();
+                Super::controller().closeGroup();
             }
             
             void doCancelPlaneDrag(const InputState& inputState) {
-                Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().rollbackGroup();
-                Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>::controller().closeGroup();
+                Super::controller().rollbackGroup();
+                Super::controller().closeGroup();
             }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
@@ -104,9 +118,6 @@ namespace TrenchBroom {
                     return;
                 initialPoint = inputState.pickRay().pointAtDistance(distance);
                 plane = dragPlane(inputState, initialPoint);
-            }
-            
-            void renderMoveIndicator(const Renderer::RenderContext& renderContext) {
             }
 
             bool handleEvent(const InputState& inputState) const {
@@ -145,6 +156,16 @@ namespace TrenchBroom {
                     return Plane3(initialPoint, planeNorm);
                 }
                 return horizontalDragPlane(initialPoint);
+            }
+            
+            Renderer::MoveIndicatorRenderer::Direction getDirection() const {
+                if (m_movementRestriction.isRestricted(Math::Axis::AZ))
+                    return Renderer::MoveIndicatorRenderer::Vertical;
+                if (m_movementRestriction.isRestricted(Math::Axis::AX))
+                    return Renderer::MoveIndicatorRenderer::HorizontalX;
+                if (m_movementRestriction.isRestricted(Math::Axis::AY))
+                    return Renderer::MoveIndicatorRenderer::HorizontalY;
+                return Renderer::MoveIndicatorRenderer::HorizontalXY;
             }
             
             virtual bool doHandleEvent(const InputState& inputState) const = 0;

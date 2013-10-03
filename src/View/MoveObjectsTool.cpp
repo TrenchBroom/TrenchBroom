@@ -87,6 +87,10 @@ namespace TrenchBroom {
         
         void MoveObjectsTool::doEndMove(const InputState& inputState) {}
         
+        void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            renderMoveIndicator(inputState, renderContext);
+        }
+
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
