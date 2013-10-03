@@ -330,6 +330,14 @@ namespace TrenchBroom {
             if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
                 std::swap(m_points[1], m_points[2]);
             correctPoints();
+            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            invalidateVertexCache();
+        }
+
+        void BrushFace::invert() {
+            m_boundary.flip();
+            std::swap(m_points[1], m_points[2]);
+            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
             invalidateVertexCache();
         }
 

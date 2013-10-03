@@ -19,6 +19,7 @@
 
 #include "ControllerFacade.h"
 
+#include "CollectionUtils.h"
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"

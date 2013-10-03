@@ -159,6 +159,7 @@ namespace TrenchBroom {
             void setAttributes(const BrushFace& other);
 
             void transform(const Mat4x4& transform, const bool lockTexture);
+            void invert();
             
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;

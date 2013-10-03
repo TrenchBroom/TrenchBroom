@@ -75,6 +75,10 @@ public:
         return normal * distance;
     }
     
+    bool operator==(const Plane<T,S>& other) const {
+        return distance == other.distance && normal == other.normal;
+    }
+    
     T intersectWithRay(const Ray<T,S>& ray) const {
         return ray.intersectWithPlane(normal, anchor());
     }
@@ -126,7 +130,17 @@ public:
     bool equals(const Plane<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
         return Math::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
     }
-            
+    
+    Plane<T,S>& flip() {
+        normal = -normal;
+        distance = -distance;
+        return *this;
+    }
+    
+    Plane<T,S> flipped() {
+        return Plane<T,S>(*this).flip();
+    }
+    
     Plane<T,S>& transform(const Mat<T,S+1,S+1>& transform) {
         const Vec<T,3> oldAnchor = anchor();
         normal = stripTranslation(transform) * normal;

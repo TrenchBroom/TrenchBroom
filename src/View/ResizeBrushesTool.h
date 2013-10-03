@@ -37,6 +37,7 @@ namespace TrenchBroom {
             Model::BrushFaceList m_dragFaces;
             Vec3 m_totalDelta;
             Vec3 m_dragOrigin;
+            bool m_splitBrushes;
         public:
             static const Model::Hit::HitType ResizeHit;
             ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
@@ -54,10 +55,17 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             bool applies(const InputState& inputState) const;
+            bool splitBrushes(const InputState& inputState) const;
+            
             void pickNearFaceHit(const InputState& inputState, Model::PickResult& pickResult) const;
+            
             void updateDragFaces(const InputState& inputState);
             Model::BrushFaceList collectDragFaces(Model::BrushFace& dragFace) const;
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
+            
+            bool splitBrushes(const Vec3& delta);
+            Model::BrushFaceList findMatchingFaces(const Model::BrushList& brushes, const Model::BrushFaceList& faces) const;
+            Model::BrushFace* findMatchingFace(const Model::Brush& brush, const Model::BrushFace& face) const;
         };
     }
 }

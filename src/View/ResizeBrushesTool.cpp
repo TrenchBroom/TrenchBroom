@@ -19,6 +19,7 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -28,6 +29,7 @@
 #include "Model/BrushFacesIterator.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/FaceEdgesIterator.h"
+#include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
@@ -82,6 +84,7 @@ namespace TrenchBroom {
             m_dragOrigin = first.hit.hitPoint();
             m_totalDelta = Vec3::Null;
             updateDragFaces(inputState);
+            m_splitBrushes = splitBrushes(inputState);
             
             controller().beginUndoableGroup(document()->selectedBrushes().size() == 1 ? "Resize Brush" : "Resize Brushes");
             return true;
@@ -114,10 +117,19 @@ namespace TrenchBroom {
             if (faceDelta.null())
                 return true;
             
-            if (controller().resizeBrushes(m_dragFaces, faceDelta, document()->textureLock())) {
-                m_totalDelta += faceDelta;
-                m_dragOrigin += faceDelta;
+            if (m_splitBrushes) {
+                if (splitBrushes(faceDelta)) {
+                    m_totalDelta += faceDelta;
+                    m_dragOrigin += faceDelta;
+                    m_splitBrushes = false;
+                }
+            } else {
+                if (controller().resizeBrushes(m_dragFaces, faceDelta, document()->textureLock())) {
+                    m_totalDelta += faceDelta;
+                    m_dragOrigin += faceDelta;
+                }
             }
+            
             return true;
         }
         
@@ -147,8 +159,14 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
 
+        bool ResizeBrushesTool::splitBrushes(const InputState& inputState) const {
+            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
+
         bool ResizeBrushesTool::applies(const InputState& inputState) const {
-            return inputState.modifierKeysPressed(ModifierKeys::MKShift) && document()->hasSelectedBrushes();
+            return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+                     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
+                     document()->hasSelectedBrushes());
         }
         
         struct FindClosestFaceHit {
@@ -264,6 +282,78 @@ namespace TrenchBroom {
             Model::each(begin, end, collect, Model::MatchAll());
             
             return Renderer::EdgeRenderer(vertices);
+        }
+
+        bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
+            // first ensure that the drag can be applied at all
+            Model::BrushFaceList::const_iterator fIt, fEnd;
+            for (fIt = m_dragFaces.begin(), fEnd = m_dragFaces.end(); fIt != fEnd; ++fIt) {
+                const Model::BrushFace* face = *fIt;
+                const Model::Brush* brush = face->parent();
+                if (!brush->canMoveBoundary(document()->worldBounds(), *face, delta))
+                    return false;
+            }
+
+            Model::ObjectParentList newObjects;
+            Model::BrushFaceList newDragFaces;
+            
+            for (fIt = m_dragFaces.begin(), m_dragFaces.end(); fIt != fEnd; ++fIt) {
+                Model::BrushFace* dragFace = *fIt;
+                Model::Brush* brush = dragFace->parent();
+                
+                Model::Brush* newBrush = brush->clone(document()->worldBounds());
+                Model::BrushFace* newDragFace = findMatchingFace(*newBrush, *dragFace);
+                Model::BrushFace* clipFace = newDragFace->clone();
+                clipFace->invert();
+                
+                newBrush->moveBoundary(document()->worldBounds(), *newDragFace, delta, document()->textureLock());
+                const bool clipResult = newBrush->clip(document()->worldBounds(), clipFace);
+                assert(clipResult);
+                
+                newObjects.push_back(Model::ObjectParentPair(newBrush, brush->parent()));
+                newDragFaces.push_back(newDragFace);
+            }
+            
+            controller().deselectAll();
+            controller().addObjects(newObjects);
+            controller().selectObjects(Model::makeObjectList(newObjects));
+            
+            m_dragFaces = newDragFaces;
+            
+            return true;
+        }
+
+        Model::BrushFaceList ResizeBrushesTool::findMatchingFaces(const Model::BrushList& brushes, const Model::BrushFaceList& faces) const {
+            assert(brushes.size() == faces.size());
+            Model::BrushFaceList result;
+            result.reserve(faces.size());
+            
+            Model::BrushFaceList::const_iterator fIt, fEnd;
+            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                Model::BrushFace* face = *fIt;
+                
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    Model::Brush* brush = *bIt;
+                    Model::BrushFace* matchingFace = findMatchingFace(*brush, *face);
+                    
+                    assert(matchingFace != NULL);
+                    result.push_back(matchingFace);
+                }
+            }
+            
+            return result;
+        }
+
+        Model::BrushFace* ResizeBrushesTool::findMatchingFace(const Model::Brush& brush, const Model::BrushFace& face) const {
+            const Model::BrushFaceList& faces = brush.faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* candidate = *it;
+                if (candidate->boundary() == face.boundary())
+                    return candidate;
+            }
+            return NULL;
         }
     }
 }
