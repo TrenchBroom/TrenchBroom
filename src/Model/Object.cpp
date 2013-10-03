@@ -70,8 +70,8 @@ namespace TrenchBroom {
             return doClone(worldBounds);
         }
 
-        void Object::transform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
-            doTransform(transformation, lockTextures, invertFaceOrientation, worldBounds);
+        void Object::transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+            doTransform(transformation, lockTextures, worldBounds);
         }
 
         Object::Object(const Type type) :

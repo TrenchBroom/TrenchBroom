@@ -43,14 +43,14 @@ namespace TrenchBroom {
             
             if (!document()->hasSelectedObjects())
                 return false;
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
             if (!first.matches)
                 return false;
             return true;
         }
         
         Vec3 MoveObjectsTool::doGetInitialPoint(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
             assert(first.matches);
             return first.hit.hitPoint();
         }
@@ -60,10 +60,7 @@ namespace TrenchBroom {
         }
         
         bool MoveObjectsTool::doStartMove(const InputState& inputState) {
-            if (duplicateObjects(inputState)) {
-                if (!controller().duplicateObjects(document()->selectedObjects(), document()->worldBounds()))
-                    return false;
-            }
+            m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }
         
@@ -73,6 +70,16 @@ namespace TrenchBroom {
         }
         
         MoveObjectsTool::MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
+            if (m_duplicateObjects) {
+                const Model::ObjectList& duplicates = controller().duplicateObjects(document()->selectedObjects(), document()->worldBounds());
+                if (duplicates.empty())
+                    return Conclude;
+                
+                controller().deselectAll();
+                controller().selectObjects(duplicates);
+                m_duplicateObjects = false;
+            }
+            
             if (!controller().moveObjects(document()->selectedObjects(), delta, document()->textureLock()))
                 return Deny;
             return Continue;

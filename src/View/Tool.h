@@ -287,10 +287,10 @@ namespace TrenchBroom {
             }
             
             void cancelMouseDrag(const InputState& inputState) {
-                assert(active());
-                assert(dragging());
-                static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
-                m_dragging = false;
+                if (dragging()) {
+                    static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
+                    m_dragging = false;
+                }
             }
             
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {

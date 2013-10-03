@@ -213,17 +213,25 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds) {
-            Model::ObjectList duplicates;
+        Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds) {
+            Model::ObjectParentList duplicates;
+            Model::ObjectList result;
             
             Model::ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                const Model::Object* object = *it;
+                Model::Object* object = *it;
+                Model::Object* parent = NULL;
+                if (object->type() == Model::Object::OTBrush)
+                    parent = static_cast<Model::Brush*>(object)->parent();
+                
                 Model::Object* duplicate = object->clone(worldBounds);
-                duplicates.push_back(duplicate);
+                result.push_back(duplicate);
+                duplicates.push_back(Model::ObjectParentPair(duplicate, parent));
             }
             
-            return addObjects(duplicates);
+            if (!addObjects(duplicates))
+                VectorUtils::clearAndDelete(result);
+            return result;
         }
 
         bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {

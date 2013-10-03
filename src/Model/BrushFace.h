@@ -158,7 +158,7 @@ namespace TrenchBroom {
             void setSurfaceValue(const float surfaceValue);
             void setAttributes(const BrushFace& other);
 
-            void transform(const Mat4x4& transform, const bool lockTexture, const bool invertOrientation);
+            void transform(const Mat4x4& transform, const bool lockTexture);
             
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             m_coordSystem(textureXAxis, textureYAxis, normal, rotation) {}
         private:
             BrushFace* doClone() const {
-                ConfigurableBrushFace<TexCoordSystem>* result = new ConfigurableBrushFace<TexCoordSystem>(points()[0], points()[1], points()[2]);
+                ConfigurableBrushFace<TexCoordSystem>* result = new ConfigurableBrushFace<TexCoordSystem>(points()[0], points()[1], points()[2], textureName());
                 result->m_coordSystem = m_coordSystem;
                 return result;
             }

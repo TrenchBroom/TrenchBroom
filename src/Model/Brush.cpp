@@ -175,7 +175,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const {
             BrushFace* testFace = face.clone();
-            testFace->transform(translationMatrix(delta), false, false);
+            testFace->transform(translationMatrix(delta), false);
             
             BrushFaceList testFaces;
             testFaces.push_back(testFace);
@@ -203,12 +203,12 @@ namespace TrenchBroom {
         void Brush::moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture) {
             assert(canMoveBoundary(worldBounds, face, delta));
             
-            face.transform(translationMatrix(delta), lockTexture, false);
+            face.transform(translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds, m_faces);
         }
 
-        void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
-            each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, invertFaceOrientation), MatchAll());
+        void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+            each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds, m_faces);
         }
 
@@ -243,6 +243,11 @@ namespace TrenchBroom {
             
             m_faces.clear();
             addFaces(result.addedFaces);
+            if (m_faces.empty()) {
+                delete m_geometry;
+                m_geometry = new BrushGeometry(worldBounds);
+                BrushGeometry::AddFaceResult result = m_geometry->addFaces(faces);
+            }
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {

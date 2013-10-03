@@ -163,6 +163,7 @@ namespace TrenchBroom {
             void documentWasLoaded();
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
+            void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);

@@ -320,14 +320,14 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
-        void BrushFace::transform(const Mat4x4& transform, const bool lockTexture, const bool invertOrientation) {
+        void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             if (lockTexture)
                 compensateTransformation(transform);
             
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
-            if (invertOrientation)
+            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
                 std::swap(m_points[1], m_points[2]);
             correctPoints();
             invalidateVertexCache();

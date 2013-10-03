@@ -55,12 +55,12 @@ namespace TrenchBroom {
             void decChildSelectionCount();
             
             Object* clone(const BBox3& worldBounds) const;
-            void transform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
+            void transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
         protected:
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
         private:
-            virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) = 0;
+            virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
         };
     }
 }

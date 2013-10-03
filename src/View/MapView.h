@@ -86,6 +86,7 @@ namespace TrenchBroom {
             BaseTool* m_dragReceiver;
             BaseTool* m_modalReceiver;
             
+            bool m_cancelNextDrag;
             bool m_ignoreNextClick;
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerFacade& controller);

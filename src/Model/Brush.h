@@ -91,7 +91,7 @@ namespace TrenchBroom {
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
-            void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
+            void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             Object* doClone(const BBox3& worldBounds) const;
         private:
             friend class BrushSnapshot;

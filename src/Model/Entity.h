@@ -92,7 +92,7 @@ namespace TrenchBroom {
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
         private:
-            void doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds);
+            void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
         protected:
             Entity();
         private:

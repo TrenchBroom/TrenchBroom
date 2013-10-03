@@ -32,6 +32,7 @@ namespace TrenchBroom {
         
         class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoRenderPolicy> {
         private:
+            bool m_duplicateObjects;
         public:
             MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction);
         private:

@@ -176,7 +176,7 @@ namespace TrenchBroom {
         m_definition(NULL),
         m_model(NULL) {}
         
-        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const bool invertFaceOrientation, const BBox3& worldBounds) {
+        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
         }
     }
 }
