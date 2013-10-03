@@ -82,6 +82,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
@@ -186,6 +187,16 @@ namespace TrenchBroom {
             m_controller.redoNextCommand();
         }
 
+        void MapFrame::OnEditDeleteObjects(wxCommandEvent& event) {
+            const Model::ObjectList objects = m_document->selectedObjects();
+            assert(!objects.empty());
+            
+            m_controller.beginUndoableGroup(String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
+            m_controller.deselectAll();
+            m_controller.removeObjects(objects);
+            m_controller.closeGroup();
+        }
+
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -228,6 +239,9 @@ namespace TrenchBroom {
                         event.Enable(false);
                         event.SetText(Menu::redoShortcut().menuText());
                     }
+                    break;
+                case wxID_DELETE:
+                    event.Enable(m_document->hasSelectedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Enable(m_document->hasSelectedBrushes());
