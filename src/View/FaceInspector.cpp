@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
         void FaceInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
             using namespace Controller;
-            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand::Ptr>(command);
+            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
             if (propCmd->entityAffected(m_document->worldspawn()) &&
                 (propCmd->propertyAffected(Model::PropertyKeys::Wad) ||
                  propCmd->propertyAffected(Model::PropertyKeys::Wal)))
