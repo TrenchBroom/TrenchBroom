@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__FaceInspector__
 #define __TrenchBroom__FaceInspector__
 
+#include "Controller/Command.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -56,9 +57,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
 
-            void documentWasNewed();
-            void documentWasLoaded();
-            void objectDidChange(Model::Object* object);
+            void commandDoneOrUndone(Controller::Command::Ptr command);
+            void documentWasNewedOrLoaded();
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
         };

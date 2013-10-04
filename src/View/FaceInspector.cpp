@@ -19,6 +19,7 @@
 
 #include "FaceInspector.h"
 
+#include "Controller/EntityPropertyCommand.h"
 #include "Model/Entity.h"
 #include "Model/Object.h"
 #include "View/ControllerFacade.h"
@@ -62,37 +63,31 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &FaceInspector::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &FaceInspector::documentWasLoaded);
-            m_document->objectDidChangeNotifier.addObserver(this, &FaceInspector::objectDidChange);
+            m_controller.commandDoneNotifier.addObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.addObserver(this, &FaceInspector::documentWasNewedOrLoaded);
             m_document->faceDidChangeNotifier.addObserver(this, &FaceInspector::faceDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &FaceInspector::selectionDidChange);
         }
         
         void FaceInspector::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &FaceInspector::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &FaceInspector::documentWasLoaded);
-            m_document->objectDidChangeNotifier.removeObserver(this, &FaceInspector::objectDidChange);
+            m_controller.commandDoneNotifier.removeObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.removeObserver(this, &FaceInspector::documentWasNewedOrLoaded);
             m_document->faceDidChangeNotifier.removeObserver(this, &FaceInspector::faceDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &FaceInspector::selectionDidChange);
         }
 
-        void FaceInspector::documentWasNewed() {
+        void FaceInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
+            using namespace Controller;
+            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand::Ptr>(command);
+            if (propCmd->entityAffected(m_document->worldspawn()) &&
+                (propCmd->propertyAffected(Model::PropertyKeys::Wad) ||
+                 propCmd->propertyAffected(Model::PropertyKeys::Wal)))
+                m_textureBrowser->reload();
+        }
+
+        void FaceInspector::documentWasNewedOrLoaded() {
             m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
             m_textureBrowser->reload();
-        }
-        
-        void FaceInspector::documentWasLoaded() {
-            m_faceAttribsEditor->updateFaces(m_document->allSelectedFaces());
-            m_textureBrowser->reload();
-        }
-        
-        void FaceInspector::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
-                const Model::Entity* entity = static_cast<Model::Entity*>(object);
-                if (entity->worldspawn())
-                    m_textureBrowser->reload();
-            }
         }
 
         void FaceInspector::faceDidChange(Model::BrushFace* face) {

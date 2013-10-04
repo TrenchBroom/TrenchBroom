@@ -20,10 +20,12 @@
 #include "EntityInspector.h"
 
 #include "StringUtils.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/Object.h"
 #include "View/CommandIds.h"
+#include "View/ControllerFacade.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
@@ -132,36 +134,35 @@ namespace TrenchBroom {
         }
 
         void EntityInspector::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasLoaded);
+            m_controller.commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
             m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
         }
         
         void EntityInspector::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasLoaded);
+            m_controller.commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
             m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
         }
 
-        void EntityInspector::documentWasNewed() {
-            updatePropertyGrid();
-            updateEntityBrowser();
+        void EntityInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
+            using namespace Controller;
+            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand::Ptr>(command);
+            if (propCmd->entityAffected(m_document->worldspawn()) &&
+                propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
+                updateEntityBrowser();
         }
-        
-        void EntityInspector::documentWasLoaded() {
+
+        void EntityInspector::documentWasNewedOrLoaded() {
             updatePropertyGrid();
             updateEntityBrowser();
         }
         
         void EntityInspector::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::OTEntity)
                 updatePropertyGrid();
-                Model::Entity* entity = static_cast<Model::Entity*>(object);
-                if (entity->worldspawn())
-                    updateEntityBrowser();
-            }
         }
         
         void EntityInspector::selectionDidChange(const Model::SelectionResult& result) {
