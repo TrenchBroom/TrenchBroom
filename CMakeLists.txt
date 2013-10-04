@@ -75,19 +75,19 @@ ENDIF()
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 
 # Configure freeimage library
-IF(MSVC)
-	  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/win32/FreeImage.lib")
-		FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
-ELSE()
+IF(APPLE)
+	# We want to link freeimage statically and not dynamically on OS X
 	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h
+		${CMAKE_LIBRARY_PATH}
 		/usr/include
 		/usr/local/include
 		/sw/include
 		/opt/local/include
 		DOC "The directory where FreeImage.h resides")
-	FIND_LIBRARY(FREEIMAGE_LIBRARIES
+	FIND_LIBRARY(FREEIMAGE_LIBRARY
 		NAMES FreeImage.a freeimage.a libfreeimage.a
 		PATHS
+   		${CMAKE_LIBRARY_PATH}
 		/usr/lib64
 		/usr/lib
 		/usr/local/lib64
@@ -95,6 +95,12 @@ ELSE()
 		/sw/lib
 		/opt/local/lib
 		DOC "The FreeImage library")
+	SET(FREEIMAGE_LIBRARIES ${FREEIMAGE_LIBRARY})
+ELSEIF(MSVC)
+  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/win32/FreeImage.lib")
+	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
+ELSE()
+	INCLUDE(FindFreeImage.cmake)	
 ENDIF()
 INCLUDE_DIRECTORIES(${FREEIMAGE_INCLUDE_DIRS})
 
