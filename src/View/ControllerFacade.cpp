@@ -36,7 +36,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        ControllerFacade::ControllerFacade() {
+        ControllerFacade::ControllerFacade(MapDocumentPtr document) :
+        m_document(document) {
             m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
             m_commandProcessor.commandUndoneNotifier.addObserver(this, &ControllerFacade::commandUndone);
         }
@@ -44,12 +45,6 @@ namespace TrenchBroom {
         ControllerFacade::~ControllerFacade() {
             m_commandProcessor.commandDoneNotifier.removeObserver(this, &ControllerFacade::commandDone);
             m_commandProcessor.commandUndoneNotifier.removeObserver(this, &ControllerFacade::commandUndone);
-        }
-
-        void ControllerFacade::setDocument(MapDocumentPtr document) {
-            assert(m_document == NULL);
-            assert(document != NULL);
-            m_document = document;
         }
 
         bool ControllerFacade::hasLastCommand() const {

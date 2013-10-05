@@ -43,7 +43,7 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
             ViewInspector* m_viewInspector;
         public:
-            Inspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
+            Inspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
         };
     }
 }

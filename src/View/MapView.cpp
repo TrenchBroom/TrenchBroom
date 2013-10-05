@@ -43,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerFacade& controller) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerPtr controller) :
         wxGLCanvas(parent, wxID_ANY, &attribs().front()),
         m_logger(logger),
         m_initialized(false),
@@ -129,6 +129,7 @@ namespace TrenchBroom {
 
         void MapView::OnKey(wxKeyEvent& event) {
             if (updateModifierKeys()) {
+                m_movementRestriction.setVerticalRestriction(m_inputState.modifierKeysPressed(ModifierKeys::MKAlt));
                 updatePickResults(event.GetX(), event.GetY());
                 m_toolChain->modifierKeyChange(m_inputState);
             }

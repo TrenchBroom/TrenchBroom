@@ -95,8 +95,8 @@ namespace TrenchBroom {
         m_fontManager(fontManager),
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_document->filter())),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_document->filter())),
-        m_unselectedEntityRenderer(m_fontManager, m_document->filter()),
-        m_selectedEntityRenderer(m_fontManager, m_document->filter()) {
+        m_unselectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()),
+        m_selectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()) {
             m_document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
             m_document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
             m_document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);

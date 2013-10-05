@@ -162,7 +162,7 @@ namespace TrenchBroom {
                     const Vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
                     const Mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
-                    modelRenderer = model->buildRenderer(m_vbo, spec.skinIndex, spec.frameIndex);
+                    modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = static_cast<BBox3f>(definition->bounds());
                     const Vec3f center = rotatedBounds.center();
@@ -189,9 +189,6 @@ namespace TrenchBroom {
             const Mat4x4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
             const Mat4x4f view = viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.active();
             
             renderBounds(layout, y, height);
             renderModels(layout, y, height, transformation);
@@ -241,6 +238,9 @@ namespace TrenchBroom {
                 }
             }
             
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.active();
+
             Renderer::VertexArray vertexArray(m_vbo, GL_LINES, vertices);
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::VaryingPCShader);
             vertexArray.render();
@@ -255,29 +255,8 @@ namespace TrenchBroom {
             shader.set("GrayScale", false);
             
             glFrontFace(GL_CW);
+            m_entityModelManager.activateVbo();
 
-            { // prepare all renderers
-                Renderer::SetVboState mapVbo(m_vbo);
-                mapVbo.mapped();
-                for (size_t i = 0; i < layout.size(); ++i) {
-                    const Layout::Group& group = layout[i];
-                    if (group.intersectsY(y, height)) {
-                        for (size_t j = 0; j < group.size(); ++j) {
-                            const Layout::Group::Row& row = group[j];
-                            if (row.intersectsY(y, height)) {
-                                for (size_t k = 0; k < row.size(); ++k) {
-                                    const Layout::Group::Row::Cell& cell = row[k];
-                                    Renderer::MeshRenderer* modelRenderer = cell.item().modelRenderer;
-                                    if (modelRenderer != NULL)
-                                        modelRenderer->prepare();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // now render them
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -298,10 +277,15 @@ namespace TrenchBroom {
                     }
                 }
             }
+
+            m_entityModelManager.deactivateVbo();
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
             Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.active();
             
             glDisable(GL_DEPTH_TEST);
             glFrontFace(GL_CCW);

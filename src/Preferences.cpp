@@ -37,9 +37,9 @@ namespace TrenchBroom {
 
         Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.25f, 0.25f, 0.25f, 1.0f));
         Preference<float> AxisLength("Renderer/Axis length", 128.0f);
-        Preference<Color> XAxisColor("Renderer/Colors/X axis", Color(1.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> YAxisColor("Renderer/Colors/Y axis", Color(0.0f, 1.0f, 0.0f, 1.0f));
-        Preference<Color> ZAxisColor("Renderer/Colors/Z axis", Color(0.0f, 0.0f, 1.0f, 1.0f));
+        Preference<Color> XAxisColor("Renderer/Colors/X axis", Color(0xFF, 0x3D, 0x00));
+        Preference<Color> YAxisColor("Renderer/Colors/Y axis", Color(0x4B, 0x95, 0x00));
+        Preference<Color> ZAxisColor("Renderer/Colors/Z axis", Color(0x10, 0x9C, 0xFF));
 
         Preference<Color> CompassBackgroundColor("Renderer/Colors/Compass background", Color(0.5f, 0.5f, 0.5f, 0.5f));
         Preference<Color> CompassBackgroundOutlineColor("Renderer/Colors/Compass background outline", Color(1.0f, 1.0f, 1.0f, 0.5f));

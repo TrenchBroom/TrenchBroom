@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SelectionTool::SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+        SelectionTool::SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
         Tool(next, document, controller) {}
 
         bool SelectionTool::doMouseUp(const InputState& inputState) {
@@ -48,15 +48,15 @@ namespace TrenchBroom {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
                         if (face->selected()) {
-                            controller().deselectFace(face);
+                            controller()->deselectFace(face);
                         } else {
-                            controller().selectFace(face);
+                            controller()->selectFace(face);
                         }
                     } else {
-                        controller().deselectAllAndSelectFace(face);
+                        controller()->deselectAllAndSelectFace(face);
                     }
                 } else {
-                    controller().deselectAll();
+                    controller()->deselectAll();
                 }
             } else {
                 const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
@@ -64,15 +64,15 @@ namespace TrenchBroom {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {
                         if (object->selected()) {
-                            controller().deselectObject(object);
+                            controller()->deselectObject(object);
                         } else {
-                            controller().selectObject(object);
+                            controller()->selectObject(object);
                         }
                     } else {
-                        controller().deselectAllAndSelectObject(object);
+                        controller()->deselectAllAndSelectObject(object);
                     }
                 } else {
-                    controller().deselectAll();
+                    controller()->deselectAll();
                 }
             }
             

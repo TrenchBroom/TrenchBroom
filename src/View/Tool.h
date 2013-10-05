@@ -176,11 +176,11 @@ namespace TrenchBroom {
         private:
             BaseTool* m_next;
             MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             bool m_dragging;
             bool m_active;
         public:
-            Tool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+            Tool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
             m_next(next),
             m_document(document),
             m_controller(controller),
@@ -317,11 +317,11 @@ namespace TrenchBroom {
                 return m_document;
             }
             
-            ControllerFacade& controller() {
+            ControllerPtr controller() {
                 return m_controller;
             }
             
-            const ControllerFacade& controller() const {
+            const ControllerPtr controller() const {
                 return m_controller;
             }
             

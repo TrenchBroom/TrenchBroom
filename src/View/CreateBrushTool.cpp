@@ -42,7 +42,7 @@ namespace TrenchBroom {
             bool operator()(const Model::BrushEdge* edge) const { return true; }
         };
         
-        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
         Tool(next, document, controller),
         m_brushRenderer(RendererFilter()),
         m_brush(NULL) {}
@@ -165,11 +165,11 @@ namespace TrenchBroom {
             Model::ObjectList objects;
             objects.push_back(brush);
             
-            controller().beginUndoableGroup("Create Brush");
-            controller().deselectAll();
-            controller().addObjects(objects);
-            controller().selectObjects(objects);
-            controller().closeGroup();
+            controller()->beginUndoableGroup("Create Brush");
+            controller()->deselectAll();
+            controller()->addObjects(objects);
+            controller()->selectObjects(objects);
+            controller()->closeGroup();
         }
     }
 }

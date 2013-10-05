@@ -60,7 +60,7 @@ namespace TrenchBroom {
             m_multi = false;
         }
 
-        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, ControllerFacade& controller) :
+        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller) :
         m_document(document),
         m_controller(controller),
         m_ignoreUpdates(false),
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 
                 m_entries[rowIndex].key = newKey;
                 
-                if (!m_controller.renameEntityProperty(entities, oldKey, newKey)) {
+                if (!m_controller->renameEntityProperty(entities, oldKey, newKey)) {
                     m_entries[rowIndex] = oldEntry;
                 } else {
                     const Model::Entity& entity = *entities.front();
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 m_entries[rowIndex].value = newValue;
                 m_entries[rowIndex].reset();
                 
-                if (!m_controller.setEntityProperty(entities, key, newValue))
+                if (!m_controller->setEntityProperty(entities, key, newValue))
                     m_entries[rowIndex] = oldEntry;
             }
             m_ignoreUpdates = false;
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             assert(keys.size() == numRows);
             
             m_ignoreUpdates = true;
-            m_controller.beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
+            m_controller->beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
             
             EntryList::iterator entryIt = m_entries.begin();
             std::advance(entryIt, pos);
@@ -168,10 +168,10 @@ namespace TrenchBroom {
                 entryIt->reset();
                 std::advance(entryIt, 1);
                 
-                m_controller.setEntityProperty(entities, keys[i], "");
+                m_controller->setEntityProperty(entities, keys[i], "");
             }
             
-            m_controller.closeGroup();
+            m_controller->closeGroup();
             m_ignoreUpdates = false;
             
             notifyRowsInserted(pos, numRows);
@@ -189,21 +189,21 @@ namespace TrenchBroom {
             assert(!entities.empty());
             
             m_ignoreUpdates = true;
-            m_controller.beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
+            m_controller->beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
             
             bool success = true;
             for (size_t i = pos; i < pos + numRows && success; i++) {
                 const Entry& entry = m_entries[i];
-                success = m_controller.removeEntityProperty(entities, entry.key);
+                success = m_controller->removeEntityProperty(entities, entry.key);
             }
             
             if (!success) {
-                m_controller.rollbackGroup();
+                m_controller->rollbackGroup();
                 m_ignoreUpdates = false;
                 return false;
             }
             m_ignoreUpdates = false;
-            m_controller.closeGroup();
+            m_controller->closeGroup();
             
             EntryList::iterator first, last;
             std::advance(first = m_entries.begin(), pos);

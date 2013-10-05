@@ -31,6 +31,10 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelManager;
+    }
+    
     namespace Model {
         class Filter;
     }
@@ -91,7 +95,7 @@ namespace TrenchBroom {
             bool m_applyTinting;
             Color m_tintColor;
         public:
-            EntityRenderer(FontManager& m_fontManager, const Model::ModelFilter& filter);
+            EntityRenderer(Assets::EntityModelManager& entityModelManager, FontManager& m_fontManager, const Model::ModelFilter& filter);
             ~EntityRenderer();
 
             void addEntity(Model::Entity* entity);

@@ -175,6 +175,7 @@ namespace TrenchBroom {
             
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
+            void clearEntityModels();
             void updateEntityDefinitions(const Model::EntityList& entities);
             void updateEntityDefinition(Model::Entity* entity);
             void updateEntityModels(const Model::EntityList& entities);

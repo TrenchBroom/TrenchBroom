@@ -25,6 +25,8 @@
 namespace TrenchBroom {
     namespace View {
         class ControllerFacade;
+        typedef std::tr1::shared_ptr<ControllerFacade> ControllerPtr;
+        
         class MapDocument;
         typedef std::tr1::shared_ptr<MapDocument> MapDocumentPtr;
     }

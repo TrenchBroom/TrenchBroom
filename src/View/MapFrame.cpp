@@ -67,8 +67,8 @@ namespace TrenchBroom {
         void MapFrame::Create(FrameManager* frameManager, MapDocumentPtr document) {
             m_frameManager = frameManager;
             m_document = document;
+            m_controller = ControllerPtr(new ControllerFacade(m_document));
             m_autosaver = new Autosaver(m_document);
-            m_controller.setDocument(m_document);
             
             createGui();
             createMenuBar(false);
@@ -150,13 +150,13 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::GamePtr game) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.newDocument(MapDocument::DefaultWorldBounds, game);
+            return m_controller->newDocument(MapDocument::DefaultWorldBounds, game);
         }
         
         bool MapFrame::openDocument(Model::GamePtr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller.openDocument(MapDocument::DefaultWorldBounds, game, path);
+            return m_controller->openDocument(MapDocument::DefaultWorldBounds, game, path);
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
@@ -180,21 +180,21 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
-            m_controller.undoLastCommand();
+            m_controller->undoLastCommand();
         }
         
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
-            m_controller.redoNextCommand();
+            m_controller->redoNextCommand();
         }
 
         void MapFrame::OnEditDeleteObjects(wxCommandEvent& event) {
             const Model::ObjectList objects = m_document->selectedObjects();
             assert(!objects.empty());
             
-            m_controller.beginUndoableGroup(String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
-            m_controller.deselectAll();
-            m_controller.removeObjects(objects);
-            m_controller.closeGroup();
+            m_controller->beginUndoableGroup(String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
+            m_controller->deselectAll();
+            m_controller->removeObjects(objects);
+            m_controller->closeGroup();
         }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
@@ -223,18 +223,18 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case wxID_UNDO:
-                    if (m_controller.hasLastCommand()) {
+                    if (m_controller->hasLastCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::undoShortcut().menuText(m_controller.lastCommandName()));
+                        event.SetText(Menu::undoShortcut().menuText(m_controller->lastCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(Menu::undoShortcut().menuText());
                     }
                     break;
                 case wxID_REDO:
-                    if (m_controller.hasNextCommand()) {
+                    if (m_controller->hasNextCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::redoShortcut().menuText(m_controller.nextCommandName()));
+                        event.SetText(Menu::redoShortcut().menuText(m_controller->nextCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(Menu::redoShortcut().menuText());
@@ -287,14 +287,14 @@ namespace TrenchBroom {
 
         void MapFrame::bindObservers() {
             m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
-            m_controller.commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
-            m_controller.commandUndoneNotifier.addObserver(this, &MapFrame::commandUndone);
+            m_controller->commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
+            m_controller->commandUndoneNotifier.addObserver(this, &MapFrame::commandUndone);
         }
         
         void MapFrame::unbindObservers() {
             m_document->selectionDidChangeNotifier.removeObserver(this, &MapFrame::selectionDidChange);
-            m_controller.commandDoneNotifier.removeObserver(this, &MapFrame::commandDone);
-            m_controller.commandUndoneNotifier.removeObserver(this, &MapFrame::commandUndone);
+            m_controller->commandDoneNotifier.removeObserver(this, &MapFrame::commandDone);
+            m_controller->commandUndoneNotifier.removeObserver(this, &MapFrame::commandUndone);
         }
         
         void MapFrame::selectionDidChange(const Model::SelectionResult& result) {

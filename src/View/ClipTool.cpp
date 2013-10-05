@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::HandleHit = Model::Hit::freeHitType();
 
-        ClipTool::ClipTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, const Renderer::Camera& camera) :
+        ClipTool::ClipTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, const Renderer::Camera& camera) :
         Tool(next, document, controller),
         m_clipper(camera),
         m_renderer(m_clipper) {}
@@ -58,26 +58,26 @@ namespace TrenchBroom {
             // need to make a copy here so that it is not affected by the deselection
             const Model::ObjectList objects = document()->selectedObjects();
             
-            controller().beginUndoableGroup(objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
-            controller().deselectAll();
-            controller().removeObjects(objects);
+            controller()->beginUndoableGroup(objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
+            controller()->deselectAll();
+            controller()->removeObjects(objects);
             if (!m_frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
                 const Model::ObjectParentList frontBrushes = Model::makeObjectParentList(m_frontBrushes);
-                controller().addObjects(frontBrushes);
-                controller().selectObjects(makeObjectList(frontBrushes));
+                controller()->addObjects(frontBrushes);
+                controller()->selectObjects(makeObjectList(frontBrushes));
                 m_frontBrushes.clear();
             } else {
                 clearAndDelete(m_frontBrushes);
             }
             if (!m_backBrushes.empty() && m_clipper.keepBackBrushes()) {
                 const Model::ObjectParentList backBrushes = Model::makeObjectParentList(m_backBrushes);
-                controller().addObjects(backBrushes);
-                controller().selectObjects(makeObjectList(backBrushes));
+                controller()->addObjects(backBrushes);
+                controller()->selectObjects(makeObjectList(backBrushes));
                 m_backBrushes.clear();
             } else {
                 clearAndDelete(m_backBrushes);
             }
-            controller().closeGroup();
+            controller()->closeGroup();
             
             m_clipper.reset();
             updateBrushes();

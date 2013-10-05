@@ -27,6 +27,7 @@ public:
     Color();
     Color(const float r, const float g, const float b, const float a);
     Color(const Color& color, const float a);
+    Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a = 0xFF);
     Color(const std::string& str);
     
     float r() const;

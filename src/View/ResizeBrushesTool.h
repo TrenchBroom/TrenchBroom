@@ -40,7 +40,7 @@ namespace TrenchBroom {
             bool m_splitBrushes;
         public:
             static const Model::Hit::HitType ResizeHit;
-            ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller);
+            ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
 

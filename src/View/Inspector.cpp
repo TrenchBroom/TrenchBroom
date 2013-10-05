@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources) :
+        Inspector::Inspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
             m_entityInspector = new EntityInspector(m_notebook, document, controller, resources);

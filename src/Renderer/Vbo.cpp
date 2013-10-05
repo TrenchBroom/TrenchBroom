@@ -135,10 +135,6 @@ namespace TrenchBroom {
             return m_state > VboState::Inactive;
         }
         
-        bool Vbo::isMapped() const {
-            return m_state == VboState::Mapped;
-        }
-
         void Vbo::activate() {
             assert(!isActive());
             
@@ -160,6 +156,10 @@ namespace TrenchBroom {
             glBindBuffer(m_type, 0);
             assert(glGetError() == GL_NO_ERROR);
             m_state = VboState::Inactive;
+        }
+        
+        bool Vbo::isMapped() const {
+            return m_state == VboState::Mapped;
         }
         
         void Vbo::map() {

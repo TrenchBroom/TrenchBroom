@@ -67,7 +67,7 @@ namespace TrenchBroom {
             Color m_focusColor;
             
             View::MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             Renderer::Camera m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             bool m_cancelNextDrag;
             bool m_ignoreNextClick;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerFacade& controller);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerPtr controller);
             ~MapView();
             
             Renderer::RenderResources& renderResources();

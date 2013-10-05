@@ -51,7 +51,7 @@ namespace TrenchBroom {
             typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType> Super;
             MovementRestriction& m_movementRestriction;
         public:
-            MoveTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction) :
+            MoveTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
             Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>(next, document, controller),
             m_movementRestriction(movementRestriction) {}
         protected:
@@ -69,8 +69,6 @@ namespace TrenchBroom {
             void doModifierKeyChange(const InputState& inputState) {
                 if (!handleEvent(inputState))
                     return;
-                
-                m_movementRestriction.setVerticalRestriction(inputState.modifierKeysPressed(ModifierKeys::MKAlt));
                 if (Super::dragging())
                     PlaneDragPolicy::resetPlane(inputState);
             }
@@ -86,7 +84,7 @@ namespace TrenchBroom {
                 if (!startMove(inputState))
                     return false;
                 
-                Super::controller().beginUndoableGroup(getActionName(inputState));
+                Super::controller()->beginUndoableGroup(getActionName(inputState));
                 return true;
             }
             
@@ -104,12 +102,12 @@ namespace TrenchBroom {
             }
             
             void doEndPlaneDrag(const InputState& inputState) {
-                Super::controller().closeGroup();
+                Super::controller()->closeGroup();
             }
             
             void doCancelPlaneDrag(const InputState& inputState) {
-                Super::controller().rollbackGroup();
-                Super::controller().closeGroup();
+                Super::controller()->rollbackGroup();
+                Super::controller()->closeGroup();
             }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {

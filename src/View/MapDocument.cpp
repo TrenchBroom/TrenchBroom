@@ -601,6 +601,7 @@ namespace TrenchBroom {
         
         void MapDocument::loadAndUpdateEntityDefinitions() {
             loadEntityDefinitions();
+            clearEntityModels();
             updateEntityDefinitions(m_map->entities());
             updateEntityModels(m_map->entities());
         }
@@ -611,6 +612,10 @@ namespace TrenchBroom {
             info("Loaded entity definition file " + path.asString());
         }
         
+        void MapDocument::clearEntityModels() {
+            m_entityModelManager.clear();
+        }
+
         void MapDocument::updateEntityDefinitions(const Model::EntityList& entities) {
             Model::each(entities.begin(),
                         entities.end(),

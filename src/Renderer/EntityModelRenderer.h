@@ -23,12 +23,15 @@
 #include "Color.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/ModelTypes.h"
-#include "Renderer/Vbo.h"
 
 #include <map>
 #include <set>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelManager;
+    }
+    
     namespace Model {
         class Entity;
         class ModelFilter;
@@ -40,20 +43,16 @@ namespace TrenchBroom {
         
         class EntityModelRenderer {
         private:
-            typedef std::map<Assets::ModelSpecification, MeshRenderer*> RendererCache;
             typedef std::map<Model::Entity*, MeshRenderer*> EntityMap;
-            typedef std::set<Assets::ModelSpecification> MismatchCache;
             
+            Assets::EntityModelManager& m_entityModelManager;
             const Model::ModelFilter& m_filter;
-            Vbo::Ptr m_vbo;
-            RendererCache m_renderers;
             EntityMap m_entities;
-            MismatchCache m_mismatches;
             
             bool m_applyTinting;
             Color m_tintColor;
         public:
-            EntityModelRenderer(const Model::ModelFilter& filter);
+            EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::ModelFilter& filter);
             ~EntityModelRenderer();
             
             void addEntity(Model::Entity* entity);

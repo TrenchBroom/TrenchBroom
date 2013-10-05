@@ -17,26 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SelectionTool__
-#define __TrenchBroom__SelectionTool__
+#ifndef __TrenchBroom__RotateObjectsTool__
+#define __TrenchBroom__RotateObjectsTool__
 
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
-        class SelectionTool : public Tool<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy> {
+        class RotateObjectsTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
         public:
-            SelectionTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
+            RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
         private:
-            bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
+            bool initiallyActive() const;
+            bool doActivate(const InputState& inputState);
+            bool doDeactivate(const InputState& inputState);
+            
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+
+            void doMouseMove(const InputState& inputState);
+            
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
+            
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SelectionTool__) */
+#endif /* defined(__TrenchBroom__RotateObjectsTool__) */

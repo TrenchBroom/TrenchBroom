@@ -54,8 +54,8 @@ namespace TrenchBroom {
             static const wxEventType EVT_REBUILD_MENUBAR;
         private:
             FrameManager* m_frameManager;
-            ControllerFacade m_controller;
             MapDocumentPtr m_document;
+            ControllerPtr m_controller;
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
 

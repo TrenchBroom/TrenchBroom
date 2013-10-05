@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources) :
+        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -58,31 +58,37 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
-            if (!m_controller.setFaceTexture(m_document->allSelectedFaces(), event.texture()))
+            if (!m_controller->setFaceTexture(m_document->allSelectedFaces(), event.texture()))
                 event.Veto();
         }
 
         void FaceInspector::bindObservers() {
-            m_controller.commandDoneNotifier.addObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_controller->commandDoneNotifier.addObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.addObserver(this, &FaceInspector::commandDoneOrUndone);
             m_document->documentWasNewedNotifier.addObserver(this, &FaceInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.addObserver(this, &FaceInspector::documentWasNewedOrLoaded);
             m_document->faceDidChangeNotifier.addObserver(this, &FaceInspector::faceDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &FaceInspector::selectionDidChange);
         }
         
         void FaceInspector::unbindObservers() {
-            m_controller.commandDoneNotifier.removeObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_controller->commandDoneNotifier.removeObserver(this, &FaceInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.removeObserver(this, &FaceInspector::commandDoneOrUndone);
             m_document->documentWasNewedNotifier.removeObserver(this, &FaceInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &FaceInspector::documentWasNewedOrLoaded);
             m_document->faceDidChangeNotifier.removeObserver(this, &FaceInspector::faceDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &FaceInspector::selectionDidChange);
         }
 
         void FaceInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
             using namespace Controller;
-            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
-            if (propCmd->entityAffected(m_document->worldspawn()) &&
-                (propCmd->propertyAffected(Model::PropertyKeys::Wad) ||
-                 propCmd->propertyAffected(Model::PropertyKeys::Wal)))
-                m_textureBrowser->reload();
+            if (command->type() == EntityPropertyCommand::Type) {
+                const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
+                if (propCmd->entityAffected(m_document->worldspawn()) &&
+                    (propCmd->propertyAffected(Model::PropertyKeys::Wad) ||
+                     propCmd->propertyAffected(Model::PropertyKeys::Wal)))
+                    m_textureBrowser->reload();
+            }
         }
 
         void FaceInspector::documentWasNewedOrLoaded() {

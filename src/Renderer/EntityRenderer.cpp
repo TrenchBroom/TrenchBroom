@@ -79,10 +79,10 @@ namespace TrenchBroom {
             return m_backgroundColor;
         }
 
-        EntityRenderer::EntityRenderer(FontManager& fontManager, const Model::ModelFilter& filter) :
+        EntityRenderer::EntityRenderer(Assets::EntityModelManager& entityModelManager, FontManager& fontManager, const Model::ModelFilter& filter) :
         m_filter(filter),
         m_classnameRenderer(ClassnameRenderer(font(fontManager))),
-        m_modelRenderer(m_filter),
+        m_modelRenderer(entityModelManager, m_filter),
         m_boundsValid(false),
         m_overrideBoundsColor(false),
         m_renderOccludedBounds(false),

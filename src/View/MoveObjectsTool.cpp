@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsTool::MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller, MovementRestriction& movementRestriction) :
+        MoveObjectsTool::MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
         MoveTool(next, document, controller, movementRestriction) {}
 
         bool MoveObjectsTool::doHandleEvent(const InputState& inputState) const {
@@ -46,7 +46,8 @@ namespace TrenchBroom {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
             if (!first.matches)
                 return false;
-            return true;
+            const Model::Object* object = Model::hitAsObject(first.hit);
+            return object->selected();
         }
         
         Vec3 MoveObjectsTool::doGetInitialPoint(const InputState& inputState) const {
@@ -71,16 +72,16 @@ namespace TrenchBroom {
         
         MoveObjectsTool::MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
             if (m_duplicateObjects) {
-                const Model::ObjectList& duplicates = controller().duplicateObjects(document()->selectedObjects(), document()->worldBounds());
+                const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), document()->worldBounds());
                 if (duplicates.empty())
                     return Conclude;
                 
-                controller().deselectAll();
-                controller().selectObjects(duplicates);
+                controller()->deselectAll();
+                controller()->selectObjects(duplicates);
                 m_duplicateObjects = false;
             }
             
-            if (!controller().moveObjects(document()->selectedObjects(), delta, document()->textureLock()))
+            if (!controller()->moveObjects(document()->selectedObjects(), delta, document()->textureLock()))
                 return Deny;
             return Continue;
         }

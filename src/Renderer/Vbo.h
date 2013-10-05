@@ -83,15 +83,15 @@ namespace TrenchBroom {
             
             VboState::Type state() const;
             VboBlock* allocateBlock(const size_t capacity);
+
+            bool isActive() const;
+            void activate();
+            void deactivate();
         private:
             friend class SetVboState;
             friend class VboBlock;
             
-            bool isActive() const;
             bool isMapped() const;
-            
-            void activate();
-            void deactivate();
             void map();
             void unmap();
             void free();

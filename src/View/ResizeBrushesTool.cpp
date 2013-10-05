@@ -49,7 +49,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit = Model::Hit::freeHitType();
 
-        ResizeBrushesTool::ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerFacade& controller) :
+        ResizeBrushesTool::ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
         Tool(next, document, controller) {}
 
         void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             updateDragFaces(inputState);
             m_splitBrushes = splitBrushes(inputState);
             
-            controller().beginUndoableGroup(document()->selectedBrushes().size() == 1 ? "Resize Brush" : "Resize Brushes");
+            controller()->beginUndoableGroup(document()->selectedBrushes().size() == 1 ? "Resize Brush" : "Resize Brushes");
             return true;
         }
         
@@ -124,7 +124,7 @@ namespace TrenchBroom {
                     m_splitBrushes = false;
                 }
             } else {
-                if (controller().resizeBrushes(m_dragFaces, faceDelta, document()->textureLock())) {
+                if (controller()->resizeBrushes(m_dragFaces, faceDelta, document()->textureLock())) {
                     m_totalDelta += faceDelta;
                     m_dragOrigin += faceDelta;
                 }
@@ -135,14 +135,14 @@ namespace TrenchBroom {
         
         void ResizeBrushesTool::doEndMouseDrag(const InputState& inputState) {
             if (m_totalDelta.null())
-                controller().rollbackGroup();
-            controller().closeGroup();
+                controller()->rollbackGroup();
+            controller()->closeGroup();
             m_dragFaces.clear();
         }
         
         void ResizeBrushesTool::doCancelMouseDrag(const InputState& inputState) {
-            controller().rollbackGroup();
-            controller().closeGroup();
+            controller()->rollbackGroup();
+            controller()->closeGroup();
             m_dragFaces.clear();
         }
         
@@ -314,9 +314,9 @@ namespace TrenchBroom {
                 newDragFaces.push_back(newDragFace);
             }
             
-            controller().deselectAll();
-            controller().addObjects(newObjects);
-            controller().selectObjects(Model::makeObjectList(newObjects));
+            controller()->deselectAll();
+            controller()->addObjects(newObjects);
+            controller()->selectObjects(Model::makeObjectList(newObjects));
             
             m_dragFaces = newDragFaces;
             

@@ -52,13 +52,11 @@ namespace TrenchBroom {
             MapDocumentPtr m_document;
             Controller::CommandProcessor m_commandProcessor;
         public:
-            ControllerFacade();
+            ControllerFacade(MapDocumentPtr document);
             ~ControllerFacade();
             
             Notifier1<Controller::Command::Ptr> commandDoneNotifier;
             Notifier1<Controller::Command::Ptr> commandUndoneNotifier;
-            
-            void setDocument(MapDocumentPtr document);
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;

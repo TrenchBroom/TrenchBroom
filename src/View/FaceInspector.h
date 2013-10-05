@@ -44,12 +44,12 @@ namespace TrenchBroom {
         class FaceInspector : public wxPanel {
         private:
             MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
         public:
-            FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
+            FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             ~FaceInspector();
 
             void OnTextureSelected(TextureSelectedCommand& event);

@@ -20,29 +20,50 @@
 #ifndef __TrenchBroom__EntityModelManager__
 #define __TrenchBroom__EntityModelManager__
 
+#include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/Vbo.h"
 
 #include <map>
 #include <set>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class MeshRenderer;
+    }
+    
     namespace Assets {
         class EntityModel;
         
         class EntityModelManager {
         private:
-            typedef std::map<IO::Path, EntityModel*> Cache;
-            typedef std::set<IO::Path> Mismatches;
-
+            typedef std::map<IO::Path, EntityModel*> ModelCache;
+            typedef std::set<IO::Path> ModelMismatches;
+            
+            typedef std::map<Assets::ModelSpecification, Renderer::MeshRenderer*> RendererCache;
+            typedef std::set<Assets::ModelSpecification> RendererMismatches;
+            
             Model::GamePtr m_game;
-            mutable Cache m_models;
-            mutable Mismatches m_mismatches;
+            mutable Renderer::Vbo m_vbo;
+
+            mutable ModelCache m_models;
+            mutable ModelMismatches m_modelMismatches;
+            mutable RendererCache m_renderers;
+            mutable RendererMismatches m_rendererMismatches;
+            mutable bool m_prepared;
         public:
+            EntityModelManager();
             ~EntityModelManager();
+            
             void clear();
             void reset(Model::GamePtr game);
             EntityModel* model(const IO::Path& path) const;
+            Renderer::MeshRenderer* renderer(const Assets::ModelSpecification& spec) const;
+            void activateVbo();
+            void deactivateVbo();
+        private:
+            void prepareRenderers();
         };
     }
 }

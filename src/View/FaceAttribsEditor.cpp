@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerFacade& controller) :
+        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -129,27 +129,27 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller.setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
+            if (!m_controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller.setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
+            if (!m_controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
-            if (!m_controller.setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
+            if (!m_controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
-            if (!m_controller.setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
+            if (!m_controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
-            if (!m_controller.setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
+            if (!m_controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         

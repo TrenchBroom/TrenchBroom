@@ -45,7 +45,7 @@ namespace TrenchBroom {
         class EntityInspector : public wxPanel {
         private:
             MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             EntityBrowser* m_entityBrowser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources);
+            EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             ~EntityInspector();
 
             void OnPropertyGridSize(wxSizeEvent& event);

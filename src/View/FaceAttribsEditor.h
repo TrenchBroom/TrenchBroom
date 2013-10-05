@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class FaceAttribsEditor : public wxPanel {
         private:
             MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             Model::BrushFaceList m_faces;
             
             TextureView* m_textureView;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerFacade& controller);
+            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller);
 
             void updateFaces(const Model::BrushFaceList& faces);
             

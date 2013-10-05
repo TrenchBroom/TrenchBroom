@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerFacade& controller, Renderer::RenderResources& resources) :
+        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
@@ -134,25 +134,31 @@ namespace TrenchBroom {
         }
 
         void EntityInspector::bindObservers() {
-            m_controller.commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
             m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
             m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
         }
         
         void EntityInspector::unbindObservers() {
-            m_controller.commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
             m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
             m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
         }
 
         void EntityInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
             using namespace Controller;
-            const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
-            if (propCmd->entityAffected(m_document->worldspawn()) &&
-                propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
-                updateEntityBrowser();
+            if (command->type() == EntityPropertyCommand::Type) {
+                const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
+                if (propCmd->entityAffected(m_document->worldspawn()) &&
+                    propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
+                    updateEntityBrowser();
+            }
         }
 
         void EntityInspector::documentWasNewedOrLoaded() {

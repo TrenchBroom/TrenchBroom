@@ -53,12 +53,12 @@ namespace TrenchBroom {
             typedef std::vector<Entry> EntryList;
             
             MapDocumentPtr m_document;
-            ControllerFacade& m_controller;
+            ControllerPtr m_controller;
             EntryList m_entries;
             bool m_ignoreUpdates;
             wxColor m_specialCellColor;
         public:
-            EntityPropertyGridTable(MapDocumentPtr document, ControllerFacade& controller);
+            EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller);
             
             int GetNumberRows();
             int GetNumberCols();
