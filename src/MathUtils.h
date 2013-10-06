@@ -37,6 +37,7 @@ namespace Math {
         static const T TwoPi;
         static const T PiOverTwo;
         static const T PiOverFour;
+        static const T ThreePiOverTwo;
         static const T PiOverStraightAngle;
         static const T StraightAngleOverPi;
         static const T E;
@@ -58,6 +59,8 @@ namespace Math {
     const T Constants<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
     template <typename T>
     const T Constants<T>::PiOverFour           = Pi / static_cast<T>(4.0);
+    template <typename T>
+    const T Constants<T>::ThreePiOverTwo       = Pi * static_cast<T>(3.0 / 2.0);
     template <typename T>
     const T Constants<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
     template <typename T>

@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
+#include "Model/ModelTypes.h"
 #include "Model/Pickable.h"
 
 #include <vector>
@@ -43,6 +44,8 @@ namespace TrenchBroom {
             size_t m_childSelectionCount;
         public:
             virtual ~Object();
+            
+            static BBox3 bounds(const ObjectList& objects);
             
             Type type() const;
             void setFilePosition(const size_t lineNumber, const size_t lineCount);

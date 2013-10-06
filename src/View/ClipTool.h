@@ -52,7 +52,7 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             bool doMouseUp(const InputState& inputState);
 

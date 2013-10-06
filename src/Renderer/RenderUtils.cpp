@@ -33,9 +33,24 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
+        VertexSpecs::P3C4::Vertex::List coordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z) {
+            typedef VertexSpecs::P3C4::Vertex Vertex;
+            Vertex::List vertices(6);
+            
+            vertices[0] = Vertex(Vec3f(bounds.min.x(),           0.0f,           0.0f), x);
+            vertices[1] = Vertex(Vec3f(bounds.max.x(),           0.0f,           0.0f), x);
+            vertices[2] = Vertex(Vec3f(          0.0f, bounds.min.y(),           0.0f), y);
+            vertices[3] = Vertex(Vec3f(          0.0f, bounds.max.y(),           0.0f), y);
+            vertices[4] = Vertex(Vec3f(          0.0f,           0.0f, bounds.min.z()), z);
+            vertices[5] = Vertex(Vec3f(          0.0f,           0.0f, bounds.max.z()), z);
+
+            return vertices;
+        }
+
         Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
+            assert(angleLength > 0.0f);
             
             Vec2f::List vertices(segments + 1);
             
@@ -50,6 +65,38 @@ namespace TrenchBroom {
             return vertices;
         }
         
+        Vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
+            assert(radius > 0.0f);
+            assert(segments > 0);
+            assert(angleLength > 0.0f);
+            
+            Vec3f::List vertices(segments + 1);
+            
+            size_t x,y,z;
+            switch (axis) {
+                case Math::Axis::AX:
+                    x = 1; y = 2; z = 0;
+                    break;
+                case Math::Axis::AY:
+                    x = 2; y = 0; z = 1;
+                    break;
+                default:
+                    x = 0; y = 1; z = 2;
+                    break;
+            }
+            
+            const float d = angleLength / segments;
+            float a = startAngle;
+            for (size_t i = 0; i <= segments; ++i) {
+                vertices[i][x] = radius * std::cos(a);
+                vertices[i][y] = radius * std::sin(a);
+                vertices[i][z] = 0.0f;
+                a += d;
+            }
+            
+            return vertices;
+        }
+
         Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
@@ -292,9 +339,7 @@ namespace TrenchBroom {
             float a = 0.0f;
             const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
             for (size_t i = 0; i < segments; i++) {
-                const float s = std::sin(a);
-                const float c = std::cos(a);
-                result.vertices[i] = Vec3f(radius * c, radius * s, 0.0f);
+                result.vertices[i] = Vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
                 result.normals[i] = Vec3f::PosZ;
                 a += d;
             }
@@ -313,11 +358,11 @@ namespace TrenchBroom {
             for (size_t i = 0; i <= segments; ++i) {
                 const float s = std::sin(a);
                 const float c = std::cos(a);
-                const float x = radius * c;
-                const float y = radius * s;
+                const float x = radius * s;
+                const float y = radius * c;
                 result.vertices[2*i+0] = Vec3f(x, y, length);
                 result.vertices[2*i+1] = Vec3f(x, y, 0.0f);
-                result.normals[2*i+0] = result.normals[2*i+1] = Vec3f(c, s, 0.0f);
+                result.normals[2*i+0] = result.normals[2*i+1] = Vec3f(s, c, 0.0f);
                 a += d;
             }
             return result;
@@ -344,12 +389,12 @@ namespace TrenchBroom {
                 const float c = std::cos(a);
                 
                 result.vertices[3*i+0] = Vec3f(0.0f, 0.0f, length);
-                result.vertices[3*i+1] = Vec3f(radius * lastC, radius * lastS, 0.0f);
-                result.vertices[3*i+2] = Vec3f(radius * c, radius * s, 0.0f);
+                result.vertices[3*i+1] = Vec3f(radius * lastS, radius * lastC, 0.0f);
+                result.vertices[3*i+2] = Vec3f(radius * s, radius * c, 0.0f);
                 
-                result.normals[3*i+0] = Vec3f(std::cos(a - d / 2.0f), std::sin(a - d / 2.0f), n).normalize();
-                result.normals[3*i+1] = Vec3f(lastC, lastS, n).normalize();
-                result.normals[3*i+2] = Vec3f(c, s, n).normalize();
+                result.normals[3*i+0] = Vec3f(std::sin(a - d / 2.0f), std::cos(a - d / 2.0f), n).normalize();
+                result.normals[3*i+1] = Vec3f(lastS, lastC, n).normalize();
+                result.normals[3*i+2] = Vec3f(s, c, n).normalize();
                 
                 lastS = s;
                 lastC = c;

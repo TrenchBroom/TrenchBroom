@@ -55,6 +55,7 @@ namespace TrenchBroom {
         class CreateBrushTool;
         class MoveObjectsTool;
         class ResizeBrushesTool;
+        class RotateObjectsTool;
         class SelectionTool;
         
         class MapView : public wxGLCanvas {
@@ -81,6 +82,7 @@ namespace TrenchBroom {
             CreateBrushTool* m_createBrushTool;
             MoveObjectsTool* m_moveObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
+            RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;
@@ -100,6 +102,8 @@ namespace TrenchBroom {
             void toggleClipSide();
             bool canPerformClip() const;
             void performClip();
+            void toggleRotateObjectsTool();
+            bool rotateObjectsToolActive() const;
             void toggleMovementRestriction();
             
             void OnKey(wxKeyEvent& event);

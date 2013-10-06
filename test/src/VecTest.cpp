@@ -307,3 +307,9 @@ TEST(VecTest, vec3fCrossProduct) {
                                                                        Vec3f(2.0f, 34.233f, -10003.0002f)));
 }
 
+TEST(VecTest, angleBetween) {
+    ASSERT_FLOAT_EQ(angleBetween(Vec3f::PosX, Vec3f::PosX, Vec3f::PosZ), 0.0f);
+    ASSERT_FLOAT_EQ(angleBetween(Vec3f::PosY, Vec3f::PosX, Vec3f::PosZ), Math::Constants<float>::PiOverTwo);
+    ASSERT_FLOAT_EQ(angleBetween(Vec3f::NegX, Vec3f::PosX, Vec3f::PosZ), Math::Constants<float>::Pi);
+    ASSERT_FLOAT_EQ(angleBetween(Vec3f::NegY, Vec3f::PosX, Vec3f::PosZ), 3.0f * Math::Constants<float>::PiOverTwo);
+}

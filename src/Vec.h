@@ -601,7 +601,7 @@ T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
         return static_cast<T>(0.0);
     if (Math::eq(cos, static_cast<T>(-1.0)))
         return Math::Constants<T>::Pi;
-    const Vec<T,3> cross = crossed(vec, axis);
+    const Vec<T,3> cross = crossed(axis, vec);
     if (cross.dot(up) >= static_cast<T>(0.0))
         return std::acos(cos);
     return Math::Constants<T>::TwoPi - std::acos(cos);

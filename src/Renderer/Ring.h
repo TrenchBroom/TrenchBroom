@@ -17,32 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Circle__
-#define __TrenchBroom__Circle__
+#ifndef __TrenchBroom__Ring__
+#define __TrenchBroom__Ring__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "MathUtils.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
         
-        class Circle {
+        class Ring {
         private:
             VertexArray m_array;
         public:
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled);
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength);
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
+            Ring(Vbo& vbo, const float radius, const float width, const float startAngle, const float angleLength, const size_t segments);
             
-            void prepare();
             void render();
-        private:
-            void init2D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength);
-            void init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Circle__) */
+#endif /* defined(__TrenchBroom__Ring__) */

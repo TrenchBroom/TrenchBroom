@@ -42,7 +42,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ResizeHit;
             ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
         private:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             void doModifierKeyChange(const InputState& inputState);
             void doMouseMove(const InputState& inputState);

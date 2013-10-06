@@ -30,27 +30,42 @@ namespace TrenchBroom {
         Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init(vbo, radius, segments, filled, 0.0f, Math::Constants<float>::TwoPi);
+            init2D(vbo, radius, segments, filled, 0.0f, Math::Constants<float>::TwoPi);
         }
         
         Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init(vbo, radius, segments, filled, startAngle, angleLength);
+            init2D(vbo, radius, segments, filled, startAngle, angleLength);
         }
         
-        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Vec3f& startAxis, const Vec3f& endAxis) {
+        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) {
             assert(radius > 0.0f);
             assert(segments > 0);
 
-            const float angle1 = angleBetween(startAxis, Vec3f::PosY, Vec3f::PosZ);
-            const float angle2 = angleBetween(endAxis, Vec3f::PosY, Vec3f::PosZ);
+            float angle1, angle2, angleLength;
+            switch (axis) {
+                case Math::Axis::AX:
+                    angle1 = angleBetween(startAxis, Vec3f::PosY, Vec3f::PosX);
+                    angle2 = angleBetween(endAxis, Vec3f::PosY, Vec3f::PosX);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosX), angleBetween(endAxis, startAxis, Vec3f::PosX));
+                    break;
+                case Math::Axis::AY:
+                    angle1 = angleBetween(startAxis, Vec3f::PosZ, Vec3f::PosY);
+                    angle2 = angleBetween(endAxis, Vec3f::PosZ, Vec3f::PosY);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosY), angleBetween(endAxis, startAxis, Vec3f::PosY));
+                    break;
+                default:
+                    angle1 = angleBetween(startAxis, Vec3f::PosX, Vec3f::PosZ);
+                    angle2 = angleBetween(endAxis, Vec3f::PosX, Vec3f::PosZ);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosZ), angleBetween(endAxis, startAxis, Vec3f::PosZ));
+                    break;
+            }
             const float minAngle = std::min(angle1, angle2);
             const float maxAngle = std::max(angle1, angle2);
             const float startAngle = (maxAngle - minAngle <= Math::Constants<float>::Pi ? minAngle : maxAngle);
-            const float angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosZ), angleBetween(endAxis, startAxis, Vec3f::PosZ));
 
-            init(vbo, radius, segments, filled, startAngle, angleLength);
+            init3D(vbo, radius, segments, filled, axis, startAngle, angleLength);
         }
         
         void Circle::prepare() {
@@ -61,10 +76,18 @@ namespace TrenchBroom {
             m_array.render();
         }
         
-        void Circle::init(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
+        void Circle::init2D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
             const Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
+        }
+        
+        void Circle::init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
+            typedef VertexSpecs::P3::Vertex Vertex;
+            
+            const Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
             const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }

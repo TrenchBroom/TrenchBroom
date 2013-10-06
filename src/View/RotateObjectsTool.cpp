@@ -19,8 +19,18 @@
 
 #include "RotateObjectsTool.h"
 
+#include "Model/ModelTypes.h"
+#include "Model/Object.h"
+#include "Renderer/Camera.h"
+#include "View/InputState.h"
+#include "View/MapDocument.h"
+
+#include <cassert>
+
 namespace TrenchBroom {
     namespace View {
+        const Model::Hit::HitType RotateObjectsTool::HandleHit = Model::Hit::freeHitType();
+
         RotateObjectsTool::RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
         Tool(next, document, controller) {}
 
@@ -29,6 +39,10 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsTool::doActivate(const InputState& inputState) {
+            if (!document()->hasSelectedObjects())
+                return false;
+            resetHandlePosition();
+            updateHandleAxes(inputState);
             return true;
         }
         
@@ -36,27 +50,46 @@ namespace TrenchBroom {
             return true;
         }
         
-        void RotateObjectsTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
+        void RotateObjectsTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            updateHandleAxes(inputState);
         }
         
         void RotateObjectsTool::doMouseMove(const InputState& inputState) {
+            updateHandleAxes(inputState);
         }
         
         bool RotateObjectsTool::doStartMouseDrag(const InputState& inputState) {
+            updateHandleAxes(inputState);
             return false;
         }
         
         bool RotateObjectsTool::doMouseDrag(const InputState& inputState) {
+            updateHandleAxes(inputState);
             return true;
         }
         
         void RotateObjectsTool::doEndMouseDrag(const InputState& inputState) {
+            updateHandleAxes(inputState);
         }
             
         void RotateObjectsTool::doCancelMouseDrag(const InputState& inputState) {
+            updateHandleAxes(inputState);
         }
         
         void RotateObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            updateHandleAxes(inputState);
+            m_handle.renderHandle(renderContext);
+        }
+
+        void RotateObjectsTool::resetHandlePosition() {
+            const Model::ObjectList& objects = document()->selectedObjects();
+            assert(!objects.empty());
+            const BBox3 bounds = Model::Object::bounds(objects);
+            m_handle.setPosition(bounds.center());
+        }
+
+        void RotateObjectsTool::updateHandleAxes(const InputState& inputState) {
+            m_handle.updateAxes(inputState.camera().position());
         }
     }
 }

@@ -52,7 +52,7 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
         Tool(next, document, controller) {}
 
-        void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
+        void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!applies(inputState))
                 return;
             

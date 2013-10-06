@@ -59,13 +59,13 @@ namespace TrenchBroom {
         class PickingPolicy {
         public:
             virtual ~PickingPolicy();
-            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) const = 0;
+            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) = 0;
         };
         
         class NoPickingPolicy {
         public:
             virtual ~NoPickingPolicy();
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
         
         class MousePolicy {
@@ -153,9 +153,10 @@ namespace TrenchBroom {
             virtual bool activate(const InputState& inputState) = 0;
             virtual void deactivate(const InputState& inputState) = 0;
             
-            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) const = 0;
+            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
+            
             virtual bool mouseDown(const InputState& inputState) = 0;
             virtual bool mouseUp(const InputState& inputState) = 0;
             virtual bool mouseDoubleClick(const InputState& inputState) = 0;
@@ -168,7 +169,8 @@ namespace TrenchBroom {
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
             
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
-            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
+            virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
+            virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
@@ -211,9 +213,9 @@ namespace TrenchBroom {
                 }
             }
             
-            void pick(const InputState& inputState, Model::PickResult& pickResult) const {
+            void pick(const InputState& inputState, Model::PickResult& pickResult) {
                 if (active())
-                    static_cast<const PickingPolicyType&>(*this).doPick(inputState, pickResult);
+                    static_cast<PickingPolicyType&>(*this).doPick(inputState, pickResult);
                 if (m_next != NULL)
                     m_next->pick(inputState, pickResult);
             }
@@ -300,11 +302,16 @@ namespace TrenchBroom {
                     m_next->setRenderOptions(inputState, renderContext);
             }
 
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 if (active())
                     static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
                 if (m_next != NULL)
-                    m_next->render(inputState, renderContext);
+                    m_next->renderChain(inputState, renderContext);
+            }
+
+            void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) {
+                if (active())
+                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
             }
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) {}

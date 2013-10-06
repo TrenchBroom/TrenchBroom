@@ -20,12 +20,19 @@
 #ifndef __TrenchBroom__RotateObjectsTool__
 #define __TrenchBroom__RotateObjectsTool__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/Picker.h"
+#include "View/RotateObjectsHandle.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class RotateObjectsTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
+        private:
+            static const Model::Hit::HitType HandleHit;
+            RotateObjectsHandle m_handle;
         public:
             RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
         private:
@@ -33,7 +40,7 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) const;
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             void doMouseMove(const InputState& inputState);
             
@@ -43,6 +50,9 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            
+            void resetHandlePosition();
+            void updateHandleAxes(const InputState& inputState);
         };
     }
 }

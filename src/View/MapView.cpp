@@ -34,6 +34,7 @@
 #include "View/CreateBrushTool.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
+#include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
 #include "View/MapDocument.h"
 
@@ -60,6 +61,7 @@ namespace TrenchBroom {
         m_createBrushTool(NULL),
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
+        m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL),
@@ -120,6 +122,14 @@ namespace TrenchBroom {
         void MapView::performClip() {
             assert(clipToolActive());
             m_clipTool->performClip();
+        }
+
+        void MapView::toggleRotateObjectsTool() {
+            toggleTool(m_rotateObjectsTool);
+        }
+        
+        bool MapView::rotateObjectsToolActive() const {
+            return m_modalReceiver == m_rotateObjectsTool;
         }
 
         void MapView::toggleMovementRestriction() {
@@ -326,7 +336,8 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
             m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
             m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller);
-            m_clipTool = new ClipTool(m_createBrushTool, m_document, m_controller, m_camera);
+            m_rotateObjectsTool = new RotateObjectsTool(m_createBrushTool, m_document, m_controller);
+            m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
         }
@@ -343,6 +354,8 @@ namespace TrenchBroom {
             m_moveObjectsTool = NULL;
             delete m_resizeBrushesTool;
             m_resizeBrushesTool = NULL;
+            delete m_rotateObjectsTool;
+            m_rotateObjectsTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
         }
@@ -358,8 +371,8 @@ namespace TrenchBroom {
                     m_modalReceiver->deactivate(m_inputState);
                     m_modalReceiver = NULL;
                 }
-                if (m_clipTool->activate(m_inputState))
-                    m_modalReceiver = m_clipTool;
+                if (tool->activate(m_inputState))
+                    m_modalReceiver = tool;
             }
             Refresh();
         }
@@ -476,18 +489,8 @@ namespace TrenchBroom {
         }
         
         void MapView::renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor) {
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(6);
-            
-            const BBox3& wb = m_document->worldBounds();
-            vertices[0] = Vertex(Vec3f(wb.min.x(),       0.0f,       0.0f), xColor);
-            vertices[1] = Vertex(Vec3f(wb.max.x(),       0.0f,       0.0f), xColor);
-            vertices[2] = Vertex(Vec3f(      0.0f, wb.min.y(),       0.0f), yColor);
-            vertices[3] = Vertex(Vec3f(      0.0f, wb.max.y(),       0.0f), yColor);
-            vertices[4] = Vertex(Vec3f(      0.0f,       0.0f, wb.min.z()), zColor);
-            vertices[5] = Vertex(Vec3f(      0.0f,       0.0f, wb.max.z()), zColor);
-            
-            Renderer::VertexArray array(m_auxVbo, GL_LINES, vertices);
+            Renderer::VertexArray array(m_auxVbo, GL_LINES,
+                                        Renderer::coordinateSystem(m_document->worldBounds(), xColor, yColor, zColor));
             array.render();
         }
         
@@ -496,7 +499,10 @@ namespace TrenchBroom {
         }
         
         void MapView::renderTools(Renderer::RenderContext& context) {
-            m_toolChain->render(m_inputState, context);
+            if (m_modalReceiver != NULL)
+                m_modalReceiver->renderOnly(m_inputState, context);
+            else
+                m_toolChain->renderChain(m_inputState, context);
         }
 
         void MapView::renderCompass(Renderer::RenderContext& context) {

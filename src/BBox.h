@@ -66,8 +66,8 @@ public:
     max(i_max) {}
     
     BBox(const T i_minMax) {
-        min.set(i_minMax);
-        max.set(i_minMax);
+        min.set(-i_minMax);
+        max.set(+i_minMax);
     }
     
     BBox(const T i_min, const T i_max) {

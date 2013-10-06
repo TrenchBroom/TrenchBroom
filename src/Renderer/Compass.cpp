@@ -74,7 +74,6 @@ namespace TrenchBroom {
             renderBackground(renderContext);
             glClear(GL_DEPTH_BUFFER_BIT);
 
-            glFrontFace(GL_CCW);
             if (restriction.isRestricted(Math::Axis::AX)) {
                 renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
                 renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
@@ -95,7 +94,6 @@ namespace TrenchBroom {
                 renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
                 renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
             }
-            glFrontFace(GL_CW);
         }
 
         void Compass::makeArrows(Vbo& vbo) {

@@ -75,39 +75,11 @@ namespace TrenchBroom {
             updateTitle();
             m_document->setParentLogger(m_console);
 
-            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+            bindEvents();
+            bindObservers();
 
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSave, this, wxID_SAVE);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
-
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_UNDO);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_REDO);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-            Bind(EVT_REBUILD_MENUBAR, &MapFrame::OnRebuildMenuBar, this);
-            Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
-            
-            m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
-            m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
-            
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
-            
-            bindObservers();
         }
 
         MapFrame::~MapFrame() {
@@ -210,6 +182,11 @@ namespace TrenchBroom {
             m_mapView->performClip();
         }
 
+        void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
+            m_mapView->toggleRotateObjectsTool();
+            updateMenuBar(m_mapView->HasFocus());
+        }
+
         void MapFrame::OnEditToggleMovementRestriction(wxCommandEvent& event) {
             m_mapView->toggleMovementRestriction();
         }
@@ -256,6 +233,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditPerformClip:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
+                    break;
+                case CommandIds::Menu::EditToggleRotateObjectsTool:
+                    event.Enable(m_document->hasSelectedBrushes());
+                    event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
                     event.Enable(true);
@@ -349,6 +330,38 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizer(outerSizer);
+        }
+        
+        void MapFrame::bindEvents() {
+            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSave, this, wxID_SAVE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
+            
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_UNDO);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_REDO);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+            Bind(EVT_REBUILD_MENUBAR, &MapFrame::OnRebuildMenuBar, this);
+            Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+            
+            m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
+            m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
         }
         
         class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {

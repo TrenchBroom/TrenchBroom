@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Preferences_h
 #define TrenchBroom_Preferences_h
 
+#include "TrenchBroom.h"
 #include "Color.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
@@ -52,9 +53,9 @@ namespace TrenchBroom {
         extern Preference<Color> SelectedInfoOverlayTextColor;
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         
-        extern Preference<double> HandleRadius;
-        extern Preference<double> HandleScalingFactor;
-        extern Preference<double> MaximumHandleDistance;
+        extern Preference<FloatType> HandleRadius;
+        extern Preference<FloatType> HandleScalingFactor;
+        extern Preference<FloatType> MaximumHandleDistance;
         extern Preference<Color> HandleColor;
         extern Preference<Color> OccludedHandleColor;
         extern Preference<Color> SelectedHandleColor;
@@ -66,6 +67,9 @@ namespace TrenchBroom {
         extern Preference<Color> ClipOccludedEdgeColor;
         
         extern Preference<Color> ResizeHandleColor;
+        extern Preference<FloatType> RotateHandleRadius;
+        extern Preference<FloatType> RotateHandleWidth;
+        extern Preference<Color> RotateHandleColor;
         
         extern Preference<Color> MoveIndicatorOutlineColor;
         extern Preference<Color> MoveIndicatorFillColor;

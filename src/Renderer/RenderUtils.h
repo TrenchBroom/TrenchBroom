@@ -20,14 +20,22 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
+#include "Color.h"
 #include "VecMath.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Vbo;
+        
         void glSetEdgeOffset(const float f);
         void glResetEdgeOffset();
 
+        VertexSpecs::P3C4::Vertex::List coordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z);
+        
         Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments);
+        Vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments);
         Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments);
         
         struct VertsAndNormals {

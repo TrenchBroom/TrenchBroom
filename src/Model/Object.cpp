@@ -23,6 +23,19 @@ namespace TrenchBroom {
     namespace Model {
         Object::~Object() {}
 
+        BBox3 Object::bounds(const ObjectList& objects) {
+            if (objects.empty())
+                return BBox3();
+            
+            ObjectList::const_iterator it = objects.begin();
+            const ObjectList::const_iterator end = objects.end();
+
+            BBox3 bounds = static_cast<const Pickable*>(*it)->bounds();
+            while (++it != end)
+                bounds.mergeWith(static_cast<const Pickable*>(*it)->bounds());
+            return bounds;
+        }
+
         Object::Type Object::type() const {
             return m_type;
         }

@@ -57,9 +57,9 @@ namespace TrenchBroom {
         Preference<Color> SelectedInfoOverlayTextColor("Renderer/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor("Renderer/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
 
-        Preference<double> HandleRadius("Controls/Handle radius", 3.0f);
-        Preference<double> HandleScalingFactor("Controls/Handle scaling factor", 1.0f / 300.0f);
-        Preference<double> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0f);
+        Preference<FloatType> HandleRadius("Controls/Handle radius", 3.0);
+        Preference<FloatType> HandleScalingFactor("Controls/Handle scaling factor", 1.0f / 300.0);
+        Preference<FloatType> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0);
         Preference<Color> HandleColor("Renderer/Colors/Handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> OccludedHandleColor("Renderer/Colors/Occluded handle", Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> SelectedHandleColor("Renderer/Colors/Selected handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -71,6 +71,9 @@ namespace TrenchBroom {
         Preference<Color> ClipOccludedEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  0.5f));
         
         Preference<Color> ResizeHandleColor("Renderer/Colors/Resize handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<FloatType> RotateHandleRadius("Controls/Rotate handle radius", 32.0);
+        Preference<FloatType> RotateHandleWidth("Controls/Rotate handle width", 32.0);
+        Preference<Color> RotateHandleColor("Renderer/Colors/Rotate handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
 
         Preference<Color> MoveIndicatorOutlineColor("Renderer/Colors/Move indicator outline", Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> MoveIndicatorFillColor("Renderer/Colors/Move indicator fill", Color(0.0f, 0.0f, 0.0f, 0.5f));

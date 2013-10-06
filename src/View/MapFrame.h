@@ -88,6 +88,7 @@ namespace TrenchBroom {
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleClipSide(wxCommandEvent& event);
             void OnEditPerformClip(wxCommandEvent& event);
+            void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
             void OnEditToggleMovementRestriction(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
@@ -108,6 +109,7 @@ namespace TrenchBroom {
             void commandUndone(Controller::Command::Ptr command);
 
             void createGui();
+            void bindEvents();
             void rebuildMenuBar();
             void createMenuBar(const bool showModifiers);
             void updateMenuBar(const bool showModifiers);

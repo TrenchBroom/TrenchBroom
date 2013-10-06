@@ -88,6 +88,8 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::doActivate(const InputState& inputState) {
+            if (!document()->hasSelectedBrushes())
+                return false;
             m_clipper.reset();
             updateBrushes();
             return true;
@@ -99,11 +101,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) const {
+        void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const double radius = 2.0 * prefs.getDouble(Preferences::HandleRadius);
-            const double scaling = prefs.getDouble(Preferences::HandleScalingFactor);
-            const double maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
+            const FloatType radius = 2.0 * prefs.getDouble(Preferences::HandleRadius);
+            const FloatType scaling = prefs.getDouble(Preferences::HandleScalingFactor);
+            const FloatType maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
             const Ray3& ray = inputState.pickRay();
             
             const Vec3::List clipPoints = m_clipper.clipPointPositions();
