@@ -107,6 +107,7 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             renderAxes(renderContext);
             renderRings(renderContext);
+            renderRingIndicators(renderContext);
             renderPointHandles(renderContext);
             glEnable(GL_DEPTH_TEST);
         }
@@ -188,6 +189,26 @@ namespace TrenchBroom {
              
             shader.set("Color", zColor);
             Renderer::Circle(m_vbo, 64.0f, 24, false, Math::Axis::AZ, m_xAxis, m_yAxis).render();
+        }
+
+        void RotateObjectsHandle::renderRingIndicators(Renderer::RenderContext& renderContext) const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& color = prefs.getColor(Preferences::RotateHandleColor);
+
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+            shader.set("Color", color);
+            
+            Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
+
+            Renderer::Circle(m_vbo, 64.0f, 8, false, Math::Axis::AX,
+                             Quatf(Vec3f::PosX, Math::radians(+15.0f)) * m_yAxis,
+                             Quatf(Vec3f::PosX, Math::radians(-15.0f)) * m_yAxis).render();
+            Renderer::Circle(m_vbo, 64.0f, 8, false, Math::Axis::AY,
+                             Quatf(Vec3f::PosY, Math::radians(+15.0f)) * m_zAxis,
+                             Quatf(Vec3f::PosY, Math::radians(-15.0f)) * m_zAxis).render();
+            Renderer::Circle(m_vbo, 64.0f, 8, false, Math::Axis::AZ,
+                             Quatf(Vec3f::PosZ, Math::radians(+15.0f)) * m_xAxis,
+                             Quatf(Vec3f::PosZ, Math::radians(-15.0f)) * m_xAxis).render();
         }
 
         void RotateObjectsHandle::renderPointHandles(Renderer::RenderContext& renderContext) const {

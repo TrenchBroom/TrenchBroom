@@ -79,6 +79,7 @@ namespace TrenchBroom {
             
             void renderAxes(Renderer::RenderContext& renderContext) const;
             void renderRings(Renderer::RenderContext& renderContext) const;
+            void renderRingIndicators(Renderer::RenderContext& renderContext) const;
             void renderPointHandles(Renderer::RenderContext& renderContext) const;
             void renderPointHandle(Renderer::RenderContext& renderContext, const Vec3& position, const Color& color) const;
         };
