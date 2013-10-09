@@ -41,113 +41,11 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType RotateObjectsTool::HandleHit = Model::Hit::freeHitType();
 
-        RotateDelegate::~RotateDelegate() {}
-
-        bool RotateDelegate::handleRotate(const InputState& inputState) const {
-            return doHandleRotate(inputState);
-        }
-        
-        RotateInfo RotateDelegate::getRotateInfo(const InputState& inputState) const {
-            return doGetRotateInfo(inputState);
-        }
-
-        bool RotateDelegate::startRotate(const InputState& inputState) {
-            return doStartRotate(inputState);
-        }
-        
-        FloatType RotateDelegate::getAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const {
-            return doGetAngle(inputState, handlePoint, curPoint, axis);
-        }
-        
-        bool RotateDelegate::rotate(const Vec3& center, const Vec3& axis, const FloatType angle) {
-            return doRotate(center, axis, angle);
-        }
-        
-        void RotateDelegate::endRotate(const InputState& inputState) {
-            doEndRotate(inputState);
-        }
-        
-        void RotateDelegate::cancelRotate(const InputState& inputState) {
-            doCancelRotate(inputState);
-        }
-
-        RotateHelper::RotateHelper(RotateDelegate& delegate) :
-        m_delegate(delegate),
-        m_lastAngle(0.0) {}
-
-        bool RotateHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return false;
-            if (!m_delegate.handleRotate(inputState))
-                return false;
-            
-            const RotateInfo info = m_delegate.getRotateInfo(inputState);
-            initialPoint = info.origin;
-            plane = info.plane;
-            m_center = info.center;
-            m_axis = info.axis;
-            m_firstPoint = initialPoint;
-            m_lastAngle = 0.0;
-            
-            if (!m_delegate.startRotate(inputState))
-                return false;
-            return true;
-        }
-        
-        bool RotateHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            const FloatType angle = m_delegate.getAngle(inputState, refPoint, curPoint, m_axis);
-            if (angle == m_lastAngle)
-                return true;
-            if (!m_delegate.rotate(m_center, m_axis, angle))
-                return false;
-            m_lastAngle = angle;
-            return true;
-        }
-        
-        void RotateHelper::endPlaneDrag(const InputState& inputState) {
-            m_delegate.endRotate(inputState);
-            m_lastAngle = 0.0;
-        }
-        
-        void RotateHelper::cancelPlaneDrag(const InputState& inputState) {
-            m_delegate.cancelRotate(inputState);
-            m_lastAngle = 0.0;
-        }
-        
-        void RotateHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint){}
-        
-        void RotateHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) {
-            if (!dragging)
-                return;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-
-            const Vec3 startAxis = (m_firstPoint - m_center).normalized();
-            const Vec3 endAxis = Quat3(m_axis, m_lastAngle) * startAxis;
-            
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_center));
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-            shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
-            
-            Renderer::Vbo vbo(0xFFF);
-            vbo.activate();
-            
-            Renderer::Circle circle(vbo, handleRadius, 24, true, m_axis.firstComponent(), startAxis, endAxis);
-            circle.render();
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glEnable(GL_CULL_FACE);
-            glEnable(GL_DEPTH_TEST);
-        }
-
-        RotateObjectsTool::RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
+        RotateObjectsTool::RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         Tool(next, document, controller),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
-        m_rotateHelper(*this) {}
+        m_rotateHelper(*this, font) {}
 
         bool RotateObjectsTool::initiallyActive() const {
             return false;

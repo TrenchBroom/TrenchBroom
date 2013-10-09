@@ -48,26 +48,28 @@ namespace TrenchBroom {
         class TextAnchor {
         public:
             typedef std::tr1::shared_ptr<TextAnchor> Ptr;
-        protected:
-            virtual const Vec3f basePosition() const = 0;
-            virtual const Alignment::Type alignment() const = 0;
-            const Vec2f alignmentFactors() const;
         public:
             virtual ~TextAnchor() {}
-            
             const Vec3f offset(const Camera& camera, const Vec2f& size) const;
             const Vec3f position() const;
+        private:
+            virtual const Vec3f basePosition() const = 0;
+            virtual const Alignment::Type alignment() const = 0;
+            virtual const Vec2f extraOffsets() const;
+            const Vec2f alignmentFactors() const;
         };
         
         class SimpleTextAnchor : public TextAnchor {
         private:
             Vec3f m_position;
             Alignment::Type m_alignment;
+            Vec2f m_extraOffsets;
         protected:
             const Vec3f basePosition() const;
             const Alignment::Type alignment() const;
+            const Vec2f extraOffsets() const;
         public:
-            SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment);
+            SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
         };
         
         template <typename Key>
@@ -117,7 +119,7 @@ namespace TrenchBroom {
                     return m_vertices;
                 }
                 
-                void update(const Vec2f::List& vertices, const Vec2f& size) {
+                void updateVertices(const Vec2f::List& vertices, const Vec2f& size) {
                     m_vertices = vertices;
                     m_size = size;
                 }
@@ -128,6 +130,10 @@ namespace TrenchBroom {
                 
                 const TextAnchor& textAnchor() const {
                     return *m_textAnchor.get();
+                }
+                
+                void setAnchor(TextAnchor::Ptr textAnchor) {
+                    m_textAnchor = textAnchor;
                 }
             };
             
@@ -173,7 +179,15 @@ namespace TrenchBroom {
                     TextEntry& entry = it->second;
                     const Vec2f::List vertices = m_font.quads(string, true);
                     const Vec2f size = m_font.measure(string);
-                    entry.update(vertices, size);
+                    entry.updateVertices(vertices, size);
+                }
+            }
+            
+            void updateAnchor(Key key, TextAnchor::Ptr anchor) {
+                typename TextMap::iterator it = m_entries.find(key);
+                if (it != m_entries.end()) {
+                    TextEntry& entry = it->second;
+                    entry.setAnchor(anchor);
                 }
             }
             
