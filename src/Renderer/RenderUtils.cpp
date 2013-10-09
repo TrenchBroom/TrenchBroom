@@ -50,7 +50,8 @@ namespace TrenchBroom {
         Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            assert(angleLength > 0.0f);
+            if (angleLength == 0.0f)
+                return Vec2f::List();
             
             Vec2f::List vertices(segments + 1);
             
@@ -68,7 +69,8 @@ namespace TrenchBroom {
         Vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            assert(angleLength > 0.0f);
+            if (angleLength == 0.0f)
+                return Vec3f::List();
             
             Vec3f::List vertices(segments + 1);
             

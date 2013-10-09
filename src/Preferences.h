@@ -68,7 +68,6 @@ namespace TrenchBroom {
         
         extern Preference<Color> ResizeHandleColor;
         extern Preference<FloatType> RotateHandleRadius;
-        extern Preference<FloatType> RotateHandleWidth;
         extern Preference<Color> RotateHandleColor;
         
         extern Preference<Color> MoveIndicatorOutlineColor;

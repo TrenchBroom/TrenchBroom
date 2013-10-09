@@ -232,6 +232,7 @@ namespace TrenchBroom {
             if (updateModifierKeys())
                 m_toolChain->modifierKeyChange(m_inputState);
             Refresh();
+            SetCursor(wxCursor(wxCURSOR_ARROW));
             event.Skip();
         }
         
@@ -243,6 +244,7 @@ namespace TrenchBroom {
                 m_toolChain->modifierKeyChange(m_inputState);
             m_ignoreNextClick = true;
             Refresh();
+            SetCursor(wxCursor(wxCURSOR_HAND));
             event.Skip();
         }
 
@@ -279,6 +281,16 @@ namespace TrenchBroom {
             const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
             m_camera.setViewport(viewport);
             event.Skip();
+        }
+
+        void MapView::OnFirstIdle(wxIdleEvent& event) {
+            if (!HasFocus()) {
+                SetFocus();
+            } else {
+                m_ignoreNextClick = false;
+                Unbind(wxEVT_IDLE, &MapView::OnFirstIdle, this);
+                Refresh();
+            }
         }
 
         void MapView::bindObservers() {
@@ -336,7 +348,7 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
             m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
             m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller);
-            m_rotateObjectsTool = new RotateObjectsTool(m_createBrushTool, m_document, m_controller);
+            m_rotateObjectsTool = new RotateObjectsTool(m_createBrushTool, m_document, m_controller, m_movementRestriction);
             m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
@@ -450,6 +462,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
             Bind(wxEVT_SIZE, &MapView::OnSize, this);
+            Bind(wxEVT_IDLE, &MapView::OnFirstIdle, this);
         }
         
         void MapView::setupGL(Renderer::RenderContext& context) {

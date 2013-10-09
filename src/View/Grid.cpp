@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
         
         FloatType Grid::angle() const {
-            return static_cast<FloatType>(15.0);
+            return Math::radians(static_cast<FloatType>(15.0));
         }
         
         bool Grid::visible() const {

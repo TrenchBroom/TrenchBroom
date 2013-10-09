@@ -25,6 +25,7 @@
 #include "Model/HitFilters.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
+#include "View/InputState.h"
 #include "View/MapDocument.h"
 
 #include <cassert>
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         MoveObjectsTool::MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
         MoveTool(next, document, controller, movementRestriction) {}
 
-        bool MoveObjectsTool::doHandleEvent(const InputState& inputState) const {
+        bool MoveObjectsTool::doHandleMove(const InputState& inputState) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
                 !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
                 !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) &&
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             return object->selected();
         }
         
-        Vec3 MoveObjectsTool::doGetInitialPoint(const InputState& inputState) const {
+        Vec3 MoveObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
             assert(first.matches);
             return first.hit.hitPoint();
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             return grid.snap(delta);
         }
         
-        MoveObjectsTool::MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
+        MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
             if (m_duplicateObjects) {
                 const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), document()->worldBounds());
                 if (duplicates.empty())

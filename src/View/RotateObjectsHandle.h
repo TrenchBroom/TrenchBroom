@@ -71,10 +71,13 @@ namespace TrenchBroom {
             void updateAxes(const Vec3& viewPos);
             
             Hit pick(const Ray3& pickRay) const;
-            void renderHandle(Renderer::RenderContext& renderContext) const;
+            Vec3 getPointHandlePosition(const HitArea area) const;
+            Vec3 getPointHandleAxis(const HitArea area) const;
+            Vec3 getRotationAxis(const HitArea area) const;
+            void renderHandle(Renderer::RenderContext& renderContext, const HitArea highlight) const;
+            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) const;
         private:
-            Hit pickCenterHandle(const Ray3& pickRay) const;
-            Hit pickRingHandle(const Ray3& pickRay, const Vec3& normal, const Vec3& axis1, const Vec3& axis2, const HitArea area) const;
+            Hit pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const;
             Hit selectHit(const Hit& closest, const Hit& hit) const;
             
             void renderAxes(Renderer::RenderContext& renderContext) const;
@@ -82,6 +85,11 @@ namespace TrenchBroom {
             void renderRingIndicators(Renderer::RenderContext& renderContext) const;
             void renderPointHandles(Renderer::RenderContext& renderContext) const;
             void renderPointHandle(Renderer::RenderContext& renderContext, const Vec3& position, const Color& color) const;
+            void renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight) const;
+            void renderPointHandleHighlight(Renderer::RenderContext& renderContext, const Vec3& position) const;
+            
+            Vec3 getPointHandlePosition(const Vec3& axis) const;
+            Color getAngleIndicatorColor(const HitArea area) const;
         };
     }
 }

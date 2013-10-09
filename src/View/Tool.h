@@ -131,6 +131,16 @@ namespace TrenchBroom {
             virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
         };
         
+        class PlaneDragHelper {
+        public:
+            virtual bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
+            virtual void endPlaneDrag(const InputState& inputState) = 0;
+            virtual void cancelPlaneDrag(const InputState& inputState) = 0;
+            virtual void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) = 0;
+        };
+        
         class RenderPolicy {
         public:
             virtual ~RenderPolicy();

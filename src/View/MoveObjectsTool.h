@@ -36,8 +36,8 @@ namespace TrenchBroom {
         public:
             MoveObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction);
         private:
-            bool doHandleEvent(const InputState& inputState) const;
-            Vec3 doGetInitialPoint(const InputState& inputState) const;
+            bool doHandleMove(const InputState& inputState) const;
+            Vec3 doGetMoveOrigin(const InputState& inputState) const;
             String doGetActionName(const InputState& inputState) const;
             bool doStartMove(const InputState& inputState);
             Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;

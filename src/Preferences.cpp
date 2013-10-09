@@ -71,8 +71,7 @@ namespace TrenchBroom {
         Preference<Color> ClipOccludedEdgeColor("Renderer/Colors/Clip edge", Color(1.0f,  0.0f,  0.0f,  0.5f));
         
         Preference<Color> ResizeHandleColor("Renderer/Colors/Resize handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<FloatType> RotateHandleRadius("Controls/Rotate handle radius", 32.0);
-        Preference<FloatType> RotateHandleWidth("Controls/Rotate handle width", 32.0);
+        Preference<FloatType> RotateHandleRadius("Controls/Rotate handle radius", 64.0);
         Preference<Color> RotateHandleColor("Renderer/Colors/Rotate handle", Color(1.0f, 1.0f, 1.0f, 1.0f));
 
         Preference<Color> MoveIndicatorOutlineColor("Renderer/Colors/Move indicator outline", Color(1.0f, 1.0f, 1.0f, 1.0f));

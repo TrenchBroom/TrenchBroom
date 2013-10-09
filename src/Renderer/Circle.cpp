@@ -68,6 +68,13 @@ namespace TrenchBroom {
             init3D(vbo, radius, segments, filled, axis, startAngle, angleLength);
         }
         
+        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
+            assert(radius > 0.0f);
+            assert(segments > 0);
+            assert(angleLength > 0.0);
+            init3D(vbo, radius, segments, filled, axis, startAngle, angleLength);
+        }
+
         void Circle::prepare() {
             m_array.prepare();
         }
@@ -79,7 +86,9 @@ namespace TrenchBroom {
         void Circle::init2D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
-            const Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            if (filled)
+                positions.push_back(Vec2f::Null);
             const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }
@@ -87,7 +96,9 @@ namespace TrenchBroom {
         void Circle::init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
-            const Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            if (filled)
+                positions.push_back(Vec3f::Null);
             const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }

@@ -117,6 +117,7 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
+            void OnFirstIdle(wxIdleEvent& event);
         private:
             void bindObservers();
             void unbindObservers();

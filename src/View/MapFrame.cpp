@@ -235,7 +235,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Enable(m_document->hasSelectedBrushes());
+                    event.Enable(m_document->hasSelectedObjects());
                     event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:

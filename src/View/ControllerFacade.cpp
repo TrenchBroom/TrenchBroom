@@ -259,6 +259,14 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
+            using namespace Controller;
+            
+            const Mat4x4 transformation = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
+            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Rotate", objects);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures) {
             using namespace Controller;
             

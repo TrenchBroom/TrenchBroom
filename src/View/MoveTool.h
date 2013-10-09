@@ -24,155 +24,74 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "StringUtils.h"
-#include "Renderer/Camera.h"
-#include "Renderer/MoveIndicatorRenderer.h"
-#include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
-#include "View/Grid.h"
-#include "View/InputState.h"
-#include "View/MapDocument.h"
-#include "View/MovementRestriction.h"
-#include "View/ViewTypes.h"
+#include "View/MoveToolHelper.h"
 
 namespace TrenchBroom {
     namespace View {
         class ControllerFacade;
-        
+
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class RenderPolicyType>
-        class MoveTool : public Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType> {
-        public:
-            typedef enum {
-                Conclude,
-                Deny,
-                Continue
-            } MoveResult;
+        class MoveTool : public Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>, public MoveDelegate {
         private:
             typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType> Super;
-            MovementRestriction& m_movementRestriction;
+            MoveHelper m_helper;
         public:
             MoveTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
-            Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>(next, document, controller),
-            m_movementRestriction(movementRestriction) {}
+            Super(next, document, controller),
+            m_helper(movementRestriction, *this) {}
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
-                if (!Super::dragging() && !handleEvent(inputState))
-                    return;
-                
-                const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
-                const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
-
-                Renderer::MoveIndicatorRenderer indicatorRenderer;
-                indicatorRenderer.render(renderContext, position, direction);
+                m_helper.render(inputState, Super::dragging(), renderContext);
             }
         private:
             void doModifierKeyChange(const InputState& inputState) {
-                if (!handleEvent(inputState))
+                if (!handleMove(inputState))
                     return;
                 if (Super::dragging())
                     PlaneDragPolicy::resetPlane(inputState);
             }
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                if (!m_helper.startPlaneDrag(inputState, plane, initialPoint))
                     return false;
-                if (!handleEvent(inputState))
-                    return false;
-                initialPoint = getInitialPoint(inputState);
-                plane = dragPlane(inputState, initialPoint);
-                
-                if (!startMove(inputState))
-                    return false;
-                
                 Super::controller()->beginUndoableGroup(getActionName(inputState));
                 return true;
             }
             
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-                const Vec3 delta = snapDelta(inputState, m_movementRestriction.apply(curPoint - refPoint));
-                if (delta.null())
-                    return true;
-                
-                const MoveResult result = move(delta);
-                if (result == Conclude)
-                    return false;
-                if (result == Continue)
-                    refPoint += delta;
-                return true;
+                return m_helper.planeDrag(inputState, lastPoint, curPoint, refPoint);
             }
             
             void doEndPlaneDrag(const InputState& inputState) {
+                m_helper.endPlaneDrag(inputState);
                 Super::controller()->closeGroup();
             }
             
             void doCancelPlaneDrag(const InputState& inputState) {
+                m_helper.cancelPlaneDrag(inputState);
                 Super::controller()->rollbackGroup();
                 Super::controller()->closeGroup();
             }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-                if (Math::isnan(distance))
-                    return;
-                initialPoint = inputState.pickRay().pointAtDistance(distance);
-                plane = dragPlane(inputState, initialPoint);
-            }
-
-            bool handleEvent(const InputState& inputState) const {
-                return doHandleEvent(inputState);
-            }
-            
-            Vec3 getInitialPoint(const InputState& inputState) const {
-                return doGetInitialPoint(inputState);
+                m_helper.resetPlane(inputState, plane, initialPoint);
             }
             
             String getActionName(const InputState& inputState) const {
                 return doGetActionName(inputState);
             }
-            
-            bool startMove(const InputState& inputState) {
-                return doStartMove(inputState);
-            }
-            
-            Vec3 snapDelta(const InputState& inputState, const Vec3& delta) const {
-                return doSnapDelta(inputState, delta);
-            }
-            
-            MoveResult move(const Vec3& delta) {
-                return doMove(delta);
-            }
-            
-            void endMove(const InputState& inputState) {
-                return doEndMove(inputState);
-            }
-            
-            Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const {
-                if (m_movementRestriction.isRestricted(Math::Axis::AZ)) {
-                    Vec3 planeNorm = inputState.pickRay().direction;
-                    planeNorm[2] = 0.0;
-                    planeNorm.normalize();
-                    return Plane3(initialPoint, planeNorm);
-                }
-                return horizontalDragPlane(initialPoint);
-            }
-            
-            Renderer::MoveIndicatorRenderer::Direction getDirection() const {
-                if (m_movementRestriction.isRestricted(Math::Axis::AZ))
-                    return Renderer::MoveIndicatorRenderer::Vertical;
-                if (m_movementRestriction.isRestricted(Math::Axis::AX))
-                    return Renderer::MoveIndicatorRenderer::HorizontalX;
-                if (m_movementRestriction.isRestricted(Math::Axis::AY))
-                    return Renderer::MoveIndicatorRenderer::HorizontalY;
-                return Renderer::MoveIndicatorRenderer::HorizontalXY;
-            }
-            
-            virtual bool doHandleEvent(const InputState& inputState) const = 0;
-            virtual Vec3 doGetInitialPoint(const InputState& inputState) const = 0;
+
             virtual String doGetActionName(const InputState& inputState) const = 0;
+            
+            // MoveDelegate protocol must be implemented by derived classes
+            virtual bool doHandleMove(const InputState& inputState) const = 0;
+            virtual Vec3 doGetMoveOrigin(const InputState& inputState) const = 0;
             virtual bool doStartMove(const InputState& inputState) = 0;
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
             virtual MoveResult doMove(const Vec3& delta) = 0;
-            virtual void doEndMove(const InputState& inputState) = 0;
+            virtual void doEndMove(const InputState& inputState) {};
+            virtual void doCancelMove(const InputState& inputState) {};
         };
     }
 }
