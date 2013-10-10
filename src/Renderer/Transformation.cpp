@@ -19,7 +19,7 @@
 
 #include "Transformation.h"
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include <cassert>
 
 namespace TrenchBroom {

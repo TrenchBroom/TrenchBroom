@@ -25,7 +25,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/ModelDefinition.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MeshRenderer.h"

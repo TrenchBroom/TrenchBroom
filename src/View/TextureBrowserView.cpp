@@ -19,7 +19,7 @@
 
 #include "TextureBrowserView.h"
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/FaceTexture.h"

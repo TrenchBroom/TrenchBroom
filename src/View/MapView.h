@@ -21,7 +21,7 @@
 #define __TrenchBroom__MapView__
 
 #include "Color.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"

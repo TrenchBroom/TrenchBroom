@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "CastIterator.h"
 #include "FilterIterator.h"
+#include "Notifier.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
 
@@ -71,6 +72,14 @@ namespace TrenchBroom {
             void operator()(Model::BrushFace* face) const;
         };
         
+        struct NotifyParent {
+        private:
+            Notifier1<Object*>& m_notifier;
+            ObjectSet m_notified;
+        public:
+            NotifyParent(Notifier1<Object*>& notifier);
+            void operator()(const ObjectParentPair& pair);
+        };
 
         template <typename Iter, class Operator, class Filter>
         void each(Iter cur, Iter end, const Operator& op, const Filter& filter) {

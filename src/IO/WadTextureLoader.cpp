@@ -22,7 +22,7 @@
 #include "ByteBuffer.h"
 #include "Color.h"
 #include "Exceptions.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "IO/Wad.h"
 #include "Assets/Palette.h"
 #include "Assets/FaceTexture.h"

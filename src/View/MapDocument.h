@@ -165,8 +165,6 @@ namespace TrenchBroom {
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
-            void faceDidChange(Model::BrushFace* face);
-            void selectionDidChange(const Model::SelectionResult& result);
             
             void addEntity(Model::Entity* entity);
             void addBrush(Model::Brush* brush, Model::Entity* entity);

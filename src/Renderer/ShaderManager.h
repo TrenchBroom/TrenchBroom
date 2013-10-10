@@ -21,7 +21,7 @@
 #define __TrenchBroom__ShaderManager__
 
 #include "StringUtils.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Renderer/ShaderProgram.h"
 
 #include <map>

@@ -19,7 +19,7 @@
 
 #include "RenderUtils.h"
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 
 namespace TrenchBroom {
     namespace Renderer {

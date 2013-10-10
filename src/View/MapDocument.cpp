@@ -313,7 +313,7 @@ namespace TrenchBroom {
                 worldspawn = m_map->createEntity();
                 worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
                 addEntity(worldspawn);
-                objectWasAdded(worldspawn);
+                objectWasAddedNotifier(worldspawn);
             }
             return worldspawn;
         }
@@ -461,8 +461,6 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
-            faceDidChangeNotifier.addObserver(this, &MapDocument::faceDidChange);
-            selectionDidChangeNotifier.addObserver(this, &MapDocument::selectionDidChange);
         }
         
         void MapDocument::unbindObservers() {
@@ -472,8 +470,6 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
-            faceDidChangeNotifier.removeObserver(this, &MapDocument::faceDidChange);
-            selectionDidChangeNotifier.removeObserver(this, &MapDocument::selectionDidChange);
         }
 
         void MapDocument::documentWasNewed() {
@@ -540,11 +536,6 @@ namespace TrenchBroom {
         
         void MapDocument::objectWillChange(Model::Object* object) {
             m_picker.removeObject(object);
-            if (object->type() == Model::Object::OTBrush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                Model::Entity* entity = brush->parent();
-                m_picker.removeObject(entity);
-            }
         }
 
         void MapDocument::objectDidChange(Model::Object* object) {
@@ -553,19 +544,9 @@ namespace TrenchBroom {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);
-            } else if (object->type() == Model::Object::OTBrush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                Model::Entity* entity = brush->parent();
-                m_picker.addObject(entity);
             }
         }
         
-        void MapDocument::faceDidChange(Model::BrushFace* face) {
-        }
-        
-        void MapDocument::selectionDidChange(const Model::SelectionResult& result) {
-        }
-
         MapDocument::MapDocument() :
         CachingLogger(),
         m_worldBounds(DefaultWorldBounds),

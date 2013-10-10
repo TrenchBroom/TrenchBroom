@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "Vec.h"
 #include "Mat.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 
 #include <map>
 

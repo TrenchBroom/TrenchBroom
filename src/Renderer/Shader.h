@@ -21,7 +21,7 @@
 #define __TrenchBroom__Shader__
 
 #include "StringUtils.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {

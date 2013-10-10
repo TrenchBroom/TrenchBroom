@@ -22,7 +22,7 @@
 
 #include "VecMath.h"
 #include "FreeType.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 
 #include <vector>
 

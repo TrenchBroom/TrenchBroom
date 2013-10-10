@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -87,10 +88,13 @@ namespace TrenchBroom {
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 Model::Brush* brush = face->parent();
+                Model::Entity* entity = brush->parent();
                 
+                m_document->objectWillChangeNotifier(entity);
                 m_document->objectWillChangeNotifier(brush);
                 brush->moveBoundary(worldBounds, *face, delta, m_lockTextures);
                 m_document->objectDidChangeNotifier(brush);
+                m_document->objectDidChangeNotifier(entity);
             }
             return true;
         }

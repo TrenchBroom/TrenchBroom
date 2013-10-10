@@ -23,7 +23,7 @@
 #include "Preferences.h"
 #include "CastIterator.h"
 #include "FilterIterator.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
@@ -179,10 +179,17 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
-                m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::OTBrush)
-                m_selectedBrushRenderer.invalidate();
+            if (object->type() == Model::Object::OTEntity) {
+                if (object->selected())
+                    m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
+                else
+                    m_unselectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
+            } else if (object->type() == Model::Object::OTBrush) {
+                if (object->selected())
+                    m_selectedBrushRenderer.invalidate();
+                else
+                    m_unselectedBrushRenderer.invalidate();
+            }
         }
         
         void MapRenderer::faceDidChange(Model::BrushFace* face) {

@@ -19,7 +19,7 @@
 
 #include "FaceRenderer.h"
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/FaceTexture.h"

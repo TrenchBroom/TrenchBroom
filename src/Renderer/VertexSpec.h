@@ -21,7 +21,7 @@
 #define __TrenchBroom__VertexSpec__
 
 #include "Vec.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Renderer/AttributeSpec.h"
 #include "Renderer/Vertex.h"
 

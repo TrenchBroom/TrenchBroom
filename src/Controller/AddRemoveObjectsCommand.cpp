@@ -124,13 +124,26 @@ namespace TrenchBroom {
         };
         
         void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
+            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
+            
             AddObjectToDocument addObjectToDocument(m_document, m_addedObjects);
             Model::each(objects.begin(), objects.end(), addObjectToDocument, Model::MatchAll());
+
+            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
+            
         }
         
         void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
+            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
+            
             RemoveObjectFromDocument removeObjectFromDocument(m_document, m_removedObjects);
             Model::each(objects.begin(), objects.end(), removeObjectFromDocument, Model::MatchAll());
+            
+            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
         }
     }
 }

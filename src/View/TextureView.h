@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__TextureView__
 #define __TrenchBroom__TextureView__
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {

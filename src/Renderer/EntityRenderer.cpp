@@ -96,7 +96,6 @@ namespace TrenchBroom {
         
         void EntityRenderer::addEntity(Model::Entity* entity) {
             assert(entity != NULL);
-
             assert(m_entities.count(entity) == 0);
             m_entities.insert(entity);
             m_classnameRenderer.addString(entity, entity->classname(), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));

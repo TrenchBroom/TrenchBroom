@@ -21,7 +21,7 @@
 #define __TrenchBroom__Vbo__
 
 #include "SharedPointer.h"
-#include <GL/GL.h>
+#include "Renderer/GL.h"
 
 #include <cassert>
 #include <cstring>

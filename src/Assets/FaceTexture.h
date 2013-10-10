@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/Texture.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Model/ModelTypes.h"
 
 #include <cassert>

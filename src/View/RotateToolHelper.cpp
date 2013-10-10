@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "Renderer/Circle.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -102,7 +102,6 @@ namespace TrenchBroom {
             m_lastAngle = angle;
 
             m_textRenderer.updateString(AngleKey, angleString(Math::degrees(m_lastAngle)));
-            m_textRenderer.updateAnchor(AngleKey, angleAnchor());
             return true;
         }
         
@@ -185,12 +184,7 @@ namespace TrenchBroom {
         }
 
         Renderer::TextAnchor::Ptr RotateHelper::angleAnchor() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-            const Vec3 startAxis = (m_firstPoint - m_center).normalized();
-            const Vec3 endAxis = Quat3(m_axis, m_lastAngle) * startAxis;
-            
-            return Renderer::TextAnchor::Ptr(new Renderer::SimpleTextAnchor(m_center + endAxis * handleRadius, Renderer::Alignment::Bottom | Renderer::Alignment::Center, Vec2f(0.0f, 10.0f)));
+            return Renderer::TextAnchor::Ptr(new Renderer::SimpleTextAnchor(m_center, Renderer::Alignment::Bottom | Renderer::Alignment::Center, Vec2f(0.0f, 10.0f)));
         }
     }
 }

@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__VertexArrayRenderer__
 #define __TrenchBroom__VertexArrayRenderer__
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "SharedPointer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"

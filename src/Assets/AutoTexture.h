@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__AutoTexture__
 #define __TrenchBroom__AutoTexture__
 
-#include "GL/GL.h"
+#include "Renderer/GL.h"
 #include "ByteBuffer.h"
 #include "SharedPointer.h"
 #include "Assets/Texture.h"

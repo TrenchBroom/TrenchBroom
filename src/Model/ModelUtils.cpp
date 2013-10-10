@@ -139,5 +139,13 @@ namespace TrenchBroom {
         void Transform::operator()(Model::BrushFace* face) const {
             face->transform(m_transformation, m_lockTextures);
         }
+
+        NotifyParent::NotifyParent(Notifier1<Object*>& notifier) :
+        m_notifier(notifier) {}
+        
+        void NotifyParent::operator()(const ObjectParentPair& pair) {
+            if (pair.parent != NULL && m_notified.insert(pair.parent).second)
+                m_notifier(pair.parent);
+        }
     }
 }
