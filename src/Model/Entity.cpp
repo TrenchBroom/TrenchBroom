@@ -42,12 +42,6 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_brushes);
         }
 
-        bool Entity::select() {
-            if (!m_brushes.empty())
-                return false;
-            return Object::select();
-        }
-
         Entity* Entity::clone(const BBox3& worldBounds) const {
             return static_cast<Entity*>(doClone(worldBounds));
         }
@@ -179,7 +173,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::doContains(const Object& object) const {
-            return object.contains(*this);
+            return object.containedBy(*this);
         }
         
         bool Entity::doContains(const Entity& entity) const {
@@ -187,6 +181,18 @@ namespace TrenchBroom {
         }
         
         bool Entity::doContains(const Brush& brush) const {
+            return brush.containedBy(*this);
+        }
+
+        bool Entity::doContainedBy(const Object& object) const {
+            return object.contains(*this);
+        }
+        
+        bool Entity::doContainedBy(const Entity& entity) const {
+            return entity.contains(*this);
+        }
+        
+        bool Entity::doContainedBy(const Brush& brush) const {
             return brush.contains(*this);
         }
 
@@ -207,7 +213,11 @@ namespace TrenchBroom {
         m_definition(NULL),
         m_model(NULL) {}
         
-        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        bool Entity::doSelectable() const {
+            return m_brushes.empty();
+        }
+        
+void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
         }
     }
 }

@@ -62,8 +62,6 @@ namespace TrenchBroom {
         public:
             virtual ~Entity();
             
-            bool select();
-
             Entity* clone(const BBox3& worldBounds) const;
             EntitySnapshot takeSnapshot();
             
@@ -94,10 +92,14 @@ namespace TrenchBroom {
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
         private:
+            bool doSelectable() const;
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;
             bool doContains(const Brush& brush) const;
+            bool doContainedBy(const Object& object) const;
+            bool doContainedBy(const Entity& entity) const;
+            bool doContainedBy(const Brush& brush) const;
             bool doIntersects(const Object& object) const;
             bool doIntersects(const Entity& entity) const;
             bool doIntersects(const Brush& brush) const;

@@ -211,13 +211,17 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds, m_faces);
         }
 
+        bool Brush::doSelectable() const {
+            return true;
+        }
+        
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds, m_faces);
         }
 
         bool Brush::doContains(const Object& object) const {
-            return object.contains(*this);
+            return object.containedBy(*this);
         }
         
         bool Brush::doContains(const Entity& entity) const {
@@ -226,7 +230,7 @@ namespace TrenchBroom {
         
         bool Brush::doContains(const Brush& brush) const {
             if (!bounds().contains(brush.bounds()))
-                return true;
+                return false;
             
             const BrushVertexList& theirVertices = brush.vertices();
             for (size_t i = 0; i < theirVertices.size(); ++i)
@@ -235,6 +239,18 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool Brush::doContainedBy(const Object& object) const {
+            return object.contains(*this);
+        }
+        
+        bool Brush::doContainedBy(const Entity& entity) const {
+            return entity.contains(*this);
+        }
+        
+        bool Brush::doContainedBy(const Brush& brush) const {
+            return brush.contains(*this);
+        }
+
         bool Brush::doIntersects(const Object& object) const {
             return object.intersects(*this);
         }

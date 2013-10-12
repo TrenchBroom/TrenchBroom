@@ -300,12 +300,12 @@ namespace TrenchBroom {
             Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
             while (it != end) {
                 Model::Object* object = *it;
-                if (object != selectionBrush && selectionBrush->intersects(*object))
+                if (object != selectionBrush && object->selectable() && selectionBrush->intersects(*object))
                     selectObjects.push_back(object);
                 ++it;
             }
             
-            m_controller->beginUndoableGroup("Select touching");
+            m_controller->beginUndoableGroup("Select touching objects");
             m_controller->deselectAll();
             m_controller->removeObject(*selectionBrush);
             m_controller->selectObjects(selectObjects);
@@ -313,6 +313,26 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditSelectContained(wxCommandEvent& event) {
+            const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
+            assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
+            
+            Model::Brush* selectionBrush = selectedBrushes.front();
+            Model::ObjectList selectObjects;
+            
+            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
+            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
+            while (it != end) {
+                Model::Object* object = *it;
+                if (object != selectionBrush && object->selectable() && selectionBrush->contains(*object))
+                    selectObjects.push_back(object);
+                ++it;
+            }
+            
+            m_controller->beginUndoableGroup("Select contained objects");
+            m_controller->deselectAll();
+            m_controller->removeObject(*selectionBrush);
+            m_controller->selectObjects(selectObjects);
+            m_controller->closeGroup();
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {

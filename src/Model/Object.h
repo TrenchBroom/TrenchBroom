@@ -50,8 +50,9 @@ namespace TrenchBroom {
             Type type() const;
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             bool selected() const;
-            virtual bool select();
-            virtual bool deselect();
+            bool selectable() const;
+            bool select();
+            bool deselect();
             bool partiallySelected() const;
             size_t childSelectionCount() const;
             void incChildSelectionCount();
@@ -63,6 +64,9 @@ namespace TrenchBroom {
             bool contains(const Object& object) const;
             bool contains(const Entity& entity) const;
             bool contains(const Brush& brush) const;
+            bool containedBy(const Object& object) const;
+            bool containedBy(const Entity& entity) const;
+            bool containedBy(const Brush& brush) const;
             bool intersects(const Object& object) const;
             bool intersects(const Entity& entity) const;
             bool intersects(const Brush& brush) const;
@@ -70,10 +74,14 @@ namespace TrenchBroom {
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
         private:
+            virtual bool doSelectable() const = 0;
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;
             virtual bool doContains(const Entity& entity) const = 0;
             virtual bool doContains(const Brush& brush) const = 0;
+            virtual bool doContainedBy(const Object& object) const = 0;
+            virtual bool doContainedBy(const Entity& entity) const = 0;
+            virtual bool doContainedBy(const Brush& brush) const = 0;
             virtual bool doIntersects(const Object& object) const = 0;
             virtual bool doIntersects(const Entity& entity) const = 0;
             virtual bool doIntersects(const Brush& brush) const = 0;

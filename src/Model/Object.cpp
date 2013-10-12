@@ -18,6 +18,8 @@
  */
 
 #include "Object.h"
+#include "Model/Entity.h"
+#include "Model/Brush.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -49,8 +51,14 @@ namespace TrenchBroom {
             return m_selected;
         }
         
+        bool Object::selectable() const {
+            return doSelectable();
+        }
+        
         bool Object::select() {
             if (m_selected)
+                return false;
+            if (!selectable())
                 return false;
             m_selected = true;
             return true;
@@ -97,6 +105,18 @@ namespace TrenchBroom {
         
         bool Object::contains(const Brush& brush) const {
             return doContains(brush);
+        }
+
+        bool Object::containedBy(const Object& object) const {
+            return doContainedBy(object);
+        }
+        
+        bool Object::containedBy(const Entity& entity) const {
+            return doContainedBy(entity);
+        }
+        
+        bool Object::containedBy(const Brush& brush) const {
+            return doContainedBy(brush);
         }
 
         bool Object::intersects(const Object& object) const {
