@@ -90,6 +90,13 @@ namespace TrenchBroom {
             void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
             void OnEditDeleteObjects(wxCommandEvent& event);
             
+            void OnEditSelectAll(wxCommandEvent& event);
+            void OnEditSelectSiblings(wxCommandEvent& event);
+            void OnEditSelectTouching(wxCommandEvent& event);
+            void OnEditSelectContained(wxCommandEvent& event);
+            void OnEditSelectByLineNumber(wxCommandEvent& event);
+            void OnEditSelectNone(wxCommandEvent& event);
+            
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleClipSide(wxCommandEvent& event);
             void OnEditPerformClip(wxCommandEvent& event);
@@ -125,7 +132,6 @@ namespace TrenchBroom {
             bool saveDocument();
             bool saveDocumentAs();
             void pasteObjects(const Model::ObjectList& objects, const Vec3& delta);
-            Model::ObjectList collectSelectableObjects(const Model::ObjectList& objects) const;
         };
     }
 }

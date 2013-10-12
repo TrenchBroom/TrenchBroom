@@ -363,6 +363,7 @@ namespace TrenchBroom {
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::SCAny, "Select All"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectSiblings, WXK_CONTROL, WXK_ALT, 'A', KeyboardShortcut::SCAny, "Select Siblings"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectTouching, WXK_CONTROL, 'T', KeyboardShortcut::SCAny, "Select Touching"));
+            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectContained, WXK_CONTROL, WXK_ALT, 'T', KeyboardShortcut::SCAny, "Select Contained"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectByFilePosition, KeyboardShortcut::SCAny, "Select by Line Number"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectNone, WXK_CONTROL, WXK_SHIFT, 'A', KeyboardShortcut::SCAny, "Select None"));
             editMenu->addSeparator();

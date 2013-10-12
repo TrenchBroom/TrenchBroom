@@ -59,11 +59,24 @@ namespace TrenchBroom {
             
             Object* clone(const BBox3& worldBounds) const;
             void transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            
+            bool contains(const Object& object) const;
+            bool contains(const Entity& entity) const;
+            bool contains(const Brush& brush) const;
+            bool intersects(const Object& object) const;
+            bool intersects(const Entity& entity) const;
+            bool intersects(const Brush& brush) const;
         protected:
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
         private:
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
+            virtual bool doContains(const Object& object) const = 0;
+            virtual bool doContains(const Entity& entity) const = 0;
+            virtual bool doContains(const Brush& brush) const = 0;
+            virtual bool doIntersects(const Object& object) const = 0;
+            virtual bool doIntersects(const Entity& entity) const = 0;
+            virtual bool doIntersects(const Brush& brush) const = 0;
         };
     }
 }

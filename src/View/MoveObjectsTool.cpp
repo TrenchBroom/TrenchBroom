@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             if (!document()->hasSelectedObjects())
                 return false;
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
             if (!first.matches)
                 return false;
             const Model::Object* object = Model::hitAsObject(first.hit);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
         
         Vec3 MoveObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), false);
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
             assert(first.matches);
             return first.hit.hitPoint();
         }

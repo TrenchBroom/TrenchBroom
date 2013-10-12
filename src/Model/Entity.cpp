@@ -23,6 +23,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
+#include "Model/Brush.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -175,6 +176,30 @@ namespace TrenchBroom {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
+        }
+
+        bool Entity::doContains(const Object& object) const {
+            return object.contains(*this);
+        }
+        
+        bool Entity::doContains(const Entity& entity) const {
+            return bounds().contains(entity.bounds());
+        }
+        
+        bool Entity::doContains(const Brush& brush) const {
+            return brush.contains(*this);
+        }
+
+        bool Entity::doIntersects(const Object& object) const {
+            return object.intersects(*this);
+        }
+        
+        bool Entity::doIntersects(const Entity& entity) const {
+            return bounds().intersects(entity.bounds());
+        }
+        
+        bool Entity::doIntersects(const Brush& brush) const {
+            return brush.intersects(*this);
         }
 
         Entity::Entity() :

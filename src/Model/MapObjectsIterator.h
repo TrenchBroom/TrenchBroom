@@ -38,12 +38,12 @@ namespace TrenchBroom {
                 return OuterIterator(map.entities().end());
             }
             
-            InnerIterator beginInner(Model::EntityList::const_iterator it) {
+            InnerIterator beginInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return entity->brushes().begin();
             }
             
-            InnerIterator endInner(Model::EntityList::const_iterator it) {
+            InnerIterator endInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return entity->brushes().end();
             }

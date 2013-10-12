@@ -26,7 +26,10 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Map.h"
+#include "Model/MapObjectsIterator.h"
 #include "Model/Object.h"
+#include "Model/Selection.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
@@ -264,6 +267,61 @@ namespace TrenchBroom {
             m_controller->closeGroup();
         }
 
+        void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
+            const Model::ObjectList selectableObjects = Model::Selection::collectSelectableObjects(m_document->map()->entities());
+            m_controller->selectObjects(selectableObjects);
+        }
+        
+        void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
+            const Model::BrushList& alreadySelectedBrushes = m_document->selectedBrushes();
+            
+            Model::EntitySet visitedEntities;
+            Model::ObjectList selectBrushes;
+            Model::BrushList::const_iterator it, end;
+            for (it = alreadySelectedBrushes.begin(), end = alreadySelectedBrushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                Model::Entity* entity = brush->parent();
+                if (visitedEntities.insert(entity).second)
+                    VectorUtils::append(selectBrushes, entity->brushes());
+            }
+            
+            if (!selectBrushes.empty())
+                m_controller->selectObjects(selectBrushes);
+        }
+        
+        void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
+            const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
+            assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
+
+            Model::Brush* selectionBrush = selectedBrushes.front();
+            Model::ObjectList selectObjects;
+            
+            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
+            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
+            while (it != end) {
+                Model::Object* object = *it;
+                if (object != selectionBrush && selectionBrush->intersects(*object))
+                    selectObjects.push_back(object);
+                ++it;
+            }
+            
+            m_controller->beginUndoableGroup("Select touching");
+            m_controller->deselectAll();
+            m_controller->removeObject(*selectionBrush);
+            m_controller->selectObjects(selectObjects);
+            m_controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditSelectContained(wxCommandEvent& event) {
+        }
+        
+        void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
+        }
+        
+        void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
+            m_controller->deselectAll();
+        }
+
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -330,6 +388,27 @@ namespace TrenchBroom {
                 }
                 case wxID_DELETE:
                     event.Enable(m_document->hasSelectedObjects());
+                    break;
+                case CommandIds::Menu::EditSelectAll:
+                    event.Enable(!m_mapView->anyToolActive());
+                    break;
+                case CommandIds::Menu::EditSelectSiblings:
+                    event.Enable(!m_mapView->anyToolActive()&&
+                                 !m_document->hasSelectedEntities() &&
+                                 m_document->hasSelectedBrushes());
+                    break;
+                case CommandIds::Menu::EditSelectTouching:
+                case CommandIds::Menu::EditSelectContained:
+                    event.Enable(!m_mapView->anyToolActive() &&
+                                 !m_document->hasSelectedEntities() &&
+                                 m_document->selectedBrushes().size() == 1);
+                    break;
+                case CommandIds::Menu::EditSelectByFilePosition:
+                    event.Enable(!m_mapView->anyToolActive());
+                    break;
+                case CommandIds::Menu::EditSelectNone:
+                    event.Enable(!m_mapView->anyToolActive() &&
+                                 m_document->hasSelection());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Enable(m_document->hasSelectedBrushes());
@@ -456,6 +535,14 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectContained, this, CommandIds::Menu::EditSelectContained);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
@@ -586,7 +673,7 @@ namespace TrenchBroom {
         void MapFrame::pasteObjects(const Model::ObjectList& objects, const Vec3& delta) {
             assert(!objects.empty());
             
-            const Model::ObjectList selectableObjects = collectSelectableObjects(objects);
+            const Model::ObjectList selectableObjects = Model::Selection::collectSelectableObjects(objects);
             const String groupName = String("Paste ") + String(objects.size() == 1 ? "object" : "objects");
             m_controller->beginUndoableGroup(groupName);
             m_controller->deselectAll();
@@ -599,26 +686,6 @@ namespace TrenchBroom {
             StringStream logMsg;
             logMsg << "Pasted " << objects.size() << (objects.size() == 1 ? " object" : " objects") << " from clipboard";
             logger()->info(logMsg.str());
-        }
-
-        Model::ObjectList MapFrame::collectSelectableObjects(const Model::ObjectList& objects) const {
-            Model::ObjectList result;
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::OTEntity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    const Model::BrushList& brushes = entity->brushes();
-                    if (brushes.empty()) {
-                        result.push_back(object);
-                    } else {
-                        result.insert(result.end(), brushes.begin(), brushes.end());
-                    }
-                } else {
-                    result.push_back(object);
-                }
-            }
-            return result;
         }
     }
 }

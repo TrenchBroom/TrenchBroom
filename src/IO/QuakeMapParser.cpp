@@ -232,7 +232,7 @@ namespace TrenchBroom {
                    token.type() != QuakeMapToken::Eof)
                 token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::MFUnknown;
+                return Model::MFQuake;
             
             m_tokenizer.pushToken(token);
             for (size_t i = 0; i < 3; ++i) {

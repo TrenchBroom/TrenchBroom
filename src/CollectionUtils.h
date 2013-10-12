@@ -174,8 +174,8 @@ namespace VectorUtils {
         return result;
     }
     
-    template <typename T>
-    void append(std::vector<T>& vec1, const std::vector<T>& vec2) {
+    template <typename T1, typename T2>
+    void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
     }
     
@@ -261,6 +261,77 @@ namespace VectorUtils {
     template <typename T, typename I>
     void removeOrdered(std::vector<T>& vec, I cur, const I end) {
         removeOrdered<T, I, std::less<T> >(vec, cur, end);
+    }
+    
+    template <typename T, typename Compare>
+    bool setInsert(std::vector<T>& vec, T& object) {
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
+        if (it == vec.end()) {
+            vec.push_back(object);
+            return true;
+        }
+        if (*it != object) {
+            vec.insert(it, object);
+            return true;
+        }
+        *it = object;
+        return false;
+    }
+    
+    template <typename T, typename I, typename Compare>
+    void setInsert(std::vector<T>& vec, I cur, const I end) {
+        Compare cmp;
+        while (cur != end) {
+            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
+            if (it == vec.end())
+                vec.push_back(*cur);
+            else if (*it != *cur)
+                vec.insert(it, *cur);
+            else
+                *it = *cur;
+            ++cur;
+        }
+    }
+    
+    template <typename T, typename Compare>
+    bool setRemove(std::vector<T>& vec, T& object) {
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
+        if (it != vec.end() && *it == object) {
+            vec.erase(it);
+            return true;
+        }
+        return false;
+    }
+    
+    template <typename T, typename I, typename Compare>
+    void setRemove(std::vector<T>& vec, I cur, const I end) {
+        Compare cmp;
+        while (cur != end) {
+            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
+            if (it != vec.end() && *it == *cur)
+                vec.erase(it);
+            ++cur;
+        }
+    }
+
+    template <typename T>
+    bool setInsert(std::vector<T>& vec, T& object) {
+        return setInsert<T, std::less<T> >(vec, object);
+    }
+    
+    template <typename T, typename I>
+    void setInsert(std::vector<T>& vec, I cur, const I end) {
+        setInsert<T, I, std::less<T> >(vec, cur, end);
+    }
+    
+    template <typename T>
+    bool setRemove(std::vector<T>& vec, T& object) {
+        return setRemove<T, std::less<T> >(vec, object);
+    }
+
+    template <typename T, typename I>
+    void setRemove(std::vector<T>& vec, I cur, const I end) {
+        setRemove<T, I, std::less<T> >(vec, cur, end);
     }
 }
 

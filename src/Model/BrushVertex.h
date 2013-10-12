@@ -52,6 +52,7 @@ namespace TrenchBroom {
         
         BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position);
         BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position);
+        Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices);
     }
 }
 

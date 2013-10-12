@@ -64,12 +64,14 @@ namespace TrenchBroom {
             void operator()(Object* object) const {
                 if (m_select) {
                     if (!object->selected()) {
-                        object->select();
+                        const bool success = object->select();
+                        assert(success);
                         m_result.addSelectedObject(object);
                     }
                 } else {
                     if (object->selected()) {
-                        object->deselect();
+                        const bool success = object->deselect();
+                        assert(success);
                         m_result.addDeselectedObject(object);
                     }
                 }
@@ -78,12 +80,14 @@ namespace TrenchBroom {
             void operator()(Entity* entity) const {
                 if (m_select) {
                     if (!entity->selected()) {
-                        entity->select();
+                        const bool success = entity->select();
+                        assert(success);
                         m_result.addSelectedObject(entity);
                     }
                 } else {
                     if (entity->selected()) {
-                        entity->deselect();
+                        const bool success = entity->deselect();
+                        assert(success);
                         m_result.addDeselectedObject(entity);
                     }
                 }
@@ -92,12 +96,14 @@ namespace TrenchBroom {
             void operator()(Brush* brush) const {
                 if (m_select) {
                     if (!brush->selected()) {
-                        brush->select();
+                        const bool success = brush->select();
+                        assert(success);
                         m_result.addSelectedObject(brush);
                     }
                 } else {
                     if (brush->selected()) {
-                        brush->deselect();
+                        const bool success = brush->deselect();
+                        assert(success);
                         m_result.addDeselectedObject(brush);
                     }
                 }
@@ -352,6 +358,45 @@ namespace TrenchBroom {
             applyResult(result);
             return result;
         }
+        
+        ObjectList Selection::collectSelectableObjects(const ObjectList& objects) {
+            Model::ObjectList result;
+            Model::ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* object = *it;
+                if (object->type() == Model::Object::OTEntity) {
+                    Model::Entity* entity = static_cast<Model::Entity*>(object);
+                    const Model::BrushList& brushes = entity->brushes();
+                    if (brushes.empty()) {
+                        result.push_back(object);
+                    } else {
+                        result.insert(result.end(), brushes.begin(), brushes.end());
+                    }
+                } else {
+                    result.push_back(object);
+                }
+            }
+            return result;
+        }
+        
+        ObjectList Selection::collectSelectableObjects(const EntityList& entities) {
+            Model::ObjectList result;
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                const Model::BrushList& brushes = entity->brushes();
+                if (brushes.empty()) {
+                    result.push_back(entity);
+                } else {
+                    result.insert(result.end(), brushes.begin(), brushes.end());
+                }
+            }
+            return result;
+        }
+        
+        ObjectList Selection::collectSelectableObjects(const BrushList& brushes) {
+            return VectorUtils::cast<Model::Object*>(brushes);
+        }
 
         void Selection::deselectAllObjects(SelectionResult& result) {
             assert(m_map != NULL);
@@ -382,20 +427,20 @@ namespace TrenchBroom {
             ObjectSet::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Object* object = *it;
-                VectorUtils::insertOrdered(m_selectedObjects, object);
+                VectorUtils::setInsert(m_selectedObjects, object);
                 
                 if (object->type() == Object::OTEntity) {
                     Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::insertOrdered(m_selectedEntities, entity);
+                    VectorUtils::setInsert(m_selectedEntities, entity);
                 } else {
                     Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::insertOrdered(m_selectedBrushes, brush);
+                    VectorUtils::setInsert(m_selectedBrushes, brush);
                     
                     const BrushFaceList& brushFaces = brush->faces();
-                    VectorUtils::insertOrdered(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
+                    VectorUtils::setInsert(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
                     
                     Entity* entity = brush->parent();
-                    VectorUtils::insertOrdered(m_partiallySelectedEntities, entity);
+                    VectorUtils::setInsert(m_partiallySelectedEntities, entity);
                 }
             }
         }
@@ -404,21 +449,21 @@ namespace TrenchBroom {
             ObjectSet::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Object* object = *it;
-                VectorUtils::removeOrdered(m_selectedObjects, object);
+                VectorUtils::setRemove(m_selectedObjects, object);
                 
                 if (object->type() == Object::OTEntity) {
                     Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::removeOrdered(m_selectedEntities, entity);
+                    VectorUtils::setRemove(m_selectedEntities, entity);
                 } else {
                     Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::removeOrdered(m_selectedBrushes, brush);
+                    VectorUtils::setRemove(m_selectedBrushes, brush);
                     
                     const BrushFaceList& brushFaces = brush->faces();
-                    VectorUtils::removeOrdered(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
+                    VectorUtils::setRemove(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
 
                     Entity* entity = brush->parent();
                     if (!entity->partiallySelected())
-                        VectorUtils::removeOrdered(m_partiallySelectedEntities, entity);
+                        VectorUtils::setRemove(m_partiallySelectedEntities, entity);
                 }
             }
         }
@@ -427,10 +472,10 @@ namespace TrenchBroom {
             BrushFaceSet::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
-                VectorUtils::insertOrdered(m_selectedFaces, face);
+                VectorUtils::setInsert(m_selectedFaces, face);
                 
                 Brush* brush = face->parent();
-                VectorUtils::insertOrdered(m_partiallySelectedBrushes, brush);
+                VectorUtils::setInsert(m_partiallySelectedBrushes, brush);
             }
         }
         
@@ -438,11 +483,11 @@ namespace TrenchBroom {
             BrushFaceSet::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
-                VectorUtils::removeOrdered(m_selectedFaces, face);
+                VectorUtils::setRemove(m_selectedFaces, face);
                 
                 Brush* brush = face->parent();
                 if (!brush->partiallySelected())
-                    VectorUtils::removeOrdered(m_partiallySelectedBrushes, brush);
+                    VectorUtils::setRemove(m_partiallySelectedBrushes, brush);
             }
         }
     }

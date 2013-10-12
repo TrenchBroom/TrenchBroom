@@ -105,5 +105,20 @@ namespace TrenchBroom {
             }
             return end;
         }
+
+        Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices) {
+            size_t above = 0;
+            size_t below = 0;
+            for (size_t i = 0; i < vertices.size(); ++i) {
+                const Math::PointStatus::Type status = plane.pointStatus(vertices[i]->position());
+                if (status == Math::PointStatus::PSAbove)
+                    ++above;
+                else if (status == Math::PointStatus::PSBelow)
+                    ++below;
+                if (above > 0 && below > 0)
+                    return Math::PointStatus::PSInside;
+            }
+            return above > 0 ? Math::PointStatus::PSAbove : Math::PointStatus::PSBelow;
+        }
     }
 }

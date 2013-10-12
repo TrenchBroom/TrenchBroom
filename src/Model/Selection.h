@@ -68,6 +68,10 @@ namespace TrenchBroom {
             SelectionResult selectFaces(const BrushFaceList& faces);
             SelectionResult deselectFaces(const BrushFaceList& faces);
             SelectionResult deselectAll();
+            
+            static ObjectList collectSelectableObjects(const ObjectList& objects);
+            static ObjectList collectSelectableObjects(const EntityList& entities);
+            static ObjectList collectSelectableObjects(const BrushList& brushes);
         private:
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);

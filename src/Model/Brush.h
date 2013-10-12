@@ -83,6 +83,7 @@ namespace TrenchBroom {
             
             const BrushFaceList& faces() const;
             const BrushEdgeList& edges() const;
+            const BrushVertexList& vertices() const;
             BrushFaceList incidentFaces(const BrushVertex& vertex) const;
             
             void addEdges(Vertex::List& vertices) const;
@@ -92,8 +93,16 @@ namespace TrenchBroom {
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            bool doContains(const Object& object) const;
+            bool doContains(const Entity& entity) const;
+            bool doContains(const Brush& brush) const;
+            bool doIntersects(const Object& object) const;
+            bool doIntersects(const Entity& entity) const;
+            bool doIntersects(const Brush& brush) const;
             Object* doClone(const BBox3& worldBounds) const;
         private:
+            bool containsPoint(const Vec3& point) const;
+
             friend class BrushSnapshot;
             void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);
             

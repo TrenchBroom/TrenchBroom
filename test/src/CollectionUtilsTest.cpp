@@ -342,6 +342,55 @@ TEST(CollectionUtilsTest, vecContainsPtr) {
     delete i110;
 }
 
+TEST(CollectionUtilsTest, vecSetInsertSingle) {
+    int i1(1);
+    int i2(2);
+    
+    std::vector<int> vec;
+    ASSERT_TRUE(VectorUtils::setInsert(vec, i1));
+    ASSERT_TRUE(VectorUtils::contains(vec, i1));
+    ASSERT_TRUE(VectorUtils::setInsert(vec, i2));
+    ASSERT_TRUE(VectorUtils::contains(vec, i2));
+    ASSERT_FALSE(VectorUtils::setInsert(vec, i1));
+    ASSERT_EQ(2u, vec.size());
+    ASSERT_TRUE(VectorUtils::contains(vec, i1));
+    ASSERT_TRUE(VectorUtils::contains(vec, i2));
+}
+
+TEST(CollectionUtilsTest, vecSetRemoveSingle) {
+    int i1(1);
+    int i2(2);
+    int i3(3);
+    
+    std::vector<int> vec;
+    VectorUtils::setInsert(vec, i1);
+    VectorUtils::setInsert(vec, i2);
+    
+    ASSERT_FALSE(VectorUtils::setRemove(vec, i3));
+    ASSERT_TRUE(VectorUtils::setRemove(vec, i1));
+    ASSERT_EQ(1u, vec.size());
+    ASSERT_EQ(i2, vec[0]);
+    ASSERT_FALSE(VectorUtils::setRemove(vec, i1));
+    ASSERT_TRUE(VectorUtils::setRemove(vec, i2));
+    ASSERT_TRUE(vec.empty());
+}
+
+TEST(CollectionUtilsTest, vecSetInsertRange) {
+    int i1(1);
+    int i2(2);
+    
+    std::vector<int> range;
+    range.push_back(i2);
+    range.push_back(i2);
+    range.push_back(i1);
+    
+    std::vector<int> set;
+    VectorUtils::setInsert(set, range.begin(), range.end());
+    ASSERT_EQ(2u, set.size());
+    ASSERT_EQ(i1, set[0]);
+    ASSERT_EQ(i2, set[1]);
+}
+
 TEST(CollectionUtilsTest, mapFindOrInsert) {
     typedef std::map<std::string, std::string> TestMap;
 

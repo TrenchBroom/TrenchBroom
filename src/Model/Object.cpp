@@ -87,6 +87,30 @@ namespace TrenchBroom {
             doTransform(transformation, lockTextures, worldBounds);
         }
 
+        bool Object::contains(const Object& object) const {
+            return doContains(object);
+        }
+        
+        bool Object::contains(const Entity& entity) const {
+            return doContains(entity);
+        }
+        
+        bool Object::contains(const Brush& brush) const {
+            return doContains(brush);
+        }
+
+        bool Object::intersects(const Object& object) const {
+            return doIntersects(object);
+        }
+        
+        bool Object::intersects(const Entity& entity) const {
+            return doIntersects(entity);
+        }
+        
+        bool Object::intersects(const Brush& brush) const {
+            return doIntersects(brush);
+        }
+        
         Object::Object(const Type type) :
         m_type(type),
         m_lineNumber(0),

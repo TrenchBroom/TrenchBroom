@@ -136,6 +136,10 @@ namespace TrenchBroom {
             return m_geometry->edges();
         }
 
+        const BrushVertexList& Brush::vertices() const {
+            return m_geometry->vertices();
+        }
+
         BrushFaceList Brush::incidentFaces(const BrushVertex& vertex) const {
             const BrushFaceGeometryList sides = m_geometry->incidentSides(vertex);
             BrushFaceList result;
@@ -212,6 +216,85 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds, m_faces);
         }
 
+        bool Brush::doContains(const Object& object) const {
+            return object.contains(*this);
+        }
+        
+        bool Brush::doContains(const Entity& entity) const {
+            return bounds().contains(entity.bounds());
+        }
+        
+        bool Brush::doContains(const Brush& brush) const {
+            if (!bounds().contains(brush.bounds()))
+                return true;
+            
+            const BrushVertexList& theirVertices = brush.vertices();
+            for (size_t i = 0; i < theirVertices.size(); ++i)
+                if (!containsPoint(theirVertices[i]->position()))
+                    return false;
+            return true;
+        }
+        
+        bool Brush::doIntersects(const Object& object) const {
+            return object.intersects(*this);
+        }
+        
+        bool Brush::doIntersects(const Entity& entity) const {
+            return bounds().intersects(entity.bounds());
+        }
+        
+        bool Brush::doIntersects(const Brush& brush) const {
+            if (!bounds().intersects(brush.bounds()))
+                return false;
+            
+            // separating axis theorem
+            // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
+            
+            BrushFaceList::const_iterator faceIt, faceEnd;
+            
+            const BrushVertexList& myVertices = vertices();
+            const BrushFaceList& theirFaces = brush.faces();
+            for (faceIt = theirFaces.begin(), faceEnd = theirFaces.end(); faceIt != faceEnd; ++faceIt) {
+                const BrushFace* theirFace = *faceIt;
+                if (pointStatus(theirFace->boundary(), myVertices) == Math::PointStatus::PSAbove)
+                    return false;
+            }
+            
+            const BrushVertexList& theirVertices = brush.vertices();
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                const BrushFace* myFace = *faceIt;
+                if (pointStatus(myFace->boundary(), theirVertices) == Math::PointStatus::PSAbove)
+                    return false;
+            }
+            
+            const BrushEdgeList& myEdges = edges();
+            const BrushEdgeList& theirEdges = brush.edges();
+            BrushEdgeList::const_iterator myEdgeIt, myEdgeEnd, theirEdgeIt, theirEdgeEnd;
+            for (myEdgeIt = myEdges.begin(), myEdgeEnd = myEdges.end(); myEdgeIt != myEdgeEnd; ++myEdgeIt) {
+                const BrushEdge* myEdge = *myEdgeIt;
+                const Vec3 myEdgeVec = myEdge->vector();
+                const Vec3& origin = myEdge->start()->position();
+                
+                for (theirEdgeIt = theirEdges.begin(), theirEdgeEnd = theirEdges.end(); theirEdgeIt != theirEdgeEnd; ++theirEdgeIt) {
+                    const BrushEdge* theirEdge = *theirEdgeIt;
+                    const Vec3 theirEdgeVec = theirEdge->vector();
+                    const Vec3 direction = crossed(myEdgeVec, theirEdgeVec);
+                    const Plane3 plane(origin, direction);
+                    
+                    const Math::PointStatus::Type myStatus = pointStatus(plane, myVertices);
+                    if (myStatus != Math::PointStatus::PSInside) {
+                        const Math::PointStatus::Type theirStatus = pointStatus(plane, theirVertices);
+                        if (theirStatus != Math::PointStatus::PSInside) {
+                            if (myStatus != theirStatus)
+                                return false;
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+
         Object* Brush::doClone(const BBox3& worldBounds) const {
             BrushFaceList newFaces;
             newFaces.reserve(m_faces.size());
@@ -224,6 +307,19 @@ namespace TrenchBroom {
             }
             
             return new Brush(worldBounds, newFaces);
+        }
+        
+        bool Brush::containsPoint(const Vec3& point) const {
+            if (!bounds().contains(point))
+                return false;
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                const BrushFace* face = *it;
+                if (face->boundary().pointStatus(point) == Math::PointStatus::PSAbove)
+                    return false;
+            }
+            return true;
         }
 
         void Brush::restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces) {

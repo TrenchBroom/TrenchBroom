@@ -301,6 +301,29 @@ void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
     op(bbox.min + x,     bbox.min + x + z    );
 }
 
+template <typename T>
+typename Vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
+    const Vec<T,3> size = bbox.size();
+    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+
+    typename Vec<T,3>::List vertices(8);
+    
+    // top vertices clockwise (viewed from above)
+    vertices[0] = bbox.max;
+    vertices[1] = bbox.max-y;
+    vertices[2] = bbox.min+z;
+    vertices[3] = bbox.max-x;
+    
+    // bottom vertices clockwise (viewed from below)
+    vertices[4] = bbox.min;
+    vertices[5] = bbox.min+x;
+    vertices[6] = bbox.max-z;
+    vertices[7] = bbox.min+y;
+    return vertices;
+}
+
 template <typename T, class Op>
 void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
     const Vec<T,3> size = bbox.size();

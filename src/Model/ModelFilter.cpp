@@ -43,6 +43,8 @@ namespace TrenchBroom {
         bool ModelFilter::pickable(const Entity* entity) const {
             if (entity->worldspawn())
                 return false;
+            if (!entity->brushes().empty())
+                return false;
             return true;
         }
         

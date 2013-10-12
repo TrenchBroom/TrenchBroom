@@ -21,10 +21,10 @@
 #define __TrenchBroom__Entity__
 
 #include "TrenchBroom.h"
+#include "VecMath.h"
 #include "SharedPointer.h"
 #include "Allocator.h"
 #include "Assets/AssetTypes.h"
-#include "Model/Brush.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
@@ -95,6 +95,12 @@ namespace TrenchBroom {
             void removeBrush(Brush* brush);
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            bool doContains(const Object& object) const;
+            bool doContains(const Entity& entity) const;
+            bool doContains(const Brush& brush) const;
+            bool doIntersects(const Object& object) const;
+            bool doIntersects(const Entity& entity) const;
+            bool doIntersects(const Brush& brush) const;
         protected:
             Entity();
         private:

@@ -209,6 +209,12 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::removeObject(Model::Object& object) {
+            Model::ObjectList objects(1);
+            objects[0] = &object;
+            return removeObjects(objects);
+        }
+
         Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds) {
             Model::ObjectParentList duplicates;
             Model::ObjectList result;
