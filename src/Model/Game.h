@@ -27,6 +27,8 @@
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     class Logger;
     
@@ -50,7 +52,13 @@ namespace TrenchBroom {
             virtual ~Game();
             Map* newMap() const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            Model::EntityList parseEntities(const BBox3& worldBounds, const String& str) const;
+            Model::BrushList parseBrushes(const BBox3& worldBounds, const String& str) const;
+            Model::BrushFaceList parseFaces(const BBox3& worldBounds, const String& str) const;
+            
             void writeMap(Map& map, const IO::Path& path) const;
+            void writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const;
+            void writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List extractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* loadTextureCollection(const IO::Path& path) const;
@@ -65,7 +73,13 @@ namespace TrenchBroom {
         private:
             virtual Map* doNewMap() const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
+            virtual Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const = 0;
+            virtual Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const = 0;
+            virtual Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const = 0;
+
             virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
+            virtual void doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const = 0;
+            virtual void doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
             virtual Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;

@@ -79,6 +79,11 @@ namespace VectorUtils {
     }
     
     template <typename T>
+    void deleteAll(const std::vector<T*>& vec) {
+        std::for_each(vec.begin(), vec.end(), Deleter<T>());
+    }
+    
+    template <typename T>
     void remove(std::vector<T>& vec, const T& item) {
         vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
     }

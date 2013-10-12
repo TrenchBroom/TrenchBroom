@@ -103,6 +103,7 @@ namespace TrenchBroom {
             bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);
             bool setFaceXScale(const Model::BrushFaceList& faces, const float xScale);
             bool setFaceYScale(const Model::BrushFaceList& faces, const float yScale);
+            bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
         private:
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);

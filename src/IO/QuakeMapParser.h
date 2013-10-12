@@ -87,6 +87,9 @@ namespace TrenchBroom {
         private:
             String tokenName(const QuakeMapToken::Type typeMask) const;
             Model::Map* doParseMap(const BBox3& worldBounds);
+            Model::EntityList doParseEntities(const BBox3& worldBounds);
+            Model::BrushList doParseBrushes(const BBox3& worldBounds);
+            Model::BrushFaceList doParseFaces(const BBox3& worldBounds);
             
             Model::MapFormat detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);

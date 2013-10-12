@@ -55,6 +55,9 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
+            size_t m_surfaceContents;
+            size_t m_surfaceFlags;
+            float m_surfaceValue;
             
             bool m_setTexture;
             Operation m_xOffsetOp;
@@ -62,9 +65,13 @@ namespace TrenchBroom {
             Operation m_rotationOp;
             Operation m_xScaleOp;
             Operation m_yScaleOp;
+            bool m_setSurfaceContents;
+            bool m_setSurfaceFlags;
+            bool m_setSurfaceValue;
         public:
             FaceAttributeCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
             
+            void setTexture(Assets::FaceTexture* texture);
             void setXOffset(const float xOffset);
             void addXOffset(const float xOffset);
             void mulXOffset(const float xOffset);
@@ -80,7 +87,10 @@ namespace TrenchBroom {
             void setYScale(const float yScale);
             void addYScale(const float yScale);
             void mulYScale(const float yScale);
-            void setTexture(Assets::FaceTexture* texture);
+            void setSurfaceContents(const size_t surfaceContents);
+            void setSurfaceFlags(const size_t surfaceFlags);
+            void setSurfaceValue(const float surfaceValue);
+            void setAll(const Model::BrushFace& original);
 
             bool doPerformDo();
             bool doPerformUndo();

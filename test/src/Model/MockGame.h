@@ -22,6 +22,7 @@
 
 #include <gmock/gmock.h>
 
+#include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
@@ -30,6 +31,8 @@
 #include "Model/Game.h"
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
+
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -47,7 +50,14 @@ namespace TrenchBroom {
 
             MOCK_CONST_METHOD0(doNewMap, Map*());
             MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
+            MOCK_CONST_METHOD2(doParseEntities, Model::EntityList(const BBox3&, const String&));
+            MOCK_CONST_METHOD2(doParseBrushes, Model::BrushList(const BBox3&, const String&));
+            MOCK_CONST_METHOD2(doParseFaces, Model::BrushFaceList(const BBox3&, const String&));
+
             MOCK_CONST_METHOD2(doWriteMap, void(Map&, const IO::Path&));
+            MOCK_CONST_METHOD2(doWriteObjectsToStream, void(const Model::ObjectList&, std::ostream&));
+            MOCK_CONST_METHOD2(doWriteFacesToStream, void(const Model::BrushFaceList&, std::ostream&));
+            
             MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(const Map*));
             MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::FaceTextureCollection*(const IO::Path&));
             MOCK_CONST_METHOD1(doUploadTextureCollection, void(Assets::FaceTextureCollection*));

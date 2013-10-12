@@ -55,11 +55,36 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
         
+        Model::EntityList Hexen2Game::doParseEntities(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseEntities(worldBounds);
+        }
+        
+        Model::BrushList Hexen2Game::doParseBrushes(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseBrushes(worldBounds);
+        }
+        
+        Model::BrushFaceList Hexen2Game::doParseFaces(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseFaces(worldBounds);
+        }
+
         void Hexen2Game::doWriteMap(Map& map, const IO::Path& path) const {
             IO::Hexen2MapWriter writer;
             writer.writeToFileAtPath(map, path, true);
         }
 
+        void Hexen2Game::doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
+            IO::Hexen2MapWriter writer;
+            writer.writeObjectsToStream(objects, stream);
+        }
+        
+        void Hexen2Game::doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
+            IO::Hexen2MapWriter writer;
+            writer.writeFacesToStream(faces, stream);
+        }
+        
         IO::Path::List Hexen2Game::doExtractTexturePaths(const Map* map) const {
             using TrenchBroom::Model::extractTexturePaths;
             return extractTexturePaths(map, Model::PropertyKeys::Wad);

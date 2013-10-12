@@ -20,6 +20,9 @@
 #ifndef __TrenchBroom__MapView__
 #define __TrenchBroom__MapView__
 
+
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "Color.h"
 #include "Renderer/GL.h"
 #include "Renderer/Camera.h"
@@ -96,6 +99,7 @@ namespace TrenchBroom {
             
             Renderer::RenderResources& renderResources();
             
+            bool anyToolActive() const;
             void toggleClipTool();
             bool clipToolActive() const;
             bool canToggleClipSide() const;
@@ -105,6 +109,8 @@ namespace TrenchBroom {
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
             void toggleMovementRestriction();
+            
+            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);

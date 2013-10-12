@@ -56,9 +56,34 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
         
+        Model::EntityList Quake2Game::doParseEntities(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseEntities(worldBounds);
+        }
+        
+        Model::BrushList Quake2Game::doParseBrushes(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseBrushes(worldBounds);
+        }
+        
+        Model::BrushFaceList Quake2Game::doParseFaces(const BBox3& worldBounds, const String& str) const {
+            IO::QuakeMapParser parser(str);
+            return parser.parseFaces(worldBounds);
+        }
+
         void Quake2Game::doWriteMap(Map& map, const IO::Path& path) const {
             IO::Quake2MapWriter writer;
             writer.writeToFileAtPath(map, path, true);
+        }
+
+        void Quake2Game::doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
+            IO::Quake2MapWriter writer;
+            writer.writeObjectsToStream(objects, stream);
+        }
+        
+        void Quake2Game::doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
+            IO::Quake2MapWriter writer;
+            writer.writeFacesToStream(faces, stream);
         }
 
         IO::Path::List Quake2Game::doExtractTexturePaths(const Map* map) const {

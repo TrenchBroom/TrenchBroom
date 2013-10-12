@@ -21,6 +21,12 @@
 
 #include "TrenchBroomApp.h"
 #include "IO/FileSystem.h"
+#include "Assets/FaceTexture.h"
+#include "Assets/TextureManager.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/Entity.h"
+#include "Model/Object.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
@@ -31,6 +37,7 @@
 #include "View/Menu.h"
 #include "View/NavBar.h"
 
+#include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
@@ -159,6 +166,94 @@ namespace TrenchBroom {
             m_controller->redoNextCommand();
         }
 
+        void MapFrame::OnEditCut(wxCommandEvent& event) {
+            OnEditCopy(event);
+            OnEditDeleteObjects(event);
+        }
+        
+        void MapFrame::OnEditCopy(wxCommandEvent& event) {
+            if (wxTheClipboard->Open()) {
+                StringStream clipboardData;
+                if (m_document->hasSelectedObjects())
+                    m_document->writeObjectsToStream(m_document->selectedObjects(), clipboardData);
+                else if (m_document->hasSelectedFaces())
+                    m_document->writeFacesToStream(m_document->selectedFaces(), clipboardData);
+
+                wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                wxTheClipboard->Close();
+            }
+        }
+        
+        void MapFrame::OnEditPaste(wxCommandEvent& event) {
+            if (wxTheClipboard->Open() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                wxTextDataObject textData;
+                String text;
+                
+                if (wxTheClipboard->GetData(textData))
+                    text = textData.GetText();
+
+                const Model::EntityList entities = m_document->parseEntities(text);
+                const Model::BrushList brushes = m_document->parseBrushes(text);
+                const Model::BrushFaceList faces = m_document->parseFaces(text);
+
+                if (!entities.empty() || !brushes.empty()) {
+                    const Model::ObjectList objects = VectorUtils::concatenate(VectorUtils::cast<Model::Object*>(entities),
+                                                                               VectorUtils::cast<Model::Object*>(brushes));
+                    const BBox3 bounds = Model::Object::bounds(objects);
+                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds);
+                    pasteObjects(objects, delta);
+                } else if (!faces.empty()) {
+                    Model::BrushFace* pastedFace = faces.back();
+                    Assets::FaceTexture* texture = m_document->textureManager().texture(pastedFace->textureName());
+                    pastedFace->setTexture(texture);
+                    
+                    const Model::BrushFaceList& selectedFaces = m_document->selectedFaces();
+                    m_controller->beginUndoableGroup("Paste faces");
+                    m_controller->setFaceAttributes(selectedFaces, *pastedFace);
+                    m_controller->closeGroup();
+                    
+                    VectorUtils::deleteAll(faces);
+
+                    StringStream logMsg;
+                    logMsg << "Pasted face attributes to " << selectedFaces.size() << (selectedFaces.size() == 1 ? " face" : " faces") << " from clipboard";
+                    logger()->info(logMsg.str());
+                } else {
+                    logger()->error("Could parse clipboard contents");
+                }
+            } else {
+                logger()->error("Clipboard is empty");
+            }
+            
+            if (wxTheClipboard->IsOpened())
+                wxTheClipboard->Close();
+        }
+        
+        void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
+            if (wxTheClipboard->Open() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                wxTextDataObject textData;
+                String text;
+                
+                if (wxTheClipboard->GetData(textData))
+                    text = textData.GetText();
+                
+                const Model::EntityList entities = m_document->parseEntities(text);
+                const Model::BrushList brushes = m_document->parseBrushes(text);
+                
+                if (!entities.empty() || !brushes.empty()) {
+                    const Model::ObjectList objects = VectorUtils::concatenate(VectorUtils::cast<Model::Object*>(entities),
+                                                                               VectorUtils::cast<Model::Object*>(brushes));
+                    pasteObjects(objects, Vec3::Null);
+                } else {
+                    logger()->error("Could parse clipboard contents");
+                }
+            } else {
+                logger()->error("Clipboard is empty");
+            }
+            
+            if (wxTheClipboard->IsOpened())
+                wxTheClipboard->Close();
+        }
+        
         void MapFrame::OnEditDeleteObjects(wxCommandEvent& event) {
             const Model::ObjectList objects = m_document->selectedObjects();
             assert(!objects.empty());
@@ -217,6 +312,22 @@ namespace TrenchBroom {
                         event.SetText(Menu::redoShortcut().menuText());
                     }
                     break;
+                case wxID_CUT:
+                case wxID_COPY:
+                    event.Enable(!m_mapView->anyToolActive() &&
+                                 (m_document->hasSelectedObjects() ||
+                                  m_document->selectedFaces().size() == 1));
+                    break;
+                case wxID_PASTE:
+                case CommandIds::Menu::EditPasteAtOriginalPosition: {
+                    bool canPaste = false;
+                    if (wxTheClipboard->Open()) {
+                        canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
+                        wxTheClipboard->Close();
+                    }
+                    event.Enable(!m_mapView->anyToolActive() && canPaste);
+                    break;
+                }
                 case wxID_DELETE:
                     event.Enable(m_document->hasSelectedObjects());
                     break;
@@ -340,6 +451,10 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditCut, this, wxID_CUT);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditCopy, this, wxID_COPY);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPaste, this, wxID_PASTE);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
@@ -466,6 +581,44 @@ namespace TrenchBroom {
                 ::wxMessageBox("Unknown error while saving " + m_document->filename(), "", wxOK | wxICON_ERROR, this);
                 return false;
             }
+        }
+
+        void MapFrame::pasteObjects(const Model::ObjectList& objects, const Vec3& delta) {
+            assert(!objects.empty());
+            
+            const Model::ObjectList selectableObjects = collectSelectableObjects(objects);
+            const String groupName = String("Paste ") + String(objects.size() == 1 ? "object" : "objects");
+            m_controller->beginUndoableGroup(groupName);
+            m_controller->deselectAll();
+            m_controller->addObjects(objects);
+            m_controller->selectObjects(selectableObjects);
+            if (!delta.null())
+                m_controller->moveObjects(selectableObjects, delta, m_document->textureLock());
+            m_controller->closeGroup();
+            
+            StringStream logMsg;
+            logMsg << "Pasted " << objects.size() << (objects.size() == 1 ? " object" : " objects") << " from clipboard";
+            logger()->info(logMsg.str());
+        }
+
+        Model::ObjectList MapFrame::collectSelectableObjects(const Model::ObjectList& objects) const {
+            Model::ObjectList result;
+            Model::ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* object = *it;
+                if (object->type() == Model::Object::OTEntity) {
+                    Model::Entity* entity = static_cast<Model::Entity*>(object);
+                    const Model::BrushList& brushes = entity->brushes();
+                    if (brushes.empty()) {
+                        result.push_back(object);
+                    } else {
+                        result.insert(result.end(), brushes.begin(), brushes.end());
+                    }
+                } else {
+                    result.push_back(object);
+                }
+            }
+            return result;
         }
     }
 }

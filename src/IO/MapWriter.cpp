@@ -71,12 +71,14 @@ namespace TrenchBroom {
                 writeEntity(*entity, brushes, stream);
             }
             
-            // write brush entities
+            // write brush entities except for worldspawn
             Model::EntityBrushesMap::const_iterator ebIt, ebEnd;
             for (ebIt = brushEntities.begin(), ebEnd = brushEntities.end(); ebIt != ebEnd; ++ebIt) {
                 Model::Entity* entity = ebIt->first;
-                const Model::BrushList& brushes = ebIt->second;
-                writeEntity(*entity, brushes, stream);
+                if (entity != worldspawn) {
+                    const Model::BrushList& brushes = ebIt->second;
+                    writeEntity(*entity, brushes, stream);
+                }
             }
         }
         

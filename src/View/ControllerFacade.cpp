@@ -322,6 +322,14 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->setAll(source);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         void ControllerFacade::commandDone(Controller::Command::Ptr command) {
             commandDoneNotifier(command);
         }

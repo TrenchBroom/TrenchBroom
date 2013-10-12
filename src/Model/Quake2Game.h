@@ -46,7 +46,13 @@ namespace TrenchBroom {
             
             Map* doNewMap() const;
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const;
+            Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const;
+            Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const;
+
             void doWriteMap(Map& map, const IO::Path& path) const;
+            void doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const;
+            void doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
 
             IO::Path::List doExtractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const;

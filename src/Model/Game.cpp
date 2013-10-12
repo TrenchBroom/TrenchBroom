@@ -101,8 +101,28 @@ namespace TrenchBroom {
             return doLoadMap(worldBounds, path);
         }
 
+        Model::EntityList Game::parseEntities(const BBox3& worldBounds, const String& str) const {
+            return doParseEntities(worldBounds, str);
+        }
+        
+        Model::BrushList Game::parseBrushes(const BBox3& worldBounds, const String& str) const {
+            return doParseBrushes(worldBounds, str);
+        }
+        
+        Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, const String& str) const {
+            return doParseFaces(worldBounds, str);
+        }
+
         void Game::writeMap(Map& map, const IO::Path& path) const {
-            return doWriteMap(map, path);
+            doWriteMap(map, path);
+        }
+
+        void Game::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
+            doWriteObjectsToStream(objects, stream);
+        }
+        
+        void Game::writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
+            doWriteFacesToStream(faces, stream);
         }
 
         IO::Path::List Game::extractTexturePaths(const Map* map) const {

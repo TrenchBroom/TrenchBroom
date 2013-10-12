@@ -307,6 +307,26 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        Model::EntityList MapDocument::parseEntities(const String& str) const {
+            return m_game->parseEntities(m_worldBounds, str);
+        }
+        
+        Model::BrushList MapDocument::parseBrushes(const String& str) const {
+            return m_game->parseBrushes(m_worldBounds, str);
+        }
+        
+        Model::BrushFaceList MapDocument::parseFaces(const String& str) const {
+            return m_game->parseFaces(m_worldBounds, str);
+        }
+
+        void MapDocument::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
+            m_game->writeObjectsToStream(objects, stream);
+        }
+        
+        void MapDocument::writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
+            m_game->writeFacesToStream(faces, stream);
+        }
+
         Model::Entity* MapDocument::worldspawn() {
             Model::Entity* worldspawn = m_map->worldspawn();
             if (worldspawn == NULL) {

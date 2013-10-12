@@ -25,6 +25,7 @@
 #include "CastIterator.h"
 #include "FilterIterator.h"
 #include "Notifier.h"
+#include "Model/Entity.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
 

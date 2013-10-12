@@ -107,6 +107,12 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             
+            Model::EntityList parseEntities(const String& str) const;
+            Model::BrushList parseBrushes(const String& str) const;
+            Model::BrushFaceList parseFaces(const String& str) const;
+            void writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const;
+            void writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
+            
             Model::Entity* worldspawn();
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);

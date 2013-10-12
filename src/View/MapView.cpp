@@ -23,6 +23,9 @@
 #include "Logger.h"
 #include "Notifier.h"
 #include "Preferences.h"
+#include "Model/Brush.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitFilters.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Transformation.h"
@@ -95,6 +98,10 @@ namespace TrenchBroom {
             return m_renderResources;
         }
 
+        bool MapView::anyToolActive() const {
+            return m_modalReceiver != NULL;
+        }
+        
         void MapView::toggleClipTool() {
             toggleTool(m_clipTool);
         }
@@ -135,6 +142,32 @@ namespace TrenchBroom {
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();
+        }
+
+        Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
+            const Grid& grid = m_document->grid();
+            const wxMouseState mouseState = wxGetMouseState();
+            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
+            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                const Ray3 pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
+                Model::PickResult pickResult = m_document->pick(pickRay);
+                pickResult.sortHits();
+                
+                const Model::PickResult::FirstHit first = Model::firstHit(pickResult, Model::Brush::BrushHit, m_document->filter(), true);
+                if (first.matches) {
+                    const Model::BrushFace* face = Model::hitAsFace(first.hit);
+                    const Vec3 snappedHitPoint = grid.snap(first.hit.hitPoint());
+                    return grid.moveDeltaForBounds(*face, bounds, m_document->worldBounds(), pickRay, snappedHitPoint);
+                } else {
+                    const Vec3 snappedCenter = grid.snap(bounds.center());
+                    const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay.direction));
+                    return snappedCenter - snappedDefaultPoint;
+                }
+            } else {
+                const Vec3 snappedCenter = grid.snap(bounds.center());
+                const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
+                return snappedCenter - snappedDefaultPoint;
+            }
         }
 
         void MapView::OnKey(wxKeyEvent& event) {

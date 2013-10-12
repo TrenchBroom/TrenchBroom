@@ -40,7 +40,15 @@ namespace TrenchBroom {
         m_yOffsetOp(OpNone),
         m_rotationOp(OpNone),
         m_xScaleOp(OpNone),
-        m_yScaleOp(OpNone) {}
+        m_yScaleOp(OpNone),
+        m_setSurfaceContents(false),
+        m_setSurfaceFlags(false),
+        m_setSurfaceValue(false) {}
+        
+        void FaceAttributeCommand::setTexture(Assets::FaceTexture* texture) {
+            m_texture = texture;
+            m_setTexture = true;
+        }
         
         void FaceAttributeCommand::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
@@ -117,9 +125,31 @@ namespace TrenchBroom {
             m_yScaleOp = OpMul;
         }
         
-        void FaceAttributeCommand::setTexture(Assets::FaceTexture* texture) {
-            m_texture = texture;
-            m_setTexture = true;
+        void FaceAttributeCommand::setSurfaceContents(const size_t surfaceContents) {
+            m_surfaceContents = surfaceContents;
+            m_setSurfaceContents = true;
+        }
+        
+        void FaceAttributeCommand::setSurfaceFlags(const size_t surfaceFlags) {
+            m_surfaceFlags = surfaceFlags;
+            m_setSurfaceFlags = true;
+        }
+        
+        void FaceAttributeCommand::setSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+            m_setSurfaceValue = true;
+        }
+
+        void FaceAttributeCommand::setAll(const Model::BrushFace& original) {
+            setTexture(original.texture());
+            setXOffset(original.xOffset());
+            setYOffset(original.yOffset());
+            setRotation(original.rotation());
+            setXScale(original.xScale());
+            setYScale(original.yScale());
+            setSurfaceContents(original.surfaceContents());
+            setSurfaceFlags(original.surfaceFlags());
+            setSurfaceValue(original.surfaceValue());
         }
 
         bool FaceAttributeCommand::doPerformDo() {
@@ -136,6 +166,12 @@ namespace TrenchBroom {
                 face->setRotation(evaluate(face->rotation(), m_rotation, m_rotationOp));
                 face->setXScale(evaluate(face->xScale(), m_xScale, m_xScaleOp));
                 face->setYScale(evaluate(face->yScale(), m_yScale, m_yScaleOp));
+                if (m_setSurfaceContents)
+                    face->setSurfaceContents(m_surfaceContents);
+                if (m_setSurfaceFlags)
+                    face->setSurfaceFlags(m_surfaceFlags);
+                if (m_setSurfaceValue)
+                    face->setSurfaceValue(m_surfaceValue);
                 m_document->faceDidChangeNotifier(face);
             }
             return true;

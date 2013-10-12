@@ -62,6 +62,8 @@ namespace TrenchBroom {
         public:
             virtual ~Entity();
             
+            bool select();
+
             Entity* clone(const BBox3& worldBounds) const;
             EntitySnapshot takeSnapshot();
             
