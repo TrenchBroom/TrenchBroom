@@ -1,0 +1,22 @@
+IF(APPLE)
+	# Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
+
+	FIND_PATH(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+	SET(FREETYPE_LIBRARY "${LIB_BIN_DIR}/osx/libfreetype.a")
+
+	SET(FREETYPE_LIBRARIES 
+			${FREETYPE_LIBRARY} 
+	  		"${LIB_BIN_DIR}/osx/libbz2.a" 
+	  		"${LIB_BIN_DIR}/osx/libz.a")
+	FIND_PACKAGE_HANDLE_STANDARD_ARGS(FREETYPE  DEFAULT_MSG  FREETYPE_LIBRARY  FREETYPE_INCLUDE_PATH)
+	MARK_AS_ADVANCED(
+		FREETYPE_FOUND 
+		FREETYPE_LIBRARY
+		FREETYPE_LIBRARIES
+		FREETYPE_INCLUDE_PATH)
+ELSEIF(MSVC)
+	FIND_PATH(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES freetype6.dll freetype.lib PATHS "${LIB_BIN_DIR}/win32" DOC "Freetype library")
+ELSE()
+	INCLUDE(FindFreetype)
+ENDIF()

@@ -8,35 +8,6 @@ ENDIF()
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(TrenchBroom)
 
-IF(NOT CMAKE_BUILD_TYPE)
-	MESSAGE(STATUS "No build type selected, default to Release")
-	SET(CMAKE_BUILD_TYPE "Release")
-ELSE()
-	MESSAGE(STATUS "Build type ${CMAKE_BUILD_TYPE}")
-ENDIF()
-
-# wxWidgets configuration
-IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-	SET(wxWidgets_USE_DEBUG)
-ENDIF()
-
-IF(NOT CMAKE_BUILD_TYPE MATCHES "Debug" AND NOT WINDOWS)
-	SET(wxWidgets_USE_STATIC)
-ENDIF()
-
-IF(wxWidgets_USE_STATIC)
-	MESSAGE(STATUS "Using static wxWidgets library")
-ENDIF()
-
-SET(wxWidgets_USE_UNICODE)
-SET(wxWidgets_USE_UNIVERSAL)
-SET(wxWidgets_USE_LIBS)
-FIND_PACKAGE(wxWidgets REQUIRED gl core base adv)
-INCLUDE("${wxWidgets_USE_FILE}")
-
-# Remove QuickTime framework on OS X; it's not needed and produces a linker warning
-STRING(REPLACE "-framework QuickTime;" "" wxWidgets_LIBRARIES "${wxWidgets_LIBRARIES}")
-
 # Source directories
 SET(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 SET(TEST_SOURCE_DIR ${CMAKE_SOURCE_DIR}/test/src)
@@ -57,67 +28,16 @@ SET(LIB_BIN_DIR ${LIB_DIR}/bin)
 SET(LIB_INCLUDE_DIR ${LIB_DIR}/include)
 SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
 
-# Configure freetype library
-IF(APPLE)
-		# Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
-	  	# FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype.a PATHS "${LIB_BIN_DIR}/osx" DOC "Freetype library")
-	  	SET(FREETYPE_LIBRARIES 
-	  		"${LIB_BIN_DIR}/osx/libfreetype.a" 
-	  		"${LIB_BIN_DIR}/osx/libbz2.a" 
-	  		"${LIB_BIN_DIR}/osx/libz.a")
-		FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
-ELSEIF(MSVC)
-	  	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES freetype6.dll freetype.lib PATHS "${LIB_BIN_DIR}/win32" DOC "Freetype library")
-	  	FIND_PATH(FREETYPE_INCLUDE_DIRS ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
-ELSE()
-		INCLUDE(FindFreetype)
-ENDIF()
-INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
+INCLUDE(cmake/wxWidgets.cmake)
+INCLUDE(cmake/FreeType.cmake)
+INCLUDE(cmake/FreeImage.cmake)
 
-# Configure freeimage library
-IF(APPLE)
-	# We want to link freeimage statically and not dynamically on OS X
-	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h
-		${CMAKE_LIBRARY_PATH}
-		/usr/include
-		/usr/local/include
-		/sw/include
-		/opt/local/include
-		DOC "The directory where FreeImage.h resides")
-	FIND_LIBRARY(FREEIMAGE_LIBRARY
-		NAMES FreeImage.a freeimage.a libfreeimage.a
-		PATHS
-   		${CMAKE_LIBRARY_PATH}
-		/usr/lib64
-		/usr/lib
-		/usr/local/lib64
-		/usr/local/lib
-		/sw/lib
-		/opt/local/lib
-		DOC "The FreeImage library")
-	SET(FREEIMAGE_LIBRARIES ${FREEIMAGE_LIBRARY})
-ELSEIF(MSVC)
-  	SET(FREEIMAGE_LIBRARIES "${LIB_BIN_DIR}/win32/FreeImage.lib")
-	FIND_PATH(FREEIMAGE_INCLUDE_DIRS FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
-ELSE()
-	INCLUDE(FindFreeImage.cmake)	
-ENDIF()
+INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${FREEIMAGE_INCLUDE_DIRS})
 
-# Configure gtest library
-SET(LIB_GTEST_SOURCE_DIR "${LIB_SOURCE_DIR}/gtest")
-SET(LIB_GTEST_SOURCE "${LIB_GTEST_SOURCE_DIR}/gtest-all.cc")
-SET_SOURCE_FILES_PROPERTIES(${LIB_GTEST_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
-
-# Configure gtest library
-SET(LIB_GMOCK_SOURCE_DIR "${LIB_SOURCE_DIR}/gmock")
-SET(LIB_GMOCK_SOURCE "${LIB_GMOCK_SOURCE_DIR}/gmock-all.cc")
-SET_SOURCE_FILES_PROPERTIES(${LIB_GMOCK_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
-
-# Configure glew library
-SET(LIB_GLEW_SOURCE_DIR "${LIB_SOURCE_DIR}/glew")
-SET(LIB_GLEW_SOURCE "${LIB_GLEW_SOURCE_DIR}/glew.c")
-SET_SOURCE_FILES_PROPERTIES(${LIB_GLEW_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
+INCLUDE(cmake/GTest.cmake)
+INCLUDE(cmake/GMock.cmake)
+INCLUDE(cmake/Glew.cmake)
 
 ADD_LIBRARY(gtest ${LIB_GTEST_SOURCE} ${LIB_INCLUDE_DIR})
 ADD_LIBRARY(gmock ${LIB_GMOCK_SOURCE} ${LIB_INCLUDE_DIR})
