@@ -49,6 +49,7 @@ namespace TrenchBroom {
             void addEntity(Entity* entity);
             void removeEntity(Entity* entity);
             Entity* worldspawn() const;
+            Object* findObjectByFilePosition(const size_t position) const;
             
             const BrushList brushes() const;
         private:

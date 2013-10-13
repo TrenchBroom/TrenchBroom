@@ -20,6 +20,9 @@
 #include "Map.h"
 
 #include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/ModelUtils.h"
+#include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -67,6 +70,17 @@ namespace TrenchBroom {
             return m_worldspawn;
         }
         
+        Object* Map::findObjectByFilePosition(const size_t position) const {
+            EntityList::const_iterator it = Model::find(m_entities.begin(), m_entities.end(), MatchObjectByFilePosition(position));
+            if (it == m_entities.end())
+                return NULL;
+            Entity* entity = *it;
+            Brush* brush = entity->findBrushByFilePosition(position);
+            if (brush != NULL)
+                return brush;
+            return entity;
+        }
+
         const BrushList Map::brushes() const {
             BrushList brushes;
             EntityList::const_iterator it, end;

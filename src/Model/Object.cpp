@@ -47,6 +47,10 @@ namespace TrenchBroom {
             m_lineCount = lineCount;
         }
 
+        bool Object::containsLine(const size_t line) const {
+            return m_lineNumber <= line && line < m_lineNumber + m_lineCount;
+        }
+
         bool Object::selected() const {
             return m_selected;
         }

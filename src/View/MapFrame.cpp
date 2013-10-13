@@ -45,6 +45,7 @@
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/textctrl.h>
+#include <wx/tokenzr.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -335,6 +336,35 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
+            const wxString string = wxGetTextFromUser(wxT("Enter a comma- or space separated list of line numbers."), wxT("Select by Line Numbers"), _(""), this);
+            if (string.empty())
+                return;
+            
+            Model::ObjectList selectObjects;
+
+            wxStringTokenizer tokenizer(string, ", ");
+            while (tokenizer.HasMoreTokens()) {
+                const wxString token = tokenizer.NextToken();
+                long position;
+                if (token.ToLong(&position) && position > 0) {
+                    Model::Object* object = m_document->map()->findObjectByFilePosition(static_cast<size_t>(position));
+                    if (object != NULL)
+                        VectorUtils::setInsert(selectObjects, object);
+                }
+            }
+
+            if (!selectObjects.empty()) {
+                m_controller->beginUndoableGroup("Select objects by line numbers");
+                m_controller->deselectAll();
+                m_controller->selectObjects(selectObjects);
+                m_controller->closeGroup();
+                
+                StringStream message;
+                message << "Selected " << selectObjects.size() << " " << (selectObjects.size() == 1 ? "object" : "objects");
+                logger()->info(message.str());
+            } else {
+                logger()->warn("No objects with the given line numbers could be found");
+            }
         }
         
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {

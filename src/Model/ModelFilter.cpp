@@ -63,11 +63,13 @@ namespace TrenchBroom {
                 if (!entity->brushes().empty())
                     return false;
             }
+            if (!visible(object))
+                return false;
             return true;
         }
         
         bool ModelFilter::selectable(const BrushFace* face) const {
-            return true;
+            return visible(face);
         }
     }
 }

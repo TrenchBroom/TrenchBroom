@@ -91,6 +91,7 @@ namespace TrenchBroom {
             const BrushList& brushes() const;
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
+            Brush* findBrushByFilePosition(const size_t position) const;
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;

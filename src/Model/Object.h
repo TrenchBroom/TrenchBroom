@@ -49,6 +49,7 @@ namespace TrenchBroom {
             
             Type type() const;
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            bool containsLine(const size_t line) const;
             bool selected() const;
             bool select();
             bool deselect();

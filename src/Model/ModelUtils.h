@@ -62,6 +62,14 @@ namespace TrenchBroom {
             bool operator()(const Object* object) const;
         };
         
+        struct MatchObjectByFilePosition {
+        private:
+            size_t m_position;
+        public:
+            MatchObjectByFilePosition(const size_t position);
+            bool operator()(const Object* object) const;
+        };
+        
         struct Transform {
         private:
             const Mat4x4& m_transformation;
@@ -117,6 +125,16 @@ namespace TrenchBroom {
                     *output++ = *cur;
                 ++cur;
             }
+        }
+        
+        template <typename Iter, class Filter>
+        Iter find(Iter cur, Iter end, const Filter& filter) {
+            while (cur != end) {
+                if (filter(*cur))
+                    return cur;
+                ++cur;
+            }
+            return end;
         }
         
         template <typename Iter>

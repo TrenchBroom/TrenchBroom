@@ -127,6 +127,13 @@ namespace TrenchBroom {
             return object->type() == m_type;
         }
 
+        MatchObjectByFilePosition::MatchObjectByFilePosition(const size_t position) :
+        m_position(position) {}
+        
+        bool MatchObjectByFilePosition::operator()(const Object* object) const {
+            return object->containsLine(m_position);
+        }
+
         Transform::Transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) :
         m_transformation(transformation),
         m_lockTextures(lockTextures),

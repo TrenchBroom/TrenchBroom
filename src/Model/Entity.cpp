@@ -24,6 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
+#include "Model/ModelUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -170,6 +171,15 @@ namespace TrenchBroom {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
+        }
+
+        Brush* Entity::findBrushByFilePosition(const size_t position) const {
+            if (!containsLine(position))
+                return NULL;
+            BrushList::const_iterator it = Model::find(m_brushes.begin(), m_brushes.end(), MatchObjectByFilePosition(position));
+            if (it == m_brushes.end())
+                return NULL;
+            return *it;
         }
 
         bool Entity::doContains(const Object& object) const {
