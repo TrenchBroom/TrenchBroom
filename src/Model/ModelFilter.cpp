@@ -23,16 +23,16 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
-        bool ModelFilter::visible(const Entity* entity) const {
-            if (entity->worldspawn())
-                return false;
-            return true;
-        }
-        
-        bool ModelFilter::visible(const Brush* brush) const {
+        bool ModelFilter::visible(const Object* object) const {
+            if (object->type() == Object::OTEntity) {
+                const Entity* entity = static_cast<const Entity*>(object);
+                if (entity->worldspawn())
+                    return false;
+            }
             return true;
         }
         
@@ -40,19 +40,33 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ModelFilter::pickable(const Entity* entity) const {
-            if (entity->worldspawn())
-                return false;
-            if (!entity->brushes().empty())
-                return false;
-            return true;
-        }
-        
-        bool ModelFilter::pickable(const Brush* brush) const {
+        bool ModelFilter::pickable(const Object* object) const {
+            if (object->type() == Object::OTEntity) {
+                const Entity* entity = static_cast<const Entity*>(object);
+                if (entity->worldspawn())
+                    return false;
+                if (!entity->brushes().empty())
+                    return false;
+            }
             return true;
         }
         
         bool ModelFilter::pickable(const BrushFace* face) const {
+            return true;
+        }
+
+        bool ModelFilter::selectable(const Object* object) const {
+            if (object->type() == Object::OTEntity) {
+                const Entity* entity = static_cast<const Entity*>(object);
+                if (entity->worldspawn())
+                    return false;
+                if (!entity->brushes().empty())
+                    return false;
+            }
+            return true;
+        }
+        
+        bool ModelFilter::selectable(const BrushFace* face) const {
             return true;
         }
     }

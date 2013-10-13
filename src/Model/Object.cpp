@@ -51,14 +51,8 @@ namespace TrenchBroom {
             return m_selected;
         }
         
-        bool Object::selectable() const {
-            return doSelectable();
-        }
-        
         bool Object::select() {
             if (m_selected)
-                return false;
-            if (!selectable())
                 return false;
             m_selected = true;
             return true;

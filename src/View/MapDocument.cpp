@@ -256,12 +256,12 @@ namespace TrenchBroom {
             assert(game != NULL);
             info("Creating new document");
 
+            m_selection.clear();
             m_worldBounds = worldBounds;
             m_game = game;
             delete m_map;
             m_map = game->newMap();
 
-            m_selection = Model::Selection(m_map);
             m_entityDefinitionManager.clear();
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
@@ -276,12 +276,12 @@ namespace TrenchBroom {
             assert(game != NULL);
             info("Opening document document " + path.asString());
 
+            m_selection.clear();
             m_worldBounds = worldBounds;
             m_game = game;
             delete m_map;
             m_map = m_game->loadMap(worldBounds, path);
             
-            m_selection = Model::Selection(m_map);
             m_entityDefinitionManager.clear();
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
@@ -415,11 +415,11 @@ namespace TrenchBroom {
         }
         
         Model::EntityList MapDocument::unselectedEntities() const {
-            return m_selection.unselectedEntities();
+            return m_selection.unselectedEntities(*m_map);
         }
 
         Model::BrushList MapDocument::unselectedBrushes() const {
-            return m_selection.unselectedBrushes();
+            return m_selection.unselectedBrushes(*m_map);
         }
 
         Model::SelectionResult MapDocument::selectObjects(const Model::ObjectList& objects) {
@@ -431,9 +431,13 @@ namespace TrenchBroom {
         }
         
         Model::SelectionResult MapDocument::selectAllObjects() {
-            return m_selection.selectAllObjects();
+            return m_selection.selectAllObjects(*m_map);
         }
         
+        Model::SelectionResult MapDocument::selectAllFaces() {
+            return m_selection.selectAllFaces(*m_map);
+        }
+
         Model::SelectionResult MapDocument::selectFaces(const Model::BrushFaceList& faces) {
             return m_selection.selectFaces(faces);
         }
@@ -573,6 +577,7 @@ namespace TrenchBroom {
         m_path(""),
         m_map(NULL),
         m_picker(m_worldBounds),
+        m_selection(m_filter),
         m_grid(5),
         m_textureLock(true),
         m_modificationCount(0) {

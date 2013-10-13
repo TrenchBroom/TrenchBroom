@@ -44,6 +44,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFace;
         class Object;
+        class Selection;
         class SelectionResult;
     }
     
@@ -58,12 +59,12 @@ namespace TrenchBroom {
             IO::Path m_path;
             Model::GamePtr m_game;
             Model::Map* m_map;
-            Model::Selection m_selection;
             Assets::EntityDefinitionManager m_entityDefinitionManager;
             Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
             Model::Picker m_picker;
             Model::ModelFilter m_filter;
+            Model::Selection m_selection;
             View::Grid m_grid;
             
             bool m_textureLock;
@@ -139,6 +140,7 @@ namespace TrenchBroom {
             Model::SelectionResult selectObjects(const Model::ObjectList& objects);
             Model::SelectionResult deselectObjects(const Model::ObjectList& objects);
             Model::SelectionResult selectAllObjects();
+            Model::SelectionResult selectAllFaces();
             Model::SelectionResult selectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectAll();

@@ -210,10 +210,6 @@ namespace TrenchBroom {
             face.transform(translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds, m_faces);
         }
-
-        bool Brush::doSelectable() const {
-            return true;
-        }
         
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());

@@ -40,6 +40,14 @@ namespace TrenchBroom {
             return (hit.type() & m_typeMask) != 0;
         }
         
+        bool SelectionHitFilter::matches(const Hit& hit) const {
+            if (hit.type() == Model::Entity::EntityHit)
+                return hitAsEntity(hit)->selected();
+            if (hit.type() == Model::Brush::BrushHit)
+                return hitAsBrush(hit)->selected() || hitAsFace(hit)->selected();
+            return false;
+        }
+
         DefaultHitFilter::DefaultHitFilter(const ModelFilter& filter) :
         m_filter(filter) {}
         

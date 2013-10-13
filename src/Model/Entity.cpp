@@ -213,11 +213,7 @@ namespace TrenchBroom {
         m_definition(NULL),
         m_model(NULL) {}
         
-        bool Entity::doSelectable() const {
-            return m_brushes.empty();
-        }
-        
-void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
         }
     }
 }

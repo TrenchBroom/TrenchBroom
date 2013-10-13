@@ -56,9 +56,13 @@ namespace TrenchBroom {
             if (!applies(inputState))
                 return;
             
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+            using namespace Model;
+            const PickResult::FirstHit first = pickResult.firstHit(chainHitFilters(TypedHitFilter(Brush::BrushHit),
+                                                                                   SelectionHitFilter(),
+                                                                                   DefaultHitFilter(document()->filter())), true);
+
             if (first.matches)
-                pickResult.addHit(Model::Hit(ResizeHit, first.hit.distance(), first.hit.hitPoint(), Model::hitAsFace(first.hit)));
+                pickResult.addHit(Hit(ResizeHit, first.hit.distance(), first.hit.hitPoint(), hitAsFace(first.hit)));
             else
                 pickNearFaceHit(inputState, pickResult);
         }

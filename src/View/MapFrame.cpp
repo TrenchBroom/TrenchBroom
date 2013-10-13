@@ -268,8 +268,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
-            const Model::ObjectList selectableObjects = Model::Selection::collectSelectableObjects(m_document->map()->entities());
-            m_controller->selectObjects(selectableObjects);
+            m_controller->selectAllObjects();
         }
         
         void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
@@ -300,7 +299,7 @@ namespace TrenchBroom {
             Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
             while (it != end) {
                 Model::Object* object = *it;
-                if (object != selectionBrush && object->selectable() && selectionBrush->intersects(*object))
+                if (object != selectionBrush && selectionBrush->intersects(*object))
                     selectObjects.push_back(object);
                 ++it;
             }
@@ -323,7 +322,7 @@ namespace TrenchBroom {
             Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
             while (it != end) {
                 Model::Object* object = *it;
-                if (object != selectionBrush && object->selectable() && selectionBrush->contains(*object))
+                if (object != selectionBrush && selectionBrush->contains(*object))
                     selectObjects.push_back(object);
                 ++it;
             }
@@ -693,19 +692,39 @@ namespace TrenchBroom {
         void MapFrame::pasteObjects(const Model::ObjectList& objects, const Vec3& delta) {
             assert(!objects.empty());
             
-            const Model::ObjectList selectableObjects = Model::Selection::collectSelectableObjects(objects);
+            const Model::ObjectList pastedObjects = collectPastedObjects(objects);
             const String groupName = String("Paste ") + String(objects.size() == 1 ? "object" : "objects");
             m_controller->beginUndoableGroup(groupName);
             m_controller->deselectAll();
             m_controller->addObjects(objects);
-            m_controller->selectObjects(selectableObjects);
+            m_controller->selectObjects(pastedObjects);
             if (!delta.null())
-                m_controller->moveObjects(selectableObjects, delta, m_document->textureLock());
+                m_controller->moveObjects(pastedObjects, delta, m_document->textureLock());
             m_controller->closeGroup();
             
             StringStream logMsg;
             logMsg << "Pasted " << objects.size() << (objects.size() == 1 ? " object" : " objects") << " from clipboard";
             logger()->info(logMsg.str());
+        }
+        
+        Model::ObjectList MapFrame::collectPastedObjects(const Model::ObjectList& objects) {
+            Model::ObjectList result;
+            Model::ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* object = *it;
+                if (object->type() == Model::Object::OTEntity) {
+                    Model::Entity* entity = static_cast<Model::Entity*>(object);
+                    const Model::BrushList& brushes = entity->brushes();
+                    if (brushes.empty()) {
+                        result.push_back(object);
+                    } else {
+                        result.insert(result.end(), brushes.begin(), brushes.end());
+                    }
+                } else {
+                    result.push_back(object);
+                }
+            }
+            return result;
         }
     }
 }

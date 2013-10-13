@@ -50,7 +50,6 @@ namespace TrenchBroom {
             Type type() const;
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             bool selected() const;
-            bool selectable() const;
             bool select();
             bool deselect();
             bool partiallySelected() const;
@@ -74,7 +73,6 @@ namespace TrenchBroom {
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
         private:
-            virtual bool doSelectable() const = 0;
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;
             virtual bool doContains(const Entity& entity) const = 0;

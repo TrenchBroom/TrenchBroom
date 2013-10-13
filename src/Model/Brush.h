@@ -92,7 +92,6 @@ namespace TrenchBroom {
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
         private:
-            bool doSelectable() const;
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;

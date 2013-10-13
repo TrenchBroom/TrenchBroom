@@ -24,12 +24,13 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class ModelFilter;
         class Map;
         class SelectionResult;
         
         class Selection {
         private:
-            Map* m_map;
+            const ModelFilter& m_filter;
             ObjectList m_selectedObjects;
             EntityList m_selectedEntities;
             EntityList m_partiallySelectedEntities;
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             BrushFaceList m_selectedBrushFaces;
             BrushFace* m_lastSelectedFace;
         public:
-            Selection(Map* map = NULL);
+            Selection(const ModelFilter& filter);
 
             bool hasSelectedObjects() const;
             bool hasSelectedEntities() const;
@@ -56,22 +57,20 @@ namespace TrenchBroom {
             BrushList allSelectedBrushes() const;
             const BrushFaceList& allSelectedFaces() const;
             
-            EntityList unselectedEntities() const;
-            BrushList unselectedBrushes() const;
-            BrushFaceList unselectedFaces() const;
+            EntityList unselectedEntities(Map& map) const;
+            BrushList unselectedBrushes(Map& map) const;
+            BrushFaceList unselectedFaces(Map& map) const;
 
             BrushFace* lastSelectedFace() const;
             
             SelectionResult selectObjects(const ObjectList& objects);
             SelectionResult deselectObjects(const ObjectList& objects);
-            SelectionResult selectAllObjects();
+            SelectionResult selectAllObjects(Map& map);
+            SelectionResult selectAllFaces(Map& map);
             SelectionResult selectFaces(const BrushFaceList& faces);
             SelectionResult deselectFaces(const BrushFaceList& faces);
             SelectionResult deselectAll();
-            
-            static ObjectList collectSelectableObjects(const ObjectList& objects);
-            static ObjectList collectSelectableObjects(const EntityList& entities);
-            static ObjectList collectSelectableObjects(const BrushList& brushes);
+            void clear();
         private:
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);

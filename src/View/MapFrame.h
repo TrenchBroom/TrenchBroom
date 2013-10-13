@@ -132,6 +132,7 @@ namespace TrenchBroom {
             bool saveDocument();
             bool saveDocumentAs();
             void pasteObjects(const Model::ObjectList& objects, const Vec3& delta);
+            Model::ObjectList collectPastedObjects(const Model::ObjectList& objects);
         };
     }
 }

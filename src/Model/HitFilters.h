@@ -46,6 +46,11 @@ namespace TrenchBroom {
             TypedHitFilter(const Hit::HitType typeMask);
             bool matches(const Hit& hit) const;
         };
+        
+        class SelectionHitFilter : public HitFilter {
+        public:
+            bool matches(const Hit& hit) const;
+        };
 
         class ModelFilter;
         class DefaultHitFilter : public HitFilter {

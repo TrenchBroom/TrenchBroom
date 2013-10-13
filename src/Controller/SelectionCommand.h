@@ -39,19 +39,17 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<SelectionCommand> Ptr;
 
             typedef enum {
-                SCSelect,
-                SCDeselect
+                SCSelectObjects,
+                SCSelectFaces,
+                SCSelectAllObjects,
+                SCSelectAllFaces,
+                SCDeselectObjects,
+                SCDeselectFaces,
+                SCDeselectAll
             } SelectCommand;
-            
-            typedef enum {
-                STObjects,
-                STFaces,
-                STAll
-            } SelectTarget;
         private:
             View::MapDocumentPtr m_document;
             SelectCommand m_command;
-            SelectTarget m_target;
             
             Model::ObjectList m_objects;
             Model::BrushFaceList m_faces;
@@ -61,12 +59,21 @@ namespace TrenchBroom {
             
             Model::SelectionResult m_lastResult;
         public:
-            SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            static Ptr select(View::MapDocumentPtr document, const Model::ObjectList& objects);
+            static Ptr select(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
+            static Ptr selectAllObjects(View::MapDocumentPtr document);
+            static Ptr selectAllFaces(View::MapDocumentPtr document);
+            
+            static Ptr deselect(View::MapDocumentPtr document, const Model::ObjectList& objects);
+            static Ptr deselect(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
+            static Ptr deselectAll(View::MapDocumentPtr document);
             
             View::MapDocumentPtr document() const;
             const Model::SelectionResult& lastResult() const;
         private:
-            static String makeName(const SelectCommand command, const SelectTarget target, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+
+            static String makeName(const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();
             bool doPerformUndo();
         };
