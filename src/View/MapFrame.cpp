@@ -384,6 +384,10 @@ namespace TrenchBroom {
             m_mapView->performClip();
         }
 
+        void MapFrame::OnEditDeleteLastClipPoint(wxCommandEvent& event) {
+            m_mapView->deleteLastClipPoint();
+        }
+
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -436,7 +440,8 @@ namespace TrenchBroom {
                     break;
                 }
                 case wxID_DELETE:
-                    event.Enable(m_document->hasSelectedObjects());
+                    event.Enable(m_document->hasSelectedObjects() &&
+                                 !m_mapView->anyToolActive());
                     break;
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(!m_mapView->anyToolActive());
@@ -472,6 +477,9 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditPerformClip:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
+                    break;
+                case CommandIds::Menu::EditDeleteLastClipPoint:
+                    event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
                     event.Enable(m_document->hasSelectedObjects());
@@ -595,6 +603,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteLastClipPoint, this, CommandIds::Menu::EditDeleteLastClipPoint);
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             

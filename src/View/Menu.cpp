@@ -358,7 +358,11 @@ namespace TrenchBroom {
             editMenu->addActionItem(KeyboardShortcut(wxID_COPY, WXK_CONTROL, 'C', KeyboardShortcut::SCAny, "Copy"));
             editMenu->addActionItem(KeyboardShortcut(wxID_PASTE, WXK_CONTROL, 'V', KeyboardShortcut::SCAny, "Paste"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditPasteAtOriginalPosition, WXK_CONTROL, WXK_SHIFT, 'V', KeyboardShortcut::SCAny, "Paste at Original Position"));
+#ifdef __APPLE__
             editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::SCAny, "Delete"));
+#else
+            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_DELETE, KeyboardShortcut::SCAny, "Delete"));
+#endif
             editMenu->addSeparator();
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::SCAny, "Select All"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectSiblings, WXK_CONTROL, WXK_ALT, 'A', KeyboardShortcut::SCAny, "Select Siblings"));
@@ -469,6 +473,11 @@ namespace TrenchBroom {
             Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", CommandIds::Menu::EditClipActions);
             clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleClipSide, WXK_CONTROL, WXK_RETURN, KeyboardShortcut::SCClipTool, "Toggle Clip Side"));
             clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::SCClipTool, "Perform Clip"));
+#ifdef __APPLE__
+            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDeleteLastClipPoint, WXK_BACK, KeyboardShortcut::SCClipTool, "Delete Last Clip Point"));
+#else
+            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDeleteLastClipPoint, WXK_DELETE, KeyboardShortcut::SCClipTool, "Delete Last Clip Point"));
+#endif
             
             editMenu->addSeparator();
             editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "FaceTexture Lock"));

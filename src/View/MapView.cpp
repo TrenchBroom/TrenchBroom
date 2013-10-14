@@ -129,6 +129,18 @@ namespace TrenchBroom {
         void MapView::performClip() {
             assert(clipToolActive());
             m_clipTool->performClip();
+            Refresh();
+        }
+
+        bool MapView::canDeleteLastClipPoint() const {
+            assert(clipToolActive());
+            return m_clipTool->canDeleteLastClipPoint();
+        }
+        
+        void MapView::deleteLastClipPoint() {
+            assert(clipToolActive());
+            m_clipTool->deleteLastClipPoint();
+            Refresh();
         }
 
         void MapView::toggleRotateObjectsTool() {

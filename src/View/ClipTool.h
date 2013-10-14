@@ -47,6 +47,8 @@ namespace TrenchBroom {
             void toggleClipSide();
             bool canPerformClip() const;
             void performClip();
+            bool canDeleteLastClipPoint() const;
+            void deleteLastClipPoint();
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);

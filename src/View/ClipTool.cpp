@@ -83,6 +83,15 @@ namespace TrenchBroom {
             updateBrushes();
         }
 
+        bool ClipTool::canDeleteLastClipPoint() const {
+            return m_clipper.numPoints() > 0;
+        }
+        
+        void ClipTool::deleteLastClipPoint() {
+            m_clipper.deleteLastClipPoint();
+            updateBrushes();
+        }
+
         bool ClipTool::initiallyActive() const {
             return false;
         }

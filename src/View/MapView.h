@@ -106,6 +106,8 @@ namespace TrenchBroom {
             void toggleClipSide();
             bool canPerformClip() const;
             void performClip();
+            bool canDeleteLastClipPoint() const;
+            void deleteLastClipPoint();
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
             void toggleMovementRestriction();
