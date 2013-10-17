@@ -25,6 +25,7 @@
 #include "Controller/FaceAttributeCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/ReparentBrushesCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
 #include "Controller/TransformObjectsCommand.h"
@@ -247,6 +248,13 @@ namespace TrenchBroom {
             if (!addObjects(duplicates))
                 VectorUtils::clearAndDelete(result);
             return result;
+        }
+
+        bool ControllerFacade::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {
+            using namespace Controller;
+            
+            Command::Ptr command = ReparentBrushesCommand::reparent(m_document, brushes, newParent);
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {

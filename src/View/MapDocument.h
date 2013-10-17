@@ -148,6 +148,7 @@ namespace TrenchBroom {
             String currentTextureName() const;
             
             bool textureLock() const;
+            void setTextureLock(const bool textureLock);
             
             void commitPendingRenderStateChanges();
 

@@ -120,8 +120,8 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                Assets::EntityDefinitionManager::EntityDefinitionGroups groups = m_entityDefinitionManager.groups(Assets::EntityDefinition::PointEntity, m_sortOrder);
-                Assets::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+                Assets::EntityDefinitionGroups groups = m_entityDefinitionManager.groups(Assets::EntityDefinition::PointEntity, m_sortOrder);
+                Assets::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
                 
                 for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
                     const String& groupName = groupIt->first;

@@ -75,6 +75,7 @@ namespace TrenchBroom {
         struct EntityProperty;
         
         typedef std::map<Entity*, BrushList> EntityBrushesMap;
+        typedef std::map<Brush*, Entity*> BrushEntityMap;
         
         class Pickable;
         typedef std::vector<Pickable*> PickableList;

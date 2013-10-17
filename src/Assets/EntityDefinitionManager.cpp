@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        EntityDefinitionManager::EntityDefinitionGroups EntityDefinitionManager::groups(const EntityDefinition::Type type, const SortOrder order) const {
+        EntityDefinitionGroups EntityDefinitionManager::groups(const EntityDefinition::Type type, const SortOrder order) const {
             EntityDefinitionGroups groups;
             EntityDefinitionList list = definitions(type, order);
             EntityDefinitionList ungrouped;
@@ -128,7 +128,8 @@ namespace TrenchBroom {
                     std::sort(definitions.begin(), definitions.end(), CompareByName(true));
             }
             
-            return groups;            }
+            return groups;
+        }
 
         void EntityDefinitionManager::updateCache() {
             clearCache();

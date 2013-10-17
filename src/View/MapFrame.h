@@ -104,6 +104,8 @@ namespace TrenchBroom {
             
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
             void OnEditToggleMovementRestriction(wxCommandEvent& event);
+
+            void OnEditToggleTextureLock(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
             

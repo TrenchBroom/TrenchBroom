@@ -397,6 +397,10 @@ namespace TrenchBroom {
             m_mapView->toggleMovementRestriction();
         }
 
+        void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
+            m_document->setTextureLock(!m_document->textureLock());
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -487,6 +491,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditToggleTextureLock:
+                    event.Enable(true);
+                    event.Check(m_document->textureLock());
                     break;
                 default:
                     event.Enable(false);
@@ -607,6 +615,8 @@ namespace TrenchBroom {
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);

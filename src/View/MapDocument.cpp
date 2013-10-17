@@ -466,6 +466,10 @@ namespace TrenchBroom {
             return m_textureLock;
         }
 
+        void MapDocument::setTextureLock(const bool textureLock) {
+            m_textureLock = textureLock;
+        }
+
         void MapDocument::commitPendingRenderStateChanges() {
             m_textureManager.commitChanges();
         }

@@ -39,7 +39,6 @@ namespace TrenchBroom {
                 Usage
             };
 
-            typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         private:
             typedef std::map<String, EntityDefinition*> Cache;
             EntityDefinitionList m_definitions;

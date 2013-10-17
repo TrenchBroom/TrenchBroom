@@ -480,7 +480,7 @@ namespace TrenchBroom {
 #endif
             
             editMenu->addSeparator();
-            editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "FaceTexture Lock"));
+            editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "Texture Lock"));
 #ifdef __linux__ // escape key is not allowed as a menu accelerator on GTK
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditNavigateUp, KeyboardShortcut::SCAny, "Navigate Up"));
 #else

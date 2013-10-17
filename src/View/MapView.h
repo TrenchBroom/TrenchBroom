@@ -126,7 +126,19 @@ namespace TrenchBroom {
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnFirstIdle(wxIdleEvent& event);
+            
+            void OnPopupReparentBrushes(wxCommandEvent& event);
+            void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
+            void OnPopupCreatePointEntity(wxCommandEvent& event);
+            void OnPopupCreateBrushEntity(wxCommandEvent& event);
+            void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
         private:
+            void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
+            void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
+            Model::Entity* findNewBrushParent(const Model::BrushList& brushes) const;
+            bool canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) const;
+            void reparentBrushes(const Model::BrushList brushes, Model::Entity* newParent);
+            
             void bindObservers();
             void unbindObservers();
             
@@ -147,6 +159,8 @@ namespace TrenchBroom {
             bool updateModifierKeys();
             bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
+            void showPopupMenu();
+            wxMenu* makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id);
             void bindEvents();
             
             void setupGL(Renderer::RenderContext& context);
