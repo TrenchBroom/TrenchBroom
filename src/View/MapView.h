@@ -25,6 +25,7 @@
 #include "VecMath.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
+#include "Controller/Command.h"
 #include "Renderer/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -152,6 +153,7 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
+            void commandDoneOrUndone(Controller::Command::Ptr command);
             
             void updatePickResults(const int x, const int y);
             

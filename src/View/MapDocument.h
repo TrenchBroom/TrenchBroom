@@ -152,13 +152,6 @@ namespace TrenchBroom {
             
             void commitPendingRenderStateChanges();
 
-            void commandDo(Controller::Command::Ptr command);
-            void commandDone(Controller::Command::Ptr command);
-            void commandDoFailed(Controller::Command::Ptr command);
-            void commandUndo(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
-            void commandUndoFailed(Controller::Command::Ptr command);
-
             Model::PickResult pick(const Ray3& ray);
             
             void saveBackup(const IO::Path& path);

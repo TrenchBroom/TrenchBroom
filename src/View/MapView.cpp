@@ -551,6 +551,8 @@ namespace TrenchBroom {
             m_document->objectDidChangeNotifier.addObserver(this, &MapView::objectDidChange);
             m_document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+            m_controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
         }
         
         void MapView::unbindObservers() {
@@ -560,6 +562,8 @@ namespace TrenchBroom {
             m_document->objectDidChangeNotifier.removeObserver(this, &MapView::objectDidChange);
             m_document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
+            m_controller->commandDoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
         }
 
         void MapView::documentWasNewed() {
@@ -583,6 +587,13 @@ namespace TrenchBroom {
         }
         
         void MapView::selectionDidChange(const Model::SelectionResult& result) {
+            Refresh();
+        }
+
+        void MapView::commandDoneOrUndone(Controller::Command::Ptr command) {
+            const wxMouseState mouseState = wxGetMouseState();
+            const wxPoint clientPos = ScreenToClient(mouseState.GetPosition());
+            updatePickResults(clientPos.x, clientPos.y);
             Refresh();
         }
 
