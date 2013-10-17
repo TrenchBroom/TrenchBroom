@@ -130,10 +130,6 @@ namespace TrenchBroom {
             return *value;
         }
         
-        void Entity::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
-            m_properties.addOrUpdateProperty(key, value);
-        }
-
         void Entity::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
             m_properties.renameProperty(key, newKey);
         }
@@ -153,8 +149,8 @@ namespace TrenchBroom {
             return Vec3(*value);
         }
 
-        Quatf Entity::rotation() const {
-            return Quatf();
+        Quat3 Entity::rotation() const {
+            return Quat3();
         }
 
         const BrushList& Entity::brushes() const {
@@ -224,6 +220,19 @@ namespace TrenchBroom {
         m_model(NULL) {}
         
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+            const Mat4x4 translation = translationMatrix(transformation);
+            const Vec3 orig = origin();
+            setOrigin(translation * orig);
+            
+            const Mat4x4 rotation = stripTranslation(transformation);
+            applyRotation(rotation);
         }
+
+        void Entity::setOrigin(const Vec3& origin) {
+            m_properties.addOrUpdateProperty(PropertyKeys::Origin, origin.rounded().asString());
+        }
+
+        void Entity::applyRotation(const Mat4x4& rotation) {}
+        
     }
 }

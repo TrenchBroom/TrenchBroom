@@ -75,17 +75,18 @@ namespace TrenchBroom {
             bool redoNextCommand();
 
             bool selectObjects(const Model::ObjectList& objects);
-            bool selectObject(Model::Object* object);
+            bool selectObject(Model::Object& object);
             bool selectAllObjects();
-            bool deselectAllAndSelectObject(Model::Object* object);
-            bool deselectObject(Model::Object* object);
-            bool selectFace(Model::BrushFace* face);
-            bool deselectAllAndSelectFace(Model::BrushFace* face);
-            bool deselectFace(Model::BrushFace* face);
+            bool deselectAllAndSelectObject(Model::Object& object);
+            bool deselectObject(Model::Object& object);
+            bool selectFace(Model::BrushFace& face);
+            bool deselectAllAndSelectFace(Model::BrushFace& face);
+            bool deselectFace(Model::BrushFace& face);
             bool deselectAll();
             
             bool addObjects(const Model::ObjectList& objects);
             bool addObjects(const Model::ObjectParentList& objects);
+            bool addObject(Model::Object& object);
             bool removeObjects(const Model::ObjectList& objects);
             bool removeObjects(const Model::ObjectParentList& objects);
             bool removeObject(Model::Object& object);

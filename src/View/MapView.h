@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Assets/AssetTypes.h"
 #include "Renderer/GL.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -138,6 +139,9 @@ namespace TrenchBroom {
             Model::Entity* findNewBrushParent(const Model::BrushList& brushes) const;
             bool canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) const;
             void reparentBrushes(const Model::BrushList brushes, Model::Entity* newParent);
+            Assets::EntityDefinition* findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const;
+            void createPointEntity(const Assets::PointEntityDefinition& definition);
+            void createBrushEntity(const Assets::BrushEntityDefinition& definition);
             
             void bindObservers();
             void unbindObservers();

@@ -106,8 +106,8 @@ namespace TrenchBroom {
             const bool applyTexture = true;
             shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
             shader.set("Alpha", 1.0f);
-            shader.set("RenderGrid", true);
-            shader.set("GridSize", 32.0f);
+            shader.set("RenderGrid", context.gridVisible());
+            shader.set("GridSize", static_cast<float>(context.gridSize()));
             shader.set("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
             shader.set("GridCheckerboard", prefs.getBool(Preferences::GridCheckerboard));
             shader.set("ApplyTexture", applyTexture);

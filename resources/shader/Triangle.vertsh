@@ -1,5 +1,7 @@
+#version 120
+
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,9 +19,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexSpec.h"
+uniform vec3 CameraPosition;
+uniform vec4 Color;
+uniform bool UseColor;
 
-namespace TrenchBroom {
-    namespace Renderer {
-    }
+varying vec4 vertexColor;
+varying vec3 modelNormal;
+varying vec3 viewVector;
+
+void main(void) {
+    gl_Position = ftransform();
+    if (UseColor)
+        vertexColor = Color;
+    else
+        vertexColor = gl_Color;
+	modelNormal = gl_Normal;
+	viewVector = CameraPosition - gl_Vertex.xyz;
 }

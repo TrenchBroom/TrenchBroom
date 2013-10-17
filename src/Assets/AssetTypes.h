@@ -40,6 +40,8 @@ namespace TrenchBroom {
         typedef std::vector<FaceTextureCollection*> TextureCollectionList;
         
         class EntityDefinition;
+        class PointEntityDefinition;
+        class BrushEntityDefinition;
         typedef std::vector<EntityDefinition*> EntityDefinitionList;
         typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         

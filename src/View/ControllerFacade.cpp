@@ -115,11 +115,11 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::selectObject(Model::Object* object) {
+        bool ControllerFacade::selectObject(Model::Object& object) {
             using namespace Controller;
             
             Model::ObjectList objects;
-            objects.push_back(object);
+            objects.push_back(&object);
 
             Command::Ptr command = SelectionCommand::select(m_document, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
@@ -132,11 +132,11 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::deselectAllAndSelectObject(Model::Object* object) {
+        bool ControllerFacade::deselectAllAndSelectObject(Model::Object& object) {
             using namespace Controller;
 
             Model::ObjectList objects;
-            objects.push_back(object);
+            objects.push_back(&object);
 
             Command::Ptr deselectCommand = SelectionCommand::deselectAll(m_document);
             Command::Ptr selectCommand = SelectionCommand::select(m_document, objects);
@@ -148,31 +148,31 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ControllerFacade::deselectObject(Model::Object* object) {
+        bool ControllerFacade::deselectObject(Model::Object& object) {
             using namespace Controller;
 
             Model::ObjectList objects;
-            objects.push_back(object);
+            objects.push_back(&object);
             
             Command::Ptr command = SelectionCommand::deselect(m_document, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::selectFace(Model::BrushFace* face) {
+        bool ControllerFacade::selectFace(Model::BrushFace& face) {
             using namespace Controller;
 
             Model::BrushFaceList faces;
-            faces.push_back(face);
+            faces.push_back(&face);
             
             Command::Ptr command = SelectionCommand::select(m_document, faces);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace* face) {
+        bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace& face) {
             using namespace Controller;
 
             Model::BrushFaceList faces;
-            faces.push_back(face);
+            faces.push_back(&face);
             
             Command::Ptr deselectCommand = SelectionCommand::deselectAll(m_document);
             Command::Ptr selectCommand = SelectionCommand::select(m_document, faces);
@@ -184,11 +184,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ControllerFacade::deselectFace(Model::BrushFace* face) {
+        bool ControllerFacade::deselectFace(Model::BrushFace& face) {
             using namespace Controller;
 
             Model::BrushFaceList faces;
-            faces.push_back(face);
+            faces.push_back(&face);
             
             Command::Ptr command = SelectionCommand::deselect(m_document, faces);
             return m_commandProcessor.submitAndStoreCommand(command);
@@ -210,6 +210,12 @@ namespace TrenchBroom {
             
             Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::addObject(Model::Object& object) {
+            Model::ObjectList objects(1);
+            objects[0] = &object;
+            return addObjects(objects);
         }
 
         bool ControllerFacade::removeObjects(const Model::ObjectList& objects) {
@@ -253,8 +259,18 @@ namespace TrenchBroom {
         bool ControllerFacade::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {
             using namespace Controller;
             
-            Command::Ptr command = ReparentBrushesCommand::reparent(m_document, brushes, newParent);
-            return m_commandProcessor.submitAndStoreCommand(command);
+            ReparentBrushesCommand::Ptr command = ReparentBrushesCommand::reparent(m_document, brushes, newParent);
+            beginUndoableGroup(command->name());
+            
+            const bool success = m_commandProcessor.submitAndStoreCommand(command);
+            if (success) {
+                const Model::EntityList& emptyEntities = command->emptyEntities();
+                if (!emptyEntities.empty())
+                    removeObjects(VectorUtils::cast<Model::Object*>(emptyEntities));
+            }
+            
+            closeGroup();
+            return success;
         }
 
         bool ControllerFacade::renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {

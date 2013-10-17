@@ -549,6 +549,14 @@ const Mat<T,S+1,S+1> translationMatrix(const Vec<T,S>& delta) {
 }
 
 template <typename T, size_t S>
+const Mat<T,S,S> translationMatrix(const Mat<T,S,S>& mat) {
+    Mat<T,S,S> result;
+    for (size_t i = 0; i < S-1; ++i)
+        result[S-1][i] = mat[S-1][i];
+    return result;
+}
+
+template <typename T, size_t S>
 const Mat<T,S,S> stripTranslation(const Mat<T,S,S>& mat) {
     Mat<T,S,S> result(mat);
     for (size_t i = 0; i < S-1; ++i)

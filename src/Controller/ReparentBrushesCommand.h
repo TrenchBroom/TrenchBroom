@@ -36,8 +36,10 @@ namespace TrenchBroom {
             Model::BrushList m_brushes;
             Model::Entity* m_newParent;
             Model::BrushEntityMap m_oldParents;
+            Model::EntityList m_emptyEntities;
         public:
             static Ptr reparent(View::MapDocumentPtr document, const Model::BrushList& brushes, Model::Entity* newParent);
+            const Model::EntityList& emptyEntities() const;
         private:
             ReparentBrushesCommand(View::MapDocumentPtr document, const Model::BrushList& brushes, Model::Entity* newParent);
             static String makeName(const Model::BrushList& brushes, Model::Entity* newParent);

@@ -265,12 +265,12 @@ void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
     const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
     const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
     
-    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x); // top
-    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y); // bottom
-    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x); // front
-    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z); // back
-    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z); // left
-    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y); // right
+    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x, Vec<T,3>( 0.0,  0.0, +1.0)); // top
+    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y, Vec<T,3>( 0.0,  0.0, -1.0)); // bottom
+    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x, Vec<T,3>( 0.0, -1.0,  0.0)); // front
+    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z, Vec<T,3>( 0.0, +1.0,  0.0)); // back
+    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z, Vec<T,3>(-1.0,  0.0,  0.0)); // left
+    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y, Vec<T,3>(+1.0,  0.0,  0.0)); // right
 }
 
 template <typename T, class Op>

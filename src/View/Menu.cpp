@@ -496,6 +496,7 @@ namespace TrenchBroom {
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewToggleSnapToGrid, WXK_CONTROL, WXK_SHIFT, 'G', KeyboardShortcut::SCAny, "Snap to Grid"));
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewIncGridSize, WXK_CONTROL, '+', KeyboardShortcut::SCAny, "Increase Grid Size"));
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewDecGridSize, WXK_CONTROL, '-', KeyboardShortcut::SCAny, "Decrease Grid Size"));
+            gridMenu.addSeparator();
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize1, WXK_CONTROL, '1', KeyboardShortcut::SCAny, "Set Grid Size 1"));
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize2, WXK_CONTROL, '2', KeyboardShortcut::SCAny, "Set Grid Size 2"));
             gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize4, WXK_CONTROL, '3', KeyboardShortcut::SCAny, "Set Grid Size 4"));

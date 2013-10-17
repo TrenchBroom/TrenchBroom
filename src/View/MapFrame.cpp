@@ -401,6 +401,33 @@ namespace TrenchBroom {
             m_document->setTextureLock(!m_document->textureLock());
         }
 
+        void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
+            m_document->grid().toggleVisible();
+            m_mapView->Refresh();
+        }
+        
+        void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
+            m_document->grid().toggleSnap();
+            m_mapView->Refresh();
+        }
+        
+        void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
+            m_document->grid().incSize();
+            m_mapView->Refresh();
+        }
+        
+        void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
+            m_document->grid().decSize();
+            m_mapView->Refresh();
+        }
+        
+        void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
+            const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
+            assert(size < Grid::MaxSize);
+            m_document->grid().setSize(size);
+            m_mapView->Refresh();
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -495,6 +522,56 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
                     event.Check(m_document->textureLock());
+                    break;
+                case CommandIds::Menu::ViewToggleShowGrid:
+                    event.Enable(true);
+                    event.Check(m_document->grid().visible());
+                    break;
+                case CommandIds::Menu::ViewToggleSnapToGrid:
+                    event.Enable(true);
+                    event.Check(m_document->grid().snap());
+                    break;
+                case CommandIds::Menu::ViewIncGridSize:
+                    event.Enable(m_document->grid().size() < Grid::MaxSize);
+                    break;
+                case CommandIds::Menu::ViewDecGridSize:
+                    event.Enable(m_document->grid().size() > 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize1:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize2:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize4:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize8:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize16:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 4);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize32:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 5);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize64:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 6);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize128:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 7);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize256:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == 8);
                     break;
                 default:
                     event.Enable(false);
@@ -617,6 +694,12 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256);
             
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);

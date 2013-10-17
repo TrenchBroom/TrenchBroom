@@ -71,6 +71,14 @@ namespace TrenchBroom {
             const EntityProperty::List& properties() const;
             
             void setProperties(const EntityProperty::List& properties);
+
+            template <typename T>
+            void addOrUpdateProperty(const PropertyKey& key, const T& value) {
+                StringStream str;
+                str << value;
+                addOrUpdateProperty(key, str.str());
+            }
+            
             void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
             void removeProperty(const PropertyKey& key);

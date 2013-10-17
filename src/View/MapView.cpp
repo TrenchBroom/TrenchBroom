@@ -28,6 +28,7 @@
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
+#include "Model/Map.h"
 #include "Model/Object.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -319,7 +320,8 @@ namespace TrenchBroom {
 
                 m_document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    Renderer::RenderContext context(m_camera, m_renderResources.shaderManager());
+                    const View::Grid& grid = m_document->grid();
+                    Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                     setupGL(context);
                     setRenderOptions(context);
                     clearBackground(context);
@@ -365,9 +367,23 @@ namespace TrenchBroom {
         }
         
         void MapView::OnPopupCreatePointEntity(wxCommandEvent& event) {
+            Assets::EntityDefinitionManager& manager = m_document->entityDefinitionManager();
+            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::PointEntity);
+            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
+            const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
+            assert(definition != NULL);
+            assert(definition->type() == Assets::EntityDefinition::PointEntity);
+            createPointEntity(*static_cast<const Assets::PointEntityDefinition*>(definition));
         }
         
         void MapView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
+            Assets::EntityDefinitionManager& manager = m_document->entityDefinitionManager();
+            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::BrushEntity);
+            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
+            const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
+            assert(definition != NULL);
+            assert(definition->type() == Assets::EntityDefinition::BrushEntity);
+            createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
 
         void MapView::OnUpdatePopupMenuItem(wxUpdateUIEvent& event) {
@@ -453,6 +469,77 @@ namespace TrenchBroom {
             m_controller->beginUndoableGroup(name.str());
             m_controller->deselectAll();
             m_controller->reparentBrushes(brushes, newParent);
+            m_controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
+            m_controller->closeGroup();
+        }
+
+        Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const {
+            Assets::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+            Assets::EntityDefinitionList::const_iterator defIt, defEnd;
+            
+            size_t count = 0;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                const Assets::EntityDefinitionList& definitions = groupIt->second;
+                if (index < count + definitions.size())
+                    return definitions[index - count];
+                count += definitions.size();
+            }
+            return NULL;
+        }
+
+        void MapView::createPointEntity(const Assets::PointEntityDefinition& definition) {
+            Model::Entity* entity = m_document->map()->createEntity();
+            entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition.name());
+            
+            Vec3 delta;
+            View::Grid& grid = m_document->grid();
+            
+            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Brush::BrushHit, m_document->filter(), true);
+            if (first.matches) {
+                delta = grid.moveDeltaForBounds(*Model::hitAsFace(first.hit), definition.bounds(), m_document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
+            } else {
+                const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay().direction));
+                delta = grid.moveDeltaForPoint(definition.bounds().center(), m_document->worldBounds(), newPosition - definition.bounds().center());
+            }
+            
+            StringStream name;
+            name << "Create " << definition.name();
+            
+            Model::ObjectList objects(1);
+            objects[0] = entity;
+            
+            m_controller->beginUndoableGroup(name.str());
+            m_controller->deselectAll();
+            m_controller->addObjects(objects);
+            m_controller->selectObjects(objects);
+            m_controller->moveObjects(objects, delta, false);
+            m_controller->closeGroup();
+        }
+        
+        void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {
+            const Model::BrushList brushes = m_document->selectedBrushes();
+            assert(!brushes.empty());
+
+            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+            Model::BrushList::const_iterator it = brushes.begin();
+            Model::BrushList::const_iterator end = brushes.end();
+            Model::Entity* entityTemplate = (*it++)->parent();
+            while (it != end && entityTemplate != NULL)
+                if ((*it++)->parent() != entityTemplate)
+                    entityTemplate = NULL;
+            
+            Model::Entity* entity = m_document->map()->createEntity();
+            if (entityTemplate != NULL && !entityTemplate->worldspawn())
+                entity->setProperties(entityTemplate->properties());
+            entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition.name());
+            
+            StringStream name;
+            name << "Create " << definition.name();
+            
+            m_controller->beginUndoableGroup(name.str());
+            m_controller->deselectAll();
+            m_controller->addObject(*entity);
+            m_controller->reparentBrushes(brushes, entity);
             m_controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
             m_controller->closeGroup();
         }

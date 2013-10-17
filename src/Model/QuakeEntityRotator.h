@@ -42,9 +42,12 @@ namespace TrenchBroom {
                 property(i_property) {}
             };
         public:
-            static Quatf getRotation(const Entity& entity);
+            static Quat3 getRotation(const Entity& entity);
             static RotationInfo rotationInfo(const Entity& entity);
+            static void applyRotation(Entity& entity, const Mat4x4& transformation);
         private:
+            static void setAngle(Entity& entity, const PropertyKey& key, const Vec3& direction);
+            static FloatType getAngle(Vec3 direction);
             QuakeEntityRotationPolicy();
         };
     }

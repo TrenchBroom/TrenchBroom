@@ -42,8 +42,8 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             TriangleRenderer();
-            TriangleRenderer(const VertexSpecs::P3::Vertex::List& vertices);
-            TriangleRenderer(const VertexSpecs::P3C4::Vertex::List& vertices);
+            TriangleRenderer(const VertexSpecs::P3N::Vertex::List& vertices);
+            TriangleRenderer(const VertexSpecs::P3NC4::Vertex::List& vertices);
             TriangleRenderer(const TriangleRenderer& other);
             TriangleRenderer& operator= (TriangleRenderer other);
             

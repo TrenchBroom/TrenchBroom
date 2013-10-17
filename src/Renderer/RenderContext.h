@@ -33,13 +33,17 @@ namespace TrenchBroom {
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
             
+            bool m_gridVisible;
+            size_t m_gridSize;
             bool m_hideSelection;
         public:
-            RenderContext(const Camera& camera, ShaderManager& shaderManager);
+            RenderContext(const Camera& camera, ShaderManager& shaderManager, const bool gridVisible, const size_t gridSize);
             
             const Camera& camera() const;
             Transformation& transformation();
             ShaderManager& shaderManager();
+            bool gridVisible() const;
+            size_t gridSize() const;
             
             bool hideSelection() const;
             void setHideSelection();

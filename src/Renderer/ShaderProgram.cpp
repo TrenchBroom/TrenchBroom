@@ -76,6 +76,12 @@ namespace TrenchBroom {
             assert(glGetError() == GL_NO_ERROR);
         }
 
+        void ShaderProgram::set(const String& name, const size_t value) {
+            assert(checkActive());
+            glUniform1ui(findUniformLocation(name), value);
+            assert(glGetError() == GL_NO_ERROR);
+        }
+
         void ShaderProgram::set(const String& name, const float value) {
             assert(checkActive());
             glUniform1f(findUniformLocation(name), value);

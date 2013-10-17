@@ -48,12 +48,12 @@ namespace TrenchBroom {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
                         if (face->selected()) {
-                            controller()->deselectFace(face);
+                            controller()->deselectFace(*face);
                         } else {
-                            controller()->selectFace(face);
+                            controller()->selectFace(*face);
                         }
                     } else {
-                        controller()->deselectAllAndSelectFace(face);
+                        controller()->deselectAllAndSelectFace(*face);
                     }
                 } else {
                     controller()->deselectAll();
@@ -64,12 +64,12 @@ namespace TrenchBroom {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {
                         if (object->selected()) {
-                            controller()->deselectObject(object);
+                            controller()->deselectObject(*object);
                         } else {
-                            controller()->selectObject(object);
+                            controller()->selectObject(*object);
                         }
                     } else {
-                        controller()->deselectAllAndSelectObject(object);
+                        controller()->deselectAllAndSelectObject(*object);
                     }
                 } else {
                     controller()->deselectAll();

@@ -19,6 +19,7 @@
 
 #include "TriangleRenderer.h"
 
+#include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
@@ -28,14 +29,14 @@ namespace TrenchBroom {
         TriangleRenderer::TriangleRenderer() :
         m_prepared(true) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3N::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
         m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
         m_useColor(true),
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3C4::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3NC4::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
         m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
         m_useColor(false),
@@ -85,18 +86,14 @@ namespace TrenchBroom {
             setVboState.active();
             if (!m_prepared)
                 prepare();
-            if (m_useColor) {
-                ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
-                shader.set("Color", m_color);
-                shader.set("ApplyTinting", m_applyTinting);
-                shader.set("TintColor", m_tintColor);
-                m_vertexArray.render();
-            } else {
-                ActiveShader shader(context.shaderManager(), Shaders::VaryingPCShader);
-                shader.set("ApplyTinting", m_applyTinting);
-                shader.set("TintColor", m_tintColor);
-                m_vertexArray.render();
-            }
+            
+            ActiveShader shader(context.shaderManager(), Shaders::TriangleShader);
+            shader.set("ApplyTinting", m_applyTinting);
+            shader.set("TintColor", m_tintColor);
+            shader.set("UseColor", m_useColor);
+            shader.set("Color", m_color);
+            shader.set("CameraPosition", context.camera().position());
+            m_vertexArray.render();
         }
         
         void TriangleRenderer::prepare() {

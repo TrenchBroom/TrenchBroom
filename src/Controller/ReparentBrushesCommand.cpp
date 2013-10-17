@@ -34,6 +34,10 @@ namespace TrenchBroom {
             return Ptr(new ReparentBrushesCommand(document, brushes, newParent));
         }
 
+        const Model::EntityList& ReparentBrushesCommand::emptyEntities() const {
+            return m_emptyEntities;
+        }
+
         ReparentBrushesCommand::ReparentBrushesCommand(View::MapDocumentPtr document, const Model::BrushList& brushes, Model::Entity* newParent) :
         Command(Type, makeName(brushes, newParent), true, true),
         m_document(document),
@@ -51,6 +55,7 @@ namespace TrenchBroom {
         
         bool ReparentBrushesCommand::doPerformDo() {
             m_oldParents.clear();
+            m_emptyEntities.clear();
             
             m_document->objectWillChangeNotifier(m_newParent);
             Model::BrushList::const_iterator it, end;
@@ -65,6 +70,9 @@ namespace TrenchBroom {
                 m_newParent->addBrush(brush);
                 m_document->objectDidChangeNotifier(brush);
                 m_document->objectDidChangeNotifier(oldParent);
+                
+                if (oldParent->brushes().empty() && !oldParent->worldspawn())
+                    m_emptyEntities.push_back(oldParent);
             }
             m_document->objectDidChangeNotifier(m_newParent);
             

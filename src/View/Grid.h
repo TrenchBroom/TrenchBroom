@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         class Grid {
         public:
-            static const size_t MaxSize = 9;
+            static const size_t MaxSize = 8;
         private:
             size_t m_size;
             bool m_snap;

@@ -258,20 +258,20 @@ namespace TrenchBroom {
         }
 
         struct BuildColoredSolidBoundsVertices {
-            VertexSpecs::P3C4::Vertex::List& vertices;
+            VertexSpecs::P3NC4::Vertex::List& vertices;
             Color color;
             
-            BuildColoredSolidBoundsVertices(VertexSpecs::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredSolidBoundsVertices(VertexSpecs::P3NC4::Vertex::List& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2, const Vec3& v3, const Vec3& v4) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v3, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v3, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v4, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
+            void operator()(const Vec3& v1, const Vec3& v2, const Vec3& v3, const Vec3& v4, const Vec3& n) {
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
             }
         };
 
@@ -306,7 +306,7 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::validateBounds() {
-            VertexSpecs::P3C4::Vertex::List solidVertices;
+            VertexSpecs::P3NC4::Vertex::List solidVertices;
             solidVertices.reserve(36 * m_entities.size());
             
             if (m_overrideBoundsColor) {

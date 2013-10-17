@@ -107,6 +107,12 @@ namespace TrenchBroom {
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
             
+            void OnViewToggleShowGrid(wxCommandEvent& event);
+            void OnViewToggleSnapToGrid(wxCommandEvent& event);
+            void OnViewIncGridSize(wxCommandEvent& event);
+            void OnViewDecGridSize(wxCommandEvent& event);
+            void OnViewSetGridSize(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
             
             void OnMapViewSetFocus(wxFocusEvent& event);

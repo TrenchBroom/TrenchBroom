@@ -80,13 +80,23 @@ namespace TrenchBroom {
             void setProperties(const EntityProperty::List& properties);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue& property(const PropertyKey& key, const PropertyValue& defaultValue = DefaultPropertyValue) const;
-            void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
+            
+            template <typename T>
+            void addOrUpdateProperty(const PropertyKey& key, const T& value) {
+                m_properties.addOrUpdateProperty(key, value);
+            }
+            
+            template <typename T, size_t S>
+            void addOrUpdateProperty(const PropertyKey& key, const Vec<T,S> value) {
+                m_properties.addOrUpdateProperty(key, value.asString());
+            }
+            
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
             void removeProperty(const PropertyKey& key);
             
             const PropertyValue& classname(const PropertyValue& defaultClassname = PropertyValues::NoClassname) const;
             Vec3 origin() const;
-            virtual Quatf rotation() const;
+            virtual Quat3 rotation() const;
             
             const BrushList& brushes() const;
             void addBrush(Brush* brush);
@@ -94,6 +104,9 @@ namespace TrenchBroom {
             Brush* findBrushByFilePosition(const size_t position) const;
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            void setOrigin(const Vec3& origin);
+            virtual void applyRotation(const Mat4x4& rotation);
+
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;
             bool doContains(const Brush& brush) const;
@@ -116,8 +129,12 @@ namespace TrenchBroom {
             ConfigurableEntity() :
             Entity() {}
             
-            Quatf rotation() const {
+            Quat3 rotation() const {
                 return RotationPolicy::getRotation(*this);
+            }
+            
+            void applyRotation(const Mat4x4& rotation) {
+                RotationPolicy::applyRotation(*this, rotation);
             }
         private:
             Object* doClone(const BBox3& worldBounds) const {
