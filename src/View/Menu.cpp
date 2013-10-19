@@ -73,8 +73,9 @@ namespace TrenchBroom {
             assert(type == MITAction || type == MITCheck);
             PreferenceManager& prefs = PreferenceManager::instance();
             const String p = path();
+            
             Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.get(preference);
+            m_shortcut = prefs.get(preference);
         }
         
         ShortcutMenuItem::~ShortcutMenuItem() {}
@@ -362,9 +363,9 @@ namespace TrenchBroom {
             editMenu->addActionItem(KeyboardShortcut(wxID_PASTE, WXK_CONTROL, 'V', KeyboardShortcut::SCAny, "Paste"));
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditPasteAtOriginalPosition, WXK_CONTROL, WXK_SHIFT, 'V', KeyboardShortcut::SCAny, "Paste at Original Position"));
 #ifdef __APPLE__
-            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::SCAny, "Delete"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::SCObjects, "Delete"));
 #else
-            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_DELETE, KeyboardShortcut::SCAny, "Delete"));
+            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_DELETE, KeyboardShortcut::SCObjects, "Delete"));
 #endif
             editMenu->addSeparator();
             editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::SCAny, "Select All"));

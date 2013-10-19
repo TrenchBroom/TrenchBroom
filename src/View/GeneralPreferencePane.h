@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class GeneralPreferencePane : public PreferencePane {
         private:
             wxStaticText* m_quakePathValueLabel;
+            wxButton* m_chooseQuakePathButton;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxChoice* m_textureBrowserIconSizeChoice;
@@ -77,6 +78,8 @@ namespace TrenchBroom {
             wxWindow* createMousePreferences();
 
             void bindEvents();
+            void bindSliderEvents(wxSlider* slider, void (GeneralPreferencePane::*function)(wxScrollEvent&));
+            
             void updateControls();
             bool doValidate();
         };

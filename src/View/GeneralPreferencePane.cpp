@@ -211,13 +211,13 @@ namespace TrenchBroom {
             
             wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, _("Quake Path"));
             m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, _("Not Set"));
-            wxButton* chooseQuakePathButton = new wxButton(quakeBox, wxID_ANY, _("Choose..."));
+            m_chooseQuakePathButton = new wxButton(quakeBox, wxID_ANY, _("Choose..."));
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(quakePathLabel, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->Add(m_quakePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->Add(m_chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->SetItemMinSize(quakePathLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, wxDefaultSize.y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -328,6 +328,30 @@ namespace TrenchBroom {
         }
         
         void GeneralPreferencePane::bindEvents() {
+            m_chooseQuakePathButton->Bind(wxEVT_BUTTON, &GeneralPreferencePane::OnChooseQuakePathClicked, this);
+            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &GeneralPreferencePane::OnTextureBrowserIconSizeChanged, this);
+            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookHAxisChanged, this);
+            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookVAxisChanged, this);
+            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertPanHAxisChanged, this);
+            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertPanVAxisChanged, this);
+            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnEnableAltMoveChanged, this);
+            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnMoveCameraInCursorDirChanged, this);
+            
+            bindSliderEvents(m_brightnessSlider, &GeneralPreferencePane::OnBrightnessChanged);
+            bindSliderEvents(m_gridAlphaSlider, &GeneralPreferencePane::OnGridAlphaChanged);
+            bindSliderEvents(m_lookSpeedSlider, &GeneralPreferencePane::OnLookSpeedChanged);
+            bindSliderEvents(m_panSpeedSlider, &GeneralPreferencePane::OnPanSpeedChanged);
+            bindSliderEvents(m_moveSpeedSlider, &GeneralPreferencePane::OnMoveSpeedChanged);
+        }
+        
+        void GeneralPreferencePane::bindSliderEvents(wxSlider* slider, void (GeneralPreferencePane::*function)(wxScrollEvent&)) {
+            slider->Bind(wxEVT_SCROLL_TOP, function, this);
+            slider->Bind(wxEVT_SCROLL_BOTTOM, function, this);
+            slider->Bind(wxEVT_SCROLL_LINEUP, function, this);
+            slider->Bind(wxEVT_SCROLL_LINEDOWN, function, this);
+            slider->Bind(wxEVT_SCROLL_PAGEUP, function, this);
+            slider->Bind(wxEVT_SCROLL_PAGEDOWN, function, this);
+            slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, this);
         }
 
         void GeneralPreferencePane::updateControls() {
