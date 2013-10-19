@@ -252,8 +252,8 @@ namespace TrenchBroom {
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const String& fontName = prefs.getString(Preferences::RendererFontName);
-            const size_t fontSize = static_cast<size_t>(prefs.getInt(Preferences::RendererFontSize));
+            const String& fontName = prefs.get(Preferences::RendererFontName);
+            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
             return fontManager.font(FontDescriptor(fontName, fontSize));
         }
 

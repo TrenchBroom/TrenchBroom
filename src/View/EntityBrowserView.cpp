@@ -113,8 +113,8 @@ namespace TrenchBroom {
         void EntityBrowserView::doReloadLayout(Layout& layout) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            const String fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::BrowserFontSize);
+            const String fontName = prefs.get(Preferences::RendererFontName);
+            int fontSize = prefs.get(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
             const Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::EntityModelShader);
             shader.set("ApplyTinting", false);
-            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("GrayScale", false);
             
             glFrontFace(GL_CW);
@@ -311,7 +311,7 @@ namespace TrenchBroom {
 
             PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::BrowserGroupShader);
-            shader.set("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+            shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::VertexArray vertexArray(m_vbo, GL_QUADS, vertices);
             vertexArray.render();
@@ -337,7 +337,7 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextShader);
-            shader.set("Color", prefs.getColor(Preferences::BrowserTextColor));
+            shader.set("Color", prefs.get(Preferences::BrowserTextColor));
             shader.set("FaceTexture", 0);
             
             StringRendererMap::iterator it, end;
@@ -354,8 +354,8 @@ namespace TrenchBroom {
         
         EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.getString(Preferences::RendererFontName),
-                                                       static_cast<size_t>(prefs.getInt(Preferences::BrowserFontSize)));
+            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontName),
+                                                       static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {

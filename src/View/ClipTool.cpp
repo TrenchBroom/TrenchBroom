@@ -112,9 +112,9 @@ namespace TrenchBroom {
 
         void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType radius = 2.0 * prefs.getDouble(Preferences::HandleRadius);
-            const FloatType scaling = prefs.getDouble(Preferences::HandleScalingFactor);
-            const FloatType maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
+            const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);
+            const FloatType scaling = prefs.get(Preferences::HandleScalingFactor);
+            const FloatType maxDist = prefs.get(Preferences::MaximumHandleDistance);
             const Ray3& ray = inputState.pickRay();
             
             const Vec3::List clipPoints = m_clipper.clipPointPositions();

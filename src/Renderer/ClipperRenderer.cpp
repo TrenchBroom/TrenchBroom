@@ -54,15 +54,15 @@ namespace TrenchBroom {
         m_vbo(0xFFF) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
-            m_frontRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-            m_frontRenderer.setEdgeColor(prefs.getColor(Preferences::ClipEdgeColor));
-            m_frontRenderer.setTintColor(prefs.getColor(Preferences::ClipFaceColor));
-            m_frontRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::ClipOccludedEdgeColor));
+            m_frontRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_frontRenderer.setEdgeColor(prefs.get(Preferences::ClipEdgeColor));
+            m_frontRenderer.setTintColor(prefs.get(Preferences::ClipFaceColor));
+            m_frontRenderer.setOccludedEdgeColor(prefs.get(Preferences::ClipOccludedEdgeColor));
             
-            m_backRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-            m_backRenderer.setEdgeColor(prefs.getColor(Preferences::ClipEdgeColor));
-            m_backRenderer.setTintColor(prefs.getColor(Preferences::ClipFaceColor));
-            m_backRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::ClipOccludedEdgeColor));
+            m_backRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_backRenderer.setEdgeColor(prefs.get(Preferences::ClipEdgeColor));
+            m_backRenderer.setTintColor(prefs.get(Preferences::ClipFaceColor));
+            m_backRenderer.setOccludedEdgeColor(prefs.get(Preferences::ClipOccludedEdgeColor));
         }
         
         void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             assert(index < m_clipper.numPoints());
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaling = prefs.getFloat(Preferences::HandleScalingFactor);
+            const float scaling = prefs.get(Preferences::HandleScalingFactor);
             const Vec3 position = m_clipper.clipPointPositions()[index];
 
             const Camera& camera = renderContext.camera();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-            shader.set("Color", prefs.getColor(Preferences::SelectedHandleColor));
+            shader.set("Color", prefs.get(Preferences::SelectedHandleColor));
 
             Circle highlight = makePointHandleHighlight();
             SetVboState setVboState(m_vbo);
@@ -131,12 +131,12 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
             sphereShader.set("CameraPosition", renderContext.camera().position());
-            sphereShader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
-            sphereShader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+            sphereShader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
+            sphereShader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
 
             renderPointHandle(position, sphereShader, pointHandle,
-                              prefs.getColor(Preferences::HandleColor),
-                              prefs.getColor(Preferences::OccludedHandleColor));
+                              prefs.get(Preferences::HandleColor),
+                              prefs.get(Preferences::OccludedHandleColor));
         }
 
         void ClipperRenderer::setBrushes(const Model::BrushList& frontBrushes, const Model::BrushList& backBrushes) {
@@ -149,13 +149,13 @@ namespace TrenchBroom {
             ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
             
             sphereShader.set("CameraPosition", renderContext.camera().position());
-            sphereShader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
-            sphereShader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+            sphereShader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
+            sphereShader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
             
             for (size_t i = 0; i < positions.size(); ++i) {
                 renderPointHandle(positions[i], sphereShader, pointHandle,
-                                  prefs.getColor(Preferences::HandleColor),
-                                  prefs.getColor(Preferences::OccludedHandleColor));
+                                  prefs.get(Preferences::HandleColor),
+                                  prefs.get(Preferences::OccludedHandleColor));
             }
         }
         
@@ -175,25 +175,25 @@ namespace TrenchBroom {
             
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
-            planeShader.set("Color", prefs.getColor(Preferences::ClipPlaneColor));
+            planeShader.set("Color", prefs.get(Preferences::ClipPlaneColor));
             triangleArray.render();
             glEnable(GL_CULL_FACE);
             
-            planeShader.set("Color", prefs.getColor(Preferences::OccludedHandleColor));
+            planeShader.set("Color", prefs.get(Preferences::OccludedHandleColor));
             lineArray.render();
             glEnable(GL_DEPTH_TEST);
-            planeShader.set("Color", prefs.getColor(Preferences::HandleColor));
+            planeShader.set("Color", prefs.get(Preferences::HandleColor));
             lineArray.render();
         }
 
         Sphere ClipperRenderer::makePointHandle() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return Sphere(m_vbo, prefs.getFloat(Preferences::HandleRadius), 1);
+            return Sphere(m_vbo, prefs.get(Preferences::HandleRadius), 1);
         }
         
         Circle ClipperRenderer::makePointHandleHighlight() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return Circle(m_vbo, 2.0f * prefs.getFloat(Preferences::HandleRadius), 16, false);
+            return Circle(m_vbo, 2.0f * prefs.get(Preferences::HandleRadius), 16, false);
         }
         
         VertexArray ClipperRenderer::makeLineArray(const Vec3::List& positions) {

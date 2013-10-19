@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const Vec3f moveDirection = prefs.get(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
                 const float distance = inputState.scrollY() * moveSpeed();
                 m_camera.moveBy(distance * moveDirection);
             }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return true;
             } else if (pan(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const bool altMove = prefs.getBool(Preferences::CameraEnableAltMove);
+                const bool altMove = prefs.get(Preferences::CameraEnableAltMove);
                 Vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
                     delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
@@ -124,39 +124,39 @@ namespace TrenchBroom {
 
         float CameraTool::lookSpeedH() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;
-            if (prefs.getBool(Preferences::CameraLookInvertH))
+            float speed = prefs.get(Preferences::CameraLookSpeed) / -50.0f;
+            if (prefs.get(Preferences::CameraLookInvertH))
                 speed *= -1.0f;
             return speed;
         }
         
         float CameraTool::lookSpeedV() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;
-            if (prefs.getBool(Preferences::CameraLookInvertV))
+            float speed = prefs.get(Preferences::CameraLookSpeed) / -50.0f;
+            if (prefs.get(Preferences::CameraLookInvertV))
                 speed *= -1.0f;
             return speed;
         }
         
         float CameraTool::panSpeedH() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
-            if (prefs.getBool(Preferences::CameraPanInvertH))
+            float speed = prefs.get(Preferences::CameraPanSpeed);
+            if (prefs.get(Preferences::CameraPanInvertH))
                 speed *= -1.0f;
             return speed;
         }
         
         float CameraTool::panSpeedV() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
-            if (prefs.getBool(Preferences::CameraPanInvertV))
+            float speed = prefs.get(Preferences::CameraPanSpeed);
+            if (prefs.get(Preferences::CameraPanInvertV))
                 speed *= -1.0f;
             return speed;
         }
         
         float CameraTool::moveSpeed() const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.getFloat(Preferences::CameraMoveSpeed) * 20.0f;
+            return prefs.get(Preferences::CameraMoveSpeed) * 20.0f;
         }
     }
 }

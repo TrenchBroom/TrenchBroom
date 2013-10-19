@@ -104,12 +104,12 @@ namespace TrenchBroom {
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
             const bool applyTexture = true;
-            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("Alpha", 1.0f);
             shader.set("RenderGrid", context.gridVisible());
             shader.set("GridSize", static_cast<float>(context.gridSize()));
-            shader.set("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
-            shader.set("GridCheckerboard", prefs.getBool(Preferences::GridCheckerboard));
+            shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
+            shader.set("GridCheckerboard", prefs.get(Preferences::GridCheckerboard));
             shader.set("ApplyTexture", applyTexture);
             shader.set("FaceTexture", 0);
             shader.set("ApplyTinting", tintColor != NULL);
@@ -117,8 +117,8 @@ namespace TrenchBroom {
                 shader.set("TintColor", *tintColor);
             shader.set("GrayScale", grayscale);
             shader.set("CameraPosition", context.camera().position());
-            shader.set("ShadeFaces", prefs.getBool(Preferences::ShadeFaces));
-            shader.set("UseFog", prefs.getBool(Preferences::UseFog));
+            shader.set("ShadeFaces", prefs.get(Preferences::ShadeFaces));
+            shader.set("UseFog", prefs.get(Preferences::UseFog));
             
             renderOpaqueFaces(shader, applyTexture);
             renderTransparentFaces(shader, applyTexture);

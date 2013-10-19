@@ -158,7 +158,7 @@ namespace TrenchBroom {
             Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(m_dragFaces);
             
             glDisable(GL_DEPTH_TEST);
-            edgeRenderer.setColor(prefs.getColor(Preferences::ResizeHandleColor));
+            edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
             edgeRenderer.render(renderContext);
             glEnable(GL_DEPTH_TEST);
         }

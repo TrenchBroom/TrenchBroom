@@ -101,7 +101,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
-            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("ApplyTinting", m_applyTinting);
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);

@@ -119,7 +119,7 @@ namespace TrenchBroom {
                     initLayout();
 
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+                const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
 
                 
                 wxPaintDC dc(this);

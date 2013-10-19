@@ -48,11 +48,11 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (gameIndex) {
                 case 0:
-                    return QuakeGame::newGame(prefs.getString(Preferences::QuakePath), prefs.getColor(Preferences::UndefinedEntityColor), logger);
+                    return QuakeGame::newGame(prefs.get(Preferences::QuakePath), prefs.get(Preferences::UndefinedEntityColor), logger);
                 case 1:
-                    return Quake2Game::newGame(prefs.getString(Preferences::Quake2Path), prefs.getColor(Preferences::UndefinedEntityColor), logger);
+                    return Quake2Game::newGame(prefs.get(Preferences::Quake2Path), prefs.get(Preferences::UndefinedEntityColor), logger);
                 case 2:
-                    return Hexen2Game::newGame(prefs.getString(Preferences::Hexen2Path), prefs.getColor(Preferences::UndefinedEntityColor), logger);
+                    return Hexen2Game::newGame(prefs.get(Preferences::Hexen2Path), prefs.get(Preferences::UndefinedEntityColor), logger);
                 default:
                     if (logger != NULL)
                         logger->error("Game index out of bounds: %i", gameIndex);

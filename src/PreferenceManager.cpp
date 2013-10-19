@@ -37,9 +37,14 @@ namespace TrenchBroom {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;
         for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
-            it->first->save(wxConfig::Get());
-            changedPreferences.insert(it->first);
-            delete it->second;
+            PreferenceBase* pref = it->first;
+            ValueHolderBase* value = it->second;
+            
+            pref->save(wxConfig::Get());
+            preferenceDidChangeNotifier(pref->name());
+            
+            changedPreferences.insert(pref);
+            delete value;
         }
         
         m_unsavedPreferences.clear();
@@ -50,141 +55,18 @@ namespace TrenchBroom {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;
         for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
-            it->first->setValue(it->second);
-            changedPreferences.insert(it->first);
-            delete it->second;
+            PreferenceBase* pref = it->first;
+            ValueHolderBase* value = it->second;
+
+            pref->setValue(value);
+            changedPreferences.insert(pref);
+            delete value;
         }
         
         m_unsavedPreferences.clear();
         return changedPreferences;
     }
     
-    bool PreferenceManager::getBool(Preference<bool>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    void PreferenceManager::setBool(Preference<bool>& preference, bool value) {
-        bool previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<bool>(previousValue));
-    }
-    
-    int PreferenceManager::getInt(Preference<int>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    void PreferenceManager::setInt(Preference<int>& preference, int value) {
-        int previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<int>(previousValue));
-    }
-    
-    float PreferenceManager::getFloat(Preference<float>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    float PreferenceManager::getFloat(Preference<double>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return static_cast<float>(preference.value());
-    }
-
-    void PreferenceManager::setFloat(Preference<float>& preference, float value) {
-        float previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<float>(previousValue));
-    }
-    
-    double PreferenceManager::getDouble(Preference<double>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    double PreferenceManager::getDouble(Preference<float>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return static_cast<double>(preference.value());
-    }
-    
-    void PreferenceManager::setDouble(Preference<double>& preference, double value) {
-        double previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<double>(previousValue));
-    }
-    
-    const String& PreferenceManager::getString(Preference<String>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    void PreferenceManager::setString(Preference<String>& preference, const String& value) {
-        String previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<String>(previousValue));
-    }
-    
-    const Color& PreferenceManager::getColor(Preference<Color>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    void PreferenceManager::setColor(Preference<Color>& preference, const Color& value) {
-        Color previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
-    }
-    
-    const View::KeyboardShortcut& PreferenceManager::getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const {
-        if (!preference.initialized())
-            preference.load(wxConfig::Get());
-        
-        return preference.value();
-    }
-    
-    void PreferenceManager::setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value) {
-        View::KeyboardShortcut previousValue = preference.value();
-        preference.setValue(value);
-        if (m_saveInstantly)
-            preference.save(wxConfig::Get());
-        else
-            markAsUnsaved(&preference, new ValueHolder<View::KeyboardShortcut>(previousValue));
-    }
-
     PreferenceManager::PreferenceManager() {
 #if defined __APPLE__
         m_saveInstantly = true;

@@ -131,7 +131,7 @@ namespace TrenchBroom {
 
         void RotateHelper::renderAngleIndicator(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
+            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
             
             const Vec3 startAxis = (m_firstPoint - m_center).normalized();
             const Vec3 endAxis = Quat3(m_axis, m_lastAngle) * startAxis;
@@ -155,12 +155,12 @@ namespace TrenchBroom {
         public:
             Color textColor(Renderer::RenderContext& context, const size_t& key) const {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                return prefs.getColor(Preferences::SelectedInfoOverlayTextColor);
+                return prefs.get(Preferences::SelectedInfoOverlayTextColor);
             }
             
             Color backgroundColor(Renderer::RenderContext& context, const size_t& key) const {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                return prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor);
+                return prefs.get(Preferences::SelectedInfoOverlayBackgroundColor);
             }
 
             bool stringVisible(Renderer::RenderContext& context, const size_t& key) const {

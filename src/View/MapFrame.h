@@ -120,6 +120,7 @@ namespace TrenchBroom {
             
             void OnRebuildMenuBar(wxEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
+            void OnIdleSetFocusToMapView(wxIdleEvent& event);
 
             DECLARE_DYNAMIC_CLASS(MapFrame)
         private:

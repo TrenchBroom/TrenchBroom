@@ -30,9 +30,9 @@ namespace TrenchBroom {
         Preference<String> Quake2Path("Quake2 Path", "C:\\Program Files (x86)\\Quake2");
         Preference<String> Hexen2Path("Hexen2 Path", "C:\\Program Files (x86)\\Hexen2");
 #else
-        Preference<String> QuakePath("Quake Path", "");
-        Preference<String> Quake2Path("Quake2 Path", "");
-        Preference<String> Hexen2Path("Hexen2 Path", "");
+        Preference<String> QuakePath("Quake Path", "/home/kristian/Apps/Quake");
+        Preference<String> Quake2Path("Quake2 Path", "/home/kristian/Apps/Quake2");
+        Preference<String> Hexen2Path("Hexen2 Path", "/home/kristian/Apps/Hexen2");
 #endif
 
         Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.25f, 0.25f, 0.25f, 1.0f));

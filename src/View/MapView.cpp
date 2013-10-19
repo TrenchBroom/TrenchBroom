@@ -76,7 +76,8 @@ namespace TrenchBroom {
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
         m_cancelNextDrag(false),
-        m_ignoreNextClick(true) {
+        m_ignoreNextClick(false),
+        m_lastFrameActivation(wxDateTime::Now()) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
@@ -292,6 +293,11 @@ namespace TrenchBroom {
                 m_toolChain->modifierKeyChange(m_inputState);
             Refresh();
             SetCursor(wxCursor(wxCURSOR_ARROW));
+            
+            // if this focus event happens as a result of a window activation, the don't ignore the next click
+            if ((wxDateTime::Now() - m_lastFrameActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
+                m_ignoreNextClick = false;
+            
             event.Skip();
         }
         
@@ -305,6 +311,10 @@ namespace TrenchBroom {
             Refresh();
             SetCursor(wxCursor(wxCURSOR_HAND));
             event.Skip();
+        }
+
+        void MapView::OnActivateFrame(wxActivateEvent& event) {
+            m_lastFrameActivation = wxDateTime::Now();
         }
 
         void MapView::OnPaint(wxPaintEvent& event) {
@@ -341,16 +351,6 @@ namespace TrenchBroom {
             const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
             m_camera.setViewport(viewport);
             event.Skip();
-        }
-
-        void MapView::OnFirstIdle(wxIdleEvent& event) {
-            if (!HasFocus()) {
-                SetFocus();
-            } else {
-                m_ignoreNextClick = false;
-                Unbind(wxEVT_IDLE, &MapView::OnFirstIdle, this);
-                Refresh();
-            }
         }
 
         void MapView::OnPopupReparentBrushes(wxCommandEvent& event) {
@@ -607,8 +607,8 @@ namespace TrenchBroom {
 
         void MapView::createTools() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const String& fontName = prefs.getString(Preferences::RendererFontName);
-            const size_t fontSize = static_cast<size_t>(prefs.getInt(Preferences::RendererFontSize));
+            const String& fontName = prefs.get(Preferences::RendererFontName);
+            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
             Renderer::TextureFont& font = m_renderResources.fontManager().font(Renderer::FontDescriptor(fontName, fontSize));
 
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
@@ -741,7 +741,7 @@ namespace TrenchBroom {
                 menu->AppendSubMenu(groupMenu, groupName);
             }
             return menu;
-        };
+        }
 
         void MapView::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
@@ -768,7 +768,6 @@ namespace TrenchBroom {
             
             Bind(wxEVT_PAINT, &MapView::OnPaint, this);
             Bind(wxEVT_SIZE, &MapView::OnSize, this);
-            Bind(wxEVT_IDLE, &MapView::OnFirstIdle, this);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
@@ -797,16 +796,16 @@ namespace TrenchBroom {
 
         void MapView::clearBackground(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+            const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
             glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& xColor = prefs.getColor(Preferences::XAxisColor);
-            const Color& yColor = prefs.getColor(Preferences::YAxisColor);
-            const Color& zColor = prefs.getColor(Preferences::ZAxisColor);
+            const Color& xColor = prefs.get(Preferences::XAxisColor);
+            const Color& yColor = prefs.get(Preferences::YAxisColor);
+            const Color& zColor = prefs.get(Preferences::ZAxisColor);
 
             Renderer::ActiveShader shader(context.shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::SetVboState setVboState(m_auxVbo);

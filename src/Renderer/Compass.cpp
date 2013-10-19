@@ -75,24 +75,24 @@ namespace TrenchBroom {
             glClear(GL_DEPTH_BUFFER_BIT);
 
             if (restriction.isRestricted(Math::Axis::AX)) {
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
             } else if (restriction.isRestricted(Math::Axis::AY)) {
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
             } else if (restriction.isRestricted(Math::Axis::AZ)) {
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation, prefs.getColor(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
+                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
+                renderAxisOutline(renderContext, cameraTransformation, prefs.get(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
             } else {
-                renderSolidAxis(renderContext, cameraTransformation, prefs.getColor(Preferences::ZAxisColor));
-                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.getColor(Preferences::XAxisColor));
-                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.getColor(Preferences::YAxisColor));
+                renderSolidAxis(renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
+                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
+                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
             }
         }
 
@@ -163,9 +163,9 @@ namespace TrenchBroom {
 
             const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
-            shader.set("Color", prefs.getColor(Preferences::CompassBackgroundColor));
+            shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
             m_background.render();
-            shader.set("Color", prefs.getColor(Preferences::CompassBackgroundOutlineColor));
+            shader.set("Color", prefs.get(Preferences::CompassBackgroundOutlineColor));
             m_backgroundOutline.render();
         }
 

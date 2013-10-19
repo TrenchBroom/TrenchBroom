@@ -21,6 +21,7 @@
 #define __TrenchBroom__PreferenceManager__
 
 #include "Color.h"
+#include "Notifier.h"
 #include "Preference.h"
 #include "StringUtils.h"
 #include "View/KeyboardShortcut.h"
@@ -39,31 +40,30 @@ namespace TrenchBroom {
     public:
         static PreferenceManager& instance();
         
+        Notifier1<const String&> preferenceDidChangeNotifier;
+
         PreferenceBase::Set saveChanges();
         PreferenceBase::Set discardChanges();
         
-        bool getBool(Preference<bool>& preference) const;
-        void setBool(Preference<bool>& preference, bool value);
+        template <typename T>
+        const T& get(Preference<T>& preference) const {
+            if (!preference.initialized())
+                preference.load(wxConfig::Get());
+            
+            return preference.value();
+        }
         
-        int getInt(Preference<int>& preference) const;
-        void setInt(Preference<int>& preference, int value);
-        
-        float getFloat(Preference<float>& preference) const;
-        float getFloat(Preference<double>& preference) const;
-        void setFloat(Preference<float>& preference, float value);
-        
-        double getDouble(Preference<double>& preference) const;
-        double getDouble(Preference<float>& preference) const;
-        void setDouble(Preference<double>& preference, double value);
-        
-        const String& getString(Preference<String>& preference) const;
-        void setString(Preference<String>& preference, const String& value);
-        
-        const Color& getColor(Preference<Color>& preference) const;
-        void setColor(Preference<Color>& preference, const Color& value);
-        
-        const View::KeyboardShortcut& getKeyboardShortcut(Preference<View::KeyboardShortcut>& preference) const;
-        void setKeyboardShortcut(Preference<View::KeyboardShortcut>& preference, const View::KeyboardShortcut& value);
+        template <typename T>
+        void set(Preference<T>& preference, const T& value) {
+            const T previousValue = preference.value();
+            preference.setValue(value);
+            if (m_saveInstantly) {
+                preference.save(wxConfig::Get());
+                preferenceDidChangeNotifier(preference.name());
+            } else {
+                markAsUnsaved(&preference, new ValueHolder<T>(previousValue));
+            }
+        }
     private:
         PreferenceManager();
         

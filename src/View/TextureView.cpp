@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 return;
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+            const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
             
             if (SetCurrent(*m_glContext)) {
                 wxPaintDC paintDC(this);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                     Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextureBrowserShader);
                     shader.set("ApplyTinting", false);
                     shader.set("Texture", 0);
-                    shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+                    shader.set("Brightness", prefs.get(Preferences::Brightness));
                     shader.set("GrayScale", m_texture->overridden());
                     
                     Renderer::Vbo vbo(0xFF);

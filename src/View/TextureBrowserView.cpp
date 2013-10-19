@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::doInitLayout(Layout& layout) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+            const float scaleFactor = prefs.get(Preferences::TextureBrowserIconSize);
             
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
@@ -110,8 +110,8 @@ namespace TrenchBroom {
         void TextureBrowserView::doReloadLayout(Layout& layout) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            const String fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::BrowserFontSize);
+            const String fontName = prefs.get(Preferences::RendererFontName);
+            int fontSize = prefs.get(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
             const Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
@@ -151,7 +151,7 @@ namespace TrenchBroom {
                 const Vec2f actualSize = fontManager.font(actualFont).measure(texture->name());
                 
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+                const float scaleFactor = prefs.get(Preferences::TextureBrowserIconSize);
                 const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
                 const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
 
@@ -220,10 +220,10 @@ namespace TrenchBroom {
         const Color& TextureBrowserView::textureColor(const Assets::FaceTexture& texture) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             if (&texture == m_selectedTexture)
-                return prefs.getColor(Preferences::TextureBrowserSelectedColor);
+                return prefs.get(Preferences::TextureBrowserSelectedColor);
             if (texture.usageCount() > 0)
-                return prefs.getColor(Preferences::TextureBrowserUsedColor);
-            return prefs.getColor(Preferences::TextureBrowserDefaultColor);
+                return prefs.get(Preferences::TextureBrowserUsedColor);
+            return prefs.get(Preferences::TextureBrowserDefaultColor);
         }
 
         void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height) {
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextureBrowserShader);
             shader.set("ApplyTinting", false);
             shader.set("Texture", 0);
-            shader.set("Brightness", prefs.getFloat(Preferences::Brightness));
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
             
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::BrowserGroupShader);
-            shader.set("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+            shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::VertexArray vertexArray(m_vbo, GL_QUADS, vertices);
             vertexArray.render();
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextShader);
-            shader.set("Color", prefs.getColor(Preferences::BrowserTextColor));
+            shader.set("Color", prefs.get(Preferences::BrowserTextColor));
             shader.set("FaceTexture", 0);
             
             StringRendererMap::iterator it, end;
@@ -331,8 +331,8 @@ namespace TrenchBroom {
         
         TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.getString(Preferences::RendererFontName),
-                                                       static_cast<size_t>(prefs.getInt(Preferences::BrowserFontSize)));
+            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontName),
+                                                       static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {

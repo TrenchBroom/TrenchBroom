@@ -74,7 +74,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             const String p = path();
             Preference<KeyboardShortcut> preference(p, m_shortcut);
-            prefs.getKeyboardShortcut(preference);
+            prefs.get(preference);
         }
         
         ShortcutMenuItem::~ShortcutMenuItem() {}
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         void ShortcutMenuItem::setShortcut(const KeyboardShortcut& shortcut) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             const String p = path();
-            prefs.setKeyboardShortcut(m_preference, shortcut);
+            prefs.set(m_preference, shortcut);
             m_shortcut = m_preference.value();
         }
         

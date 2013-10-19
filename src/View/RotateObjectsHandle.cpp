@@ -153,8 +153,8 @@ namespace TrenchBroom {
         void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) const {
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-            const Color& pointHandleColor = prefs.getColor(Preferences::RotateHandleColor);
+            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const Color& pointHandleColor = prefs.get(Preferences::RotateHandleColor);
 
             const Vec3 rotationAxis = getRotationAxis(handle);
             const Vec3 startAxis = getPointHandleAxis(handle);
@@ -183,9 +183,9 @@ namespace TrenchBroom {
 
         RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType radius = 2.0 * prefs.getDouble(Preferences::HandleRadius);
-            const FloatType scaling = prefs.getDouble(Preferences::HandleScalingFactor);
-            const FloatType maxDist = prefs.getDouble(Preferences::MaximumHandleDistance);
+            const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);
+            const FloatType scaling = prefs.get(Preferences::HandleScalingFactor);
+            const FloatType maxDist = prefs.get(Preferences::MaximumHandleDistance);
             const FloatType distance = pickRay.intersectWithSphere(position, radius, scaling, maxDist);
             
             if (Math::isnan(distance))
@@ -205,10 +205,10 @@ namespace TrenchBroom {
 
         void RotateObjectsHandle::renderAxes(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-            const Color& xColor = prefs.getColor(Preferences::XAxisColor);
-            const Color& yColor = prefs.getColor(Preferences::YAxisColor);
-            const Color& zColor = prefs.getColor(Preferences::ZAxisColor);
+            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const Color& xColor = prefs.get(Preferences::XAxisColor);
+            const Color& yColor = prefs.get(Preferences::YAxisColor);
+            const Color& zColor = prefs.get(Preferences::ZAxisColor);
 
             const BBox3f bounds(handleRadius);
             Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
@@ -221,10 +221,10 @@ namespace TrenchBroom {
 
         void RotateObjectsHandle::renderRings(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-            const Color& xColor = prefs.getColor(Preferences::XAxisColor);
-            const Color& yColor = prefs.getColor(Preferences::YAxisColor);
-            const Color& zColor = prefs.getColor(Preferences::ZAxisColor);
+            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const Color& xColor = prefs.get(Preferences::XAxisColor);
+            const Color& yColor = prefs.get(Preferences::YAxisColor);
+            const Color& zColor = prefs.get(Preferences::ZAxisColor);
 
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
@@ -241,8 +241,8 @@ namespace TrenchBroom {
 
         void RotateObjectsHandle::renderRingIndicators(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.getDouble(Preferences::RotateHandleRadius);
-            const Color& color = prefs.getColor(Preferences::RotateHandleColor);
+            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const Color& color = prefs.get(Preferences::RotateHandleColor);
 
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", color);
@@ -262,7 +262,7 @@ namespace TrenchBroom {
 
         void RotateObjectsHandle::renderPointHandles(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& color = prefs.getColor(Preferences::RotateHandleColor);
+            const Color& color = prefs.get(Preferences::RotateHandleColor);
 
             renderPointHandle(renderContext, m_position, color);
             renderPointHandle(renderContext, getPointHandlePosition(m_xAxis), color);
@@ -275,12 +275,12 @@ namespace TrenchBroom {
             
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
             shader.set("CameraPosition", renderContext.camera().position());
-            shader.set("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
-            shader.set("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+            shader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
+            shader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
             shader.set("Position", Vec4f(Vec3f(position), 1.0f));
             shader.set("Color", color);
 
-            Renderer::Sphere sphere(m_vbo, prefs.getFloat(Preferences::HandleRadius), 1);
+            Renderer::Sphere sphere(m_vbo, prefs.get(Preferences::HandleRadius), 1);
             sphere.render();
         }
 
@@ -306,7 +306,7 @@ namespace TrenchBroom {
         void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const Vec3& position) const {
             PreferenceManager& prefs = PreferenceManager::instance();
 
-            const float scaling = prefs.getFloat(Preferences::HandleScalingFactor);
+            const float scaling = prefs.get(Preferences::HandleScalingFactor);
             
             const Renderer::Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
@@ -315,26 +315,26 @@ namespace TrenchBroom {
             Renderer::MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
             
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-            shader.set("Color", prefs.getColor(Preferences::SelectedHandleColor));
+            shader.set("Color", prefs.get(Preferences::SelectedHandleColor));
             
-            Renderer::Circle circle(m_vbo, 2.0f * prefs.getFloat(Preferences::HandleRadius), 16, false);
+            Renderer::Circle circle(m_vbo, 2.0f * prefs.get(Preferences::HandleRadius), 16, false);
             circle.render();
         }
 
         Vec3 RotateObjectsHandle::getPointHandlePosition(const Vec3& axis) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return m_position + axis * prefs.getDouble(Preferences::RotateHandleRadius);
+            return m_position + axis * prefs.get(Preferences::RotateHandleRadius);
         }
 
         Color RotateObjectsHandle::getAngleIndicatorColor(const HitArea area) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (area) {
                 case HAXAxis:
-                    return Color(prefs.getColor(Preferences::ZAxisColor), 0.5f);
+                    return Color(prefs.get(Preferences::ZAxisColor), 0.5f);
                 case HAYAxis:
-                    return Color(prefs.getColor(Preferences::XAxisColor), 0.5f);
+                    return Color(prefs.get(Preferences::XAxisColor), 0.5f);
                 case HAZAxis:
-                    return Color(prefs.getColor(Preferences::YAxisColor), 0.5f);
+                    return Color(prefs.get(Preferences::YAxisColor), 0.5f);
                 default:
                     return Color(1.0f, 1.0f, 1.0f, 1.0f);
             };

@@ -139,17 +139,17 @@ namespace TrenchBroom {
         void MapRenderer::renderGeometry(RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
-            m_unselectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-            m_unselectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::EdgeColor));
+            m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
             m_unselectedBrushRenderer.render(context);
             
             if (!context.hideSelection()) {
-                m_selectedBrushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-                m_selectedBrushRenderer.setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
+                m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+                m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
                 m_selectedBrushRenderer.setTintFaces(true);
-                m_selectedBrushRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
+                m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedBrushRenderer.setRenderOccludedEdges(true);
-                m_selectedBrushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
                 m_selectedBrushRenderer.render(context);
             }
         }
@@ -213,20 +213,20 @@ namespace TrenchBroom {
         void MapRenderer::renderEntities(RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            m_unselectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::InfoOverlayTextColor));
-            m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            m_unselectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
+            m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
             m_unselectedEntityRenderer.setApplyTinting(false);
             m_unselectedEntityRenderer.render(context);
             
             if (!context.hideSelection()) {
-                m_selectedEntityRenderer.setOverlayTextColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor));
-                m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+                m_selectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::SelectedInfoOverlayTextColor));
+                m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::SelectedInfoOverlayBackgroundColor));
                 m_selectedEntityRenderer.setOverrideBoundsColor(true);
-                m_selectedEntityRenderer.setBoundsColor(prefs.getColor(Preferences::SelectedEdgeColor));
+                m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
                 m_selectedEntityRenderer.setRenderOccludedBounds(true);
-                m_selectedEntityRenderer.setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
                 m_selectedEntityRenderer.setApplyTinting(true);
-                m_selectedEntityRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
+                m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }
         }

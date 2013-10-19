@@ -37,6 +37,7 @@
 #include "View/ViewTypes.h"
 
 #include <vector>
+#include <wx/datetime.h>
 #include <wx/event.h>
 #include <wx/glcanvas.h>
 
@@ -95,6 +96,7 @@ namespace TrenchBroom {
             
             bool m_cancelNextDrag;
             bool m_ignoreNextClick;
+            wxDateTime m_lastFrameActivation;
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerPtr controller);
             ~MapView();
@@ -127,7 +129,6 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
-            void OnFirstIdle(wxIdleEvent& event);
             
             void OnPopupReparentBrushes(wxCommandEvent& event);
             void OnPopupMoveBrushesToWorld(wxCommandEvent& event);

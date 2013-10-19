@@ -120,12 +120,12 @@ namespace TrenchBroom {
         void CreateBrushTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            m_brushRenderer.setFaceColor(prefs.getColor(Preferences::FaceColor));
-            m_brushRenderer.setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
+            m_brushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_brushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
             m_brushRenderer.setTintFaces(true);
-            m_brushRenderer.setTintColor(prefs.getColor(Preferences::SelectedFaceColor));
+            m_brushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
             m_brushRenderer.setRenderOccludedEdges(true);
-            m_brushRenderer.setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+            m_brushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
             
             m_brushRenderer.render(renderContext);
         }

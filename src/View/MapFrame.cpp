@@ -598,6 +598,19 @@ namespace TrenchBroom {
             m_autosaver->triggerAutosave(m_console);
         }
 
+        void MapFrame::OnIdleSetFocusToMapView(wxIdleEvent& event) {
+            // we use this method to ensure that the 3D view gets the focus after startup has settled down
+            if (m_mapView != NULL) {
+                if (!m_mapView->HasFocus()) {
+                    m_mapView->SetFocus();
+                } else {
+                    Unbind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
+                    rebuildMenuBar();
+                    m_mapView->Refresh();
+                }
+            }
+        }
+
         void MapFrame::bindObservers() {
             m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
             m_controller->commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
@@ -716,6 +729,8 @@ namespace TrenchBroom {
             
             m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
             m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
+            Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
+            Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
         
         class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {

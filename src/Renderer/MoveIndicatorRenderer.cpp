@@ -72,9 +72,9 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             
-            shader.set("Color", prefs.getColor(Preferences::MoveIndicatorOutlineColor));
+            shader.set("Color", prefs.get(Preferences::MoveIndicatorOutlineColor));
             outlineArray.render();
-            shader.set("Color", prefs.getColor(Preferences::MoveIndicatorFillColor));
+            shader.set("Color", prefs.get(Preferences::MoveIndicatorFillColor));
             triangleArray.render();
 
             glEnable(GL_DEPTH_TEST);
