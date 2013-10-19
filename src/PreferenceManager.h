@@ -66,6 +66,7 @@ namespace TrenchBroom {
         }
     private:
         PreferenceManager();
+        ~PreferenceManager();
         
         PreferenceManager(const PreferenceManager& other);
         PreferenceManager& operator= (const PreferenceManager& other);
