@@ -145,9 +145,9 @@ namespace TrenchBroom {
             static const KeyboardShortcut& undoShortcut();
             static const KeyboardShortcut& redoShortcut();
             static wxMenu* createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers);
+            static const Menu& getMenu(const String& name);
         private:
             static wxMenu* createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers);
-            static const Menu& getMenu(const String& name);
             static const MenuMap buildMenus();
         };
     }

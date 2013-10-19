@@ -67,9 +67,16 @@ ENDIF()
 # OS X app bundle configuration
 IF(APPLE)
 	# Configure icons
-	SET(MACOSX_ICON_FILES "${CMAKE_SOURCE_DIR}/resources/graphics/AppIcon.icns" "${CMAKE_SOURCE_DIR}/resources/graphics/DocIcon.icns")
+	SET(MACOSX_ICON_FILES "${CMAKE_SOURCE_DIR}/resources/graphics/icons/AppIcon.icns" "${CMAKE_SOURCE_DIR}/resources/graphics/icons/DocIcon.icns")
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	SET(SOURCE ${SOURCE} ${MACOSX_ICON_FILES})
+
+	# Configure button bitmaps etc.
+	FILE(GLOB_RECURSE MACOSX_IMAGE_FILES
+	    "${CMAKE_SOURCE_DIR}/resources/graphics/images/*.png"
+	)
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/images)
+	SET(SOURCE ${SOURCE} ${MACOSX_IMAGE_FILES})
 
 	# Configure game resources
 	# Collect all game resources
@@ -108,6 +115,11 @@ IF(APPLE)
 ENDIF()
 
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	# Copy button images to resources directory
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/graphics/images" $<TARGET_FILE_DIR:TrenchBroom>/Resources/images
+	)
+
 	# Copy game files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/games/" $<TARGET_FILE_DIR:TrenchBroom>/Resources/

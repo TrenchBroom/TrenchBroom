@@ -27,6 +27,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/Menu.h"
+#include "View/PreferenceDialog.h"
 
 #include <wx/choicdlg.h>
 #include <wx/filedlg.h>
@@ -79,7 +80,6 @@ namespace TrenchBroom {
             m_recentDocuments.addMenu(recentDocumentsMenu);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
@@ -97,6 +97,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
 
 #ifndef __APPLE__
             if (wxApp::argc > 1) {
@@ -106,6 +107,11 @@ namespace TrenchBroom {
                 return newDocument(true);
             }
 #endif
+
+            // load image handles
+            wxImage::AddHandler(new wxGIFHandler());
+            wxImage::AddHandler(new wxPNGHandler());
+
             m_lastActivation = 0;
             return true;
         }
@@ -144,6 +150,11 @@ namespace TrenchBroom {
                 m_recentDocuments.removePath(IO::Path(data.ToStdString()));
                 ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
             }
+        }
+        
+        void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
+            PreferenceDialog dialog;
+            dialog.ShowModal();
         }
         
         int TrenchBroomApp::FilterEvent(wxEvent& event) {
@@ -202,9 +213,6 @@ namespace TrenchBroom {
         }
 
 #ifdef __APPLE__
-        void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
-        }
-
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
             Exit();
         }

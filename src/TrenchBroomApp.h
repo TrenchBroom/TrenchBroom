@@ -51,11 +51,11 @@ namespace TrenchBroom {
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
+            void OnOpenPreferences(wxCommandEvent& event);
             
             int FilterEvent(wxEvent& event);
 
 #ifdef __APPLE__
-            void OnOpenPreferences(wxCommandEvent& event);
             void OnFileExit(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
 

@@ -230,6 +230,9 @@ namespace TrenchBroom {
             fileMenu->Append(wxID_ABOUT, wxT("About"));
             fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
             fileMenu->Append(wxID_EXIT, wxT("Exit"));
+#else
+            viewMenu->AppendSeparator();
+            viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
 #endif
             
             wxMenuBar* menuBar = new wxMenuBar();
@@ -267,6 +270,13 @@ namespace TrenchBroom {
             return createMenu(menu, selector, showModifiers);
         }
 
+        const Menu& Menu::getMenu(const String& name) {
+            static const Menu::MenuMap menus = buildMenus();
+            MenuMap::const_iterator it = menus.find(name);
+            assert(it != menus.end());
+            return static_cast<const Menu&>(*(it->second.get()));
+        }
+        
         wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers) {
             wxMenu* result = new wxMenu();
             
@@ -322,13 +332,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        const Menu& Menu::getMenu(const String& name) {
-            static const Menu::MenuMap menus = buildMenus();
-            MenuMap::const_iterator it = menus.find(name);
-            assert(it != menus.end());
-            return static_cast<const Menu&>(*(it->second.get()));
-        }
-        
         const Menu::MenuMap Menu::buildMenus() {
             Menu::MenuMap menus;
             

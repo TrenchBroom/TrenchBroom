@@ -89,9 +89,13 @@ namespace TrenchBroom {
         }
 
         void ShaderProgram::set(const String& name, const double value) {
+            /* FIXME using glUniform1d gives undefined references on Linux and Windows builds
             assert(checkActive());
             glUniform1d(findUniformLocation(name), value);
             assert(glGetError() == GL_NO_ERROR);
+             */
+
+            set(name, static_cast<float>(value));
         }
         
         void ShaderProgram::set(const String& name, const Vec2f& value) {
