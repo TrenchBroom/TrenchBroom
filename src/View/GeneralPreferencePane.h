@@ -22,6 +22,7 @@
 
 #include "View/PreferencePane.h"
 
+class wxButton;
 class wxCheckBox;
 class wxChoice;
 class wxSlider;

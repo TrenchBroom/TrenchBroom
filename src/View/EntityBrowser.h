@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityBrowser__
 #define __TrenchBroom__EntityBrowser__
 
+#include "StringUtils.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -48,6 +49,7 @@ namespace TrenchBroom {
             EntityBrowserView* m_view;
         public:
             EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document);
+            ~EntityBrowser();
             
             void reload();
 
@@ -55,6 +57,8 @@ namespace TrenchBroom {
             void OnGroupButtonToggled(wxCommandEvent& event);
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
+        private:
+            void preferenceDidChange(const String& name);
         };
     }
 }

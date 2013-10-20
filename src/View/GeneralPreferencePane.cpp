@@ -77,7 +77,7 @@ namespace TrenchBroom {
             if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
                 String quakePath = chooseQuakePathDialog.GetPath().ToStdString();
                 PreferenceManager& prefs = PreferenceManager::instance();
-                prefs.set(Preferences::QuakePath, quakePath);
+                // prefs.set(Preferences::QuakePath, quakePath);
 
                 updateControls();
             }
@@ -357,7 +357,7 @@ namespace TrenchBroom {
         void GeneralPreferencePane::updateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            m_quakePathValueLabel->SetLabel(prefs.get(Preferences::QuakePath));
+            // m_quakePathValueLabel->SetLabel(prefs.get(Preferences::QuakePath));
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.get(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));

@@ -109,7 +109,6 @@ namespace TrenchBroom {
 #endif
 
             // load image handles
-            wxImage::AddHandler(new wxGIFHandler());
             wxImage::AddHandler(new wxPNGHandler());
 
             m_lastActivation = 0;

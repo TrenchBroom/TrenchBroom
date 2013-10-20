@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Game_h
 #define TrenchBroom_Game_h
 
+#include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"

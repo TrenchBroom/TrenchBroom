@@ -21,11 +21,13 @@
 #define __TrenchBroom__Preference__
 
 #include "Color.h"
+#include "Exceptions.h"
 #include "StringUtils.h"
 #include "View/KeyboardShortcut.h"
 
 #include <wx/config.h>
 #include <wx/confbase.h>
+#include <wx/tokenzr.h>
 
 namespace TrenchBroom {
     template <typename T>
@@ -144,6 +146,102 @@ namespace TrenchBroom {
         }
     };
     
+    template<>
+    class Converter<StringMap > {
+    public:
+        wxString toWxString(const StringMap& values) const {
+            wxString result("{ ");
+            StringMap::const_iterator it, end;
+            size_t index = 0;
+            for (it = values.begin(), end = values.end(); it != end; ++it) {
+                const String& key = it->first;
+                const String& value = it->second;
+                result << StringUtils::escape(key, "\"") << " = " << StringUtils::escape(value, "\"");
+                if (index < values.size() - 1)
+                    result << "; ";
+                ++index;
+            }
+            result << " }";
+            
+            return result;
+        }
+        
+        StringMap fromWxString(const wxString& string) const {
+            StringMap result;
+            
+            wxStringTokenizer tokenizer(string);
+            if (!tokenizer.HasMoreTokens())
+                return result;
+
+            wxString token;
+            StringStream buffer;
+            
+            expect(tokenizer, "{");
+            token = nextToken(tokenizer);
+            while (token != "}") {
+                const String key = StringUtils::unescape(readString(tokenizer, token), "\"");
+                expect(tokenizer, "=");
+                const String value = StringUtils::unescape(readString(tokenizer, nextToken(tokenizer)), "\"");
+                token = expect(tokenizer, "}", ";");
+                
+                result[key] = value;
+            }
+            return result;
+        }
+    private:
+        wxString expect(wxStringTokenizer& tokenizer, const String& expected1, const String& expected2 = "", const String& expected3 = "") const {
+            const wxString token = nextToken(tokenizer);
+            expect(token, expected1, expected2, expected3);
+            return token;
+        }
+        
+        wxString nextToken(wxStringTokenizer& tokenizer) const {
+            if (!tokenizer.HasMoreTokens())
+                throw ParserException("Unexpected end of string");
+            return tokenizer.GetNextToken();
+        }
+        
+        void expect(const wxString& token, const String& expected1, const String& expected2 = "", const String& expected3 = "") const {
+            if (token != expected1 &&
+                !expected2.empty() && token != expected2 &&
+                !expected3.empty() && token != expected3) {
+                ParserException e;
+                e << "Expected '" << expected1 << "'";
+                if (!expected2.empty())
+                    e << ", '" << expected2 << "'";
+                if (!expected3.empty())
+                    e << ", '" << expected3 << "'";
+                e << ", but got '" << token.ToStdString() << "'";
+                throw e;
+            }
+        }
+        
+        String readString(wxStringTokenizer& tokenizer, wxString token) const {
+            static StringStream buffer;
+            
+            if (token[0] != '"') {
+                char c;
+                ParserException e;
+                e << "Expected '\"', but got '";
+                if (token[0].GetAsChar(&c))
+                    e << c;
+                else
+                    e << "<non-ASCII-char>";
+                e << "'";
+                throw e;
+            }
+            
+            buffer.str("");
+            while (token[token.size() - 1] != '\"' &&
+                   (token.size() == 1 || token[token.size() - 2] != '\\')) {
+                buffer << token.ToStdString();
+                token = nextToken(tokenizer);
+            }
+            buffer << token.ToStdString();
+            return buffer.str();
+        }
+    };
+
     class ValueHolderBase {};
     
     template <typename T>

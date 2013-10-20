@@ -154,4 +154,30 @@ namespace StringUtils {
         ASSERT_TRUE(strs[4] == "BAM" || strs[4] == "bam");
         ASSERT_EQ(String("bambam"), strs[5]);
     }
+    
+    TEST(StringUtilsTest, escape) {
+        ASSERT_EQ(String(""), StringUtils::escape("", ""));
+        ASSERT_EQ(String(""), StringUtils::escape("", ";"));
+        ASSERT_EQ(String("asdf"), StringUtils::escape("asdf", ""));
+        ASSERT_EQ(String("\\\\"), StringUtils::escape("\\", ""));
+        
+        ASSERT_EQ(String("c:\\\\blah\\\\fasel\\\\test.jpg"), StringUtils::escape("c:\\blah\\fasel\\test.jpg", "\\"));
+        ASSERT_EQ(String("c\\:\\\\blah\\\\fasel\\\\test\\.jpg"), StringUtils::escape("c:\\blah\\fasel\\test.jpg", "\\:."));
+        ASSERT_EQ(String("\\asdf"), StringUtils::escape("asdf", "a"));
+        ASSERT_EQ(String("asd\\f"), StringUtils::escape("asdf", "f"));
+    }
+    
+    TEST(StringUtilsTest, unescape) {
+        ASSERT_EQ(String(""), StringUtils::unescape("", ""));
+        ASSERT_EQ(String(""), StringUtils::unescape("", ";"));
+        ASSERT_EQ(String("asdf"), StringUtils::unescape("asdf", ""));
+
+        ASSERT_EQ(String("c:\\blah\\fasel\\test.jpg"), StringUtils::unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\"));
+        ASSERT_EQ(String("c:\\blah\\fasel\\test.jpg"), StringUtils::unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:."));
+        ASSERT_EQ(String("asdf"), StringUtils::unescape("\\asdf", "a"));
+        ASSERT_EQ(String("asdf"), StringUtils::unescape("asd\\f", "f"));
+        ASSERT_EQ(String("asdf"), StringUtils::unescape("\\asdf", "a"));
+        ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\", ""));
+        ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\\\", ""));
+    }
 }

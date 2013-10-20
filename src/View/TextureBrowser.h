@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__TextureBrowser__
 #define __TrenchBroom__TextureBrowser__
 
+#include "StringUtils.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             TextureBrowserView* m_view;
         public:
             TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document);
+            ~TextureBrowser();
             
             void reload();
             
@@ -63,6 +65,8 @@ namespace TrenchBroom {
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
+        private:
+            void preferenceDidChange(const String& name);
         };
     }
 }

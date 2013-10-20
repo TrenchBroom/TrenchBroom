@@ -46,13 +46,19 @@ namespace TrenchBroom {
         
         GamePtr Game::game(const size_t gameIndex, Logger* logger) {
             PreferenceManager& prefs = PreferenceManager::instance();
+            const StringMap& gamePaths = prefs.get(Preferences::GamePaths);
+            const String& gameName = GameNames[gameIndex];
+            const StringMap::const_iterator it = gamePaths.find(gameName);
+            const String pathStr = it != gamePaths.end() ? it->second : "";
+            const IO::Path path(pathStr);
+            
             switch (gameIndex) {
                 case 0:
-                    return QuakeGame::newGame(prefs.get(Preferences::QuakePath), prefs.get(Preferences::UndefinedEntityColor), logger);
+                    return QuakeGame::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
                 case 1:
-                    return Quake2Game::newGame(prefs.get(Preferences::Quake2Path), prefs.get(Preferences::UndefinedEntityColor), logger);
+                    return Quake2Game::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
                 case 2:
-                    return Hexen2Game::newGame(prefs.get(Preferences::Hexen2Path), prefs.get(Preferences::UndefinedEntityColor), logger);
+                    return Hexen2Game::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
                 default:
                     if (logger != NULL)
                         logger->error("Game index out of bounds: %i", gameIndex);

@@ -27,9 +27,7 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        extern Preference<String> QuakePath;
-        extern Preference<String> Quake2Path;
-        extern Preference<String> Hexen2Path;
+        extern Preference<StringMap> GamePaths;
         
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;

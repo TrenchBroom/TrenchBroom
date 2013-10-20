@@ -19,6 +19,8 @@
 
 #include "EntityBrowser.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "View/EntityBrowserView.h"
 #include "View/LayoutConstants.h"
@@ -78,6 +80,14 @@ namespace TrenchBroom {
             outerSizer->Add(browserPanel, 1, wxEXPAND);
             
             SetSizerAndFit(outerSizer);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
+        }
+        
+        EntityBrowser::~EntityBrowser() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
         }
         
         void EntityBrowser::reload() {
@@ -102,6 +112,13 @@ namespace TrenchBroom {
         
         void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
+        }
+
+        void EntityBrowser::preferenceDidChange(const String& name) {
+            if (name == Preferences::GamePaths.name())
+                reload();
+            else
+                m_view->Refresh();
         }
     }
 }

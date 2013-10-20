@@ -21,20 +21,26 @@
 
 namespace TrenchBroom {
     namespace Preferences {
+        StringMap makeDefaultGamePaths() {
+            StringMap result;
 #if defined __APPLE__
-        Preference<String> QuakePath("Quake Path", "/Applications/Quake");
-        Preference<String> Quake2Path("Quake2 Path", "/Applications/Quake2");
-        Preference<String> Hexen2Path("Hexen2 Path", "/Applications/Hexen2");
+            result["Quake"] = "/Applications/Quake";
+            result["Quake 2"] = "/Applications/Quake2";
+            result["Hexen 2"] = "/Applications/Hexen2";
 #elif defined _WIN32
-        Preference<String> QuakePath("Quake Path", "C:\\Program Files (x86)\\Quake");
-        Preference<String> Quake2Path("Quake2 Path", "C:\\Program Files (x86)\\Quake2");
-        Preference<String> Hexen2Path("Hexen2 Path", "C:\\Program Files (x86)\\Hexen2");
+            result["Quake"] = "C:\\Program Files (x86)\\Quake";
+            result["Quake 2"] = "C:\\Program Files (x86)\\Quake2";
+            result["Hexen 2"] = "C:\\Program Files (x86)\\Hexen2";
 #else
-        Preference<String> QuakePath("Quake Path", "/home/kristian/Apps/Quake");
-        Preference<String> Quake2Path("Quake2 Path", "/home/kristian/Apps/Quake2");
-        Preference<String> Hexen2Path("Hexen2 Path", "/home/kristian/Apps/Hexen2");
+            result["Quake"] = "/home/kristian/Apps/Quake";
+            result["Quake 2"] = "/home/kristian/Apps/Quake2";
+            result["Hexen 2"] = "/home/kristian/Apps/Hexen2";
 #endif
-
+            return result;
+        }
+        
+        Preference<StringMap> GamePaths("Game Paths", makeDefaultGamePaths());
+        
         Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.25f, 0.25f, 0.25f, 1.0f));
         Preference<float> AxisLength("Renderer/Axis length", 128.0f);
         Preference<Color> XAxisColor("Renderer/Colors/X axis", Color(0xFF, 0x3D, 0x00));

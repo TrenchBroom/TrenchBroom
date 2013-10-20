@@ -179,10 +179,10 @@ namespace StringUtils {
         return result;
     }
     
-    String capitalize(String str) {
+    String capitalize(const String& str) {
         StringStream buffer;
         bool initial = true;
-        for (unsigned int i = 0; i < str.size(); i++) {
+        for (size_t i = 0; i < str.size(); i++) {
             char c = str[i];
             if (c == ' ' || c == '\n' || c == '\t' || c == '\r') {
                 initial = true;
@@ -199,4 +199,35 @@ namespace StringUtils {
         return buffer.str();
     }
     
+    String escape(const String& str, const String& chars) {
+        if (str.empty())
+            return str;
+        
+        StringStream buffer;
+        for (size_t i = 0; i < str.size(); ++i) {
+            const char c = str[i];
+            if (c == '\\' || chars.find_first_of(c) != String::npos)
+                buffer << '\\';
+            buffer << c;
+        }
+        return buffer.str();
+    }
+
+    String unescape(const String& str, const String& chars) {
+        if (str.empty())
+            return str;
+        
+        StringStream buffer;
+        for (size_t i = 0; i < str.size(); ++i) {
+            const char c = str[i];
+            if (c == '\\' && i < str.size() - 1) {
+                const char d = str[i+1];
+                if (d != '\\' && chars.find_first_of(d) == String::npos)
+                    buffer << c;
+            } else {
+                buffer << c;
+            }
+        }
+        return buffer.str();
+    }
 }

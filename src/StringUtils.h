@@ -21,6 +21,7 @@
 #define TrenchBroom_StringUtils_h
 
 #include <cassert>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -28,6 +29,7 @@
 typedef std::string String;
 typedef std::stringstream StringStream;
 typedef std::vector<String> StringList;
+typedef std::map<String, String> StringMap;
 static const StringList EmptyStringList;
 
 namespace StringUtils {
@@ -44,7 +46,9 @@ namespace StringUtils {
     long makeHash(const String& str);
     String toLower(const String& str);
     String replaceChars(const String& str, const String& needles, const String& replacements);
-    String capitalize(String str);
+    String capitalize(const String& str);
+    String escape(const String& str, const String& chars);
+    String unescape(const String& str, const String& chars);
 
     template <typename D>
     StringList split(const String& str, D d) {

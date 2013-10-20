@@ -19,6 +19,8 @@
 
 #include "TextureBrowser.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/TextureManager.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
@@ -78,8 +80,16 @@ namespace TrenchBroom {
             outerSizer->Add(browserPanel, 1, wxEXPAND);
             
             SetSizerAndFit(outerSizer);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
         }
         
+        TextureBrowser::~TextureBrowser() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
+        }
+
         void TextureBrowser::reload() {
             if (m_view != NULL) {
                 m_view->clear();
@@ -118,5 +128,12 @@ namespace TrenchBroom {
             event.SetId(GetId());
             ProcessEvent(event);
         }
-    }
+
+        void TextureBrowser::preferenceDidChange(const String& name) {
+            if (name == Preferences::TextureBrowserIconSize.name())
+                reload();
+            else
+                m_view->Refresh();
+        }
+ }
 }
