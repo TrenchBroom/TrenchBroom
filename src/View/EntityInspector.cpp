@@ -43,6 +43,7 @@ namespace TrenchBroom {
         m_lastHoveredCell(wxGridCellCoords(-1, -1)) {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
             
@@ -222,8 +223,8 @@ namespace TrenchBroom {
              propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
              */
             
-            m_addPropertyButton = new wxButton(propertyEditorPanel, wxID_ANY, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_removePropertiesButton = new wxButton(propertyEditorPanel, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_addPropertyButton = new wxButton(propertyEditorPanel, wxID_ANY, _("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_removePropertiesButton = new wxButton(propertyEditorPanel, wxID_ANY, _("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             
             m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityInspector::OnAddPropertyPressed, this);
             m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityInspector::OnUpdatePropertyViewOrAddPropertiesButton, this);

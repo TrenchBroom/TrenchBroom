@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2013 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,6 +26,7 @@
 #include "View/CommandIds.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
+#include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/PreferenceDialog.h"
 
@@ -41,8 +42,9 @@ namespace TrenchBroom {
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL),
-        m_recentDocuments(CommandIds::Menu::FileRecentDocuments, 10) {}
-        
+        m_recentDocuments(CommandIds::Menu::FileRecentDocuments, 10),
+        m_lastFocusedWindow(NULL) {}
+
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
@@ -50,7 +52,7 @@ namespace TrenchBroom {
         void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
             m_recentDocuments.addMenu(menu);
         }
-        
+
         void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
             m_recentDocuments.removeMenu(menu);
         }
@@ -62,25 +64,28 @@ namespace TrenchBroom {
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
                 return false;
-            
+
             std::setlocale(LC_NUMERIC, "C");
-            
+
+            // load image handlers
+            wxImage::AddHandler(new wxPNGHandler());
+
             assert(m_frameManager == NULL);
             m_frameManager = new FrameManager(useSDI());
-            
+
             m_recentDocuments.setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
-            
+
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
-            
+
             wxMenu* recentDocumentsMenu = Menu::findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
             m_recentDocuments.addMenu(recentDocumentsMenu);
-            
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
-            
+
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
@@ -108,19 +113,18 @@ namespace TrenchBroom {
             }
 #endif
 
-            // load image handles
-            wxImage::AddHandler(new wxPNGHandler());
-
             m_lastActivation = 0;
             return true;
         }
-        
+
         int TrenchBroomApp::OnExit() {
             delete m_frameManager;
             m_frameManager = NULL;
+
+            wxImage::CleanUpHandlers();
             return wxApp::OnExit();
         }
-        
+
         void TrenchBroomApp::OnUnhandledException() {
             try {
                 throw;
@@ -134,7 +138,7 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
             newDocument(true);
         }
-        
+
         void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
             const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
             if (!pathStr.empty())
@@ -150,38 +154,40 @@ namespace TrenchBroom {
                 ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
             }
         }
-        
+
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
             PreferenceDialog dialog;
             dialog.ShowModal();
         }
-        
+
         int TrenchBroomApp::FilterEvent(wxEvent& event) {
             /*
              Because the Ubuntu window manager will unfocus the map view when a menu is opened, we track all SET_FOCUS
-             events here and send a separate event if any control other than the map view receives the focus. An event
-             will be added to the event queue here and then dispatched directly to the map frame containing the focused
-             control once it is filtered here, too.
+             events here and send a separate event either
+             - the map view itself receives a focus event and it was not the last control to receive one, or
+             - another control receives a focus event and the last control to do so was the map view.
+             An event will be added to the event queue here and then dispatched directly to the map frame containing the 
+             focused control once it is filtered here, too.
              */
             
             if (event.GetEventObject() != NULL) {
                 if (event.GetEventType() == wxEVT_SET_FOCUS) {
-                    wxObject* object = event.GetEventObject();
-                    wxWindow* window = wxDynamicCast(object, wxWindow);
-                    if (window != NULL) {
-                        // find the frame containing the focused control
+                    // find the frame containing the focused control
+                    wxWindow* window = wxDynamicCast(event.GetEventObject(), wxWindow);
+                    if (window != m_lastFocusedWindow &&
+                        (wxDynamicCast(window, MapView) != NULL ||
+                         wxDynamicCast(m_lastFocusedWindow, MapView) != NULL)) {
                         wxFrame* frame = wxDynamicCast(window, wxFrame);
                         wxWindow* parent = window->GetParent();
                         while (frame == NULL && parent != NULL) {
                             frame = wxDynamicCast(parent, wxFrame);
                             parent = parent->GetParent();
                         }
-
+                        
                         /*
                          If we found a frame, then send a command event to the frame that will cause it to rebuild its
-                         menu. The frame must keep track of whether the menu actually needs to be rebuilt (only if the
-                         map view previously had focus and just lost it or vice versa).
-                         Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the 
+                         menu.
+                         Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the
                          focus states!
                          */
                         if (frame != NULL) {
@@ -192,6 +198,7 @@ namespace TrenchBroom {
                             AddPendingEvent(buildMenuEvent);
                         }
                     }
+                    m_lastFocusedWindow = window;
                 } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENUBAR) {
                     wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
                     frame->ProcessWindowEventLocally(event);
@@ -215,7 +222,7 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
             Exit();
         }
-        
+
         void TrenchBroomApp::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_PREFERENCES:
@@ -237,8 +244,8 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::MacNewFile() {
             newDocument(false);
-        }        
-        
+        }
+
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
             wxArrayString::const_iterator it, end;
             for (it = filenames.begin(), end = filenames.end(); it != end; ++it) {
@@ -247,7 +254,7 @@ namespace TrenchBroom {
             }
         }
 #endif
-        
+
         bool TrenchBroomApp::useSDI() {
 #ifdef _WIN32
             return true;
@@ -255,7 +262,7 @@ namespace TrenchBroom {
             return false;
 #endif
         }
-        
+
         bool TrenchBroomApp::newDocument(const bool queryGameType) {
             MapFrame* frame = m_frameManager->newFrame();
             Model::GamePtr game;
@@ -267,7 +274,7 @@ namespace TrenchBroom {
                 return false;
             return frame != NULL && frame->newDocument(game);
         }
-        
+
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             MapFrame* frame = m_frameManager->newFrame();
             try {
@@ -282,12 +289,12 @@ namespace TrenchBroom {
                 return false;
             }
         }
-        
+
         Model::GamePtr TrenchBroomApp::detectGame(Logger* logger, const IO::Path& path) {
             Model::GamePtr game = Model::Game::detectGame(path, logger);
             if (game != NULL)
                 return game;
-            
+
             wxArrayString gameNames;
             for (size_t i = 0; i < Model::Game::GameCount; ++i)
                 gameNames.Add(Model::Game::GameNames[i]);

@@ -41,9 +41,9 @@ namespace TrenchBroom {
             m_textureBrowser = new TextureBrowser(this, resources, m_document);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             
             SetSizer(outerSizer);
             m_textureBrowser->Bind(EVT_TEXTURE_SELECTED_EVENT,

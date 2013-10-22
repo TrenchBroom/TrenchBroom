@@ -54,24 +54,22 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("")),
+        wxFrame(NULL, wxID_ANY, _("")),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_console(NULL),
         m_navBar(NULL),
-        m_mapView(NULL),
-        m_menuNeedsRebuilding(false) {}
+        m_mapView(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentPtr document) :
-        wxFrame(NULL, wxID_ANY, wxT("")),
+        wxFrame(NULL, wxID_ANY, _("")),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_console(NULL),
         m_navBar(NULL),
-        m_mapView(NULL),
-        m_menuNeedsRebuilding(false) {
+        m_mapView(NULL) {
             Create(frameManager, document);
         }
 
@@ -336,7 +334,7 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
-            const wxString string = wxGetTextFromUser(wxT("Enter a comma- or space separated list of line numbers."), wxT("Select by Line Numbers"), _(""), this);
+            const wxString string = wxGetTextFromUser(_("Enter a comma- or space separated list of line numbers."), _("Select by Line Numbers"), _(""), this);
             if (string.empty())
                 return;
             
@@ -579,19 +577,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnMapViewSetFocus(wxFocusEvent& event) {
-            m_menuNeedsRebuilding = true;
-            event.Skip();
-        }
-        
-        void MapFrame::OnMapViewKillFocus(wxFocusEvent& event) {
-            m_menuNeedsRebuilding = true;
-            event.Skip();
-        }
-
         void MapFrame::OnRebuildMenuBar(wxEvent& event) {
-            if (m_menuNeedsRebuilding)
-                rebuildMenuBar();
+            rebuildMenuBar();
         }
 
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
@@ -724,11 +711,10 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+            
             Bind(EVT_REBUILD_MENUBAR, &MapFrame::OnRebuildMenuBar, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
-            m_mapView->Bind(wxEVT_SET_FOCUS, &MapFrame::OnMapViewSetFocus, this);
-            m_mapView->Bind(wxEVT_KILL_FOCUS, &MapFrame::OnMapViewKillFocus, this);
             Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
             Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
@@ -754,7 +740,6 @@ namespace TrenchBroom {
         
         void MapFrame::rebuildMenuBar() {
             updateMenuBar(m_mapView->HasFocus());
-            m_menuNeedsRebuilding = false;
         }
         
         void MapFrame::createMenuBar(const bool showModifiers) {

@@ -293,7 +293,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            return wxT("");
+            return _("");
         }
 
         void KeyboardGridTable::SetValue(int row, int col, const wxString& value) {
@@ -352,7 +352,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            return wxT("");
+            return _("");
         }
 
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
@@ -413,8 +413,8 @@ namespace TrenchBroom {
         }
 
         wxStaticBox* KeyboardPreferencePane::createMenuShortcutBox() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Menu Shortcuts"));
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, wxT("Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut."));
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, _("Menu Shortcuts"));
+            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, _("Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut."));
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif

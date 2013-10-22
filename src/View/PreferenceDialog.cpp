@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/FileSystem.h"
+#include "View/GamesPreferencePane.h"
 #include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
 #include "View/LayoutConstants.h"
@@ -29,6 +30,7 @@
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
+#include <wx/statline.h>
 #include <wx/toolbar.h>
 
 namespace TrenchBroom {
@@ -82,25 +84,36 @@ namespace TrenchBroom {
             
             IO::FileSystem fs;
             const IO::Path resourcePath = fs.resourceDirectory();
+            const IO::Path gamesPath = resourcePath + IO::Path("images/GeneralPreferences.png");
             const IO::Path generalPath = resourcePath + IO::Path("images/GeneralPreferences.png");
             const IO::Path keyboardPath = resourcePath + IO::Path("images/KeyboardPreferences.png");
+            
+            const wxBitmap games(gamesPath.asString(), wxBITMAP_TYPE_PNG);
             const wxBitmap general(generalPath.asString(), wxBITMAP_TYPE_PNG);
             const wxBitmap keyboard(keyboardPath.asString(), wxBITMAP_TYPE_PNG);
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->AddCheckTool(PPGeneral, wxT("General"), general, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPKeyboard, wxT("Keyboard"), keyboard, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGames, _("Games"), games, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGeneral, _("General"), general, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPKeyboard, _("Keyboard"), keyboard, wxNullBitmap);
             m_toolBar->Realize();
             
             m_paneContainer = new wxPanel(this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
+//#if defined _WIN32
+			wxStaticLine* toolBarDivider = new wxStaticLine(this);
+            sizer->Add(toolBarDivider, 0, wxEXPAND);
+			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 5);
+//#endif
+            
             sizer->Add(m_paneContainer, 1, wxEXPAND);
             
-#if not defined __APPLE__
+#if !defined __APPLE__
             wxSizer* stdButtonsSizer = CreateSeparatedButtonSizer(wxOK | wxAPPLY | wxCANCEL);
             sizer->Add(stdButtonsSizer, 0, wxEXPAND);
+			sizer->AddSpacer(LayoutConstants::DialogOuterMargin);
 #endif
             
             SetSizer(sizer);
@@ -110,23 +123,24 @@ namespace TrenchBroom {
         
         void PreferenceDialog::bindEvents() {
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
-            Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PPGeneral, PPKeyboard);
+            Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PP_First, PP_Last);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
             if (m_pane != NULL && !m_pane->validate()) {
-                m_toolBar->ToggleTool(PPGeneral, m_currentPane == PPGeneral);
-                m_toolBar->ToggleTool(PPKeyboard, m_currentPane == PPKeyboard);
+                toggleTools(m_currentPane);
                 return;
             }
             
             if (m_pane != NULL)
                 m_pane->Destroy();
 
-            m_toolBar->ToggleTool(PPGeneral, pane == PPGeneral);
-            m_toolBar->ToggleTool(PPKeyboard, pane == PPKeyboard);
+            toggleTools(pane);
             
             switch (pane) {
+                case PPGames:
+                    m_pane = new GamesPreferencePane(m_paneContainer);
+                    break;
                 case PPKeyboard:
                     m_pane = new KeyboardPreferencePane(m_paneContainer);
                     break;
@@ -140,6 +154,11 @@ namespace TrenchBroom {
             m_paneContainer->SetSizerAndFit(containerSizer);
             
             Fit();
+        }
+
+        void PreferenceDialog::toggleTools(const PrefPane pane) {
+            for (size_t i = PP_First + 1; i < PP_Last - 1; ++i)
+                m_toolBar->ToggleTool(i, pane == i);
         }
     }
 }

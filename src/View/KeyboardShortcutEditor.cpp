@@ -61,7 +61,7 @@ namespace TrenchBroom {
         m_key(WXK_NONE),
         m_resetOnNextKey(false) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-            m_label = new wxStaticText(this, wxID_ANY, wxT(""));
+            m_label = new wxStaticText(this, wxID_ANY, _(""));
             m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_label, 1, wxEXPAND);

@@ -27,6 +27,7 @@
 
 #include <wx/button.h>
 #include <wx/checkbox.h>
+#include <wx/choice.h>
 #include <wx/dirdlg.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
@@ -39,31 +40,6 @@ namespace TrenchBroom {
         namespace GeneralPreferencePaneLayout {
             static const int MinimumLabelWidth = 100;
         }
-
-        /*
-        BEGIN_EVENT_TABLE(GeneralPreferencePane, wxPanel)
-        EVT_BUTTON(CommandIds::GeneralPreferencePane::ChooseQuakePathButtonId, GeneralPreferencePane::OnChooseQuakePathClicked)
-
-        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::BrightnessSliderId, GeneralPreferencePane::OnViewChanged)
-        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::GridAlphaSliderId, GeneralPreferencePane::OnViewChanged)
-        EVT_CHOICE(CommandIds::GeneralPreferencePane::GridModeChoiceId, GeneralPreferencePane::OnGridModeChoice)
-        EVT_CHOICE(CommandIds::GeneralPreferencePane::InstancingModeModeChoiceId, GeneralPreferencePane::OnInstancingModeChoice)
-        EVT_CHOICE(CommandIds::GeneralPreferencePane::TextureBrowserIconSideChoiceId, GeneralPreferencePane::OnTextureBrowserIconSizeChoice)
-
-        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::LookSpeedSliderId, GeneralPreferencePane::OnMouseChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
-
-        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::PanSpeedSliderId, GeneralPreferencePane::OnMouseChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
-
-        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::MoveSpeedSliderId, GeneralPreferencePane::OnMouseChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::EnableAltMoveCheckBoxId, GeneralPreferencePane::OnEnableAltMoveChanged)
-        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::MoveCameraInCursorDirCheckBoxId, GeneralPreferencePane::OnMoveCameraInCursorDirChanged)
-
-		END_EVENT_TABLE()
-         */
 
         GeneralPreferencePane::GeneralPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
@@ -337,21 +313,11 @@ namespace TrenchBroom {
             m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnEnableAltMoveChanged, this);
             m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnMoveCameraInCursorDirChanged, this);
             
-            bindSliderEvents(m_brightnessSlider, &GeneralPreferencePane::OnBrightnessChanged);
-            bindSliderEvents(m_gridAlphaSlider, &GeneralPreferencePane::OnGridAlphaChanged);
-            bindSliderEvents(m_lookSpeedSlider, &GeneralPreferencePane::OnLookSpeedChanged);
-            bindSliderEvents(m_panSpeedSlider, &GeneralPreferencePane::OnPanSpeedChanged);
-            bindSliderEvents(m_moveSpeedSlider, &GeneralPreferencePane::OnMoveSpeedChanged);
-        }
-        
-        void GeneralPreferencePane::bindSliderEvents(wxSlider* slider, void (GeneralPreferencePane::*function)(wxScrollEvent&)) {
-            slider->Bind(wxEVT_SCROLL_TOP, function, this);
-            slider->Bind(wxEVT_SCROLL_BOTTOM, function, this);
-            slider->Bind(wxEVT_SCROLL_LINEUP, function, this);
-            slider->Bind(wxEVT_SCROLL_LINEDOWN, function, this);
-            slider->Bind(wxEVT_SCROLL_PAGEUP, function, this);
-            slider->Bind(wxEVT_SCROLL_PAGEDOWN, function, this);
-            slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, this);
+            bindSliderEvents(m_brightnessSlider, &GeneralPreferencePane::OnBrightnessChanged, this);
+            bindSliderEvents(m_gridAlphaSlider, &GeneralPreferencePane::OnGridAlphaChanged, this);
+            bindSliderEvents(m_lookSpeedSlider, &GeneralPreferencePane::OnLookSpeedChanged, this);
+            bindSliderEvents(m_panSpeedSlider, &GeneralPreferencePane::OnPanSpeedChanged, this);
+            bindSliderEvents(m_moveSpeedSlider, &GeneralPreferencePane::OnMoveSpeedChanged, this);
         }
 
         void GeneralPreferencePane::updateControls() {

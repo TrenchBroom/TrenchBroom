@@ -40,8 +40,8 @@ namespace TrenchBroom {
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
             
-            m_groupButton = new wxToggleButton(this, wxID_ANY, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_usedButton = new wxToggleButton(this, wxID_ANY, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_groupButton = new wxToggleButton(this, wxID_ANY, _("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, wxID_ANY, _("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);

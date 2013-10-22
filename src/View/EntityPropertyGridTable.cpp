@@ -216,8 +216,8 @@ namespace TrenchBroom {
         wxString EntityPropertyGridTable::GetColLabelValue(int col) {
             assert(col >= 0 && col < GetNumberCols());
             if (col == 0)
-                return wxT("Key");
-            return wxT("Value");
+                return _("Key");
+            return _("Value");
         }
         
         wxGridCellAttr* EntityPropertyGridTable::getAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {

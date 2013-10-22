@@ -33,9 +33,11 @@ namespace TrenchBroom {
         class PreferenceDialog : public wxDialog {
         private:
             typedef enum {
+                PP_First,
+                PPGames,
                 PPGeneral,
-                PPKeyboard
-                // Update the tool event binding when adding new panes!
+                PPKeyboard,
+                PP_Last
             } PrefPane;
 
             wxToolBar* m_toolBar;
@@ -53,6 +55,7 @@ namespace TrenchBroom {
             void createGui();
             void bindEvents();
             void switchToPane(const PrefPane pane);
+            void toggleTools(const PrefPane pane);
         };
     }
 }

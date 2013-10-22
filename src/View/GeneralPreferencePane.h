@@ -30,10 +30,6 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        namespace PreferencesFrameLayout {
-            static const int MinimumLabelWidth = 100;
-        }
-
         class GeneralPreferencePane : public PreferencePane {
         private:
             wxStaticText* m_quakePathValueLabel;
@@ -79,7 +75,6 @@ namespace TrenchBroom {
             wxWindow* createMousePreferences();
 
             void bindEvents();
-            void bindSliderEvents(wxSlider* slider, void (GeneralPreferencePane::*function)(wxScrollEvent&));
             
             void updateControls();
             bool doValidate();

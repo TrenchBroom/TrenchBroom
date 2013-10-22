@@ -42,9 +42,9 @@ namespace TrenchBroom {
             m_sortOrderChoice->SetSelection(0);
             m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
             
-            m_groupButton = new wxToggleButton(this, wxID_ANY, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_groupButton = new wxToggleButton(this, wxID_ANY, _("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
-            m_usedButton = new wxToggleButton(this, wxID_ANY, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, wxID_ANY, _("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);

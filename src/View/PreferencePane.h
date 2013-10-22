@@ -21,6 +21,7 @@
 #define __TrenchBroom__PreferencePane__
 
 #include <wx/panel.h>
+#include <wx/slider.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -29,6 +30,17 @@ namespace TrenchBroom {
             PreferencePane(wxWindow* parent);
             virtual ~PreferencePane();
             bool validate();
+        protected:
+            template <typename T>
+            void bindSliderEvents(wxSlider* slider, void (T::*function)(wxScrollEvent&), T* handler) {
+                slider->Bind(wxEVT_SCROLL_TOP, function, handler);
+                slider->Bind(wxEVT_SCROLL_BOTTOM, function, handler);
+                slider->Bind(wxEVT_SCROLL_LINEUP, function, handler);
+                slider->Bind(wxEVT_SCROLL_LINEDOWN, function, handler);
+                slider->Bind(wxEVT_SCROLL_PAGEUP, function, handler);
+                slider->Bind(wxEVT_SCROLL_PAGEDOWN, function, handler);
+                slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, handler);
+            }
         private:
             virtual bool doValidate() = 0;
         };

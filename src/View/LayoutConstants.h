@@ -80,6 +80,7 @@ namespace TrenchBroom {
             static const int BrowserControlsHorizontalMargin    = 3;
             static const int FaceAttribsControlMargin           = 5;
 #endif
+            static const int MinPreferenceLabelWidth            = 100;
         }
     }
 }

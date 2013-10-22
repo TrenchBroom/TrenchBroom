@@ -89,19 +89,19 @@ namespace TrenchBroom {
             textureViewSizer->SetItemMinSize(m_textureView, 128, 128);
             
             wxGridBagSizer* faceAttribsSizer = new wxGridBagSizer(LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("")), wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER); // fake
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("")), wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER); // fake
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("Offset"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Offset"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
             faceAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 1), wxDefaultSpan, wxEXPAND);
             faceAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("Scale"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Scale"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
             
             faceAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 1), wxDefaultSpan, wxEXPAND);
             faceAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, wxT("Rotation"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Rotation"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
             faceAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
             
             //            faceAttribsSizer->Add(buttonSizer, wxGBPosition(4, 0), wxGBSpan(1, 3), wxALIGN_RIGHT);
@@ -188,56 +188,56 @@ namespace TrenchBroom {
                 
                 if (textureMulti) {
                     m_textureView->setTexture(NULL);
-                    m_textureNameLabel->SetLabel(wxT("multi"));
+                    m_textureNameLabel->SetLabel(_("multi"));
                 } else {
                     m_textureView->setTexture(texture);
                     m_textureNameLabel->SetLabel(texture != NULL ? textureName : "n/a");
                 }
                 if (xOffsetMulti) {
-                    m_xOffsetEditor->SetHint(wxT("multi"));
-                    m_xOffsetEditor->SetValue(wxT(""));
+                    m_xOffsetEditor->SetHint(_("multi"));
+                    m_xOffsetEditor->SetValue(_(""));
                 } else {
-                    m_xOffsetEditor->SetHint(wxT(""));
+                    m_xOffsetEditor->SetHint(_(""));
                     m_xOffsetEditor->SetValue(xOffset);
                 }
                 if (yOffsetMulti) {
-                    m_yOffsetEditor->SetHint(wxT("multi"));
-                    m_yOffsetEditor->SetValue(wxT(""));
+                    m_yOffsetEditor->SetHint(_("multi"));
+                    m_yOffsetEditor->SetValue(_(""));
                 } else {
-                    m_yOffsetEditor->SetHint(wxT(""));
+                    m_yOffsetEditor->SetHint(_(""));
                     m_yOffsetEditor->SetValue(yOffset);
                 }
                 if (rotationMulti) {
-                    m_rotationEditor->SetHint(wxT("multi"));
-                    m_rotationEditor->SetValue(wxT(""));
+                    m_rotationEditor->SetHint(_("multi"));
+                    m_rotationEditor->SetValue(_(""));
                 } else {
-                    m_rotationEditor->SetHint(wxT(""));
+                    m_rotationEditor->SetHint(_(""));
                     m_rotationEditor->SetValue(rotation);
                 }
                 if (xScaleMulti){
-                    m_xScaleEditor->SetHint(wxT("multi"));
-                    m_xScaleEditor->SetValue(wxT(""));
+                    m_xScaleEditor->SetHint(_("multi"));
+                    m_xScaleEditor->SetValue(_(""));
                 } else {
-                    m_xScaleEditor->SetHint(wxT(""));
+                    m_xScaleEditor->SetHint(_(""));
                     m_xScaleEditor->SetValue(xScale);
                 }
                 if (yScaleMulti) {
-                    m_yScaleEditor->SetHint(wxT("multi"));
-                    m_yScaleEditor->SetValue(wxT(""));
+                    m_yScaleEditor->SetHint(_("multi"));
+                    m_yScaleEditor->SetValue(_(""));
                 } else {
-                    m_yScaleEditor->SetHint(wxT(""));
+                    m_yScaleEditor->SetHint(_(""));
                     m_yScaleEditor->SetValue(yScale);
                 }
             } else {
-                m_xOffsetEditor->SetValue(wxT("n/a"));
+                m_xOffsetEditor->SetValue(_("n/a"));
                 m_xOffsetEditor->Disable();
-                m_yOffsetEditor->SetValue(wxT("n/a"));
+                m_yOffsetEditor->SetValue(_("n/a"));
                 m_yOffsetEditor->Disable();
-                m_xScaleEditor->SetValue(wxT("n/a"));
+                m_xScaleEditor->SetValue(_("n/a"));
                 m_xScaleEditor->Disable();
-                m_yScaleEditor->SetValue(wxT("n/a"));
+                m_yScaleEditor->SetValue(_("n/a"));
                 m_yScaleEditor->Disable();
-                m_rotationEditor->SetValue(wxT("n/a"));
+                m_rotationEditor->SetValue(_("n/a"));
                 m_rotationEditor->Disable();
                 m_textureView->setTexture(NULL);
                 m_textureNameLabel->SetLabel("n/a");

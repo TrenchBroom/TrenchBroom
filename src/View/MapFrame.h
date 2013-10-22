@@ -63,7 +63,6 @@ namespace TrenchBroom {
             NavBar* m_navBar;
             MapView* m_mapView;
             Inspector* m_inspector;
-            bool m_menuNeedsRebuilding;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentPtr document);
@@ -114,9 +113,6 @@ namespace TrenchBroom {
             void OnViewSetGridSize(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
-            
-            void OnMapViewSetFocus(wxFocusEvent& event);
-            void OnMapViewKillFocus(wxFocusEvent& event);
             
             void OnRebuildMenuBar(wxEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);

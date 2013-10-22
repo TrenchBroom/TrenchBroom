@@ -224,23 +224,23 @@ namespace TrenchBroom {
             wxMenu* viewMenu = createMenu(ViewMenu, selector, showModifiers);
 
             wxMenu* helpMenu = new wxMenu();
-            helpMenu->Append(CommandIds::Menu::HelpShowHelp, wxT("TrenchBroom Help"));
+            helpMenu->Append(CommandIds::Menu::HelpShowHelp, _("TrenchBroom Help"));
 
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
-            fileMenu->Append(wxID_ABOUT, wxT("About"));
-            fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
-            fileMenu->Append(wxID_EXIT, wxT("Exit"));
+            fileMenu->Append(wxID_ABOUT, _("About"));
+            fileMenu->Append(wxID_PREFERENCES, _("Preferences...\tCtrl-,"));
+            fileMenu->Append(wxID_EXIT, _("Exit"));
 #else
             viewMenu->AppendSeparator();
-            viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
+            viewMenu->Append(wxID_PREFERENCES, _("Preferences..."));
 #endif
             
             wxMenuBar* menuBar = new wxMenuBar();
-            menuBar->Append(fileMenu, wxT("File"));
-            menuBar->Append(editMenu, wxT("Edit"));
-            menuBar->Append(viewMenu, wxT("View"));
-            menuBar->Append(helpMenu, wxT("Help"));
+            menuBar->Append(fileMenu, _("File"));
+            menuBar->Append(editMenu, _("Edit"));
+            menuBar->Append(viewMenu, _("View"));
+            menuBar->Append(helpMenu, _("Help"));
             return menuBar;
         }
 
