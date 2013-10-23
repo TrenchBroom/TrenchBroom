@@ -39,13 +39,11 @@ namespace TrenchBroom {
         }
         
         NavBar::NavBar(wxWindow* parent) :
-        wxPanel(parent),
+        ContainerBar(parent),
         m_navPanel(new wxPanel(this, wxID_ANY)),
         m_searchBox(new wxSearchCtrl(this, wxID_ANY)) {
 #ifdef __APPLE__
             m_searchBox->SetFont(*wxSMALL_FONT);
-            SetBackgroundStyle(wxBG_STYLE_PAINT);
-            Bind(wxEVT_PAINT, &NavBar::OnPaint, this);
 #endif
             m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &NavBar::OnSearchPatternChanged, this);
             
@@ -63,16 +61,6 @@ namespace TrenchBroom {
             outerSizer->Add(innerSizer, 1, wxEXPAND);
             outerSizer->AddSpacer(2);
             SetSizer(outerSizer);
-        }
-        
-        void NavBar::OnPaint(wxPaintEvent& event) {
-            wxPaintDC dc(this);
-            wxRect rect = GetClientRect();
-            rect.height -= 1;
-            dc.GradientFillLinear(rect, wxColour(211, 211, 211), wxColour(174, 174, 174), wxDOWN);
-            dc.SetPen(wxPen(wxColour(67, 67, 67)));
-            dc.DrawLine(0, rect.height, rect.width, rect.height);
-            dc.DrawLine(rect.width - 1, 0, rect.width - 1, rect.height);
         }
         
         void NavBar::OnSearchPatternChanged(wxCommandEvent& event) {

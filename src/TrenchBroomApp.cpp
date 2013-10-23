@@ -174,31 +174,34 @@ namespace TrenchBroom {
                 if (event.GetEventType() == wxEVT_SET_FOCUS) {
                     // find the frame containing the focused control
                     wxWindow* window = wxDynamicCast(event.GetEventObject(), wxWindow);
-                    if (window != m_lastFocusedWindow &&
-                        (wxDynamicCast(window, MapView) != NULL ||
-                         wxDynamicCast(m_lastFocusedWindow, MapView) != NULL)) {
-                        wxFrame* frame = wxDynamicCast(window, wxFrame);
-                        wxWindow* parent = window->GetParent();
-                        while (frame == NULL && parent != NULL) {
-                            frame = wxDynamicCast(parent, wxFrame);
-                            parent = parent->GetParent();
-                        }
-                        
-                        /*
-                         If we found a frame, then send a command event to the frame that will cause it to rebuild its
-                         menu.
-                         Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the
-                         focus states!
-                         */
-                        if (frame != NULL) {
-                            wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
-                            buildMenuEvent.SetClientData(event.GetEventObject());
-                            buildMenuEvent.SetEventObject(frame);
-                            buildMenuEvent.SetId(event.GetId());
-                            AddPendingEvent(buildMenuEvent);
-                        }
+                    wxFrame* frame = wxDynamicCast(window, wxFrame);
+                    wxWindow* parent = window->GetParent();
+                    while (frame == NULL && parent != NULL) {
+                        frame = wxDynamicCast(parent, wxFrame);
+                        parent = parent->GetParent();
                     }
-                    m_lastFocusedWindow = window;
+                    
+                    if (frame != NULL) {
+                        if (window != m_lastFocusedWindow &&
+                            (wxDynamicCast(window, MapView) != NULL ||
+                             wxDynamicCast(m_lastFocusedWindow, MapView) != NULL)) {
+                                
+                                /*
+                                 If we found a frame, then send a command event to the frame that will cause it to rebuild its
+                                 menu.
+                                 Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the
+                                 focus states!
+                                 */
+                                if (frame != NULL) {
+                                    wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
+                                    buildMenuEvent.SetClientData(event.GetEventObject());
+                                    buildMenuEvent.SetEventObject(frame);
+                                    buildMenuEvent.SetId(event.GetId());
+                                    AddPendingEvent(buildMenuEvent);
+                                }
+                            }
+                        m_lastFocusedWindow = window;
+                    }
                 } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENUBAR) {
                     wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
                     frame->ProcessWindowEventLocally(event);

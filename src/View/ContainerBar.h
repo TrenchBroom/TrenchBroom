@@ -17,30 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NavBar__
-#define __TrenchBroom__NavBar__
+#ifndef __TrenchBroom__ContainerBar__
+#define __TrenchBroom__ContainerBar__
 
-#include "View/ContainerBar.h"
-
-class wxSearchCtrl;
-class wxStaticText;
+#include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class NavBar : public ContainerBar {
-        private:
-            wxPanel* m_navPanel;
-            wxSearchCtrl* m_searchBox;
-            
-            wxStaticText* makeBreadcrump(const wxString& text, bool link);
+        class ContainerBar : public wxPanel {
         public:
-            NavBar(wxWindow* parent);
+            ContainerBar(wxWindow* parent);
             
-            void OnSearchPatternChanged(wxCommandEvent& event);
-            
-            void updateBreadcrump();
+            void OnPaint(wxPaintEvent& event);
+        private:
+            void paintMac(wxPaintEvent& event);
+            void paintOther(wxPaintEvent& event);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__NavBar__) */
+#endif /* defined(__TrenchBroom__ContainerBar__) */

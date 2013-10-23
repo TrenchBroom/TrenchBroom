@@ -81,6 +81,7 @@ namespace TrenchBroom {
             static const int FaceAttribsControlMargin           = 5;
 #endif
             static const int MinPreferenceLabelWidth            = 100;
+            static const int HighlightBoxMargin                 = 5;
         }
     }
 }

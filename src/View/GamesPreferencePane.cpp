@@ -25,6 +25,7 @@
 #include <wx/button.h>
 #include <wx/choice.h>
 #include <wx/sizer.h>
+#include <wx/settings.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
 
@@ -56,6 +57,8 @@ namespace TrenchBroom {
         
         wxWindow* GamesPreferencePane::createGameSelectionBox() {
             wxPanel* container = new wxPanel(this, wxID_ANY);
+            container->SetBackgroundColour(::wxSystemSettings::GetColour(wxSYS_COLOUR_BTNHIGHLIGHT));
+            
             wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, _("Select a game from the list: "));
             
             wxArrayString games;
@@ -63,11 +66,14 @@ namespace TrenchBroom {
                 games.Add(wxString(Model::Game::GameNames[i]));
             m_gameSelectionChoice = new wxChoice(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, games);
             
-            wxFlexGridSizer* sizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
-            sizer->Add(gameSelectionChoiceLabel, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->Add(m_gameSelectionChoice, 0, wxALIGN_CENTER_VERTICAL);
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(gameSelectionChoiceLabel, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->Add(m_gameSelectionChoice, 0, wxALIGN_CENTER_VERTICAL);
             
-            container->SetSizerAndFit(sizer);
+            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(innerSizer, 0, wxALL, LayoutConstants::HighlightBoxMargin);
+            
+            container->SetSizerAndFit(outerSizer);
             return container;
         }
         

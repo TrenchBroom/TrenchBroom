@@ -51,11 +51,15 @@ namespace TrenchBroom {
             void OnToolClicked(wxCommandEvent& event);
             void OnApplyClicked(wxCommandEvent& event);
             void OnClose(wxCloseEvent& event);
+            void OnFileClose(wxCommandEvent& event);
+
+            DECLARE_DYNAMIC_CLASS(PreferenceDialog)
         private:
             void createGui();
             void bindEvents();
             void switchToPane(const PrefPane pane);
             void toggleTools(const PrefPane pane);
+            void updateAcceleratorTable(const PrefPane pane);
         };
     }
 }

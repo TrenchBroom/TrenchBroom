@@ -35,7 +35,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferenceDialog::PreferenceDialog() {
+        IMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
+
+        PreferenceDialog::PreferenceDialog() :
+        m_toolBar(NULL),
+        m_paneContainer(NULL),
+        m_pane(NULL) {
             Create();
         }
         
@@ -45,11 +50,13 @@ namespace TrenchBroom {
             
             createGui();
             bindEvents();
+            switchToPane(PPGames);
             return true;
         }
 
         void PreferenceDialog::OnToolClicked(wxCommandEvent& event) {
-            switchToPane(static_cast<PrefPane>(event.GetId()));
+            const PrefPane newPane = static_cast<PrefPane>(event.GetId());
+            switchToPane(newPane);
         }
 
         void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
@@ -79,6 +86,17 @@ namespace TrenchBroom {
 #endif
         }
 
+        void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
+            if (!m_pane->validate()) {
+                event.Skip();
+                return;
+            }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.discardChanges(); // does nothing if the preferences save changes instantly
+            Close();
+        }
+
         void PreferenceDialog::createGui() {
             m_pane = NULL;
             
@@ -102,11 +120,11 @@ namespace TrenchBroom {
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
-//#if defined _WIN32
+#if !defined __APPLE__
 			wxStaticLine* toolBarDivider = new wxStaticLine(this);
             sizer->Add(toolBarDivider, 0, wxEXPAND);
 			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 5);
-//#endif
+#endif
             
             sizer->Add(m_paneContainer, 1, wxEXPAND);
             
@@ -117,16 +135,20 @@ namespace TrenchBroom {
 #endif
             
             SetSizer(sizer);
-
-            switchToPane(PPGeneral);
         }
         
         void PreferenceDialog::bindEvents() {
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PP_First, PP_Last);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
+            if (m_currentPane == pane && m_pane != NULL) {
+                toggleTools(m_currentPane);
+                return;
+            }
+            
             if (m_pane != NULL && !m_pane->validate()) {
                 toggleTools(m_currentPane);
                 return;
@@ -148,17 +170,35 @@ namespace TrenchBroom {
                     m_pane = new GeneralPreferencePane(m_paneContainer);
                     break;
             }
+            m_currentPane = pane;
             
             wxBoxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_pane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
             m_paneContainer->SetSizerAndFit(containerSizer);
             
             Fit();
+#if defined __APPLE__
+            updateAcceleratorTable(pane);
+#endif
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (size_t i = PP_First + 1; i < PP_Last - 1; ++i)
+            for (size_t i = PP_First + 1; i < PP_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
+        }
+        
+        void PreferenceDialog::updateAcceleratorTable(const PrefPane pane) {
+            // allow the dialog to be closed using CMD+W
+            // but only if the keyboard preference pane is not active
+            if (pane != PPKeyboard) {
+                wxAcceleratorEntry acceleratorEntries[1];
+                acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
+                wxAcceleratorTable accceleratorTable(1, acceleratorEntries);
+                SetAcceleratorTable(accceleratorTable);
+            } else {
+                wxAcceleratorTable accceleratorTable(0, NULL);
+                SetAcceleratorTable(accceleratorTable);
+            }
         }
     }
 }
