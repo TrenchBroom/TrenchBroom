@@ -32,9 +32,6 @@ INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
 INCLUDE(cmake/FreeImage.cmake)
 
-# INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
-# INCLUDE_DIRECTORIES(${FREEIMAGE_INCLUDE_DIRS})
-
 INCLUDE(cmake/GTest.cmake)
 INCLUDE(cmake/GMock.cmake)
 INCLUDE(cmake/Glew.cmake)
