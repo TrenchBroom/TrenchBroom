@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/WadTextureLoader.h"
 #include "Assets/Palette.h"
@@ -34,10 +35,10 @@ namespace TrenchBroom {
         }
         
         TEST(WadTextureLoaderTest, testLoadWad) {
-            const Assets::Palette palette(Path("data/palette.lmp"));
+            const Assets::Palette palette(Disk::getCurrentWorkingDir() + Path("data/palette.lmp"));
             WadTextureLoader loader(palette);
             
-            const Path wadPath("data/IO/Wad/cr8_czg.wad");
+            const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/IO/Wad/cr8_czg.wad");
             Assets::FaceTextureCollection* collection = loader.loadTextureCollection(wadPath);
             
             const Assets::FaceTextureList& textures = collection->textures();

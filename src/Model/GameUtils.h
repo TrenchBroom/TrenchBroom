@@ -32,7 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class GameFS;
+        class GameFileSystem;
     }
     
     namespace Model {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         IO::Path::List extractTexturePaths(const Map* map, const PropertyKey& key);
         Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path, const Color& defaultEntityColor);
         IO::Path extractEntityDefinitionFile(const Map* map, const IO::Path& defaultFile);
-        Assets::EntityModel* loadModel(const IO::GameFS& gameFs, const Assets::Palette& palette, const IO::Path& path);
+        Assets::EntityModel* loadModel(const IO::GameFileSystem& gameFS, const Assets::Palette& palette, const IO::Path& path);
     }
 }
 

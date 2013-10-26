@@ -23,6 +23,7 @@
 #include "Assets/FaceTexture.h"
 #include "Assets/FaceTextureCollection.h"
 #include "Assets/Palette.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/WalTextureLoader.h"
 
@@ -34,9 +35,11 @@ namespace TrenchBroom {
             ASSERT_EQ(height, texture->height());
         }
         
-        TEST(WadTextureLoaderTest, testLoadWalDir) {
+        TEST(WalTextureLoaderTest, testLoadWalDir) {
+            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+            
             const Assets::Palette palette(Path("data/colormap.pcx"));
-            WalTextureLoader loader(palette);
+            WalTextureLoader loader(fs, palette);
             
             const Path walDirPath("data/IO/Wal/rtz");
             Assets::FaceTextureCollection* collection = loader.loadTextureCollection(walDirPath);

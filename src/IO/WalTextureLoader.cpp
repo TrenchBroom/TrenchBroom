@@ -26,19 +26,19 @@
 #include "Assets/FaceTexture.h"
 #include "Assets/FaceTextureCollection.h"
 #include "Assets/Palette.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace IO {
-        WalTextureLoader::WalTextureLoader(const Assets::Palette& palette) :
+        WalTextureLoader::WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette) :
+        m_fs(fs),
         m_palette(palette) {}
 
         Assets::FaceTextureCollection* WalTextureLoader::doLoadTextureCollection(const Path& path) {
-            FileSystem fs;
-            Path::List texturePaths = fs.directoryContents(path, FileSystem::FSFiles, "wal");
+            Path::List texturePaths = m_fs.findItems(path, FileSystem::ExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
             
             Assets::FaceTextureList textures;
@@ -55,8 +55,7 @@ namespace TrenchBroom {
         }
         
         Assets::FaceTexture* WalTextureLoader::readTexture(const IO::Path& path) {
-            FileSystem fs;
-            MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+            MappedFile::Ptr file = m_fs.openFile(path);
             const char* cursor = file->begin();
             
             /*
@@ -75,7 +74,6 @@ namespace TrenchBroom {
 
         void WalTextureLoader::doUploadTextureCollection(Assets::FaceTextureCollection* collection) {
             Buffer<unsigned char> buffer(3 * 512 * 512);
-            FileSystem fs;
             Color averageColor;
             
             const IO::Path& collectionPath = collection->path();
@@ -93,7 +91,7 @@ namespace TrenchBroom {
                 const String translatedTextureName = translateTextureName(texture->name());
                 const Path& texturePath = collectionPath + IO::Path(translatedTextureName + ".wal").lastComponent();
                 
-                if (!fs.exists(texturePath)) {
+                if (!m_fs.fileExists(texturePath)) {
                     glDeleteTextures(textureCount, &textureIds[0]);
                     throw ResourceNotFoundException("Cannot find wal texture: " + texture->name() + ".wal");
                 }
@@ -111,7 +109,7 @@ namespace TrenchBroom {
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 
-                MappedFile::Ptr file = fs.mapFile(texturePath, std::ios::in);
+                MappedFile::Ptr file = m_fs.openFile(texturePath);
                 const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
 
                 for (size_t j = 0; j < 4; ++j) {

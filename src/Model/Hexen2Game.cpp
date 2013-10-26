@@ -18,9 +18,10 @@
  */
 
 #include "Hexen2Game.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/Hexen2MapWriter.h"
-#include "IO/FileSystem.h"
 #include "IO/QuakeMapParser.h"
+#include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
 #include "Model/GameUtils.h"
 #include "Model/Map.h"
@@ -33,15 +34,14 @@ namespace TrenchBroom {
         
         Hexen2Game::Hexen2Game(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
         Game(logger),
-        m_fs(gamePath, IO::Path("data1")),
+        m_fs("pak", gamePath + IO::Path("data1")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
         
         const BBox3 Hexen2Game::WorldBounds = BBox3(-8192.0, 8192.0);
         
         IO::Path Hexen2Game::palettePath() {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("hexen2/palette.lmp");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("hexen2/palette.lmp");
         }
         
         Map* Hexen2Game::doNewMap() const {
@@ -49,8 +49,7 @@ namespace TrenchBroom {
         }
 
         Map* Hexen2Game::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
-            IO::FileSystem fs;
-            IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(worldBounds);
         }
@@ -106,8 +105,7 @@ namespace TrenchBroom {
         }
         
         IO::Path Hexen2Game::doDefaultEntityDefinitionFile() const {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("hexen2/Hexen2.fgd");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("hexen2/Hexen2.fgd");
         }
         
         IO::Path Hexen2Game::doExtractEntityDefinitionFile(const Map* map) const {

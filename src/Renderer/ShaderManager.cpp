@@ -20,8 +20,8 @@
 #include "ShaderManager.h"
 
 #include "CollectionUtils.h"
-#include "IO/FileSystem.h"
 #include "IO/Path.h"
+#include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
 
 namespace TrenchBroom {
@@ -111,8 +111,7 @@ namespace TrenchBroom {
             if (it != m_shaders.end())
                 return *it->second;
             
-            IO::FileSystem fs;
-            const IO::Path resourceDirectory = fs.resourceDirectory();
+            const IO::Path resourceDirectory = IO::SystemPaths::resourceDirectory();
             const IO::Path shaderDirectory = resourceDirectory + IO::Path("shader");
             const IO::Path shaderPath = shaderDirectory + IO::Path(name);
             

@@ -24,6 +24,8 @@
 
 #include "Exceptions.h"
 
+#include <vector>
+
 #ifdef _WIN32
 // can't include Windows.h here
 typedef void *HANDLE;
@@ -36,6 +38,7 @@ namespace TrenchBroom {
         class MappedFile {
         public:
             typedef std::tr1::shared_ptr<MappedFile> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             const char* m_begin;
             const char* m_end;

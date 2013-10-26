@@ -19,12 +19,13 @@
 
 #include <gtest/gtest.h>
 
+#include "IO/DiskFileSystem.h"
 #include "IO/Wad.h"
 
 namespace TrenchBroom {
     namespace IO {
         TEST(WadTest, loadEntries) {
-            const Path wadPath("data/IO/Wad/cr8_czg.wad");
+            const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/IO/Wad/cr8_czg.wad");
             Wad wad(wadPath);
             
             const WadEntryList& entries = wad.allEntries();
@@ -53,7 +54,7 @@ namespace TrenchBroom {
         }
         
         TEST(WadTest, getMipSize) {
-            const Path wadPath("data/IO/Wad/cr8_czg.wad");
+            const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/IO/Wad/cr8_czg.wad");
             Wad wad(wadPath);
             
             const WadEntryList& entries = wad.allEntries();

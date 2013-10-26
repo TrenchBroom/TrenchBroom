@@ -18,9 +18,10 @@
  */
 
 #include "Quake2Game.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/Quake2MapWriter.h"
+#include "IO/SystemPaths.h"
 #include "IO/WalTextureLoader.h"
 #include "Model/GameUtils.h"
 #include "Model/Map.h"
@@ -33,7 +34,7 @@ namespace TrenchBroom {
         
         Quake2Game::Quake2Game(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
         Game(logger),
-        m_fs(gamePath, IO::Path("baseq2")),
+        m_fs("pak", gamePath + IO::Path("baseq2")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
         
@@ -41,8 +42,7 @@ namespace TrenchBroom {
                                                    Vec3(+16384.0, +16384.0, +16384.0));
         
         IO::Path Quake2Game::palettePath() {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("quake2/colormap.pcx");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("quake2/colormap.pcx");
         }
         
         Map* Quake2Game::doNewMap() const {
@@ -50,8 +50,7 @@ namespace TrenchBroom {
         }
 
         Map* Quake2Game::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
-            IO::FileSystem fs;
-            IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(worldBounds);
         }
@@ -92,12 +91,12 @@ namespace TrenchBroom {
         }
         
         Assets::FaceTextureCollection* Quake2Game::doLoadTextureCollection(const IO::Path& path) const {
-            IO::WalTextureLoader loader(m_palette);
+            IO::WalTextureLoader loader(m_fs, m_palette);
             return loader.loadTextureCollection(path);
         }
         
         void Quake2Game::doUploadTextureCollection(Assets::FaceTextureCollection* collection) const {
-            IO::WalTextureLoader loader(m_palette);
+            IO::WalTextureLoader loader(m_fs, m_palette);
             loader.uploadTextureCollection(collection);
         }
         
@@ -107,8 +106,7 @@ namespace TrenchBroom {
         }
         
         IO::Path Quake2Game::doDefaultEntityDefinitionFile() const {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("quake2/Quake2.fgd");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("quake2/Quake2.fgd");
         }
         
         IO::Path Quake2Game::doExtractEntityDefinitionFile(const Map* map) const {

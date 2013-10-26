@@ -45,8 +45,5 @@ int main(int argc, char **argv) {
     wxEntryCleanup();
     delete config;
 
-#ifdef _WIN32
-    std::cin.get();
-#endif
     return result;
 }

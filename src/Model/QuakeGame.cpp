@@ -20,11 +20,11 @@
 #include "QuakeGame.h"
 
 #include "StringUtils.h"
-#include "IO/FileSystem.h"
-#include "IO/GameFS.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/QuakeMapParser.h"
 #include "IO/QuakeMapWriter.h"
+#include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         QuakeGame::QuakeGame(const IO::Path& gamePath, const Color& defaultEntityColor, Logger* logger) :
         Game(logger),
-        m_fs(gamePath, IO::Path("id1")),
+        m_fs("pak", gamePath + IO::Path("id1")),
         m_defaultEntityColor(defaultEntityColor),
         m_palette(palettePath()) {}
         
@@ -47,8 +47,7 @@ namespace TrenchBroom {
                                                    Vec3(+16384.0, +16384.0, +16384.0));
         
         IO::Path QuakeGame::palettePath() {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("quake/palette.lmp");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("quake/palette.lmp");
         }
 
         Map* QuakeGame::doNewMap() const {
@@ -56,8 +55,7 @@ namespace TrenchBroom {
         }
 
         Map* QuakeGame::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
-            IO::FileSystem fs;
-            IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::QuakeMapParser parser(file->begin(), file->end());
             return parser.parseMap(worldBounds);
         }
@@ -112,8 +110,7 @@ namespace TrenchBroom {
         }
 
         IO::Path QuakeGame::doDefaultEntityDefinitionFile() const {
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + IO::Path("quake/Quake.fgd");
+            return IO::SystemPaths::resourceDirectory() + IO::Path("quake/Quake.fgd");
         }
 
         IO::Path QuakeGame::doExtractEntityDefinitionFile(const Map* map) const {

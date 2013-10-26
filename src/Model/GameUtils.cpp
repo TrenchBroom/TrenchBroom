@@ -24,11 +24,12 @@
 #include "Assets/AssetTypes.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
-#include "IO/FileSystem.h"
-#include "IO/GameFS.h"
+#include "IO/GameFileSystem.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
+#include "IO/SystemPaths.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
 
@@ -61,14 +62,12 @@ namespace TrenchBroom {
         Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path, const Color& defaultEntityColor) {
             const String extension = path.extension();
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
-                IO::FileSystem fs;
-                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+                const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultEntityColor);
                 return parser.parseDefinitions();
             }
             if (StringUtils::caseInsensitiveEqual("def", extension)) {
-                IO::FileSystem fs;
-                IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+                const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultEntityColor);
                 return parser.parseDefinitions();
             }
@@ -86,21 +85,17 @@ namespace TrenchBroom {
             
             if (StringUtils::isPrefix(defValue, "external:"))
                 return IO::Path(defValue.substr(9));
-            if (StringUtils::isPrefix(defValue, "builtin:")) {
-                IO::FileSystem fs;
-                return fs.resourceDirectory() + IO::Path(defValue.substr(8));
-            }
+            if (StringUtils::isPrefix(defValue, "builtin:"))
+                return IO::SystemPaths::resourceDirectory() + IO::Path(defValue.substr(8));
             
             const IO::Path defPath(defValue);
             if (defPath.isAbsolute())
                 return defPath;
-            
-            IO::FileSystem fs;
-            return fs.resourceDirectory() + defPath;
+            return IO::SystemPaths::resourceDirectory() + defPath;
         }
         
-        Assets::EntityModel* loadModel(const IO::GameFS& gameFs, const Assets::Palette& palette, const IO::Path& path) {
-            IO::MappedFile::Ptr file = gameFs.findFile(path);
+        Assets::EntityModel* loadModel(const IO::GameFileSystem& gameFS, const Assets::Palette& palette, const IO::Path& path) {
+            IO::MappedFile::Ptr file = gameFS.openFile(path);
             if (file == NULL)
                 return NULL;
             
@@ -108,7 +103,7 @@ namespace TrenchBroom {
                 IO::MdlParser parser(path.lastComponent().asString(), file->begin(), file->end(), palette);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "md2")) {
-                IO::Md2Parser parser(path.lastComponent().asString(), file->begin(), file->end(), palette, gameFs);
+                IO::Md2Parser parser(path.lastComponent().asString(), file->begin(), file->end(), palette, gameFS);
                 return parser.parseModel();
             } else if (StringUtils::caseInsensitiveEqual(path.extension(), "bsp")) {
                 IO::Bsp29Parser parser(path.lastComponent().asString(), file->begin(), file->end(), palette);

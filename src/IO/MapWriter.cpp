@@ -20,7 +20,7 @@
 #include "MapWriter.h"
 
 #include "Exceptions.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -105,15 +105,11 @@ namespace TrenchBroom {
         }
         
         void MapWriter::writeToFileAtPath(Model::Map& map, const Path& path, const bool overwrite) {
-            FileSystem fs;
-            if (fs.exists(path) && !overwrite)
+            if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
                 throw FileSystemException("File already exists: " + path.asString());
             
             const Path directoryPath = path.deleteLastComponent();
-            if (!fs.exists(directoryPath))
-                fs.createDirectory(directoryPath);
-            else if (!fs.isDirectory(directoryPath))
-                throw FileSystemException("Cannot create directory: " + directoryPath.asString());
+            WritableDiskFileSystem fs(directoryPath, true); // ensures that the directory actually exists or is created if it doesn't
             
             FILE* stream = fopen(path.asString().c_str(), "w");
             if (stream == NULL)

@@ -24,7 +24,7 @@
 #include "Model/Game.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Palette.h"
-#include "IO/QuakeFS.h"
+#include "IO/GameFileSystem.h"
 #include "Model/ModelTypes.h"
 #include "VecMath.h"
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace Model {
         class QuakeGame : public Game {
         private:
-            IO::QuakeFS m_fs;
+            IO::GameFileSystem m_fs;
             Color m_defaultEntityColor;
             Assets::Palette m_palette;
         public:

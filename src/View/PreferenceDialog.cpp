@@ -21,7 +21,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "IO/FileSystem.h"
+#include "IO/Path.h"
+#include "IO/SystemPaths.h"
 #include "View/GamesPreferencePane.h"
 #include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
@@ -100,8 +101,7 @@ namespace TrenchBroom {
         void PreferenceDialog::createGui() {
             m_pane = NULL;
             
-            IO::FileSystem fs;
-            const IO::Path resourcePath = fs.resourceDirectory();
+            const IO::Path resourcePath = IO::SystemPaths::resourceDirectory();
             const IO::Path gamesPath = resourcePath + IO::Path("images/GeneralPreferences.png");
             const IO::Path generalPath = resourcePath + IO::Path("images/GeneralPreferences.png");
             const IO::Path keyboardPath = resourcePath + IO::Path("images/KeyboardPreferences.png");

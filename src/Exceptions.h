@@ -99,6 +99,7 @@ namespace TrenchBroom {
     public:
         FileSystemException() throw() {}
         FileSystemException(const String& str) throw() : ExceptionStream(str) {}
+        FileSystemException(const String& str, const PathException& e) throw() : ExceptionStream(str + " (" + e.what() + ")") {}
         ~FileSystemException() throw() {}
     };
             

@@ -24,7 +24,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/FaceTextureCollection.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 #include "Model/QuakeGame.h"
 #include "Model/Quake2Game.h"
@@ -67,11 +67,10 @@ namespace TrenchBroom {
         }
         
         GamePtr Game::detectGame(const IO::Path& path, Logger* logger) {
-            IO::FileSystem fs;
-            if (!fs.exists(path) || fs.isDirectory(path))
+            if (!IO::Disk::fileExists(IO::Disk::fixPath(path)))
                 return GamePtr();
             
-            IO::MappedFile::Ptr file = fs.mapFile(path, std::ios::in);
+            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             if (file == NULL)
                 return GamePtr();
 

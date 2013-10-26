@@ -20,9 +20,9 @@
 #include "MapFrame.h"
 
 #include "TrenchBroomApp.h"
-#include "IO/FileSystem.h"
 #include "Assets/FaceTexture.h"
 #include "Assets/TextureManager.h"
+#include "IO/DiskFileSystem.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
@@ -785,8 +785,7 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocument() {
             try {
-                IO::FileSystem fs;
-                if (fs.exists(m_document->path())) {
+                if (IO::Disk::fileExists(IO::Disk::fixPath(m_document->path()))) {
                     m_document->saveDocument();
                     updateTitle();
                     logger()->info("Saved " + m_document->path().asString());

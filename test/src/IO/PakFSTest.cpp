@@ -18,6 +18,7 @@
  */
 
 #include <gtest/gtest.h>
+/*
 
 #include "IO/PakFS.h"
 #include "IO/Path.h"
@@ -33,3 +34,5 @@ namespace TrenchBroom {
         }
     }
 }
+
+*/

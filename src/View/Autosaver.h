@@ -28,6 +28,10 @@
 namespace TrenchBroom {
     class Logger;
     
+    namespace IO {
+        class WritableDiskFileSystem;
+    }
+    
     namespace View {
         class Autosaver {
         private:
@@ -49,12 +53,11 @@ namespace TrenchBroom {
             void updateLastModificationTime();
         private:
             void autosave();
-            bool createAutosaveDirectory(const IO::Path& autosavePath) const;
-            IO::Path::List collectBackups(const IO::Path& autosavePath, const IO::Path& mapBasename) const;
+            IO::WritableDiskFileSystem createBackupFileSystem(const IO::Path& mapPath) const;
+            IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
             bool isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const;
-            bool thinBackups(IO::Path::List& backups, const IO::Path& autosavePath) const;
-            bool cleanBackups(IO::Path::List& backups, const IO::Path& autosavePath, const IO::Path& mapBasename) const;
-            bool moveBackup(const IO::Path& sourcePath, const IO::Path& destPath) const;
+            void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
+            void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
             String makeBackupName(const IO::Path& mapBasename, const size_t index) const;
         };
 

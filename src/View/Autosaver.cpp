@@ -20,7 +20,7 @@
 #include "Autosaver.h"
 
 #include "StringUtils.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
 #include <cassert>
@@ -42,10 +42,9 @@ namespace TrenchBroom {
         }
         
         void Autosaver::triggerAutosave(Logger* logger) {
-            IO::FileSystem fs;
             const time_t currentTime = time(NULL);
             
-            if (fs.exists(m_document->path()) &&
+            if (IO::Disk::fileExists(IO::Disk::fixPath(m_document->path())) &&
                 m_document->modified() &&
                 m_dirty &&
                 m_lastModificationTime > 0 &&
@@ -69,156 +68,106 @@ namespace TrenchBroom {
         }
         
         void Autosaver::autosave() {
-            IO::FileSystem fs;
-            
             const IO::Path& mapPath = m_document->path();
-            assert(fs.exists(mapPath));
+            assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
             
-            const IO::Path basePath = mapPath.deleteLastComponent();
-            const IO::Path autosavePath = basePath + IO::Path("autosave");
             const IO::Path mapFilename = mapPath.lastComponent();
             const IO::Path mapBasename = mapFilename.deleteExtension();
             
-            if (!createAutosaveDirectory(autosavePath)) {
+            try {
+                IO::WritableDiskFileSystem fs = createBackupFileSystem(mapPath);
+                IO::Path::List backups = collectBackups(fs, mapBasename);
+                
+                thinBackups(fs, backups);
+                cleanBackups(fs, backups, mapBasename);
+
+                assert(backups.size() < m_maxBackups);
+                const size_t backupNo = backups.size() + 1;
+                
+                const IO::Path backupFilePath = fs.getPath() + makeBackupName(mapBasename, backupNo);
+                m_document->saveBackup(backupFilePath);
+                
+                if (m_logger != NULL)
+                    m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
+                
+                m_lastSaveTime = time(NULL);
+                m_dirty = false;
+            } catch (FileSystemException e) {
                 if (m_logger != NULL)
                     m_logger->error("Aborting autosave");
-                return;
             }
-            
-            IO::Path::List backups = collectBackups(autosavePath, mapBasename);
-            if (!thinBackups(backups, autosavePath)) {
-                if (m_logger != NULL)
-                    m_logger->error("Aborting autosave");
-                return;
-            }
-            
-            if (!cleanBackups(backups, autosavePath, mapBasename)) {
-                if (m_logger != NULL)
-                    m_logger->error("Aborting autosave");
-                return;
-            }
-            
-            assert(backups.size() < m_maxBackups);
-            const size_t backupNo = backups.size() + 1;
-            
-            const IO::Path backupFilePath = autosavePath + makeBackupName(mapBasename, backupNo);
-            m_document->saveBackup(backupFilePath);
-            if (m_logger != NULL)
-                m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
-            
-            m_lastSaveTime = time(NULL);
-            m_dirty = false;
         }
         
-        bool Autosaver::createAutosaveDirectory(const IO::Path& autosavePath) const {
-            IO::FileSystem fs;
-            
-            if (!fs.exists(autosavePath)) {
-                try {
-                    fs.createDirectory(autosavePath);
-                } catch (FileSystemException e) {
-                    if (m_logger != NULL)
-                        m_logger->error("Cannot create autosave directory at %s", autosavePath.asString().c_str());
-                    return false;
-                }
+        IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(const IO::Path& mapPath) const {
+            const IO::Path basePath = mapPath.deleteLastComponent();
+            const IO::Path autosavePath = basePath + IO::Path("autosave");
+
+            try {
+                // ensures that the directory exists or is created if it doesn't
+                return IO::WritableDiskFileSystem(autosavePath, true);
+            } catch (FileSystemException e) {
                 if (m_logger != NULL)
-                    m_logger->info("Autosave directory created at %s", autosavePath.asString().c_str());
-            } else if (!fs.isDirectory(autosavePath)) {
-                if (m_logger != NULL)
-                    m_logger->error("Cannot create autosave directory at %s because a file exists at %s", autosavePath.asString().c_str());
-                return false;
+                    m_logger->error("Cannot create autosave directory at %s", autosavePath.asString().c_str());
+                throw e;
             }
-            return true;
         }
+
+        struct BackupFileMatcher {
+            const IO::Path& mapBasename;
+            
+            BackupFileMatcher(const IO::Path& i_mapBasename) :
+            mapBasename(i_mapBasename) {}
+            
+            bool operator()(const IO::Path& path, const bool directory) const {
+                if (directory)
+                    return false;
+                if (!StringUtils::caseInsensitiveEqual(path.extension(), "map"))
+                    return false;
+                
+                const IO::Path backupName = path.lastComponent().deleteExtension();
+                const IO::Path backupBasename = backupName.deleteExtension();
+                if (backupBasename != mapBasename)
+                    return false;
+                
+                const size_t no = std::atoi(backupName.extension().c_str());
+                return no > 0;
+
+            }
+        };
         
         bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs) {
             return extractBackupNo(lhs) < extractBackupNo(rhs);
         }
         
-        IO::Path::List Autosaver::collectBackups(const IO::Path& autosavePath, const IO::Path& mapBasename) const {
-            IO::FileSystem fs;
-            IO::Path::List backups = fs.directoryContents(autosavePath, IO::FileSystem::FSFiles, "map");
-            
-            IO::Path::List::iterator it = backups.begin();
-            while (it != backups.end()) {
-                const IO::Path& backup = *it;
-                if (!isBackup(backup, mapBasename))
-                    it = backups.erase(it);
-                else
-                    ++it;
-            }
-            
+        IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
+            IO::Path::List backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
             std::sort(backups.begin(), backups.end(), compareBackupsByNo);
             return backups;
         }
         
-        bool Autosaver::isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const {
-            const IO::Path backupName = backupPath.lastComponent().deleteExtension();
-            const IO::Path backupBasename = backupName.deleteExtension();
-            if (backupBasename != mapBasename)
-                return false;
-            
-            const size_t no = std::atoi(backupName.extension().c_str());
-            return no > 0;
-        }
-        
-        bool Autosaver::thinBackups(IO::Path::List& backups, const IO::Path& autosavePath) const {
-            IO::FileSystem fs;
+        void Autosaver::thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
             while (backups.size() > m_maxBackups - 1) {
-                const IO::Path filePath = autosavePath + backups.front();
+                const IO::Path filename = backups.front();
                 try {
-                    fs.deleteFile(filePath);
+                    fs.deleteFile(filename);
                     if (m_logger != NULL)
-                        m_logger->debug("Deleted autosave backup %s", filePath.asString().c_str());
+                        m_logger->debug("Deleted autosave backup %s", filename.asString().c_str());
                     backups.erase(backups.begin());
                 } catch (FileSystemException e) {
                     if (m_logger != NULL)
-                        m_logger->error("Cannot delete autosave backup %s", filePath.asString().c_str());
-                    return false;
+                        m_logger->error("Cannot delete autosave backup %s", filename.asString().c_str());
+                    throw e;
                 }
             }
-            return true;
         }
         
-        bool Autosaver::cleanBackups(IO::Path::List& backups, const IO::Path& autosavePath, const IO::Path& mapBasename) const {
+        void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const {
             for (size_t i = 0; i < backups.size(); ++i) {
                 const IO::Path& oldName = backups[i].lastComponent();
                 const IO::Path newName = makeBackupName(mapBasename, i + 1);
                 
-                if (oldName != newName) {
-                    const IO::Path sourcePath = autosavePath + oldName;
-                    const IO::Path destPath = autosavePath + newName;
-                    if (!moveBackup(sourcePath, destPath))
-                        return false;
-                }
-            }
-            
-            return true;
-        }
-        
-        bool Autosaver::moveBackup(const IO::Path& sourcePath, const IO::Path& destPath) const {
-            IO::FileSystem fs;
-            if (fs.exists(destPath)) {
-                if (m_logger != NULL)
-                    m_logger->error("Cannot move autosave backup %s to %s",
-                                    sourcePath.asString().c_str(),
-                                    destPath.asString().c_str());
-                return false;
-            } else {
-                try {
-                    fs.moveFile(sourcePath, destPath, false);
-                    if (m_logger != NULL)
-                        m_logger->debug("Moved autosave backup %s to %s",
-                                        sourcePath.asString().c_str(),
-                                        destPath.asString().c_str());
-                    return true;
-                } catch (FileSystemException e) {
-                    if (m_logger != NULL)
-                        m_logger->error("Cannot move autosave backup %s to %s",
-                                        sourcePath.asString().c_str(),
-                                        destPath.asString().c_str());
-                    return false;
-                }
+                if (oldName != newName)
+                    fs.moveFile(oldName, newName, false);
             }
         }
         

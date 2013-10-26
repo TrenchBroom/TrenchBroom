@@ -29,6 +29,8 @@
 #include <wx/dir.h>
 #include <wx/file.h>
 
+/*
+
 namespace TrenchBroom {
     namespace IO {
         class TestEnvironment {
@@ -146,3 +148,5 @@ namespace TrenchBroom {
         }
     }
 }
+ 
+ */

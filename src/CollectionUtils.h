@@ -180,6 +180,12 @@ namespace VectorUtils {
     }
     
     template <typename T>
+    void sortAndRemoveDuplicates(std::vector<T>& vec) {
+        std::sort(vec.begin(), vec.end());
+        std::unique(vec.begin(), vec.end());
+    }
+    
+    template <typename T>
     std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         typedef std::vector<T> VecType;
         typedef typename VecType::const_iterator VecIter;

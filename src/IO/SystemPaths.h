@@ -17,23 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DiskFS__
-#define __TrenchBroom__DiskFS__
+#ifndef TrenchBroom_SystemPaths_h
+#define TrenchBroom_SystemPaths_h
 
-#include "IO/GameFS.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class DiskFS : public GameFS {
-        private:
-            Path m_basePath;
-        public:
-            DiskFS(const Path& basePath);
-        private:
-            const MappedFile::Ptr doFindFile(const Path& path) const;
-            String doGetLocation() const;
-        };
+        class Path;
+        
+        namespace SystemPaths {
+            Path appDirectory();
+            Path logDirectory();
+            Path resourceDirectory();
+            Path findFontFile(const String& fontName);
+        }
     }
 }
 
-#endif /* defined(__TrenchBroom__DiskFS__) */
+#endif

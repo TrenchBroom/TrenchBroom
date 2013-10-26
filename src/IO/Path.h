@@ -50,6 +50,7 @@ namespace TrenchBroom {
             String asString(const char separator = Separator) const;
             static StringList asStrings(const Path::List& paths, const char separator = Separator);
             
+            size_t length() const;
             bool isEmpty() const;
             Path firstComponent() const;
             Path deleteFirstComponent() const;
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             Path makeAbsolute(const Path& relativePath) const;
             Path makeRelative(const Path& absolutePath) const;
             Path makeCanonical() const;
+            Path makeLowerCase() const;
             
             static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
         private:

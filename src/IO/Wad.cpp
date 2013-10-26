@@ -20,8 +20,8 @@
 #include "Wad.h"
 
 #include "Exceptions.h"
-#include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
+#include "IO/DiskFileSystem.h"
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -82,8 +82,7 @@ namespace TrenchBroom {
         }
 
         Wad::Wad(const Path& path) {
-            FileSystem fs;
-            m_file = fs.mapFile(path, std::ios_base::in);
+            m_file = Disk::openFile(path);
             if (m_file == NULL)
                 throw AssetException("Cannot open wad file " + path.asString());
             loadEntries();

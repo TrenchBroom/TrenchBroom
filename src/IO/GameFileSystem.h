@@ -17,30 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MultiFS__
-#define __TrenchBroom__MultiFS__
+#ifndef __TrenchBroom__GameFileSystem__
+#define __TrenchBroom__GameFileSystem__
 
+#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
-#include "IO/GameFS.h"
-#include "IO/Path.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class MultiFS : public GameFS {
+        class Path;
+        
+        class GameFileSystem : public FileSystem {
         private:
-            typedef std::vector<GameFS*> FSList;
-            FSList m_fileSystems;
+            typedef std::tr1::shared_ptr<FileSystem> FSPtr;
+            typedef std::vector<FSPtr> FileSystemList;
+            FileSystemList m_fileSystems;
         public:
-            ~MultiFS();
-            void addFileSystem(GameFS* fileSystem);
+            GameFileSystem(const String& pakExtension, const Path& mainPath, const Path& secondaryPath = Path(""));
         private:
-            const MappedFile::Ptr doFindFile(const Path& path) const;
-            String doGetLocation() const;
+            void addFileSystem(const String& pakExtension, const Path& path);
+
+            bool doDirectoryExists(const Path& path) const;
+             bool doFileExists(const Path& path) const;
+            
+             Path::List doGetDirectoryContents(const Path& path) const;
+             const MappedFile::Ptr doOpenFile(const Path& path) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MultiFS__) */
+#endif /* defined(__TrenchBroom__GameFileSystem__) */

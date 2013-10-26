@@ -25,13 +25,15 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class FileSystem;
         class Path;
         
         class WalTextureLoader : public TextureLoader {
         private:
+            const FileSystem& m_fs;
             const Assets::Palette& m_palette;
         public:
-            WalTextureLoader(const Assets::Palette& palette);
+            WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette);
         private:
             Assets::FaceTextureCollection* doLoadTextureCollection(const Path& path);
             Assets::FaceTexture* readTexture(const Path& path);

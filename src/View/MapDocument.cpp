@@ -23,7 +23,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/FaceTexture.h"
 #include "Assets/ModelDefinition.h"
-#include "IO/FileSystem.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/SystemPaths.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
@@ -656,24 +657,24 @@ namespace TrenchBroom {
         }
 
         void MapDocument::loadTextures() {
-            IO::FileSystem fs;
-            
             IO::Path::List rootPaths;
-            rootPaths.push_back(fs.appDirectory());
+            rootPaths.push_back(IO::SystemPaths::appDirectory());
             if (m_path.isAbsolute())
                 rootPaths.push_back(m_path.deleteLastComponent());
             
-            const IO::Path::List wadPaths = m_game->extractTexturePaths(m_map);
-            const IO::Path::List realPaths = fs.resolvePaths(rootPaths, wadPaths);
+            const IO::Path::List texturePaths = m_game->extractTexturePaths(m_map);
+            IO::Path::List found, notFound;
+            IO::Disk::resolvePaths(rootPaths, texturePaths, found, notFound);
 
             try {
-                m_textureManager.addTextureCollections(realPaths);
-
-                const StringList realPathNames = IO::Path::asStrings(realPaths);
-                info("Loaded texture collections " + StringUtils::join(realPathNames, ", "));
+                m_textureManager.addTextureCollections(found);
+                info("Loaded texture collections " + StringUtils::join(IO::Path::asStrings(found), ", "));
             } catch (Exception e) {
                 error("Error loading texture collection: %s", e.what());
             }
+
+            if (!notFound.empty())
+                warn("Could not find texture collections " + StringUtils::join(IO::Path::asStrings(notFound), ", "));
         }
 
         void MapDocument::updateTextures() {

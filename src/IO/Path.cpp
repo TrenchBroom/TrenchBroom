@@ -116,23 +116,43 @@ namespace TrenchBroom {
             return result;
         }
 
+        size_t Path::length() const {
+            return m_components.size();
+        }
+
         bool Path::isEmpty() const {
             return !m_absolute && m_components.empty();
         }
 
         Path Path::firstComponent() const {
             if (isEmpty())
-                throw PathException("Cannot return last component of empty path");
+                throw PathException("Cannot return first component of empty path");
+#ifdef _WIN32
             return Path(m_components.front());
+#else
+            if (!m_absolute)
+                return Path(m_components.front());
+            return Path("/");
+#endif
         }
 
         Path Path::deleteFirstComponent() const {
             if (isEmpty())
-                throw PathException("Cannot delete last component of empty path");
+                throw PathException("Cannot delete first component of empty path");
+#ifdef _WIN32
             StringList components;
             components.reserve(m_components.size() - 1);
             components.insert(components.begin(), m_components.begin() + 1, m_components.end());
             return Path(false, components);
+#else
+            if (!m_absolute) {
+                StringList components;
+                components.reserve(m_components.size() - 1);
+                components.insert(components.begin(), m_components.begin() + 1, m_components.end());
+                return Path(false, components);
+            }
+            return Path(false, m_components);
+#endif
         }
 
         Path Path::lastComponent() const {
@@ -254,6 +274,16 @@ namespace TrenchBroom {
 
         Path Path::makeCanonical() const {
             return Path(m_absolute, resolvePath(m_absolute, m_components));
+        }
+
+        Path Path::makeLowerCase() const {
+            StringList lcComponents;
+            StringList::const_iterator it, end;
+            for (it = m_components.begin(), end = m_components.end(); it != end; ++it) {
+                const String& component = *it;
+                lcComponents.push_back(StringUtils::toLower(component));
+            }
+            return Path(m_absolute, lcComponents);
         }
 
         Path::List Path::makeAbsoluteAndCanonical(const List& paths, const String& relativePath) {

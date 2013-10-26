@@ -20,8 +20,8 @@
 #include "FontManager.h"
 #include "Exceptions.h"
 #include "CollectionUtils.h"
-#include "IO/FileSystem.h"
 #include "IO/Path.h"
+#include "IO/SystemPaths.h"
 #include "Renderer/TextureFont.h"
 
 namespace TrenchBroom {
@@ -51,8 +51,7 @@ namespace TrenchBroom {
             if (it != m_cache.end() && it->first.compare(fontDescriptor) == 0)
                 return *it->second;
             
-            IO::FileSystem fs;
-            const IO::Path fontPath = fs.findFontFile(fontDescriptor.name());
+            const IO::Path fontPath = IO::SystemPaths::findFontFile(fontDescriptor.name());
             
             FT_Face face;
             FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);

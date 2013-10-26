@@ -22,7 +22,6 @@
 #include <fstream>
 
 #include "Exceptions.h"
-#include "IO/FileSystem.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -85,10 +84,6 @@ namespace TrenchBroom {
         }
 
         StringList Shader::loadSource(const IO::Path& path) {
-            IO::FileSystem fs;
-            if (!fs.exists(path))
-                throw RenderException("Cannot load shader source from " + path.asString());
-            
             std::fstream stream(path.asString().c_str(), std::ios::in);
             if (!stream.is_open())
                 throw RenderException("Cannot load shader source from " + path.asString());

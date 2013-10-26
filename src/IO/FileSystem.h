@@ -24,36 +24,77 @@
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+        
         class FileSystem {
         public:
-            typedef enum {
-                FSDirectories,
-                FSFiles,
-                FSBoth
-            } FileSystemFilter;
+            class ExtensionMatcher {
+            private:
+                String m_extension;
+            public:
+                ExtensionMatcher(const String& extension);
+                bool operator()(const Path& path, const bool directory) const;
+            };
         public:
-            Path findRootPath(const Path::List& rootPaths, const Path& relativePath);
-            Path resolvePath(const Path::List& rootPaths, const Path& path);
-            Path::List resolvePaths(const Path::List& rootPaths, const Path::List& paths);
-            Path findCaseSensitivePath(const Path& path);
+            virtual ~FileSystem();
             
-            bool isDirectory(const Path& path) const;
-            bool exists(const Path& path) const;
-            Path::List directoryContents(const Path& path, const FileSystemFilter contentFilter = FSBoth, const String& extension = "") const;
+            bool directoryExists(const Path& path) const;
+            bool fileExists(const Path& path) const;
+
+            template <class Matcher>
+            Path::List findItems(const Path& path, const Matcher& matcher) const {
+                Path::List result;
+                doFindItems(path, matcher, false, result);
+                return result;
+            }
             
-            void createDirectory(const Path& path) const;
-            void deleteFile(const Path& path) const;
-            void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite) const;
-            MappedFile::Ptr mapFile(const Path& path, const std::ios_base::openmode mode) const;
+            template <class Matcher>
+            Path::List findItemsRecursively(const Path& path, const Matcher& matcher) const {
+                Path::List result;
+                doFindItems(path, matcher, true, result);
+                return result;
+            }
             
-            Path appDirectory() const;
-            Path logDirectory() const;
-            Path resourceDirectory() const;
-            Path findFontFile(const String& fontName) const;
+            Path::List getDirectoryContents(const Path& path) const;
+            const MappedFile::Ptr openFile(const Path& path) const;
         private:
-            Path findCaseSensitivePath(const Path::List& list, const Path& path) const;
+            template <class Matcher>
+            void doFindItems(const Path& path, const Matcher& matcher, const bool recurse, Path::List& result) const {
+                const Path::List contents = getDirectoryContents(path);
+                Path::List::const_iterator it, end;
+                for (it = contents.begin(), end = contents.end(); it != end; ++it) {
+                    const Path& itemPath = *it;
+                    const bool directory = directoryExists(path + itemPath);
+                    if (directory && recurse)
+                        doFindItems(path + itemPath, matcher, recurse, result);
+                    if (matcher(itemPath, directory))
+                        result.push_back(itemPath);
+                }
+            }
+            
+            virtual bool doDirectoryExists(const Path& path) const = 0;
+            virtual bool doFileExists(const Path& path) const = 0;
+            
+            virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
+
+            virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
+        };
+        
+        class WritableFileSystem {
+        public:
+            virtual ~WritableFileSystem();
+            
+            void createDirectory(const Path& path);
+            void deleteFile(const Path& path);
+            void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
+        private:
+            virtual void doCreateDirectory(const Path& path) = 0;
+            virtual void doDeleteFile(const Path& path) = 0;
+            virtual void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) = 0;
         };
     }
 }
