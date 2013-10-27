@@ -245,16 +245,22 @@ namespace TrenchBroom {
         }
         
         void WritableDiskFileSystem::doCreateDirectory(const Path& path) {
+            if (fileExists(path) || directoryExists(path))
+                throw FileSystemException("Could not create directory '" + path.asString() + "'");
             if (!::wxMkdir((m_root + fixPath(path)).asString()))
                 throw FileSystemException("Could not create directory '" + path.asString() + "'");
         }
         
         void WritableDiskFileSystem::doDeleteFile(const Path& path) {
+            if (!fileExists(path))
+                throw FileSystemException("Could not delete file '" + path.asString() + "'");
             if (!::wxRemoveFile((m_root + fixPath(path)).asString()))
                 throw FileSystemException("Could not delete file '" + path.asString() + "'");
         }
         
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+            if (!overwrite && fileExists(destPath))
+                throw FileSystemException("Could not move file '" + sourcePath.asString() + "' to '" + destPath.asString() + "'");
             if (!::wxRenameFile((m_root + fixPath(sourcePath)).asString(),
                                 (m_root + fixPath(destPath)).asString(),
                                 overwrite))

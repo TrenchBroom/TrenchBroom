@@ -326,5 +326,110 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.openFile(Path("anotherDir/test3.map")) != NULL);
             ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != NULL);
         }
+        
+        TEST(WritableDiskFileSystemTest, createWritableDiskFileSystem) {
+            TestEnvironment env;
+            
+            ASSERT_THROW(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
+            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("asdf"), true));
+            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir(), true));
+            
+            // for case sensitive file systems
+            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
+            
+            const WritableDiskFileSystem fs(env.dir() + Path("anotherDir/.."), false);
+            ASSERT_EQ(env.dir(), fs.getPath());
+        }
+        
+        TEST(WritableDiskFileSystemTest, createDirectory) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.createDirectory(Path("c:\\hopefully_nothing_here")), FileSystemException);
+#else
+            ASSERT_THROW(fs.createDirectory(Path("/hopefully_nothing_here")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.createDirectory(Path("")), FileSystemException);
+            ASSERT_THROW(fs.createDirectory(Path(".")), FileSystemException);
+            ASSERT_THROW(fs.createDirectory(Path("..")), FileSystemException);
+            ASSERT_THROW(fs.createDirectory(Path("dir1")), FileSystemException);
+            ASSERT_THROW(fs.createDirectory(Path("test.txt")), FileSystemException);
+            
+            fs.createDirectory(Path("newDir"));
+            ASSERT_TRUE(fs.directoryExists(Path("newDir")));
+            
+            fs.createDirectory(Path("newDir/someOtherDir"));
+            ASSERT_TRUE(fs.directoryExists(Path("newDir/someOtherDir")));
+            
+            fs.createDirectory(Path("newDir/someOtherDir/.././yetAnotherDir/."));
+            ASSERT_TRUE(fs.directoryExists(Path("newDir/yetAnotherDir")));
+        }
+        
+        TEST(WritableDiskFileSystemTest, deleteFile) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.deleteFile(Path("c:\\hopefully_nothing_here.txt")), FileSystemException);
+#else
+            ASSERT_THROW(fs.deleteFile(Path("/hopefully_nothing_here.txt")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.deleteFile(Path("")), FileSystemException);
+            ASSERT_THROW(fs.deleteFile(Path(".")), FileSystemException);
+            ASSERT_THROW(fs.deleteFile(Path("..")), FileSystemException);
+            ASSERT_THROW(fs.deleteFile(Path("dir1")), FileSystemException);
+            ASSERT_THROW(fs.deleteFile(Path("asdf.txt")), FileSystemException);
+            ASSERT_THROW(fs.deleteFile(Path("/dir1/asdf.txt")), FileSystemException);
+
+            fs.deleteFile(Path("test.txt"));
+            ASSERT_FALSE(fs.fileExists(Path("test.txt")));
+            
+            fs.deleteFile(Path("anotherDir/test3.map"));
+            ASSERT_FALSE(fs.fileExists(Path("anotherDir/test3.map")));
+            
+            fs.deleteFile(Path("anotherDir/subDirTest/.././subDirTest/./test2.map"));
+            ASSERT_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
+        }
+        
+        TEST(WritableDiskFileSystemTest, moveFile) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.moveFile(Path("c:\\hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+                                     Path("C:\\dest.txt"), false), FileSystemException);
+#else
+            ASSERT_THROW(fs.moveFile(Path("/hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+                                     Path("/dest.txt"), false), FileSystemException);
+#endif
+
+            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+                                     Path("test2.map"), false), FileSystemException);
+            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+                                     Path("anotherDir/test3.map"), false), FileSystemException);
+            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+                                     Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
+
+            fs.moveFile(Path("test.txt"),
+                        Path("test2.txt"), true);
+            ASSERT_FALSE(fs.fileExists(Path("test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            
+            fs.moveFile(Path("test2.txt"),
+                        Path("test2.map"), true);
+            ASSERT_FALSE(fs.fileExists(Path("test2.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            // we're trusting that the file is actually overwritten (should really test the contents here...)
+
+            fs.moveFile(Path("test2.map"),
+                        Path("dir1/test2.map"), true);
+            ASSERT_FALSE(fs.fileExists(Path("test2.map")));
+            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+        }
     }
 }
