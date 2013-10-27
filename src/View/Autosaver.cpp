@@ -44,12 +44,14 @@ namespace TrenchBroom {
         void Autosaver::triggerAutosave(Logger* logger) {
             const time_t currentTime = time(NULL);
             
-            if (IO::Disk::fileExists(IO::Disk::fixPath(m_document->path())) &&
-                m_document->modified() &&
+            const IO::Path documentPath = m_document->path();
+            if (m_document->modified() &&
                 m_dirty &&
                 m_lastModificationTime > 0 &&
                 currentTime - m_lastModificationTime >= m_idleInterval &&
-                currentTime - m_lastSaveTime >= m_saveInterval) {
+                currentTime - m_lastSaveTime >= m_saveInterval &&
+                documentPath.isAbsolute() &&
+                IO::Disk::fileExists(IO::Disk::fixPath(m_document->path()))) {
                 
                 m_logger = logger;
                 try {

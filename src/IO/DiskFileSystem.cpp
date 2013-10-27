@@ -148,11 +148,6 @@ namespace TrenchBroom {
             
             void resolvePaths(const Path::List& searchPaths, const Path::List& paths, Path::List& foundPaths, Path::List& notFoundPaths) {
                 
-                typedef std::vector<DiskFileSystem> FSList;
-                FSList fileSystems;
-                for (size_t i = 0; i < searchPaths.size(); ++i)
-                    fileSystems.push_back(DiskFileSystem(searchPaths[i]));
-
                 for (size_t i = 0; i < paths.size(); ++i) {
                     const Path& path = paths[i];
                     if (path.isAbsolute()) {
@@ -162,11 +157,11 @@ namespace TrenchBroom {
                             notFoundPaths.push_back(path);
                     } else {
                         bool found = false;
-                        for (size_t j = 0; j < fileSystems.size() && !found; ++j) {
-                            const DiskFileSystem& fs = fileSystems[j];
-                            found = fs.fileExists(path) || fs.directoryExists(path);
+                        for (size_t j = 0; j < searchPaths.size() && !found; ++j) {
+                            const Path& searchPath = searchPaths[j];
+                            found = fileExists(searchPath + path) || directoryExists(searchPath + path);
                             if (found)
-                                foundPaths.push_back(fs.getPath() + path);
+                                foundPaths.push_back(searchPath + path);
                         }
                         if (!found)
                             notFoundPaths.push_back(path);
