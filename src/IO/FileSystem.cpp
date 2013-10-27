@@ -23,6 +23,18 @@
 
 namespace TrenchBroom {
     namespace IO {
+        FileSystem::TypeMatcher::TypeMatcher(const bool files, const bool directories) :
+        m_files(files),
+        m_directories(directories) {}
+        
+        bool FileSystem::TypeMatcher::operator()(const Path& path, const bool directory) const {
+            if (m_files && !directory)
+                return true;
+            if (m_directories && directory)
+                return true;
+            return false;
+        }
+
         FileSystem::ExtensionMatcher::ExtensionMatcher(const String& extension) :
         m_extension(extension) {}
         
@@ -35,55 +47,91 @@ namespace TrenchBroom {
         FileSystem::~FileSystem() {}
         
         bool FileSystem::directoryExists(const Path& path) const {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            return doDirectoryExists(path.makeCanonical());
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                return doDirectoryExists(path.makeCanonical());
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
         }
         
         bool FileSystem::fileExists(const Path& path) const {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            return doFileExists(path.makeCanonical());
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                return doFileExists(path.makeCanonical());
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
+        }
+
+        Path::List FileSystem::findItems(const Path& path) const {
+            return findItems(path, TypeMatcher());
+        }
+        
+        Path::List FileSystem::findItemsRecursively(const Path& path) const {
+            return findItemsRecursively(path, TypeMatcher());
         }
 
         Path::List FileSystem::getDirectoryContents(const Path& path) const {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            const Path canonicalPath = path.makeCanonical();
-            if (!directoryExists(canonicalPath))
-                throw FileSystemException("FileSystem does not exist: '" + path.asString() + "'");
-            return doGetDirectoryContents(canonicalPath);
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                const Path canonicalPath = path.makeCanonical();
+                if (!directoryExists(canonicalPath))
+                    throw FileSystemException("FileSystem does not exist: '" + path.asString() + "'");
+                return doGetDirectoryContents(canonicalPath);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
         }
 
         const MappedFile::Ptr FileSystem::openFile(const Path& path) const {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            const Path canonicalPath = path.makeCanonical();
-            if (!fileExists(canonicalPath))
-                throw FileSystemException("File does not exist: '" + path.asString() + "'");
-            return doOpenFile(canonicalPath);
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                const Path canonicalPath = path.makeCanonical();
+                if (!fileExists(canonicalPath))
+                    throw FileSystemException("File does not exist: '" + path.asString() + "'");
+                return doOpenFile(canonicalPath);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
         }
         
         WritableFileSystem::~WritableFileSystem() {}
         
         void WritableFileSystem::createDirectory(const Path& path) {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            doCreateDirectory(path.makeCanonical());
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                doCreateDirectory(path.makeCanonical());
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
         }
         
         void WritableFileSystem::deleteFile(const Path& path) {
-            if (path.isAbsolute())
-                throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-            doDeleteFile(path.makeCanonical());
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                doDeleteFile(path.makeCanonical());
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
         }
         
         void WritableFileSystem::moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            if (sourcePath.isAbsolute())
-                throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
-            if (destPath.isAbsolute())
-                throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
-            doMoveFile(sourcePath.makeCanonical(), destPath.makeCanonical(), overwrite);
+            try {
+                if (sourcePath.isAbsolute())
+                    throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
+                if (destPath.isAbsolute())
+                    throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
+                doMoveFile(sourcePath.makeCanonical(), destPath.makeCanonical(), overwrite);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid source or destination path: '" + sourcePath.asString() + "', '" + destPath.asString() + "'", e);
+            }
         }
     }
 }

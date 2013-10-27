@@ -32,6 +32,15 @@ namespace TrenchBroom {
         
         class FileSystem {
         public:
+            class TypeMatcher {
+            private:
+                bool m_files;
+                bool m_directories;
+            public:
+                TypeMatcher(const bool files = true, const bool directories = true);
+                bool operator()(const Path& path, const bool directory) const;
+            };
+
             class ExtensionMatcher {
             private:
                 String m_extension;
@@ -48,31 +57,33 @@ namespace TrenchBroom {
             template <class Matcher>
             Path::List findItems(const Path& path, const Matcher& matcher) const {
                 Path::List result;
-                doFindItems(path, matcher, false, result);
+                doFindItems(path, Path(""), matcher, false, result);
                 return result;
             }
+            Path::List findItems(const Path& path) const;
             
             template <class Matcher>
             Path::List findItemsRecursively(const Path& path, const Matcher& matcher) const {
                 Path::List result;
-                doFindItems(path, matcher, true, result);
+                doFindItems(path, Path(""), matcher, true, result);
                 return result;
             }
+            Path::List findItemsRecursively(const Path& path) const;
             
             Path::List getDirectoryContents(const Path& path) const;
             const MappedFile::Ptr openFile(const Path& path) const;
         private:
             template <class Matcher>
-            void doFindItems(const Path& path, const Matcher& matcher, const bool recurse, Path::List& result) const {
-                const Path::List contents = getDirectoryContents(path);
+            void doFindItems(const Path& basePath, const Path& searchPath, const Matcher& matcher, const bool recurse, Path::List& result) const {
+                const Path::List contents = getDirectoryContents(basePath + searchPath);
                 Path::List::const_iterator it, end;
                 for (it = contents.begin(), end = contents.end(); it != end; ++it) {
                     const Path& itemPath = *it;
-                    const bool directory = directoryExists(path + itemPath);
+                    const bool directory = directoryExists(basePath + searchPath + itemPath);
                     if (directory && recurse)
-                        doFindItems(path + itemPath, matcher, recurse, result);
-                    if (matcher(itemPath, directory))
-                        result.push_back(itemPath);
+                        doFindItems(basePath, searchPath + itemPath, matcher, recurse, result);
+                    if (matcher(searchPath + itemPath, directory))
+                        result.push_back(searchPath + itemPath);
                 }
             }
             

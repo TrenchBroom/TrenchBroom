@@ -70,7 +70,9 @@ namespace TrenchBroom {
                         return result;
                     
                     while (!remainder.isEmpty()) {
-                        if (!::wxDirExists((result + remainder.firstComponent()).asString())) {
+                        const String nextPathStr = (result + remainder.firstComponent()).asString();
+                        if (!::wxDirExists(nextPathStr) &&
+                            !::wxFileExists(nextPathStr)) {
                             const Path::List content = getDirectoryContents(result);
                             const Path part = findCaseSensitivePath(content, remainder.firstComponent());
                             if (part.isEmpty())
@@ -93,7 +95,7 @@ namespace TrenchBroom {
                         throw FileSystemException("Cannot fix relative path: '" + path.asString() + "'");
                     return fixCase(path.makeCanonical());
                 } catch (const PathException& e) {
-                    throw FileSystemException("Cannot fix path: '" + path.asString(), e);
+                    throw FileSystemException("Cannot fix path: '" + path.asString() + "'", e);
                 }
             }
             
@@ -190,7 +192,7 @@ namespace TrenchBroom {
         }
         
         Path DiskFileSystem::fixCase(const Path& path) const {
-            if (path.isEmpty() || !wxFileName::IsCaseSensitive())
+            if (path.isEmpty() || !Disk::isCaseSensitive())
                 return path;
             const String str = (m_root + path).asString();
             if (::wxFileExists(str) || ::wxDirExists(str))
@@ -202,8 +204,12 @@ namespace TrenchBroom {
                 return result;
             
             while (!remainder.isEmpty()) {
-                if (!::wxDirExists((m_root + result + remainder.firstComponent()).asString())) {
-                    const Path::List content = getDirectoryContents(result);
+                const Path currentPath = m_root + result;
+                const Path nextPath = currentPath + remainder.firstComponent();
+                const String nextPathStr = nextPath.asString();
+                if (!::wxDirExists(nextPathStr) &&
+                    !::wxFileExists(nextPathStr)) {
+                    const Path::List content = Disk::getDirectoryContents(currentPath);
                     const Path part = Disk::findCaseSensitivePath(content, remainder.firstComponent());
                     if (part.isEmpty())
                         return path;
@@ -211,7 +217,7 @@ namespace TrenchBroom {
                 } else {
                     result = result + remainder.firstComponent();
                 }
-                remainder.deleteFirstComponent();
+                remainder = remainder.deleteFirstComponent();
             }
             return result;
         }

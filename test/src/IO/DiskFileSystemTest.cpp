@@ -52,24 +52,28 @@ namespace TrenchBroom {
             }
         private:
             void createTestEnvironment() {
-                bool success = wxMkdir(m_dir.asString());
+                createDirectory(Path(""));
+                createDirectory(Path("dir1"));
+                createDirectory(Path("dir2"));
+                createDirectory(Path("anotherDir"));
+                createDirectory(Path("anotherDir/subDirTest"));
+
+                createFile(Path("test.txt"), _("some content"));
+                createFile(Path("test2.map"), _("//test file\n{}"));
+                createFile(Path("anotherDir/subDirTest/test2.map"), _("//sub dir test file\n{}"));
+                createFile(Path("anotherDir/test3.map"), _("//yet another test file\n{}"));
+            }
+            
+            void createDirectory(const Path& path) {
+                const bool success = ::wxMkdir((m_dir + path).asString());
                 assert(success);
-                success = wxMkdir((m_dir + Path("dir1")).asString());
+            }
+            
+            void createFile(const Path& path, const wxString& contents) {
+                wxFile file;
+                bool success = file.Create((m_dir + path).asString());
                 assert(success);
-                success = wxMkdir((m_dir + Path("dir2")).asString());
-                assert(success);
-                success = wxMkdir((m_dir + Path("anotherDir")).asString());
-                assert(success);
-                success = wxMkdir((m_dir + Path("anotherDir/subDirTest")).asString());
-                assert(success);
-                
-                success = wxFile().Create((m_dir + Path("test.txt")).asString());
-                assert(success);
-                success = wxFile().Create((m_dir + Path("test2.map")).asString());
-                assert(success);
-                success = wxFile().Create((m_dir + Path("anotherDir/subDirTest/test2.map")).asString());
-                assert(success);
-                success = wxFile().Create((m_dir + Path("anotherDir/test3.map")).asString());
+                success = file.Write(contents);
                 assert(success);
             }
             
@@ -183,6 +187,144 @@ namespace TrenchBroom {
             
             rootPaths.push_back(Path("asdf"));
             ASSERT_THROW(Disk::resolvePaths(rootPaths, paths, found, notFound), FileSystemException);
+        }
+        
+        TEST(DiskFileSystemTest, createDiskFileSystem) {
+            TestEnvironment env;
+            
+            ASSERT_THROW(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
+            ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("asdf"), false));
+            ASSERT_NO_THROW(DiskFileSystem(env.dir(), true));
+            
+            // for case sensitive file systems
+            ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
+            
+            const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
+            ASSERT_EQ(env.dir(), fs.getPath());
+        }
+        
+        TEST(DiskFileSystemTest, directoryExists) {
+            TestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+
+#if defined _WIN32
+            ASSERT_THROW(fs.directoryExists(Path("c:\\")), FileSystemException);
+#else
+            ASSERT_THROW(fs.directoryExists(Path("/")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.directoryExists(Path("..")), FileSystemException);
+            
+            ASSERT_TRUE(fs.directoryExists(Path(".")));
+            ASSERT_TRUE(fs.directoryExists(Path("anotherDir")));
+            ASSERT_TRUE(fs.directoryExists(Path("anotherDir/subDirTest")));
+            ASSERT_TRUE(fs.directoryExists(Path("anotherDir/./subDirTest/..")));
+            ASSERT_TRUE(fs.directoryExists(Path("ANOTHerDir")));
+            ASSERT_FALSE(fs.directoryExists(Path("test.txt")));
+            ASSERT_FALSE(fs.directoryExists(Path("fasdf")));
+        }
+        
+        TEST(DiskFileSystemTest, fileExists) {
+            TestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.fileExists(Path("C:\\does_not_exist_i_hope.txt")), FileSystemException);
+#else
+            ASSERT_THROW(fs.fileExists(Path("/does_not_exist_i_hope.txt")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.fileExists(Path("../test.txt")), FileSystemException);
+            
+            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("./test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("anotherDir/test3.map")));
+            ASSERT_TRUE(fs.fileExists(Path("anotherDir/./subDirTest/../subDirTest/test2.map")));
+            ASSERT_TRUE(fs.fileExists(Path("ANOtherDir/test3.MAP")));
+            ASSERT_FALSE(fs.fileExists(Path("anotherDir/whatever.txt")));
+            ASSERT_FALSE(fs.fileExists(Path("fdfdf.blah")));
+        }
+        
+        TEST(DiskFileSystemTest, findItems) {
+            TestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+
+#if defined _WIN32
+            ASSERT_THROW(fs.findItems(Path("c:\\")), FileSystemException);
+#else
+            ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.findItems(Path("..")), FileSystemException);
+            
+            Path::List items = fs.findItems(Path("."));
+            ASSERT_EQ(5u, items.size());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir1")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir2")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test.txt")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+            
+            items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("TXT"));
+            ASSERT_EQ(1u, items.size());
+            ASSERT_EQ(Path("test.txt"), items.front());
+
+            items = fs.findItems(Path("anotherDir"));
+            ASSERT_EQ(2u, items.size());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test3.map")) != items.end());
+        }
+        
+        TEST(DiskFileSystemTest, findItemsRecursively) {
+            TestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.findItemsRecursively(Path("c:\\")), FileSystemException);
+#else
+            ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.findItemsRecursively(Path("..")), FileSystemException);
+            
+            Path::List items = fs.findItemsRecursively(Path("."));
+            ASSERT_EQ(8u, items.size());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir1")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir2")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test.txt")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+            
+            items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("MAP"));
+            ASSERT_EQ(3u, items.size());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+
+            items = fs.findItemsRecursively(Path("anotherDir"));
+            ASSERT_EQ(3u, items.size());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest/test2.map")) != items.end());
+        }
+        
+        // getDirectoryContents gets tested thoroughly by the tests for the find* methods
+        
+        TEST(DiskFileSystemTest, openFile) {
+            TestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.openFile(Path("c:\\hopefully_nothing.here")), FileSystemException);
+#else
+            ASSERT_THROW(fs.openFile(Path("/hopefully_nothing.here")), FileSystemException);
+#endif
+            ASSERT_THROW(fs.openFile(Path("..")), FileSystemException);
+            ASSERT_THROW(fs.openFile(Path(".")), FileSystemException);
+            ASSERT_THROW(fs.openFile(Path("anotherDir")), FileSystemException);
+            
+            ASSERT_TRUE(fs.openFile(Path("test.txt")) != NULL);
+            ASSERT_TRUE(fs.openFile(Path("anotherDir/test3.map")) != NULL);
+            ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != NULL);
         }
     }
 }
