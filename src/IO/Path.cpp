@@ -41,7 +41,9 @@ namespace TrenchBroom {
             const String trimmed = StringUtils::trim(path);
             m_components = StringUtils::split(trimmed, Separators);
 #ifdef _WIN32
-            m_absolute = trimmed.size() > 1 && trimmed[1] == ':';
+            m_absolute = (hasDriveSpec(m_components) ||
+                          !trimmed.empty() && trimmed[0] == '/' ||
+                          !trimmed.empty() && trimmed[0] == '\\');
 #else
             m_absolute = !trimmed.empty() && trimmed[0] == Separator;
 #endif
@@ -101,7 +103,10 @@ namespace TrenchBroom {
         String Path::asString(const char separator) const {
             if (m_absolute)
 #ifdef _WIN32
-                return StringUtils::join(m_components, separator);
+                if (hasDriveSpec(m_components))
+                    return StringUtils::join(m_components, separator);
+                else
+                    return separator + StringUtils::join(m_components, separator);
 #else
                 return separator + StringUtils::join(m_components, separator);
 #endif
@@ -127,11 +132,13 @@ namespace TrenchBroom {
         Path Path::firstComponent() const {
             if (isEmpty())
                 throw PathException("Cannot return first component of empty path");
-#ifdef _WIN32
-            return Path(m_components.front());
-#else
             if (!m_absolute)
                 return Path(m_components.front());
+#ifdef _WIN32
+            if (hasDriveSpec(m_components))
+                return Path(m_components.front());
+            return Path("\\");
+#else
             return Path("/");
 #endif
         }
@@ -139,18 +146,21 @@ namespace TrenchBroom {
         Path Path::deleteFirstComponent() const {
             if (isEmpty())
                 throw PathException("Cannot delete first component of empty path");
-#ifdef _WIN32
-            StringList components;
-            components.reserve(m_components.size() - 1);
-            components.insert(components.begin(), m_components.begin() + 1, m_components.end());
-            return Path(false, components);
-#else
             if (!m_absolute) {
                 StringList components;
                 components.reserve(m_components.size() - 1);
                 components.insert(components.begin(), m_components.begin() + 1, m_components.end());
                 return Path(false, components);
             }
+#ifdef _WIN32
+            if (!m_components.empty() && hasDriveSpec(m_components[0])) {
+                StringList components;
+                components.reserve(m_components.size() - 1);
+                components.insert(components.begin(), m_components.begin() + 1, m_components.end());
+                return Path(false, components);
+            }
+            return Path(false, m_components);
+#else
             return Path(false, m_components);
 #endif
         }
@@ -298,6 +308,26 @@ namespace TrenchBroom {
             return result;
         }
 
+        bool Path::hasDriveSpec(const StringList& components) {
+#ifdef _WIN32
+            if (components.empty())
+                return false;
+            return hasDriveSpec(components[0]);
+#else
+            return false;
+#endif
+        }
+
+        bool Path::hasDriveSpec(const String& component) {
+#ifdef _WIN32
+            if (component.size() <= 1)
+                return false;
+            return component[1] == ':';
+#else
+            return false;
+#endif
+        }
+
         StringList Path::resolvePath(const bool absolute, const StringList& components) const {
             StringList::const_iterator it, end;
             StringList resolved;
@@ -307,8 +337,10 @@ namespace TrenchBroom {
                     continue;
                 if (comp == "..") {
 #ifdef _WIN32
-                    if (absolute && resolved.size() < 2 || resolved.empty())
+                    if (resolved.empty())
                         throw PathException("Cannot resolve path");
+                    if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2)
+                            throw PathException("Cannot resolve path");
 #else
                     if (resolved.empty())
                         throw PathException("Cannot resolve path");

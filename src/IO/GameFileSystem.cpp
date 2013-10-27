@@ -73,8 +73,10 @@ namespace TrenchBroom {
             FileSystemList::const_iterator it, end;
             for (it = m_fileSystems.begin(), end = m_fileSystems.end(); it != end; ++it) {
                 const FSPtr fileSystem = *it;
-                const Path::List contents = fileSystem->getDirectoryContents(path);
-                VectorUtils::append(result, contents);
+                if (fileSystem->directoryExists(path)) {
+                    const Path::List contents = fileSystem->getDirectoryContents(path);
+                    VectorUtils::append(result, contents);
+                }
             }
             
             VectorUtils::sortAndRemoveDuplicates(result);
@@ -85,9 +87,11 @@ namespace TrenchBroom {
             FileSystemList::const_iterator it, end;
             for (it = m_fileSystems.begin(), end = m_fileSystems.end(); it != end; ++it) {
                 const FSPtr fileSystem = *it;
-                const MappedFile::Ptr file = fileSystem->openFile(path);
-                if (file != NULL)
-                    return file;
+                if (fileSystem->fileExists(path)) {
+                    const MappedFile::Ptr file = fileSystem->openFile(path);
+                    if (file != NULL)
+                        return file;
+                }
             }
             return MappedFile::Ptr();
         }

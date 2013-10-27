@@ -39,12 +39,12 @@ namespace TrenchBroom {
             GameFileSystem(const String& pakExtension, const Path& mainPath, const Path& secondaryPath = Path(""));
         private:
             void addFileSystem(const String& pakExtension, const Path& path);
-
-            bool doDirectoryExists(const Path& path) const;
-             bool doFileExists(const Path& path) const;
             
-             Path::List doGetDirectoryContents(const Path& path) const;
-             const MappedFile::Ptr doOpenFile(const Path& path) const;
+            bool doDirectoryExists(const Path& path) const;
+            bool doFileExists(const Path& path) const;
+            
+            Path::List doGetDirectoryContents(const Path& path) const;
+            const MappedFile::Ptr doOpenFile(const Path& path) const;
         };
     }
 }

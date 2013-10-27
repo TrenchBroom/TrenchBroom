@@ -71,6 +71,8 @@ namespace TrenchBroom {
             
             static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
         private:
+            static bool hasDriveSpec(const StringList& components);
+            static bool hasDriveSpec(const String& component);
             StringList resolvePath(const bool absolute, const StringList& components) const;
         };
     }

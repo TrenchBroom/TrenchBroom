@@ -75,6 +75,23 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("c:\\this\\is\\a"), Path("c:\\this\\is\\a\\path.map").deleteLastComponent());
         }
         
+        TEST(PathTest, getFirstComponent) {
+            ASSERT_THROW(Path("").firstComponent(), PathException);
+            ASSERT_EQ("\\", Path("/asdf").firstComponent().asString());
+            ASSERT_EQ("c:", Path("c:\\asdf\\blah").firstComponent().asString());
+            ASSERT_EQ("asdf", Path("asdf\\bbab").firstComponent().asString());
+        }
+        
+        TEST(PathTest, deleteFirstComponent) {
+            ASSERT_THROW(Path("").deleteFirstComponent(), PathException);
+            ASSERT_EQ(Path(""), Path("\\").deleteFirstComponent());
+            ASSERT_EQ(Path("asdf"), Path("\\asdf").deleteFirstComponent());
+            ASSERT_EQ(Path(""), Path("c:\\").deleteFirstComponent());
+            ASSERT_EQ(Path("asdf"), Path("c:\\asdf").deleteFirstComponent());
+            ASSERT_EQ(Path("asdf"), Path("/asdf").deleteFirstComponent());
+            ASSERT_EQ(Path("blah"), Path("asdf/blah").deleteFirstComponent());
+        }
+
         TEST(PathTest, subPath) {
             ASSERT_THROW(Path("").subPath(0, 0), PathException);
             ASSERT_THROW(Path("test\\blah").subPath(1, 2), PathException);
@@ -172,6 +189,20 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("/this/is/a"), Path("/this/is/a/path.map").deleteLastComponent());
+        }
+        
+        TEST(PathTest, getFirstComponet) {
+            ASSERT_THROW(Path("").firstComponent(), PathException);
+            ASSERT_EQ("/", Path("/").firstComponent().asString());
+            ASSERT_EQ("/", Path("/asdf").firstComponent().asString());
+            ASSERT_EQ("asdf", Path("asdf").firstComponent().asString());
+        }
+        
+        TEST(PathTest, deleteFirstComponent) {
+            ASSERT_THROW(Path("").deleteFirstComponent(), PathException);
+            ASSERT_EQ(Path(""), Path("/").deleteFirstComponent());
+            ASSERT_EQ(Path("asdf"), Path("/asdf").deleteFirstComponent());
+            ASSERT_EQ(Path("blah"), Path("asdf/blah").deleteFirstComponent());
         }
         
         TEST(PathTest, subPath) {

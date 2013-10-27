@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             MoveTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
             Super(next, document, controller),
-            m_helper(movementRestriction, *this) {}
+            m_helper(movementRestriction, *this) {} // We get a warning here because we pass 'this' to the member initializer, but it's okay because we don't use it in the member's initializer.
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 m_helper.render(inputState, Super::dragging(), renderContext);
