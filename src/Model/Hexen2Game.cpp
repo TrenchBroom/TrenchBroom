@@ -84,6 +84,10 @@ namespace TrenchBroom {
             writer.writeFacesToStream(faces, stream);
         }
         
+        IO::Path::List Hexen2Game::doFindBuiltinTextureCollections() const {
+            return IO::Path::List();
+        }
+
         IO::Path::List Hexen2Game::doExtractTexturePaths(const Map* map) const {
             using TrenchBroom::Model::extractTexturePaths;
             return extractTexturePaths(map, Model::PropertyKeys::Wad);

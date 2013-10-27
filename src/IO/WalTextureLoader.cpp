@@ -46,7 +46,7 @@ namespace TrenchBroom {
             
             Path::List::const_iterator it, end;
             for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
-                const Path& texturePath = path + *it;
+                const Path& texturePath = *it;
                 Assets::FaceTexture* texture = readTexture(texturePath);
                 textures.push_back(texture);
             }

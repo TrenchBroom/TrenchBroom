@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const;
             void doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
 
+            IO::Path::List doFindBuiltinTextureCollections() const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const;
             void doUploadTextureCollection(Assets::FaceTextureCollection* collection) const;

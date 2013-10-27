@@ -50,7 +50,7 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                return doDirectoryExists(path.makeCanonical());
+                return doDirectoryExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                return doFileExists(path.makeCanonical());
+                return doFileExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -78,10 +78,9 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                const Path canonicalPath = path.makeCanonical();
-                if (!directoryExists(canonicalPath))
-                    throw FileSystemException("FileSystem does not exist: '" + path.asString() + "'");
-                return doGetDirectoryContents(canonicalPath);
+                if (!directoryExists(path))
+                    throw FileSystemException("Directory does not exist: '" + path.asString() + "'");
+                return doGetDirectoryContents(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -91,10 +90,9 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                const Path canonicalPath = path.makeCanonical();
-                if (!fileExists(canonicalPath))
+                if (!fileExists(path))
                     throw FileSystemException("File does not exist: '" + path.asString() + "'");
-                return doOpenFile(canonicalPath);
+                return doOpenFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -106,7 +104,7 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                doCreateDirectory(path.makeCanonical());
+                doCreateDirectory(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -116,7 +114,7 @@ namespace TrenchBroom {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                doDeleteFile(path.makeCanonical());
+                doDeleteFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -128,7 +126,7 @@ namespace TrenchBroom {
                     throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
                 if (destPath.isAbsolute())
                     throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
-                doMoveFile(sourcePath.makeCanonical(), destPath.makeCanonical(), overwrite);
+                doMoveFile(sourcePath, destPath, overwrite);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid source or destination path: '" + sourcePath.asString() + "', '" + destPath.asString() + "'", e);
             }

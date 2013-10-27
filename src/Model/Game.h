@@ -61,6 +61,7 @@ namespace TrenchBroom {
             void writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const;
             void writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
             
+            IO::Path::List findBuiltinTextureCollections() const;
             IO::Path::List extractTexturePaths(const Map* map) const;
             Assets::FaceTextureCollection* loadTextureCollection(const IO::Path& path) const;
             void uploadTextureCollection(Assets::FaceTextureCollection* collection) const;
@@ -82,6 +83,7 @@ namespace TrenchBroom {
             virtual void doWriteObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const = 0;
             virtual void doWriteFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
             
+            virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
             virtual Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
             virtual void doUploadTextureCollection(Assets::FaceTextureCollection* collection) const = 0;

@@ -183,6 +183,8 @@ namespace TrenchBroom {
 
             void loadAndUpdateTextures();
             void loadTextures();
+            void loadBuiltinTextures();
+            void loadExtraTextures();
             void updateTextures();
             
             void doSaveDocument(const IO::Path& path);

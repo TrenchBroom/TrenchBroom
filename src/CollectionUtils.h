@@ -182,7 +182,8 @@ namespace VectorUtils {
     template <typename T>
     void sortAndRemoveDuplicates(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end());
-        std::unique(vec.begin(), vec.end());
+        typename std::vector<T>::iterator it = std::unique(vec.begin(), vec.end());
+        vec.erase(it, vec.end());
     }
     
     template <typename T>

@@ -85,6 +85,10 @@ namespace TrenchBroom {
             writer.writeFacesToStream(faces, stream);
         }
 
+        IO::Path::List Quake2Game::doFindBuiltinTextureCollections() const {
+            return m_fs.findItems(IO::Path("textures"), IO::FileSystem::TypeMatcher(false, true));
+        }
+
         IO::Path::List Quake2Game::doExtractTexturePaths(const Map* map) const {
             using TrenchBroom::Model::extractTexturePaths;
             return extractTexturePaths(map, Model::PropertyKeys::Wal);

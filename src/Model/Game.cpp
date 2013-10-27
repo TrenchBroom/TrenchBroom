@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
         
         GamePtr Game::detectGame(const IO::Path& path, Logger* logger) {
-            if (!IO::Disk::fileExists(IO::Disk::fixPath(path)))
+            if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
                 return GamePtr();
             
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
@@ -128,6 +128,10 @@ namespace TrenchBroom {
         
         void Game::writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
             doWriteFacesToStream(faces, stream);
+        }
+
+        IO::Path::List Game::findBuiltinTextureCollections() const {
+            return doFindBuiltinTextureCollections();
         }
 
         IO::Path::List Game::extractTexturePaths(const Map* map) const {

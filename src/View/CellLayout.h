@@ -86,7 +86,7 @@ namespace TrenchBroom {
             }
 
             bool intersectsY(const float y, const float height) const {
-                return bottom() >= y || top() <= y + height;
+                return bottom() >= y && top() <= y + height ;
             }
         };
 

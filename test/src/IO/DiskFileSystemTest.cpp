@@ -256,11 +256,11 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItems(Path("."));
             ASSERT_EQ(5u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir1")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir2")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test.txt")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir1")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir2")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
             items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("TXT"));
             ASSERT_EQ(1u, items.size());
@@ -268,8 +268,8 @@ namespace TrenchBroom {
 
             items = fs.findItems(Path("anotherDir"));
             ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
         }
         
         TEST(DiskFileSystemTest, findItemsRecursively) {
@@ -285,14 +285,14 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItemsRecursively(Path("."));
             ASSERT_EQ(8u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir1")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("dir2")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test.txt")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir1")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir2")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/subDirTest/test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
             items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("MAP"));
             ASSERT_EQ(3u, items.size());
@@ -302,9 +302,9 @@ namespace TrenchBroom {
 
             items = fs.findItemsRecursively(Path("anotherDir"));
             ASSERT_EQ(3u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test3.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("subDirTest/test2.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
+            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
         }
         
         // getDirectoryContents gets tested thoroughly by the tests for the find* methods

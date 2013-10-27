@@ -237,6 +237,8 @@ namespace TrenchBroom {
             shader.set("Texture", 0);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             
+            size_t num = 0;
+            
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -258,11 +260,14 @@ namespace TrenchBroom {
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
                                 vertexArray.render();
+                                num++;
                             }
                         }
                     }
                 }
             }
+            bool b = true;
+            
             
         }
         

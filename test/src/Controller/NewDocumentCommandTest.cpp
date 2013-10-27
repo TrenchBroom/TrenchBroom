@@ -37,6 +37,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doNewMap()).WillOnce(Return(new Model::Map(Model::MFQuake)));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             
             View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             
@@ -59,10 +60,12 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
             EXPECT_CALL(*game, doNewMap()).WillOnce(Return(new Model::Map(Model::MFQuake)));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
 
             View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
             doc->openDocument(worldBounds, game, path);
