@@ -20,8 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "Assets/AssetTypes.h"
-#include "Assets/FaceTexture.h"
-#include "Assets/FaceTextureCollection.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline void assertTexture(const String& name, const size_t width, const size_t height, Assets::FaceTexture* texture) {
+        inline void assertTexture(const String& name, const size_t width, const size_t height, Assets::Texture* texture) {
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
@@ -42,9 +42,9 @@ namespace TrenchBroom {
             WalTextureLoader loader(fs, palette);
             
             const Path walDirPath("data/IO/Wal/rtz");
-            Assets::FaceTextureCollection* collection = loader.loadTextureCollection(walDirPath);
+            Assets::TextureCollection* collection = loader.loadTextureCollection(walDirPath);
             
-            const Assets::FaceTextureList& textures = collection->textures();
+            const Assets::TextureList& textures = collection->textures();
             ASSERT_EQ(7u, textures.size());
             assertTexture("rtz/b_pv_v1a1",  128, 256, textures[0]);
             assertTexture("rtz/b_pv_v1a2",  128, 256, textures[1]);

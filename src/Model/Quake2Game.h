@@ -56,8 +56,8 @@ namespace TrenchBroom {
 
             IO::Path::List doFindBuiltinTextureCollections() const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
-            Assets::FaceTextureCollection* doLoadTextureCollection(const IO::Path& path) const;
-            void doUploadTextureCollection(Assets::FaceTextureCollection* collection) const;
+            Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
+            void doUploadTextureCollection(Assets::TextureCollection* collection) const;
             
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path doDefaultEntityDefinitionFile() const;

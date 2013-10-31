@@ -22,7 +22,7 @@
 #include "Renderer/GL.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/VertexArray.h"
@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureCellData::TextureCellData(Assets::FaceTexture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor) :
+        TextureCellData::TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor) :
         texture(i_texture),
         fontDescriptor(i_fontDescriptor) {}
 
@@ -83,11 +83,11 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        Assets::FaceTexture* TextureBrowserView::selectedTexture() const {
+        Assets::Texture* TextureBrowserView::selectedTexture() const {
             return m_selectedTexture;
         }
         
-        void TextureBrowserView::setSelectedTexture(Assets::FaceTexture* selectedTexture) {
+        void TextureBrowserView::setSelectedTexture(Assets::Texture* selectedTexture) {
             if (m_selectedTexture == selectedTexture)
                 return;
             m_selectedTexture = selectedTexture;
@@ -122,27 +122,27 @@ namespace TrenchBroom {
                 for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
                     const IO::Path& path = gIt->first;
                     const String groupName = path.lastComponent().asString();
-                    const Assets::FaceTextureList& textures = gIt->second;
+                    const Assets::TextureList& textures = gIt->second;
                     
                     layout.addGroup(groupName, fontSize + 2.0f);
                     
-                    Assets::FaceTextureList::const_iterator tIt, tEnd;
+                    Assets::TextureList::const_iterator tIt, tEnd;
                     for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
-                        Assets::FaceTexture* texture = *tIt;
+                        Assets::Texture* texture = *tIt;
                         addTextureToLayout(layout, texture, font);
                     }
                 }
             } else {
-                const Assets::FaceTextureList& textures = m_textureManager.textures(m_sortOrder);
-                Assets::FaceTextureList::const_iterator it, end;
+                const Assets::TextureList& textures = m_textureManager.textures(m_sortOrder);
+                Assets::TextureList::const_iterator it, end;
                 for (it = textures.begin(), end = textures.end(); it != end; ++it) {
-                    Assets::FaceTexture* texture = *it;
+                    Assets::Texture* texture = *it;
                     addTextureToLayout(layout, texture, font);
                 }
             }
         }
         
-        void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::FaceTexture* texture, const Renderer::FontDescriptor& font) {
+        void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || texture->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(texture->name(), m_filterText))) {
                 Renderer::FontManager& fontManager = m_resources.fontManager();
@@ -200,7 +200,7 @@ namespace TrenchBroom {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 const LayoutBounds& bounds = cell.itemBounds();
-                                const Assets::FaceTexture* texture = cell.item().texture;
+                                const Assets::Texture* texture = cell.item().texture;
                                 const Color& color = textureColor(*texture);
                                 vertices.push_back(BoundsVertex(Vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color));
                                 vertices.push_back(BoundsVertex(Vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             vertexArray.render();
         }
         
-        const Color& TextureBrowserView::textureColor(const Assets::FaceTexture& texture) const {
+        const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             if (&texture == m_selectedTexture)
                 return prefs.get(Preferences::TextureBrowserSelectedColor);
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 const LayoutBounds& bounds = cell.itemBounds();
-                                const Assets::FaceTexture* texture = cell.item().texture;
+                                const Assets::Texture* texture = cell.item().texture;
                                 
                                 vertices[0] = TextureVertex(Vec2f(bounds.left(),  height - (bounds.top() - y)),    Vec2f(0.0f, 0.0f));
                                 vertices[1] = TextureVertex(Vec2f(bounds.left(),  height - (bounds.bottom() - y)), Vec2f(0.0f, 1.0f));
@@ -320,7 +320,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextShader);
             shader.set("Color", prefs.get(Preferences::BrowserTextColor));
-            shader.set("FaceTexture", 0);
+            shader.set("Texture", 0);
             
             StringRendererMap::iterator it, end;
             for (it = stringRenderers.begin(), end = stringRenderers.end(); it != end; ++it) {
@@ -381,7 +381,7 @@ namespace TrenchBroom {
             const Layout::Group::Row::Cell* result = NULL;
             if (layout.cellAt(x, y, &result)) {
                 if (!result->item().texture->overridden()) {
-                    Assets::FaceTexture* texture = result->item().texture;
+                    Assets::Texture* texture = result->item().texture;
                     
                     TextureSelectedCommand command;
                     command.setTexture(texture);

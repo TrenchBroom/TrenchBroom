@@ -20,8 +20,8 @@
 #include "TextureManager.h"
 
 #include "CollectionUtils.h"
-#include "Assets/FaceTexture.h"
-#include "Assets/FaceTextureCollection.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Model/Game.h"
 
 namespace TrenchBroom {
@@ -29,14 +29,14 @@ namespace TrenchBroom {
         class CompareByName {
         public:
             CompareByName() {}
-            bool operator() (const FaceTexture* left, const FaceTexture* right) const {
+            bool operator() (const Texture* left, const Texture* right) const {
                 return left->name() < right->name();
             }
         };
         
         class CompareByUsage {
         public:
-            bool operator() (const FaceTexture* left, const FaceTexture* right) const {
+            bool operator() (const Texture* left, const Texture* right) const {
                 if (left->usageCount() == right->usageCount())
                     return left->name() < right->name();
                 return left->usageCount() > right->usageCount();
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             assert(index < m_collections.size());
             
             TextureCollectionList::iterator it = m_collections.begin() + index;
-            FaceTextureCollection* collection = *it;
+            TextureCollection* collection = *it;
             
             m_collections.erase(it);
             m_collectionsByPath.erase(collection->path());
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             if (m_game != NULL) {
                 TextureCollectionMap::iterator it, end;
                 for (it = m_toUpload.begin(), end = m_toUpload.end(); it != end; ++it) {
-                    FaceTextureCollection* collection = it->second;
+                    TextureCollection* collection = it->second;
                     m_game->uploadTextureCollection(collection);
                 }
                 
@@ -113,14 +113,14 @@ namespace TrenchBroom {
             }
         }
 
-        FaceTexture* TextureManager::texture(const String& name) const {
+        Texture* TextureManager::texture(const String& name) const {
             TextureMap::const_iterator it = m_texturesByName.find(name);
             if (it == m_texturesByName.end())
                 return NULL;
             return it->second;
         }
 
-        const FaceTextureList& TextureManager::textures(const SortOrder sortOrder) const {
+        const TextureList& TextureManager::textures(const SortOrder sortOrder) const {
             return m_sortedTextures[sortOrder];
         }
 
@@ -138,19 +138,19 @@ namespace TrenchBroom {
             
             TextureCollectionMap::iterator it = toRemove.find(path);
             if (it != toRemove.end()) {
-                FaceTextureCollection* collection = it->second;
+                TextureCollection* collection = it->second;
                 toRemove.erase(it);
-                doAddTextureCollection(collection, collections, collectionsByPath, toUpload);
+                doAddTextureCollection(path, collection, collections, collectionsByPath, toUpload);
             } else {
-                FaceTextureCollection* collection = m_game->loadTextureCollection(path);
-                doAddTextureCollection(collection, collections, collectionsByPath, toUpload);
+                TextureCollection* collection = m_game->loadTextureCollection(path);
+                doAddTextureCollection(path, collection, collections, collectionsByPath, toUpload);
             }
         }
 
-        void TextureManager::doAddTextureCollection(FaceTextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) {
-            collectionsByPath.insert(TextureCollectionMapEntry(collection->path(), collection));
+        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) {
+            collectionsByPath.insert(TextureCollectionMapEntry(path, collection));
             collections.push_back(collection);
-            toUpload.insert(TextureCollectionMapEntry(collection->path(), collection));
+            toUpload.insert(TextureCollectionMapEntry(path, collection));
         }
 
         void TextureManager::updateTextures() {
@@ -160,13 +160,12 @@ namespace TrenchBroom {
             
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
-                FaceTextureCollection* collection = *cIt;
-                const String collectionName = collection->path().lastComponent().asString();
-                const FaceTextureList textures = collection->textures();
+                TextureCollection* collection = *cIt;
+                const TextureList textures = collection->textures();
                 
-                FaceTextureList::const_iterator tIt, tEnd;
+                TextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
-                    FaceTexture* texture = *tIt;
+                    Texture* texture = *tIt;
                     texture->setOverridden(false);
                     
                     TextureMap::iterator mIt = m_texturesByName.find(texture->name());
@@ -178,7 +177,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                const Group group = std::make_pair(collection->path(), textures);
+                const Group group = std::make_pair(collection, textures);
                 m_sortedGroups[Name].push_back(group);
                 m_sortedGroups[Usage].push_back(group);
                 std::sort(m_sortedGroups[Name].back().second.begin(),
@@ -194,16 +193,16 @@ namespace TrenchBroom {
             std::sort(m_sortedTextures[Usage].begin(), m_sortedTextures[Usage].end(), CompareByUsage());
         }
 
-        FaceTextureList TextureManager::textureList() const {
-            FaceTextureList result;
+        TextureList TextureManager::textureList() const {
+            TextureList result;
             TextureCollectionList::const_iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
-                const FaceTextureCollection* collection = *cIt;
-                const FaceTextureList textures = collection->textures();
+                const TextureCollection* collection = *cIt;
+                const TextureList textures = collection->textures();
                 
-                FaceTextureList::const_iterator tIt, tEnd;
+                TextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
-                    FaceTexture* texture = *tIt;
+                    Texture* texture = *tIt;
                     result.push_back(texture);
                 }
             }

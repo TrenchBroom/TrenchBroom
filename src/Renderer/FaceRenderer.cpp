@@ -22,7 +22,7 @@
 #include "Renderer/GL.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderProgram.h"
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
             shader.set("GridCheckerboard", prefs.get(Preferences::GridCheckerboard));
             shader.set("ApplyTexture", applyTexture);
-            shader.set("FaceTexture", 0);
+            shader.set("Texture", 0);
             shader.set("ApplyTinting", tintColor != NULL);
             if (tintColor != NULL)
                 shader.set("TintColor", *tintColor);

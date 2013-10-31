@@ -34,8 +34,8 @@ class wxScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
-        class FaceTextureCollection;
+        class Texture;
+        class TextureCollection;
     }
     
     namespace Renderer {
@@ -47,10 +47,10 @@ namespace TrenchBroom {
         
         class TextureCellData {
         public:
-            Assets::FaceTexture* texture;
+            Assets::Texture* texture;
             Renderer::FontDescriptor fontDescriptor;
             
-            TextureCellData(Assets::FaceTexture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor);
+            TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor);
         };
 
         class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             String m_filterText;
             
             Renderer::Vbo m_vbo;
-            Assets::FaceTexture* m_selectedTexture;
+            Assets::Texture* m_selectedTexture;
         public:
             TextureBrowserView(wxWindow* parent, wxWindowID windowId,
                                wxScrollBar* scrollBar,
@@ -80,17 +80,17 @@ namespace TrenchBroom {
             void setHideUnused(const bool hideUnused);
             void setFilterText(const String& filterText);
 
-            Assets::FaceTexture* selectedTexture() const;
-            void setSelectedTexture(Assets::FaceTexture* selectedTexture);
+            Assets::Texture* selectedTexture() const;
+            void setSelectedTexture(Assets::Texture* selectedTexture);
         private:
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
-            void addTextureToLayout(Layout& layout, Assets::FaceTexture* texture, const Renderer::FontDescriptor& font);
+            void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
             
             void doClear();
             void doRender(Layout& layout, const float y, const float height);
             void renderBounds(Layout& layout, const float y, const float height);
-            const Color& textureColor(const Assets::FaceTexture& texture) const;
+            const Color& textureColor(const Assets::Texture& texture) const;
             void renderTextures(Layout& layout, const float y, const float height);
             void renderNames(Layout& layout, const float y, const float height);
             void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);

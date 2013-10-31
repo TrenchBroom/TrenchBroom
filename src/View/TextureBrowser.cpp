@@ -97,11 +97,11 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::FaceTexture* TextureBrowser::selectedTexture() const {
+        Assets::Texture* TextureBrowser::selectedTexture() const {
             return m_view->selectedTexture();
         }
         
-        void TextureBrowser::setSelectedTexture(Assets::FaceTexture* selectedTexture) {
+        void TextureBrowser::setSelectedTexture(Assets::Texture* selectedTexture) {
             m_view->setSelectedTexture(selectedTexture);
         }
 

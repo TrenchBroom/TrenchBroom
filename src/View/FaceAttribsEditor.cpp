@@ -162,7 +162,7 @@ namespace TrenchBroom {
                 bool xScaleMulti = false;
                 bool yScaleMulti = false;
                 
-                Assets::FaceTexture* texture = m_faces[0]->texture();
+                Assets::Texture* texture = m_faces[0]->texture();
                 const String& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();

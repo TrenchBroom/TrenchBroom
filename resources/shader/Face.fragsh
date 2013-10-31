@@ -22,7 +22,7 @@
 uniform float Brightness;
 uniform float Alpha;
 uniform bool ApplyTexture;
-uniform sampler2D FaceTexture;
+uniform sampler2D Texture;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
@@ -85,7 +85,7 @@ void gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseS
 
 void main() {
 	if (ApplyTexture)
-		gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
+		gl_FragColor = texture2D(Texture, gl_TexCoord[0].st);
 	else
 		gl_FragColor = faceColor;
 

@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_setSurfaceFlags(false),
         m_setSurfaceValue(false) {}
         
-        void FaceAttributeCommand::setTexture(Assets::FaceTexture* texture) {
+        void FaceAttributeCommand::setTexture(Assets::Texture* texture) {
             m_texture = texture;
             m_setTexture = true;
         }

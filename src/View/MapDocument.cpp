@@ -21,7 +21,7 @@
 
 #include "Logger.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
@@ -86,21 +86,21 @@ namespace TrenchBroom {
             }
         };
         
-        class SetFaceTexture {
+        class SetTexture {
         private:
             Assets::TextureManager& m_textureManager;
         public:
-            SetFaceTexture(Assets::TextureManager& textureManager) :
+            SetTexture(Assets::TextureManager& textureManager) :
             m_textureManager(textureManager) {}
             
             void operator()(Model::BrushFace* face) const {
                 const String& textureName = face->textureName();
-                Assets::FaceTexture* texture = m_textureManager.texture(textureName);
+                Assets::Texture* texture = m_textureManager.texture(textureName);
                 face->setTexture(texture);
             }
         };
         
-        struct UnsetFaceTexture {
+        struct UnsetTexture {
             void operator()(Model::BrushFace* face) const {
                 face->setTexture(NULL);
             }
@@ -452,7 +452,7 @@ namespace TrenchBroom {
             return m_selection.deselectAll();
         }
         
-        Assets::FaceTexture* MapDocument::currentTexture() const {
+        Assets::Texture* MapDocument::currentTexture() const {
             if (m_selection.lastSelectedFace() == NULL)
                 return NULL;
             return m_selection.lastSelectedFace()->texture();
@@ -522,13 +522,13 @@ namespace TrenchBroom {
                             addToPicker,
                             Model::MatchAll());
                 
-                SetFaceTexture setTexture(m_textureManager);
+                SetTexture setTexture(m_textureManager);
                 Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
                             Model::BrushFacesIterator::end(entity->brushes()),
                             setTexture, Model::MatchAll());
             } else if (object->type() == Model::Object::OTBrush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
-                SetFaceTexture setTexture(m_textureManager);
+                SetTexture setTexture(m_textureManager);
                 Model::each(brush->faces().begin(),
                             brush->faces().end(),
                             setTexture,
@@ -550,13 +550,13 @@ namespace TrenchBroom {
                             removeFromPicker,
                             Model::MatchAll());
                 
-                UnsetFaceTexture unsetTexture;
+                UnsetTexture unsetTexture;
                 Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
                             Model::BrushFacesIterator::end(entity->brushes()),
                             unsetTexture, Model::MatchAll());
             } else if (object->type() == Model::Object::OTBrush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
-                UnsetFaceTexture unsetTexture;
+                UnsetTexture unsetTexture;
                 Model::each(brush->faces().begin(),
                             brush->faces().end(),
                             unsetTexture,
@@ -700,7 +700,7 @@ namespace TrenchBroom {
         void MapDocument::updateTextures() {
             Model::each(Model::MapFacesIterator::begin(*m_map),
                         Model::MapFacesIterator::end(*m_map),
-                        SetFaceTexture(m_textureManager),
+                        SetTexture(m_textureManager),
                         Model::MatchAll());
         }
         

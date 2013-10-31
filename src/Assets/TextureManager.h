@@ -34,12 +34,12 @@ namespace TrenchBroom {
                 Name  = 0,
                 Usage = 1
             };
-            typedef std::pair<IO::Path, FaceTextureList> Group;
+            typedef std::pair<TextureCollection*, TextureList> Group;
             typedef std::vector<Group> GroupList;
         private:
-            typedef std::map<IO::Path, FaceTextureCollection*> TextureCollectionMap;
-            typedef std::pair<IO::Path, FaceTextureCollection*> TextureCollectionMapEntry;
-            typedef std::map<String, FaceTexture*> TextureMap;
+            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
+            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
+            typedef std::map<String, Texture*> TextureMap;
             
             Model::GamePtr m_game;
             
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             TextureCollectionMap m_collectionsByPath;
             TextureCollectionMap m_toUpload;
             TextureCollectionMap m_toRemove;
-            FaceTextureList m_sortedTextures[2];
+            TextureList m_sortedTextures[2];
             GroupList m_sortedGroups[2];
             
             TextureMap m_texturesByName;
@@ -61,15 +61,15 @@ namespace TrenchBroom {
             void reset(Model::GamePtr game);
             void commitChanges();
             
-            FaceTexture* texture(const String& name) const;
-            const FaceTextureList& textures(const SortOrder sortOrder) const;
+            Texture* texture(const String& name) const;
+            const TextureList& textures(const SortOrder sortOrder) const;
             const GroupList& groups(const SortOrder sortOrder) const;
             const TextureCollectionList& collections() const;
         private:
             void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove);
-            void doAddTextureCollection(FaceTextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
+            void doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
             void updateTextures();
-            FaceTextureList textureList() const;
+            TextureList textureList() const;
         };
     }
 }

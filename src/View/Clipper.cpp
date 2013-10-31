@@ -20,7 +20,7 @@
 #include "Clipper.h"
 
 #include "CollectionUtils.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"

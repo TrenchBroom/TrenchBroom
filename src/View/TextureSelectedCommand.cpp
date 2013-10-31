@@ -28,11 +28,11 @@ namespace TrenchBroom {
         wxNotifyEvent(EVT_TEXTURE_SELECTED_EVENT, wxID_ANY),
         m_texture(NULL) {}
         
-        Assets::FaceTexture* TextureSelectedCommand::texture() const {
+        Assets::Texture* TextureSelectedCommand::texture() const {
             return m_texture;
         }
         
-        void TextureSelectedCommand::setTexture(Assets::FaceTexture* texture) {
+        void TextureSelectedCommand::setTexture(Assets::Texture* texture) {
             m_texture = texture;
         }
 

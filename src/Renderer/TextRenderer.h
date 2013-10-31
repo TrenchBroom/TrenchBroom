@@ -281,7 +281,7 @@ namespace TrenchBroom {
                 
                 glEnable(GL_TEXTURE_2D);
                 ActiveShader textShader(context.shaderManager(), textProgram);
-                textShader.set("FaceTexture", 0);
+                textShader.set("Texture", 0);
                 m_font.activate();
                 fontArray.render();
                 m_font.deactivate();

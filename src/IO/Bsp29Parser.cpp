@@ -20,7 +20,8 @@
 #include "Bsp29Parser.h"
 
 #include "ByteBuffer.h"
-#include "Assets/AutoTexture.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Assets/Bsp29Model.h"
 #include "Assets/Palette.h"
 #include "IO/IOUtils.h"
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
             
-            const TextureList textures = parseTextures();
+            Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();
             const Vec3f::List vertices = parseVertices();
             const EdgeInfoList edgeInfos = parseEdgeInfos();
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             return parseModels(textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
         
-        Bsp29Parser::TextureList Bsp29Parser::parseTextures() {
+        Assets::TextureCollection* Bsp29Parser::parseTextures() {
             char textureName[BspLayout::TextureNameLength + 1];
             textureName[BspLayout::TextureNameLength] = 0;
             Color averageColor;
@@ -91,7 +92,7 @@ namespace TrenchBroom {
             const size_t textureCount = readSize<int32_t>(cursor);
             cursor -= sizeof(int32_t);
             
-            TextureList textures;
+            Assets::TextureList textures;
             textures.reserve(textureCount);
             
             const char* base = cursor;
@@ -110,10 +111,11 @@ namespace TrenchBroom {
                 
                 size_t mipWidth = width;
                 size_t mipHeight = height;
-                Buffer<unsigned char>::List textureBuffers;
+                Assets::TextureBuffer::List textureBuffers;
                 textureBuffers.reserve(4);
+                
                 for (size_t j = 0; j < 4; ++j) {
-                    Buffer<unsigned char> textureBuffer(3 * mipWidth * mipHeight);
+                    Assets::TextureBuffer textureBuffer(3 * mipWidth * mipHeight);
                     cursor = base + textureOffset + mipOffsets[j];
                     m_palette.indexedToRgb(cursor, mipWidth * mipHeight, textureBuffer, averageColor);
                     mipWidth /= 2;
@@ -121,10 +123,10 @@ namespace TrenchBroom {
                     textureBuffers.push_back(textureBuffer);
                 }
                 
-                textures.push_back(Assets::AutoTexturePtr(new Assets::AutoTexture(width, height, averageColor, textureBuffers)));
+                textures.push_back(new Assets::Texture(textureName, width, height, averageColor, textureBuffers));
             }
             
-            return textures;
+            return new Assets::TextureCollection(m_name, textures);
         }
         
         Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos() {
@@ -205,9 +207,9 @@ namespace TrenchBroom {
             return faceEdges;
         }
         
-        Assets::Bsp29Model* Bsp29Parser::parseModels(const TextureList& textures, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             
-            Assets::Bsp29Model* model = new Assets::Bsp29Model(m_name);
+            Assets::Bsp29Model* model = new Assets::Bsp29Model(m_name, textureCollection);
             try {
                 VertexMarkList vertexMarks(vertices.size(), false);
                 Vec3f::List modelVertices;
@@ -229,7 +231,7 @@ namespace TrenchBroom {
                     for (size_t j = 0; j < modelFaceCount; ++j) {
                         const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
                         const TextureInfo& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                        const Assets::AutoTexturePtr texture = textures[textureInfo.textureIndex];
+                        Assets::Texture* texture = textureCollection->textures()[textureInfo.textureIndex];
                         Assets::Bsp29Model::Face face(texture);
                         
                         const size_t faceVertexCount = faceInfo.edgeCount;
@@ -242,7 +244,7 @@ namespace TrenchBroom {
                                 vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
                             
                             const Vec3f& vertex = vertices[vertexIndex];
-                            const Vec2f texCoords = textureCoords(vertex, textureInfo, texture);
+                            const Vec2f texCoords = textureCoords(vertex, textureInfo, *texture);
                             face.addVertex(vertex, texCoords);
                             
                             if (!vertexMarks[vertexIndex]) {
@@ -264,9 +266,9 @@ namespace TrenchBroom {
             return model;
         }
         
-        Vec2f Bsp29Parser::textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::AutoTexturePtr texture) const {
-            return Vec2f((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
-                         (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+        Vec2f Bsp29Parser::textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
+            return Vec2f((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
+                         (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
         }
     }
 }

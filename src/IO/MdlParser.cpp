@@ -20,7 +20,7 @@
 #include "MdlParser.h"
 
 #include "CollectionUtils.h"
-#include "Assets/AutoTexture.h"
+#include "Assets/Texture.h"
 #include "Assets/MdlModel.h"
 #include "Assets/Palette.h"
 #include "IO/IOUtils.h"
@@ -240,6 +240,7 @@ namespace TrenchBroom {
         void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height) {
             const size_t size = width * height;
             Color avgColor;
+            StringStream textureName;
 
             cursor = m_begin + MdlLayout::Skins;
             for (size_t i = 0; i < count; ++i) {
@@ -249,13 +250,16 @@ namespace TrenchBroom {
                     m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
                     
-                    Assets::AutoTexture* texture = new Assets::AutoTexture(width, height, avgColor, rgbImage);
+                    textureName.str();
+                    textureName << m_name << "_" << i;
+                    
+                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
                     model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
                     const char* base = cursor;
                     
-                    Assets::AutoTextureList textures(pictureCount);
+                    Assets::TextureList textures(pictureCount);
                     Assets::MdlTimeList times(pictureCount);
                     
                     for (size_t j = 0; j < pictureCount; ++j) {
@@ -266,7 +270,11 @@ namespace TrenchBroom {
                         cursor = base + pictureCount * 4 + j * size;
                         m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                         cursor += size;
-                        textures[j] = new Assets::AutoTexture(width, height, avgColor, rgbImage);
+
+                        textureName.str();
+                        textureName << m_name << "_" << i << "_" << j;
+
+                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
                     }
                     
                     model.addSkin(new Assets::MdlSkin(textures, times));

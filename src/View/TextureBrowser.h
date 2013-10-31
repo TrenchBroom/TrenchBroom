@@ -32,7 +32,7 @@ class wxScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
+        class Texture;
     }
     
     namespace Renderer {
@@ -57,8 +57,8 @@ namespace TrenchBroom {
             
             void reload();
             
-            Assets::FaceTexture* selectedTexture() const;
-            void setSelectedTexture(Assets::FaceTexture* selectedTexture);
+            Assets::Texture* selectedTexture() const;
+            void setSelectedTexture(Assets::Texture* selectedTexture);
             
             void OnSortOrderChanged(wxCommandEvent& event);
             void OnGroupButtonToggled(wxCommandEvent& event);

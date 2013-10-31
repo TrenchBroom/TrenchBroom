@@ -32,12 +32,10 @@ namespace TrenchBroom {
         
         class Texture;
         typedef std::vector<Texture*> TextureList;
+
         
-        class FaceTexture;
-        typedef std::vector<FaceTexture*> FaceTextureList;
-        
-        class FaceTextureCollection;
-        typedef std::vector<FaceTextureCollection*> TextureCollectionList;
+        class TextureCollection;
+        typedef std::vector<TextureCollection*> TextureCollectionList;
         
         class EntityDefinition;
         class PointEntityDefinition;
@@ -57,10 +55,6 @@ namespace TrenchBroom {
         
         class EntityModel;
         typedef std::vector<EntityModel*> EntityModelList;
-        
-        class AutoTexture;
-        typedef std::tr1::shared_ptr<AutoTexture> AutoTexturePtr;
-        typedef std::vector<AutoTexture*> AutoTextureList;
     }
 }
 

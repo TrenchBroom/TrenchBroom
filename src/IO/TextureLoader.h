@@ -31,11 +31,9 @@ namespace TrenchBroom {
         public:
             virtual ~TextureLoader();
             
-            Assets::FaceTextureCollection* loadTextureCollection(const Path& path);
-            void uploadTextureCollection(Assets::FaceTextureCollection* collection);
+            Assets::TextureCollection* loadTextureCollection(const Path& path);
         private:
-            virtual Assets::FaceTextureCollection* doLoadTextureCollection(const Path& path) = 0;
-            virtual void doUploadTextureCollection(Assets::FaceTextureCollection* collection) = 0;
+            virtual Assets::TextureCollection* doLoadTextureCollection(const Path& path) = 0;
         };
     }
 }

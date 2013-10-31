@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
+        class Texture;
     }
     
     namespace Renderer {
@@ -37,12 +37,12 @@ namespace TrenchBroom {
         private:
             Renderer::RenderResources& m_resources;
             wxGLContext* m_glContext;
-            Assets::FaceTexture* m_texture;
+            Assets::Texture* m_texture;
         public:
             TextureView(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources);
             ~TextureView();
             
-            void setTexture(Assets::FaceTexture* texture);
+            void setTexture(Assets::Texture* texture);
             
             void OnPaint(wxPaintEvent& event);
         };

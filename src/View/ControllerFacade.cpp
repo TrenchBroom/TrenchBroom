@@ -317,7 +317,7 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture) {
+        bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {
             using namespace Controller;
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));

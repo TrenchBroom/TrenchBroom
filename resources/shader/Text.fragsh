@@ -20,9 +20,9 @@
  */
 
 varying vec4 vertexColor;
-uniform sampler2D FaceTexture;
+uniform sampler2D Texture;
 
 void main() {
-    vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);
+    vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
     gl_FragColor = vec4(vertexColor.r, vertexColor.g, vertexColor.b, vertexColor.a * texel.r);
 }

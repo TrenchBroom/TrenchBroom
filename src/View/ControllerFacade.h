@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
+        class Texture;
     }
     
     namespace IO {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
 
-            bool setFaceTexture(const Model::BrushFaceList& faces, Assets::FaceTexture* texture);
+            bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset);
             bool setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset);
             bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);

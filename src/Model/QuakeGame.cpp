@@ -98,12 +98,12 @@ namespace TrenchBroom {
             return extractTexturePaths(map, Model::PropertyKeys::Wad);
         }
 
-        Assets::FaceTextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* QuakeGame::doLoadTextureCollection(const IO::Path& path) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
 
-        void QuakeGame::doUploadTextureCollection(Assets::FaceTextureCollection* collection) const {
+        void QuakeGame::doUploadTextureCollection(Assets::TextureCollection* collection) const {
             IO::WadTextureLoader loader(m_palette);
             loader.uploadTextureCollection(collection);
         }

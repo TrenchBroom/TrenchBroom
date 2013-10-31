@@ -39,8 +39,6 @@ namespace TrenchBroom {
     namespace IO {
         class Bsp29Parser : public EntityModelParser {
         private:
-            typedef std::vector<Assets::AutoTexturePtr> TextureList;
-            
             struct TextureInfo {
                 Vec3f sAxis;
                 Vec3f tAxis;
@@ -74,14 +72,14 @@ namespace TrenchBroom {
             Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             Assets::EntityModel* doParseModel();
-            TextureList parseTextures();
+            Assets::TextureCollection* parseTextures();
             TextureInfoList parseTextureInfos();
             Vec3f::List parseVertices();
             EdgeInfoList parseEdgeInfos();
             FaceInfoList parseFaceInfos();
             FaceEdgeIndexList parseFaceEdges();
-            Assets::Bsp29Model* parseModels(const TextureList& textures, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
-            Vec2f textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::AutoTexturePtr texture) const;
+            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            Vec2f textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const;
         };
     }
 }

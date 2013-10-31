@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureView::setTexture(Assets::FaceTexture* texture) {
+        void TextureView::setTexture(Assets::Texture* texture) {
             m_texture = texture;
             Refresh();
         }

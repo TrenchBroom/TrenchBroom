@@ -20,15 +20,18 @@
 #include "Bsp29Model.h"
 
 #include "CollectionUtils.h"
-#include "Assets/AutoTexture.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/MeshRenderer.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Assets {
-        Bsp29Model::Face::Face(AutoTexturePtr texture) :
+        Bsp29Model::Face::Face(Assets::Texture* texture) :
         m_texture(texture) {}
         
         void Bsp29Model::Face::addVertex(const Vec3f& vertex, const Vec2f& texCoord) {
@@ -36,8 +39,8 @@ namespace TrenchBroom {
             m_texCoords.push_back(texCoord);
         }
 
-        AutoTexture* Bsp29Model::Face::texture() const {
-            return m_texture.get();
+        Assets::Texture* Bsp29Model::Face::texture() const {
+            return m_texture;
         }
         
         Renderer::VertexSpecs::P3T2::Vertex::List Bsp29Model::Face::vertices() const {
@@ -79,16 +82,24 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        Bsp29Model::Bsp29Model(const String& name) :
-        m_name(name) {}
+        Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :
+        m_name(name),
+        m_textureCollection(textureCollection) {
+            assert(textureCollection != NULL);
+        }
 
+        Bsp29Model::~Bsp29Model() {
+            delete m_textureCollection;
+            m_textureCollection = NULL;
+        }
+        
         void Bsp29Model::addModel(const FaceList& faces, const BBox3f& bounds) {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
         Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
             
-            Renderer::Mesh<const Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
+            Renderer::Mesh<Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
 
             const SubModel& model = m_subModels.front();
             FaceList::const_iterator it, end;

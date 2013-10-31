@@ -23,7 +23,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Assets/FaceTextureCollection.h"
+#include "Assets/TextureCollection.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 #include "Model/QuakeGame.h"
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             return doExtractTexturePaths(map);
         }
 
-        Assets::FaceTextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
             try {
                 return doLoadTextureCollection(path);
             } catch (ResourceNotFoundException e) {
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Game::uploadTextureCollection(Assets::FaceTextureCollection* collection) const {
+        void Game::uploadTextureCollection(Assets::TextureCollection* collection) const {
             try {
                 doUploadTextureCollection(collection);
             } catch (ResourceNotFoundException e) {

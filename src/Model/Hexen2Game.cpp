@@ -93,12 +93,12 @@ namespace TrenchBroom {
             return extractTexturePaths(map, Model::PropertyKeys::Wad);
         }
         
-        Assets::FaceTextureCollection* Hexen2Game::doLoadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* Hexen2Game::doLoadTextureCollection(const IO::Path& path) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.loadTextureCollection(path);
         }
         
-        void Hexen2Game::doUploadTextureCollection(Assets::FaceTextureCollection* collection) const {
+        void Hexen2Game::doUploadTextureCollection(Assets::TextureCollection* collection) const {
             IO::WadTextureLoader loader(m_palette);
             return loader.uploadTextureCollection(collection);
         }

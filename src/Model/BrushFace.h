@@ -42,7 +42,7 @@ namespace TrenchBroom {
         class BrushFaceAttribs {
         private:
             String m_textureName;
-            Assets::FaceTexture* m_texture;
+            Assets::Texture* m_texture;
             
             float m_xOffset;
             float m_yOffset;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             BrushFaceAttribs(const String& textureName);
             
             const String& textureName() const;
-            Assets::FaceTexture* texture() const;
+            Assets::Texture* texture() const;
 
             float xOffset() const;
             float yOffset() const;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             size_t surfaceFlags() const;
             float surfaceValue() const;
             
-            void setTexture(Assets::FaceTexture* texture);
+            void setTexture(Assets::Texture* texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             void setAttribs(const BrushFaceAttribs& attribs);
             
             const String& textureName() const;
-            Assets::FaceTexture* texture() const;
+            Assets::Texture* texture() const;
             float xOffset() const;
             float yOffset() const;
             float rotation() const;
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             size_t surfaceFlags() const;
             float surfaceValue() const;
             
-            void setTexture(Assets::FaceTexture* texture);
+            void setTexture(Assets::Texture* texture);
             void setXOffset(const float xOffset);
             void setYOffset(const float yOffset);
             void setRotation(const float rotation);

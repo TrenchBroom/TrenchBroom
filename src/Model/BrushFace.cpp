@@ -21,7 +21,7 @@
 
 #include "Exceptions.h"
 #include "VecMath.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return m_textureName;
         }
         
-        Assets::FaceTexture* BrushFaceAttribs::texture() const {
+        Assets::Texture* BrushFaceAttribs::texture() const {
             return m_texture;
         }
         
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return m_surfaceValue;
         }
         
-        void BrushFaceAttribs::setTexture(Assets::FaceTexture* texture) {
+        void BrushFaceAttribs::setTexture(Assets::Texture* texture) {
             m_texture = texture;
             if (m_texture != NULL)
                 m_textureName = texture->name();
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             return m_attribs.textureName();
         }
         
-        Assets::FaceTexture* BrushFace::texture() const {
+        Assets::Texture* BrushFace::texture() const {
             return m_attribs.texture();
         }
         
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             return m_attribs.surfaceValue();
         }
 
-        void BrushFace::setTexture(Assets::FaceTexture* texture) {
+        void BrushFace::setTexture(Assets::Texture* texture) {
             if (texture == m_attribs.texture())
                 return;
             if (m_attribs.texture() != NULL)
@@ -485,7 +485,7 @@ namespace TrenchBroom {
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
             
-            const Assets::FaceTexture* texture = m_attribs.texture();
+            const Assets::Texture* texture = m_attribs.texture();
             const float xOffset = m_attribs.xOffset();
             const float yOffset = m_attribs.yOffset();
             const float xScale = m_attribs.xScale();

@@ -24,18 +24,18 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
+        class Texture;
     }
     
     namespace View {
         class TextureSelectedCommand : public wxNotifyEvent {
         protected:
-            Assets::FaceTexture* m_texture;
+            Assets::Texture* m_texture;
         public:
             TextureSelectedCommand();
             
-            Assets::FaceTexture* texture() const;
-            void setTexture(Assets::FaceTexture* texture);
+            Assets::Texture* texture() const;
+            void setTexture(Assets::Texture* texture);
             
             virtual wxEvent* Clone() const;
             

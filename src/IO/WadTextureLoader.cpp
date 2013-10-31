@@ -25,85 +25,42 @@
 #include "Renderer/GL.h"
 #include "IO/Wad.h"
 #include "Assets/Palette.h"
-#include "Assets/FaceTexture.h"
-#include "Assets/FaceTextureCollection.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 
 namespace TrenchBroom {
     namespace IO {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
 
-        Assets::FaceTextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
+        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
             Wad wad(path);
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
-            Assets::FaceTextureList textures;
+            Assets::TextureList textures;
             textures.reserve(textureCount);
+
+            Color tempColor, averageColor;
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const WadEntry& entry = mipEntries[i];
                 const MipSize mipSize = wad.mipSize(entry);
-                textures.push_back(new Assets::FaceTexture(entry.name(), mipSize.width, mipSize.height));
-            }
-            
-            return new Assets::FaceTextureCollection(path, textures);
-        }
 
-        void WadTextureLoader::doUploadTextureCollection(Assets::FaceTextureCollection* collection) {
-            Buffer<unsigned char> buffer(InitialBufferSize);
-            Color averageColor;
-            
-            const IO::Path& path = collection->path();
-            Wad wad(path);
+                Assets::TextureBuffer::List buffers(4);
+                Assets::setMipBufferSize(buffers, mipSize.width, mipSize.height);
 
-            const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
-            const Assets::FaceTextureList& textures = collection->textures();
-            
-            if (mipEntries.size() != textures.size())
-                throw AssetException("Found different number of textures in " + path.asString() + " while uploading mip data");
-            
-            const size_t textureCount = mipEntries.size();
-            
-            
-            typedef std::vector<GLuint> TextureIdList;
-            TextureIdList textureIds;
-            textureIds.resize(textureCount);
-            glEnable(GL_TEXTURE_2D);
-            glGenTextures(textureCount, &textureIds[0]);
-
-            for (size_t i = 0; i < textureCount; ++i) {
-                const WadEntry& entry = mipEntries[i];
-                Assets::FaceTexture* texture = textures[i];
-                assert(entry.name() == texture->name());
-                
-                if (texture->width() * texture->height() > buffer.size())
-                    buffer = Buffer<unsigned char>(texture->width() * texture->height());
-                
-                const GLuint textureId = textureIds[i];
-                texture->setTextureId(textureId);
-
-                glBindTexture(GL_TEXTURE_2D, textureId);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                
                 for (size_t j = 0; j < 4; ++j) {
                     const MipData mipData = wad.mipData(entry, j);
-                    m_palette.indexedToRgb(mipData.begin, mipData.end - mipData.begin, buffer, averageColor);
+                    m_palette.indexedToRgb(mipData.begin, mipData.end - mipData.begin, buffers[j], tempColor);
                     if (j == 0)
-                        texture->setAverageColor(averageColor);
-
-                    const size_t divisor = 1 << j;
-                    glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
-                                 static_cast<GLsizei>(texture->width() / divisor),
-                                 static_cast<GLsizei>(texture->height() / divisor),
-                                 0, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
+                        averageColor = tempColor;
                 }
-                glBindTexture(GL_TEXTURE_2D, 0);
+
+                textures.push_back(new Assets::Texture(entry.name(), mipSize.width, mipSize.height, averageColor, buffers));
             }
+            
+            return new Assets::TextureCollection(path.lastComponent().asString(), textures);
         }
     }
 }

@@ -144,7 +144,7 @@ namespace TrenchBroom {
             Model::SelectionResult selectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectAll();
-            Assets::FaceTexture* currentTexture() const;
+            Assets::Texture* currentTexture() const;
             String currentTextureName() const;
             
             bool textureLock() const;

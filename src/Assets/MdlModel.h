@@ -40,14 +40,14 @@ namespace TrenchBroom {
         
         class MdlSkin {
         private:
-            AutoTextureList m_textures;
+            TextureList m_textures;
             MdlTimeList m_times;
         public:
-            MdlSkin(AutoTexture* texture);
-            MdlSkin(const AutoTextureList& textures, const MdlTimeList times);
+            MdlSkin(Texture* texture);
+            MdlSkin(const TextureList& textures, const MdlTimeList times);
             ~MdlSkin();
             
-            const AutoTexture* firstPicture() const;
+            const Texture* firstPicture() const;
         };
 
         typedef Renderer::VertexSpecs::P3T2::Vertex MdlFrameVertex;

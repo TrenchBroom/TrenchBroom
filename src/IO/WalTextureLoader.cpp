@@ -23,8 +23,8 @@
 #include "ByteBuffer.h"
 #include "Exceptions.h"
 #include "StringUtils.h"
-#include "Assets/FaceTexture.h"
-#include "Assets/FaceTextureCollection.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
@@ -37,24 +37,24 @@ namespace TrenchBroom {
         m_fs(fs),
         m_palette(palette) {}
 
-        Assets::FaceTextureCollection* WalTextureLoader::doLoadTextureCollection(const Path& path) {
+        Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Path& path) {
             Path::List texturePaths = m_fs.findItems(path, FileSystem::ExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
             
-            Assets::FaceTextureList textures;
+            Assets::TextureList textures;
             textures.reserve(texturePaths.size());
             
             Path::List::const_iterator it, end;
             for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
                 const Path& texturePath = *it;
-                Assets::FaceTexture* texture = readTexture(texturePath);
+                Assets::Texture* texture = readTexture(texturePath);
                 textures.push_back(texture);
             }
             
-            return new Assets::FaceTextureCollection(path, textures);
+            return new Assets::TextureCollection(path.lastComponent().asString(), textures);
         }
         
-        Assets::FaceTexture* WalTextureLoader::readTexture(const IO::Path& path) {
+        Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) {
             MappedFile::Ptr file = m_fs.openFile(path);
             const char* cursor = file->begin();
             
@@ -67,72 +67,25 @@ namespace TrenchBroom {
             advance<char[32]>(cursor);
             const size_t width = readSize<uint32_t>(cursor);
             const size_t height = readSize<uint32_t>(cursor);
-            
             const String textureName = path.suffix(2).deleteExtension().asString('/');
-            return new Assets::FaceTexture(textureName, width, height);
-        }
 
-        void WalTextureLoader::doUploadTextureCollection(Assets::FaceTextureCollection* collection) {
-            Buffer<unsigned char> buffer(3 * 512 * 512);
-            Color averageColor;
+            Color tempColor, averageColor;
+            Assets::TextureBuffer::List buffers(4);
+            Assets::setMipBufferSize(buffers, width, height);
             
-            const IO::Path& collectionPath = collection->path();
-            const Assets::FaceTextureList& textures = collection->textures();
-            const size_t textureCount = textures.size();
-            
-            typedef std::vector<GLuint> TextureIdList;
-            TextureIdList textureIds;
-            textureIds.resize(textureCount);
-            glEnable(GL_TEXTURE_2D);
-            glGenTextures(textureCount, &textureIds[0]);
-            
-            for (size_t i = 0; i < textureCount; ++i) {
-                Assets::FaceTexture* texture = textures[i];
-                const String translatedTextureName = translateTextureName(texture->name());
-                const Path& texturePath = collectionPath + IO::Path(translatedTextureName + ".wal").lastComponent();
+            const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
+            for (size_t i = 0; i < 4; ++i) {
+                const size_t divisor = 1 << i;
+                const size_t offset = IO::readSize<int32_t>(offsetCursor);
+                const char* mipCursor = file->begin() + offset;
+                const size_t pixelCount = (width * height) / (divisor * divisor);
                 
-                if (!m_fs.fileExists(texturePath)) {
-                    glDeleteTextures(textureCount, &textureIds[0]);
-                    throw ResourceNotFoundException("Cannot find wal texture: " + texture->name() + ".wal");
-                }
-                
-                if (texture->width() * texture->height() > buffer.size())
-                    buffer = Buffer<unsigned char>(texture->width() * texture->height());
-                
-                const GLuint textureId = textureIds[i];
-                texture->setTextureId(textureId);
-                
-                glBindTexture(GL_TEXTURE_2D, textureId);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER , GL_NEAREST_MIPMAP_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                
-                MappedFile::Ptr file = m_fs.openFile(texturePath);
-                const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
-
-                for (size_t j = 0; j < 4; ++j) {
-                    const size_t divisor = 1 << j;
-                    const size_t offset = IO::readSize<int32_t>(offsetCursor);
-                    const char* mipCursor = file->begin() + offset;
-                    const size_t pixelCount = texture->width() * texture->height() / (divisor * divisor);
-                    
-                    m_palette.indexedToRgb(mipCursor, pixelCount, buffer, averageColor);
-                    if (j == 0)
-                        texture->setAverageColor(averageColor);
-                    
-                    glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
-                                 static_cast<GLsizei>(texture->width() / divisor),
-                                 static_cast<GLsizei>(texture->height() / divisor),
-                                 0, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
-                }
-                glBindTexture(GL_TEXTURE_2D, 0);
+                m_palette.indexedToRgb(mipCursor, pixelCount, buffers[i], tempColor);
+                if (i == 0)
+                    averageColor = tempColor;
             }
-        }
-
-        String WalTextureLoader::translateTextureName(const String& textureName) {
-            return StringUtils::replaceChars(textureName, "*", "#");
+            
+            return new Assets::Texture(textureName, width, height, averageColor, buffers);
         }
     }
 }

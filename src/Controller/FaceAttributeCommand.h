@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class FaceTexture;
+        class Texture;
     }
     
     namespace Controller {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList m_faces;
             Model::Snapshot m_snapshot;
 
-            Assets::FaceTexture* m_texture;
+            Assets::Texture* m_texture;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         public:
             FaceAttributeCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
             
-            void setTexture(Assets::FaceTexture* texture);
+            void setTexture(Assets::Texture* texture);
             void setXOffset(const float xOffset);
             void addXOffset(const float xOffset);
             void mulXOffset(const float xOffset);

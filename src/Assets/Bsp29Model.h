@@ -41,12 +41,12 @@ namespace TrenchBroom {
             private:
                 Vec3f::List m_vertices;
                 Vec2f::List m_texCoords;
-                AutoTexturePtr m_texture;
+                Texture* m_texture;
             public:
-                Face(AutoTexturePtr texture);
+                Face(Texture* texture);
                 void addVertex(const Vec3f& vertex, const Vec2f& texCoord);
                 
-                AutoTexture* texture() const;
+                Texture* texture() const;
                 Renderer::VertexSpecs::P3T2::Vertex::List vertices() const;
                 const Vec3f::List& vertexPositions() const;
             };
@@ -63,8 +63,10 @@ namespace TrenchBroom {
             typedef std::vector<SubModel> SubModelList;
             String m_name;
             SubModelList m_subModels;
+            TextureCollection* m_textureCollection;
         public:
-            Bsp29Model(const String& name);
+            Bsp29Model(const String& name, TextureCollection* textureCollection);
+            ~Bsp29Model();
             
             void addModel(const FaceList& faces, const BBox3f& bounds);
         private:

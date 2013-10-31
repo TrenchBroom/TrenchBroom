@@ -20,18 +20,63 @@
 #ifndef __TrenchBroom__Texture__
 #define __TrenchBroom__Texture__
 
+#include "ByteBuffer.h"
 #include "Color.h"
+#include "StringUtils.h"
+#include "Renderer/GL.h"
+
+#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
+        class TextureCollection;
+        
+        typedef Buffer<unsigned char> TextureBuffer;
+        void setMipBufferSize(TextureBuffer::List& buffers, const size_t width, const size_t height);
+        
         class Texture {
+        private:
+            TextureCollection* m_collection;
+            String m_name;
+            
+            size_t m_width;
+            size_t m_height;
+            Color m_averageColor;
+
+            size_t m_usageCount;
+            bool m_overridden;
+            
+            GLuint m_textureId;
+            TextureBuffer::List m_buffers;
         public:
-            virtual ~Texture();
-            virtual size_t width() const = 0;
-            virtual size_t height() const = 0;
-            virtual const Color& averageColor() const = 0;
-            virtual void activate() const = 0;
-            virtual void deactivate() const = 0;
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers);
+            ~Texture();
+
+            const String& name() const;
+            
+            size_t width() const;
+            size_t height() const;
+            const Color& averageColor() const;
+
+            size_t usageCount() const;
+            void incUsageCount();
+            void decUsageCount();
+            bool overridden() const;
+            void setOverridden(const bool overridden);
+
+            void activate();
+            void deactivate();
+        private:
+            void setCollection(TextureCollection* collection);
+            
+            bool isPrepared() const;
+            void prepare();
+            GLuint createTexture();
+            void doUploadTextureBuffer(const GLuint textureId);
+            
+            friend class TextureCollection;
         };
     }
 }

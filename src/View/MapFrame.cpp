@@ -20,7 +20,7 @@
 #include "MapFrame.h"
 
 #include "TrenchBroomApp.h"
-#include "Assets/FaceTexture.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
 #include "Model/Brush.h"
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                     pasteObjects(objects, delta);
                 } else if (!faces.empty()) {
                     Model::BrushFace* pastedFace = faces.back();
-                    Assets::FaceTexture* texture = m_document->textureManager().texture(pastedFace->textureName());
+                    Assets::Texture* texture = m_document->textureManager().texture(pastedFace->textureName());
                     pastedFace->setTexture(texture);
                     
                     const Model::BrushFaceList& selectedFaces = m_document->selectedFaces();

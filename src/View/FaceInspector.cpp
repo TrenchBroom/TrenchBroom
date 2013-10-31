@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
-            if (!m_controller->setFaceTexture(m_document->allSelectedFaces(), event.texture()))
+            if (!m_controller->setTexture(m_document->allSelectedFaces(), event.texture()))
                 event.Veto();
         }
 

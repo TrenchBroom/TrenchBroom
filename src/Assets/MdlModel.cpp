@@ -20,7 +20,7 @@
 #include "MdlModel.h"
 
 #include "CollectionUtils.h"
-#include "Assets/AutoTexture.h"
+#include "Assets/Texture.h"
 #include "Assets/Texture.h"
 #include "Renderer/MeshRenderer.h"
 #include "Renderer/Mesh.h"
@@ -30,12 +30,12 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        MdlSkin::MdlSkin(AutoTexture* texture) {
+        MdlSkin::MdlSkin(Texture* texture) {
             m_textures.push_back(texture);
             m_times.push_back(0.0f);
         }
         
-        MdlSkin::MdlSkin(const AutoTextureList& textures, const MdlTimeList times) :
+        MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeList times) :
         m_textures(textures),
         m_times(times) {
             assert(textures.size() == times.size());
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_textures);
         }
 
-        const AutoTexture* MdlSkin::firstPicture() const {
+        const Texture* MdlSkin::firstPicture() const {
             return m_textures.front();
         }
 
