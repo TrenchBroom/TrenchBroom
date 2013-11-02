@@ -98,11 +98,6 @@ namespace TrenchBroom {
             return loader.loadTextureCollection(path);
         }
         
-        void Hexen2Game::doUploadTextureCollection(Assets::TextureCollection* collection) const {
-            IO::WadTextureLoader loader(m_palette);
-            return loader.uploadTextureCollection(collection);
-        }
-        
         Assets::EntityDefinitionList Hexen2Game::doLoadEntityDefinitions(const IO::Path& path) const {
             using TrenchBroom::Model::loadEntityDefinitions;
             return loadEntityDefinitions(path, m_defaultEntityColor);

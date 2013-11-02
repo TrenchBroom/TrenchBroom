@@ -45,7 +45,6 @@ namespace TrenchBroom {
             
             TextureCollectionList m_collections;
             TextureCollectionMap m_collectionsByPath;
-            TextureCollectionMap m_toUpload;
             TextureCollectionMap m_toRemove;
             TextureList m_sortedTextures[2];
             GroupList m_sortedGroups[2];
@@ -56,7 +55,7 @@ namespace TrenchBroom {
 
             void addTextureCollection(const IO::Path& path);
             void addTextureCollections(const IO::Path::List& paths);
-            void removeTextureCollection(const size_t index);
+            void removeTextureCollection(const IO::Path& path);
             
             void reset(Model::GamePtr game);
             void commitChanges();
@@ -66,8 +65,8 @@ namespace TrenchBroom {
             const GroupList& groups(const SortOrder sortOrder) const;
             const TextureCollectionList& collections() const;
         private:
-            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove);
-            void doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload);
+            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
+            void doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
             void updateTextures();
             TextureList textureList() const;
         };

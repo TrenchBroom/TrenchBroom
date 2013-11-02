@@ -47,8 +47,8 @@ namespace TrenchBroom {
             size_t m_usageCount;
             bool m_overridden;
             
-            GLuint m_textureId;
-            TextureBuffer::List m_buffers;
+            mutable GLuint m_textureId;
+            mutable TextureBuffer::List m_buffers;
         public:
             Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer);
             Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers);
@@ -66,15 +66,15 @@ namespace TrenchBroom {
             bool overridden() const;
             void setOverridden(const bool overridden);
 
-            void activate();
-            void deactivate();
+            void activate() const;
+            void deactivate() const;
         private:
             void setCollection(TextureCollection* collection);
             
             bool isPrepared() const;
-            void prepare();
-            GLuint createTexture();
-            void doUploadTextureBuffer(const GLuint textureId);
+            void prepare() const;
+            GLuint createTexture() const;
+            void doUploadTextureBuffer(const GLuint textureId) const;
             
             friend class TextureCollection;
         };

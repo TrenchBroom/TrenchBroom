@@ -108,7 +108,7 @@ namespace TrenchBroom {
             m_overridden = overridden;
         }
         
-        void Texture::activate() {
+        void Texture::activate() const {
             if (!isPrepared())
                 prepare();
             
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             glBindTexture(GL_TEXTURE_2D, m_textureId);
         }
         
-        void Texture::deactivate() {
+        void Texture::deactivate() const {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             return m_textureId != 0;
         }
 
-        void Texture::prepare() {
+        void Texture::prepare() const {
             assert(!isPrepared());
             
             if (m_collection != NULL)
@@ -137,13 +137,13 @@ namespace TrenchBroom {
                 doUploadTextureBuffer(createTexture());
         }
         
-        GLuint Texture::createTexture() {
+        GLuint Texture::createTexture() const {
             GLuint textureId = 0;
             glGenTextures(1, &textureId);
             return textureId;
         }
 
-        void Texture::doUploadTextureBuffer(const GLuint textureId) {
+        void Texture::doUploadTextureBuffer(const GLuint textureId) const {
             assert(!m_buffers.empty());
             
             glBindTexture(GL_TEXTURE_2D, textureId);

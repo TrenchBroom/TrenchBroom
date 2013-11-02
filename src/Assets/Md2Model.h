@@ -35,34 +35,39 @@ namespace TrenchBroom {
     }
     
     namespace Assets {
+        class TextureCollection;
+        
         class Md2Model : public EntityModel {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
             typedef Renderer::Mesh<const Assets::Texture*, VertexSpec> Mesh;
-        private:
-            struct Frame {
-                Mesh::TriangleSeries triangleFans;
-                Mesh::TriangleSeries triangleStrips;
-                BBox3f bounds;
-                
-                Frame(const Mesh::TriangleSeries& i_triangleFans, const Mesh::TriangleSeries& i_triangleStrips);
+
+            class Frame {
+            private:
+                Mesh::TriangleSeries m_triangleFans;
+                Mesh::TriangleSeries m_triangleStrips;
+                BBox3f m_bounds;
+            public:
+                Frame(const Mesh::TriangleSeries& triangleFans, const Mesh::TriangleSeries& triangleStrips);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
+                
+                const Mesh::TriangleSeries& triangleFans() const;
+                const Mesh::TriangleSeries& triangleStrips() const;
+                const BBox3f& bounds() const;
             private:
                 void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series) const;
                 void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series, const Mat4x4f& transformation) const;
             };
+
             typedef std::vector<Frame> FrameList;
-            
+        private:
             String m_name;
-            Assets::TextureList m_skins;
+            TextureCollection* m_skins;
             FrameList m_frames;
         public:
-            Md2Model(const String& name);
+            Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
-            
-            void addSkin(Assets::Texture* texture);
-            void addFrame(const Mesh::TriangleSeries& triangleFans, const Mesh::TriangleSeries& triangleStrips);
         private:
             Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;

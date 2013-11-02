@@ -64,7 +64,6 @@ namespace TrenchBroom {
             IO::Path::List findBuiltinTextureCollections() const;
             IO::Path::List extractTexturePaths(const Map* map) const;
             Assets::TextureCollection* loadTextureCollection(const IO::Path& path) const;
-            void uploadTextureCollection(Assets::TextureCollection* collection) const;
             
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
             IO::Path defaultEntityDefinitionFile() const;
@@ -86,7 +85,6 @@ namespace TrenchBroom {
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
             virtual Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
-            virtual void doUploadTextureCollection(Assets::TextureCollection* collection) const = 0;
             
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
             virtual IO::Path doDefaultEntityDefinitionFile() const = 0;

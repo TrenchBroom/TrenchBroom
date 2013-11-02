@@ -103,11 +103,6 @@ namespace TrenchBroom {
             return loader.loadTextureCollection(path);
         }
 
-        void QuakeGame::doUploadTextureCollection(Assets::TextureCollection* collection) const {
-            IO::WadTextureLoader loader(m_palette);
-            loader.uploadTextureCollection(collection);
-        }
-
         Assets::EntityDefinitionList QuakeGame::doLoadEntityDefinitions(const IO::Path& path) const {
             using TrenchBroom::Model::loadEntityDefinitions;
             return loadEntityDefinitions(path, m_defaultEntityColor);

@@ -20,7 +20,7 @@
 #include "Md2Parser.h"
 
 #include "Exceptions.h"
-#include "Assets/AutoTexture.h"
+#include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
 #include "IO/GameFileSystem.h"
@@ -301,36 +301,57 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
-            Assets::Md2Model* model = new Assets::Md2Model(m_name);
-            
-            Md2SkinList::const_iterator skinIt, skinEnd;
-            for (skinIt = skins.begin(), skinEnd = skins.end(); skinIt != skinEnd; ++skinIt)
-                addSkinToModel(*model, *skinIt);
-            
-            Md2FrameList::const_iterator frameIt, frameEnd;
-            for (frameIt = frames.begin(), frameEnd = frames.end(); frameIt != frameEnd; ++frameIt)
-                addFrameToModel(*model, *frameIt, meshes);
-            
-            return model;
+            const Assets::TextureList modelTextures = loadTextures(skins);
+            const Assets::Md2Model::FrameList modelFrames = buildFrames(frames, meshes);
+            return new Assets::Md2Model(m_name, modelTextures, modelFrames);
         }
 
-        void Md2Parser::addSkinToModel(Assets::Md2Model& model, const Md2Skin& skin) {
-            const Path skinPath(String(skin.name));
-            MappedFile::Ptr file = m_fs.openFile(skinPath);
-            if (file != NULL) {
-                Color avgColor;
-                const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
-                
-                const Buffer<unsigned char>& indices = image.indices();
-                Buffer<unsigned char> rgbImage(indices.size() * 3);
-                m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
-                
-                Assets::AutoTexture* texture = new Assets::AutoTexture(image.width(), image.height(), avgColor, rgbImage);
-                model.addSkin(texture);
+        Assets::TextureList Md2Parser::loadTextures(const Md2SkinList& skins) {
+            Assets::TextureList textures;
+            textures.reserve(skins.size());
+            
+            try {
+                Md2SkinList::const_iterator it, end;
+                for (it = skins.begin(), end = skins.end(); it != end; ++it) {
+                    const Md2Skin& skin = *it;
+                    Assets::Texture* texture = loadTexture(skin);
+                    textures.push_back(texture);
+                }
+                return textures;
+            } catch (...) {
+                VectorUtils::clearAndDelete(textures);
+                throw;
             }
         }
         
-        void Md2Parser::addFrameToModel(Assets::Md2Model& model, const Md2Frame& frame, const Md2MeshList& meshes) {
+        Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
+            const Path skinPath(String(skin.name));
+            MappedFile::Ptr file = m_fs.openFile(skinPath);
+            
+            Color avgColor;
+            const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
+            
+            const Buffer<unsigned char>& indices = image.indices();
+            Buffer<unsigned char> rgbImage(indices.size() * 3);
+            m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
+            
+            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
+        }
+
+        Assets::Md2Model::FrameList Md2Parser::buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes) {
+            Assets::Md2Model::FrameList modelFrames;
+            modelFrames.reserve(frames.size());
+            
+            Md2FrameList::const_iterator it, end;
+            for (it = frames.begin(), end = frames.end(); it != end; ++it) {
+                const Md2Frame& frame = *it;
+                const Assets::Md2Model::Frame modelFrame = buildFrame(frame, meshes);
+                modelFrames.push_back(modelFrame);
+            }
+            return modelFrames;
+        }
+
+        Assets::Md2Model::Frame Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
             typedef Assets::Md2Model::Vertex Vertex;
             typedef Assets::Md2Model::Mesh Mesh;
             
@@ -361,7 +382,7 @@ namespace TrenchBroom {
                     triangleFans.push_back(triangles);
             }
             
-            model.addFrame(triangleFans, triangleStrips);
+            return Assets::Md2Model::Frame(triangleFans, triangleStrips);
         }
     }
 }

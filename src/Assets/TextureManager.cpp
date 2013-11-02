@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
         void TextureManager::addTextureCollection(const IO::Path& path) {
             assert(m_game != NULL);
-            doAddTextureCollection(path, m_collections, m_collectionsByPath, m_toUpload, m_toRemove);
+            doAddTextureCollection(path, m_collections, m_collectionsByPath, m_toRemove);
             updateTextures();
         }
         
@@ -61,33 +61,30 @@ namespace TrenchBroom {
             
             TextureCollectionList collections;
             TextureCollectionMap collectionsByPath;
-            TextureCollectionMap toUpload;
             TextureCollectionMap toRemove = m_toRemove;
             
             IO::Path::List::const_iterator it, end;
             for (it = paths.begin(), end = paths.end(); it != end; ++it) {
                 const IO::Path& path = *it;
-                doAddTextureCollection(path, collections, collectionsByPath, toUpload, toRemove);
+                doAddTextureCollection(path, collections, collectionsByPath, toRemove);
             }
             
             m_collections.insert(m_collections.end(), collections.begin(), collections.end());
             m_collectionsByPath.insert(collectionsByPath.begin(), collectionsByPath.end());
-            m_toUpload.insert(toUpload.begin(), toUpload.end());
             m_toRemove = toRemove;
 
             updateTextures();
         }
 
-        void TextureManager::removeTextureCollection(const size_t index) {
-            assert(index < m_collections.size());
+        void TextureManager::removeTextureCollection(const IO::Path& path) {
+            TextureCollectionMap::iterator it = m_collectionsByPath.find(path);
+            assert(it != m_collectionsByPath.end());
             
-            TextureCollectionList::iterator it = m_collections.begin() + index;
-            TextureCollection* collection = *it;
-            
-            m_collections.erase(it);
-            m_collectionsByPath.erase(collection->path());
-            m_toUpload.erase(collection->path());
-            m_toRemove.insert(TextureCollectionMapEntry(collection->path(), collection));
+            TextureCollection* collection = it->second;
+            VectorUtils::remove(m_collections, collection);
+
+            m_collectionsByPath.erase(it);
+            m_toRemove.insert(TextureCollectionMapEntry(path, collection));
             updateTextures();
         }
         
@@ -95,22 +92,12 @@ namespace TrenchBroom {
             m_toRemove.insert(m_collectionsByPath.begin(), m_collectionsByPath.end());
             m_collections.clear();
             m_collectionsByPath.clear();
-            m_toUpload.clear();
             m_game = game;
             updateTextures();
         }
         
         void TextureManager::commitChanges() {
-            if (m_game != NULL) {
-                TextureCollectionMap::iterator it, end;
-                for (it = m_toUpload.begin(), end = m_toUpload.end(); it != end; ++it) {
-                    TextureCollection* collection = it->second;
-                    m_game->uploadTextureCollection(collection);
-                }
-                
-                m_toUpload.clear();
-                MapUtils::clearAndDelete(m_toRemove);
-            }
+            MapUtils::clearAndDelete(m_toRemove);
         }
 
         Texture* TextureManager::texture(const String& name) const {
@@ -132,7 +119,7 @@ namespace TrenchBroom {
             return m_collections;
         }
 
-        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload, TextureCollectionMap& toRemove) {
+        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove) {
             if (collectionsByPath.count(path) > 0)
                 return;
             
@@ -140,17 +127,16 @@ namespace TrenchBroom {
             if (it != toRemove.end()) {
                 TextureCollection* collection = it->second;
                 toRemove.erase(it);
-                doAddTextureCollection(path, collection, collections, collectionsByPath, toUpload);
+                doAddTextureCollection(path, collection, collections, collectionsByPath);
             } else {
                 TextureCollection* collection = m_game->loadTextureCollection(path);
-                doAddTextureCollection(path, collection, collections, collectionsByPath, toUpload);
+                doAddTextureCollection(path, collection, collections, collectionsByPath);
             }
         }
 
-        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toUpload) {
+        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath) {
             collectionsByPath.insert(TextureCollectionMapEntry(path, collection));
             collections.push_back(collection);
-            toUpload.insert(TextureCollectionMapEntry(path, collection));
         }
 
         void TextureManager::updateTextures() {

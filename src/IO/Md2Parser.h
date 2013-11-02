@@ -22,6 +22,8 @@
 
 #include "StringUtils.h"
 #include "VecMath.h"
+#include "Assets/AssetTypes.h"
+#include "Assets/Md2Model.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
@@ -29,7 +31,6 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityModel;
-        class Md2Model;
         class Palette;
     }
     
@@ -106,8 +107,10 @@ namespace TrenchBroom {
             Md2FrameList parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount);
             Md2MeshList parseMeshes(const char* begin, const size_t commandCount);
             Assets::EntityModel* buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes);
-            void addSkinToModel(Assets::Md2Model& model, const Md2Skin& skin);
-            void addFrameToModel(Assets::Md2Model& model, const Md2Frame& frame, const Md2MeshList& meshes);
+            Assets::TextureList loadTextures(const Md2SkinList& skins);
+            Assets::Texture* loadTexture(const Md2Skin& skin);
+            Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes);
+            Assets::Md2Model::Frame buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
         };
     }
 }

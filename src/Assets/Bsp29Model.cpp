@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
         Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
             
-            Renderer::Mesh<Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
+            Renderer::Mesh<const Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
 
             const SubModel& model = m_subModels.front();
             FaceList::const_iterator it, end;

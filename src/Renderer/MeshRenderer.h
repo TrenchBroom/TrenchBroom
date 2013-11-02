@@ -39,14 +39,14 @@ namespace TrenchBroom {
         
         class MeshRenderer {
         private:
-            typedef MeshRenderData<Assets::Texture*> RenderData;
+            typedef MeshRenderData<const Assets::Texture*> RenderData;
             RenderData::List m_renderData;
             bool m_prepared;
         public:
             MeshRenderer();
             
             template <typename VertexSpec>
-            MeshRenderer(Vbo& vbo, const Mesh<Assets::Texture*, VertexSpec>& mesh) :
+            MeshRenderer(Vbo& vbo, const Mesh<const Assets::Texture*, VertexSpec>& mesh) :
             m_renderData(mesh.renderData(vbo)),
             m_prepared(false) {}
             
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 RenderData::List::iterator it, end;
                 for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
                     RenderData& renderData = *it;
-                    Assets::Texture* texture = renderData.key;
+                    const Assets::Texture* texture = renderData.key;
                     
                     if (texture != NULL)
                         texture->activate();

@@ -99,11 +99,6 @@ namespace TrenchBroom {
             return loader.loadTextureCollection(path);
         }
         
-        void Quake2Game::doUploadTextureCollection(Assets::TextureCollection* collection) const {
-            IO::WalTextureLoader loader(m_fs, m_palette);
-            loader.uploadTextureCollection(collection);
-        }
-        
         Assets::EntityDefinitionList Quake2Game::doLoadEntityDefinitions(const IO::Path& path) const {
             using TrenchBroom::Model::loadEntityDefinitions;
             return loadEntityDefinitions(path, m_defaultEntityColor);

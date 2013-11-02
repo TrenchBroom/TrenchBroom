@@ -148,15 +148,6 @@ namespace TrenchBroom {
             }
         }
 
-        void Game::uploadTextureCollection(Assets::TextureCollection* collection) const {
-            try {
-                doUploadTextureCollection(collection);
-            } catch (ResourceNotFoundException e) {
-                if (m_logger != NULL)
-                    m_logger->error("Error uploading texture collection %s: %s", collection->path().asString().c_str(), e.what());
-            }
-        }
-
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
             try {
                 return doLoadEntityDefinitions(path);

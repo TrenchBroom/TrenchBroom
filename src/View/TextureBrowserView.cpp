@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureCollection.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/VertexArray.h"
@@ -120,11 +121,10 @@ namespace TrenchBroom {
                 const Assets::TextureManager::GroupList& groups = m_textureManager.groups(m_sortOrder);
                 Assets::TextureManager::GroupList::const_iterator gIt, gEnd;
                 for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
-                    const IO::Path& path = gIt->first;
-                    const String groupName = path.lastComponent().asString();
+                    const Assets::TextureCollection* collection = gIt->first;
                     const Assets::TextureList& textures = gIt->second;
                     
-                    layout.addGroup(groupName, fontSize + 2.0f);
+                    layout.addGroup(collection->name(), fontSize + 2.0f);
                     
                     Assets::TextureList::const_iterator tIt, tEnd;
                     for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
@@ -266,9 +266,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-            bool b = true;
-            
-            
         }
         
         void TextureBrowserView::renderNames(Layout& layout, const float y, const float height) {
