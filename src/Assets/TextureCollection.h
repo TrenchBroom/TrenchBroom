@@ -37,7 +37,7 @@ namespace TrenchBroom {
             TextureIdList m_textureIds;
         public:
             TextureCollection(const String& name, const TextureList& textures);
-            ~TextureCollection();
+            virtual ~TextureCollection();
 
             const String& name() const;
             const TextureList& textures() const;

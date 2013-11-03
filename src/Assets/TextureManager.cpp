@@ -19,6 +19,7 @@
 
 #include "TextureManager.h"
 
+#include "Exceptions.h"
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -83,7 +84,8 @@ namespace TrenchBroom {
 
         void TextureManager::removeTextureCollection(const IO::Path& path) {
             TextureCollectionMap::iterator it = m_collectionsByPath.find(path);
-            assert(it != m_collectionsByPath.end());
+            if (it == m_collectionsByPath.end())
+                throw AssetException("Could not find texture collection: '" + path.asString() + "'");
             
             TextureCollection* collection = it->second;
             VectorUtils::remove(m_collections, collection);
