@@ -22,6 +22,9 @@
 
 #include "TestUtils.h"
 #include "Exceptions.h"
+#include "Color.h"
+#include "Assets/AssetTypes.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "Model/MockGame.h"
@@ -191,6 +194,45 @@ namespace TrenchBroom {
             textureManager.addTextureCollections(paths);
             textureManager.reset(game);
             ASSERT_TRUE(textureManager.collections().empty());
+        }
+        
+        TEST(TextureManagerTest, texture) {
+            using namespace testing;
+            InSequence forceInSequenceMockCalls;
+            
+            TextureList textures1;
+            textures1.push_back(new Texture("t1",  64,  64, Color(), TextureBuffer( 64* 64*3)));
+            textures1.push_back(new Texture("t2", 128, 128, Color(), TextureBuffer(128*128*3)));
+            TextureCollection* collection1 = new TextureCollection("c1", textures1);
+            const IO::Path path1("asfd");
+            
+            TextureList textures2;
+            textures2.push_back(new Texture("t2",  32,  32, Color(), TextureBuffer( 32* 32*3)));
+            textures2.push_back(new Texture("t3", 128, 128, Color(), TextureBuffer(128*128*3)));
+            TextureCollection* collection2 = new TextureCollection("c2", textures2);
+            const IO::Path path2("fdsa");
+            
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            TextureManager textureManager;
+            textureManager.reset(game);
+            
+            EXPECT_CALL(*game, doLoadTextureCollection(path1)).WillOnce(Return(collection1));
+            EXPECT_CALL(*game, doLoadTextureCollection(path2)).WillOnce(Return(collection2));
+            
+            textureManager.addTextureCollection(path1);
+            
+            ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
+            ASSERT_TRUE(textureManager.texture("t2") == textures1[1]);
+            
+            textureManager.addTextureCollection(path2);
+            ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
+            ASSERT_TRUE(textureManager.texture("t2") == textures2[0]);
+            ASSERT_TRUE(textureManager.texture("t3") == textures2[1]);
+            
+            ASSERT_FALSE(textures1[0]->overridden());
+            ASSERT_TRUE(textures1[1]->overridden());
+            ASSERT_FALSE(textures2[0]->overridden());
+            ASSERT_FALSE(textures2[1]->overridden());
         }
     }
 }

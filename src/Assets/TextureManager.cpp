@@ -46,6 +46,7 @@ namespace TrenchBroom {
 
         TextureManager::~TextureManager() {
             VectorUtils::clearAndDelete(m_collections);
+            MapUtils::clearAndDelete(m_toRemove);
         }
 
         void TextureManager::addTextureCollection(const IO::Path& path) {

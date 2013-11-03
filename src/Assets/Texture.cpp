@@ -43,7 +43,7 @@ namespace TrenchBroom {
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
-            assert(buffer.size() >= m_width * m_height * 4);
+            assert(buffer.size() >= m_width * m_height * 3);
             m_buffers.push_back(buffer);
         }
         
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             assert(m_height > 0);
             for (size_t i = 0; i < m_buffers.size(); ++i) {
                 const size_t div = 1 << i;
-                assert(m_buffers[i].size() >= (m_width * m_height) / (div * div));
+                assert(m_buffers[i].size() >= (m_width * m_height) / (div * div) * 3);
             }
         }
         
