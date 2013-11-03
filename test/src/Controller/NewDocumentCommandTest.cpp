@@ -18,6 +18,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "Controller/NewDocumentCommand.h"
 #include "IO/Path.h"

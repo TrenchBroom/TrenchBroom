@@ -21,6 +21,7 @@
 #define TrenchBroom_TestUtils_h
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
 #define ASSERT_VEC_NE(vec1, vec2) ASSERT_FALSE((vec1).equals((vec2)))

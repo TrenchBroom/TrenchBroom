@@ -63,16 +63,21 @@ namespace TrenchBroom {
             TextureCollectionMap collectionsByPath;
             TextureCollectionMap toRemove = m_toRemove;
             
-            IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const IO::Path& path = *it;
-                doAddTextureCollection(path, collections, collectionsByPath, toRemove);
+            try {
+                IO::Path::List::const_iterator it, end;
+                for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+                    const IO::Path& path = *it;
+                    doAddTextureCollection(path, collections, collectionsByPath, toRemove);
+                }
+            } catch (...) {
+                VectorUtils::clearAndDelete(collections);
+                throw;
             }
-            
+
             m_collections.insert(m_collections.end(), collections.begin(), collections.end());
             m_collectionsByPath.insert(collectionsByPath.begin(), collectionsByPath.end());
             m_toRemove = toRemove;
-
+            
             updateTextures();
         }
 
