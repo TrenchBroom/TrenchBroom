@@ -45,33 +45,34 @@ namespace TrenchBroom {
                 while (!eof()) {
                     size_t startLine = line();
                     size_t startColumn = column();
-                    const char* c = nextChar();
+                    const char* c = curPos();
                     switch (*c) {
                         case '{':
+                            advance();
                             return Token(SimpleToken::OBrace, c, c+1, offset(c), startLine, startColumn);
                         case '}':
+                            advance();
                             return Token(SimpleToken::CBrace, c, c+1, offset(c), startLine, startColumn);
                         case '=':
+                            advance();
                             return Token(SimpleToken::Equals, c, c+1, offset(c), startLine, startColumn);
                         case ';':
+                            advance();
                             return Token(SimpleToken::Semicolon, c, c+1, offset(c), startLine, startColumn);
                         default: { // integer, decimal, or string
                             if (isWhitespace(*c)) {
-                                // disregard leading whitespace
-                                startLine = line();
-                                startColumn = column();
+                                advance();
                                 break;
                             }
-                            const char* begin = c;
-                            const char* end = readInteger(begin, "{};= \n\r\t");
-                            if (end > begin)
-                                return Token(SimpleToken::Integer, begin, end, offset(begin), startLine, startColumn);
-                            end = readDecimal(begin, "{};= \n\r\t");
-                            if (end > begin)
-                                return Token(SimpleToken::Decimal, begin, end, offset(begin), startLine, startColumn);
-                            end = readString(begin, "{};= \n\r\t");
-                            assert(end > begin);
-                            return Token(SimpleToken::String, begin, end, offset(begin), startLine, startColumn);
+                            const char* e = readInteger("{};= \n\r\t");
+                            if (e != NULL)
+                                return Token(SimpleToken::Integer, c, e, offset(c), startLine, startColumn);
+                            e = readDecimal("{};= \n\r\t");
+                            if (e != NULL)
+                                return Token(SimpleToken::Decimal, c, e, offset(c), startLine, startColumn);
+                            e = readString("{};= \n\r\t");
+                            assert(e != NULL);
+                            return Token(SimpleToken::String, c, e, offset(c), startLine, startColumn);
                         }
                     }
                 }

@@ -42,47 +42,56 @@ namespace TrenchBroom {
             while (!eof()) {
                 size_t startLine = line();
                 size_t startColumn = column();
-                const char* c = nextChar();
+                const char* c = curPos();
                 switch (*c) {
                     case '/':
-                        if (peekChar() == '/')
+                        advance();
+                        if (curChar() == '/')
                             discardUntil("\n\r");
                         break;
                     case '{':
+                        advance();
                         return Token(QuakeMapToken::OBrace, c, c+1, offset(c), startLine, startColumn);
                     case '}':
+                        advance();
                         return Token(QuakeMapToken::CBrace, c, c+1, offset(c), startLine, startColumn);
                     case '(':
+                        advance();
                         return Token(QuakeMapToken::OParenthesis, c, c+1, offset(c), startLine, startColumn);
                     case ')':
+                        advance();
                         return Token(QuakeMapToken::CParenthesis, c, c+1, offset(c), startLine, startColumn);
                     case '[':
+                        advance();
                         return Token(QuakeMapToken::OBracket, c, c+1, offset(c), startLine, startColumn);
                     case ']':
+                        advance();
                         return Token(QuakeMapToken::CBracket, c, c+1, offset(c), startLine, startColumn);
                     case '"': { // quoted string
-                        const char* begin = nextChar();
-                        const char* end = readQuotedString(begin);
-                        return Token(QuakeMapToken::String, begin, end, offset(begin), startLine, startColumn);
+                        advance();
+                        c = curPos();
+                        const char* e = readQuotedString();
+                        return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                        discardWhile(Whitespace);
+                        break;
                     default: { // whitespace, integer, decimal or word
-                        if (isWhitespace(*c)) {
-                            discardWhile(Whitespace);
-                        } else {
-                            const char* begin = c;
-                            const char* end = readInteger(begin, Whitespace);
-                            if (end > begin)
-                                return Token(QuakeMapToken::Integer, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readDecimal(begin, Whitespace);
-                            if (end > begin)
-                                return Token(QuakeMapToken::Decimal, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readString(begin, Whitespace);
-                            if (end == begin)
-                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
-                            return Token(QuakeMapToken::String, begin, end, offset(begin), startLine, startColumn);
-                        }
+                        const char* e = readInteger(Whitespace);
+                        if (e != NULL)
+                            return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
+                        
+                        e = readDecimal(Whitespace);
+                        if (e != NULL)
+                            return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
+                        
+                        e = readString(Whitespace);
+                        if (e == NULL)
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }

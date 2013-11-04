@@ -39,49 +39,61 @@ namespace TrenchBroom {
             while (!eof()) {
                 size_t startLine = line();
                 size_t startColumn = column();
-                const char* c = nextChar();
+                const char* c = curPos();
+                
                 switch (*c) {
                     case '/':
-                        if (peekChar() == '/')
+                        advance();
+                        if (curChar() == '/')
                             discardUntil("\n\r");
                         break;
                     case '(':
+                        advance();
                         return Token(FgdToken::OParenthesis, c, c+1, offset(c), startLine, startColumn);
                     case ')':
+                        advance();
                         return Token(FgdToken::CParenthesis, c, c+1, offset(c), startLine, startColumn);
                     case '[':
+                        advance();
                         return Token(FgdToken::OBracket, c, c+1, offset(c), startLine, startColumn);
                     case ']':
+                        advance();
                         return Token(FgdToken::CBracket, c, c+1, offset(c), startLine, startColumn);
                     case '=':
+                        advance();
                         return Token(FgdToken::Equality, c, c+1, offset(c), startLine, startColumn);
                     case ',':
+                        advance();
                         return Token(FgdToken::Comma, c, c+1, offset(c), startLine, startColumn);
                     case ':':
+                        advance();
                         return Token(FgdToken::Colon, c, c+1, offset(c), startLine, startColumn);
                     case '"': { // quoted string
-                        const char* begin = nextChar();
-                        const char* end = readQuotedString(begin);
-                        return Token(FgdToken::String, begin, end, offset(begin), startLine, startColumn);
+                        advance();
+                        c = curPos();
+                        const char* e = readQuotedString();
+                        return Token(FgdToken::String, c, e, offset(c), startLine, startColumn);
                     }
-                    default:
-                        if (isWhitespace(*c)) {
-                            discardWhile(Whitespace);
-                        } else {
-                            const char* begin = c;
-                            const char* end = readInteger(begin, WordDelims);
-                            if (end > begin)
-                                return Token(FgdToken::Integer, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readDecimal(begin, WordDelims);
-                            if (end > begin)
-                                return Token(FgdToken::Decimal, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readString(begin, WordDelims);
-                            if (end == begin)
-                                throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
-                            return Token(FgdToken::Word, begin, end, offset(begin), startLine, startColumn);
-                        }
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                        discardWhile(Whitespace);
+                        break;
+                    default: {
+                        const char* e = readInteger(WordDelims);
+                        if (e != NULL)
+                            return Token(FgdToken::Integer, c, e, offset(c), startLine, startColumn);
+                        
+                        e = readDecimal(WordDelims);
+                        if (e != NULL)
+                            return Token(FgdToken::Decimal, c, e, offset(c), startLine, startColumn);
+                        
+                        e = readString(WordDelims);
+                        if (e == NULL)
+                            throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
+                        return Token(FgdToken::Word, c, e, offset(c), startLine, startColumn);
+                    }
                 }
             }
             return Token(FgdToken::Eof, NULL, NULL, length(), line(), column());

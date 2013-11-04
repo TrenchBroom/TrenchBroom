@@ -39,75 +39,78 @@ namespace TrenchBroom {
             while (!eof()) {
                 size_t startLine = line();
                 size_t startColumn = column();
-                const char* c = nextChar();
+                const char* c = curPos();
                 switch (*c) {
                     case '/': {
-                        const char* begin = c;
-                        if (peekChar() == '*') {
+                        advance();
+                        if (curChar() == '*') {
                             // eat all chars immediately after the '*' because it's often followed by QUAKE
-                            while (!isWhitespace(*nextChar()) && !eof());
-                            return Token(DefToken::ODefinition, begin, c, offset(begin), startLine, startColumn);
-                        } else if (peekChar() == '/') {
+                            do { advance(); } while (!eof() && !isWhitespace(curChar()));
+                            return Token(DefToken::ODefinition, c, curPos(), offset(c), startLine, startColumn);
+                        } else if (curChar() == '/') {
                             discardUntil("\n\r");
                             break;
                         }
                         // fall through and try to read as word
+                        retreat();
                     }
                     case '*': {
-                        const char* begin = c;
-                        if (peekChar() == '/') {
-                            nextChar();
-                            return Token(DefToken::CDefinition, begin, c, offset(begin), startLine, startColumn);
-                        }
+                        advance();
+                        if (curChar() == '/')
+                            return Token(DefToken::CDefinition, c, curPos(), offset(c), startLine, startColumn);
                         // fall through and try to read as word
+                        retreat();
                     }
                     case '(':
+                        advance();
                         return Token(DefToken::OParenthesis, c, c + 1, offset(c), startLine, startColumn);
                     case ')':
+                        advance();
                         return Token(DefToken::CParenthesis, c, c + 1, offset(c), startLine, startColumn);
                     case '{':
+                        advance();
                         return Token(DefToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
                     case '}':
+                        advance();
                         return Token(DefToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
                     case '=':
+                        advance();
                         return Token(DefToken::Equality, c, c + 1, offset(c), startLine, startColumn);
                     case ';':
+                        advance();
                         return Token(DefToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
                     case '?':
+                        advance();
                         return Token(DefToken::Question, c, c + 1, offset(c), startLine, startColumn);
                     case '\r':
-                        if (peekChar() == '\n')
-                            nextChar();
+                        advance();
                     case '\n':
+                        advance();
                         return Token(DefToken::Newline, c, c + 1, offset(c), startLine, startColumn);
                     case ',':
+                        advance();
                         return Token(DefToken::Comma, c, c + 1, offset(c), startLine, startColumn);
                     case ' ':
                     case '\t':
+                        discardWhile(Whitespace);
                         break;
                     case '"': { // quoted string
-                        const char* begin = nextChar();
-                        const char* end = readQuotedString(begin);
-                        return Token(DefToken::QuotedString, begin, end, offset(begin), startLine, startColumn);
+                        advance();
+                        c = curPos();
+                        const char* e = readQuotedString();
+                        return Token(DefToken::QuotedString, c, e, offset(c), startLine, startColumn);
                     }
                     default: { // integer, decimal or word
-                        if (isWhitespace(*c)) {
-                            discardWhile(Whitespace);
-                        } else {
-                            const char* begin = c;
-                            const char* end = readInteger(begin, WordDelims);
-                            if (end > begin)
-                                return Token(DefToken::Integer, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readDecimal(begin, WordDelims);
-                            if (end > begin)
-                                return Token(DefToken::Decimal, begin, end, offset(begin), startLine, startColumn);
-                            
-                            end = readString(begin, WordDelims);
-                            if (end == begin)
-                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
-                            return Token(DefToken::Word, begin, end, offset(begin), startLine, startColumn);
-                        }
+                        const char* e = readInteger(WordDelims);
+                        if (e != NULL)
+                            return Token(DefToken::Integer, c, e, offset(c), startLine, startColumn);
+                        e = readDecimal(WordDelims);
+                        if (e != NULL)
+                            return Token(DefToken::Decimal, c, e, offset(c), startLine, startColumn);
+                        e = readString(WordDelims);
+                        if (e == NULL)
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        return Token(DefToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }

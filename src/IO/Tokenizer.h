@@ -1,27 +1,27 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2013 Kristian Duske
  
- This file is part of TrenchBroom.
+ This file is part of Tippi.
  
- TrenchBroom is free software: you can redistribute it and/or modify
+ Tippi is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
  
- TrenchBroom is distributed in the hope that it will be useful,
+ Tippi is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ along with Tippi. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Tokenizer_h
-#define TrenchBroom_Tokenizer_h
+#ifndef Tippi_Tokenizer_h
+#define Tippi_Tokenizer_h
 
 #include "Exceptions.h"
-#include "IO/Token.h"
+#include "Token.h"
 
 #include <cassert>
 #include <stack>
@@ -34,13 +34,23 @@ namespace TrenchBroom {
             typedef TokenTemplate<TokenType> Token;
         private:
             typedef std::stack<Token> TokenStack;
-
+            
+            struct State {
+                const char* cur;
+                size_t line;
+                size_t column;
+                size_t lastColumn;
+                
+                State(const char* i_cur) :
+                cur(i_cur),
+                line(1),
+                column(1),
+                lastColumn(0) {}
+            };
+            
             const char* m_begin;
             const char* m_end;
-            const char* m_cur;
-            size_t m_line;
-            size_t m_column;
-            size_t m_lastColumn;
+            State m_state;
             
             TokenStack m_tokenStack;
         protected:
@@ -49,19 +59,13 @@ namespace TrenchBroom {
             Tokenizer(const char* begin, const char* end) :
             m_begin(begin),
             m_end(end),
-            m_cur(m_begin),
-            m_line(1),
-            m_column(1),
-            m_lastColumn(0) {}
+            m_state(State(m_begin)) {}
             
             Tokenizer(const String& str) :
             m_begin(str.c_str()),
             m_end(str.c_str() + str.size()),
-            m_cur(m_begin),
-            m_line(1),
-            m_column(1),
-            m_lastColumn(0) {}
-
+            m_state(State(m_begin)) {}
+            
             virtual ~Tokenizer() {}
             
             Token nextToken() {
@@ -94,30 +98,28 @@ namespace TrenchBroom {
                 const char* endPos = startPos;
                 token = nextToken();
                 while (token.type() != delimiterType && !eof()) {
-                    endPos = m_cur;
+                    endPos = token.end();
                     token = nextToken();
                 }
                 
                 pushToken(token);
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
-
+            
             void reset() {
-                m_line = 1;
-                m_column = 1;
-                m_cur = m_begin;
+                m_state = State(m_begin);
             }
         protected:
             size_t line() const {
-                return m_line;
+                return m_state.line;
             }
             
             size_t column() const {
-                return m_column;
+                return m_state.column;
             }
             
             bool eof() const {
-                return m_cur >= m_end;
+                return m_state.cur >= m_end;
             }
             
             size_t length() const {
@@ -129,37 +131,51 @@ namespace TrenchBroom {
                 return static_cast<size_t>(ptr - m_begin);
             }
             
-            const char* nextChar() {
+            const char* curPos() const {
+                return m_state.cur;
+            }
+            
+            char curChar() const {
                 if (eof())
                     return 0;
                 
-                if (*m_cur == '\n') {
-                    m_line++;
-                    m_lastColumn = m_column;
-                    m_column = 1;
-                } else {
-                    m_column++;
-                }
-                
-                return m_cur++;
+                return *curPos();
             }
             
-            void pushChar() {
-                assert(m_cur > m_begin);
-                if (*--m_cur == '\n') {
-                    m_line--;
-                    m_column = m_lastColumn;
+            void advance() {
+                errorIfEof();
+                
+                if (curChar() == '\n') {
+                    ++m_state.line;
+                    m_state.lastColumn = m_state.column;
+                    m_state.column = 1;
                 } else {
-                    m_column--;
+                    ++m_state.column;
                 }
+                
+                ++m_state.cur;
             }
             
-            char peekChar(size_t offset = 0) {
-                if (eof())
-                    return 0;
-                
-                assert(m_cur + offset < m_end);
-                return *(m_cur + offset);
+            void retreat() {
+                if (curPos() == m_begin)
+                    throw ParserException("Cannot retreat beyond beginning of file");
+                --m_state.cur;
+                if (curChar() == '\n') {
+                    --m_state.line;
+                    if (m_state.lastColumn > 0) {
+                        m_state.column = m_state.lastColumn;
+                        m_state.lastColumn = 0;
+                    } else {
+                        m_state.column = 1;
+                        const char* c = m_state.cur - 1;
+                        while (c > m_begin && *c != '\n') {
+                            --c;
+                            ++m_state.column;
+                        }
+                    }
+                } else {
+                    --m_state.column;
+                }
             }
             
             bool isDigit(const char c) const {
@@ -170,71 +186,71 @@ namespace TrenchBroom {
                 return isAnyOf(c, Whitespace);
             }
             
-            const char* readInteger(const char* begin, const String& delims) {
-                const char* c = begin;
-                if ((*c == '-' && !eof()) || isDigit(*c)) {
-                    while (!eof() && isDigit(*(c = nextChar())));
-                    if (eof() || isAnyOf(*c, delims)) {
-                        if (!eof())
-                            pushChar();
-                        return c;
+            const char* readInteger(const String& delims) {
+                if (curChar() != '-' && !isDigit(curChar()))
+                    return NULL;
+                
+                const State previous = m_state;
+                while (!eof() && isDigit(curChar()))
+                    advance();
+                if (eof() || isAnyOf(curChar(), delims))
+                    return curPos();
+                
+                m_state = previous;
+                return NULL;
+            }
+            
+            const char* readDecimal(const String& delims) {
+                if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar()))
+                    return NULL;
+                
+                const State previous = m_state;
+                advance();
+                while (!eof() && isDigit(curChar()))
+                    advance();
+                if (curChar() == '.') {
+                    advance();
+                    while (!eof() && isDigit(curChar()))
+                        advance();
+                }
+                if (curChar() == 'e') {
+                    advance();
+                    if (curChar() == '+' || curChar() == '-' || isDigit(curChar())) {
+                        advance();
+                        while (!eof() && isDigit(curChar()))
+                            advance();
                     }
                 }
-                return begin;
+                if (eof() || isAnyOf(curChar(), delims))
+                    return curPos();
+                
+                m_state = previous;
+                return NULL;
             }
             
-            const char* readDecimal(const char* begin, const String& delims) {
-                const char* c = begin;
-                if (((*c == '-' || *c == '.') && !eof()) || isDigit(*c)) {
-                    while (!eof() && isDigit(*(c = nextChar())));
-                    if (*c == '.' && eof())
-                        return begin;
-                    if (*c == '.')
-                        while (!eof() && isDigit(*(c = nextChar())));
-                    if (*c == 'e' && eof())
-                        return begin;
-                    if (*c == 'e') {
-                        c = nextChar();
-                        if ((*c == '+' || *c == '-') && eof())
-                            return begin;
-                        if (*c == '+' || *c == '-' || isDigit(*c))
-                            while (!eof() && isDigit(*(c = nextChar())));
-                    }
-                    if (eof() || isAnyOf(*c, delims)) {
-                        if (!eof())
-                            pushChar();
-                        return c;
-                    }
-                }
-                return begin;
+            const char* readString(const String& delims) {
+                while (!eof() && !isAnyOf(curChar(), delims))
+                    advance();
+                return curPos();
             }
             
-            const char* readString(const char* begin, const String& delims) {
-                const char* c = begin;
-                while (!eof() && c != NULL && !isAnyOf(*c, delims))
-                    c = nextChar();
-                if (!eof())
-                    pushChar();
-                return c;
-            }
-            
-            const char* readQuotedString(const char* begin) {
-                const char* c = begin;
-                while (!eof() && *c != '"')
-                    c = nextChar();
+            const char* readQuotedString() {
+                while (!eof() && curChar() != '"')
+                    advance();
                 errorIfEof();
-                return c;
+                const char* end = curPos();
+                advance();
+                return end;
             }
             
             void discardWhile(const String& allow) {
-                while (!eof() && isAnyOf(peekChar(), allow))
-                    nextChar();
-                // pushChar();
+                while (!eof() && isAnyOf(curChar(), allow))
+                    advance();
             }
             
             void discardUntil(const String& delims) {
-                const char* c;
-                while (!eof() && !isAnyOf(*(c = nextChar()), delims));
+                while (!eof() && !isAnyOf(curChar(), delims))
+                    advance();
             }
             
             void error(const char c) const {
@@ -244,20 +260,17 @@ namespace TrenchBroom {
             }
             
             void errorIfEof() const {
-                if (eof()) {
-                    ParserException e;
-                    e << "Unexpected end of file";
-                    throw e;
-                }
+                if (eof())
+                    throw ParserException("Unexpected end of file");
             }
         private:
-           bool isAnyOf(const char c, const String& allow) const {
-               for (size_t i = 0; i < allow.size(); i++)
-                   if (c == allow[i])
-                       return true;
-               return false;
-           }
-
+            bool isAnyOf(const char c, const String& allow) const {
+                for (size_t i = 0; i < allow.size(); i++)
+                    if (c == allow[i])
+                        return true;
+                return false;
+            }
+            
             virtual Token emitToken() = 0;
         };
         
@@ -265,5 +278,4 @@ namespace TrenchBroom {
         const String Tokenizer<TokenType>::Whitespace = " \t\n\r";
     }
 }
-
 #endif
