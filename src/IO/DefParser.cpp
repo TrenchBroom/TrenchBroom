@@ -125,52 +125,28 @@ namespace TrenchBroom {
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(DefTokenizer(str)) {}
         
-        String DefParser::tokenName(const DefToken::Type typeMask) const {
-            StringList names;
-            if ((typeMask & DefToken::Integer) != 0)
-                names.push_back("integer number");
-            if ((typeMask & DefToken::Decimal) != 0)
-                names.push_back("decimal number");
-            if ((typeMask & DefToken::QuotedString) != 0)
-                names.push_back("string");
-            if ((typeMask & DefToken::OParenthesis) != 0)
-                names.push_back("opening parenthesis");
-            if ((typeMask & DefToken::CParenthesis) != 0)
-                names.push_back("closing parenthesis");
-            if ((typeMask & DefToken::OBrace) != 0)
-                names.push_back("opening brace");
-            if ((typeMask & DefToken::CBrace) != 0)
-                names.push_back("closing brace");
-            if ((typeMask & DefToken::Word) != 0)
-                names.push_back("word");
-            if ((typeMask & DefToken::Question) != 0)
-                names.push_back("question mark");
-            if ((typeMask & DefToken::ODefinition) != 0)
-                names.push_back("definition start ('/*')");
-            if ((typeMask & DefToken::CDefinition) != 0)
-                names.push_back("definition end ('*/')");
-            if ((typeMask & DefToken::Semicolon) != 0)
-                names.push_back("semicolon");
-            if ((typeMask & DefToken::Newline) != 0)
-                names.push_back("newline");
-            if ((typeMask & DefToken::Comma) != 0)
-                names.push_back("comma");
-            if ((typeMask & DefToken::Equality) != 0)
-                names.push_back("equality sign");
+        DefParser::TokenNameMap DefParser::tokenNames() const {
+            using namespace DefToken;
             
-            if (names.empty())
-                return "unknown token type";
-            if (names.size() == 1)
-                return names[0];
-            
-            StringStream str;
-            str << names[0];
-            for (unsigned int i = 1; i < names.size() - 1; i++)
-                str << ", " << names[i];
-            str << ", or " << names[names.size() - 1];
-            return str.str();
+            TokenNameMap names;
+            names[Integer]      = "integer";
+            names[Decimal]      = "decimal";
+            names[QuotedString] = "quoted string";
+            names[OParenthesis] = "'('";
+            names[CParenthesis] = "')'";
+            names[OBrace]       = "'{'";
+            names[CBrace]       = "'}'";
+            names[Word]         = "word";
+            names[Question]     = "'?'";
+            names[ODefinition]  = "'/*'";
+            names[CDefinition]  = "'*/'";
+            names[Semicolon]    = "';'";
+            names[Comma]        = "','";
+            names[Equality]     = "'='";
+            names[Eof]          = "end of file";
+            return names;
         }
-        
+
         Assets::EntityDefinitionList DefParser::doParseDefinitions() {
             Assets::EntityDefinitionList definitions;
             try {

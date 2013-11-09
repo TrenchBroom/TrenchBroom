@@ -24,12 +24,17 @@
 #include "StringUtils.h"
 #include "IO/Token.h"
 
+#include <map>
+
 namespace TrenchBroom {
     namespace IO {
         template <typename TokenType>
         class Parser {
+        protected:
+            typedef std::map<TokenType, String> TokenNameMap;
         private:
             typedef TokenTemplate<TokenType> Token;
+            mutable TokenNameMap m_tokenNames;
         public:
             virtual ~Parser() {}
         protected:
@@ -37,8 +42,28 @@ namespace TrenchBroom {
                 if ((token.type() & typeMask) == 0)
                     throw ParserException(token.line(), token.column()) << "Expected " << tokenName(typeMask) << ", but got " << tokenName(token.type());
             }
+            
+            String tokenName(const TokenType typeMask) const {
+                if (m_tokenNames.empty())
+                    m_tokenNames = tokenNames();
+                
+                StringList names;
+                typename TokenNameMap::const_iterator it, end;
+                for (it = m_tokenNames.begin(), end = m_tokenNames.end(); it != end; ++it) {
+                    const TokenType type = it->first;
+                    const String& name = it->second;
+                    if ((typeMask & type) != 0)
+                        names.push_back(name);
+                }
+                
+                if (names.empty())
+                    return "unknown token type";
+                if (names.size() == 1)
+                    return names[0];
+                return StringUtils::join(names, ", ", ", or ", " or ");
+            }
         private:
-            virtual String tokenName(const TokenType typeMask) const = 0;
+            virtual TokenNameMap tokenNames() const = 0;
         };
     }
 }

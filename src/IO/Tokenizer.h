@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return token;
             }
             
-            void pushToken(Token& token) {
+            void pushToken(const Token& token) {
                 m_tokenStack.push(token);
             }
             

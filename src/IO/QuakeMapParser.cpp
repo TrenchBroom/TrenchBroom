@@ -118,42 +118,22 @@ namespace TrenchBroom {
         m_tokenizer(QuakeMapTokenizer(str)),
         m_format(Model::MFUnknown) {}
         
-        String QuakeMapParser::tokenName(const QuakeMapToken::Type typeMask) const {
-            StringList names;
-            if ((typeMask & QuakeMapToken::Integer) != 0)
-                names.push_back("integer number");
-            if ((typeMask & QuakeMapToken::Decimal) != 0)
-                names.push_back("decimal number");
-            if ((typeMask & QuakeMapToken::String) != 0)
-                names.push_back("string");
-            if ((typeMask & QuakeMapToken::OParenthesis) != 0)
-                names.push_back("opening parenthesis");
-            if ((typeMask & QuakeMapToken::CParenthesis) != 0)
-                names.push_back("closing parenthesis");
-            if ((typeMask & QuakeMapToken::OBrace) != 0)
-                names.push_back("opening brace");
-            if ((typeMask & QuakeMapToken::CBrace) != 0)
-                names.push_back("closing brace");
-            if ((typeMask & QuakeMapToken::OBracket) != 0)
-                names.push_back("opening bracket");
-            if ((typeMask & QuakeMapToken::CBracket) != 0)
-                names.push_back("closing bracket");
-            if ((typeMask & QuakeMapToken::Comment) != 0)
-                names.push_back("comment");
+        QuakeMapParser::TokenNameMap QuakeMapParser::tokenNames() const {
+            using namespace QuakeMapToken;
             
-            if (names.empty())
-                return "unknown token type";
-            if (names.size() == 1)
-                return names[0];
-            
-            StringStream str;
-            str << names[0];
-            for (size_t i = 1; i < names.size() - 1; i++)
-                str << ", " << names[i];
-            if (names.size() > 2)
-                str << ",";
-            str << " or " << names[names.size() - 1];
-            return str.str();
+            TokenNameMap names;
+            names[Integer]      = "integer";
+            names[Decimal]      = "decimal";
+            names[String]       = "string";
+            names[OParenthesis] = "'('";
+            names[CParenthesis] = "')'";
+            names[OBrace]       = "'{'";
+            names[CBrace]       = "'}'";
+            names[OBracket]     = "'['";
+            names[CBracket]     = "']'";
+            names[Comment]      = "comment";
+            names[Eof]          = "end of file";
+            return names;
         }
 
         Model::Map* QuakeMapParser::doParseMap(const BBox3& worldBounds) {

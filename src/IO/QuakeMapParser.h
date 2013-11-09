@@ -85,7 +85,7 @@ namespace TrenchBroom {
             QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
             QuakeMapParser(const String& str, Logger* logger = NULL);
         private:
-            String tokenName(const QuakeMapToken::Type typeMask) const;
+            TokenNameMap tokenNames() const;
             Model::Map* doParseMap(const BBox3& worldBounds);
             Model::EntityList doParseEntities(const BBox3& worldBounds);
             Model::BrushList doParseBrushes(const BBox3& worldBounds);

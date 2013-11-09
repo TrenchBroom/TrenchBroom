@@ -389,33 +389,37 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    void insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
+    bool insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
             map.insert(insertPos, std::pair<K, V>(key, value));
+            return true;
         } else {
             // the two keys are equal because insertPos either points to the pair with the same key or the one
             // right after the position where the given pair would be inserted
             insertPos->second = value;
+            return false;
         }
     }
 
     template <typename K, typename V>
-    void insertOrReplace(std::map<K, V*>& map, const K& key, V* value) {
+    bool insertOrReplace(std::map<K, V*>& map, const K& key, V* value) {
         typedef std::map<K, V*> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
             map.insert(insertPos, std::pair<K, V*>(key, value));
+            return true;
         } else {
             // the two keys are equal because insertPos either points to the pair with the same key or the one
             // right after the position where the given pair would be inserted
             delete insertPos->second;
             insertPos->second = value;
+            return false;
         }
     }
 

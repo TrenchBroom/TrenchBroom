@@ -22,12 +22,14 @@
 
 #include <cassert>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
 
 typedef std::string String;
 typedef std::stringstream StringStream;
+typedef std::set<String> StringSet;
 typedef std::vector<String> StringList;
 typedef std::map<String, String> StringMap;
 static const StringList EmptyStringList;
@@ -75,18 +77,29 @@ namespace StringUtils {
         return result;
     }
     
-    template <typename D>
-    String join(const StringList& strs, const D& d) {
+    template <typename D1, typename D2, typename D3>
+    String join(const StringList& strs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
         if (strs.empty())
             return "";
         if (strs.size() == 1)
             return strs[0];
-        
+
         StringStream result;
+        if (strs.size() == 2) {
+            result << strs[0] << delimForTwo << strs[1];
+            return result.str();
+        }
+        
         result << strs[0];
-        for (size_t i = 1; i < strs.size(); i++)
-            result << d << strs[i];
+        for (size_t i = 1; i < strs.size() - 1; i++)
+            result << delim << strs[i];
+        result << lastDelim << strs.back();
         return result.str();
+    }
+    
+    template <typename D>
+    String join(const StringList& strs, const D& d) {
+        return join(strs, d, d, d);
     }
 }
 

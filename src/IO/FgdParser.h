@@ -69,7 +69,7 @@ namespace TrenchBroom {
             FgdParser(const char* begin, const char* end, const Color& defaultEntityColor);
             FgdParser(const String& str, const Color& defaultEntityColor);
         private:
-            String tokenName(const FgdToken::Type typeMask) const;
+            TokenNameMap tokenNames() const;
             Assets::EntityDefinitionList doParseDefinitions();
             
             Assets::EntityDefinition* parseDefinition();

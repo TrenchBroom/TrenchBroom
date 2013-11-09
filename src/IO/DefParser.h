@@ -73,7 +73,7 @@ namespace TrenchBroom {
             DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
             DefParser(const String& str, const Color& defaultEntityColor);
         private:
-            String tokenName(const DefToken::Type typeMask) const;
+            TokenNameMap tokenNames() const;
             Assets::EntityDefinitionList doParseDefinitions();
             
             Assets::EntityDefinition* parseDefinition();

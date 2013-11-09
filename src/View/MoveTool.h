@@ -27,6 +27,12 @@
 #include "View/ControllerFacade.h"
 #include "View/MoveToolHelper.h"
 
+#ifdef _MSC_VER
+// We get a warning here because we pass 'this' to the member initializer, but it's okay because we don't use it in the member's initializer.
+#pragma warning(push)
+#pragma warning(disable : 4355)
+#endif
+
 namespace TrenchBroom {
     namespace View {
         class ControllerFacade;
@@ -39,7 +45,7 @@ namespace TrenchBroom {
         public:
             MoveTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction) :
             Super(next, document, controller),
-            m_helper(movementRestriction, *this) {} // We get a warning here because we pass 'this' to the member initializer, but it's okay because we don't use it in the member's initializer.
+            m_helper(movementRestriction, *this) {}
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 m_helper.render(inputState, Super::dragging(), renderContext);
@@ -95,5 +101,9 @@ namespace TrenchBroom {
         };
     }
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif /* defined(__TrenchBroom__MoveTool__) */

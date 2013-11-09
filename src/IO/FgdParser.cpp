@@ -107,46 +107,25 @@ namespace TrenchBroom {
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(FgdTokenizer(str)) {}
         
-        String FgdParser::tokenName(const FgdToken::Type typeMask) const {
-            StringList names;
-            if ((typeMask & FgdToken::Integer) != 0)
-                names.push_back("integer number");
-            if ((typeMask & FgdToken::Decimal) != 0)
-                names.push_back("decimal number");
-            if ((typeMask & FgdToken::Word) != 0)
-                names.push_back("word");
-            if ((typeMask & FgdToken::String) != 0)
-                names.push_back("string");
-            if ((typeMask & FgdToken::OParenthesis) != 0)
-                names.push_back("opening parenthesis");
-            if ((typeMask & FgdToken::CParenthesis) != 0)
-                names.push_back("closing parenthesis");
-            if ((typeMask & FgdToken::OBracket) != 0)
-                names.push_back("opening bracket");
-            if ((typeMask & FgdToken::CBracket) != 0)
-                names.push_back("closing bracket");
-            if ((typeMask & FgdToken::Equality) != 0)
-                names.push_back("equality sign");
-            if ((typeMask & FgdToken::Colon) != 0)
-                names.push_back("colon");
-            if ((typeMask & FgdToken::Comma) != 0)
-                names.push_back("comma");
+        FgdParser::TokenNameMap FgdParser::tokenNames() const {
+            using namespace FgdToken;
             
-            if (names.empty())
-                return "unknown token type";
-            if (names.size() == 1)
-                return names[0];
-            
-            StringStream str;
-            str << names[0];
-            for (size_t i = 1; i < names.size() - 1; i++)
-                str << ", " << names[i];
-            if (names.size() > 2)
-                str << ",";
-            str << " or " << names[names.size() - 1];
-            return str.str();
+            TokenNameMap names;
+            names[Integer]      = "integer";
+            names[Decimal]      = "decimal";
+            names[Word]         = "word";
+            names[String]       = "string";
+            names[OParenthesis] = "'('";
+            names[CParenthesis] = "')'";
+            names[OBracket]     = "'['";
+            names[CBracket]     = "']'";
+            names[Equality]     = "'='";
+            names[Colon]        = "':'";
+            names[Comma]        = "','";
+            names[Eof]          = "end of file";
+            return names;
         }
-        
+
         Assets::EntityDefinitionList FgdParser::doParseDefinitions() {
             Assets::EntityDefinitionList definitions;
             try {
