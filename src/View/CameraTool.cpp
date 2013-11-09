@@ -39,12 +39,12 @@ namespace TrenchBroom {
             if (m_orbit) {
                 const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
                 const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
-                const float distance = std::min(inputState.scrollY() * moveSpeed(), maxDistance);
+                const float distance = std::min(inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 const Vec3f moveDirection = prefs.get(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
-                const float distance = inputState.scrollY() * moveSpeed();
+                const float distance = inputState.scrollY() * moveSpeed(false);
                 m_camera.moveBy(distance * moveDirection);
             }
         }
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 Vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
                     delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * -moveSpeed() * m_camera.direction();
+                    delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
                 } else {
                     delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
                     delta += inputState.mouseDY() * panSpeedV() * m_camera.up();
@@ -154,9 +154,12 @@ namespace TrenchBroom {
             return speed;
         }
         
-        float CameraTool::moveSpeed() const {
+        float CameraTool::moveSpeed(const bool altMode) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::CameraMoveSpeed) * 20.0f;
+            float speed = prefs.get(Preferences::CameraMoveSpeed) * 20.0f;
+            if (altMode && prefs.get(Preferences::CameraAltMoveInvert))
+                speed *= -1.0f;
+            return speed;
         }
     }
 }

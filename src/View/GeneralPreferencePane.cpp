@@ -48,16 +48,6 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void GeneralPreferencePane::OnChooseQuakePathClicked(wxCommandEvent& event) {
-            wxDirDialog chooseQuakePathDialog(NULL, _("Choose quake directory"), _(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-            if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
-                String quakePath = chooseQuakePathDialog.GetPath().ToStdString();
-                PreferenceManager& prefs = PreferenceManager::instance();
-                // prefs.set(Preferences::QuakePath, quakePath);
-
-                updateControls();
-            }
-        }
 
         void GeneralPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
             const int value = m_brightnessSlider->GetValue();
@@ -160,6 +150,13 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraEnableAltMove, value);
         }
 
+        void GeneralPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
+            const bool value = event.GetInt() != 0;
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::CameraAltMoveInvert, value);
+        }
+
         void GeneralPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
 
@@ -168,41 +165,15 @@ namespace TrenchBroom {
         }
 
         void GeneralPreferencePane::createGui() {
-            wxWindow* quakePreferences = createQuakePreferences();
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
             
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(quakePreferences, 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(viewPreferences, 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(mousePreferences, 0, wxEXPAND);
             
             SetSizerAndFit(innerSizer);
-        }
-        
-        wxWindow* GeneralPreferencePane::createQuakePreferences() {
-            wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, _("Quake"));
-            
-            wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, _("Quake Path"));
-            m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, _("Not Set"));
-            m_chooseQuakePathButton = new wxButton(quakeBox, wxID_ANY, _("Choose..."));
-            
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
-            innerSizer->AddGrowableCol(1);
-            innerSizer->Add(quakePathLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_quakePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->SetItemMinSize(quakePathLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, wxDefaultSize.y);
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-            
-            quakeBox->SetSizerAndFit(outerSizer);
-            return quakeBox;
         }
         
         wxWindow* GeneralPreferencePane::createViewPreferences() {
@@ -270,13 +241,15 @@ namespace TrenchBroom {
             
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
             m_moveSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            wxStaticText* enableAltMoveFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            wxStaticText* altMoveOptionsFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            wxStaticText* moveInCursorDirFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
             m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Alt+MMB drag to move camera"));
+            m_invertAltMoveAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert Z axis in Alt+MMB drag"));
             m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Move camera towards cursor"));
-            wxSizer* moveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
-            moveOptionsSizer->Add(m_enableAltMoveCheckBox);
-            moveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            moveOptionsSizer->Add(m_moveInCursorDirCheckBox);
+            wxSizer* altMoveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
+            altMoveOptionsSizer->Add(m_enableAltMoveCheckBox);
+            altMoveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            altMoveOptionsSizer->Add(m_invertAltMoveAxisCheckBox);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
@@ -290,8 +263,10 @@ namespace TrenchBroom {
             innerSizer->Add(invertPanSizer);
             innerSizer->Add(moveSpeedLabel);
             innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
-            innerSizer->Add(enableAltMoveFakeLabel);
-            innerSizer->Add(moveOptionsSizer);
+            innerSizer->Add(altMoveOptionsFakeLabel);
+            innerSizer->Add(altMoveOptionsSizer);
+            innerSizer->Add(moveInCursorDirFakeLabel);
+            innerSizer->Add(m_moveInCursorDirCheckBox);
             innerSizer->SetItemMinSize(lookSpeedLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -304,7 +279,6 @@ namespace TrenchBroom {
         }
         
         void GeneralPreferencePane::bindEvents() {
-            m_chooseQuakePathButton->Bind(wxEVT_BUTTON, &GeneralPreferencePane::OnChooseQuakePathClicked, this);
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &GeneralPreferencePane::OnTextureBrowserIconSizeChanged, this);
             m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookHAxisChanged, this);
             m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookVAxisChanged, this);
@@ -322,8 +296,6 @@ namespace TrenchBroom {
 
         void GeneralPreferencePane::updateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            
-            // m_quakePathValueLabel->SetLabel(prefs.get(Preferences::QuakePath));
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.get(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
@@ -354,6 +326,7 @@ namespace TrenchBroom {
             
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
             m_enableAltMoveCheckBox->SetValue(prefs.get(Preferences::CameraEnableAltMove));
+            m_invertAltMoveAxisCheckBox->SetValue(prefs.get(Preferences::CameraAltMoveInvert));
             m_moveInCursorDirCheckBox->SetValue(prefs.get(Preferences::CameraMoveInCursorDir));
         }
 

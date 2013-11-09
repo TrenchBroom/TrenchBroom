@@ -32,8 +32,6 @@ namespace TrenchBroom {
     namespace View {
         class GeneralPreferencePane : public PreferencePane {
         private:
-            wxStaticText* m_quakePathValueLabel;
-            wxButton* m_chooseQuakePathButton;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxChoice* m_textureBrowserIconSizeChoice;
@@ -45,12 +43,12 @@ namespace TrenchBroom {
             wxCheckBox* m_invertPanVAxisCheckBox;
             wxSlider* m_moveSpeedSlider;
             wxCheckBox* m_enableAltMoveCheckBox;
+            wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
             
         public:
             GeneralPreferencePane(wxWindow* parent);
 
-            void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
@@ -66,11 +64,11 @@ namespace TrenchBroom {
             void OnMoveSpeedChanged(wxScrollEvent& event);
             
             void OnEnableAltMoveChanged(wxCommandEvent& event);
+            void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
             void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
 
         private:
             void createGui();
-            wxWindow* createQuakePreferences();
             wxWindow* createViewPreferences();
             wxWindow* createMousePreferences();
 

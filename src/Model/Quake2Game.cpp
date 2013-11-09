@@ -95,8 +95,14 @@ namespace TrenchBroom {
         }
         
         Assets::TextureCollection* Quake2Game::doLoadTextureCollection(const IO::Path& path) const {
-            IO::WalTextureLoader loader(m_fs, m_palette);
-            return loader.loadTextureCollection(path);
+            if (path.isAbsolute()) {
+                IO::DiskFileSystem diskFS(path.deleteLastComponent());
+                IO::WalTextureLoader loader(diskFS, m_palette);
+                return loader.loadTextureCollection(path.lastComponent());
+            } else {
+                IO::WalTextureLoader loader(m_fs, m_palette);
+                return loader.loadTextureCollection(path);
+            }
         }
         
         Assets::EntityDefinitionList Quake2Game::doLoadEntityDefinitions(const IO::Path& path) const {

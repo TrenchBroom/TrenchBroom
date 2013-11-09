@@ -187,10 +187,12 @@ namespace TrenchBroom {
             }
             
             const char* readInteger(const String& delims) {
-                if (curChar() != '-' && !isDigit(curChar()))
+                if (curChar() != '+' && curChar() != '-' && !isDigit(curChar()))
                     return NULL;
                 
                 const State previous = m_state;
+                if (curChar() == '+' || curChar() == '-')
+                    advance();
                 while (!eof() && isDigit(curChar()))
                     advance();
                 if (eof() || isAnyOf(curChar(), delims))

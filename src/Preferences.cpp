@@ -112,6 +112,7 @@ namespace TrenchBroom {
         Preference<bool>  CameraPanInvertV("Controls/Camera/Invert vertical pan", false);
         Preference<float> CameraMoveSpeed("Controls/Camera/Move speed", 0.3f);
         Preference<bool> CameraEnableAltMove("Controls/Camera/Use alt to move", false);
+        Preference<bool> CameraAltMoveInvert("Controls/Camera/Invert zoom direction when using alt to move", false);
         Preference<bool> CameraMoveInCursorDir("Controls/Camera/Move camera in cursor dir", false);
     }
 }

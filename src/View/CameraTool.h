@@ -55,7 +55,7 @@ namespace TrenchBroom {
             float lookSpeedV() const;
             float panSpeedH() const;
             float panSpeedV() const;
-            float moveSpeed() const;
+            float moveSpeed(const bool altMode) const;
         };
     }
 }

@@ -96,6 +96,7 @@ namespace TrenchBroom {
         extern Preference<bool> CameraPanInvertV;
         extern Preference<float> CameraMoveSpeed;
         extern Preference<bool> CameraEnableAltMove;
+        extern Preference<bool> CameraAltMoveInvert;
         extern Preference<bool> CameraMoveInCursorDir;
     }
 }

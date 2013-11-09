@@ -39,6 +39,8 @@ namespace TrenchBroom {
             wxButton* m_chooseGamePathButton;
         public:
             GamesPreferencePane(wxWindow* parent);
+
+            void OnChooseGamePathClicked(wxCommandEvent& event);
         private:
             void createGui();
             wxWindow* createGameSelectionBox();

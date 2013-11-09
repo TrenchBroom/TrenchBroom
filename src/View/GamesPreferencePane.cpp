@@ -19,6 +19,8 @@
 
 #include "GamesPreferencePane.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Game.h"
 #include "View/LayoutConstants.h"
 
@@ -38,6 +40,17 @@ namespace TrenchBroom {
             updateControls();
         }
         
+        void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
+            wxDirDialog chooseQuakePathDialog(NULL, _("Choose game directory"), _(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+            if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
+                String quakePath = chooseQuakePathDialog.GetPath().ToStdString();
+                PreferenceManager& prefs = PreferenceManager::instance();
+                // prefs.set(Preferences::QuakePath, quakePath);
+                
+                updateControls();
+            }
+        }
+
         void GamesPreferencePane::createGui() {
             wxWindow* gameSelectionBox = createGameSelectionBox();
             wxWindow* gamePreferences = createGamePreferences();

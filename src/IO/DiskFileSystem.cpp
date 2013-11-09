@@ -183,6 +183,8 @@ namespace TrenchBroom {
         Path DiskFileSystem::fixPath(const Path& path) const {
             if (path.isAbsolute())
                 throw FileSystemException("Cannot handle absolute path: '" + path.asString() + "'");
+            if (path.isEmpty())
+                return path;
             return fixCase(path.makeCanonical());
         }
         

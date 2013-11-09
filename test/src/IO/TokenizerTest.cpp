@@ -172,6 +172,24 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
+        TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerProperty) {
+            const String testString("{"
+                                    "    property =  -12328;"
+                                    "}");
+            
+            SimpleTokenizer tokenizer(testString);
+            SimpleTokenizer::Token token;
+            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
+            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(-12328, token.toInteger<int>());
+            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
+            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+        }
+
         TEST(TokenizerTest, simpleLanguageBlockWithDecimalProperty) {
             const String testString("{"
                                     "    property =  12328.38283;"
