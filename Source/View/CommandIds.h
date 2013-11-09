@@ -173,6 +173,7 @@ namespace TrenchBroom {
                 static const int GridModeChoiceId                   = Lowest +  11;
                 static const int InstancingModeModeChoiceId         = Lowest +  12;
                 static const int EnableAltMoveCheckBoxId            = Lowest +  13;
+                static const int InvertAltMoveAxisCheckBoxId        = Lowest +  16;
                 static const int MoveCameraInCursorDirCheckBoxId    = Lowest +  14;
                 static const int TextureBrowserIconSideChoiceId     = Lowest +  15;
                 static const int Highest                            = Lowest +  99;

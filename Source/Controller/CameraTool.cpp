@@ -48,9 +48,12 @@ namespace TrenchBroom {
             return speed;
         }
         
-        float CameraTool::moveSpeed() {
+        float CameraTool::moveSpeed(bool altMode) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            return prefs.getFloat(Preferences::CameraMoveSpeed) * 20.0f;
+            float speed = prefs.getFloat(Preferences::CameraMoveSpeed) * 20.0f;
+            if (altMode && prefs.getBool(Preferences::CameraAltModeInvertAxis))
+                speed *= -1.0f;
+            return speed;
         }
         
         void CameraTool::handleScroll(InputState& inputState) {
@@ -62,7 +65,7 @@ namespace TrenchBroom {
                 Planef orbitPlane(camera.direction(), m_orbitCenter);
                 float maxForward = orbitPlane.intersectWithRay(Rayf(camera.position(), camera.direction())) - 32.0f;
 
-                float forward = inputState.scrollY() * moveSpeed();
+                float forward = inputState.scrollY() * moveSpeed(false);
                 if (maxForward < 0.0f)
                     maxForward = 0.0f;
                 if (forward > maxForward)
@@ -76,7 +79,7 @@ namespace TrenchBroom {
                 const Renderer::Camera& camera = inputState.camera();
                 const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : camera.direction();
                 
-                const float distance = inputState.scrollY() * moveSpeed();
+                const float distance = inputState.scrollY() * moveSpeed(false);
                 const Vec3f moveVector = distance * moveDirection;
                 
                 CameraMoveEvent cameraEvent;
@@ -129,7 +132,7 @@ namespace TrenchBroom {
                 CameraMoveEvent cameraEvent;
                 if (enableAltMove && inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     cameraEvent.setRight(inputState.deltaX() * panSpeed(false));
-                    cameraEvent.setForward(inputState.deltaY() * -moveSpeed());
+                    cameraEvent.setForward(inputState.deltaY() * -moveSpeed(true));
                 } else {
                     cameraEvent.setRight(inputState.deltaX() * panSpeed(false));
                     cameraEvent.setUp(inputState.deltaY() * panSpeed(true));
