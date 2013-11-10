@@ -41,15 +41,15 @@ namespace TrenchBroom {
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
             
-            Map* newMap(const MapFormat::Type format) const;
+            Map* newMap(MapFormat::Type format) const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
             Model::EntityList parseEntities(const BBox3& worldBounds, const String& str) const;
             Model::BrushList parseBrushes(const BBox3& worldBounds, const String& str) const;
             Model::BrushFaceList parseFaces(const BBox3& worldBounds, const String& str) const;
             
             void writeMap(Map& map, const IO::Path& path) const;
-            void writeObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
-            void writeFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
+            void writeObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
+            void writeFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List findBuiltinTextureCollections() const;
             IO::Path::List extractTexturePaths(const Map* map) const;
@@ -63,15 +63,15 @@ namespace TrenchBroom {
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             
-            virtual Map* doNewMap(const MapFormat::Type format) const = 0;
+            virtual Map* doNewMap(MapFormat::Type format) const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
             virtual Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const = 0;
             virtual Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const = 0;
             virtual Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const = 0;
             
             virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
-            virtual void doWriteObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const = 0;
-            virtual void doWriteFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
+            virtual void doWriteObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const = 0;
+            virtual void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
             virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;

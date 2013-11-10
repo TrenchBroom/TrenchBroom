@@ -20,7 +20,9 @@
 #include <gtest/gtest.h>
 
 #include "StringUtils.h"
+#include "ConfigTypes.h"
 #include "IO/ConfigParser.h"
+#include "Model/GameConfig.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -73,9 +75,9 @@ namespace TrenchBroom {
             
             const ConfigList& list = *entry;
             ASSERT_EQ(3u, list.count());
-            ASSERT_EQ(ConfigEntry::TValue, list[0].type());
-            ASSERT_EQ(ConfigEntry::TValue, list[1].type());
-            ASSERT_EQ(ConfigEntry::TValue, list[2].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[0].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[1].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[2].type());
             ASSERT_EQ(String("first"), static_cast<const String&>(list[0]));
             ASSERT_EQ(String(""), static_cast<const String&>(list[1]));
             ASSERT_EQ(String("third"), static_cast<const String&>(list[2]));
@@ -92,9 +94,9 @@ namespace TrenchBroom {
             
             const ConfigTable& table = *entry;
             ASSERT_EQ(3u, table.count());
-            ASSERT_EQ(ConfigEntry::TValue, table["first"].type());
-            ASSERT_EQ(ConfigEntry::TValue, table["second"].type());
-            ASSERT_EQ(ConfigEntry::TValue, table["third"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["first"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["second"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["third"].type());
             ASSERT_EQ(String("firstValue"), static_cast<const String&>(table["first"]));
             ASSERT_EQ(String("secondValue"), static_cast<const String&>(table["second"]));
             ASSERT_EQ(String(""), static_cast<const String&>(table["third"]));
@@ -117,16 +119,16 @@ namespace TrenchBroom {
             
             const ConfigList& list = *entry;
             ASSERT_EQ(3u, list.count());
-            ASSERT_EQ(ConfigEntry::TValue, list[0].type());
-            ASSERT_EQ(ConfigEntry::TList, list[1].type());
-            ASSERT_EQ(ConfigEntry::TValue, list[2].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[0].type());
+            ASSERT_TRUE(ConfigEntry::TList == list[1].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[2].type());
             ASSERT_EQ(String("first"), static_cast<const String&>(list[0]));
             ASSERT_EQ(String("fourth"), static_cast<const String&>(list[2]));
 
             const ConfigList& nested = list[1];
             ASSERT_EQ(2u, nested.count());
-            ASSERT_EQ(ConfigEntry::TValue, nested[0].type());
-            ASSERT_EQ(ConfigEntry::TValue, nested[1].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested[0].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested[1].type());
             ASSERT_EQ(String("second"), static_cast<const String&>(nested[0]));
             ASSERT_EQ(String("third"), static_cast<const String&>(nested[1]));
         }
@@ -142,16 +144,16 @@ namespace TrenchBroom {
             
             const ConfigList& list = *entry;
             ASSERT_EQ(3u, list.count());
-            ASSERT_EQ(ConfigEntry::TValue, list[0].type());
-            ASSERT_EQ(ConfigEntry::TTable, list[1].type());
-            ASSERT_EQ(ConfigEntry::TValue, list[2].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[0].type());
+            ASSERT_TRUE(ConfigEntry::TTable == list[1].type());
+            ASSERT_TRUE(ConfigEntry::TValue == list[2].type());
             ASSERT_EQ(String("first"), static_cast<const String&>(list[0]));
             ASSERT_EQ(String("fourth"), static_cast<const String&>(list[2]));
             
             const ConfigTable& nested = list[1];
             ASSERT_EQ(2u, nested.count());
-            ASSERT_EQ(ConfigEntry::TValue, nested["second"].type());
-            ASSERT_EQ(ConfigEntry::TValue, nested["third"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested["second"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested["third"].type());
             ASSERT_EQ(String("second"), static_cast<const String&>(nested["second"]));
             ASSERT_EQ(String("third"), static_cast<const String&>(nested["third"]));
         }
@@ -167,16 +169,16 @@ namespace TrenchBroom {
             
             const ConfigTable& table = *entry;
             ASSERT_EQ(3u, table.count());
-            ASSERT_EQ(ConfigEntry::TValue, table["first"].type());
-            ASSERT_EQ(ConfigEntry::TValue, table["second"].type());
-            ASSERT_EQ(ConfigEntry::TList, table["third"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["first"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["second"].type());
+            ASSERT_TRUE(ConfigEntry::TList == table["third"].type());
             ASSERT_EQ(String("firstValue"), static_cast<const String&>(table["first"]));
             ASSERT_EQ(String("secondValue"), static_cast<const String&>(table["second"]));
 
             const ConfigList& nested = table["third"];
             ASSERT_EQ(2u, nested.count());
-            ASSERT_EQ(ConfigEntry::TValue, nested[0].type());
-            ASSERT_EQ(ConfigEntry::TValue, nested[1].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested[0].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested[1].type());
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested[0]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested[1]));
         }
@@ -192,16 +194,16 @@ namespace TrenchBroom {
             
             const ConfigTable& table = *entry;
             ASSERT_EQ(3u, table.count());
-            ASSERT_EQ(ConfigEntry::TValue, table["first"].type());
-            ASSERT_EQ(ConfigEntry::TValue, table["second"].type());
-            ASSERT_EQ(ConfigEntry::TTable, table["third"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["first"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == table["second"].type());
+            ASSERT_TRUE(ConfigEntry::TTable == table["third"].type());
             ASSERT_EQ(String("firstValue"), static_cast<const String&>(table["first"]));
             ASSERT_EQ(String("secondValue"), static_cast<const String&>(table["second"]));
             
             const ConfigTable& nested = table["third"];
             ASSERT_EQ(2u, nested.count());
-            ASSERT_EQ(ConfigEntry::TValue, nested["fourth"].type());
-            ASSERT_EQ(ConfigEntry::TValue, nested["fifth"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested["fourth"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested["fifth"].type());
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested["fourth"]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested["fifth"]));
         }

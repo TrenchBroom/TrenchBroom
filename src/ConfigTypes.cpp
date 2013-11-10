@@ -24,10 +24,6 @@
 #include <cassert>
 
 namespace TrenchBroom {
-    const ConfigEntry::Type ConfigEntry::TValue;
-    const ConfigEntry::Type ConfigEntry::TList;
-    const ConfigEntry::Type ConfigEntry::TTable;
-    
     ConfigEntry::~ConfigEntry() {}
     
     ConfigEntry::Type ConfigEntry::type() const {
