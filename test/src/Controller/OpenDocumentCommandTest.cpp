@@ -37,7 +37,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
-            Model::Map* map = new Model::Map(Model::MFQuake);
+            Model::Map* map = new Model::Map(Model::MapFormat::Quake);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
@@ -62,8 +62,8 @@ namespace TrenchBroom {
             const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");
             const IO::Path path2("data/Controller/OpenDocumentCommandTest/Cube.map");
 
-            Model::Map* map1 = new Model::Map(Model::MFQuake);
-            Model::Map* map2 = new Model::Map(Model::MFQuake);
+            Model::Map* map1 = new Model::Map(Model::MapFormat::Quake);
+            Model::Map* map2 = new Model::Map(Model::MapFormat::Quake);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path1)).WillOnce(Return(map1));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map1)).WillOnce(Return(IO::Path("")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));

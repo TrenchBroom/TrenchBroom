@@ -79,7 +79,7 @@ namespace TrenchBroom {
                     
             Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
-            Model::MapFormat m_format;
+            Model::MapFormat::Type m_format;
             typedef QuakeMapTokenizer::Token Token;
         public:
             QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             Model::BrushList doParseBrushes(const BBox3& worldBounds);
             Model::BrushFaceList doParseFaces(const BBox3& worldBounds);
             
-            Model::MapFormat detectFormat();
+            Model::MapFormat::Type detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);

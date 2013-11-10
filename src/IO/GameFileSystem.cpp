@@ -26,10 +26,12 @@
 
 namespace TrenchBroom {
     namespace IO {
-        GameFileSystem::GameFileSystem(const String& pakExtension, const Path& mainPath, const Path& secondaryPath) {
-            addFileSystem(pakExtension, mainPath);
-            if (!secondaryPath.isEmpty())
-                addFileSystem(pakExtension, secondaryPath);
+        GameFileSystem::GameFileSystem(const String& pakExtension, const Path& gamePath, const Path& searchPath, const Path::List& additionalSearchPaths) {
+            addFileSystem(pakExtension, gamePath + searchPath);
+            
+            Path::List::const_iterator it, end;
+            for (it = additionalSearchPaths.begin(), end = additionalSearchPaths.end(); it != end; ++it)
+                addFileSystem(pakExtension, gamePath + *it);
         }
 
         void GameFileSystem::addFileSystem(const String& pakExtension, const Path& path) {

@@ -40,6 +40,7 @@ namespace TrenchBroom {
         }
         
         Preference<StringMap> GamePaths("Game Paths", makeDefaultGamePaths());
+        Preference<String> DefaultGame("Default Game", "Quake");
         
         Preference<Color> BackgroundColor("Renderer/Colors/Background", Color(0.25f, 0.25f, 0.25f, 1.0f));
         Preference<float> AxisLength("Renderer/Axis length", 128.0f);

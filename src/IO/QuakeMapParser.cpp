@@ -111,12 +111,12 @@ namespace TrenchBroom {
         QuakeMapParser::QuakeMapParser(const char* begin, const char* end, Logger* logger) :
         m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(begin, end)),
-        m_format(Model::MFUnknown) {}
+        m_format(Model::MapFormat::Unknown) {}
                     
         QuakeMapParser::QuakeMapParser(const String& str, Logger* logger) :
         m_logger(logger),
         m_tokenizer(QuakeMapTokenizer(str)),
-        m_format(Model::MFUnknown) {}
+        m_format(Model::MapFormat::Unknown) {}
         
         QuakeMapParser::TokenNameMap QuakeMapParser::tokenNames() const {
             using namespace QuakeMapToken;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             Model::EntityList entities;
             try {
                 m_format = detectFormat();
-                if (m_format == Model::MFUnknown)
+                if (m_format == Model::MapFormat::Unknown)
                     return entities;
                 
                 m_tokenizer.reset();
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             Model::BrushList brushes;
             try {
                 m_format = detectFormat();
-                if (m_format == Model::MFUnknown)
+                if (m_format == Model::MapFormat::Unknown)
                     return brushes;
 
                 m_tokenizer.reset();
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             Model::BrushFaceList faces;
             try {
                 m_format = detectFormat();
-                if (m_format == Model::MFUnknown)
+                if (m_format == Model::MapFormat::Unknown)
                     return faces;
 
                 m_tokenizer.reset();
@@ -214,14 +214,14 @@ namespace TrenchBroom {
             return faces;
         }
 
-        Model::MapFormat QuakeMapParser::detectFormat() {
+        Model::MapFormat::Type QuakeMapParser::detectFormat() {
             // try to find an opening parenthesis
             Token token = m_tokenizer.nextToken();
             while (token.type() != QuakeMapToken::OParenthesis &&
                    token.type() != QuakeMapToken::Eof)
                 token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::MFQuake;
+                return Model::MapFormat::Quake;
             
             m_tokenizer.pushToken(token);
             for (size_t i = 0; i < 3; ++i) {
@@ -233,18 +233,18 @@ namespace TrenchBroom {
             expect(QuakeMapToken::String, token = m_tokenizer.nextToken()); // texture name
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
             if (token.type() == QuakeMapToken::OBracket)
-                return Model::MFValve;
+                return Model::MapFormat::Valve;
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y offset
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // rotation
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // x scale
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
             if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                return Model::MFQuake;
+                return Model::MapFormat::Quake;
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token); // unknown Hexen 2 flag or Quake 2 surface contents
             if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                return Model::MFHexen2;
-            return Model::MFQuake2;
+                return Model::MapFormat::Hexen2;
+            return Model::MapFormat::Quake2;
         }
 
         Model::Entity* QuakeMapParser::parseEntity(const BBox3& worldBounds) {
@@ -358,7 +358,7 @@ namespace TrenchBroom {
             if (normal.null())
                 return NULL;
             
-            if (m_format == Model::MFValve) {
+            if (m_format == Model::MapFormat::Valve) {
                 expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
                 texAxisX = parseVector();
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
@@ -385,19 +385,19 @@ namespace TrenchBroom {
             yScale = token.toFloat<float>();
             
             Model::BrushFace* face = NULL;
-            if (m_format == Model::MFValve)
+            if (m_format == Model::MapFormat::Valve)
                 face = new Model::ValveBrushFace(p1, p2, p3, texAxisX, texAxisY, normal, rotation, textureName);
             else
                 face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
 
-            if (m_format == Model::MFQuake2) {
+            if (m_format == Model::MapFormat::Quake2) {
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
                 surfaceContents = token.toInteger<size_t>();
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
                 surfaceFlags = token.toInteger<size_t>();
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceValue = token.toFloat<float>();
-            } else if (m_format == Model::MFHexen2) {
+            } else if (m_format == Model::MapFormat::Hexen2) {
                 // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceContents = surfaceFlags = 0;

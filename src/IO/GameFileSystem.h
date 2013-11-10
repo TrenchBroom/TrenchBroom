@@ -23,6 +23,7 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
+#include "IO/Path.h"
 
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace TrenchBroom {
             typedef std::vector<FSPtr> FileSystemList;
             FileSystemList m_fileSystems;
         public:
-            GameFileSystem(const String& pakExtension, const Path& mainPath, const Path& secondaryPath = Path(""));
+            GameFileSystem(const String& pakExtension, const Path& gamePath, const Path& searchPath, const Path::List& additionalSearchPaths = Path::List());
         private:
             void addFileSystem(const String& pakExtension, const Path& path);
             

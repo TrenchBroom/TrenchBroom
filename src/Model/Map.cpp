@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map(const MapFormat format) :
+        Map::Map(const MapFormat::Type format) :
         m_format(format),
         m_factory(m_format),
         m_worldspawn(NULL) {}
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_entities);
         }
 
-        MapFormat Map::format() const {
+        MapFormat::Type Map::format() const {
             return m_format;
         }
 

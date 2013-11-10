@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/button.h>
@@ -74,10 +75,11 @@ namespace TrenchBroom {
             
             wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, _("Select a game from the list: "));
             
-            wxArrayString games;
-            for (size_t i = 0; i < Model::Game::GameCount; ++i)
-                games.Add(wxString(Model::Game::GameNames[i]));
-            m_gameSelectionChoice = new wxChoice(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, games);
+            const StringList gameList = Model::GameFactory::instance().gameList();
+            wxArrayString wxGameList;
+            for (size_t i = 0; i < gameList.size(); ++i)
+                wxGameList.Add(wxString(gameList[i]));
+            m_gameSelectionChoice = new wxChoice(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxGameList);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(gameSelectionChoiceLabel, 0, wxALIGN_CENTER_VERTICAL);

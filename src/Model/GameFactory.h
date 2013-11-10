@@ -17,30 +17,39 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ModelFactory__
-#define __TrenchBroom__ModelFactory__
+#ifndef __TrenchBroom__GameFactory__
+#define __TrenchBroom__GameFactory__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
+#include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class ModelFactory {
-        private:
-            MapFormat::Type m_format;
-        public:
-            ModelFactory(const MapFormat::Type format);
+#include <vector>
 
-            Entity* createEntity() const;
-            Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
-            BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
+namespace TrenchBroom {
+    namespace IO {
+        class FileSystem;
+    }
+    
+    namespace Model {
+        class GameFactory {
         private:
-            BrushFace* createValveFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
-            BrushFace* createDefaultFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
+            typedef std::map<String, GameConfig> ConfigMap;
+            ConfigMap m_configs;
+        public:
+            static const GameFactory& instance();
+            
+            StringList gameList() const;
+            GamePtr createDefaultGame() const;
+            GamePtr createGame(const String& name) const;
+
+            GamePtr detectGame(const IO::Path& path) const;
+        private:
+            GameFactory();
+            void loadGameConfigs();
+            void loadGameConfig(const IO::FileSystem& fs, const IO::Path& path);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ModelFactory__) */
+#endif /* defined(__TrenchBroom__GameFactory__) */

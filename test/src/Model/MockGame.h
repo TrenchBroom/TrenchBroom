@@ -42,21 +42,21 @@ namespace TrenchBroom {
         typedef std::tr1::shared_ptr<MockGame> MockGamePtr;
         
         class MockGame : public Game {
-        private:
-            MockGame() :
-            Game(NULL) {}
         public:
             static MockGamePtr newGame();
 
-            MOCK_CONST_METHOD0(doNewMap, Map*());
+            MOCK_METHOD1(doSetGamePath, void(const IO::Path&));
+            MOCK_METHOD1(doSetAdditionalSearchPaths, void(const IO::Path::List& searchPaths));
+            
+            MOCK_CONST_METHOD1(doNewMap, Map*(const Model::MapFormat::Type));
             MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
             MOCK_CONST_METHOD2(doParseEntities, Model::EntityList(const BBox3&, const String&));
             MOCK_CONST_METHOD2(doParseBrushes, Model::BrushList(const BBox3&, const String&));
             MOCK_CONST_METHOD2(doParseFaces, Model::BrushFaceList(const BBox3&, const String&));
 
             MOCK_CONST_METHOD2(doWriteMap, void(Map&, const IO::Path&));
-            MOCK_CONST_METHOD2(doWriteObjectsToStream, void(const Model::ObjectList&, std::ostream&));
-            MOCK_CONST_METHOD2(doWriteFacesToStream, void(const Model::BrushFaceList&, std::ostream&));
+            MOCK_CONST_METHOD3(doWriteObjectsToStream, void(const Model::MapFormat::Type, const Model::ObjectList&, std::ostream&));
+            MOCK_CONST_METHOD3(doWriteFacesToStream, void(const Model::MapFormat::Type, const Model::BrushFaceList&, std::ostream&));
             
             MOCK_CONST_METHOD0(doFindBuiltinTextureCollections, IO::Path::List());
             MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(const Map*));

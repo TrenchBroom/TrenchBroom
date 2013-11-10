@@ -261,7 +261,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             delete m_map;
-            m_map = game->newMap();
+            m_map = game->newMap(Model::MapFormat::Quake);
             
             m_entityDefinitionManager.clear();
             m_entityModelManager.reset(m_game);
@@ -322,11 +322,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
-            m_game->writeObjectsToStream(objects, stream);
+            m_game->writeObjectsToStream(m_map->format(), objects, stream);
         }
         
         void MapDocument::writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
-            m_game->writeFacesToStream(faces, stream);
+            m_game->writeFacesToStream(m_map->format(), faces, stream);
         }
         
         Model::Entity* MapDocument::worldspawn() {

@@ -23,38 +23,53 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameConfig::TextureFormat::TextureFormat(const Type i_type, const IO::Path& i_palette) :
+        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat) :
+        searchPath(i_searchPath),
+        packageFormat(i_packageFormat) {}
+        
+        GameConfig::TextureConfig::TextureConfig(const String& i_type, const String& i_property, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath) :
         type(i_type),
-        palette(i_palette) {
-            assert(type != TUnknown);
-        }
+        property(i_property),
+        palette(i_palette),
+        builtinTexturesSearchPath(i_builtinTexturesSearchPath) {}
 
-        GameConfig::GameConfig(const String& name, const TextureFormat& textureFormat, const StringSet& modelFormats) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        defFilePath(i_defFilePath),
+        modelFormats(i_modelFormats),
+        defaultColor(i_defaultColor) {}
+
+        GameConfig::GameConfig() :
+        m_fileSystemConfig(IO::Path(""), ""),
+        m_textureConfig("", "", IO::Path(""), IO::Path("")),
+        m_entityConfig(IO::Path(""), StringSet(), Color()) {}
+
+        GameConfig::GameConfig(const String& name, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
         m_name(name),
-        m_textureFormat(textureFormat),
-        m_modelFormats(modelFormats) {
+        m_fileFormats(fileFormats),
+        m_fileSystemConfig(fileSystemConfig),
+        m_textureConfig(textureConfig),
+        m_entityConfig(entityConfig) {
             assert(!StringUtils::trim(m_name).empty());
-            assert(!m_modelFormats.empty());
         }
         
         const String& GameConfig::name() const {
             return m_name;
         }
         
-        const GameConfig::TextureFormat& GameConfig::textureFormat() const {
-            return m_textureFormat;
-        }
-        
-        const StringSet& GameConfig::modelFormats() const {
-            return m_modelFormats;
+        const StringSet& GameConfig::fileFormats() const {
+            return m_fileFormats;
         }
 
-        GameConfig::TextureFormat::Type GameConfig::parseType(const String str) {
-            if (StringUtils::caseSensitiveEqual(str, "wad"))
-                return TextureFormat::TWad;
-            if (StringUtils::caseSensitiveEqual(str, "wal"))
-                return TextureFormat::TWal;
-            return TextureFormat::TUnknown;
+        const GameConfig::FileSystemConfig& GameConfig::fileSystemConfig() const {
+            return m_fileSystemConfig;
+        }
+
+        const GameConfig::TextureConfig& GameConfig::textureConfig() const {
+            return m_textureConfig;
+        }
+        
+        const GameConfig::EntityConfig& GameConfig::entityConfig() const {
+            return m_entityConfig;
         }
     }
 }

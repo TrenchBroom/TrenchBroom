@@ -28,34 +28,54 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(GameConfigParserTest, parseBlankConfig) {
-            GameConfigParser parser("   ");
+            const String config("   ");
+            GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(GameConfigParserTest, parseEmptyConfig) {
-            GameConfigParser parser("  {  } ");
+            const String config("  {  } ");
+            GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
         
         TEST(GameConfigParserTest, parseQuakeConfig) {
-            GameConfigParser parser("{"
-                                    "  name=\"Quake\","
-                                    "  textureformat={"
-                                    "    type=\"wad\","
-                                    "    palette=\"quake/palette.lmp\""
-                                    "  },"
-                                    "  modelformats={"
-                                    "    \"mdl\", \"bsp\""
-                                    "  }"
-                                    "}");
+            const String config("{\n"
+                             "  name=\"Quake\",\n"
+                             "  fileformats={\"Quake 1\",\"Valve\"},\n"
+                             "  filesystem={\n"
+                             "    searchpath=\"id1\",\n"
+                             "    packageformat=\"pak\"\n"
+                             "  },\n"
+                             "  textures={\n"
+                             "    type=\"wad\",\n"
+                             "    property=\"wad\",\n"
+                             "    palette=\"games/quake/palette.lmp\"\n"
+                             "  },\n"
+                             "  entities={\n"
+                             "    definitions=\"games/quake/Quake1.fgd\",\n"
+                             "    defaultcolor=\"1.0 1.0 1.0 1.0\",\n"
+                             "    modelformats={\"bsp\", \"mdl\"}\n"
+                             "  }\n"
+                             "}\n");
+            GameConfigParser parser(config);
             
-            const Model::GameConfig config = parser.parse();
-            ASSERT_EQ(String("Quake"), config.name());
-            ASSERT_EQ(Model::GameConfig::TextureFormat::TWad, config.textureFormat().type);
-            ASSERT_EQ(IO::Path("quake/palette.lmp"), config.textureFormat().palette);
-            ASSERT_EQ(2u, config.modelFormats().size());
-            ASSERT_TRUE(config.modelFormats().count("mdl") > 0);
-            ASSERT_TRUE(config.modelFormats().count("bsp") > 0);
+            const Model::GameConfig gameConfig = parser.parse();
+            ASSERT_EQ(String("Quake"), gameConfig.name());
+            ASSERT_EQ(2u, gameConfig.fileFormats().size());
+            ASSERT_EQ(1u, gameConfig.fileFormats().count("Quake 1"));
+            ASSERT_EQ(1u, gameConfig.fileFormats().count("Valve"));
+            ASSERT_EQ(Path("id1"), gameConfig.fileSystemConfig().searchPath);
+            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
+            ASSERT_EQ(String("wad"), gameConfig.textureConfig().type);
+            ASSERT_EQ(String("wad"), gameConfig.textureConfig().property);
+            ASSERT_EQ(Path("games/quake/palette.lmp"), gameConfig.textureConfig().palette);
+            ASSERT_TRUE(gameConfig.textureConfig().builtinTexturesSearchPath.isEmpty());
+            ASSERT_EQ(Path("games/quake/Quake1.fgd"), gameConfig.entityConfig().defFilePath);
+            ASSERT_EQ(2u, gameConfig.entityConfig().modelFormats.size());
+            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("bsp"));
+            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("mdl"));
+            ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
         }
     }
 }

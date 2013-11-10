@@ -19,93 +19,26 @@
 
 #include "Game.h"
 
-#include "Exceptions.h"
-#include "Logger.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Assets/TextureCollection.h"
-#include "IO/DiskFileSystem.h"
-#include "IO/IOUtils.h"
-#include "Model/QuakeGame.h"
-#include "Model/Quake2Game.h"
-#include "Model/Hexen2Game.h"
-
 namespace TrenchBroom {
     namespace Model {
-        const String Game::GameNames[] = {"Quake", "Quake 2", "Hexen 2"};
-        const size_t Game::GameCount = 3;
-        
-        GamePtr Game::game(const String& gameName, Logger* logger) {
-            for (size_t i = 0; i < GameCount; ++i)
-                if (gameName == GameNames[i])
-                    return game(i, logger);
-            if (logger != NULL)
-                logger->error("Unknown game type: " + gameName);
-            return GamePtr();
-        }
-        
-        GamePtr Game::game(const size_t gameIndex, Logger* logger) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const StringMap& gamePaths = prefs.get(Preferences::GamePaths);
-            const String& gameName = GameNames[gameIndex];
-            const StringMap::const_iterator it = gamePaths.find(gameName);
-            const String pathStr = it != gamePaths.end() ? it->second : "";
-            const IO::Path path(pathStr);
-            
-            switch (gameIndex) {
-                case 0:
-                    return QuakeGame::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
-                case 1:
-                    return Quake2Game::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
-                case 2:
-                    return Hexen2Game::newGame(path, prefs.get(Preferences::UndefinedEntityColor), logger);
-                default:
-                    if (logger != NULL)
-                        logger->error("Game index out of bounds: %i", gameIndex);
-                    return GamePtr();
-            }
-        }
-        
-        GamePtr Game::detectGame(const IO::Path& path, Logger* logger) {
-            if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
-                return GamePtr();
-            
-            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            if (file == NULL)
-                return GamePtr();
+        Game::~Game() {}
 
-            // we will try to detect a comment in the beginning of the file formatted like so:
-            // // Game: <string>\n
-            // where <string> is the name of a game in the GameName array.
-            
-            if (file->end() - file->begin() < 9)
-                return GamePtr();
-            
-            const char* cursor = file->begin();
-            char comment[10];
-            comment[9] = 0;
-            IO::readBytes(cursor, comment, 9);
-            
-            const String commentStr(comment);
-            if (commentStr != "// Game: ")
-                return GamePtr();
-
-            StringStream name;
-            while (cursor < file->end() && *cursor != '\n')
-                name << *(cursor++);
-
-            const String nameStr = StringUtils::trim(name.str());
-            return game(nameStr, logger);
-        }
-        
-        Map* Game::newMap() const {
-            return doNewMap();
+        void Game::setGamePath(const IO::Path& gamePath) {
+            doSetGamePath(gamePath);
         }
 
+        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths) {
+            doSetAdditionalSearchPaths(searchPaths);
+        }
+
+        Map* Game::newMap(const MapFormat::Type format) const {
+            return doNewMap(format);
+        }
+        
         Map* Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
             return doLoadMap(worldBounds, path);
         }
-
+        
         Model::EntityList Game::parseEntities(const BBox3& worldBounds, const String& str) const {
             return doParseEntities(worldBounds, str);
         }
@@ -117,72 +50,45 @@ namespace TrenchBroom {
         Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, const String& str) const {
             return doParseFaces(worldBounds, str);
         }
-
+        
         void Game::writeMap(Map& map, const IO::Path& path) const {
             doWriteMap(map, path);
         }
-
-        void Game::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {
-            doWriteObjectsToStream(objects, stream);
+        
+        void Game::writeObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const {
+            doWriteObjectsToStream(format, objects, stream);
         }
         
-        void Game::writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const {
-            doWriteFacesToStream(faces, stream);
+        void Game::writeFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const {
+            doWriteFacesToStream(format, faces, stream);
         }
-
+        
         IO::Path::List Game::findBuiltinTextureCollections() const {
             return doFindBuiltinTextureCollections();
         }
-
+        
         IO::Path::List Game::extractTexturePaths(const Map* map) const {
             return doExtractTexturePaths(map);
         }
-
+        
         Assets::TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
-            try {
-                return doLoadTextureCollection(path);
-            } catch (ResourceNotFoundException e) {
-                if (m_logger != NULL)
-                    m_logger->error("Error loading texture collection %s: %s", path.asString().c_str(), e.what());
-                return NULL;
-            }
+            return doLoadTextureCollection(path);
         }
-
+        
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
-            try {
-                return doLoadEntityDefinitions(path);
-            } catch (ParserException e) {
-                if (m_logger != NULL)
-                    m_logger->error("Error loading entity definitions from %s: %s", path.asString().c_str(), e.what());
-                return Assets::EntityDefinitionList();
-            } catch (GameException e) {
-                if (m_logger != NULL)
-                    m_logger->error("Error loading entity definitions from %s: %s", path.asString().c_str(), e.what());
-                return Assets::EntityDefinitionList();
-            }
+            return doLoadEntityDefinitions(path);
         }
-
+        
         IO::Path Game::defaultEntityDefinitionFile() const {
             return doDefaultEntityDefinitionFile();
         }
-
+        
         IO::Path Game::extractEntityDefinitionFile(const Map* map) const {
             return doExtractEntityDefinitionFile(map);
         }
-
+        
         Assets::EntityModel* Game::loadModel(const IO::Path& path) const {
-            try {
-                return doLoadModel(path);
-            } catch (ResourceNotFoundException e) {
-                if (m_logger != NULL)
-                    m_logger->error("Error loading model %s: %s", path.asString().c_str(), e.what());
-                return NULL;
-            }
+            return doLoadModel(path);
         }
-
-        Game::Game(Logger* logger) :
-        m_logger(logger) {}
-
-        Game::~Game() {}
     }
 }

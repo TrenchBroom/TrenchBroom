@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(MapTest, addEntity) {
-            Map map(MFQuake);
+            Map map(MapFormat::Quake);
             Entity* entity = new ConfigurableEntity<QuakeEntityRotationPolicy>();
             map.addEntity(entity);
             
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapTest, getNonExistingWorldspawn) {
-            Map map(MFQuake);
+            Map map(MapFormat::Quake);
             ASSERT_EQ(NULL, map.worldspawn());
 
             Entity* worldspawn = new ConfigurableEntity<QuakeEntityRotationPolicy>();
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapTest, getExistingWorldspawn) {
-            Map map(MFQuake);
+            Map map(MapFormat::Quake);
             Entity* worldspawn = new ConfigurableEntity<QuakeEntityRotationPolicy>();
             worldspawn->addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
             map.addEntity(worldspawn);

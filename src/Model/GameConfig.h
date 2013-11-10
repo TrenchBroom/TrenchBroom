@@ -20,37 +20,53 @@
 #ifndef __TrenchBroom__GameConfig__
 #define __TrenchBroom__GameConfig__
 
+#include "Color.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class GameConfig {
         public:
-            struct TextureFormat {
-                typedef enum {
-                    TWad,
-                    TWal,
-                    TUnknown
-                } Type;
+            struct FileSystemConfig {
+                IO::Path searchPath;
+                String packageFormat;
                 
-                Type type;
+                FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat);
+            };
+            
+            struct TextureConfig {
+                String type;
+                String property;
                 IO::Path palette;
+                IO::Path builtinTexturesSearchPath;
                 
-                TextureFormat(const Type i_type, const IO::Path& i_palette = IO::Path(""));
+                TextureConfig(const String& i_type, const String& i_property, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath);
+            };
+            
+            struct EntityConfig {
+                IO::Path defFilePath;
+                StringSet modelFormats;
+                Color defaultColor;
+                
+                EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
             };
         private:
             String m_name;
-            TextureFormat m_textureFormat;
-            StringSet m_modelFormats;
+            StringSet m_fileFormats;
+            FileSystemConfig m_fileSystemConfig;
+            TextureConfig m_textureConfig;
+            EntityConfig m_entityConfig;
         public:
-            GameConfig(const String& name, const TextureFormat& textureFormat, const StringSet& modelFormats);
+            GameConfig();
+            GameConfig(const String& name, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig);
             
             const String& name() const;
-            const TextureFormat& textureFormat() const;
-            const StringSet& modelFormats() const;
-            
-            static TextureFormat::Type parseType(const String str);
+            const StringSet& fileFormats() const;
+            const FileSystemConfig& fileSystemConfig() const;
+            const TextureConfig& textureConfig() const;
+            const EntityConfig& entityConfig() const;
         };
     }
 }

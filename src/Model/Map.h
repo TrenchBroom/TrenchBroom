@@ -31,15 +31,15 @@ namespace TrenchBroom {
     namespace Model {
         class Map {
         private:
-            MapFormat m_format;
+            MapFormat::Type m_format;
             ModelFactory m_factory;
             EntityList m_entities;
             mutable Entity* m_worldspawn;
         public:
-            Map(const MapFormat format);
+            Map(const MapFormat::Type format);
             ~Map();
             
-            MapFormat format() const;
+            MapFormat::Type format() const;
 
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;

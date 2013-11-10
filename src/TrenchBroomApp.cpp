@@ -23,6 +23,7 @@
 
 #include "IO/Path.h"
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "View/CommandIds.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
@@ -272,9 +273,11 @@ namespace TrenchBroom {
             if (queryGameType)
                 game = detectGame(frame->logger());
             else
-                game = Model::Game::game(0, frame->logger());
-            if (game == NULL)
+                game = Model::GameFactory::instance().createDefaultGame();
+            if (game == NULL) {
+                frame->Close();
                 return false;
+            }
             return frame != NULL && frame->newDocument(game);
         }
 
@@ -294,22 +297,25 @@ namespace TrenchBroom {
         }
 
         Model::GamePtr TrenchBroomApp::detectGame(Logger* logger, const IO::Path& path) {
-            Model::GamePtr game = Model::Game::detectGame(path, logger);
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            Model::GamePtr game = gameFactory.detectGame(path);
             if (game != NULL)
                 return game;
 
-            wxArrayString gameNames;
-            for (size_t i = 0; i < Model::Game::GameCount; ++i)
-                gameNames.Add(Model::Game::GameNames[i]);
-            wxSingleChoiceDialog chooseGameDialog(NULL, _T("Please select a game"), _T("TrenchBroom"), gameNames, (void**)NULL, wxDEFAULT_DIALOG_STYLE | wxOK | wxCENTRE);
+            const StringList gameList = gameFactory.gameList();
+            wxArrayString wxGameList;
+            for (size_t i = 0; i < gameList.size(); ++i)
+                wxGameList.Add(wxString(gameList[i]));
+
+            wxSingleChoiceDialog chooseGameDialog(NULL, _T("Please select a game"), _T("TrenchBroom"), wxGameList, (void**)NULL, wxDEFAULT_DIALOG_STYLE | wxOK | wxCENTRE);
             chooseGameDialog.SetSize(280, 200);
             chooseGameDialog.Center();
             if (chooseGameDialog.ShowModal() != wxID_OK)
                 return Model::GamePtr();
             const int selection = chooseGameDialog.GetSelection();
-            if (selection < 0 || selection >= static_cast<int>(Model::Game::GameCount))
+            if (selection < 0 || selection >= static_cast<int>(gameList.size()))
                 return Model::GamePtr();
-            return Model::Game::game(static_cast<size_t>(selection), logger);
+            return gameFactory.createGame(gameList[static_cast<size_t>(selection)]);
         }
     }
 }

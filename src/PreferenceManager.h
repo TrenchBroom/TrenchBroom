@@ -38,6 +38,7 @@ namespace TrenchBroom {
         
         void markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder);
     public:
+        ~PreferenceManager();
         static PreferenceManager& instance();
         
         Notifier1<const String&> preferenceDidChangeNotifier;
@@ -66,7 +67,6 @@ namespace TrenchBroom {
         }
     private:
         PreferenceManager();
-        ~PreferenceManager();
         
         PreferenceManager(const PreferenceManager& other);
         PreferenceManager& operator= (const PreferenceManager& other);

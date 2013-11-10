@@ -28,6 +28,7 @@
 namespace TrenchBroom {
     namespace Preferences {
         extern Preference<StringMap> GamePaths;
+        extern Preference<String> DefaultGame;
         
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;

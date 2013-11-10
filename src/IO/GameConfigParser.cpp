@@ -42,34 +42,76 @@ namespace TrenchBroom {
             expectTableEntry("name", ConfigEntry::TValue, rootTable);
             const String name = rootTable["name"];
             
-            expectTableEntry("textureformat", ConfigEntry::TTable, rootTable);
-            const GameConfig::TextureFormat textureFormat = parseTextureFormat(rootTable["textureformat"]);
+            expectTableEntry("fileformats", ConfigEntry::TList, rootTable);
+            const StringSet fileFormats = parseList(rootTable["fileformats"]);
             
-            expectTableEntry("modelformats", ConfigEntry::TList, rootTable);
-            const StringSet modelFormats = parseModelFormats(rootTable["modelformats"]);
+            expectTableEntry("filesystem", ConfigEntry::TTable, rootTable);
+            const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(rootTable["filesystem"]);
             
-            return GameConfig(name, textureFormat, modelFormats);
+            expectTableEntry("textures", ConfigEntry::TTable, rootTable);
+            const GameConfig::TextureConfig textureConfig = parseTextureConfig(rootTable["textures"]);
+            
+            expectTableEntry("entities", ConfigEntry::TTable, rootTable);
+            const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
+            
+            return GameConfig(name, fileFormats, fileSystemConfig, textureConfig, entityConfig);
         }
 
-        Model::GameConfig::TextureFormat GameConfigParser::parseTextureFormat(const ConfigTable& table) const {
+        Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            expectTableEntry("searchpath", ConfigEntry::TValue, table);
+            const String searchPath = table["searchpath"];
+            
+            expectTableEntry("packageformat", ConfigEntry::TValue, table);
+            const String packageFormat = table["packageformat"];
+            
+            return GameConfig::FileSystemConfig(Path(searchPath), packageFormat);
+        }
+
+        Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
             expectTableEntry("type", ConfigEntry::TValue, table);
-            const String typeStr = table["type"];
-            const GameConfig::TextureFormat::Type type = GameConfig::parseType(typeStr);
-            if (type == GameConfig::TextureFormat::TUnknown)
-                throw ParserException("Unknown texture format type: '" + typeStr + "'");
+            const String type = table["type"];
 
-            if (type == GameConfig::TextureFormat::TWad || type == GameConfig::TextureFormat::TWal) {
-                expectTableEntry("palette", ConfigEntry::TValue, table);
-                const String paletteStr = table["palette"];
-                return GameConfig::TextureFormat(type, IO::Path(paletteStr));
+            String property("");
+            if (table.contains("property")) {
+                expectTableEntry("property", ConfigEntry::TValue, table);
+                property = table["property"];
             }
             
-            return GameConfig::TextureFormat(type);
+            IO::Path palette("");
+            if (table.contains("palette")) {
+                expectTableEntry("palette", ConfigEntry::TValue, table);
+                palette = IO::Path(table["palette"]);
+            }
+            
+            IO::Path builtinTexturesSearchPath("");
+            if (table.contains("builtin")) {
+                expectTableEntry("builtin", ConfigEntry::TValue, table);
+                builtinTexturesSearchPath = IO::Path(table["builtin"]);
+            }
+            
+            return GameConfig::TextureConfig(type, property, IO::Path(palette), builtinTexturesSearchPath);
         }
 
-        StringSet GameConfigParser::parseModelFormats(const ConfigList& list) const {
+        Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            expectTableEntry("definitions", ConfigEntry::TValue, table);
+            const String defFilePath = table["definitions"];
+            
+            expectTableEntry("modelformats", ConfigEntry::TList, table);
+            const StringSet modelFormats = parseList(table["modelformats"]);
+            
+            expectTableEntry("defaultcolor", ConfigEntry::TValue, table);
+            const Color defaultColor(table["defaultcolor"]);
+            
+            return GameConfig::EntityConfig(Path(defFilePath), modelFormats, defaultColor);
+        }
+
+        StringSet GameConfigParser::parseList(const ConfigList& list) const {
             StringSet result;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
@@ -85,8 +127,10 @@ namespace TrenchBroom {
         }
 
         void GameConfigParser::expectTableEntry(const String& key, const ConfigEntry::Type typeMask, const ConfigTable& parent) const {
-            if (!parent.contains(key) || (parent[key].type() & typeMask) == 0)
+            if (!parent.contains(key))
                 throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask));
+            if ((parent[key].type() & typeMask) == 0)
+                throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask) + ", but got table entry with type '" + typeNames(parent[key].type()) + "'");
         }
         
         String GameConfigParser::typeNames(const ConfigEntry::Type typeMask) const {

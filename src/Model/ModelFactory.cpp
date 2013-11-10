@@ -30,9 +30,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        ModelFactory::ModelFactory(const MapFormat format) :
+        ModelFactory::ModelFactory(const MapFormat::Type format) :
         m_format(format) {
-            assert(m_format != MFUnknown);
+            assert(m_format != MapFormat::Unknown);
         }
 
         Entity* ModelFactory::createEntity() const {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
         BrushFace* ModelFactory::createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
             switch (m_format) {
-                case MFValve:
+                case MapFormat::Valve:
                     return createValveFace(point0, point1, point2, textureName);
                 default:
                     return createDefaultFace(point0, point1, point2, textureName);
