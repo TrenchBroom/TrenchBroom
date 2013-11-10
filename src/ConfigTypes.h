@@ -1,20 +1,20 @@
 /*
- Copyright (C) 2013 Kristian Duske
+ Copyright (C) 2010-2013 Kristian Duske
  
- This file is part of Tippi.
+ This file is part of TrenchBroom.
  
- Tippi is free software: you can redistribute it and/or modify
+ TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
  
- Tippi is distributed in the hope that it will be useful,
+ TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with Tippi. If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_ConfigTypes_h
@@ -24,6 +24,7 @@
 #include "SharedPointer.h"
 
 #include <map>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -33,11 +34,10 @@ namespace TrenchBroom {
     
     class ConfigEntry {
     public:
-        typedef enum {
-            TValue,
-            TList,
-            TTable
-        } Type;
+        typedef size_t Type;
+        static const Type TValue = 1 << 0;
+        static const Type TList  = 1 << 1;
+        static const Type TTable = 1 << 2;
         
         typedef std::tr1::shared_ptr<ConfigEntry> Ptr;
     private:
@@ -93,6 +93,7 @@ namespace TrenchBroom {
         const StringSet& keys() const;
         const ConfigEntry& operator[](const String& key) const;
         size_t count() const;
+        bool contains(const String& key) const;
         
         void addEntry(const String& key, ConfigEntry::Ptr entry);
     };

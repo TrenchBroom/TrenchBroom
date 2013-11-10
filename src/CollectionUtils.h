@@ -344,6 +344,13 @@ namespace VectorUtils {
 
 namespace SetUtils {
     template <typename T>
+    std::set<T> makeSet(const std::vector<T>& vec) {
+        std::set<T> result;
+        result.insert(vec.begin(), vec.end());
+        return result;
+    }
+    
+    template <typename T>
     std::set<T> minus(const std::set<T>& lhs, const std::set<T>& rhs) {
         std::set<T> result;
         std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
