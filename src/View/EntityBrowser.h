@@ -32,6 +32,10 @@ class wxScrollBar;
 class wxSearchCtrl;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace Renderer {
         class RenderResources;
     }
@@ -58,7 +62,7 @@ namespace TrenchBroom {
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
         private:
-            void preferenceDidChange(const String& name);
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }

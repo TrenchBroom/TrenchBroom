@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ValueHolderBase* value = it->second;
             
             pref->save(wxConfig::Get());
-            preferenceDidChangeNotifier(pref->name());
+            preferenceDidChangeNotifier(pref->path());
             
             changedPreferences.insert(pref);
             delete value;

@@ -603,7 +603,7 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapView::preferenceDidChange(const String& name) {
+        void MapView::preferenceDidChange(const IO::Path& path) {
             Refresh();
         }
 

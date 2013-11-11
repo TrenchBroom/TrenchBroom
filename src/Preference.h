@@ -23,6 +23,7 @@
 #include "Color.h"
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
 #include <wx/config.h>
@@ -271,7 +272,7 @@ namespace TrenchBroom {
             return this == &other;
         }
 
-        virtual const String& name() const = 0;
+        virtual const IO::Path& path() const = 0;
     };
     
     
@@ -282,7 +283,7 @@ namespace TrenchBroom {
         template<typename> friend class SetTemporaryPreference;
         
         Converter<T> m_converter;
-        String m_name;
+        IO::Path m_path;
         T m_value;
         bool m_initialized;
         bool m_modified;
@@ -303,7 +304,7 @@ namespace TrenchBroom {
         
         void load(wxConfigBase* config) {
             wxString string;
-            if (config->Read(m_name, &string))
+            if (config->Read(m_path.asString('/'), &string))
                 m_value = m_converter.fromWxString(string);
             m_initialized = true;
         }
@@ -311,22 +312,22 @@ namespace TrenchBroom {
         void save(wxConfigBase* config) {
             if (m_modified) {
                 wxString string = m_converter.toWxString(m_value);
-                bool success = config->Write(m_name, string);
+                bool success = config->Write(m_path.asString('/'), string);
                 assert(success);
                 m_modified = false;
             }
         }
     public:
-        Preference(const String& name, const T& defaultValue) :
-        m_name(name),
+        Preference(const IO::Path& path, const T& defaultValue) :
+        m_path(path),
         m_value(defaultValue),
         m_initialized(false),
         m_modified(false) {
             m_modified = m_initialized;
         }
         
-        const String& name() const {
-            return m_name;
+        const IO::Path& path() const {
+            return m_path;
         }
         
         const T& value() const {

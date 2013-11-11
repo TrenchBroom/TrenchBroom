@@ -114,8 +114,8 @@ namespace TrenchBroom {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
-        void EntityBrowser::preferenceDidChange(const String& name) {
-            if (name == Preferences::GamePaths.name())
+        void EntityBrowser::preferenceDidChange(const IO::Path& path) {
+            if (path == Preferences::GamePaths.path())
                 reload();
             else
                 m_view->Refresh();

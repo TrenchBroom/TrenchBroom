@@ -35,6 +35,10 @@ namespace TrenchBroom {
         class Texture;
     }
     
+    namespace IO {
+        class Path;
+    }
+    
     namespace Renderer {
         class RenderResources;
     }
@@ -66,7 +70,7 @@ namespace TrenchBroom {
             void OnFilterPatternChanged(wxCommandEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
         private:
-            void preferenceDidChange(const String& name);
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }

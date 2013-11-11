@@ -129,8 +129,8 @@ namespace TrenchBroom {
             ProcessEvent(event);
         }
 
-        void TextureBrowser::preferenceDidChange(const String& name) {
-            if (name == Preferences::TextureBrowserIconSize.name())
+        void TextureBrowser::preferenceDidChange(const IO::Path& path) {
+            if (path == Preferences::TextureBrowserIconSize.path())
                 reload();
             else
                 m_view->Refresh();

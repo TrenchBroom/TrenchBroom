@@ -29,6 +29,10 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     class PreferenceManager {
     private:
         typedef std::map<PreferenceBase*, ValueHolderBase*> UnsavedPreferences;
@@ -41,7 +45,7 @@ namespace TrenchBroom {
         ~PreferenceManager();
         static PreferenceManager& instance();
         
-        Notifier1<const String&> preferenceDidChangeNotifier;
+        Notifier1<const IO::Path&> preferenceDidChangeNotifier;
 
         PreferenceBase::Set saveChanges();
         PreferenceBase::Set discardChanges();
@@ -60,7 +64,7 @@ namespace TrenchBroom {
             preference.setValue(value);
             if (m_saveInstantly) {
                 preference.save(wxConfig::Get());
-                preferenceDidChangeNotifier(preference.name());
+                preferenceDidChangeNotifier(preference.path());
             } else {
                 markAsUnsaved(&preference, new ValueHolder<T>(previousValue));
             }
