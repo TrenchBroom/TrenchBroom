@@ -21,6 +21,8 @@
 #define __TrenchBroom__GameFactory__
 
 #include "StringUtils.h"
+#include "Preference.h"
+#include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
 
@@ -35,13 +37,21 @@ namespace TrenchBroom {
         class GameFactory {
         private:
             typedef std::map<String, GameConfig> ConfigMap;
-            ConfigMap m_configs;
-        public:
-            static const GameFactory& instance();
+            typedef std::map<String, Preference<IO::Path> > GamePathMap;
             
-            StringList gameList() const;
-            GamePtr createDefaultGame() const;
+            StringList m_names;
+            ConfigMap m_configs;
+            mutable GamePathMap m_gamePaths;
+        public:
+            static GameFactory& instance();
+            
+            const StringList& gameList() const;
+            size_t gameCount() const;
             GamePtr createGame(const String& name) const;
+            const GameConfig& gameConfig(const String& name) const;
+            
+            IO::Path gamePath(const String& gameName) const;
+            void setGamePath(const String& gameName, const IO::Path& gamePath);
 
             GamePtr detectGame(const IO::Path& path) const;
         private:

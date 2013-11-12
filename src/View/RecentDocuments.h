@@ -53,6 +53,10 @@ namespace TrenchBroom {
                 loadFromConfig();
             }
             
+            const IO::Path::List& recentDocuments() const {
+                return m_recentDocuments;
+            }
+
             void addMenu(wxMenu* menu) {
                 assert(menu != NULL);
                 clearMenu(menu);

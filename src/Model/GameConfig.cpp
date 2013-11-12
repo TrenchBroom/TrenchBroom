@@ -39,12 +39,14 @@ namespace TrenchBroom {
         defaultColor(i_defaultColor) {}
 
         GameConfig::GameConfig() :
+        m_icon(IO::Path("")),
         m_fileSystemConfig(IO::Path(""), ""),
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 
-        GameConfig::GameConfig(const String& name, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
+        GameConfig::GameConfig(const String& name, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
         m_name(name),
+        m_icon(icon),
         m_fileFormats(fileFormats),
         m_fileSystemConfig(fileSystemConfig),
         m_textureConfig(textureConfig),
@@ -56,6 +58,10 @@ namespace TrenchBroom {
             return m_name;
         }
         
+        const IO::Path& GameConfig::icon() const {
+            return m_icon;
+        }
+
         const StringSet& GameConfig::fileFormats() const {
             return m_fileFormats;
         }

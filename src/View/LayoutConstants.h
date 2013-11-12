@@ -61,6 +61,7 @@ namespace TrenchBroom {
             static const int ChoiceLeftMargin                   = 1;
             static const int BrowserControlsHorizontalMargin    = 3;
             static const int FaceAttribsControlMargin           = 5;
+            static const int WelcomeDialogOuterMargin           = 20;
 #elif defined __linux__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;

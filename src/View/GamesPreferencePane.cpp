@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/LayoutConstants.h"
@@ -41,12 +42,17 @@ namespace TrenchBroom {
             updateControls();
         }
         
+        void GamesPreferencePane::OnGameSelectionChanged(wxCommandEvent& event) {
+            updateControls();
+        }
+
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
             wxDirDialog chooseQuakePathDialog(NULL, _("Choose game directory"), _(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
-                String quakePath = chooseQuakePathDialog.GetPath().ToStdString();
-                PreferenceManager& prefs = PreferenceManager::instance();
-                // prefs.set(Preferences::QuakePath, quakePath);
+                const IO::Path gamePath(chooseQuakePathDialog.GetPath().ToStdString());
+                const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                gameFactory.setGamePath(gameName, gamePath);
                 
                 updateControls();
             }
@@ -75,11 +81,14 @@ namespace TrenchBroom {
             
             wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, _("Select a game from the list: "));
             
-            const StringList gameList = Model::GameFactory::instance().gameList();
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const StringList gameList = gameFactory.gameList();
+            
             wxArrayString wxGameList;
             for (size_t i = 0; i < gameList.size(); ++i)
                 wxGameList.Add(wxString(gameList[i]));
             m_gameSelectionChoice = new wxChoice(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxGameList);
+            m_gameSelectionChoice->SetSelection(0);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(gameSelectionChoiceLabel, 0, wxALIGN_CENTER_VERTICAL);
@@ -116,9 +125,15 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::bindEvents() {
+            m_gameSelectionChoice->Bind(wxEVT_CHOICE, &GamesPreferencePane::OnGameSelectionChanged, this);
+            m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
         }
         
         void GamesPreferencePane::updateControls() {
+            const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path gamePath = gameFactory.gamePath(gameName);
+            m_gamePathValueLabel->SetLabel(gamePath.isEmpty() ? "not set" : gamePath.asString());
         }
         
         bool GamesPreferencePane::doValidate() {

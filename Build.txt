@@ -1,20 +1,24 @@
 ====== Windows ======
 You'll need Visual Studio (only tested with 2010).
 
-- Get the binary build of wxWidgets 2.9.4 for your platform from
-  http://sourceforge.net/projects/wxwindows/files/2.9.4/binaries/
+- Get the binary build of wxWidgets 3 for your platform from
+  http://www.wxwidgets.org
 
   - For 32bit builds, you need the following files:
-    - wxWidgets-2.9.4_Headers.7z
-    - wxMSW-2.9.4-vc100_Dev.7z
-    - wxMSW-2.9.4_vc100_ReleaseDLL.7z
-    - wxMSW-2.9.4_vc100_ReleasePDB.7z
-
-  - Unpack all files into the same directory so that "include" and "lib" directories are at the same level after unpacking.
+    If you are using a different version of Visual Studio, you will have to download other binaries, e.g., wxMSW-<version>-vc120_Dev.7z etc.
+    - wxWidgets-<version>_headers.7z
+    - wxMSW-<version>_vc100_Dev.7z
+    - wxMSW-<version>_vc100_ReleaseDLL.7z
+    - wxMSW-<version>_vc100_ReleasePDB.7z
+    
+  - Unpack all files into c:\wxWidgets-<version> so that "include" and "lib" directories are at the same level after unpacking.
   - In this directory, rename lib/vc100 to lib/vc_dll
-  - Set a new environment variable WXWIN=C:\wxWidgets-2.9.4 (replace the path with the path where you unpacked wxWidgets).
+  - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
   - If you want to run the binaries without using the installer, add %WXWIN% to your path. 
 - Download and install CMake for Windows (www.cmake.org)
+  - You might have to adapt the FindwxWidgets.cmake script in <cmake-install-dir>\share\cmake-2.8\Modules:
+    - Add wxWidgets-3.0.0 to the list of PATH_SUFFIXES.
+    - Adapt the find_library(WX_base${_DBG} NAMES lists for wxWidgets 3.0 by adding a name pattern with version number 30.
 - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
@@ -25,7 +29,7 @@ You'll need Visual Studio (only tested with 2010).
 
 ====== Linux ======
 Dependencies
-Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
+Compiling wxWidgets 3 requires the following dependencies. You should install them using the packager of your Linux distribution.
 - g++ GNU c++ compiler
 - GTK2 and development packages: libgtk2.0-dev (GTK3 will NOT work)
 - FreeImage: libfreeimage-dev
@@ -39,7 +43,7 @@ http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 wxWidgets
-- Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
+- Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
 - Create two directories: build-release and build-debug (don't rename those!)
@@ -82,7 +86,7 @@ Build environment
   sudo port install freeimage +universal
 
 3. wxWidgets
-- Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
+- Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
 - Apply the patches in TrenchBroom/patches/wxWidgets

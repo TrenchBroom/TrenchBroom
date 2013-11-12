@@ -5,6 +5,9 @@ The preference dialog is split into the following four preference panes, which a
 - Mouse Setup: In this preference pane, the user can tune how the camera reacts to mouse input (e.g. sensitivity etc.)
 - Keyboard Setup: This is where the user can change the keyboard bindings of the various menu commands.
 
+# Welcome Dialog (32x32)
+The welcome dialog is shown when the editor starts up. The user can select a recently opened document from a list or can click on a button to create a new map or on another button to open an existing map. Buttons need an icon.
+
 # Generic Icons (16x16)
 These icons are to be used in several places all over the editor and therefore should be as generic as possible.
 - Add something to a list of things: Could be as simple as a plus sign.

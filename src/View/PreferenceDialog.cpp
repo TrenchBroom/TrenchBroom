@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/Path.h"
-#include "IO/SystemPaths.h"
+#include "IO/ResourceUtils.h"
 #include "View/GamesPreferencePane.h"
 #include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
@@ -101,19 +101,14 @@ namespace TrenchBroom {
         void PreferenceDialog::createGui() {
             m_pane = NULL;
             
-            const IO::Path resourcePath = IO::SystemPaths::resourceDirectory();
-            const IO::Path gamesPath = resourcePath + IO::Path("images/GeneralPreferences.png");
-            const IO::Path generalPath = resourcePath + IO::Path("images/GeneralPreferences.png");
-            const IO::Path keyboardPath = resourcePath + IO::Path("images/KeyboardPreferences.png");
-            
-            const wxBitmap games(gamesPath.asString(), wxBITMAP_TYPE_PNG);
-            const wxBitmap general(generalPath.asString(), wxBITMAP_TYPE_PNG);
-            const wxBitmap keyboard(keyboardPath.asString(), wxBITMAP_TYPE_PNG);
+            const wxBitmap gamesImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
+            const wxBitmap generalImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
+            const wxBitmap keyboardImage = IO::loadImageResource(IO::Path("images/KeyboardPreferences.png"));
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->AddCheckTool(PPGames, _("Games"), games, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPGeneral, _("General"), general, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPKeyboard, _("Keyboard"), keyboard, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGames, _("Games"), gamesImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGeneral, _("General"), generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPKeyboard, _("Keyboard"), keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
             m_paneContainer = new wxPanel(this);

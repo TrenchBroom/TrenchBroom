@@ -35,6 +35,15 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
 - All help is appreciated!
 
+# Credits
+- wxWidgets www.wxwidgets.org
+- FreeType library www.freetype.org
+- FreeImage library www.freeimage.org
+- GoogleTest library code.google.com/p/googletest/
+- GoogleMock library code.google.com/p/googlemock/
+- Quake icons by Th3 ProphetMan th3-prophetman.deviantart.com
+- Hexen 2 icon by thedoctor45 thedoctor45.deviantart.com
+
 ## Changes
 ### TrenchBroom 1.0.9
 - Fix the rotation tool handle position

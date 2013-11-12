@@ -148,6 +148,18 @@ namespace TrenchBroom {
     };
     
     template<>
+    class Converter<IO::Path> {
+    public:
+        wxString toWxString(const IO::Path& value) const {
+            return wxString(value.asString());
+        }
+        
+        IO::Path fromWxString(const wxString& string) const {
+            return IO::Path(string.ToStdString());
+        }
+    };
+
+    template<>
     class Converter<StringMap > {
     public:
         wxString toWxString(const StringMap& values) const {

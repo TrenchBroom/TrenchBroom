@@ -13,6 +13,7 @@ Hexen2: wad
 
 {
 	name = "Quake",
+  icon = "games/quake/Icon.png",
   fileformats = {"Quake1", "Valve"},
 	filesystem = {
 		searchpath = "id1",

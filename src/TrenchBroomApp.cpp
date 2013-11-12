@@ -30,6 +30,7 @@
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/PreferenceDialog.h"
+#include "View/WelcomeDialog.h"
 
 #include <wx/choicdlg.h>
 #include <wx/filedlg.h>
@@ -48,6 +49,10 @@ namespace TrenchBroom {
 
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
+        }
+
+        const IO::Path::List& TrenchBroomApp::recentDocuments() const {
+            return m_recentDocuments.recentDocuments();
         }
 
         void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
@@ -108,9 +113,11 @@ namespace TrenchBroom {
 #ifndef __APPLE__
             if (wxApp::argc > 1) {
                 const wxString filename = wxApp::argv[1];
-                return openDocument(filename.ToStdString());
+                if (!openDocument(filename.ToStdString()))
+                    return false;
             } else {
-                return newDocument(true);
+                if (!showWelcomeDialog())
+                    return false;
             }
 #endif
 
@@ -137,7 +144,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
-            newDocument(true);
+            newDocument();
         }
 
         void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
@@ -247,7 +254,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::MacNewFile() {
-            newDocument(false);
+            showWelcomeDialog();
         }
 
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
@@ -267,13 +274,25 @@ namespace TrenchBroom {
 #endif
         }
 
-        bool TrenchBroomApp::newDocument(const bool queryGameType) {
+        bool TrenchBroomApp::showWelcomeDialog() {
+            WelcomeDialog welcomeDialog;
+            const int result = welcomeDialog.ShowModal();
+            switch (result) {
+                case WelcomeDialog::CreateNewDocument:
+                    return newDocument();
+                case WelcomeDialog::OpenDocument:
+                    return openDocument(welcomeDialog.documentPath().asString());
+                default:
+                    return false;
+            }
+        }
+
+        bool TrenchBroomApp::newDocument() {
+            // Todo: Query the game
+            
             MapFrame* frame = m_frameManager->newFrame();
             Model::GamePtr game;
-            if (queryGameType)
-                game = detectGame(frame->logger());
-            else
-                game = Model::GameFactory::instance().createDefaultGame();
+            game = detectGame(frame->logger());
             if (game == NULL) {
                 frame->Close();
                 return false;

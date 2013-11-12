@@ -54,15 +54,17 @@ namespace TrenchBroom {
             };
         private:
             String m_name;
+            IO::Path m_icon;
             StringSet m_fileFormats;
             FileSystemConfig m_fileSystemConfig;
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
         public:
             GameConfig();
-            GameConfig(const String& name, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig);
+            GameConfig(const String& name, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig);
             
             const String& name() const;
+            const IO::Path& icon() const;
             const StringSet& fileFormats() const;
             const FileSystemConfig& fileSystemConfig() const;
             const TextureConfig& textureConfig() const;

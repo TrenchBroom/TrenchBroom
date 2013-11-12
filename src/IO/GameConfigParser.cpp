@@ -42,6 +42,12 @@ namespace TrenchBroom {
             expectTableEntry("name", ConfigEntry::TValue, rootTable);
             const String name = rootTable["name"];
             
+            IO::Path icon("");
+            if (rootTable.contains("icon")) {
+                expectTableEntry("icon", ConfigEntry::TValue, rootTable);
+                icon = IO::Path(rootTable["icon"]);
+            }
+            
             expectTableEntry("fileformats", ConfigEntry::TList, rootTable);
             const StringSet fileFormats = parseList(rootTable["fileformats"]);
             
@@ -54,7 +60,7 @@ namespace TrenchBroom {
             expectTableEntry("entities", ConfigEntry::TTable, rootTable);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
             
-            return GameConfig(name, fileFormats, fileSystemConfig, textureConfig, entityConfig);
+            return GameConfig(name, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig);
         }
 
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {

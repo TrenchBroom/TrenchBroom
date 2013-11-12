@@ -41,6 +41,8 @@ namespace TrenchBroom {
             TrenchBroomApp();
             
             FrameManager* frameManager();
+            
+            const IO::Path::List& recentDocuments() const;
             void addRecentDocumentMenu(wxMenu* menu);
             void removeRecentDocumentMenu(wxMenu* menu);
             void updateRecentDocument(const IO::Path& path);
@@ -66,7 +68,8 @@ namespace TrenchBroom {
             
         private:
             static bool useSDI();
-            bool newDocument(const bool queryGameType);
+            bool showWelcomeDialog();
+            bool newDocument();
             bool openDocument(const String& pathStr);
             static Model::GamePtr detectGame(Logger* logger, const IO::Path& path = IO::Path(""));
         };
