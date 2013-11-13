@@ -63,24 +63,33 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::OnCreateNewDocumentClicked(wxCommandEvent& event) {
+            Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.newDocument())
                 Destroy();
+            else
+                Show();
         }
         
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
             const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
             if (!pathStr.empty()) {
+                Hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
                 if (app.openDocument(pathStr.ToStdString()))
                     Destroy();
+                else
+                    Show();
             }
         }
 
         void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
+            Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.openDocument(event.documentPath().asString()))
                 Destroy();
+            else
+                Show();
         }
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
