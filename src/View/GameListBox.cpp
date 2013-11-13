@@ -24,6 +24,7 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "View/GameSelectedCommand.h"
 
 #include <cassert>
 #include <wx/log.h>
@@ -31,13 +32,31 @@
 namespace TrenchBroom {
     namespace View {
         GameListBox::GameListBox(wxWindow* parent) :
-        ImageListBox(parent) {
+        ImageListBox(parent, wxSize(32, 32)) {
             loadGameInfos();
             SetItemCount(m_gameInfos.size());
+            Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
+        }
+
+        const String GameListBox::selectedGameName() const {
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const StringList& gameList = gameFactory.gameList();
+            
+            const int index = GetSelection();
+            if (index < 0 || index >= gameList.size())
+                return "";
+            return gameList[index];
+        }
+
+        void GameListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
+            GameSelectedCommand command;
+            command.setGameName(selectedGameName());
+            command.SetEventObject(this);
+            command.SetId(GetId());
+            ProcessEvent(command);
         }
 
         void GameListBox::loadGameInfos() {
-            
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
             StringList::const_iterator it, end;

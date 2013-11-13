@@ -25,8 +25,10 @@
 namespace TrenchBroom {
     namespace View {
         class ImageListBox : public wxVListBox {
+        private:
+            wxSize m_imageSize;
         public:
-            ImageListBox(wxWindow* parent);
+            ImageListBox(wxWindow* parent, const wxSize& imageSize);
             
             size_t selection() const;
             bool hasSelection() const;

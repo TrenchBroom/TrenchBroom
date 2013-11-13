@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__GameListBox__
 #define __TrenchBroom__GameListBox__
 
+#include "StringUtils.h"
 #include "View/ImageListBox.h"
 
 #include <vector>
@@ -39,6 +40,10 @@ namespace TrenchBroom {
             InfoList m_gameInfos;
         public:
             GameListBox(wxWindow* parent);
+            
+            const String selectedGameName() const;
+            
+            void OnListBoxDoubleClick(wxCommandEvent& event);
         private:
             void loadGameInfos();
             

@@ -116,8 +116,8 @@ namespace TrenchBroom {
             innerSizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
             innerSizer->AddStretchSpacer();
             
-            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, _("Create new map..."));
-            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, _("Open existing map..."));
+            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, _("Create document..."));
+            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, _("Open document..."));
             
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);

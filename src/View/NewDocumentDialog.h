@@ -20,6 +20,36 @@
 #ifndef __TrenchBroom__NewDocumentDialog__
 #define __TrenchBroom__NewDocumentDialog__
 
-#include <iostream>
+#include "StringUtils.h"
+
+#include <wx/dialog.h>
+
+class wxFrame;
+class wxPanel;
+class wxWindow;
+
+namespace TrenchBroom {
+    namespace View {
+        class GameListBox;
+        class GameSelectedCommand;
+        
+        class NewDocumentDialog : public wxDialog {
+        private:
+            GameListBox* m_gameListBox;
+        public:
+            NewDocumentDialog(wxWindow* parent);
+
+            const String selectedGameName() const;
+
+            void OnGameSelected(GameSelectedCommand& event);
+            void OnUpdateOkButton(wxUpdateUIEvent& event);
+        private:
+            void createGui();
+            wxPanel* createInfoPanel(wxWindow* parent);
+            wxPanel* createGameList(wxWindow* parent);
+            void bindEvents();
+        };
+    }
+}
 
 #endif /* defined(__TrenchBroom__NewDocumentDialog__) */

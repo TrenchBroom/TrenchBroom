@@ -29,6 +29,7 @@
 #include "View/MapFrame.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
+#include "View/NewDocumentDialog.h"
 #include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
 
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             
             MapFrame* frame = m_frameManager->newFrame();
             Model::GamePtr game;
-            game = detectGame(frame->logger());
+            game = detectGame(frame, frame->logger());
             if (game == NULL) {
                 frame->Close();
                 return false;
@@ -90,7 +91,8 @@ namespace TrenchBroom {
             MapFrame* frame = m_frameManager->newFrame();
             try {
                 const IO::Path path(pathStr);
-                Model::GamePtr game = detectGame(frame->logger(), path);
+                // TODO: use a separate function with a dedicated game selection dialog here
+                Model::GamePtr game = detectGame(frame, frame->logger(), path);
                 if (game == NULL)
                     return false;
                 return frame != NULL && frame->openDocument(game, path);
@@ -313,26 +315,18 @@ namespace TrenchBroom {
             welcomeFrame->Show();
         }
         
-        Model::GamePtr TrenchBroomApp::detectGame(Logger* logger, const IO::Path& path) {
+        Model::GamePtr TrenchBroomApp::detectGame(wxWindow* parent, Logger* logger, const IO::Path& path) {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.detectGame(path);
             if (game != NULL)
                 return game;
-            
-            const StringList gameList = gameFactory.gameList();
-            wxArrayString wxGameList;
-            for (size_t i = 0; i < gameList.size(); ++i)
-                wxGameList.Add(wxString(gameList[i]));
-            
-            wxSingleChoiceDialog chooseGameDialog(NULL, _T("Please select a game"), _T("TrenchBroom"), wxGameList, (void**)NULL, wxDEFAULT_DIALOG_STYLE | wxOK | wxCENTRE);
-            chooseGameDialog.SetSize(280, 200);
-            chooseGameDialog.Center();
-            if (chooseGameDialog.ShowModal() != wxID_OK)
+
+            NewDocumentDialog dialog(parent);
+            if (dialog.ShowModal() != wxID_OK)
                 return Model::GamePtr();
-            const int selection = chooseGameDialog.GetSelection();
-            if (selection < 0 || selection >= static_cast<int>(gameList.size()))
-                return Model::GamePtr();
-            return gameFactory.createGame(gameList[static_cast<size_t>(selection)]);
+
+            const String gameName = dialog.selectedGameName();
+            return gameFactory.createGame(gameName);
         }
     }
 }

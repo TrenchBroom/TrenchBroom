@@ -27,15 +27,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent) :
-        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE) {
+        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize) :
+        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE),
+        m_imageSize(imageSize) {
         }
 
         void ImageListBox::OnDrawItem(wxDC& dc, const wxRect& rect, size_t n) const {
             const wxBitmap& img = image(n);
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
-            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - 40 - 6);
+            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - m_imageSize.x + 8 - 6);
             
             dc.DrawBitmap(img, rect.GetLeft() + 2, rect.GetTop() + 4, true);
 
@@ -45,9 +46,9 @@ namespace TrenchBroom {
                 dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             
             dc.SetFont(wxNORMAL_FONT->Bold());
-            dc.DrawText(ttl, rect.GetLeft() + 40, rect.GetTop() + 2);
+            dc.DrawText(ttl, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 2);
             dc.SetFont(*wxSMALL_FONT);
-            dc.DrawText(shortSub, rect.GetLeft() + 40, rect.GetTop() + 20);
+            dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 20);
         }
         
         void ImageListBox::OnDrawBackground(wxDC& dc, const wxRect& rect, size_t n) const {
@@ -69,7 +70,7 @@ namespace TrenchBroom {
         
         wxCoord ImageListBox::OnMeasureItem(size_t n) const {
             assert(n < GetItemCount());
-            return 33 + 8;
+            return m_imageSize.y + 1 + 8;
         }
     }
 }
