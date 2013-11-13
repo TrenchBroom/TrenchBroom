@@ -75,7 +75,7 @@ namespace TrenchBroom {
         private:
             static bool useSDI();
             void showWelcomeFrame();
-            static Model::GamePtr detectGame(wxWindow* parent, Logger* logger, const IO::Path& path = IO::Path(""));
+            static Model::GamePtr detectGame(wxWindow* parent, const IO::Path& path = IO::Path(""));
         };
     }
 }

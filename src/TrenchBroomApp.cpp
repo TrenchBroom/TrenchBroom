@@ -77,24 +77,23 @@ namespace TrenchBroom {
         bool TrenchBroomApp::newDocument() {
             // Todo: Query the game
             
-            MapFrame* frame = m_frameManager->newFrame();
-            Model::GamePtr game;
-            game = detectGame(frame, frame->logger());
-            if (game == NULL) {
-                frame->Close();
+            Model::GamePtr game = detectGame(NULL);
+            if (game == NULL)
                 return false;
-            }
+
+            MapFrame* frame = m_frameManager->newFrame();
             return frame != NULL && frame->newDocument(game);
         }
         
         bool TrenchBroomApp::openDocument(const String& pathStr) {
-            MapFrame* frame = m_frameManager->newFrame();
+            MapFrame* frame = NULL;
             try {
                 const IO::Path path(pathStr);
                 // TODO: use a separate function with a dedicated game selection dialog here
-                Model::GamePtr game = detectGame(frame, frame->logger(), path);
+                Model::GamePtr game = detectGame(NULL, path);
                 if (game == NULL)
                     return false;
+                MapFrame* frame = m_frameManager->newFrame();
                 return frame != NULL && frame->openDocument(game, path);
             } catch (...) {
                 if (frame != NULL)
@@ -315,7 +314,7 @@ namespace TrenchBroom {
             welcomeFrame->Show();
         }
         
-        Model::GamePtr TrenchBroomApp::detectGame(wxWindow* parent, Logger* logger, const IO::Path& path) {
+        Model::GamePtr TrenchBroomApp::detectGame(wxWindow* parent, const IO::Path& path) {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.detectGame(path);
             if (game != NULL)
