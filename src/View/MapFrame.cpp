@@ -98,10 +98,8 @@ namespace TrenchBroom {
             m_autosaveTimer = NULL;
             delete m_autosaver;
             m_autosaver = NULL;
-            
-            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
-            if (app != NULL)
-                app->removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(GetMenuBar()));
+
+            View::TrenchBroomApp::instance().removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(GetMenuBar()));
         }
 
         Logger* MapFrame::logger() const {
@@ -746,16 +744,12 @@ namespace TrenchBroom {
             wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView, m_document), showModifiers);
             SetMenuBar(menuBar);
             
-            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
-            if (app != NULL)
-                app->addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
+            View::TrenchBroomApp::instance().addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
         }
         
         void MapFrame::updateMenuBar(const bool showModifiers) {
             wxMenuBar* oldMenuBar = GetMenuBar();
-            View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
-            if (app != NULL)
-                app->removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(oldMenuBar));
+            View::TrenchBroomApp::instance().removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(oldMenuBar));
             createMenuBar(showModifiers);
             delete oldMenuBar;
         }

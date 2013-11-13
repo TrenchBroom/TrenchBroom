@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WelcomeDialog.h"
+#include "WelcomeFrame.h"
 
+#include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/LayoutConstants.h"
@@ -34,20 +35,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        WelcomeDialog::WelcomeDialog() :
-        wxDialog(NULL, wxID_ANY, _("Welcome to TrenchBroom"), wxDefaultPosition, wxDefaultSize, (wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT)
-#if not defined __APPLE__
-                 & ~wxCLOSE_BOX
-#endif
-                 ),
-        m_documentPath("") {
+        IMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
+
+        WelcomeFrame::WelcomeFrame() :
+        wxFrame(NULL, wxID_ANY, _("Welcome to TrenchBroom"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             SetSize(700, 420);
             createGui();
             bindEvents();
             Centre();
         }
 
-        void WelcomeDialog::createGui() {
+        void WelcomeFrame::createGui() {
             wxPanel* container = new wxPanel(this);
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
@@ -63,31 +61,29 @@ namespace TrenchBroom {
             
             SetSizer(outerSizer);
         }
-        
-        const IO::Path& WelcomeDialog::documentPath() const {
-            return m_documentPath;
-        }
 
-        void WelcomeDialog::OnCreateNewDocumentClicked(wxCommandEvent& event) {
-            EndModal(CreateNewDocument);
+        void WelcomeFrame::OnCreateNewDocumentClicked(wxCommandEvent& event) {
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            if (app.newDocument())
+                Destroy();
         }
         
-        void WelcomeDialog::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
+        void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
             const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
             if (!pathStr.empty()) {
-                m_documentPath = IO::Path(pathStr.ToStdString());
-                EndModal(OpenDocument);
-            } else {
-                EndModal(wxID_CANCEL);
+                TrenchBroomApp& app = TrenchBroomApp::instance();
+                if (app.openDocument(pathStr.ToStdString()))
+                    Destroy();
             }
         }
 
-        void WelcomeDialog::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
-            m_documentPath = event.documentPath();
-            EndModal(OpenDocument);
+        void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            if (app.openDocument(event.documentPath().asString()))
+                Destroy();
         }
 
-        wxPanel* WelcomeDialog::createAppPanel(wxWindow* parent) {
+        wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
             appPanel->SetBackgroundColour(*wxWHITE);
             
@@ -129,10 +125,10 @@ namespace TrenchBroom {
             return appPanel;
         }
 
-        void WelcomeDialog::bindEvents() {
-            m_createNewDocumentButton->Bind(wxEVT_BUTTON, &WelcomeDialog::OnCreateNewDocumentClicked, this);
-            m_openOtherDocumentButton->Bind(wxEVT_BUTTON, &WelcomeDialog::OnOpenOtherDocumentClicked, this);
-            m_recentDocumentListBox->Bind(EVT_RECENT_DOCUMENT_SELECTED_EVENT, EVT_RECENT_DOCUMENT_SELECTED_HANDLER(WelcomeDialog::OnRecentDocumentSelected), this);
+        void WelcomeFrame::bindEvents() {
+            m_createNewDocumentButton->Bind(wxEVT_BUTTON, &WelcomeFrame::OnCreateNewDocumentClicked, this);
+            m_openOtherDocumentButton->Bind(wxEVT_BUTTON, &WelcomeFrame::OnOpenOtherDocumentClicked, this);
+            m_recentDocumentListBox->Bind(EVT_RECENT_DOCUMENT_SELECTED_EVENT, EVT_RECENT_DOCUMENT_SELECTED_HANDLER(WelcomeFrame::OnRecentDocumentSelected), this);
         }
     }
 }

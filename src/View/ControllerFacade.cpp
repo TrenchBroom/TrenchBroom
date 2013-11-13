@@ -76,9 +76,7 @@ namespace TrenchBroom {
             
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(m_document, worldBounds, game, path));
             if (m_commandProcessor.submitCommand(command)) {
-                View::TrenchBroomApp* app = static_cast<View::TrenchBroomApp*>(wxTheApp);
-                if (app != NULL)
-                    app->updateRecentDocument(path);
+                View::TrenchBroomApp::instance().updateRecentDocument(path);
                 return true;
             }
             return false;

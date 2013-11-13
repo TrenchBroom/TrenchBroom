@@ -35,7 +35,7 @@ namespace TrenchBroom {
             const wxBitmap& img = image(n);
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
-            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - 40 - 4);
+            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - 40 - 6);
             
             dc.DrawBitmap(img, rect.GetLeft() + 2, rect.GetTop() + 4, true);
 

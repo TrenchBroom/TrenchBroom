@@ -37,7 +37,10 @@ namespace TrenchBroom {
             RecentDocuments<TrenchBroomApp> m_recentDocuments;
             wxLongLong m_lastActivation;
             wxWindow* m_lastFocusedWindow;
+            bool m_lastFocusedWindowIsMapView;
         public:
+            static TrenchBroomApp& instance();
+
             TrenchBroomApp();
             
             FrameManager* frameManager();
@@ -47,6 +50,9 @@ namespace TrenchBroom {
             void removeRecentDocumentMenu(wxMenu* menu);
             void updateRecentDocument(const IO::Path& path);
             
+            bool newDocument();
+            bool openDocument(const String& pathStr);
+
             bool OnInit();
             int OnExit();
             void OnUnhandledException();
@@ -68,9 +74,7 @@ namespace TrenchBroom {
             
         private:
             static bool useSDI();
-            bool showWelcomeDialog();
-            bool newDocument();
-            bool openDocument(const String& pathStr);
+            void showWelcomeFrame();
             static Model::GamePtr detectGame(Logger* logger, const IO::Path& path = IO::Path(""));
         };
     }

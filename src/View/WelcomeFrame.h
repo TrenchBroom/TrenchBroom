@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WelcomeDialog__
-#define __TrenchBroom__WelcomeDialog__
+#ifndef __TrenchBroom__WelcomeFrame__
+#define __TrenchBroom__WelcomeFrame__
 
 #include "IO/Path.h"
 
-#include <wx/dialog.h>
+#include <wx/frame.h>
 
 class wxButton;
 class wxPanel;
@@ -32,23 +32,19 @@ namespace TrenchBroom {
         class RecentDocumentListBox;
         class RecentDocumentSelectedCommand;
         
-        class WelcomeDialog : public wxDialog {
-        public:
-            static const int CreateNewDocument = 666;
-            static const int OpenDocument = 667;
+        class WelcomeFrame : public wxFrame {
         private:
             RecentDocumentListBox* m_recentDocumentListBox;
             wxButton* m_createNewDocumentButton;
             wxButton* m_openOtherDocumentButton;
-            IO::Path m_documentPath;
         public:
-            WelcomeDialog();
-            
-            const IO::Path& documentPath() const;
+            WelcomeFrame();
             
             void OnCreateNewDocumentClicked(wxCommandEvent& event);
             void OnOpenOtherDocumentClicked(wxCommandEvent& event);
             void OnRecentDocumentSelected(RecentDocumentSelectedCommand& event);
+
+            DECLARE_DYNAMIC_CLASS(WelcomeFrame)
         private:
             void createGui();
             wxPanel* createAppPanel(wxWindow* parent);
@@ -57,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WelcomeDialog__) */
+#endif /* defined(__TrenchBroom__WelcomeFrame__) */

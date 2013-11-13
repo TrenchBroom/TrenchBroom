@@ -34,14 +34,14 @@ namespace TrenchBroom {
         RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
         ImageListBox(parent),
         m_documentIcon(IO::loadImageResource(IO::Path("images/DocIcon.png"))) {
-            const TrenchBroomApp& app = static_cast<const TrenchBroomApp&>(*wxTheApp);
+            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             SetItemCount(recentDocuments.size());
             Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
         }
 
         void RecentDocumentListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            const TrenchBroomApp& app = static_cast<const TrenchBroomApp&>(*wxTheApp);
+            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
 
             const int index = GetSelection();
@@ -61,14 +61,14 @@ namespace TrenchBroom {
         }
         
         wxString RecentDocumentListBox::title(const size_t n) const {
-            const TrenchBroomApp& app = static_cast<const TrenchBroomApp&>(*wxTheApp);
+            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             assert(n < recentDocuments.size());
             return recentDocuments[n].lastComponent().asString();
         }
         
         wxString RecentDocumentListBox::subtitle(const size_t n) const {
-            const TrenchBroomApp& app = static_cast<const TrenchBroomApp&>(*wxTheApp);
+            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             assert(n < recentDocuments.size());
             return recentDocuments[n].asString();
