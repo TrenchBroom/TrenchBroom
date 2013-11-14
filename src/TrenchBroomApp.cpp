@@ -29,7 +29,7 @@
 #include "View/MapFrame.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
-#include "View/NewDocumentDialog.h"
+#include "View/ChooseGameDialog.h"
 #include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
 
@@ -75,9 +75,12 @@ namespace TrenchBroom {
         }
         
         bool TrenchBroomApp::newDocument() {
-            // Todo: Query the game
+            const String gameName = ChooseGameDialog::ShowNewDocument(NULL);
+            if (gameName.empty())
+                return false;
             
-            Model::GamePtr game = detectGame(NULL);
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            Model::GamePtr game = gameFactory.createGame(gameName);
             if (game == NULL)
                 return false;
 
@@ -89,10 +92,19 @@ namespace TrenchBroom {
             MapFrame* frame = NULL;
             try {
                 const IO::Path path(pathStr);
-                // TODO: use a separate function with a dedicated game selection dialog here
-                Model::GamePtr game = detectGame(NULL, path);
+                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GamePtr game = gameFactory.detectGame(path);
+                if (game == NULL) {
+                    const String gameName = ChooseGameDialog::ShowOpenDocument(NULL);
+                    if (gameName.empty())
+                        return false;
+
+                    game = gameFactory.createGame(gameName);
+                }
+                
                 if (game == NULL)
                     return false;
+                
                 MapFrame* frame = m_frameManager->newFrame();
                 return frame != NULL && frame->openDocument(game, path);
             } catch (...) {
@@ -312,20 +324,6 @@ namespace TrenchBroom {
         void TrenchBroomApp::showWelcomeFrame() {
             WelcomeFrame* welcomeFrame = new WelcomeFrame();
             welcomeFrame->Show();
-        }
-        
-        Model::GamePtr TrenchBroomApp::detectGame(wxWindow* parent, const IO::Path& path) {
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            Model::GamePtr game = gameFactory.detectGame(path);
-            if (game != NULL)
-                return game;
-
-            NewDocumentDialog dialog(parent);
-            if (dialog.ShowModal() != wxID_OK)
-                return Model::GamePtr();
-
-            const String gameName = dialog.selectedGameName();
-            return gameFactory.createGame(gameName);
         }
     }
 }
