@@ -27,13 +27,20 @@ namespace TrenchBroom {
         class ImageListBox : public wxVListBox {
         private:
             wxSize m_imageSize;
+            bool m_empty;
+            wxString m_emptyText;
         public:
-            ImageListBox(wxWindow* parent, const wxSize& imageSize);
+            ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText);
             
             size_t selection() const;
             bool hasSelection() const;
+            
+            void SetItemCount(size_t itemCount);
         private:
             void OnDrawItem(wxDC& dc, const wxRect& rect, size_t n) const;
+            void drawItem(wxDC& dc, const wxRect& rect, size_t n) const;
+            void drawEmptyItem(wxDC& dc, const wxRect& rect) const;
+            
             void OnDrawBackground(wxDC& dc, const wxRect& rect, size_t n) const;
             void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const;
             wxCoord OnMeasureItem(size_t n) const;

@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         GameListBox::GameListBox(wxWindow* parent) :
-        ImageListBox(parent, wxSize(32, 32)) {
+        ImageListBox(parent, wxSize(32, 32), "No Games Found") {
             loadGameInfos();
             SetItemCount(m_gameInfos.size());
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             const StringList& gameList = gameFactory.gameList();
             
             const int index = GetSelection();
-            if (index < 0 || index >= gameList.size())
+            if (index < 0 || index >= static_cast<int>(gameList.size()))
                 return "";
             return gameList[index];
         }

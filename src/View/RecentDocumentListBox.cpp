@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
-        ImageListBox(parent, wxSize(32, 32)),
+        ImageListBox(parent, wxSize(32, 32), "No Recent Documents"),
         m_documentIcon(IO::loadImageResource(IO::Path("images/DocIcon.png"))) {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const IO::Path::List& recentDocuments = app.recentDocuments();
 
             const int index = GetSelection();
-            if (index < 0 || index >= recentDocuments.size())
+            if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
                 return;
             
             const IO::Path& documentPath = recentDocuments[index];

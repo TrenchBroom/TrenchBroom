@@ -27,19 +27,36 @@
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize) :
-        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE),
-        m_imageSize(imageSize) {
+        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText) :
+        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | wxBORDER_NONE),
+        m_imageSize(imageSize),
+        m_empty(true),
+        m_emptyText(emptyText) {}
+
+        void ImageListBox::SetItemCount(size_t itemCount) {
+            if (itemCount == 0) {
+                m_empty = true;
+                wxVListBox::SetItemCount(1);
+            } else {
+                m_empty = false;
+                wxVListBox::SetItemCount(itemCount);
+            }
         }
 
         void ImageListBox::OnDrawItem(wxDC& dc, const wxRect& rect, size_t n) const {
+            if (m_empty)
+                drawEmptyItem(dc, rect);
+            else
+                drawItem(dc, rect, n);
+        }
+        
+        void ImageListBox::drawItem(wxDC& dc, const wxRect& rect, size_t n) const {
             const wxBitmap& img = image(n);
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
-            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - m_imageSize.x + 8 - 6);
             
             dc.DrawBitmap(img, rect.GetLeft() + 2, rect.GetTop() + 4, true);
-
+            
             if (IsSelected(n))
                 dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT));
             else
@@ -47,10 +64,22 @@ namespace TrenchBroom {
             
             dc.SetFont(wxNORMAL_FONT->Bold());
             dc.DrawText(ttl, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 2);
+
             dc.SetFont(*wxSMALL_FONT);
+            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - rect.GetLeft() - m_imageSize.x - 8 - 6);
             dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 20);
         }
         
+        void ImageListBox::drawEmptyItem(wxDC& dc, const wxRect& rect) const {
+            dc.SetFont(wxNORMAL_FONT->Larger().Larger().Bold());
+            const wxSize textSize = dc.GetTextExtent(m_emptyText);
+            
+            const int x = (rect.GetWidth() - textSize.x) / 2;
+            const int y = (rect.GetHeight() - textSize.y) / 2;
+            dc.SetTextForeground(*wxLIGHT_GREY);
+            dc.DrawText(m_emptyText, x, y);
+        }
+
         void ImageListBox::OnDrawBackground(wxDC& dc, const wxRect& rect, size_t n) const {
             assert(n < GetItemCount());
             dc.SetPen(*wxTRANSPARENT_PEN);
@@ -62,6 +91,9 @@ namespace TrenchBroom {
         }
         
         void ImageListBox::OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const {
+            if (m_empty)
+                return;
+            
             assert(n < GetItemCount());
             dc.SetPen(*wxLIGHT_GREY_PEN);
             dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
@@ -69,8 +101,12 @@ namespace TrenchBroom {
         }
         
         wxCoord ImageListBox::OnMeasureItem(size_t n) const {
-            assert(n < GetItemCount());
-            return m_imageSize.y + 1 + 8;
+            if (m_empty) {
+                return 64;
+            } else {
+                assert(n < GetItemCount());
+                return m_imageSize.y + 1 + 8;
+            }
         }
     }
 }
