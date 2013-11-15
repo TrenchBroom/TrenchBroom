@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     doAddTextureCollection(path, newCollections, newCollectionsByPath);
                 }
             } catch (...) {
-                VectorUtils::clearAndDelete(collections);
+                VectorUtils::clearAndDelete(newCollections);
                 throw;
             }
             

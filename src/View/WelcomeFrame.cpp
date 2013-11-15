@@ -101,7 +101,7 @@ namespace TrenchBroom {
             wxStaticText* appName = new wxStaticText(appPanel, wxID_ANY, _("TrenchBroom"));
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
             wxStaticLine* appLine = new wxStaticLine(appPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, _("A Modern Level Editor for Quake"));
+            wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, _("A Modern Level Editor"));
             wxString versionStr(_("Version 2.0"));
             // versionStr << VERSIONSTR;
             wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);

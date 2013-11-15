@@ -45,6 +45,7 @@ namespace TrenchBroom {
         public:
             static MockGamePtr newGame();
 
+            MOCK_CONST_METHOD0(doGameName, const String&());
             MOCK_METHOD1(doSetGamePath, void(const IO::Path&));
             MOCK_METHOD1(doSetAdditionalSearchPaths, void(const IO::Path::List& searchPaths));
             

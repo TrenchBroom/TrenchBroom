@@ -57,7 +57,7 @@ namespace TrenchBroom {
             const IO::Path path("./_does_not_exist.wad");
             EXPECT_CALL(*game, doLoadTextureCollection(path)).WillOnce(Throw(FileSystemException("")));
             
-            ASSERT_THROW(textureManager.addTextureCollection(path), FileSystemException);
+            ASSERT_THROW(textureManager.addExternalTextureCollection(path), FileSystemException);
         }
         
         TEST(TextureCollectionTest, addExistingTextureCollection) {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             const IO::Path path("./some_collection.wad");
             EXPECT_CALL(*game, doLoadTextureCollection(path)).WillOnce(Return(collection));
             
-            textureManager.addTextureCollection(path);
+            textureManager.addExternalTextureCollection(path);
             const TextureCollectionList& collections = textureManager.collections();
             ASSERT_EQ(1u, collections.size());
             ASSERT_EQ(collection, collections.front());
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
             
-            textureManager.addTextureCollections(paths);
+            textureManager.addExternalTextureCollections(paths);
             
             const TextureCollectionList& managerCollections = textureManager.collections();
             ASSERT_EQ(3u, managerCollections.size());
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadTextureCollection(paths[0])).WillOnce(Return(collections[0]));
             EXPECT_CALL(*game, doLoadTextureCollection(paths[1])).WillOnce(Throw(FileSystemException("")));
 
-            ASSERT_THROW(textureManager.addTextureCollections(paths), FileSystemException);
+            ASSERT_THROW(textureManager.addExternalTextureCollections(paths), FileSystemException);
             ASSERT_TRUE(textureManager.collections().empty());
             ASSERT_TRUE(deleted[0]);
             ASSERT_FALSE(deleted[1]); // because it has not been constructed when the exception is thrown
@@ -158,11 +158,11 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
             
-            textureManager.addTextureCollections(paths);
+            textureManager.addExternalTextureCollections(paths);
             
-            ASSERT_THROW(textureManager.removeTextureCollection(IO::Path("does_not_exist")), AssetException);
+            ASSERT_THROW(textureManager.removeExternalTextureCollection(IO::Path("does_not_exist")), AssetException);
             
-            textureManager.removeTextureCollection(paths[1]);
+            textureManager.removeExternalTextureCollection(paths[1]);
             
             const TextureCollectionList& managerCollections = textureManager.collections();
             ASSERT_EQ(2u, managerCollections.size());
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
             
-            textureManager.addTextureCollections(paths);
+            textureManager.addExternalTextureCollections(paths);
             textureManager.reset(game);
             ASSERT_TRUE(textureManager.collections().empty());
         }
@@ -219,12 +219,12 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadTextureCollection(path1)).WillOnce(Return(collection1));
             EXPECT_CALL(*game, doLoadTextureCollection(path2)).WillOnce(Return(collection2));
             
-            textureManager.addTextureCollection(path1);
+            textureManager.addExternalTextureCollection(path1);
             
             ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
             ASSERT_TRUE(textureManager.texture("t2") == textures1[1]);
             
-            textureManager.addTextureCollection(path2);
+            textureManager.addExternalTextureCollection(path2);
             ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
             ASSERT_TRUE(textureManager.texture("t2") == textures2[0]);
             ASSERT_TRUE(textureManager.texture("t3") == textures2[1]);
