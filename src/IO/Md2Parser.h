@@ -110,7 +110,7 @@ namespace TrenchBroom {
             Assets::TextureList loadTextures(const Md2SkinList& skins);
             Assets::Texture* loadTexture(const Md2Skin& skin);
             Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes);
-            Assets::Md2Model::Frame buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
+            Assets::Md2Model::Frame* buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
         };
     }
 }

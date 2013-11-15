@@ -345,13 +345,13 @@ namespace TrenchBroom {
             Md2FrameList::const_iterator it, end;
             for (it = frames.begin(), end = frames.end(); it != end; ++it) {
                 const Md2Frame& frame = *it;
-                const Assets::Md2Model::Frame modelFrame = buildFrame(frame, meshes);
+                Assets::Md2Model::Frame* modelFrame = buildFrame(frame, meshes);
                 modelFrames.push_back(modelFrame);
             }
             return modelFrames;
         }
 
-        Assets::Md2Model::Frame Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
+        Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
             typedef Assets::Md2Model::Vertex Vertex;
             typedef Assets::Md2Model::Mesh Mesh;
             
@@ -376,13 +376,16 @@ namespace TrenchBroom {
                     triangles[i] = Vertex(position, normal, texCoords);
                 }
                 
-                if (md2Mesh.type == Md2Mesh::Strip)
-                    triangleStrips.push_back(triangles);
-                else
-                    triangleFans.push_back(triangles);
+                if (md2Mesh.type == Md2Mesh::Strip) {
+                    triangleStrips.push_back(Vertex::List());
+                    std::swap(triangleStrips.back(), triangles);
+                } else {
+                    triangleFans.push_back(Vertex::List());
+                    std::swap(triangleFans.back(), triangles);
+                }
             }
             
-            return Assets::Md2Model::Frame(triangleFans, triangleStrips);
+            return new Assets::Md2Model::Frame(triangleFans, triangleStrips);
         }
     }
 }

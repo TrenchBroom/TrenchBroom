@@ -43,9 +43,14 @@ namespace TrenchBroom {
             
             Model::GamePtr m_game;
             
-            TextureCollectionList m_collections;
-            TextureCollectionMap m_collectionsByPath;
+            TextureCollectionList m_builtinCollections;
+            TextureCollectionMap m_builtinCollectionsByPath;
+            
+            TextureCollectionList m_externalCollections;
+            TextureCollectionMap m_externalCollectionsByPath;
             TextureCollectionMap m_toRemove;
+            
+            TextureCollectionList m_allCollections;
             TextureList m_sortedTextures[2];
             GroupList m_sortedGroups[2];
             
@@ -53,9 +58,11 @@ namespace TrenchBroom {
         public:
             ~TextureManager();
 
-            void addTextureCollection(const IO::Path& path);
-            void addTextureCollections(const IO::Path::List& paths);
-            void removeTextureCollection(const IO::Path& path);
+            void setBuiltinTextureCollections(const IO::Path::List& paths);
+            
+            void addExternalTextureCollection(const IO::Path& path);
+            void addExternalTextureCollections(const IO::Path::List& paths);
+            void removeExternalTextureCollection(const IO::Path& path);
             
             void reset(Model::GamePtr game);
             void commitChanges();
@@ -65,8 +72,10 @@ namespace TrenchBroom {
             const GroupList& groups(const SortOrder sortOrder) const;
             const TextureCollectionList& collections() const;
         private:
-            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
-            void doAddTextureCollection(const IO::Path& path, TextureCollection* collection, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
+            void doAddTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
+            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
+            void clearBuiltinTextureCollections();
+            void clearExternalTextureCollections();
             void updateTextures();
             TextureList textureList() const;
         };

@@ -55,6 +55,10 @@ namespace TrenchBroom {
             m_palette = NULL;
         }
 
+        const String& GameImpl::doGameName() const {
+            return m_config.name();
+        }
+
         void GameImpl::doSetGamePath(const IO::Path& gamePath) {
             m_gamePath = gamePath;
             m_fs = IO::GameFileSystem(m_config.fileSystemConfig().packageFormat,
@@ -110,7 +114,7 @@ namespace TrenchBroom {
         
         IO::Path::List GameImpl::doFindBuiltinTextureCollections() const {
             const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
-            if (!searchPath.isEmpty())
+            if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath))
                 return m_fs.findItems(searchPath, IO::FileSystem::TypeMatcher(false, true));
             return IO::Path::List();
         }
@@ -194,9 +198,11 @@ namespace TrenchBroom {
         }
         
         Assets::EntityModel* GameImpl::doLoadModel(const IO::Path& path) const {
-            const IO::MappedFile::Ptr file = m_fs.openFile(path);
-            if (file == NULL)
+            if (!m_fs.fileExists(path))
                 return NULL;
+            
+            const IO::MappedFile::Ptr file = m_fs.openFile(path);
+            assert(file != NULL);
             
             const String modelName = path.lastComponent().asString();
             const String extension = StringUtils::toLower(path.extension());

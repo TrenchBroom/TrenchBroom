@@ -49,6 +49,7 @@ namespace TrenchBroom {
         
         class TextureBrowser : public wxPanel {
         private:
+            MapDocumentPtr m_document;
             wxChoice* m_sortOrderChoice;
             wxToggleButton* m_groupButton;
             wxToggleButton* m_usedButton;

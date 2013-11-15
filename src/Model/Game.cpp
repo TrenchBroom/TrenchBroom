@@ -19,9 +19,20 @@
 
 #include "Game.h"
 
+#include "Model/GameFactory.h"
+
 namespace TrenchBroom {
     namespace Model {
         Game::~Game() {}
+
+        const String& Game::gameName() const {
+            return doGameName();
+        }
+
+        bool Game::isGamePathPreference(const IO::Path& prefPath) const {
+            const GameFactory& gameFactory = GameFactory::instance();
+            return gameFactory.isGamePathPreference(gameName(), prefPath);
+        }
 
         void Game::setGamePath(const IO::Path& gamePath) {
             doSetGamePath(gamePath);

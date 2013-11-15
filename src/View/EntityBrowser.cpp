@@ -35,7 +35,8 @@
 namespace TrenchBroom {
     namespace View {
         EntityBrowser::EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
-        wxPanel(parent, windowId) {
+        wxPanel(parent, windowId),
+        m_document(document) {
             const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -65,8 +66,8 @@ namespace TrenchBroom {
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
             m_view = new EntityBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
-                                           document->entityDefinitionManager(),
-                                           document->entityModelManager());
+                                           m_document->entityDefinitionManager(),
+                                           m_document->entityModelManager());
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
@@ -115,7 +116,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
-            if (path == Preferences::GamePaths.path())
+            if (m_document->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

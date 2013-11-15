@@ -38,6 +38,9 @@ namespace TrenchBroom {
         public:
             virtual ~Game();
 
+            const String& gameName() const;
+            bool isGamePathPreference(const IO::Path& prefPath) const;
+            
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
             
@@ -60,6 +63,7 @@ namespace TrenchBroom {
             IO::Path extractEntityDefinitionFile(const Map* map) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
         private:
+            virtual const String& doGameName() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             

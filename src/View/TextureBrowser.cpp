@@ -36,7 +36,8 @@
 namespace TrenchBroom {
     namespace View {
         TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
-        wxPanel(parent) {
+        wxPanel(parent),
+        m_document(document) {
             const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
             m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
-                                           document->textureManager());
+                                           m_document->textureManager());
             m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -130,7 +131,8 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
-            if (path == Preferences::TextureBrowserIconSize.path())
+            if (path == Preferences::TextureBrowserIconSize.path() ||
+                m_document->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

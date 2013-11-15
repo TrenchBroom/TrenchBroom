@@ -46,6 +46,7 @@ namespace TrenchBroom {
             GameImpl(const GameConfig& config, const IO::Path& gamePath);
             ~GameImpl();
         private:
+            const String& doGameName() const;
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 

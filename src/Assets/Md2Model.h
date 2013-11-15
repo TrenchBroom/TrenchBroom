@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 Mesh::TriangleSeries m_triangleStrips;
                 BBox3f m_bounds;
             public:
-                Frame(const Mesh::TriangleSeries& triangleFans, const Mesh::TriangleSeries& triangleStrips);
+                Frame(Mesh::TriangleSeries& triangleFans, Mesh::TriangleSeries& triangleStrips);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
                 const Mesh::TriangleSeries& triangleFans() const;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series, const Mat4x4f& transformation) const;
             };
 
-            typedef std::vector<Frame> FrameList;
+            typedef std::vector<Frame*> FrameList;
         private:
             String m_name;
             TextureCollection* m_skins;

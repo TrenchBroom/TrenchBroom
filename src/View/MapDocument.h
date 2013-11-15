@@ -98,6 +98,8 @@ namespace TrenchBroom {
             Assets::TextureManager& textureManager();
             View::Grid& grid();
             
+            bool isGamePathPreference(const IO::Path& path) const;
+            
             bool modified() const;
             void incModificationCount();
             void decModificationCount();
@@ -167,6 +169,7 @@ namespace TrenchBroom {
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void preferenceDidChange(const IO::Path& path);
             
             void addEntity(Model::Entity* entity);
             void addBrush(Model::Brush* brush, Model::Entity* entity);
@@ -184,7 +187,7 @@ namespace TrenchBroom {
             void loadAndUpdateTextures();
             void loadTextures();
             void loadBuiltinTextures();
-            void loadExtraTextures();
+            void loadExternalTextures();
             void updateTextures();
             
             void doSaveDocument(const IO::Path& path);

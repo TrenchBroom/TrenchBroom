@@ -51,14 +51,12 @@ namespace TrenchBroom {
         }
 
         GamePtr GameFactory::createGame(const String& gameName) const {
+            return GamePtr(new GameImpl(gameConfig(gameName), gamePath(gameName)));
+        }
+        
+        IO::Path GameFactory::iconPath(const String& gameName) const {
             const GameConfig& config = gameConfig(gameName);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const StringMap& gamePaths = prefs.get(Preferences::GamePaths);
-            StringMap::const_iterator pIt = gamePaths.find(gameName);
-            const IO::Path gamePath(pIt == gamePaths.end() ? "" : pIt->second);
-            
-            return GamePtr(new GameImpl(config, gamePath));
+            return config.findConfigFile(config.icon());
         }
         
         IO::Path GameFactory::gamePath(const String& gameName) const {
@@ -69,17 +67,20 @@ namespace TrenchBroom {
             return PreferenceManager::instance().get(pref);
         }
         
-        IO::Path GameFactory::iconPath(const String& gameName) const {
-            const GameConfig& config = gameConfig(gameName);
-            return config.findConfigFile(config.icon());
-        }
-
         void GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
             if (it == m_gamePaths.end())
                 throw GameException("Unknown game: " + gameName);
             Preference<IO::Path>& pref = it->second;
             PreferenceManager::instance().set(pref, gamePath);
+        }
+
+        bool GameFactory::isGamePathPreference(const String& gameName, const IO::Path& prefPath) const {
+            GamePathMap::iterator it = m_gamePaths.find(gameName);
+            if (it == m_gamePaths.end())
+                throw GameException("Unknown game: " + gameName);
+            Preference<IO::Path>& pref = it->second;
+            return pref.path() == prefPath;
         }
 
         GamePtr GameFactory::detectGame(const IO::Path& path) const {

@@ -49,9 +49,10 @@ namespace TrenchBroom {
             size_t gameCount() const;
             GamePtr createGame(const String& name) const;
             
-            IO::Path gamePath(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
+            IO::Path gamePath(const String& gameName) const;
             void setGamePath(const String& gameName, const IO::Path& gamePath);
+            bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
             GamePtr detectGame(const IO::Path& path) const;
         private:

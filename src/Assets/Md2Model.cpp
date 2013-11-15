@@ -24,13 +24,15 @@
 #include "Renderer/MeshRenderer.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(const Mesh::TriangleSeries& triangleFans, const Mesh::TriangleSeries& triangleStrips) :
-        m_triangleFans(triangleFans),
-        m_triangleStrips(triangleStrips) {
-            if (!triangleFans.empty())
+        Md2Model::Frame::Frame(Mesh::TriangleSeries& triangleFans, Mesh::TriangleSeries& triangleStrips) {
+            std::swap(m_triangleFans, triangleFans);
+            std::swap(m_triangleStrips, triangleStrips);
+            
+            if (!m_triangleFans.empty())
                 m_bounds.min = m_bounds.max = m_triangleFans.front().front().v1;
             else if (!m_triangleStrips.empty())
                 m_bounds.min = m_bounds.max = m_triangleStrips.front().front().v1;
@@ -87,6 +89,7 @@ namespace TrenchBroom {
         m_frames(frames) {}
         
         Md2Model::~Md2Model() {
+            VectorUtils::clearAndDelete(m_frames);
             delete m_skins;
             m_skins = NULL;
         }
@@ -98,11 +101,11 @@ namespace TrenchBroom {
             assert(frameIndex < m_frames.size());
 
             const Assets::Texture* skin = textures[skinIndex];
-            const Frame& frame = m_frames[frameIndex];
+            const Frame* frame = m_frames[frameIndex];
             
             Mesh mesh;
-            mesh.addTriangleFans(skin, frame.triangleFans());
-            mesh.addTriangleStrips(skin, frame.triangleStrips());
+            mesh.addTriangleFans(skin, frame->triangleFans());
+            mesh.addTriangleStrips(skin, frame->triangleStrips());
             
             return new Renderer::MeshRenderer(vbo, mesh);
         }
@@ -113,8 +116,8 @@ namespace TrenchBroom {
             assert(skinIndex < textures.size());
             assert(frameIndex < m_frames.size());
             
-            const Frame& frame = m_frames[frameIndex];
-            return frame.bounds();
+            const Frame* frame = m_frames[frameIndex];
+            return frame->bounds();
         }
         
         BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
@@ -123,8 +126,8 @@ namespace TrenchBroom {
             assert(skinIndex < textures.size());
             assert(frameIndex < m_frames.size());
             
-            const Frame& frame = m_frames[frameIndex];
-            return frame.transformedBounds(transformation);
+            const Frame* frame = m_frames[frameIndex];
+            return frame->transformedBounds(transformation);
         }
     }
 }

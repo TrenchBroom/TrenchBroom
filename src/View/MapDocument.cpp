@@ -20,6 +20,7 @@
 #include "MapDocument.h"
 
 #include "Logger.h"
+#include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/Texture.h"
 #include "Assets/ModelDefinition.h"
@@ -29,6 +30,7 @@
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/Map.h"
 #include "Model/MapFacesIterator.h"
 #include "Model/MapObjectsIterator.h"
@@ -236,6 +238,10 @@ namespace TrenchBroom {
             return m_grid;
         }
         
+        bool MapDocument::isGamePathPreference(const IO::Path& path) const {
+            return m_game != NULL && m_game->isGamePathPreference(path);
+        }
+
         bool MapDocument::modified() const {
             return m_modificationCount > 0;
         }
@@ -491,6 +497,10 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
+            
         }
         
         void MapDocument::unbindObservers() {
@@ -500,6 +510,9 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
         }
         
         void MapDocument::documentWasNewed() {
@@ -577,6 +590,18 @@ namespace TrenchBroom {
             }
         }
         
+        void MapDocument::preferenceDidChange(const IO::Path& path) {
+            if (isGamePathPreference(path)) {
+                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
+                m_game->setGamePath(newGamePath);
+                
+                m_entityModelManager.clear();
+                loadBuiltinTextures();
+                updateTextures();
+            }
+        }
+
         MapDocument::MapDocument() :
         CachingLogger(),
         m_worldBounds(DefaultWorldBounds),
@@ -659,22 +684,20 @@ namespace TrenchBroom {
         
         void MapDocument::loadTextures() {
             loadBuiltinTextures();
-            loadExtraTextures();
+            loadExternalTextures();
         }
         
         void MapDocument::loadBuiltinTextures() {
             try {
                 const IO::Path::List paths = m_game->findBuiltinTextureCollections();
-                if (!paths.empty()) {
-                    m_textureManager.addTextureCollections(paths);
-                    info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
-                }
+                m_textureManager.setBuiltinTextureCollections(paths);
+                info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
             } catch (Exception e) {
                 error("Error builtin loading texture collection: %s", e.what());
             }
         }
         
-        void MapDocument::loadExtraTextures() {
+        void MapDocument::loadExternalTextures() {
             try {
                 IO::Path::List rootPaths;
                 rootPaths.push_back(IO::SystemPaths::appDirectory());
@@ -686,7 +709,7 @@ namespace TrenchBroom {
                 IO::Disk::resolvePaths(rootPaths, texturePaths, found, notFound);
                 
                 if (!found.empty()) {
-                    m_textureManager.addTextureCollections(found);
+                    m_textureManager.addExternalTextureCollections(found);
                     info("Loaded external texture collections " + StringUtils::join(IO::Path::asStrings(found), ", "));
                 }
                 

@@ -35,19 +35,21 @@ namespace TrenchBroom {
         }
 
         void GameFileSystem::addFileSystem(const String& pakExtension, const Path& path) {
-            FSPtr diskFS(new DiskFileSystem(path));
-            if (StringUtils::caseInsensitiveEqual(pakExtension, "pak")) {
-                const Path::List paks = diskFS->findItems(Path(""), FileSystem::ExtensionMatcher(pakExtension));
-                Path::List::const_iterator it, end;
-                for (it = paks.begin(), end = paks.end(); it != end; ++it) {
-                    MappedFile::Ptr file = diskFS->openFile(*it);
-                    assert(file != NULL);
-                    m_fileSystems.push_back(FSPtr(new PakFileSystem(path, file)));
+            if (Disk::directoryExists(path)) {
+                FSPtr diskFS(new DiskFileSystem(path));
+                if (StringUtils::caseInsensitiveEqual(pakExtension, "pak")) {
+                    const Path::List paks = diskFS->findItems(Path(""), FileSystem::ExtensionMatcher(pakExtension));
+                    Path::List::const_iterator it, end;
+                    for (it = paks.begin(), end = paks.end(); it != end; ++it) {
+                        MappedFile::Ptr file = diskFS->openFile(*it);
+                        assert(file != NULL);
+                        m_fileSystems.push_back(FSPtr(new PakFileSystem(path, file)));
+                    }
+                } else {
+                    throw FileSystemException("Unknown file extension: '" + pakExtension + "'");
                 }
-            } else {
-                throw FileSystemException("Unknown file extension: '" + pakExtension + "'");
+                m_fileSystems.push_back(diskFS);
             }
-            m_fileSystems.push_back(diskFS);
         }
 
         bool GameFileSystem::doDirectoryExists(const Path& path) const {
