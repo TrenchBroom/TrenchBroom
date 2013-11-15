@@ -48,6 +48,7 @@ namespace TrenchBroom {
             DiskFileSystem(const Path& root, const bool ensureExists = true);
             
             const Path& getPath() const;
+            const Path makeAbsolute(const Path& relPath) const;
         protected:
             Path fixPath(const Path& path) const;
             Path fixCase(const Path& path) const;

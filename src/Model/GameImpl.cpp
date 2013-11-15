@@ -47,13 +47,8 @@ namespace TrenchBroom {
         m_fs(m_config.fileSystemConfig().packageFormat,
              m_gamePath,
              m_config.fileSystemConfig().searchPath,
-             m_additionalSearchPaths) {
-            
-            IO::Path palettePath = config.textureConfig().palette;
-            if (!palettePath.isAbsolute())
-                palettePath = IO::SystemPaths::resourceDirectory() + palettePath;
-            m_palette = new Assets::Palette(palettePath);
-        }
+             m_additionalSearchPaths),
+        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {}
         
         GameImpl::~GameImpl() {
             delete m_palette;
@@ -175,7 +170,7 @@ namespace TrenchBroom {
         }
         
         IO::Path GameImpl::doDefaultEntityDefinitionFile() const {
-            return IO::SystemPaths::resourceDirectory() + m_config.entityConfig().defFilePath;
+            return m_config.findConfigFile(m_config.entityConfig().defFilePath);
         }
         
         IO::Path GameImpl::doExtractEntityDefinitionFile(const Map* map) const {
@@ -225,9 +220,9 @@ namespace TrenchBroom {
                 case MapFormat::Hexen2:
                     return MapWriterPtr(new IO::Hexen2MapWriter());
                 case MapFormat::Valve:
-                    throw GameException("Valve 220 format is not supported for writing");
-                    // return MapWriterPtr(new IO::ValveMapWriter());
+                    break;
             }
+            throw GameException("Map format is not supported for writing");
         }
         
         Assets::TextureCollection* GameImpl::loadWadTextureCollection(const IO::Path& path) const {

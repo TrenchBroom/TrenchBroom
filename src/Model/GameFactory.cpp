@@ -22,9 +22,9 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "IO/GameConfigParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileSystem.h"
+#include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
@@ -50,24 +50,17 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GamePtr GameFactory::createGame(const String& name) const {
-            const GameConfig& config = gameConfig(name);
+        GamePtr GameFactory::createGame(const String& gameName) const {
+            const GameConfig& config = gameConfig(gameName);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             const StringMap& gamePaths = prefs.get(Preferences::GamePaths);
-            StringMap::const_iterator pIt = gamePaths.find(name);
+            StringMap::const_iterator pIt = gamePaths.find(gameName);
             const IO::Path gamePath(pIt == gamePaths.end() ? "" : pIt->second);
             
             return GamePtr(new GameImpl(config, gamePath));
         }
         
-        const GameConfig& GameFactory::gameConfig(const String& name) const {
-            ConfigMap::const_iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
-                throw GameException("Unknown game: " + name);
-            return cIt->second;
-        }
-
         IO::Path GameFactory::gamePath(const String& gameName) const {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
             if (it == m_gamePaths.end())
@@ -76,6 +69,11 @@ namespace TrenchBroom {
             return PreferenceManager::instance().get(pref);
         }
         
+        IO::Path GameFactory::iconPath(const String& gameName) const {
+            const GameConfig& config = gameConfig(gameName);
+            return config.findConfigFile(config.icon());
+        }
+
         void GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
             if (it == m_gamePaths.end())
@@ -134,10 +132,10 @@ namespace TrenchBroom {
             StringUtils::sortCaseSensitive(m_names);
         }
 
-        void GameFactory::loadGameConfig(const IO::FileSystem& fs, const IO::Path& path) {
+        void GameFactory::loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path) {
             try {
                 const IO::MappedFile::Ptr configFile = fs.openFile(path);
-                IO::GameConfigParser parser(configFile->begin(), configFile->end());
+                IO::GameConfigParser parser(configFile->begin(), configFile->end(), fs.makeAbsolute(path));
                 GameConfig config = parser.parse();
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());
@@ -147,6 +145,13 @@ namespace TrenchBroom {
             } catch (const Exception& e) {
                 throw GameException("Cannot load game configuration '" + path.asString() + "': " + String(e.what()));
             }
+        }
+
+        const GameConfig& GameFactory::gameConfig(const String& name) const {
+            ConfigMap::const_iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
         }
     }
 }

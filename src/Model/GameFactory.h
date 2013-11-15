@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class FileSystem;
+        class DiskFileSystem;
     }
     
     namespace Model {
@@ -48,16 +48,17 @@ namespace TrenchBroom {
             const StringList& gameList() const;
             size_t gameCount() const;
             GamePtr createGame(const String& name) const;
-            const GameConfig& gameConfig(const String& name) const;
             
             IO::Path gamePath(const String& gameName) const;
+            IO::Path iconPath(const String& gameName) const;
             void setGamePath(const String& gameName, const IO::Path& gamePath);
 
             GamePtr detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void loadGameConfigs();
-            void loadGameConfig(const IO::FileSystem& fs, const IO::Path& path);
+            void loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path);
+            const GameConfig& gameConfig(const String& name) const;
         };
     }
 }

@@ -23,11 +23,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        GameConfigParser::GameConfigParser(const char* begin, const char* end) :
-        m_parser(begin, end) {}
+        GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
+        m_parser(begin, end),
+        m_path(path) {}
         
-        GameConfigParser::GameConfigParser(const String& str) :
-        m_parser(str) {}
+        GameConfigParser::GameConfigParser(const String& str, const Path& path) :
+        m_parser(str),
+        m_path(path) {}
         
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
@@ -60,7 +62,7 @@ namespace TrenchBroom {
             expectTableEntry("entities", ConfigEntry::TTable, rootTable);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
             
-            return GameConfig(name, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig);
+            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig);
         }
 
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {

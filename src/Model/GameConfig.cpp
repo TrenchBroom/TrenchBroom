@@ -19,6 +19,9 @@
 
 #include "GameConfig.h"
 
+#include "IO/DiskFileSystem.h"
+#include "IO/SystemPaths.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -39,25 +42,32 @@ namespace TrenchBroom {
         defaultColor(i_defaultColor) {}
 
         GameConfig::GameConfig() :
+        m_path(IO::Path("")),
         m_icon(IO::Path("")),
         m_fileSystemConfig(IO::Path(""), ""),
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 
-        GameConfig::GameConfig(const String& name, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
+        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
         m_name(name),
+        m_path(path),
         m_icon(icon),
         m_fileFormats(fileFormats),
         m_fileSystemConfig(fileSystemConfig),
         m_textureConfig(textureConfig),
         m_entityConfig(entityConfig) {
             assert(!StringUtils::trim(m_name).empty());
+            assert(m_path.isEmpty() || m_path.isAbsolute());
         }
         
         const String& GameConfig::name() const {
             return m_name;
         }
         
+        const IO::Path& GameConfig::path() const {
+            return m_path;
+        }
+    
         const IO::Path& GameConfig::icon() const {
             return m_icon;
         }
@@ -76,6 +86,13 @@ namespace TrenchBroom {
         
         const GameConfig::EntityConfig& GameConfig::entityConfig() const {
             return m_entityConfig;
+        }
+
+        const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
+            const IO::Path relPath = path().deleteLastComponent() + filePath;
+//            if (IO::Disk::fileExists(relPath))
+                return relPath;
+//            return IO::SystemPaths::resourceDirectory() + filePath;
         }
     }
 }

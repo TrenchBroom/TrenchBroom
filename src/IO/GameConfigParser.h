@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "IO/ConfigParser.h"
+#include "IO/Path.h"
 #include "Model/GameConfig.h"
 
 #include <iostream>
@@ -31,9 +32,10 @@ namespace TrenchBroom {
         class GameConfigParser {
         private:
             ConfigParser m_parser;
+            Path m_path;
         public:
-            GameConfigParser(const char* begin, const char* end);
-            GameConfigParser(const String& str);
+            GameConfigParser(const char* begin, const char* end, const Path& path);
+            GameConfigParser(const String& str, const Path& path = Path(""));
             
             Model::GameConfig parse();
         private:

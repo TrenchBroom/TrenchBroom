@@ -62,12 +62,11 @@ namespace TrenchBroom {
             StringList::const_iterator it, end;
             for (it = gameList.begin(), end = gameList.end(); it != end; ++it) {
                 const String& gameName = *it;
-                const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
                 
-                IO::Path iconPath = gameConfig.icon();
+                const IO::Path gamePath = gameFactory.gamePath(gameName);
+                IO::Path iconPath = gameFactory.iconPath(gameName);
                 if (iconPath.isEmpty())
                     iconPath = IO::Path("images/DefaultGameIcon.png");
-                const IO::Path gamePath = gameFactory.gamePath(gameName);
                 
                 Info gameInfo;
                 gameInfo.image = IO::loadImageResource(iconPath);

@@ -180,6 +180,10 @@ namespace TrenchBroom {
             return m_root;
         }
         
+        const Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
+            return getPath() + fixPath(relPath);
+        }
+
         Path DiskFileSystem::fixPath(const Path& path) const {
             if (path.isAbsolute())
                 throw FileSystemException("Cannot handle absolute path: '" + path.asString() + "'");
