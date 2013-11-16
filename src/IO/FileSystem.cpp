@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
                 if (!directoryExists(path))
-                    throw FileSystemException("Directory does not exist: '" + path.asString() + "'");
+                    throw FileSystemException("Directory not found: '" + path.asString() + "'");
                 return doGetDirectoryContents(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
                 if (!fileExists(path))
-                    throw FileSystemException("File does not exist: '" + path.asString() + "'");
+                    throw FileSystemException("File not found: '" + path.asString() + "'");
                 return doOpenFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);

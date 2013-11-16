@@ -20,6 +20,7 @@
 #include "EntityBrowserView.h"
 
 #include "Preferences.h"
+#include "Logger.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
@@ -35,6 +36,7 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
+#include "View/ViewUtils.h"
 
 #include <map>
 
@@ -50,11 +52,13 @@ namespace TrenchBroom {
                                              wxScrollBar* scrollBar,
                                              Renderer::RenderResources& resources,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
-                                             Assets::EntityModelManager& entityModelManager) :
+                                             Assets::EntityModelManager& entityModelManager,
+                                             Logger& logger) :
         CellView(parent, windowId, &resources.glAttribs().front(), resources.sharedContext(), scrollBar),
         m_resources(resources),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
+        m_logger(logger),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinitionManager::Name),
@@ -148,13 +152,14 @@ namespace TrenchBroom {
         void EntityBrowserView::addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
+                
                 Renderer::FontManager& fontManager =  m_resources.fontManager();
                 const float maxCellWidth = layout.maxCellWidth();
                 const Renderer::FontDescriptor actualFont = fontManager.selectFontSize(font, definition->name(), maxCellWidth, 5);
                 const Vec2f actualSize = fontManager.font(actualFont).measure(definition->name());
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
-                Assets::EntityModel* model = m_entityModelManager.model(spec.path);
+                Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
                 Renderer::MeshRenderer* modelRenderer = NULL;
                 
                 BBox3f rotatedBounds;
@@ -177,7 +182,7 @@ namespace TrenchBroom {
                                font.size() + 2.0f);
             }
         }
-        
+
         void EntityBrowserView::doClear() {}
         
         void EntityBrowserView::doRender(Layout& layout, const float y, const float height) {

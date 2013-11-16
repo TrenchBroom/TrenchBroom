@@ -81,12 +81,12 @@ namespace TrenchBroom {
             if (path.length() == 1) {
                 FileMap::const_iterator it = m_files.find(name);
                 if (it == m_files.end())
-                    throw new FileSystemException("File does not exist: '" + (m_path + path).asString() + "'");
+                    throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
                 return it->second;
             }
             DirMap::const_iterator it = m_directories.find(name);
             if (it == m_directories.end())
-                throw new FileSystemException("File does not exist: '" + (m_path + path).asString() + "'");
+                throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
             return it->second.findFile(path.deleteFirstComponent());
         }
         

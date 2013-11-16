@@ -37,6 +37,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
 #include "View/MapFrame.h"
+#include "View/ViewUtils.h"
 
 #include <cassert>
 
@@ -67,16 +68,18 @@ namespace TrenchBroom {
         class SetEntityModel {
         private:
             Assets::EntityModelManager& m_modelManager;
+            Logger& m_logger;
         public:
-            SetEntityModel(Assets::EntityModelManager& modelManager) :
-            m_modelManager(modelManager) {}
+            SetEntityModel(Assets::EntityModelManager& modelManager, Logger& logger) :
+            m_modelManager(modelManager),
+            m_logger(logger) {}
             
             void operator()(Model::Entity* entity) const {
                 const Assets::ModelSpecification spec = entity->modelSpecification();
                 if (spec.path.isEmpty()) {
                     entity->setModel(NULL);
                 } else {
-                    Assets::EntityModel* model = m_modelManager.model(spec.path);
+                    Assets::EntityModel* model = safeGetModel(m_modelManager, spec, m_logger);
                     entity->setModel(model);
                 }
             }
@@ -668,12 +671,12 @@ namespace TrenchBroom {
         void MapDocument::updateEntityModels(const Model::EntityList& entities) {
             Model::each(entities.begin(),
                         entities.end(),
-                        SetEntityModel(m_entityModelManager),
+                        SetEntityModel(m_entityModelManager, *this),
                         Model::MatchAll());
         }
         
         void MapDocument::updateEntityModel(Model::Entity* entity) {
-            SetEntityModel setModel(m_entityModelManager);
+            SetEntityModel setModel(m_entityModelManager, *this);
             setModel(entity);
         }
         
@@ -693,7 +696,7 @@ namespace TrenchBroom {
                 m_textureManager.setBuiltinTextureCollections(paths);
                 info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
             } catch (Exception e) {
-                error("Error builtin loading texture collection: %s", e.what());
+                error(String(e.what()));
             }
         }
         

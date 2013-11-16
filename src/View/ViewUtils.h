@@ -17,36 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Inspector__
-#define __TrenchBroom__Inspector__
+#ifndef __TrenchBroom__ViewUtils__
+#define __TrenchBroom__ViewUtils__
 
-#include "Controller/Command.h"
-#include "View/ViewTypes.h"
-
-#include <wx/panel.h>
-
-class wxNotebook;
+#include <iostream>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderResources;
+    class Logger;
+    
+    namespace Assets {
+        class EntityModel;
+        class EntityModelManager;
+        struct ModelSpecification;
     }
     
     namespace View {
-        class EntityInspector;
-        class FaceInspector;
-        class ViewInspector;
-        
-        class Inspector : public wxPanel {
-        private:
-            wxNotebook* m_notebook;
-            EntityInspector* m_entityInspector;
-            FaceInspector* m_faceInspector;
-            ViewInspector* m_viewInspector;
-        public:
-            Inspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
-        };
+        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
     }
 }
 
-#endif /* defined(__TrenchBroom__Inspector__) */
+#endif /* defined(__TrenchBroom__ViewUtils__) */

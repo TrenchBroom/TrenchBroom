@@ -113,10 +113,14 @@ namespace TrenchBroom {
         }
         
         IO::Path::List GameImpl::doFindBuiltinTextureCollections() const {
-            const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
-            if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath))
-                return m_fs.findItems(searchPath, IO::FileSystem::TypeMatcher(false, true));
-            return IO::Path::List();
+            try {
+                const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
+                if (!searchPath.isEmpty())
+                    return m_fs.findItems(searchPath, IO::FileSystem::TypeMatcher(false, true));
+                return IO::Path::List();
+            } catch (FileSystemException& e) {
+                throw GameException("Cannot find builtin textures: " + String(e.what()));
+            }
         }
         
         IO::Path::List GameImpl::doExtractTexturePaths(const Map* map) const {
@@ -170,11 +174,14 @@ namespace TrenchBroom {
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
                 return parser.parseDefinitions();
             }
-            throw GameException("Unknown entity definition format: " + path.asString());
+            throw GameException("Unknown entity definition format: '" + path.asString() + "'");
         }
         
         IO::Path GameImpl::doDefaultEntityDefinitionFile() const {
-            return m_config.findConfigFile(m_config.entityConfig().defFilePath);
+            const IO::Path path = m_config.findConfigFile(m_config.entityConfig().defFilePath);
+            if (!IO::Disk::fileExists(path))
+                throw GameException("Entity definition file not found: '" + path.asString() + "'");
+            return path;
         }
         
         IO::Path GameImpl::doExtractEntityDefinitionFile(const Map* map) const {
@@ -198,23 +205,24 @@ namespace TrenchBroom {
         }
         
         Assets::EntityModel* GameImpl::doLoadModel(const IO::Path& path) const {
-            if (!m_fs.fileExists(path))
-                return NULL;
-            
-            const IO::MappedFile::Ptr file = m_fs.openFile(path);
-            assert(file != NULL);
-            
-            const String modelName = path.lastComponent().asString();
-            const String extension = StringUtils::toLower(path.extension());
-            const StringSet supported = m_config.entityConfig().modelFormats;
-            
-            if (extension == "mdl" && supported.count("mdl") > 0)
-                return loadMdlModel(modelName, file);
-            if (extension == "md2" && supported.count("md2") > 0)
-                return loadMd2Model(modelName, file);
-            if (extension == "bsp" && supported.count("bsp") > 0)
-                return loadBspModel(modelName, file);
-            throw GameException("Unsupported model format '" + path.asString() + "'");
+            try {
+                const IO::MappedFile::Ptr file = m_fs.openFile(path);
+                assert(file != NULL);
+                
+                const String modelName = path.lastComponent().asString();
+                const String extension = StringUtils::toLower(path.extension());
+                const StringSet supported = m_config.entityConfig().modelFormats;
+                
+                if (extension == "mdl" && supported.count("mdl") > 0)
+                    return loadMdlModel(modelName, file);
+                if (extension == "md2" && supported.count("md2") > 0)
+                    return loadMd2Model(modelName, file);
+                if (extension == "bsp" && supported.count("bsp") > 0)
+                    return loadBspModel(modelName, file);
+                throw GameException("Unsupported model format '" + path.asString() + "'");
+            } catch (FileSystemException& e) {
+                throw GameException("Cannot load model: " + String(e.what()));
+            }
         }
         
         GameImpl::MapWriterPtr GameImpl::mapWriter(const MapFormat::Type format) const {

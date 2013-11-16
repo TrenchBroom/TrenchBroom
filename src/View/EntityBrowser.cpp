@@ -67,7 +67,8 @@ namespace TrenchBroom {
             m_view = new EntityBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
                                            m_document->entityDefinitionManager(),
-                                           m_document->entityModelManager());
+                                           m_document->entityModelManager(),
+                                           *m_document);
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);

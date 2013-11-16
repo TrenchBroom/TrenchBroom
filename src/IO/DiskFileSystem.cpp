@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 if (!path.isAbsolute())
                     throw FileSystemException("Cannot open file at relative path: '" + path.asString() + "'");
                 if (!fileExists(path))
-                    throw FileSystemException("File does not exist: '" + path.asString() + "'");
+                    throw FileSystemException("File not found: '" + path.asString() + "'");
 #ifdef _WIN32
                 return MappedFile::Ptr(new WinMappedFile(path, std::ios::in));
 #else
@@ -173,7 +173,7 @@ namespace TrenchBroom {
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         m_root(Disk::fixPath(root)) {
             if (ensureExists && !Disk::directoryExists(m_root))
-                throw FileSystemException("Root directory does not exist: '" + m_root.asString() + "'");
+                throw FileSystemException("Root directory not found: '" + m_root.asString() + "'");
         }
         
         const Path& DiskFileSystem::getPath() const {

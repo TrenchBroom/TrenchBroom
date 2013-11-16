@@ -28,6 +28,8 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class EntityModelManager;
         class PointEntityDefinition;
@@ -41,7 +43,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        
         typedef String EntityGroupData;
         
         class EntityCellData {
@@ -62,6 +63,7 @@ namespace TrenchBroom {
             Renderer::RenderResources& m_resources;
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
+            Logger& m_logger;
             Quatf m_rotation;
             
             bool m_group;
@@ -75,7 +77,8 @@ namespace TrenchBroom {
                               wxScrollBar* scrollBar,
                               Renderer::RenderResources& resources,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
-                              Assets::EntityModelManager& entityModelManager);
+                              Assets::EntityModelManager& entityModelManager,
+                              Logger& logger);
             ~EntityBrowserView();
             
             void setSortOrder(const Assets::EntityDefinitionManager::SortOrder sortOrder);
@@ -86,7 +89,7 @@ namespace TrenchBroom {
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
-
+            
             void doClear();
             void doRender(Layout& layout, const float y, const float height);
 

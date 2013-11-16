@@ -31,10 +31,10 @@ namespace TrenchBroom {
         private:
             struct Message {
             public:
-                Logger::LogLevel level;
+                LogLevel level;
                 String str;
                 
-                Message(const Logger::LogLevel i_level, const String& i_str);
+                Message(const LogLevel i_level, const String& i_str);
             };
             
             typedef std::vector<Message> MessageList;
