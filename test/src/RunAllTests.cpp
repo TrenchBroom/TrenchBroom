@@ -45,5 +45,10 @@ int main(int argc, char **argv) {
     wxEntryCleanup();
     delete config;
 
+#if defined _WIN32
+    std::cout << "Press enter to exit" << std::endl;
+    std::cin.ignore();
+#endif
+    
     return result;
 }

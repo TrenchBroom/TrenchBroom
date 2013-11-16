@@ -30,6 +30,11 @@ namespace TrenchBroom {
             typedef BrushList::const_iterator InnerIterator;
             typedef NestedIterator<EntityList::const_iterator, EntityBrushesIterator> OuterIterator;
             
+            static bool isInnerEmpty(EntityList::const_iterator it) {
+                Entity* entity = *it;
+                return entity->brushes().empty();
+            }
+
             static OuterIterator begin(const EntityList& entities) {
                 return OuterIterator(entities.begin(), entities.end());
             }
@@ -38,12 +43,12 @@ namespace TrenchBroom {
                 return OuterIterator(entities.end());
             }
             
-            InnerIterator beginInner(EntityList::const_iterator it) {
+            static InnerIterator beginInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return entity->brushes().begin();
             }
             
-            InnerIterator endInner(EntityList::const_iterator it) {
+            static InnerIterator endInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return entity->brushes().end();
             }

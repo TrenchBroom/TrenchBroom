@@ -34,7 +34,6 @@ namespace TrenchBroom {
         typedef typename InnerIterator::pointer pointer;
         typedef typename InnerIterator::reference reference;
     private:
-        InnerAdapter m_adapter;
         OuterIterator m_outerCur;
         OuterIterator m_outerEnd;
         InnerIterator m_innerCur;
@@ -72,7 +71,7 @@ namespace TrenchBroom {
         
         // post-increment
         NestedIterator operator++(int) {
-            NestedIterator<OuterIterator, InnerIterator> result(*this);
+            NestedIterator<OuterIterator, InnerAdapter> result(*this);
             ++*this;
             return result;
         }
@@ -99,10 +98,13 @@ namespace TrenchBroom {
         void advancePastEmptyInner() {
             if (m_outerCur == m_outerEnd)
                 return;
-            m_innerCur = m_adapter.beginInner(m_outerCur);
-            m_innerEnd = m_adapter.endInner(m_outerCur);
-            if (m_innerCur == m_innerEnd)
+            if (InnerAdapter::isInnerEmpty(m_outerCur))
                 advanceOuter();
+            if (m_outerCur == m_outerEnd)
+                return;
+            m_innerCur = InnerAdapter::beginInner(m_outerCur);
+            m_innerEnd = InnerAdapter::endInner(m_outerCur);
+            assert(m_innerCur != m_innerEnd);
         }
     };
 }

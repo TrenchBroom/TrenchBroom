@@ -21,7 +21,7 @@
 #define TrenchBroom_MapFacesIterator_h
 
 #include "NestedIterator.h"
-#include "Model/EntityFacesIterator.h"
+#include "Model/BrushFacesIterator.h"
 #include "Model/ModelTypes.h"
 #include "Model/Map.h"
 
@@ -31,6 +31,11 @@ namespace TrenchBroom {
             typedef BrushFacesIterator::OuterIterator InnerIterator;
             typedef NestedIterator<EntityList::const_iterator, MapFacesIterator> OuterIterator;
             
+            static bool isInnerEmpty(EntityList::const_iterator it) {
+                Entity* entity = *it;
+                return entity->brushes().empty();
+            }
+
             static OuterIterator begin(const Map& map) {
                 return OuterIterator(map.entities().begin(), map.entities().end());
             }
@@ -39,12 +44,12 @@ namespace TrenchBroom {
                 return OuterIterator(map.entities().end());
             }
             
-            InnerIterator beginInner(Model::EntityList::const_iterator it) {
+            static InnerIterator beginInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return BrushFacesIterator::begin(entity->brushes());
             }
             
-            InnerIterator endInner(Model::EntityList::const_iterator it) {
+            static InnerIterator endInner(EntityList::const_iterator it) {
                 Entity* entity = *it;
                 return BrushFacesIterator::end(entity->brushes());
             }
