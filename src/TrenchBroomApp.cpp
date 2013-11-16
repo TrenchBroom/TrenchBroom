@@ -50,11 +50,13 @@ namespace TrenchBroom {
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL),
-        m_recentDocuments(CommandIds::Menu::FileRecentDocuments, 10),
+        m_recentDocuments(NULL),
         m_lastFocusedWindow(NULL),
         m_lastFocusedWindowIsMapView(false) {
-            SetAppName(_("TrenchBroom"));
-            SetAppDisplayName(_("TrenchBroom"));
+            SetAppName("TrenchBroom");
+            SetAppDisplayName("TrenchBroom");
+            SetVendorDisplayName("Kristian Duske");
+            SetVendorName("Kristian Duske");
         }
         
         FrameManager* TrenchBroomApp::frameManager() {
@@ -62,19 +64,19 @@ namespace TrenchBroom {
         }
         
         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
-            return m_recentDocuments.recentDocuments();
+            return m_recentDocuments->recentDocuments();
         }
         
         void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
-            m_recentDocuments.addMenu(menu);
+            m_recentDocuments->addMenu(menu);
         }
         
         void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
-            m_recentDocuments.removeMenu(menu);
+            m_recentDocuments->removeMenu(menu);
         }
         
         void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
-            m_recentDocuments.updatePath(path);
+            m_recentDocuments->updatePath(path);
         }
         
         bool TrenchBroomApp::newDocument() {
@@ -126,6 +128,8 @@ namespace TrenchBroom {
             if (!wxApp::OnInit())
                 return false;
             
+
+            // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
             
             // load image handlers
@@ -134,7 +138,8 @@ namespace TrenchBroom {
             assert(m_frameManager == NULL);
             m_frameManager = new FrameManager(useSDI());
             
-            m_recentDocuments.setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
+            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
+            m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
             
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
@@ -143,7 +148,7 @@ namespace TrenchBroom {
             
             wxMenu* recentDocumentsMenu = Menu::findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
-            m_recentDocuments.addMenu(recentDocumentsMenu);
+            m_recentDocuments->addMenu(recentDocumentsMenu);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
             
@@ -182,6 +187,8 @@ namespace TrenchBroom {
         int TrenchBroomApp::OnExit() {
             delete m_frameManager;
             m_frameManager = NULL;
+            delete m_recentDocuments;
+            m_recentDocuments = NULL;
             
             wxImage::CleanUpHandlers();
             return wxApp::OnExit();
@@ -212,7 +219,7 @@ namespace TrenchBroom {
             assert(object != NULL);
             const wxString data = object->GetString();
             if (!openDocument(data.ToStdString())) {
-                m_recentDocuments.removePath(IO::Path(data.ToStdString()));
+                m_recentDocuments->removePath(IO::Path(data.ToStdString()));
                 ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
             }
         }

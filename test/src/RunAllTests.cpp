@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     wxEntryStart(argc, argv);
 
     // use an empty file config so that we always use the default preferences
-    wxFileConfig* config = new wxFileConfig();
+    wxFileConfig* config = new wxFileConfig("TrenchBroom-Test");
     wxConfig::Set(config);
     
     ::testing::InitGoogleTest(&argc, argv);
