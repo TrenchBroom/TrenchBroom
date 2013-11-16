@@ -117,6 +117,11 @@ namespace TrenchBroom {
             }
         }
         
+        void TrenchBroomApp::openPreferences() {
+            PreferenceDialog dialog;
+            dialog.ShowModal();
+        }
+
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
                 return false;
@@ -213,8 +218,7 @@ namespace TrenchBroom {
         }
         
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
-            PreferenceDialog dialog;
-            dialog.ShowModal();
+            openPreferences();
         }
         
         int TrenchBroomApp::FilterEvent(wxEvent& event) {

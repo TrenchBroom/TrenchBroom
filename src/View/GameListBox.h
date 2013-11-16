@@ -44,9 +44,8 @@ namespace TrenchBroom {
             const String selectedGameName() const;
             
             void OnListBoxDoubleClick(wxCommandEvent& event);
+            void reloadGameInfos();
         private:
-            void loadGameInfos();
-            
             const wxBitmap& image(const size_t n) const;
             wxString title(const size_t n) const;
             wxString subtitle(const size_t n) const;

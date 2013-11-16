@@ -24,11 +24,16 @@
 
 #include <wx/dialog.h>
 
+class wxButton;
 class wxFrame;
 class wxPanel;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class GameListBox;
         class GameSelectedCommand;
@@ -36,13 +41,17 @@ namespace TrenchBroom {
         class ChooseGameDialog : public wxDialog {
         private:
             GameListBox* m_gameListBox;
+            wxButton* m_openPreferencesButton;
         public:
             static String ShowNewDocument(wxWindow* parent);
             static String ShowOpenDocument(wxWindow* parent);
             
+            ~ChooseGameDialog();
+            
             const String selectedGameName() const;
 
             void OnGameSelected(GameSelectedCommand& event);
+            void OnOpenPreferencesClicked(wxCommandEvent& event);
             void OnUpdateOkButton(wxUpdateUIEvent& event);
         private:
             ChooseGameDialog(wxWindow* parent, const wxString& title, const wxString& infoText);
@@ -51,6 +60,10 @@ namespace TrenchBroom {
             wxPanel* createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText);
             wxPanel* createGameList(wxWindow* parent);
             void bindEvents();
+
+            void bindObservers();
+            void unbindObservers();
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }

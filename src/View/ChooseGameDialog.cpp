@@ -19,9 +19,11 @@
 
 #include "ChooseGameDialog.h"
 
+#include "PreferenceManager.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectedCommand.h"
 #include "View/LayoutConstants.h"
+#include "TrenchBroomApp.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -44,12 +46,8 @@ namespace TrenchBroom {
             return "";
         }
 
-        ChooseGameDialog::ChooseGameDialog(wxWindow* parent, const wxString& title, const wxString& infoText) :
-        wxDialog(parent, wxID_ANY, _("Create New Map")) {
-            SetSize(550, 350);
-            createGui(title, infoText);
-            bindEvents();
-            CentreOnParent();
+        ChooseGameDialog::~ChooseGameDialog() {
+            unbindObservers();
         }
         
         const String ChooseGameDialog::selectedGameName() const {
@@ -60,8 +58,21 @@ namespace TrenchBroom {
             EndModal(wxID_OK);
         }
 
+        void ChooseGameDialog::OnOpenPreferencesClicked(wxCommandEvent& event) {
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            app.openPreferences();
+        }
+
         void ChooseGameDialog::OnUpdateOkButton(wxUpdateUIEvent& event) {
             event.Enable(m_gameListBox->GetSelectedCount() > 0);
+        }
+        
+        ChooseGameDialog::ChooseGameDialog(wxWindow* parent, const wxString& title, const wxString& infoText) :
+        wxDialog(parent, wxID_ANY, _("Create New Map")) {
+            createGui(title, infoText);
+            bindEvents();
+            bindObservers();
+            CentreOnParent();
         }
 
         void ChooseGameDialog::createGui(const wxString& title, const wxString& infoText) {
@@ -72,6 +83,7 @@ namespace TrenchBroom {
             innerSizer->Add(infoPanel, 0, wxEXPAND);
             innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
             innerSizer->Add(gameList, 1, wxEXPAND);
+            innerSizer->SetItemMinSize(gameList, 300, wxDefaultSize.y);
             
             wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
             
@@ -82,7 +94,7 @@ namespace TrenchBroom {
             outerSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::ChooseGameDialogButtonSideMargin);
             outerSizer->AddSpacer(LayoutConstants::ChooseGameDialogButtonBottomMargin);
             
-            SetSizer(outerSizer);
+            SetSizerAndFit(outerSizer);
         }
         
         wxPanel* ChooseGameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {
@@ -93,14 +105,24 @@ namespace TrenchBroom {
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
             wxStaticText* info = new wxStaticText(infoPanel, wxID_ANY, infoText);
-            info->Wrap(200);
+            info->Wrap(250);
+            
+            wxStaticText* setupMsg = new wxStaticText(infoPanel, wxID_ANY, _("To set up the game paths, click on the button below to open the preferences dialog."));
+            setupMsg->Wrap(250);
+            
+            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, _("Open Preferences..."));
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);
             sizer->Add(header, 0, wxLEFT | wxRIGHT, 20);
             sizer->AddSpacer(20);
             sizer->Add(info, 0, wxLEFT | wxRIGHT, 20);
-            infoPanel->SetSizer(sizer);
+            sizer->AddSpacer(10);
+            sizer->Add(setupMsg, 0, wxLEFT | wxRIGHT, 20);
+            sizer->AddSpacer(10);
+            sizer->Add(m_openPreferencesButton, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 20);
+            sizer->AddSpacer(20);
+            infoPanel->SetSizerAndFit(sizer);
             
             return infoPanel;
         }
@@ -112,7 +134,23 @@ namespace TrenchBroom {
         
         void ChooseGameDialog::bindEvents() {
             m_gameListBox->Bind(EVT_GAME_SELECTED_EVENT, EVT_GAME_SELECTED_HANDLER(ChooseGameDialog::OnGameSelected), this);
+            m_openPreferencesButton->Bind(wxEVT_BUTTON, &ChooseGameDialog::OnOpenPreferencesClicked, this);
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &ChooseGameDialog::OnUpdateOkButton, this);
+        }
+
+        void ChooseGameDialog::bindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &ChooseGameDialog::preferenceDidChange);
+            
+        }
+        
+        void ChooseGameDialog::unbindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &ChooseGameDialog::preferenceDidChange);
+        }
+
+        void ChooseGameDialog::preferenceDidChange(const IO::Path& path) {
+            m_gameListBox->reloadGameInfos();
         }
     }
 }

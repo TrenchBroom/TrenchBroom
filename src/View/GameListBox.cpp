@@ -33,8 +33,7 @@ namespace TrenchBroom {
     namespace View {
         GameListBox::GameListBox(wxWindow* parent) :
         ImageListBox(parent, wxSize(32, 32), "No Games Found") {
-            loadGameInfos();
-            SetItemCount(m_gameInfos.size());
+            reloadGameInfos();
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
         }
 
@@ -56,7 +55,9 @@ namespace TrenchBroom {
             ProcessEvent(command);
         }
 
-        void GameListBox::loadGameInfos() {
+        void GameListBox::reloadGameInfos() {
+            m_gameInfos.clear();
+            
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
             StringList::const_iterator it, end;
@@ -75,6 +76,9 @@ namespace TrenchBroom {
                 
                 m_gameInfos.push_back(gameInfo);
             }
+
+            SetItemCount(m_gameInfos.size());
+            Refresh();
         }
 
         const wxBitmap& GameListBox::image(const size_t n) const {

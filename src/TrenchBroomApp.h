@@ -52,6 +52,7 @@ namespace TrenchBroom {
             
             bool newDocument();
             bool openDocument(const String& pathStr);
+            void openPreferences();
 
             bool OnInit();
             int OnExit();
