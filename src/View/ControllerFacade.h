@@ -77,6 +77,7 @@ namespace TrenchBroom {
             bool selectObjects(const Model::ObjectList& objects);
             bool selectObject(Model::Object& object);
             bool selectAllObjects();
+            bool deselectAllAndSelectObjects(const Model::ObjectList& objects);
             bool deselectAllAndSelectObject(Model::Object& object);
             bool deselectObject(Model::Object& object);
             bool selectFace(Model::BrushFace& face);

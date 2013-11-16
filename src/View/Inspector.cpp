@@ -32,7 +32,7 @@ namespace TrenchBroom {
         Inspector::Inspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
-            m_mapInspector = new MapInspector(m_notebook, document);
+            m_mapInspector = new MapInspector(m_notebook, document, controller);
             m_entityInspector = new EntityInspector(m_notebook, document, controller, resources);
             m_faceInspector = new FaceInspector(m_notebook, document, controller, resources);
             m_viewInspector = new ViewInspector(m_notebook);

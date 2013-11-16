@@ -130,11 +130,8 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::deselectAllAndSelectObject(Model::Object& object) {
+        bool ControllerFacade::deselectAllAndSelectObjects(const Model::ObjectList& objects) {
             using namespace Controller;
-
-            Model::ObjectList objects;
-            objects.push_back(&object);
 
             Command::Ptr deselectCommand = SelectionCommand::deselectAll(m_document);
             Command::Ptr selectCommand = SelectionCommand::select(m_document, objects);
@@ -143,7 +140,14 @@ namespace TrenchBroom {
             m_commandProcessor.submitAndStoreCommand(deselectCommand);
             m_commandProcessor.submitAndStoreCommand(selectCommand);
             m_commandProcessor.closeGroup();
+            
             return true;
+        }
+
+        bool ControllerFacade::deselectAllAndSelectObject(Model::Object& object) {
+            Model::ObjectList objects;
+            objects.push_back(&object);
+            return deselectAllAndSelectObjects(objects);
         }
         
         bool ControllerFacade::deselectObject(Model::Object& object) {

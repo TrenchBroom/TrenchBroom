@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             MapTreeView* m_treeView;
         public:
-            MapInspector(wxWindow* parent, MapDocumentPtr document);
+            MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
         };
     }
 }

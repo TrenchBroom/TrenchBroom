@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/Object.h"
+#include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 
@@ -37,6 +38,17 @@
 
 namespace TrenchBroom {
     namespace View {
+        struct AddObjectToItemArray {
+            wxDataViewItemArray& items;
+            
+            AddObjectToItemArray(wxDataViewItemArray& i_items) :
+            items(i_items) {}
+            
+            void operator()(Model::Object* object) const {
+                items.push_back(wxDataViewItem(object));
+            }
+        };
+        
         class MapTreeViewDataModel : public wxDataViewModel {
         private:
             MapDocumentPtr m_document;
@@ -71,17 +83,6 @@ namespace TrenchBroom {
                 }
                 return false;
             }
-            
-            struct AddObjectToItemArray {
-                wxDataViewItemArray& items;
-                
-                AddObjectToItemArray(wxDataViewItemArray& i_items) :
-                items(i_items) {}
-                
-                void operator()(Model::Object* object) const {
-                    items.push_back(wxDataViewItem(object));
-                }
-            };
             
             unsigned int GetChildren(const wxDataViewItem& item, wxDataViewItemArray& children) const {
                 const void* data = item.GetID();
@@ -209,23 +210,98 @@ namespace TrenchBroom {
             }
         };
         
-        MapTreeView::MapTreeView(wxWindow* parent, MapDocumentPtr document) :
+        class SetBool {
+        private:
+            bool& m_value;
+        public:
+            SetBool(bool& value) :
+            m_value(value) {
+                m_value = true;
+            }
+            
+            ~SetBool() {
+                m_value = false;
+            }
+        };
+        
+        MapTreeView::MapTreeView(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
-        m_tree(NULL) {
-            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER);
-            m_tree->AssociateModel(new MapTreeViewDataModel(document));
+        m_document(document),
+        m_controller(controller),
+        m_tree(NULL),
+        m_ignoreTreeSelection(false),
+        m_ignoreDocumentSelection(false) {
+            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER | wxDV_MULTIPLE);
+            m_tree->AssociateModel(new MapTreeViewDataModel(m_document));
             m_tree->AppendTextColumn("Caption", 0)->SetWidth(200);
+            m_tree->Expand(wxDataViewItem(NULL));
+            
             m_tree->Bind(wxEVT_SIZE, &MapTreeView::OnTreeViewSize, this);
+            m_tree->Bind(wxEVT_DATAVIEW_SELECTION_CHANGED, &MapTreeView::OnTreeViewSelectionChanged, this);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tree, 1, wxEXPAND);
             SetSizerAndFit(sizer);
+            
+            bindObservers();
+        }
+
+        MapTreeView::~MapTreeView() {
+            unbindObservers();
         }
 
         void MapTreeView::OnTreeViewSize(wxSizeEvent& event) {
             int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
             m_tree->GetColumn(0)->SetWidth(newWidth);
             event.Skip();
+        }
+
+        void MapTreeView::OnTreeViewSelectionChanged(wxDataViewEvent& event) {
+            if (m_ignoreTreeSelection)
+                return;
+            
+            SetBool disableDocumentSelection(m_ignoreDocumentSelection);
+
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+            
+            Model::ObjectList selectObjects;
+            selectObjects.reserve(selections.size());
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const wxDataViewItem& item = selections[i];
+                Model::Object* object = reinterpret_cast<Model::Object*>(item.GetID());
+                selectObjects.push_back(object);
+            }
+            
+            m_controller->deselectAllAndSelectObjects(selectObjects);
+            // TODO: make the selected objects visible in the 3D view
+        }
+
+        void MapTreeView::bindObservers() {
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapTreeView::selectionDidChange);
+        }
+        
+        void MapTreeView::unbindObservers() {
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapTreeView::selectionDidChange);
+        }
+        
+        void MapTreeView::selectionDidChange(const Model::SelectionResult& result) {
+            if (m_ignoreDocumentSelection)
+                return;
+            
+            SetBool disableTreeSelection(m_ignoreTreeSelection);
+            
+            const Model::ObjectList& selectedObjects = m_document->selectedObjects();
+
+            wxDataViewItemArray selections;
+            AddObjectToItemArray addObjects(selections);
+            Model::each(selectedObjects.begin(), selectedObjects.end(), addObjects, Model::MatchAll());
+            m_tree->UnselectAll();
+            m_tree->SetSelections(selections);
+            
+            if (!selections.empty())
+                m_tree->EnsureVisible(selections.front());
         }
     }
 }

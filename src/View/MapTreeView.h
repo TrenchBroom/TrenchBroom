@@ -25,17 +25,32 @@
 #include <wx/panel.h>
 
 class wxDataViewCtrl;
+class wxDataViewEvent;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class SelectionResult;
+    }
+    
     namespace View {
         class MapTreeView : public wxPanel {
         private:
+            MapDocumentPtr m_document;
+            ControllerPtr m_controller;
             wxDataViewCtrl* m_tree;
+            bool m_ignoreTreeSelection;
+            bool m_ignoreDocumentSelection;
         public:
-            MapTreeView(wxWindow* parent, MapDocumentPtr document);
+            MapTreeView(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            ~MapTreeView();
             
             void OnTreeViewSize(wxSizeEvent& event);
+            void OnTreeViewSelectionChanged(wxDataViewEvent& event);
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void selectionDidChange(const Model::SelectionResult& result);
         };
     }
 }

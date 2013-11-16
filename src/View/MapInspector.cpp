@@ -26,10 +26,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, MapDocumentPtr document) :
+        MapInspector::MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
         m_treeView(NULL) {
-            m_treeView = new MapTreeView(this, document);
+            m_treeView = new MapTreeView(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_treeView, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
