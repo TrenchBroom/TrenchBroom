@@ -21,6 +21,7 @@
 
 #include "View/GameListBox.h"
 #include "View/GameSelectedCommand.h"
+#include "View/LayoutConstants.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -77,7 +78,9 @@ namespace TrenchBroom {
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 1, wxEXPAND);
             outerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL), 0, wxEXPAND);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::ChooseGameDialogButtonTopMargin);
+            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::ChooseGameDialogButtonSideMargin);
+            outerSizer->AddSpacer(LayoutConstants::ChooseGameDialogButtonBottomMargin);
             
             SetSizer(outerSizer);
         }

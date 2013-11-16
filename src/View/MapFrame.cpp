@@ -53,6 +53,19 @@ namespace TrenchBroom {
 
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
+        class OpenClipboard {
+        public:
+            OpenClipboard() {
+                if (!wxTheClipboard->IsOpened())
+                    wxTheClipboard->Open();
+            }
+            
+            ~OpenClipboard() {
+                if (wxTheClipboard->IsOpened())
+                    wxTheClipboard->Close();
+            }
+        };
+        
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, _("")),
         m_frameManager(NULL),
@@ -172,7 +185,8 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
-            if (wxTheClipboard->Open()) {
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened()) {
                 StringStream clipboardData;
                 if (m_document->hasSelectedObjects())
                     m_document->writeObjectsToStream(m_document->selectedObjects(), clipboardData);
@@ -180,12 +194,12 @@ namespace TrenchBroom {
                     m_document->writeFacesToStream(m_document->selectedFaces(), clipboardData);
 
                 wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
-                wxTheClipboard->Close();
             }
         }
         
         void MapFrame::OnEditPaste(wxCommandEvent& event) {
-            if (wxTheClipboard->Open() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
                 wxTextDataObject textData;
                 String text;
                 
@@ -223,13 +237,11 @@ namespace TrenchBroom {
             } else {
                 logger()->error("Clipboard is empty");
             }
-            
-            if (wxTheClipboard->IsOpened())
-                wxTheClipboard->Close();
         }
         
         void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
-            if (wxTheClipboard->Open() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT)) {
                 wxTextDataObject textData;
                 String text;
                 
@@ -249,9 +261,6 @@ namespace TrenchBroom {
             } else {
                 logger()->error("Clipboard is empty");
             }
-            
-            if (wxTheClipboard->IsOpened())
-                wxTheClipboard->Close();
         }
         
         void MapFrame::OnEditDeleteObjects(wxCommandEvent& event) {
@@ -458,11 +467,8 @@ namespace TrenchBroom {
                     break;
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
-                    bool canPaste = false;
-                    if (wxTheClipboard->Open()) {
-                        canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
-                        wxTheClipboard->Close();
-                    }
+                    OpenClipboard openClipboard;
+                    static bool canPaste = wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
                     event.Enable(!m_mapView->anyToolActive() && canPaste);
                     break;
                 }

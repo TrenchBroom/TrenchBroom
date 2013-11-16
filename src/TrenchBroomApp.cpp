@@ -52,7 +52,10 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_recentDocuments(CommandIds::Menu::FileRecentDocuments, 10),
         m_lastFocusedWindow(NULL),
-        m_lastFocusedWindowIsMapView(false) {}
+        m_lastFocusedWindowIsMapView(false) {
+            SetAppName(_("TrenchBroom"));
+            SetAppDisplayName(_("TrenchBroom"));
+        }
         
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;

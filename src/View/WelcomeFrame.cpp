@@ -39,7 +39,6 @@ namespace TrenchBroom {
 
         WelcomeFrame::WelcomeFrame() :
         wxFrame(NULL, wxID_ANY, _("Welcome to TrenchBroom"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
-            SetSize(700, 420);
             createGui();
             bindEvents();
             Centre();
@@ -54,12 +53,13 @@ namespace TrenchBroom {
             innerSizer->Add(appPanel, 0, wxEXPAND);
             innerSizer->Add(new wxStaticLine(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
             innerSizer->Add(m_recentDocumentListBox, 1, wxEXPAND);
-            container->SetSizerAndFit(innerSizer);
+            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(300, wxDefaultSize.y));
+            container->SetSizer(innerSizer);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(container, 1, wxEXPAND);
             
-            SetSizer(outerSizer);
+            SetSizerAndFit(outerSizer);
         }
 
         void WelcomeFrame::OnCreateNewDocumentClicked(wxCommandEvent& event) {
@@ -128,6 +128,7 @@ namespace TrenchBroom {
             outerSizer->Add(innerSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
             outerSizer->AddSpacer(20);
             outerSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
+            outerSizer->AddSpacer(20);
             
             appPanel->SetSizer(outerSizer);
 

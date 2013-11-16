@@ -60,11 +60,27 @@ namespace TrenchBroom {
             switchToPane(newPane);
         }
 
+        void PreferenceDialog::OnOKClicked(wxCommandEvent& event) {
+#if !defined __APPLE__
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.saveChanges();
+#endif
+            EndModal(wxID_OK);
+        }
+
         void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
 #if !defined __APPLE__
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.saveChanges();
 #endif
+        }
+
+        void PreferenceDialog::OnCancelClicked(wxCommandEvent& event) {
+#if !defined __APPLE__
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.discardChanges();
+#endif
+            EndModal(wxID_CANCEL);
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
@@ -134,7 +150,9 @@ namespace TrenchBroom {
         
         void PreferenceDialog::bindEvents() {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
+            Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
+            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PP_First, PP_Last);
         }
 
