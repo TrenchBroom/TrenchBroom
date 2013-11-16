@@ -16,6 +16,21 @@ These icons are to be used in several places all over the editor and therefore s
 - Delete something (this is different from removing because it will cause something to be erased permanently).
 - Select something from disk (open a browser window / open file dialog).
 
+# Object Icons (16x16, 32x32)
+- Entity icon: Could be a humanoid figure.
+- Brush icon: Could be a cube.
+- Face icon: Could be a rectangle or square, maybe with a missing corner (as in, a cut off corner).
+- Patch icon (as in Quake 3 patch): A 3D curve something?
+
+# Action icons (16x16, 32x32)
+- Rotate left / right (about Z axis)
+- Rotate clockwise / counterclockwise (about view axis)
+- Rotate up / down (about right axis)
+- Flip horizontally
+- Flip vertically
+- Move left / right, up / down, forward / backward (i.e., towards or away from the camera)
+- Increase / decrease grid size
+
 # Application Icon
 This icon must be a vector graphic because I may need to adapt it and scale it from 16x16 up to 1014x1024. Currently, TB has a Quake crate as its icon, which I like. However, this crate is recognizable only to Quake players, and since TB is going to be available for other games as well, it is not a very good icon anymore. Maybe we can abstract from the look of the crate a bit. One element of the current icon I definitely like is that the crate has grid lines projected onto its faces. Since the grid projection is quite unique to TrenchBroom, I think it's a good idea that it shows up in the icon as well.
 

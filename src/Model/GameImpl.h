@@ -50,15 +50,15 @@ namespace TrenchBroom {
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
-            Map* doNewMap(const MapFormat::Type format) const;
+            Map* doNewMap(MapFormat::Type format) const;
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
             Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const;
             Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const;
             Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const;
             
             void doWriteMap(Map& map, const IO::Path& path) const;
-            void doWriteObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
-            void doWriteFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
+            void doWriteObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
+            void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List doFindBuiltinTextureCollections() const;
             IO::Path::List doExtractTexturePaths(const Map* map) const;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
 
-            MapWriterPtr mapWriter(const MapFormat::Type format) const;
+            MapWriterPtr mapWriter(MapFormat::Type format) const;
             
             Assets::TextureCollection* loadWadTextureCollection(const IO::Path& path) const;
             Assets::TextureCollection* loadWalTextureCollection(const IO::Path& path) const;

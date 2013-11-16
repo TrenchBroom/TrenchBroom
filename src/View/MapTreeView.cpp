@@ -63,7 +63,7 @@ namespace TrenchBroom {
             bool IsContainer(const wxDataViewItem& item) const {
                 const Model::Object* object = reinterpret_cast<Model::Object*>(item.GetID());
                 if (object == NULL)
-                    return false;
+                    return true;
                 if (object->type() == Model::Object::OTEntity) {
                     const Model::Entity* entity = static_cast<const Model::Entity*>(object);
                     const Model::BrushList& brushes = entity->brushes();
@@ -161,11 +161,17 @@ namespace TrenchBroom {
             void bindObservers() {
                 m_document->documentWasNewedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewed);
                 m_document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasLoaded);
+                m_document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
+                m_document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                m_document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
             }
             
             void unbindObservers() {
                 m_document->documentWasNewedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewed);
                 m_document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasLoaded);
+                m_document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
+                m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                m_document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
             }
             
             void documentWasNewed() {
@@ -175,6 +181,32 @@ namespace TrenchBroom {
             void documentWasLoaded() {
                 Cleared();
             }
+
+            void objectWasAdded(Model::Object* object) {
+                if (object->type() == Model::Object::OTEntity) {
+                    Model::Entity* entity = static_cast<Model::Entity*>(object);
+                    ItemAdded(wxDataViewItem(NULL), wxDataViewItem(entity));
+                } else if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    Model::Entity* parent = brush->parent();
+                    ItemAdded(wxDataViewItem(parent), wxDataViewItem(brush));
+                }
+            }
+            
+            void objectWillBeRemoved(Model::Object* object) {
+                if (object->type() == Model::Object::OTEntity) {
+                    Model::Entity* entity = static_cast<Model::Entity*>(object);
+                    ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(entity));
+                } else if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    Model::Entity* parent = brush->parent();
+                    ItemDeleted(wxDataViewItem(parent), wxDataViewItem(brush));
+                }
+            }
+            
+            void objectDidChange(Model::Object* object) {
+                ItemChanged(wxDataViewItem(object));
+            }
         };
         
         MapTreeView::MapTreeView(wxWindow* parent, MapDocumentPtr document) :
@@ -182,7 +214,7 @@ namespace TrenchBroom {
         m_tree(NULL) {
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER);
             m_tree->AssociateModel(new MapTreeViewDataModel(document));
-            m_tree->AppendTextColumn("Caption", 0);
+            m_tree->AppendTextColumn("Caption", 0)->SetWidth(200);
             m_tree->Bind(wxEVT_SIZE, &MapTreeView::OnTreeViewSize, this);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -191,7 +223,9 @@ namespace TrenchBroom {
         }
 
         void MapTreeView::OnTreeViewSize(wxSizeEvent& event) {
-            m_tree->GetColumn(0)->SetWidth(m_tree->GetClientSize().x);
+            int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
+            m_tree->GetColumn(0)->SetWidth(newWidth);
+            event.Skip();
         }
     }
 }

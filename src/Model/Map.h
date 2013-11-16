@@ -36,7 +36,7 @@ namespace TrenchBroom {
             EntityList m_entities;
             mutable Entity* m_worldspawn;
         public:
-            Map(const MapFormat::Type format);
+            Map(MapFormat::Type format);
             ~Map();
             
             MapFormat::Type format() const;

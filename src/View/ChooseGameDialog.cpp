@@ -99,7 +99,7 @@ namespace TrenchBroom {
         
         wxPanel* ChooseGameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {
             wxPanel* infoPanel = new wxPanel(parent);
-            infoPanel->wxWindowBase::SetBackgroundColour(*wxWHITE);
+            infoPanel->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* header = new wxStaticText(infoPanel, wxID_ANY, title);
             header->SetFont(header->GetFont().Larger().Larger().Bold());
