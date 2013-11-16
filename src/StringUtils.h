@@ -77,6 +77,36 @@ namespace StringUtils {
         return result;
     }
     
+    template <typename D>
+    StringList splitAndTrim(const String& str, D d) {
+        if (str.empty())
+            return EmptyStringList;
+        
+        const size_t first = str.find_first_not_of(d);
+        if (first == String::npos)
+            return EmptyStringList;
+        const size_t last = str.find_last_not_of(d);
+        assert(last != String::npos);
+        assert(first <= last);
+        
+        StringList result;
+        
+        size_t lastPos = first;
+        size_t pos = lastPos;
+        while ((pos = str.find_first_of(d, pos)) < last) {
+            const String item = trim(str.substr(lastPos, pos - lastPos));
+            if (!item.empty())
+                result.push_back(item);
+            lastPos = ++pos;
+        }
+        if (lastPos <= last) {
+            const String item = trim(str.substr(lastPos, last - lastPos + 1));
+            if (!item.empty())
+                result.push_back(item);
+        }
+        return result;
+    }
+    
     template <typename D1, typename D2, typename D3>
     String join(const StringList& strs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
         if (strs.empty())

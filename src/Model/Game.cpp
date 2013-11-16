@@ -101,5 +101,9 @@ namespace TrenchBroom {
         Assets::EntityModel* Game::loadModel(const IO::Path& path) const {
             return doLoadModel(path);
         }
+
+        StringList Game::extractMods(const Map* map) const {
+            return doExtractMods(map);
+        }
     }
 }

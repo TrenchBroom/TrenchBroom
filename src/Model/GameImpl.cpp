@@ -279,5 +279,19 @@ namespace TrenchBroom {
             IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_fs);
             return parser.parseModel();
         }
+
+        StringList GameImpl::doExtractMods(const Map* map) const {
+            StringList mods;
+            
+            const Model::Entity* worldspawn = map->worldspawn();
+            if (worldspawn == NULL)
+                return mods;
+            
+            const PropertyValue& modStr = worldspawn->property(PropertyKeys::Mods);
+            if (modStr.empty())
+                return mods;
+            
+            return StringUtils::splitAndTrim(modStr, ';');
+        }
     }
 }

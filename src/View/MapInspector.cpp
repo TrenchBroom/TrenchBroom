@@ -21,6 +21,7 @@
 
 #include "View/LayoutConstants.h"
 #include "View/MapTreeView.h"
+#include "View/ModEditor.h"
 
 #include <wx/sizer.h>
 
@@ -29,11 +30,18 @@ namespace TrenchBroom {
         MapInspector::MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
         m_treeView(NULL) {
+            createGui(document, controller);
+        }
+
+        void MapInspector::createGui(MapDocumentPtr document, ControllerPtr controller) {
             m_treeView = new MapTreeView(this, document, controller);
+            m_modEditor = new ModEditor(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_treeView, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
-
+            sizer->Add(m_treeView, 1, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(m_modEditor, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
+            
             SetSizerAndFit(sizer);
         }
     }

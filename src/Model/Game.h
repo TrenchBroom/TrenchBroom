@@ -62,6 +62,8 @@ namespace TrenchBroom {
             IO::Path defaultEntityDefinitionFile() const;
             IO::Path extractEntityDefinitionFile(const Map* map) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
+            
+            StringList extractMods(const Map* map) const;
         private:
             virtual const String& doGameName() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
@@ -85,6 +87,8 @@ namespace TrenchBroom {
             virtual IO::Path doDefaultEntityDefinitionFile() const = 0;
             virtual IO::Path doExtractEntityDefinitionFile(const Map* map) const = 0;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
+            
+            virtual StringList doExtractMods(const Map* map) const = 0;
         };
     }
 }

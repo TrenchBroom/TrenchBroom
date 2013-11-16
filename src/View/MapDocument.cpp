@@ -349,6 +349,10 @@ namespace TrenchBroom {
             return worldspawn;
         }
         
+        StringList MapDocument::mods() const {
+            return m_game->extractMods(m_map);
+        }
+
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
             assert(object != NULL);
             

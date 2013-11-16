@@ -42,7 +42,7 @@ namespace TrenchBroom {
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             
             SetSizer(outerSizer);

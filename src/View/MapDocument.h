@@ -117,6 +117,7 @@ namespace TrenchBroom {
             void writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             Model::Entity* worldspawn();
+            StringList mods() const;
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);

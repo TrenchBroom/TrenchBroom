@@ -48,6 +48,7 @@ namespace TrenchBroom {
             wxPanel* container = new wxPanel(this);
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
+            m_recentDocumentListBox->SetToolTip(_("Double click on a map to open it"));
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, 0, wxEXPAND);
@@ -117,7 +118,9 @@ namespace TrenchBroom {
             innerSizer->AddStretchSpacer();
             
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, _("Create document..."));
+            m_createNewDocumentButton->SetToolTip(_("Create a new map document"));
             m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, _("Open document..."));
+            m_openOtherDocumentButton->SetToolTip(_("Open an existing map document"));
             
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);

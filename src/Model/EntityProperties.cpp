@@ -28,7 +28,7 @@ namespace TrenchBroom {
             const PropertyKey Origin            = "origin";
             const PropertyKey Wad               = "wad";
             const PropertyKey Wal               = "_textures";
-            const PropertyKey Mod               = "_mod";
+            const PropertyKey Mods              = "_mod";
             const PropertyKey Spawnflags        = "spawnflags";
             const PropertyKey EntityDefinitions = "_def";
             const PropertyKey Angle             = "angle";
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         }
 
         bool isPropertyKeyMutable(const PropertyKey& key) {
-            if (key == PropertyKeys::Mod)
+            if (key == PropertyKeys::Mods)
                 return false;
             if (key == PropertyKeys::EntityDefinitions)
                 return false;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 return false;
             if (key == PropertyKeys::Origin)
                 return false;
-            if (key == PropertyKeys::Mod)
+            if (key == PropertyKeys::Mods)
                 return false;
             if (key == PropertyKeys::EntityDefinitions)
                 return false;

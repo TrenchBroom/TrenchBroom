@@ -77,6 +77,8 @@ namespace TrenchBroom {
             Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr file) const;
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr file) const;
             Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr file) const;
+            
+            StringList doExtractMods(const Map* map) const;
         };
     }
 }

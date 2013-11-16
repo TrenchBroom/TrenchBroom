@@ -13,6 +13,7 @@ These icons are to be used in several places all over the editor and therefore s
 - Add something to a list of things: Could be as simple as a plus sign.
 - Remove something from a list of things.
 - Move something up / down / left / right in a list of things.
+- Edit something
 - Delete something (this is different from removing because it will cause something to be erased permanently).
 - Select something from disk (open a browser window / open file dialog).
 

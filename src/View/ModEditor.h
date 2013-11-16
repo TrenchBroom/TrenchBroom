@@ -17,30 +17,47 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapInspector__
-#define __TrenchBroom__MapInspector__
+#ifndef __TrenchBroom__ModEditor__
+#define __TrenchBroom__ModEditor__
 
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
+class wxBitmapButton;
+class wxStaticText;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Object;
+    }
+    
     namespace View {
-        class MapTreeView;
-        class ModEditor;
-        
-        class MapInspector : public wxPanel {
+        class ModEditor : public wxPanel {
         private:
-            MapTreeView* m_treeView;
-            ModEditor* m_modEditor;
+            MapDocumentPtr m_document;
+            ControllerPtr m_controller;
+            
+            wxStaticText* m_modList;
+            wxBitmapButton* m_editModsButton;
         public:
-            MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            ~ModEditor();
         private:
-            void createGui(MapDocumentPtr document, ControllerPtr controller);
+            void createGui();
+            void bindEvents();
+
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectDidChange(Model::Object* object);
+
+            void updateMods();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapInspector__) */
+#endif /* defined(__TrenchBroom__ModEditor__) */

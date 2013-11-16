@@ -111,6 +111,7 @@ namespace TrenchBroom {
             setupMsg->Wrap(250);
             
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, _("Open Preferences..."));
+            m_openPreferencesButton->SetToolTip(_("Open the preferences dialog to edit game paths"));
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);
@@ -129,6 +130,7 @@ namespace TrenchBroom {
         
         wxPanel* ChooseGameDialog::createGameList(wxWindow* parent) {
             m_gameListBox = new GameListBox(parent);
+            m_gameListBox->SetToolTip(_("Double click on a game to select it"));
             return m_gameListBox;
         }
         
