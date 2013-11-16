@@ -38,7 +38,7 @@ namespace TrenchBroom {
         TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
         wxPanel(parent),
         m_document(document) {
-            const wxString sortOrders[2] = { _T("Name"), _T("Usage") };
+            const wxString sortOrders[2] = { _("Name"), _("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
             m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);

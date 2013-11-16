@@ -21,6 +21,7 @@
 
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
+#include "View/MapInspector.h"
 #include "View/ViewInspector.h"
 
 #include <wx/notebook.h>
@@ -31,13 +32,15 @@ namespace TrenchBroom {
         Inspector::Inspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
+            m_mapInspector = new MapInspector(m_notebook, document);
             m_entityInspector = new EntityInspector(m_notebook, document, controller, resources);
             m_faceInspector = new FaceInspector(m_notebook, document, controller, resources);
             m_viewInspector = new ViewInspector(m_notebook);
             
-            m_notebook->AddPage(m_entityInspector, _T("Entity"));
-            m_notebook->AddPage(m_faceInspector, _T("Face"));
-            m_notebook->AddPage(m_viewInspector, _T("View"));
+            m_notebook->AddPage(m_mapInspector, _("Map"));
+            m_notebook->AddPage(m_entityInspector, _("Entity"));
+            m_notebook->AddPage(m_faceInspector, _("Face"));
+            m_notebook->AddPage(m_viewInspector, _("View"));
             
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(m_notebook, 1, wxEXPAND);

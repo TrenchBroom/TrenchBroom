@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller) {
             m_textureView = new TextureView(this, wxID_ANY, resources);
-            m_textureNameLabel = new wxStaticText(this, wxID_ANY, _T("n/a"));
+            m_textureNameLabel = new wxStaticText(this, wxID_ANY, _("n/a"));
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
