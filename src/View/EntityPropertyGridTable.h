@@ -56,6 +56,7 @@ namespace TrenchBroom {
             ControllerPtr m_controller;
             EntryList m_entries;
             bool m_ignoreUpdates;
+            wxColor m_readonlyCellColor;
             wxColor m_specialCellColor;
         public:
             EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller);
@@ -72,7 +73,7 @@ namespace TrenchBroom {
             bool DeleteRows(size_t pos = 0, size_t numRows = 1);
             
             wxString GetColLabelValue(int col);
-            wxGridCellAttr* getAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
+            wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
             
             void update();
             String tooltip(const wxGridCellCoords cellCoords) const;

@@ -64,6 +64,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_ignoreUpdates(false),
+        m_readonlyCellColor(wxColor(224, 224, 224)),
         m_specialCellColor(wxColor(128, 128, 128)) {}
         
         int EntityPropertyGridTable::GetNumberRows() {
@@ -220,7 +221,7 @@ namespace TrenchBroom {
             return _("Value");
         }
         
-        wxGridCellAttr* EntityPropertyGridTable::getAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
+        wxGridCellAttr* EntityPropertyGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
                 const Entry& entry = m_entries[static_cast<size_t>(row)];
@@ -230,6 +231,7 @@ namespace TrenchBroom {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
+                        attr->SetBackgroundColour(m_readonlyCellColor);
                     } else if (entry.subset()) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
@@ -241,6 +243,7 @@ namespace TrenchBroom {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
+                        attr->SetBackgroundColour(m_readonlyCellColor);
                     }
                     if (entry.multi()) {
                         if (attr == NULL)

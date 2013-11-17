@@ -155,6 +155,7 @@ namespace TrenchBroom {
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
             void commandDoneOrUndone(Controller::Command::Ptr command);
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void updatePickResults(const int x, const int y);
