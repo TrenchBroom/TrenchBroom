@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <cstdarg>
 #include <cstdio>
-#include <locale>
 
 namespace StringUtils {
     String formatString(const char* format, va_list arguments) {

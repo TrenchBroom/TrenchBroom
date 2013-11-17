@@ -21,6 +21,7 @@
 #define TrenchBroom_StringUtils_h
 
 #include <cassert>
+#include <locale>
 #include <map>
 #include <set>
 #include <sstream>
