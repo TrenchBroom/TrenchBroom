@@ -391,6 +391,43 @@ TEST(CollectionUtilsTest, vecSetInsertRange) {
     ASSERT_EQ(i2, set[1]);
 }
 
+TEST(CollectionUtilsTest, vecOrderedDifference) {
+    std::vector<int> minuend;
+    std::vector<int> subtrahend;
+    
+    minuend.push_back(1);
+    minuend.push_back(3);
+    minuend.push_back(4);
+    minuend.push_back(5);
+    minuend.push_back(7);
+    minuend.push_back(8);
+    minuend.push_back(8);
+    minuend.push_back(8);
+    minuend.push_back(8);
+    minuend.push_back(9);
+    minuend.push_back(10);
+    minuend.push_back(10);
+    minuend.push_back(10);
+    
+    subtrahend.push_back(2);
+    subtrahend.push_back(2);
+    subtrahend.push_back(4);
+    subtrahend.push_back(4);
+    subtrahend.push_back(8);
+    subtrahend.push_back(9);
+    
+    VectorUtils::orderedDifference(minuend, subtrahend);
+    
+    ASSERT_EQ(7u, minuend.size());
+    ASSERT_EQ(1, minuend[0]);
+    ASSERT_EQ(3, minuend[1]);
+    ASSERT_EQ(5, minuend[2]);
+    ASSERT_EQ(7, minuend[3]);
+    ASSERT_EQ(10, minuend[4]);
+    ASSERT_EQ(10, minuend[5]);
+    ASSERT_EQ(10, minuend[6]);
+}
+
 TEST(CollectionUtilsTest, mapFindOrInsert) {
     typedef std::map<std::string, std::string> TestMap;
 

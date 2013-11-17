@@ -28,6 +28,7 @@
 #include "Controller/ReparentBrushesCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
+#include "Controller/SetModsCommand.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/ModelUtils.h"
 #include "View/ViewTypes.h"
@@ -293,6 +294,13 @@ namespace TrenchBroom {
             using namespace Controller;
 
             Command::Ptr command = EntityPropertyCommand::removeEntityProperty(m_document, entities, key, force);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::setMods(const StringList& mods) {
+            using namespace Controller;
+            
+            Command::Ptr command = SetModsCommand::setMods(m_document, mods);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

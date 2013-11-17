@@ -57,6 +57,7 @@ namespace TrenchBroom {
             
             void addEntity(Model::Entity* entity);
             void addEntities(const Model::EntityList& entities);
+            void addEntities(const Model::EntitySet& entities);
             void updateEntity(Model::Entity* entity);
             void updateEntities(const Model::EntityList& entities);
             void removeEntity(Model::Entity* entity);

@@ -45,13 +45,19 @@ namespace TrenchBroom {
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
             const Assets::ModelSpecification modelSpec = entity->modelSpecification();
-            Renderer::MeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            MeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
             if (renderer != NULL)
                 m_entities[entity] = renderer;
         }
         
         void EntityModelRenderer::addEntities(const Model::EntityList& entities) {
             Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                addEntity(*it);
+        }
+        
+        void EntityModelRenderer::addEntities(const Model::EntitySet& entities) {
+            Model::EntitySet::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it)
                 addEntity(*it);
         }
@@ -80,7 +86,7 @@ namespace TrenchBroom {
         void EntityModelRenderer::clear() {
             m_entities.clear();
         }
-        
+
         bool EntityModelRenderer::applyTinting() const {
             return m_applyTinting;
         }

@@ -209,67 +209,34 @@ namespace VectorUtils {
             output.push_back(static_cast<O>(*it));
         return output;
     }
-    
+
     template <typename T, typename Compare>
-    void insertOrdered(std::vector<T>& vec, T& object) {
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
-        if (it == vec.end())
-            vec.push_back(object);
-        else
-            vec.insert(it, object);
-    }
-    
-    template <typename T, typename I, typename Compare>
-    void insertOrdered(std::vector<T>& vec, I cur, const I end) {
-        Compare cmp;
-        while (cur != end) {
-            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
-            if (it == vec.end())
-                vec.push_back(*cur);
-            else
-                vec.insert(it, *cur);
-            ++cur;
+    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend, const Compare& cmp) {
+        typedef std::vector<T> Vec;
+        
+        typename Vec::iterator mIt = minuend.begin();
+        typename Vec::iterator mEnd = minuend.end();
+        typename Vec::const_iterator sIt = subtrahend.begin();
+        typename Vec::const_iterator sEnd = subtrahend.end();
+        
+        while (mIt != mEnd && sIt != sEnd) {
+            const T& m = *mIt;
+            const T& s = *sIt;
+            if (cmp(m, s)) { // m < s
+                ++mIt;
+            } else if (cmp(s, m)) { // s < m
+                ++sIt;
+            } else { // s == m
+                mIt = minuend.erase(mIt);
+            }
         }
     }
     
-    template <typename T, typename Compare>
-    void removeOrdered(std::vector<T>& vec, T& object) {
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
-        if (it != vec.end() && *it == object)
-            vec.erase(it);
+    template <typename T>
+    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend) {
+        orderedDifference(minuend, subtrahend, std::less<T>());
     }
 
-    template <typename T, typename I, typename Compare>
-    void removeOrdered(std::vector<T>& vec, I cur, const I end) {
-        Compare cmp;
-        while (cur != end) {
-            typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
-            if (it != vec.end() && *it == *cur)
-                vec.erase(it);
-            ++cur;
-        }
-    }
-
-    template <typename T>
-    void insertOrdered(std::vector<T>& vec, T& object) {
-        insertOrdered<T, std::less<T> >(vec, object);
-    }
-    
-    template <typename T, typename I>
-    void insertOrdered(std::vector<T>& vec, I cur, const I end) {
-        insertOrdered<T, I, std::less<T> >(vec, cur, end);
-    }
-    
-    template <typename T>
-    void removeOrdered(std::vector<T>& vec, T& object) {
-        removeOrdered<T, std::less<T> >(vec, object);
-    }
-    
-    template <typename T, typename I>
-    void removeOrdered(std::vector<T>& vec, I cur, const I end) {
-        removeOrdered<T, I, std::less<T> >(vec, cur, end);
-    }
-    
     template <typename T, typename Compare>
     bool setInsert(std::vector<T>& vec, T& object) {
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());

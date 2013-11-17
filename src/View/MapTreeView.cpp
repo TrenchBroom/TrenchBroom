@@ -29,6 +29,7 @@
 #include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
+#include "View/ViewUtils.h"
 
 #include <cassert>
 
@@ -210,20 +211,6 @@ namespace TrenchBroom {
             }
         };
         
-        class SetBool {
-        private:
-            bool& m_value;
-        public:
-            SetBool(bool& value) :
-            m_value(value) {
-                m_value = true;
-            }
-            
-            ~SetBool() {
-                m_value = false;
-            }
-        };
-        
         MapTreeView::MapTreeView(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
         m_document(document),
@@ -231,7 +218,7 @@ namespace TrenchBroom {
         m_tree(NULL),
         m_ignoreTreeSelection(false),
         m_ignoreDocumentSelection(false) {
-            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER | wxDV_MULTIPLE);
+            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER | wxDV_MULTIPLE | wxBORDER_SIMPLE);
             m_tree->AssociateModel(new MapTreeViewDataModel(m_document));
             m_tree->AppendTextColumn("Caption", 0)->SetWidth(200);
             m_tree->Expand(wxDataViewItem(NULL));

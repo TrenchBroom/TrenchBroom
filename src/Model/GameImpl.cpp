@@ -285,10 +285,14 @@ namespace TrenchBroom {
             if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath))
                 return result;
             
+            const String& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
             const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileSystem::TypeMatcher(false, true));
-            for (size_t i = 0; i < subDirs.size(); ++i)
-                result.push_back(subDirs[i].lastComponent().asString());
+            for (size_t i = 0; i < subDirs.size(); ++i) {
+                const String mod = subDirs[i].lastComponent().asString();
+                if (!StringUtils::caseInsensitiveEqual(mod, defaultMod))
+                    result.push_back(mod);
+            }
             return result;
         }
 

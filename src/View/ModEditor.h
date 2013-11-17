@@ -54,11 +54,16 @@ namespace TrenchBroom {
             wxBitmapButton* m_moveModDownButton;
             
             StringList m_availableMods;
+            bool m_ignoreNotifier;
         public:
             ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
             ~ModEditor();
             
             void OnPaneChanged(wxCollapsiblePaneEvent& event);
+            void OnAddModClicked(wxCommandEvent& event);
+            void OnRemoveModClicked(wxCommandEvent& event);
+            void OnMoveModUpClicked(wxCommandEvent& event);
+            void OnMoveModDownClicked(wxCommandEvent& event);
             void OnUpdateButtonUI(wxUpdateUIEvent& event);
             void OnFilterBoxChanged(wxCommandEvent& event);
         private:
@@ -70,7 +75,7 @@ namespace TrenchBroom {
             
             void documentWasNewed();
             void documentWasLoaded();
-            void objectDidChange(Model::Object* object);
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
             void updateAvailableMods();

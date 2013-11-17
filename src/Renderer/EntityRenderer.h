@@ -102,6 +102,7 @@ namespace TrenchBroom {
             void updateEntity(Model::Entity* entity);
             void removeEntity(Model::Entity* entity);
             void clear();
+            void reloadModels();
 
             template <typename Iter>
             void addEntities(Iter cur, const Iter end) {

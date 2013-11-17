@@ -104,6 +104,10 @@ namespace TrenchBroom {
             m_document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
             m_document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
             m_document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            m_document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
         }
         
         MapRenderer::~MapRenderer() {
@@ -114,6 +118,10 @@ namespace TrenchBroom {
             m_document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
             m_document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
             m_document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+            m_document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -208,6 +216,18 @@ namespace TrenchBroom {
                                                     Model::entityIterator(result.deselectedObjects().end()));
             m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                  Model::entityIterator(result.selectedObjects().end()));
+        }
+
+        void MapRenderer::modsDidChange() {
+            m_unselectedEntityRenderer.reloadModels();
+            m_selectedEntityRenderer.reloadModels();
+        }
+        
+        void MapRenderer::preferenceDidChange(const IO::Path& path) {
+            if (m_document->isGamePathPreference(path)) {
+                m_unselectedEntityRenderer.reloadModels();
+                m_selectedEntityRenderer.reloadModels();
+            }
         }
 
         void MapRenderer::renderEntities(RenderContext& context) {

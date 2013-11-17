@@ -27,6 +27,10 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace Model {
         class Filter;
         class Map;
@@ -62,6 +66,8 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
+            void modsDidChange();
+            void preferenceDidChange(const IO::Path& path);
             
             void clearState();
             void loadMap(Model::Map& map);

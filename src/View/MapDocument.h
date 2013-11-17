@@ -79,6 +79,7 @@ namespace TrenchBroom {
             Notifier1<Model::Object*> objectDidChangeNotifier;
             Notifier1<Model::BrushFace*> faceWillChangeNotifier;
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
+            Notifier0 modsDidChangeNotifier;
             
             Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
@@ -164,12 +165,11 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasNewed();
-            void documentWasLoaded();
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void addEntity(Model::Entity* entity);

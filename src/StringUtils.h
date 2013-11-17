@@ -35,6 +35,73 @@ typedef std::map<String, String> StringMap;
 static const StringList EmptyStringList;
 
 namespace StringUtils {
+    struct CaseSensitiveCharCompare {
+    public:
+        int operator()(const char& lhs, const char& rhs) const {
+            return lhs - rhs;
+        }
+    };
+    
+    struct CaseInsensitiveCharCompare {
+    private:
+        std::locale m_locale;
+    public:
+        CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
+        m_locale(loc) {}
+        
+        int operator()(const char& lhs, const char& rhs) const {
+            return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
+        }
+    };
+    
+    template <typename Cmp>
+    struct CharEqual {
+    private:
+        Cmp m_compare;
+    public:
+        bool operator()(const char& lhs, const char& rhs) const {
+            return m_compare(lhs, rhs) == 0;
+        }
+    };
+    
+    template <typename Cmp>
+    struct CharLess {
+    private:
+        Cmp m_compare;
+    public:
+        bool operator()(const char& lhs, const char& rhs) const {
+            return m_compare(lhs, rhs) < 0;
+        }
+    };
+    
+    template <typename Cmp>
+    struct StringEqual {
+    public:
+        bool operator()(const String& lhs, const String& rhs) const {
+            if (lhs.size() != rhs.size())
+                return false;
+            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), CharEqual<Cmp>());
+        }
+    };
+    
+    template <typename Cmp>
+    struct StringLess {
+        bool operator()(const String& lhs, const String& rhs) const {
+            typedef String::iterator::difference_type StringDiff;
+            
+            String::const_iterator lhsEnd, rhsEnd;
+            const size_t minSize = std::min(lhs.size(), rhs.size());
+            StringDiff difference = static_cast<StringDiff>(minSize);
+            
+            std::advance(lhsEnd = lhs.begin(), difference);
+            std::advance(rhsEnd = rhs.begin(), difference);
+            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+        }
+    };
+
+    typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
+    typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
+    
     String formatString(const char* format, va_list arguments);
     String trim(const String& str, const String& chars = " \n\t\r");
 

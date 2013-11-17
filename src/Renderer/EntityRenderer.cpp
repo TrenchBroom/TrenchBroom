@@ -131,6 +131,11 @@ namespace TrenchBroom {
             m_modelRenderer.clear();
         }
 
+        void EntityRenderer::reloadModels() {
+            m_modelRenderer.clear();
+            m_modelRenderer.addEntities(m_entities);
+        }
+
         void EntityRenderer::render(RenderContext& context) {
             renderBounds(context);
             renderModels(context);

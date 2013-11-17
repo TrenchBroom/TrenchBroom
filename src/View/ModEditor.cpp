@@ -27,23 +27,36 @@
 #include "Model/Object.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
+#include "View/ViewUtils.h"
 
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/gbsizer.h>
+#include <wx/listbox.h>
 #include <wx/srchctrl.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
         ModEditor::ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxCollapsiblePane(parent, wxID_ANY, _("Mods"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE),
         m_document(document),
-        m_controller(controller) {
+        m_controller(controller),
+        m_availableModList(NULL),
+        m_enabledModList(NULL),
+        m_filterBox(NULL),
+        m_addModsButton(NULL),
+        m_removeModsButton(NULL),
+        m_moveModUpButton(NULL),
+        m_moveModDownButton(NULL),
+        m_ignoreNotifier(false) {
             createGui();
             bindEvents();
             bindObservers();
@@ -55,6 +68,78 @@ namespace TrenchBroom {
 
         void ModEditor::OnPaneChanged(wxCollapsiblePaneEvent& event) {
             GetParent()->Layout();
+        }
+
+        void ModEditor::OnAddModClicked(wxCommandEvent& event) {
+            SetBool ignoreNotifier(m_ignoreNotifier);
+
+            wxArrayInt selections;
+            m_availableModList->GetSelections(selections);
+            assert(!selections.empty());
+            
+            StringList mods = m_document->mods();
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const unsigned int index = selections[i] - i;
+                const wxString item = m_availableModList->GetString(index);
+                m_availableModList->Delete(index);
+                m_enabledModList->Append(item);
+
+                mods.push_back(item.ToStdString());
+            }
+            
+            m_availableModList->DeselectAll();
+            m_enabledModList->DeselectAll();
+
+            m_controller->setMods(mods);
+        }
+        
+        void ModEditor::OnRemoveModClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_enabledModList->GetSelections(selections);
+            assert(!selections.empty());
+            
+            StringList mods = m_document->mods();
+            std::sort(selections.begin(), selections.end());
+            
+            wxArrayInt::const_reverse_iterator it, end;
+            for (it = selections.rbegin(), end = selections.rend(); it != end; ++it) {
+                const String mod = mods[*it];
+                mods.erase(mods.begin() + *it);
+            }
+
+            m_controller->setMods(mods);
+        }
+        
+        void ModEditor::OnMoveModUpClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_enabledModList->GetSelections(selections);
+            assert(selections.size() == 1);
+            
+            const size_t index = static_cast<size_t>(selections.front());
+            StringList mods = m_document->mods();
+            assert(index > 0 && index < mods.size());
+            
+            std::swap(mods[index - 1], mods[index]);
+            m_controller->setMods(mods);
+
+            m_enabledModList->DeselectAll();
+            m_enabledModList->SetSelection(index - 1);
+        }
+        
+        void ModEditor::OnMoveModDownClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_enabledModList->GetSelections(selections);
+            assert(selections.size() == 1);
+            
+            const size_t index = static_cast<size_t>(selections.front());
+            StringList mods = m_document->mods();
+            assert(index < mods.size() - 1);
+            
+            std::swap(mods[index + 1], mods[index]);
+            m_controller->setMods(mods);
+            
+            m_enabledModList->DeselectAll();
+            m_enabledModList->SetSelection(index + 1);
         }
 
         void ModEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
@@ -134,6 +219,10 @@ namespace TrenchBroom {
         void ModEditor::bindEvents() {
             Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ModEditor::OnPaneChanged, this);
             m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
+            m_addModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnAddModClicked, this);
+            m_removeModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnRemoveModClicked, this);
+            m_moveModUpButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModUpClicked, this);
+            m_moveModDownButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModDownClicked, this);
             m_addModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
             m_removeModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
             m_moveModUpButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
@@ -143,6 +232,7 @@ namespace TrenchBroom {
         void ModEditor::bindObservers() {
             m_document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
             m_document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
+            m_document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &ModEditor::preferenceDidChange);
@@ -151,6 +241,7 @@ namespace TrenchBroom {
         void ModEditor::unbindObservers() {
             m_document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
             m_document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
+            m_document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
@@ -166,12 +257,9 @@ namespace TrenchBroom {
             updateMods();
         }
         
-        void ModEditor::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
-                const Model::Entity* entity = static_cast<Model::Entity*>(object);
-                if (entity->worldspawn())
-                    updateMods();
-            }
+        void ModEditor::modsDidChange() {
+            if (!m_ignoreNotifier)
+                updateMods();
         }
 
         void ModEditor::preferenceDidChange(const IO::Path& path) {
@@ -195,13 +283,14 @@ namespace TrenchBroom {
             const String pattern = m_filterBox->GetValue().ToStdString();
             
             StringList enabledMods = m_document->mods();
-            StringUtils::sortCaseInsensitive(enabledMods);
-
             
             wxArrayString availableModItems;
-            for (size_t i = 0; i < m_availableMods.size(); ++i)
-                if (StringUtils::containsCaseInsensitive(m_availableMods[i], pattern))
-                    availableModItems.Add(m_availableMods[i]);
+            for (size_t i = 0; i < m_availableMods.size(); ++i) {
+                const String& mod = m_availableMods[i];
+                if (StringUtils::containsCaseInsensitive(mod, pattern) &&
+                    !VectorUtils::contains(enabledMods, mod))
+                    availableModItems.Add(mod);
+            }
 
             wxArrayString enabledModItems;
             for (size_t i = 0; i < enabledMods.size(); ++i)

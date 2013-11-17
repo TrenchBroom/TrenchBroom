@@ -498,12 +498,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::bindObservers() {
-            documentWasNewedNotifier.addObserver(this, &MapDocument::documentWasNewed);
-            documentWasLoadedNotifier.addObserver(this, &MapDocument::documentWasLoaded);
             objectWasAddedNotifier.addObserver(this, &MapDocument::objectWasAdded);
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
+            modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
@@ -511,21 +510,14 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unbindObservers() {
-            documentWasNewedNotifier.removeObserver(this, &MapDocument::documentWasNewed);
-            documentWasLoadedNotifier.removeObserver(this, &MapDocument::documentWasLoaded);
             objectWasAddedNotifier.removeObserver(this, &MapDocument::objectWasAdded);
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
+            modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
-        }
-        
-        void MapDocument::documentWasNewed() {
-        }
-        
-        void MapDocument::documentWasLoaded() {
         }
         
         void MapDocument::objectWasAdded(Model::Object* object) {
@@ -597,13 +589,21 @@ namespace TrenchBroom {
             }
         }
         
+        void MapDocument::modsDidChange() {
+            clearEntityModels();
+            updateEntityModels(m_map->entities());
+            loadBuiltinTextures();
+            updateTextures();
+        }
+
         void MapDocument::preferenceDidChange(const IO::Path& path) {
             if (isGamePathPreference(path)) {
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
                 m_game->setGamePath(newGamePath);
                 
-                m_entityModelManager.clear();
+                clearEntityModels();
+                updateEntityModels(m_map->entities());
                 loadBuiltinTextures();
                 updateTextures();
             }

@@ -63,6 +63,7 @@ namespace TrenchBroom {
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
         private:
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
         };
     }

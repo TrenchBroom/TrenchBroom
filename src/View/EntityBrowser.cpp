@@ -82,12 +82,16 @@ namespace TrenchBroom {
             outerSizer->Add(browserPanel, 1, wxEXPAND);
             
             SetSizerAndFit(outerSizer);
+
+            m_document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
         }
         
         EntityBrowser::~EntityBrowser() {
+            m_document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
         }
@@ -116,6 +120,10 @@ namespace TrenchBroom {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
+        void EntityBrowser::modsDidChange() {
+            reload();
+        }
+        
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
             if (m_document->isGamePathPreference(path))
                 reload();
