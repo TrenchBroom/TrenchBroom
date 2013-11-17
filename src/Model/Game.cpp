@@ -102,8 +102,12 @@ namespace TrenchBroom {
             return doLoadModel(path);
         }
 
-        StringList Game::extractMods(const Map* map) const {
-            return doExtractMods(map);
+        StringList Game::availableMods() const {
+            return doAvailableMods();
+        }
+
+        StringList Game::extractEnabledMods(const Map* map) const {
+            return doExtractEnabledMods(map);
         }
     }
 }

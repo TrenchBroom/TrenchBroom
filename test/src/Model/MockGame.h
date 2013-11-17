@@ -67,6 +67,9 @@ namespace TrenchBroom {
             MOCK_CONST_METHOD0(doDefaultEntityDefinitionFile, IO::Path());
             MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, IO::Path(const Map* map));
             MOCK_CONST_METHOD1(doLoadModel, Assets::EntityModel*(const IO::Path&));
+
+            MOCK_CONST_METHOD0(doAvailableMods, StringList());
+            MOCK_CONST_METHOD1(doExtractEnabledMods, StringList(const Map*));
         };
         
     }

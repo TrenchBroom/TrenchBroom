@@ -350,7 +350,7 @@ namespace TrenchBroom {
         }
         
         StringList MapDocument::mods() const {
-            return m_game->extractMods(m_map);
+            return m_game->extractEnabledMods(m_map);
         }
 
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {

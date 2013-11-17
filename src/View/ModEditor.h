@@ -20,30 +20,47 @@
 #ifndef __TrenchBroom__ModEditor__
 #define __TrenchBroom__ModEditor__
 
+#include "StringUtils.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <wx/collpane.h>
 
 class wxBitmapButton;
-class wxStaticText;
+class wxListBox;
+class wxSearchCtrl;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace Model {
         class Object;
     }
     
     namespace View {
-        class ModEditor : public wxPanel {
+        class ModEditor : public wxCollapsiblePane {
         private:
             MapDocumentPtr m_document;
             ControllerPtr m_controller;
             
-            wxStaticText* m_modList;
-            wxBitmapButton* m_editModsButton;
+            wxListBox* m_availableModList;
+            wxListBox* m_enabledModList;
+            wxSearchCtrl* m_filterBox;
+            wxBitmapButton* m_addModsButton;
+            wxBitmapButton* m_removeModsButton;
+            wxBitmapButton* m_moveModUpButton;
+            wxBitmapButton* m_moveModDownButton;
+            
+            StringList m_availableMods;
         public:
             ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
             ~ModEditor();
+            
+            void OnPaneChanged(wxCollapsiblePaneEvent& event);
+            void OnUpdateButtonUI(wxUpdateUIEvent& event);
+            void OnFilterBoxChanged(wxCommandEvent& event);
         private:
             void createGui();
             void bindEvents();
@@ -54,7 +71,9 @@ namespace TrenchBroom {
             void documentWasNewed();
             void documentWasLoaded();
             void objectDidChange(Model::Object* object);
+            void preferenceDidChange(const IO::Path& path);
 
+            void updateAvailableMods();
             void updateMods();
         };
     }

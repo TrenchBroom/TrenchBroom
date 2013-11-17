@@ -280,7 +280,19 @@ namespace TrenchBroom {
             return parser.parseModel();
         }
 
-        StringList GameImpl::doExtractMods(const Map* map) const {
+        StringList GameImpl::doAvailableMods() const {
+            StringList result;
+            if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath))
+                return result;
+            
+            const IO::DiskFileSystem fs(m_gamePath);
+            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileSystem::TypeMatcher(false, true));
+            for (size_t i = 0; i < subDirs.size(); ++i)
+                result.push_back(subDirs[i].lastComponent().asString());
+            return result;
+        }
+
+        StringList GameImpl::doExtractEnabledMods(const Map* map) const {
             StringList mods;
             
             const Model::Entity* worldspawn = map->worldspawn();
