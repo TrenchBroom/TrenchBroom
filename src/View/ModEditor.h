@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
 
-#include <wx/collpane.h>
+#include <wx/panel.h>
 
 class wxBitmapButton;
 class wxListBox;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class ModEditor : public wxCollapsiblePane {
+        class ModEditor : public wxPanel {
         private:
             MapDocumentPtr m_document;
             ControllerPtr m_controller;
@@ -59,7 +59,6 @@ namespace TrenchBroom {
             ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
             ~ModEditor();
             
-            void OnPaneChanged(wxCollapsiblePaneEvent& event);
             void OnAddModClicked(wxCommandEvent& event);
             void OnRemoveModClicked(wxCommandEvent& event);
             void OnMoveModUpClicked(wxCommandEvent& event);

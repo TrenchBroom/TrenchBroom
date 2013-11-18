@@ -27,10 +27,12 @@
 #include "View/CommandIds.h"
 #include "View/ControllerFacade.h"
 #include "View/EntityBrowser.h"
+#include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 
+#include <wx/collpane.h>
 #include <wx/event.h>
 #include <wx/sizer.h>
 
@@ -41,12 +43,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)) {
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            SetSizerAndFit(outerSizer);
-            
+            createGui(parent, m_document, m_controller, resources);
             bindObservers();
         }
         
@@ -96,6 +93,10 @@ namespace TrenchBroom {
             }
         }
         
+        void EntityInspector::OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event) {
+            Layout();
+        }
+
         void EntityInspector::OnAddPropertyPressed(wxCommandEvent& event) {
             m_propertyGrid->AppendRows();
             
@@ -134,56 +135,16 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityInspector::bindObservers() {
-            m_controller->commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
+        void EntityInspector::createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) {
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            SetSizerAndFit(outerSizer);
         }
         
-        void EntityInspector::unbindObservers() {
-            m_controller->commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
-        }
-
-        void EntityInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == EntityPropertyCommand::Type) {
-                const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
-                if (propCmd->entityAffected(m_document->worldspawn()) &&
-                    propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
-                    updateEntityBrowser();
-            }
-        }
-
-        void EntityInspector::documentWasNewedOrLoaded() {
-            updatePropertyGrid();
-            updateEntityBrowser();
-        }
-        
-        void EntityInspector::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
-                updatePropertyGrid();
-        }
-        
-        void EntityInspector::selectionDidChange(const Model::SelectionResult& result) {
-            updatePropertyGrid();
-        }
-
-        void EntityInspector::updatePropertyGrid() {
-            m_propertyTable->update();
-        }
-        
-        void EntityInspector::updateEntityBrowser() {
-            m_entityBrowser->reload();
-        }
-
         wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {
             wxPanel* propertyEditorPanel = new wxPanel(parent);
             
@@ -250,6 +211,68 @@ namespace TrenchBroom {
         wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
             m_entityBrowser = new EntityBrowser(this, wxID_ANY, resources, m_document);
             return m_entityBrowser;
+        }
+        
+        wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Entity Definitions"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
+            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(collPane->GetPane(), document, controller);
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_entityDefinitionFileChooser, 1, wxEXPAND);
+            collPane->GetPane()->SetSizerAndFit(sizer);
+            
+            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &EntityInspector::OnEntityDefinitionFileChooserPaneChanged, this);
+            return collPane;
+        }
+
+        void EntityInspector::bindObservers() {
+            m_controller->commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
+        }
+        
+        void EntityInspector::unbindObservers() {
+            m_controller->commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_controller->commandUndoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
+            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
+            m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
+        }
+
+        void EntityInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
+            using namespace Controller;
+            if (command->type() == EntityPropertyCommand::Type) {
+                const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
+                if (propCmd->entityAffected(m_document->worldspawn()) &&
+                    propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
+                    updateEntityBrowser();
+            }
+        }
+
+        void EntityInspector::documentWasNewedOrLoaded() {
+            updatePropertyGrid();
+            updateEntityBrowser();
+        }
+        
+        void EntityInspector::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity)
+                updatePropertyGrid();
+        }
+        
+        void EntityInspector::selectionDidChange(const Model::SelectionResult& result) {
+            updatePropertyGrid();
+        }
+
+        void EntityInspector::updatePropertyGrid() {
+            m_propertyTable->update();
+        }
+        
+        void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
         }
     }
 }

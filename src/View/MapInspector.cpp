@@ -23,26 +23,46 @@
 #include "View/MapTreeView.h"
 #include "View/ModEditor.h"
 
+#include <wx/collpane.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace View {
         MapInspector::MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
-        wxPanel(parent),
-        m_treeView(NULL) {
+        wxPanel(parent) {
             createGui(document, controller);
         }
 
+        void MapInspector::OnPaneChanged(wxCollapsiblePaneEvent& event) {
+            Layout();
+        }
+
         void MapInspector::createGui(MapDocumentPtr document, ControllerPtr controller) {
-            m_treeView = new MapTreeView(this, document, controller);
-            m_modEditor = new ModEditor(this, document, controller);
+            wxWindow* mapTree = createMapTree(this, document, controller);
+            wxWindow* modEditor = createModEditor(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_treeView, 1, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            sizer->Add(mapTree, 1, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            sizer->Add(m_modEditor, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
+            sizer->Add(modEditor, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
             
             SetSizerAndFit(sizer);
+        }
+
+        wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+            return new MapTreeView(parent, document, controller);
+        }
+        
+        wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Mods"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
+            ModEditor* modEditor = new ModEditor(collPane->GetPane(), document, controller);
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(modEditor, 1, wxEXPAND);
+            collPane->GetPane()->SetSizerAndFit(sizer);
+            
+            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &MapInspector::OnPaneChanged, this);
+            return collPane;
         }
     }
 }

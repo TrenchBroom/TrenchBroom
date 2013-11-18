@@ -112,6 +112,11 @@ namespace TrenchBroom {
                 
                 MapFrame* frame = m_frameManager->newFrame();
                 return frame != NULL && frame->openDocument(game, path);
+            } catch (const Exception& e) {
+                wxLogError(e.what());
+                if (frame != NULL)
+                    frame->Close();
+                return false;
             } catch (...) {
                 if (frame != NULL)
                     frame->Close();

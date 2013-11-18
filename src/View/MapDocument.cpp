@@ -353,6 +353,10 @@ namespace TrenchBroom {
             return m_game->extractEnabledMods(m_map);
         }
 
+        IO::Path::List MapDocument::definitionFiles() const {
+            return m_game->allEntityDefinitionFiles();
+        }
+
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
             assert(object != NULL);
             

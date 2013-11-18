@@ -24,6 +24,7 @@
 
 #include <wx/panel.h>
 
+class wxCollapsiblePaneEvent;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -32,13 +33,14 @@ namespace TrenchBroom {
         class ModEditor;
         
         class MapInspector : public wxPanel {
-        private:
-            MapTreeView* m_treeView;
-            ModEditor* m_modEditor;
         public:
             MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+
+            void OnPaneChanged(wxCollapsiblePaneEvent& event);
         private:
             void createGui(MapDocumentPtr document, ControllerPtr controller);
+            wxWindow* createMapTree(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            wxWindow* createModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
         };
     }
 }

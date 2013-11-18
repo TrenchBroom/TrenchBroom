@@ -51,7 +51,7 @@ namespace TrenchBroom {
             }
             
             expectTableEntry("fileformats", ConfigEntry::TList, rootTable);
-            const StringSet fileFormats = parseList(rootTable["fileformats"]);
+            const StringSet fileFormats = parseSet(rootTable["fileformats"]);
             
             expectTableEntry("filesystem", ConfigEntry::TTable, rootTable);
             const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(rootTable["filesystem"]);
@@ -107,19 +107,27 @@ namespace TrenchBroom {
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
-            expectTableEntry("definitions", ConfigEntry::TValue, table);
-            const String defFilePath = table["definitions"];
+            Path::List defFilePaths;
+            expectTableEntry("definitions", ConfigEntry::TValue | ConfigEntry::TList, table);
+            if (table["definitions"].type() == ConfigEntry::TValue) {
+                const String pathStr = table["definitions"];
+                defFilePaths.push_back(Path(pathStr));
+            } else {
+                const StringList pathStrs = parseList(table["definitions"]);
+                for (size_t i = 0; i < pathStrs.size(); ++i)
+                    defFilePaths.push_back(Path(pathStrs[i]));
+            }
             
             expectTableEntry("modelformats", ConfigEntry::TList, table);
-            const StringSet modelFormats = parseList(table["modelformats"]);
+            const StringSet modelFormats = parseSet(table["modelformats"]);
             
             expectTableEntry("defaultcolor", ConfigEntry::TValue, table);
             const Color defaultColor(table["defaultcolor"]);
             
-            return GameConfig::EntityConfig(Path(defFilePath), modelFormats, defaultColor);
+            return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }
 
-        StringSet GameConfigParser::parseList(const ConfigList& list) const {
+        StringSet GameConfigParser::parseSet(const ConfigList& list) const {
             StringSet result;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
@@ -129,6 +137,16 @@ namespace TrenchBroom {
             return result;
         }
 
+        StringList GameConfigParser::parseList(const ConfigList& list) const {
+            StringList result;
+            for (size_t i = 0; i < list.count(); ++i) {
+                const ConfigEntry& entry = list[i];
+                expectEntry(ConfigEntry::TValue, entry);
+                result.push_back(static_cast<const String&>(entry));
+            }
+            return result;
+        }
+        
         void GameConfigParser::expectEntry(const ConfigEntry::Type typeMask, const ConfigEntry& entry) const {
             if ((typeMask & entry.type()) == 0)
                 throw ParserException("Expected " + typeNames(typeMask) + ", but got " + typeNames(entry.type()));

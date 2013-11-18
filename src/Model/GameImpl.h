@@ -40,6 +40,7 @@ namespace TrenchBroom {
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
             
+            IO::Path::List m_entityDefinitionFiles;
             IO::GameFileSystem m_fs;
             Assets::Palette* m_palette;
         public:
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
             
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
-            IO::Path doDefaultEntityDefinitionFile() const;
+            IO::Path::List doAllEntityDefinitionFiles() const;
             IO::Path doExtractEntityDefinitionFile(const Map* map) const;
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
 

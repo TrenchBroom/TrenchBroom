@@ -46,11 +46,12 @@ namespace TrenchBroom {
             };
             
             struct EntityConfig {
-                IO::Path defFilePath;
+                IO::Path::List defFilePaths;
                 StringSet modelFormats;
                 Color defaultColor;
                 
                 EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
             };
         private:
             String m_name;

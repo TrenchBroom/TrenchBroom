@@ -46,7 +46,7 @@
 namespace TrenchBroom {
     namespace View {
         ModEditor::ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
-        wxCollapsiblePane(parent, wxID_ANY, _("Mods"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE),
+        wxPanel(parent),
         m_document(document),
         m_controller(controller),
         m_availableModList(NULL),
@@ -64,10 +64,6 @@ namespace TrenchBroom {
 
         ModEditor::~ModEditor() {
             unbindObservers();
-        }
-
-        void ModEditor::OnPaneChanged(wxCollapsiblePaneEvent& event) {
-            GetParent()->Layout();
         }
 
         void ModEditor::OnAddModClicked(wxCommandEvent& event) {
@@ -165,17 +161,17 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            wxStaticText* availableModListTitle = new wxStaticText(GetPane(), wxID_ANY, _("Available"));
-            wxStaticText* enabledModListTitle = new wxStaticText(GetPane(), wxID_ANY, _("Enabled"));
+            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, _("Available"));
+            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, _("Enabled"));
 #if defined __APPLE__
             availableModListTitle->SetFont(*wxSMALL_FONT);
             enabledModListTitle->SetFont(*wxSMALL_FONT);
 #endif
             
-            m_availableModList = new wxListBox(GetPane(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
-            m_enabledModList = new wxListBox(GetPane(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+            m_availableModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+            m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
             
-            m_filterBox = new wxSearchCtrl(GetPane(), wxID_ANY);
+            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->SetToolTip(_("Filter the list of available mods"));
             
             const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
@@ -183,13 +179,13 @@ namespace TrenchBroom {
             const wxBitmap upBitmap = IO::loadImageResource(IO::Path("images/Up.png"));
             const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
             
-            m_addModsButton = new wxBitmapButton(GetPane(), wxID_ANY, addBitmap);
+            m_addModsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
             m_addModsButton->SetToolTip(_("Add the selected available mods to the list of enabled mods"));
-            m_removeModsButton = new wxBitmapButton(GetPane(), wxID_ANY, removeBitmap);
+            m_removeModsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
             m_removeModsButton->SetToolTip(_("Remove the selected items from the list of enabled mods"));
-            m_moveModUpButton = new wxBitmapButton(GetPane(), wxID_ANY, upBitmap);
+            m_moveModUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
             m_moveModUpButton->SetToolTip(_("Move the selected mod up in the list of enabled mods"));
-            m_moveModDownButton = new wxBitmapButton(GetPane(), wxID_ANY, downBitmap);
+            m_moveModDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
             m_moveModDownButton->SetToolTip(_("Move the selected mod down in the list of enabled mods"));
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -213,11 +209,10 @@ namespace TrenchBroom {
             sizer->AddGrowableCol(0);
             sizer->AddGrowableCol(1);
             sizer->AddGrowableRow(1);
-            GetPane()->SetSizerAndFit(sizer);
+            SetSizerAndFit(sizer);
         }
         
         void ModEditor::bindEvents() {
-            Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ModEditor::OnPaneChanged, this);
             m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
             m_addModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnAddModClicked, this);
             m_removeModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnRemoveModClicked, this);

@@ -48,7 +48,18 @@ namespace TrenchBroom {
              m_gamePath,
              m_config.fileSystemConfig().searchPath,
              m_additionalSearchPaths),
-        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {}
+        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
+            
+            const IO::Path::List& defFilePaths = m_config.entityConfig().defFilePaths;
+            IO::Path::List::const_iterator it, end;
+            for (it = defFilePaths.begin(), end = defFilePaths.end(); it != end; ++it) {
+                const IO::Path& defFilePath = *it;
+                const IO::Path absDefFilePath = m_config.findConfigFile(defFilePath);
+                if (!IO::Disk::fileExists(absDefFilePath))
+                    throw GameException("Entity definition file not found: '" + absDefFilePath.asString() + "'");
+                m_entityDefinitionFiles.push_back(absDefFilePath);
+            }
+        }
         
         GameImpl::~GameImpl() {
             delete m_palette;
@@ -177,13 +188,10 @@ namespace TrenchBroom {
             throw GameException("Unknown entity definition format: '" + path.asString() + "'");
         }
         
-        IO::Path GameImpl::doDefaultEntityDefinitionFile() const {
-            const IO::Path path = m_config.findConfigFile(m_config.entityConfig().defFilePath);
-            if (!IO::Disk::fileExists(path))
-                throw GameException("Entity definition file not found: '" + path.asString() + "'");
-            return path;
+        IO::Path::List GameImpl::doAllEntityDefinitionFiles() const {
+            return m_entityDefinitionFiles;
         }
-        
+
         IO::Path GameImpl::doExtractEntityDefinitionFile(const Map* map) const {
             Entity* worldspawn = map->worldspawn();
             if (worldspawn == NULL)

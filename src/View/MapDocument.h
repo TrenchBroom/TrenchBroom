@@ -119,6 +119,7 @@ namespace TrenchBroom {
             
             Model::Entity* worldspawn();
             StringList mods() const;
+            IO::Path::List definitionFiles() const;
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);

@@ -27,6 +27,7 @@
 #include <wx/panel.h>
 
 class wxButton;
+class wxCollapsiblePaneEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,6 +41,7 @@ namespace TrenchBroom {
     
     namespace View {
         class EntityBrowser;
+        class EntityDefinitionFileChooser;
         class EntityPropertyGridTable;
         
         class EntityInspector : public wxPanel {
@@ -49,6 +51,8 @@ namespace TrenchBroom {
             
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
+            EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
+            
             wxGridCellCoords m_lastHoveredCell;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
@@ -62,12 +66,18 @@ namespace TrenchBroom {
             void OnPropertyGridSelectCell(wxGridEvent& event);
             void OnPropertyGridTab(wxGridEvent& event);
             void OnPropertyGridMouseMove(wxMouseEvent& event);
+            void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
             
             void OnAddPropertyPressed(wxCommandEvent& event);
             void OnRemovePropertiesPressed(wxCommandEvent& event);
             void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
         private:
+            void createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
+            wxWindow* createPropertyEditor(wxWindow* parent);
+            wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
+            wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+
             void bindObservers();
             void unbindObservers();
 
@@ -78,8 +88,6 @@ namespace TrenchBroom {
             
             void updatePropertyGrid();
             void updateEntityBrowser();
-            wxWindow* createPropertyEditor(wxWindow* parent);
-            wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
         };
     }
 }

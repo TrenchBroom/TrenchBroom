@@ -50,10 +50,10 @@ namespace TrenchBroom {
                              "  textures={\n"
                              "    type=\"wad\",\n"
                              "    property=\"wad\",\n"
-                             "    palette=\"games/quake/palette.lmp\"\n"
+                             "    palette=\"palette.lmp\"\n"
                              "  },\n"
                              "  entities={\n"
-                             "    definitions=\"games/quake/Quake1.fgd\",\n"
+                             "    definitions={ \"Quake1.fgd\", \"Quoth2.fgd\" },\n"
                              "    defaultcolor=\"1.0 1.0 1.0 1.0\",\n"
                              "    modelformats={\"bsp\", \"mdl\"}\n"
                              "  }\n"
@@ -69,9 +69,10 @@ namespace TrenchBroom {
             ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().type);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().property);
-            ASSERT_EQ(Path("games/quake/palette.lmp"), gameConfig.textureConfig().palette);
+            ASSERT_EQ(Path("palette.lmp"), gameConfig.textureConfig().palette);
             ASSERT_TRUE(gameConfig.textureConfig().builtinTexturesSearchPath.isEmpty());
-            ASSERT_EQ(Path("games/quake/Quake1.fgd"), gameConfig.entityConfig().defFilePath);
+            ASSERT_EQ(Path("Quake1.fgd"), gameConfig.entityConfig().defFilePaths[0]);
+            ASSERT_EQ(Path("Quoth2.fgd"), gameConfig.entityConfig().defFilePaths[1]);
             ASSERT_EQ(2u, gameConfig.entityConfig().modelFormats.size());
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("bsp"));
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("mdl"));

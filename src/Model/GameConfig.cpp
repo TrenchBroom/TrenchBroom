@@ -37,7 +37,13 @@ namespace TrenchBroom {
         builtinTexturesSearchPath(i_builtinTexturesSearchPath) {}
 
         GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor) :
-        defFilePath(i_defFilePath),
+        modelFormats(i_modelFormats),
+        defaultColor(i_defaultColor) {
+            defFilePaths.push_back(i_defFilePath);
+        }
+
+        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        defFilePaths(i_defFilePaths),
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
 
