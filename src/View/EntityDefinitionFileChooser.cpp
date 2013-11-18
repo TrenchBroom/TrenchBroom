@@ -22,10 +22,13 @@
 #include "CollectionUtils.h"
 #include "Notifier.h"
 #include "IO/Path.h"
+#include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 
-#include <wx/choice.h>
+#include <wx/button.h>
+#include <wx/listbox.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,35 +45,45 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void EntityDefinitionFileChooser::OnDefinitionFileChoice(wxCommandEvent& event) {
-            assert(m_definitionFileChoice->GetSelection() >= 0);
-            
-            const size_t index = static_cast<size_t>(m_definitionFileChoice->GetSelection());
-            if (index == m_definitionFileChoice->GetCount() - 1) {
-                
-            } else {
-                IO::Path::List paths = m_document->definitionFiles();
-                std::sort(paths.begin(), paths.end());
-                const IO::Path& path = paths[index];
-                
-            }
+        void EntityDefinitionFileChooser::OnBuiltinSelectionChanged(wxCommandEvent& event) {
+        }
+        
+        void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            m_definitionFileChoice = new wxChoice(this, wxID_ANY);
-            m_definitionFileChoice->SetToolTip(_("Select one of the builtin entity definition files or browse to select an external file"));
+            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, _("Builtin"));
+            m_builtin = new wxListBox(this, wxID_ANY);
+            
+            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, _("External"));
+            m_external = new wxStaticText(this, wxID_ANY, _("not set"));
+            m_chooseExternal = new wxButton(this, wxID_ANY, _("Browse..."));
+
+            wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
+            externalSizer->Add(m_external, 1, wxEXPAND);
+            externalSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+#if defined __APPLE__
+            externalSizer->Add(m_chooseExternal, 0, wxALL, 1);
+#else
+            externalSizer->Add(m_chooseExternal);
+#endif
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-#if defined __APPLE__
-            sizer->Add(m_definitionFileChoice, 0, wxEXPAND | wxALL, 1);
-#else
-            sizer->Add(m_definitionFileChoice, 0, wxEXPAND);
-#endif
+            sizer->Add(builtinHeader);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(m_builtin, 1, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(externalHeader);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(externalSizer, 0, wxEXPAND);
+            sizer->SetItemMinSize(m_builtin, 100, 70);
+            
             SetSizerAndFit(sizer);
         }
         
         void EntityDefinitionFileChooser::bindEvents() {
-            m_definitionFileChoice->Bind(wxEVT_CHOICE, &EntityDefinitionFileChooser::OnDefinitionFileChoice, this);
+            m_builtin->Bind(wxEVT_LISTBOX, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged, this);
+            m_chooseExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnChooseExternalClicked, this);
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
@@ -84,15 +97,15 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionFileChooser::documentWasNewed() {
-            updateChoice();
+            updateControls();
         }
         
         void EntityDefinitionFileChooser::documentWasLoaded() {
-            updateChoice();
+            updateControls();
         }
         
-        void EntityDefinitionFileChooser::updateChoice() {
-            m_definitionFileChoice->Clear();
+        void EntityDefinitionFileChooser::updateControls() {
+            m_builtin->Clear();
             
             IO::Path::List paths = m_document->definitionFiles();
             std::sort(paths.begin(), paths.end());
@@ -100,10 +113,10 @@ namespace TrenchBroom {
             IO::Path::List::const_iterator it, end;
             for (it = paths.begin(), end = paths.end(); it != end; ++it) {
                 const IO::Path& path = *it;
-                m_definitionFileChoice->Append(path.lastComponent().asString());
+                m_builtin->Append(path.lastComponent().asString());
             }
             
-            m_definitionFileChoice->Append("Browse...");
+            m_external->SetLabel(_("not set"));
         }
     }
 }

@@ -91,10 +91,7 @@ namespace TrenchBroom {
         }
         
         IO::Path Game::defaultEntityDefinitionFile() const {
-            const IO::Path::List files = allEntityDefinitionFiles();
-            if (files.empty())
-                throw GameException("No entity definition files found for game '" + gameName() + "'");
-            return files.front();
+            return doDefaultEntityDefinitionFile();
         }
         
         IO::Path::List Game::allEntityDefinitionFiles() const {

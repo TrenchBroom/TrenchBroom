@@ -86,6 +86,7 @@ namespace TrenchBroom {
             virtual Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
             
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
+            virtual IO::Path doDefaultEntityDefinitionFile() const = 0;
             virtual IO::Path::List doAllEntityDefinitionFiles() const = 0;
             virtual IO::Path doExtractEntityDefinitionFile(const Map* map) const = 0;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;

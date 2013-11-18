@@ -48,18 +48,7 @@ namespace TrenchBroom {
              m_gamePath,
              m_config.fileSystemConfig().searchPath,
              m_additionalSearchPaths),
-        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
-            
-            const IO::Path::List& defFilePaths = m_config.entityConfig().defFilePaths;
-            IO::Path::List::const_iterator it, end;
-            for (it = defFilePaths.begin(), end = defFilePaths.end(); it != end; ++it) {
-                const IO::Path& defFilePath = *it;
-                const IO::Path absDefFilePath = m_config.findConfigFile(defFilePath);
-                if (!IO::Disk::fileExists(absDefFilePath))
-                    throw GameException("Entity definition file not found: '" + absDefFilePath.asString() + "'");
-                m_entityDefinitionFiles.push_back(absDefFilePath);
-            }
-        }
+        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {}
         
         GameImpl::~GameImpl() {
             delete m_palette;
@@ -188,28 +177,43 @@ namespace TrenchBroom {
             throw GameException("Unknown entity definition format: '" + path.asString() + "'");
         }
         
+        IO::Path GameImpl::doDefaultEntityDefinitionFile() const {
+            const IO::Path::List paths = allEntityDefinitionFiles();
+            if (paths.empty())
+                throw GameException("No entity definition files found for game '" + gameName() + "'");
+            
+            const IO::Path& path = paths.front();
+            const IO::Path absPath = m_config.findConfigFile(path);
+            if (!IO::Disk::fileExists(absPath))
+                throw GameException("Entity definition file not found: '" + path.asString() + "'");
+
+            return absPath;
+        }
+
         IO::Path::List GameImpl::doAllEntityDefinitionFiles() const {
-            return m_entityDefinitionFiles;
+            return m_config.entityConfig().defFilePaths;
         }
 
         IO::Path GameImpl::doExtractEntityDefinitionFile(const Map* map) const {
-            Entity* worldspawn = map->worldspawn();
+            const Entity* worldspawn = map->worldspawn();
             if (worldspawn == NULL)
                 return defaultEntityDefinitionFile();
             
-            const Model::PropertyValue& defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
+            Model::PropertyValue defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
             if (defValue.empty())
                 return defaultEntityDefinitionFile();
             
+            // backward compability with TB 1.x
+            // we now distinguish the extern and builtin files by whether the path is absolute or relative
             if (StringUtils::isPrefix(defValue, "external:"))
-                return IO::Path(defValue.substr(9));
-            if (StringUtils::isPrefix(defValue, "builtin:"))
-                return IO::SystemPaths::resourceDirectory() + IO::Path(defValue.substr(8));
+                defValue = defValue.substr(9);
+            else if (StringUtils::isPrefix(defValue, "builtin:"))
+                defValue = defValue.substr(8);
             
             const IO::Path defPath(defValue);
             if (defPath.isAbsolute())
                 return defPath;
-            return IO::SystemPaths::resourceDirectory() + defPath;
+            return m_config.findConfigFile(defPath);
         }
         
         Assets::EntityModel* GameImpl::doLoadModel(const IO::Path& path) const {

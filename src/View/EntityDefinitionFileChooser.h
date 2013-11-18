@@ -24,7 +24,9 @@
 
 #include <wx/panel.h>
 
-class wxChoice;
+class wxButton;
+class wxListBox;
+class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
@@ -33,12 +35,15 @@ namespace TrenchBroom {
             MapDocumentPtr m_document;
             ControllerPtr m_controller;
             
-            wxChoice* m_definitionFileChoice;
+            wxListBox* m_builtin;
+            wxStaticText* m_external;
+            wxButton* m_chooseExternal;
         public:
             EntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
             ~EntityDefinitionFileChooser();
             
-            void OnDefinitionFileChoice(wxCommandEvent& event);
+            void OnBuiltinSelectionChanged(wxCommandEvent& event);
+            void OnChooseExternalClicked(wxCommandEvent& event);
         private:
             void createGui();
             void bindEvents();
@@ -49,7 +54,7 @@ namespace TrenchBroom {
             void documentWasNewed();
             void documentWasLoaded();
             
-            void updateChoice();
+            void updateControls();
         };
     }
 }
