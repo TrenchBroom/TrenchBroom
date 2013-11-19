@@ -25,6 +25,7 @@
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/GameFileSystem.h"
+#include "Model/EntityDefinitionFileSpec.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
 
@@ -59,9 +60,8 @@ namespace TrenchBroom {
             Assets::TextureCollection* loadTextureCollection(const IO::Path& path) const;
             
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
-            IO::Path defaultEntityDefinitionFile() const;
             IO::Path::List allEntityDefinitionFiles() const;
-            IO::Path extractEntityDefinitionFile(const Map* map) const;
+            EntityDefinitionFileSpec extractEntityDefinitionFile(const Map* map) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
             
             StringList availableMods() const;
@@ -86,9 +86,8 @@ namespace TrenchBroom {
             virtual Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
             
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
-            virtual IO::Path doDefaultEntityDefinitionFile() const = 0;
             virtual IO::Path::List doAllEntityDefinitionFiles() const = 0;
-            virtual IO::Path doExtractEntityDefinitionFile(const Map* map) const = 0;
+            virtual EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const = 0;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
             
             virtual StringList doAvailableMods() const = 0;

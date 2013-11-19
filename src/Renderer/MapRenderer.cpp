@@ -97,31 +97,11 @@ namespace TrenchBroom {
         m_selectedBrushRenderer(SelectedBrushRendererFilter(m_document->filter())),
         m_unselectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()),
         m_selectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()) {
-            m_document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
-            m_document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
-            m_document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
-            m_document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
-            m_document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
-            m_document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
+            bindObservers();
         }
         
         MapRenderer::~MapRenderer() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
-            m_document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
-            m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
-            m_document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
-            m_document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
-            m_document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
+            unbindObservers();
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -160,6 +140,36 @@ namespace TrenchBroom {
                 m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
                 m_selectedBrushRenderer.render(context);
             }
+        }
+
+        void MapRenderer::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
+            m_document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
+            m_document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
+            m_document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
+            m_document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            m_document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
+            m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
+        }
+        
+        void MapRenderer::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
+            m_document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
+            m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
+            m_document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
+            m_document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+            m_document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
+            m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
         void MapRenderer::documentWasNewed() {
@@ -223,6 +233,11 @@ namespace TrenchBroom {
             m_selectedEntityRenderer.reloadModels();
         }
         
+        void MapRenderer::entityDefinitionsDidChange() {
+            m_unselectedEntityRenderer.reloadModels();
+            m_selectedEntityRenderer.reloadModels();
+        }
+
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             if (m_document->isGamePathPreference(path)) {
                 m_unselectedEntityRenderer.reloadModels();

@@ -65,9 +65,9 @@ namespace TrenchBroom {
             Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
             
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
-            IO::Path doDefaultEntityDefinitionFile() const;
             IO::Path::List doAllEntityDefinitionFiles() const;
-            IO::Path doExtractEntityDefinitionFile(const Map* map) const;
+            EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const;
+            EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
 
             MapWriterPtr mapWriter(MapFormat::Type format) const;

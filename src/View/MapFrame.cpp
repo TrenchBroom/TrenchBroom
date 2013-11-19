@@ -772,7 +772,7 @@ namespace TrenchBroom {
         bool MapFrame::confirmOrDiscardChanges() {
             if (!m_document->modified())
                 return true;
-            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", "", wxYES_NO | wxCANCEL, this);
+            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", _("TrenchBroom"), wxYES_NO | wxCANCEL, this);
             switch (result) {
                 case wxYES:
                     return saveDocument();

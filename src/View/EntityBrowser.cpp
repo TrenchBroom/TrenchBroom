@@ -37,6 +37,39 @@ namespace TrenchBroom {
         EntityBrowser::EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
         wxPanel(parent, windowId),
         m_document(document) {
+            createGui(resources);
+            bindObservers();
+        }
+        
+        EntityBrowser::~EntityBrowser() {
+            unbindObservers();
+        }
+        
+        void EntityBrowser::reload() {
+            if (m_view != NULL) {
+                m_view->clear();
+                m_view->reload();
+            }
+        }
+        
+        void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
+            const Assets::EntityDefinitionManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinitionManager::Name : Assets::EntityDefinitionManager::Usage;
+            m_view->setSortOrder(sortOrder);
+        }
+        
+        void EntityBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
+            m_view->setGroup(m_groupButton->GetValue());
+        }
+        
+        void EntityBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
+            m_view->setHideUnused(m_usedButton->GetValue());
+        }
+        
+        void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
+            m_view->setFilterText(m_filterBox->GetValue().ToStdString());
+        }
+
+        void EntityBrowser::createGui(Renderer::RenderResources& resources) {
             const wxString sortOrders[2] = { _("Name"), _("Usage") };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -46,7 +79,7 @@ namespace TrenchBroom {
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);
-
+            
             m_sortOrderChoice->Bind(wxEVT_CHOICE, &EntityBrowser::OnSortOrderChanged, this);
             m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnGroupButtonToggled, this);
             m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnUsedButtonToggled, this);
@@ -82,48 +115,32 @@ namespace TrenchBroom {
             outerSizer->Add(browserPanel, 1, wxEXPAND);
             
             SetSizerAndFit(outerSizer);
-
+        }
+        
+        void EntityBrowser::bindObservers() {
             m_document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
+            m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
         }
         
-        EntityBrowser::~EntityBrowser() {
+        void EntityBrowser::unbindObservers() {
             m_document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
-
+            m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
+            
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
-        }
-        
-        void EntityBrowser::reload() {
-            if (m_view != NULL) {
-                m_view->clear();
-                m_view->reload();
-            }
-        }
-        
-        void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
-            const Assets::EntityDefinitionManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinitionManager::Name : Assets::EntityDefinitionManager::Usage;
-            m_view->setSortOrder(sortOrder);
-        }
-        
-        void EntityBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
-            m_view->setGroup(m_groupButton->GetValue());
-        }
-        
-        void EntityBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
-            m_view->setHideUnused(m_usedButton->GetValue());
-        }
-        
-        void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
-            m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
         void EntityBrowser::modsDidChange() {
             reload();
         }
         
+        void EntityBrowser::entityDefinitionsDidChange() {
+            reload();
+        }
+
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
             if (m_document->isGamePathPreference(path))
                 reload();

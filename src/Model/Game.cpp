@@ -90,15 +90,11 @@ namespace TrenchBroom {
             return doLoadEntityDefinitions(path);
         }
         
-        IO::Path Game::defaultEntityDefinitionFile() const {
-            return doDefaultEntityDefinitionFile();
-        }
-        
         IO::Path::List Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 
-        IO::Path Game::extractEntityDefinitionFile(const Map* map) const {
+        EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const Map* map) const {
             return doExtractEntityDefinitionFile(map);
         }
         

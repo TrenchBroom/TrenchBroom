@@ -53,6 +53,7 @@ namespace TrenchBroom {
             
             void documentWasNewed();
             void documentWasLoaded();
+            void entityDefinitionsDidChange();
             
             void updateControls();
         };

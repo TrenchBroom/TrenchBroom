@@ -99,6 +99,7 @@ namespace TrenchBroom {
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
             
             bool setMods(const StringList& mods);
+            bool setEntityDefinitionFile(const IO::Path& file);
             
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);

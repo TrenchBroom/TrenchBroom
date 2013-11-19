@@ -59,6 +59,9 @@ namespace TrenchBroom {
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
             
+            void bindObservers();
+            void unbindObservers();
+            
             void documentWasNewed();
             void documentWasLoaded();
             void objectWasAdded(Model::Object* object);
@@ -67,6 +70,7 @@ namespace TrenchBroom {
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
             void modsDidChange();
+            void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void clearState();

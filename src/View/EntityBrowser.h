@@ -53,7 +53,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document);
+            EntityBrowser(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document);
             ~EntityBrowser();
             
             void reload();
@@ -63,7 +63,13 @@ namespace TrenchBroom {
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
         private:
+            void createGui(Renderer::RenderResources& resources);
+            
+            void bindObservers();
+            void unbindObservers();
+            
             void modsDidChange();
+            void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);
         };
     }

@@ -20,6 +20,7 @@
 #include "EntityModelManager.h"
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
 #include "Assets/EntityModel.h"
 #include "Model/Game.h"
 #include "Renderer/MeshRenderer.h"
@@ -60,12 +61,15 @@ namespace TrenchBroom {
             if (m_modelMismatches.count(path) > 0)
                 return NULL;
             
-            EntityModel* model = m_game->loadModel(path);
-            if (model == NULL)
-                m_modelMismatches.insert(path);
-            else
+            try {
+                EntityModel* model = m_game->loadModel(path);
+                assert(model != NULL);
                 m_models[path] = model;
-            return model;
+                return model;
+            } catch (const GameException& e) {
+                m_modelMismatches.insert(path);
+                throw;
+            }
         }
 
         Renderer::MeshRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {

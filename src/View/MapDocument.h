@@ -30,6 +30,7 @@
 #include "Assets/TextureManager.h"
 #include "Controller/Command.h"
 #include "IO/Path.h"
+#include "Model/EntityDefinitionFileSpec.h"
 #include "Model/ModelFilter.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
@@ -80,6 +81,7 @@ namespace TrenchBroom {
             Notifier1<Model::BrushFace*> faceWillChangeNotifier;
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
             Notifier0 modsDidChangeNotifier;
+            Notifier0 entityDefinitionsDidChangeNotifier;
             
             Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
@@ -119,7 +121,9 @@ namespace TrenchBroom {
             
             Model::Entity* worldspawn();
             StringList mods() const;
-            IO::Path::List definitionFiles() const;
+            
+            Model::EntityDefinitionFileSpec entityDefinitionFile() const;
+            IO::Path::List entityDefinitionFiles() const;
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);
@@ -171,6 +175,7 @@ namespace TrenchBroom {
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
             void modsDidChange();
+            void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void addEntity(Model::Entity* entity);
@@ -178,6 +183,7 @@ namespace TrenchBroom {
             void removeEntity(Model::Entity* entity);
             void removeBrush(Model::Brush* brush, Model::Entity* entity);
             
+            void updateGameSearchPaths();
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
             void clearEntityModels();

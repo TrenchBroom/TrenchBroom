@@ -300,6 +300,8 @@ namespace TrenchBroom {
             
             setDocumentPath(path);
             clearModificationCount();
+
+            updateGameSearchPaths();
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
             
@@ -353,7 +355,11 @@ namespace TrenchBroom {
             return m_game->extractEnabledMods(m_map);
         }
 
-        IO::Path::List MapDocument::definitionFiles() const {
+        Model::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
+            return m_game->extractEntityDefinitionFile(m_map);
+        }
+
+        IO::Path::List MapDocument::entityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
 
@@ -507,6 +513,7 @@ namespace TrenchBroom {
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
             modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
+            entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
@@ -519,6 +526,7 @@ namespace TrenchBroom {
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
+            entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
@@ -594,10 +602,15 @@ namespace TrenchBroom {
         }
         
         void MapDocument::modsDidChange() {
+            updateGameSearchPaths();
             clearEntityModels();
             updateEntityModels(m_map->entities());
             loadBuiltinTextures();
             updateTextures();
+        }
+
+        void MapDocument::entityDefinitionsDidChange() {
+            loadAndUpdateEntityDefinitions();
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {
@@ -647,6 +660,17 @@ namespace TrenchBroom {
             removeFromEntity(brush);
         }
         
+        void MapDocument::updateGameSearchPaths() {
+            const StringList modNames = mods();
+            IO::Path::List additionalSearchPaths;
+            additionalSearchPaths.reserve(modNames.size());
+            
+            StringList::const_iterator it, end;
+            for (it = modNames.begin(), end = modNames.end(); it != end; ++it)
+                additionalSearchPaths.push_back(IO::Path(*it));
+            m_game->setAdditionalSearchPaths(additionalSearchPaths);
+        }
+
         void MapDocument::loadAndUpdateEntityDefinitions() {
             loadEntityDefinitions();
             clearEntityModels();
@@ -655,9 +679,9 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadEntityDefinitions() {
-            const IO::Path path = m_game->extractEntityDefinitionFile(m_map);
-            m_entityDefinitionManager.loadDefinitions(m_game, path);
-            info("Loaded entity definition file " + path.asString());
+            const Model::EntityDefinitionFileSpec spec = entityDefinitionFile();
+            m_entityDefinitionManager.loadDefinitions(m_game, spec.fullPath());
+            info("Loaded entity definition file " + spec.fullPath().lastComponent().asString());
         }
         
         void MapDocument::clearEntityModels() {
