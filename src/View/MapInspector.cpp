@@ -24,6 +24,8 @@
 #include "View/ModEditor.h"
 
 #include <wx/collpane.h>
+#include <wx/notebook.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -55,6 +57,17 @@ namespace TrenchBroom {
         
         wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
             wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Mods"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
+            
+#if defined _WIN32
+            // this is a hack to prevent the pane having the wrong background color on Windows 7
+            wxNotebook* book = static_cast<wxNotebook*>(GetParent());
+            wxColour col = book->GetThemeBackgroundColour();
+            if (col.IsOk()) {
+                collPane->SetBackgroundColour(col);
+                collPane->GetPane()->SetBackgroundColour(col);
+            }
+#endif
+            
             ModEditor* modEditor = new ModEditor(collPane->GetPane(), document, controller);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

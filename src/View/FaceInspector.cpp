@@ -27,8 +27,11 @@
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
+#include "View/TextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
 
+#include <wx/collpane.h>
+#include <wx/notebook.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -37,19 +40,8 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
-            m_faceAttribsEditor = new FaceAttribsEditor(this, resources, m_document, m_controller);
-            m_textureBrowser = new TextureBrowser(this, resources, m_document);
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_faceAttribsEditor, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(m_textureBrowser, 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            
-            SetSizer(outerSizer);
-            m_textureBrowser->Bind(EVT_TEXTURE_SELECTED_EVENT,
-                                   EVT_TEXTURE_SELECTED_HANDLER(FaceInspector::OnTextureSelected),
-                                   this);
-            
+            createGui(resources);
+            bindEvents();
             bindObservers();
         }
         
@@ -60,6 +52,60 @@ namespace TrenchBroom {
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
             if (!m_controller->setTexture(m_document->allSelectedFaces(), event.texture()))
                 event.Veto();
+        }
+
+        void FaceInspector::OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event) {
+            Layout();
+        }
+
+        void FaceInspector::createGui(Renderer::RenderResources& resources) {
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(createFaceAttribsEditor(this, resources), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(createTextureBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(createTextureCollectionEditor(this), 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            
+            SetSizer(outerSizer);
+        }
+        
+        wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources) {
+            m_faceAttribsEditor = new FaceAttribsEditor(parent, resources, m_document, m_controller);
+            return m_faceAttribsEditor;
+        }
+        
+        wxWindow* FaceInspector::createTextureBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
+            m_textureBrowser = new TextureBrowser(parent, resources, m_document);
+            return m_textureBrowser;
+        }
+        
+        wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent) {
+            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Texture Collections"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
+
+#if defined _WIN32
+            // this is a hack to prevent the pane having the wrong background color on Windows 7
+            wxNotebook* book = static_cast<wxNotebook*>(GetParent());
+            wxColour col = book->GetThemeBackgroundColour();
+            if (col.IsOk()) {
+                collPane->SetBackgroundColour(col);
+                collPane->GetPane()->SetBackgroundColour(col);
+            }
+#endif
+
+            m_textureCollectionEditor = new TextureCollectionEditor(collPane->GetPane(), m_document, m_controller);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_textureCollectionEditor, 1, wxEXPAND);
+            collPane->GetPane()->SetSizerAndFit(sizer);
+            
+            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &FaceInspector::OnTextureCollectionEditorPaneChanged, this);
+            return collPane;
+        }
+
+        void FaceInspector::bindEvents() {
+            m_textureBrowser->Bind(EVT_TEXTURE_SELECTED_EVENT,
+                                   EVT_TEXTURE_SELECTED_HANDLER(FaceInspector::OnTextureSelected),
+                                   this);
         }
 
         void FaceInspector::bindObservers() {

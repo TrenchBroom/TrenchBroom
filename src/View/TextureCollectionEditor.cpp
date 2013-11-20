@@ -1,0 +1,176 @@
+/*
+ Copyright (C) 2010-2013 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "TextureCollectionEditor.h"
+
+#include "PreferenceManager.h"
+#include "Assets/TextureManager.h"
+#include "Assets/TextureCollection.h"
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
+#include "View/LayoutConstants.h"
+#include "View/MapDocument.h"
+
+#include <wx/bitmap.h>
+#include <wx/bmpbuttn.h>
+#include <wx/listbox.h>
+#include <wx/panel.h>
+#include <wx/sizer.h>
+
+namespace TrenchBroom {
+    namespace View {
+        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        wxPanel(parent),
+        m_document(document),
+        m_controller(controller) {
+            createGui();
+            bindEvents();
+            bindObservers();
+        }
+        
+        TextureCollectionEditor::~TextureCollectionEditor() {
+            unbindObservers();
+        }
+        
+        void TextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
+        }
+        
+        void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
+        }
+        
+        void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
+        }
+        
+        void TextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
+        }
+
+        void TextureCollectionEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
+            if (event.GetEventObject() == m_addTextureCollectionsButton) {
+                event.Enable(true);
+            } else {
+                wxArrayInt selections;
+                m_collections->GetSelections(selections);
+                if (event.GetEventObject() == m_removeTextureCollectionsButton) {
+                    event.Enable(selections.size() > 0);
+                } else if (selections.size() == 1) {
+                    if (event.GetEventObject() == m_moveTextureCollectionUpButton) {
+                        event.Enable(selections.front() > 0);
+                    } else if (event.GetEventObject() == m_moveTextureCollectionDownButton) {
+                        event.Enable(selections.front() < m_collections->GetCount() - 1);
+                    }
+                } else {
+                    event.Enable(false);
+                }
+            }
+        }
+
+        void TextureCollectionEditor::createGui() {
+            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+
+            const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
+            const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
+            const wxBitmap upBitmap = IO::loadImageResource(IO::Path("images/Up.png"));
+            const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
+            
+            m_addTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
+            m_addTextureCollectionsButton->SetToolTip(_("Add texture collections from the file system"));
+            m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
+            m_removeTextureCollectionsButton->SetToolTip(_("Remove the selected texture collection(s)"));
+            m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
+            m_moveTextureCollectionUpButton->SetToolTip(_("Move the selected texture collection up in the list"));
+            m_moveTextureCollectionDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
+            m_moveTextureCollectionDownButton->SetToolTip(_("Move the selected texture collection down in the list"));
+            
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(m_addTextureCollectionsButton);
+            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
+            buttonSizer->Add(m_removeTextureCollectionsButton);
+            buttonSizer->AddStretchSpacer();
+            buttonSizer->Add(m_moveTextureCollectionUpButton);
+            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
+            buttonSizer->Add(m_moveTextureCollectionDownButton);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_collections, 1, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(buttonSizer, 0, wxEXPAND);
+            sizer->SetItemMinSize(m_collections, 100, 70);
+            
+            SetSizerAndFit(sizer);
+        }
+        
+        void TextureCollectionEditor::bindEvents() {
+            m_addTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnAddTextureCollectionsClicked, this);
+            m_removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
+            m_moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
+            m_moveTextureCollectionDownButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionDownClicked, this);
+            
+            m_addTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
+            m_removeTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
+            m_moveTextureCollectionUpButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
+            m_moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
+        }
+        
+        void TextureCollectionEditor::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
+            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureCollectionEditor::preferenceDidChange);
+        }
+        
+        void TextureCollectionEditor::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
+            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::preferenceDidChange);
+        }
+        
+        void TextureCollectionEditor::documentWasNewed() {
+            updateControls();
+        }
+        
+        void TextureCollectionEditor::documentWasLoaded() {
+            updateControls();
+        }
+        
+        void TextureCollectionEditor::textureCollectionsDidChange() {
+            updateControls();
+        }
+        
+        void TextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
+            if (m_document->isGamePathPreference(path))
+                updateControls();
+        }
+
+        void TextureCollectionEditor::updateControls() {
+            m_collections->Clear();
+            
+            const IO::Path::List paths = m_document->externalTextureCollections();
+            IO::Path::List::const_iterator it, end;
+            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+                const IO::Path& path = *it;
+                m_collections->Append(path.asString());
+            }
+        }
+    }
+}

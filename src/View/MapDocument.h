@@ -82,6 +82,7 @@ namespace TrenchBroom {
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
+            Notifier0 textureCollectionsDidChangeNotifier;
             
             Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
@@ -124,6 +125,7 @@ namespace TrenchBroom {
             
             Model::EntityDefinitionFileSpec entityDefinitionFile() const;
             IO::Path::List entityDefinitionFiles() const;
+            IO::Path::List externalTextureCollections() const;
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);

@@ -93,11 +93,11 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(builtinHeader);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
             sizer->Add(m_builtin, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             sizer->Add(externalHeader);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
             sizer->Add(externalSizer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             

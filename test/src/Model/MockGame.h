@@ -28,6 +28,7 @@
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
+#include "Model/EntityDefinitionFileSpec.h"
 #include "Model/Game.h"
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             
             MOCK_CONST_METHOD1(doLoadEntityDefinitions, Assets::EntityDefinitionList(const IO::Path&));
             MOCK_CONST_METHOD0(doAllEntityDefinitionFiles, IO::Path::List());
-            MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, IO::Path(const Map* map));
+            MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, EntityDefinitionFileSpec(const Map* map));
             MOCK_CONST_METHOD1(doLoadModel, Assets::EntityModel*(const IO::Path&));
 
             MOCK_CONST_METHOD0(doAvailableMods, StringList());

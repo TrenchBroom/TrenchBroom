@@ -25,6 +25,9 @@
 
 #include <wx/panel.h>
 
+class wxCollapsiblePaneEvent;
+class wxWindow;
+
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
@@ -39,6 +42,7 @@ namespace TrenchBroom {
     namespace View {
         class FaceAttribsEditor;
         class TextureBrowser;
+        class TextureCollectionEditor;
         class TextureSelectedCommand;
         
         class FaceInspector : public wxPanel {
@@ -48,12 +52,21 @@ namespace TrenchBroom {
             
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
+            TextureCollectionEditor* m_textureCollectionEditor;
         public:
             FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             ~FaceInspector();
 
             void OnTextureSelected(TextureSelectedCommand& event);
+            void OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event);
         private:
+            void createGui(Renderer::RenderResources& resources);
+            wxWindow* createFaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources);
+            wxWindow* createTextureBrowser(wxWindow* parent, Renderer::RenderResources& resources);
+            wxWindow* createTextureCollectionEditor(wxWindow* parent);
+            
+            void bindEvents();
+            
             void bindObservers();
             void unbindObservers();
 

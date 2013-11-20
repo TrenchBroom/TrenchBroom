@@ -22,6 +22,7 @@
 
 #include "Controller/NewDocumentCommand.h"
 #include "IO/Path.h"
+#include "Model/EntityDefinitionFileSpec.h"
 #include "Model/MockGame.h"
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
@@ -36,8 +37,8 @@ namespace TrenchBroom {
             const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGamePtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
-            EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             
             View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
@@ -59,13 +60,17 @@ namespace TrenchBroom {
 
             Model::Map* map = new Model::Map(Model::MapFormat::Quake);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
-            EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doExtractEnabledMods(map)).WillOnce(Return(StringList()));
+            EXPECT_CALL(*game, doSetAdditionalSearchPaths(IO::Path::List()));
+
+            EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+            
             EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
-            EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path(""))).WillOnce(Return(Assets::EntityDefinitionList()));
+            EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/someotherfile.def"))));
+            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/someotherfile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
 
             View::MapDocumentPtr doc = View::MapDocument::newMapDocument();

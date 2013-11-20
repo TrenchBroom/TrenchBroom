@@ -51,13 +51,13 @@ namespace TrenchBroom {
             
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
-            EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
             
             wxGridCellCoords m_lastHoveredCell;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
             
             EntityBrowser* m_entityBrowser;
+            EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             ~EntityInspector();

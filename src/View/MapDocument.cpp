@@ -363,6 +363,10 @@ namespace TrenchBroom {
             return m_game->allEntityDefinitionFiles();
         }
 
+        IO::Path::List MapDocument::externalTextureCollections() const {
+            return m_game->extractTexturePaths(m_map);
+        }
+
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
             assert(object != NULL);
             
@@ -739,7 +743,7 @@ namespace TrenchBroom {
                 if (m_path.isAbsolute())
                     rootPaths.push_back(m_path.deleteLastComponent());
                 
-                const IO::Path::List texturePaths = m_game->extractTexturePaths(m_map);
+                const IO::Path::List texturePaths = externalTextureCollections();
                 IO::Path::List found, notFound;
                 IO::Disk::resolvePaths(rootPaths, texturePaths, found, notFound);
                 
