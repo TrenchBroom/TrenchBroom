@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, const wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document) :
-        wxPanel(parent, windowId),
+        EntityBrowser::EntityBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
+        wxPanel(parent),
         m_document(document) {
             createGui(resources);
             bindObservers();

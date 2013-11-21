@@ -23,7 +23,6 @@
 #include "Controller/Command.h"
 #include "View/ViewTypes.h"
 
-#include <wx/grid.h>
 #include <wx/panel.h>
 
 class wxButton;
@@ -42,36 +41,21 @@ namespace TrenchBroom {
     namespace View {
         class EntityBrowser;
         class EntityDefinitionFileChooser;
-        class EntityPropertyGridTable;
+        class EntityPropertyEditor;
         
         class EntityInspector : public wxPanel {
         private:
             MapDocumentPtr m_document;
             ControllerPtr m_controller;
-            
-            EntityPropertyGridTable* m_propertyTable;
-            wxGrid* m_propertyGrid;
-            
-            wxGridCellCoords m_lastHoveredCell;
-            wxButton* m_addPropertyButton;
-            wxButton* m_removePropertiesButton;
-            
+
+            EntityPropertyEditor* m_propertyEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             ~EntityInspector();
 
-            void OnPropertyGridSize(wxSizeEvent& event);
-            void OnPropertyGridSelectCell(wxGridEvent& event);
-            void OnPropertyGridTab(wxGridEvent& event);
-            void OnPropertyGridMouseMove(wxMouseEvent& event);
             void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
-            
-            void OnAddPropertyPressed(wxCommandEvent& event);
-            void OnRemovePropertiesPressed(wxCommandEvent& event);
-            void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
-            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
         private:
             void createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
             wxWindow* createPropertyEditor(wxWindow* parent);
@@ -86,7 +70,7 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void selectionDidChange(const Model::SelectionResult& result);
             
-            void updatePropertyGrid();
+            void updatePropertyEditor();
             void updateEntityBrowser();
         };
     }

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources, MapDocumentPtr document);
+            EntityBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document);
             ~EntityBrowser();
             
             void reload();
