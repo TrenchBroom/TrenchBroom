@@ -30,6 +30,10 @@ class SpinControl;
 class SpinControlEvent;
 
 namespace TrenchBroom {
+    namespace Model {
+        class SelectionResult;
+    }
+    
     namespace Renderer {
         class RenderResources;
     }
@@ -54,8 +58,7 @@ namespace TrenchBroom {
             SpinControl* m_rotationEditor;
         public:
             FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller);
-
-            void updateFaces(const Model::BrushFaceList& faces);
+            ~FaceAttribsEditor();
             
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
@@ -64,7 +67,19 @@ namespace TrenchBroom {
             void OnYScaleChanged(SpinControlEvent& event);
             void OnIdle(wxIdleEvent& event);
         private:
-            void updateAttributes();
+            void createGui(Renderer::RenderResources& resources);
+            void bindEvents();
+            
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
+            void textureCollectionsDidChange();
+            
+            void updateControls();
         };
     }
 }

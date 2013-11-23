@@ -42,8 +42,7 @@ namespace TrenchBroom {
         tooltip(i_tooltip) {}
         
         void EntityPropertyGridTable::Entry::compareValue(const String& i_value) {
-            if (!m_multi && value != i_value)
-                m_multi = true;
+            m_multi |= (value != i_value);
             ++m_count;
         }
         
@@ -261,25 +260,23 @@ namespace TrenchBroom {
             
             EntryList newEntries;
             const Model::EntityList entities = m_document->allSelectedEntities();
-            if (!entities.empty()) {
-                Model::EntityList::const_iterator entityIt, entityEnd;
-                for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                    const Model::Entity& entity = **entityIt;
-                    const Assets::EntityDefinition* entityDefinition = entity.definition();
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                const Assets::EntityDefinition* entityDefinition = entity.definition();
+                
+                const Model::EntityProperty::List& properties = entity.properties();
+                Model::EntityProperty::List::const_iterator propertyIt, propertyEnd;
+                for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
+                    const Model::EntityProperty& property = *propertyIt;
+                    const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key) : NULL;
                     
-                    const Model::EntityProperty::List& properties = entity.properties();
-                    Model::EntityProperty::List::const_iterator propertyIt, propertyEnd;
-                    for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                        const Model::EntityProperty& property = *propertyIt;
-                        const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key) : NULL;
-                        
-                        EntryList::iterator entryIt = findEntry(newEntries, property.key);
-                        if (entryIt != newEntries.end()) {
-                            entryIt->compareValue(property.value);
-                        } else {
-                            const String tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
-                            newEntries.push_back(Entry(property.key, property.value, tooltip, entities.size()));
-                        }
+                    EntryList::iterator entryIt = findEntry(newEntries, property.key);
+                    if (entryIt != newEntries.end()) {
+                        entryIt->compareValue(property.value);
+                    } else {
+                        const String tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
+                        newEntries.push_back(Entry(property.key, property.value, tooltip, entities.size()));
                     }
                 }
             }

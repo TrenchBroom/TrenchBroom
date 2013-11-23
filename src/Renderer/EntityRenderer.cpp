@@ -341,9 +341,6 @@ namespace TrenchBroom {
                     const Model::Entity* entity = *it;
                     if (m_filter.visible(entity)) {
                         if (entity->brushes().empty() && entity->model() == NULL) {
-                            BuildColoredWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices, boundsColor());
-                            eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
-
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(*entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         } else {

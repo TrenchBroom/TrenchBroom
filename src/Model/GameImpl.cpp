@@ -130,7 +130,7 @@ namespace TrenchBroom {
             if (property.empty())
                 return paths;
             
-            Entity* worldspawn = map->worldspawn();
+            const Entity* worldspawn = map->worldspawn();
             if (worldspawn == NULL)
                 return paths;
             
@@ -138,10 +138,10 @@ namespace TrenchBroom {
             if (pathsValue.empty())
                 return paths;
             
-            const StringList pathStrs = StringUtils::split(pathsValue, ';');
+            const StringList pathStrs = StringUtils::splitAndTrim(pathsValue, ';');
             StringList::const_iterator it, end;
             for (it = pathStrs.begin(), end = pathStrs.end(); it != end; ++it) {
-                const String pathStr = StringUtils::trim(*it);
+                const String pathStr = *it;
                 if (!pathStr.empty()) {
                     const IO::Path path(pathStr);
                     paths.push_back(path);
@@ -151,6 +151,19 @@ namespace TrenchBroom {
             return paths;
         }
         
+        void GameImpl::doUpdateTexturePaths(Map* map, const IO::Path::List& paths) const {
+            const String& property = m_config.textureConfig().property;
+            if (property.empty())
+                return;
+            
+            Entity* worldspawn = map->worldspawn();
+            if (worldspawn == NULL)
+                return;
+            
+            const String value = StringUtils::join(paths, ';', IO::Path::ToString());
+            worldspawn->addOrUpdateProperty(property, value);
+        }
+
         Assets::TextureCollection* GameImpl::doLoadTextureCollection(const IO::Path& path) const {
             const String& type = m_config.textureConfig().type;
             if (type == "wad")

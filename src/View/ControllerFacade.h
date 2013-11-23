@@ -26,16 +26,13 @@
 #include "VecMath.h"
 #include "Controller/Command.h"
 #include "Controller/CommandProcessor.h"
+#include "IO/Path.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
-    }
-    
-    namespace IO {
-        class Path;
     }
     
     namespace Model {
@@ -100,6 +97,11 @@ namespace TrenchBroom {
             
             bool setMods(const StringList& mods);
             bool setEntityDefinitionFile(const IO::Path& file);
+
+            bool addTextureCollection(const IO::Path& path);
+            bool removeTextureCollections(const IO::Path::List& paths);
+            bool moveTextureCollectionUp(const IO::Path& path);
+            bool moveTextureCollectionDown(const IO::Path& path);
             
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);

@@ -367,6 +367,10 @@ namespace TrenchBroom {
             return m_game->extractTexturePaths(m_map);
         }
 
+        void MapDocument::updateExternalTextureCollections(const IO::Path::List& paths) {
+            m_game->updateTexturePaths(m_map, paths);
+        }
+
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
             assert(object != NULL);
             
@@ -518,6 +522,7 @@ namespace TrenchBroom {
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
             modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
+            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
@@ -531,6 +536,7 @@ namespace TrenchBroom {
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
+            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
@@ -615,6 +621,10 @@ namespace TrenchBroom {
 
         void MapDocument::entityDefinitionsDidChange() {
             loadAndUpdateEntityDefinitions();
+        }
+
+        void MapDocument::textureCollectionsDidChange() {
+            updateTextures();
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {

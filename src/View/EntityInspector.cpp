@@ -20,12 +20,6 @@
 #include "EntityInspector.h"
 
 #include "StringUtils.h"
-#include "Controller/EntityPropertyCommand.h"
-#include "Model/Entity.h"
-#include "Model/EntityProperties.h"
-#include "Model/Object.h"
-#include "View/CommandIds.h"
-#include "View/ControllerFacade.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyEditor.h"
@@ -44,13 +38,8 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller) {
             createGui(parent, m_document, m_controller, resources);
-            bindObservers();
         }
         
-        EntityInspector::~EntityInspector() {
-            unbindObservers();
-        }
-
         void EntityInspector::OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event) {
             Layout();
         }
@@ -96,56 +85,6 @@ namespace TrenchBroom {
             
             collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &EntityInspector::OnEntityDefinitionFileChooserPaneChanged, this);
             return collPane;
-        }
-
-        void EntityInspector::bindObservers() {
-            m_controller->commandDoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.addObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->objectDidChangeNotifier.addObserver(this, &EntityInspector::objectDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &EntityInspector::selectionDidChange);
-        }
-        
-        void EntityInspector::unbindObservers() {
-            m_controller->commandDoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.removeObserver(this, &EntityInspector::commandDoneOrUndone);
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityInspector::documentWasNewedOrLoaded);
-            m_document->objectDidChangeNotifier.removeObserver(this, &EntityInspector::objectDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityInspector::selectionDidChange);
-        }
-
-        void EntityInspector::commandDoneOrUndone(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == EntityPropertyCommand::Type) {
-                const EntityPropertyCommand::Ptr propCmd = command->cast<EntityPropertyCommand>(command);
-                if (propCmd->entityAffected(m_document->worldspawn()) &&
-                    propCmd->propertyAffected(Model::PropertyKeys::EntityDefinitions))
-                    updateEntityBrowser();
-            }
-        }
-
-        void EntityInspector::documentWasNewedOrLoaded() {
-            updatePropertyEditor();
-            updateEntityBrowser();
-        }
-        
-        void EntityInspector::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
-                updatePropertyEditor();
-        }
-        
-        void EntityInspector::selectionDidChange(const Model::SelectionResult& result) {
-            updatePropertyEditor();
-        }
-
-        void EntityInspector::updatePropertyEditor() {
-            m_propertyEditor->update();
-        }
-        
-        void EntityInspector::updateEntityBrowser() {
-            m_entityBrowser->reload();
         }
     }
 }

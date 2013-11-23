@@ -82,6 +82,10 @@ namespace TrenchBroom {
             return doExtractTexturePaths(map);
         }
         
+        void Game::updateTexturePaths(Map* map, const IO::Path::List& paths) const {
+            doUpdateTexturePaths(map, paths);
+        }
+
         Assets::TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
             return doLoadTextureCollection(path);
         }

@@ -60,8 +60,6 @@ namespace TrenchBroom {
             TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document);
             ~TextureBrowser();
             
-            void reload();
-            
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
             
@@ -71,7 +69,18 @@ namespace TrenchBroom {
             void OnFilterPatternChanged(wxCommandEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
         private:
+            void createGui(Renderer::RenderResources& resources);
+            void bindEvents();
+            
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
+
+            void reload();
         };
     }
 }

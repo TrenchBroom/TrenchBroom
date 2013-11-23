@@ -175,26 +175,42 @@ namespace StringUtils {
         return result;
     }
     
-    template <typename D1, typename D2, typename D3>
-    String join(const StringList& strs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
-        if (strs.empty())
+    template <typename T, typename D1, typename D2, typename D3, typename S>
+    String join(const std::vector<T>& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
+        if (objs.empty())
             return "";
-        if (strs.size() == 1)
-            return strs[0];
-
+        if (objs.size() == 1)
+            return toString(objs[0]);
+        
         StringStream result;
-        if (strs.size() == 2) {
-            result << strs[0] << delimForTwo << strs[1];
+        if (objs.size() == 2) {
+            result << toString(objs[0]) << delimForTwo << toString(objs[1]);
             return result.str();
         }
         
-        result << strs[0];
-        for (size_t i = 1; i < strs.size() - 1; i++)
-            result << delim << strs[i];
-        result << lastDelim << strs.back();
+        result << toString(objs[0]);
+        for (size_t i = 1; i < objs.size() - 1; i++)
+            result << delim << toString(objs[i]);
+        result << lastDelim << toString(objs.back());
         return result.str();
     }
     
+    template <typename T, typename D, typename S>
+    String join(const std::vector<T>& objs, const D& delim, const S& toString) {
+        return join(objs, delim, delim, delim, toString);
+    }
+    
+    struct StringToString {
+        const String& operator()(const String& str) const {
+            return str;
+        }
+    };
+
+    template <typename D1, typename D2, typename D3>
+    String join(const StringList& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
+        return join(objs, delim, lastDelim, delimForTwo, StringToString());
+    }
+
     template <typename D>
     String join(const StringList& strs, const D& d) {
         return join(strs, d, d, d);

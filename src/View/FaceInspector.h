@@ -55,7 +55,6 @@ namespace TrenchBroom {
             TextureCollectionEditor* m_textureCollectionEditor;
         public:
             FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
-            ~FaceInspector();
 
             void OnTextureSelected(TextureSelectedCommand& event);
             void OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event);
@@ -66,14 +65,6 @@ namespace TrenchBroom {
             wxWindow* createTextureCollectionEditor(wxWindow* parent);
             
             void bindEvents();
-            
-            void bindObservers();
-            void unbindObservers();
-
-            void commandDoneOrUndone(Controller::Command::Ptr command);
-            void documentWasNewedOrLoaded();
-            void faceDidChange(Model::BrushFace* face);
-            void selectionDidChange(const Model::SelectionResult& result);
         };
     }
 }

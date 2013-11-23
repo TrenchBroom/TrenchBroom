@@ -68,6 +68,9 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
+            void documentWasNewed();
+            void documentWasLoaded();
+            
             void modsDidChange();
             void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);

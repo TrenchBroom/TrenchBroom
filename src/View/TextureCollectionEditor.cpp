@@ -24,6 +24,7 @@
 #include "Assets/TextureCollection.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
 
@@ -52,12 +53,44 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            assert(!selections.empty());
+            
+            const IO::Path::List paths = m_document->externalTextureCollections();
+            IO::Path::List removePaths;
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const size_t index = static_cast<size_t>(selections[i]);
+                assert(index < paths.size());
+                removePaths.push_back(paths[index]);
+            }
+            
+            m_controller->removeTextureCollections(removePaths);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            assert(selections.size() == 1);
+            
+            const size_t index = static_cast<size_t>(selections.front());
+            const IO::Path::List paths = m_document->externalTextureCollections();
+            assert(index < paths.size());
+            
+            m_controller->moveTextureCollectionUp(paths[index]);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            assert(selections.size() == 1);
+            
+            const size_t index = static_cast<size_t>(selections.front());
+            const IO::Path::List paths = m_document->externalTextureCollections();
+            assert(index < paths.size());
+            
+            m_controller->moveTextureCollectionDown(paths[index]);
         }
 
         void TextureCollectionEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {

@@ -19,6 +19,7 @@
 
 #include "EntityPropertyEditor.h"
 
+#include "Model/Object.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
@@ -34,10 +35,11 @@ namespace TrenchBroom {
         m_lastHoveredCell(wxGridCellCoords(-1, -1)) {
             createGui(document, controller);
             bindEvents();
+            bindObservers();
         }
         
-        void EntityPropertyEditor::update() {
-            m_table->update();
+        EntityPropertyEditor::~EntityPropertyEditor() {
+            unbindObservers();
         }
         
         void EntityPropertyEditor::OnPropertyGridSize(wxSizeEvent& event) {
@@ -182,6 +184,41 @@ namespace TrenchBroom {
             m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyEditor::OnUpdatePropertyViewOrAddPropertiesButton, this);
             m_removePropertiesButton->Bind(wxEVT_BUTTON, &EntityPropertyEditor::OnRemovePropertiesPressed, this);
             m_removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyEditor::OnUpdateRemovePropertiesButton, this);
+        }
+
+        void EntityPropertyEditor::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &EntityPropertyEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyEditor::documentWasLoaded);
+            m_document->objectDidChangeNotifier.addObserver(this, &EntityPropertyEditor::objectDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyEditor::selectionDidChange);
+        }
+        
+        void EntityPropertyEditor::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyEditor::documentWasLoaded);
+            m_document->objectDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::objectDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::selectionDidChange);
+        }
+        
+        void EntityPropertyEditor::documentWasNewed() {
+            updateControls();
+        }
+        
+        void EntityPropertyEditor::documentWasLoaded() {
+            updateControls();
+        }
+        
+        void EntityPropertyEditor::objectDidChange(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity)
+                updateControls();
+        }
+        
+        void EntityPropertyEditor::selectionDidChange(const Model::SelectionResult& result) {
+            updateControls();
+        }
+
+        void EntityPropertyEditor::updateControls() {
+            m_table->update();
         }
     }
 }

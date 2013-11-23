@@ -63,6 +63,9 @@ namespace TrenchBroom {
             void addExternalTextureCollection(const IO::Path& path);
             void addExternalTextureCollections(const IO::Path::List& paths);
             void removeExternalTextureCollection(const IO::Path& path);
+            void removeExternalTextureCollections(const IO::Path::List& paths);
+            void moveExternalTextureCollectionUp(const IO::Path& path);
+            void moveExternalTextureCollectionDown(const IO::Path& path);
             
             void reset(Model::GamePtr game);
             void commitChanges();
@@ -74,6 +77,10 @@ namespace TrenchBroom {
         private:
             void doAddTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
             void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
+            
+            void doRemoveTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
+            void doRemoveTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
+            
             void clearBuiltinTextureCollections();
             void clearExternalTextureCollections();
             void updateTextures();

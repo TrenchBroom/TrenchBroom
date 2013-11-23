@@ -118,6 +118,8 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
             m_document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
             m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
             
@@ -126,11 +128,21 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &EntityBrowser::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityBrowser::documentWasLoaded);
             m_document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
             m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
+        }
+
+        void EntityBrowser::documentWasNewed() {
+            reload();
+        }
+        
+        void EntityBrowser::documentWasLoaded() {
+            reload();
         }
 
         void EntityBrowser::modsDidChange() {

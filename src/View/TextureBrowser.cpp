@@ -38,66 +38,15 @@ namespace TrenchBroom {
         TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
         wxPanel(parent),
         m_document(document) {
-            const wxString sortOrders[2] = { _("Name"), _("Usage") };
-            m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
-            m_sortOrderChoice->SetSelection(0);
-            m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
-            
-            m_groupButton = new wxToggleButton(this, wxID_ANY, _("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
-            m_usedButton = new wxToggleButton(this, wxID_ANY, _("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
-            
-            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
-            m_filterBox->ShowCancelButton(true);
-            m_filterBox->Bind(wxEVT_TEXT, &TextureBrowser::OnFilterPatternChanged, this);
-            
-            wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
-            controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
-            controlSizer->Add(m_groupButton, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
-            controlSizer->Add(m_usedButton, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
-            controlSizer->Add(m_filterBox, 1, wxEXPAND);
-            
-            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
-            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-            m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
-                                           resources,
-                                           m_document->textureManager());
-            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
-            
-            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-            browserPanelSizer->Add(m_view, 1, wxEXPAND);
-            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
-            browserPanel->SetSizerAndFit(browserPanelSizer);
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(controlSizer, 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(browserPanel, 1, wxEXPAND);
-            
-            SetSizerAndFit(outerSizer);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
+            createGui(resources);
+            bindEvents();
+            bindObservers();
         }
         
         TextureBrowser::~TextureBrowser() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
+            unbindObservers();
         }
 
-        void TextureBrowser::reload() {
-            if (m_view != NULL) {
-                m_view->clear();
-                m_view->reload();
-            }
-        }
-        
         Assets::Texture* TextureBrowser::selectedTexture() const {
             return m_view->selectedTexture();
         }
@@ -130,6 +79,88 @@ namespace TrenchBroom {
             ProcessEvent(event);
         }
 
+        void TextureBrowser::createGui(Renderer::RenderResources& resources) {
+            const wxString sortOrders[2] = { _("Name"), _("Usage") };
+            m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
+            m_sortOrderChoice->SetSelection(0);
+            
+            m_groupButton = new wxToggleButton(this, wxID_ANY, _("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, wxID_ANY, _("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            
+            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
+            m_filterBox->ShowCancelButton(true);
+            
+            wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
+            controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_groupButton, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_usedButton, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_filterBox, 1, wxEXPAND);
+            
+            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+            m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
+                                            resources,
+                                            m_document->textureManager());
+            
+            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            browserPanelSizer->Add(m_view, 1, wxEXPAND);
+            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
+            browserPanel->SetSizerAndFit(browserPanelSizer);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(controlSizer, 0, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(browserPanel, 1, wxEXPAND);
+            
+            SetSizerAndFit(outerSizer);
+        }
+        
+        void TextureBrowser::bindEvents() {
+            m_sortOrderChoice->Bind(wxEVT_CHOICE, &TextureBrowser::OnSortOrderChanged, this);
+            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
+            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
+            m_filterBox->Bind(wxEVT_TEXT, &TextureBrowser::OnFilterPatternChanged, this);
+            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
+        }
+        
+        void TextureBrowser::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
+            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
+        }
+        
+        void TextureBrowser::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
+            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
+        }
+        
+        void TextureBrowser::documentWasNewed() {
+            reload();
+        }
+        
+        void TextureBrowser::documentWasLoaded() {
+            reload();
+        }
+
+        void TextureBrowser::textureCollectionsDidChange() {
+            reload();
+        }
+
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
             if (path == Preferences::TextureBrowserIconSize.path() ||
                 m_document->isGamePathPreference(path))
@@ -137,5 +168,12 @@ namespace TrenchBroom {
             else
                 m_view->Refresh();
         }
- }
+        
+        void TextureBrowser::reload() {
+            if (m_view != NULL) {
+                m_view->clear();
+                m_view->reload();
+            }
+        }
+    }
 }

@@ -30,6 +30,7 @@
 #include "Controller/SelectionCommand.h"
 #include "Controller/SetEntityDefinitionFileCommand.h"
 #include "Controller/SetModsCommand.h"
+#include "Controller/TextureCollectionCommand.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/ModelUtils.h"
 #include "View/ViewTypes.h"
@@ -309,6 +310,34 @@ namespace TrenchBroom {
             using namespace Controller;
             
             Command::Ptr command = SetEntityDefinitionFileCommand::setEntityDefinitionFile(m_document, file);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::addTextureCollection(const IO::Path& path) {
+            using namespace Controller;
+
+            Command::Ptr command = TextureCollectionCommand::add(m_document, path);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::removeTextureCollections(const IO::Path::List& paths) {
+            using namespace Controller;
+            
+            Command::Ptr command = TextureCollectionCommand::remove(m_document, paths);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::moveTextureCollectionUp(const IO::Path& path) {
+            using namespace Controller;
+            
+            Command::Ptr command = TextureCollectionCommand::moveUp(m_document, path);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::moveTextureCollectionDown(const IO::Path& path) {
+            using namespace Controller;
+            
+            Command::Ptr command = TextureCollectionCommand::moveDown(m_document, path);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

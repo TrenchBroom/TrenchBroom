@@ -38,44 +38,70 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
+            createGui(resources);
+            bindEvents();
+            bindObservers();
+        }
+
+        FaceAttribsEditor::~FaceAttribsEditor() {
+            unbindObservers();
+        }
+
+        void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
+            if (!m_controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
+            if (!m_controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
+            if (!m_controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
+            if (!m_controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
+            if (!m_controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
+                event.Veto();
+        }
+        
+        void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
+            Grid& grid = m_document->grid();
+            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
+        }
+
+        void FaceAttribsEditor::createGui(Renderer::RenderResources& resources) {
             m_textureView = new TextureView(this, wxID_ANY, resources);
             m_textureNameLabel = new wxStaticText(this, wxID_ANY, _("n/a"));
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
-            // EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected)
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
-            m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
-                                  this);
             
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
-            m_yOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYOffsetChanged),
-                                  this);
             
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_xScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXScaleChanged),
-                                 this);
-
+            
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYScaleChanged),
-                                 this);
             
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
-            m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
-                                   this);
             
             wxSizer* textureLabelSizer = new wxBoxSizer(wxHORIZONTAL);
             textureLabelSizer->AddStretchSpacer();
@@ -120,40 +146,67 @@ namespace TrenchBroom {
             faceEditorSizer->Add(faceAttribsSizer, 1, wxEXPAND);
             
             SetSizer(faceEditorSizer);
+        }
+        
+        void FaceAttribsEditor::bindEvents() {
+            m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
+                                  this);
+            m_yOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYOffsetChanged),
+                                  this);
+            m_xScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXScaleChanged),
+                                 this);
+            m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYScaleChanged),
+                                 this);
+            m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
+                                   this);
             Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
-
-        void FaceAttribsEditor::updateFaces(const Model::BrushFaceList& faces) {
-            m_faces = faces;
-            updateAttributes();
-        }
-
-        void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
-                event.Veto();
+        
+        void FaceAttribsEditor::bindObservers() {
+            m_document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
+            m_document->faceDidChangeNotifier.addObserver(this, &FaceAttribsEditor::faceDidChange);
+            m_document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
+            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
         
-        void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
-                event.Veto();
+        void FaceAttribsEditor::unbindObservers() {
+            m_document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
+            m_document->faceDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::faceDidChange);
+            m_document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
+            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
         
-        void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
-                event.Veto();
+        void FaceAttribsEditor::documentWasNewed() {
+            m_faces = m_document->allSelectedFaces();
+            updateControls();
         }
         
-        void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
-                event.Veto();
+        void FaceAttribsEditor::documentWasLoaded() {
+            m_faces = m_document->allSelectedFaces();
+            updateControls();
         }
         
-        void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
-                event.Veto();
+        void FaceAttribsEditor::faceDidChange(Model::BrushFace* face) {
+            updateControls();
         }
         
-        void FaceAttribsEditor::updateAttributes() {
+        void FaceAttribsEditor::selectionDidChange(const Model::SelectionResult& result) {
+            m_faces = m_document->allSelectedFaces();
+            updateControls();
+        }
+        
+        void FaceAttribsEditor::textureCollectionsDidChange() {
+            updateControls();
+        }
+        
+        void FaceAttribsEditor::updateControls() {
             if (!m_faces.empty()) {
                 bool textureMulti = false;
                 bool xOffsetMulti = false;
@@ -243,13 +296,6 @@ namespace TrenchBroom {
                 m_textureNameLabel->SetLabel("n/a");
             }
             Layout();
-        }
-
-        void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
-            Grid& grid = m_document->grid();
-            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
         }
     }
 }

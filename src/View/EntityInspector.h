@@ -53,7 +53,6 @@ namespace TrenchBroom {
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
-            ~EntityInspector();
 
             void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
         private:
@@ -61,17 +60,6 @@ namespace TrenchBroom {
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
             wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
-
-            void bindObservers();
-            void unbindObservers();
-
-            void commandDoneOrUndone(Controller::Command::Ptr command);
-            void documentWasNewedOrLoaded();
-            void objectDidChange(Model::Object* object);
-            void selectionDidChange(const Model::SelectionResult& result);
-            
-            void updatePropertyEditor();
-            void updateEntityBrowser();
         };
     }
 }

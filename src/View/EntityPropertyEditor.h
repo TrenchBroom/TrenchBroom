@@ -28,6 +28,11 @@
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Object;
+        class SelectionResult;
+    }
+    
     namespace View {
         class EntityPropertyGridTable;
         
@@ -42,9 +47,8 @@ namespace TrenchBroom {
             wxButton* m_removePropertiesButton;
         public:
             EntityPropertyEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            ~EntityPropertyEditor();
             
-            void update();
-
             void OnPropertyGridSize(wxSizeEvent& event);
             void OnPropertyGridSelectCell(wxGridEvent& event);
             void OnPropertyGridTab(wxGridEvent& event);
@@ -57,6 +61,16 @@ namespace TrenchBroom {
         private:
             void createGui(MapDocumentPtr document, ControllerPtr controller);
             void bindEvents();
+            
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasNewed();
+            void documentWasLoaded();
+            void objectDidChange(Model::Object* object);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
+            void updateControls();
         };
     }
 }

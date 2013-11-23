@@ -30,6 +30,16 @@ namespace TrenchBroom {
         public:
             typedef std::vector<Path> List;
             static const char Separator;
+            
+            struct ToString {
+                char separator;
+                ToString(const char i_separator = Separator) :
+                separator(i_separator) {}
+                
+                String operator()(const Path& path) const {
+                    return path.asString(separator);
+                }
+            };
         private:
             static const String Separators;
             

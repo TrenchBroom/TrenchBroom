@@ -126,6 +126,7 @@ namespace TrenchBroom {
             Model::EntityDefinitionFileSpec entityDefinitionFile() const;
             IO::Path::List entityDefinitionFiles() const;
             IO::Path::List externalTextureCollections() const;
+            void updateExternalTextureCollections(const IO::Path::List& paths);
 
             void addObject(Model::Object* object, Model::Object* parent = NULL);
             void removeObject(Model::Object* object);
@@ -178,6 +179,7 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void modsDidChange();
             void entityDefinitionsDidChange();
+            void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void addEntity(Model::Entity* entity);
