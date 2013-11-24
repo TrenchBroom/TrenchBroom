@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Assets/TextureCollectionSpec.h"
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/MockGame.h"
@@ -65,7 +66,9 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
-            EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+            
+            EXPECT_CALL(*game, doExtractExternalTextureCollections(map)).WillOnce(Return(EmptyStringList));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("Quake")));
             
             MapDocumentPtr document = MapDocument::newMapDocument();
             document->openDocument(worldBounds, game, path);

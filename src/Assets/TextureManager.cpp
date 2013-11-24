@@ -23,6 +23,7 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "Model/Game.h"
 
 namespace TrenchBroom {
@@ -52,44 +53,52 @@ namespace TrenchBroom {
 
         void TextureManager::setBuiltinTextureCollections(const IO::Path::List& paths) {
             clearBuiltinTextureCollections();
-            doAddTextureCollections(paths, m_builtinCollections, m_builtinCollectionsByPath);
-            updateTextures();
+            
+            TextureCollectionList newCollections;
+            TextureCollectionMap newCollectionsByName;
+            
+            try {
+                IO::Path::List::const_iterator it, end;
+                for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+                    const IO::Path& path = *it;
+                    const TextureCollectionSpec spec(path.suffix(2).asString(), path);
+                    doAddTextureCollection(spec, newCollections, newCollectionsByName);
+                }
+                m_builtinCollections = newCollections;
+                m_builtinCollectionsByName = newCollectionsByName;
+                updateTextures();
+            } catch (...) {
+                updateTextures();
+                VectorUtils::deleteAll(newCollections);
+                throw;
+            }
         }
 
-        void TextureManager::addExternalTextureCollection(const IO::Path& path) {
+        bool TextureManager::addExternalTextureCollection(const TextureCollectionSpec& spec) {
             assert(m_game != NULL);
-            doAddTextureCollection(path, m_externalCollections, m_externalCollectionsByPath);
+            try {
+                doAddTextureCollection(spec, m_externalCollections, m_externalCollectionsByName);
+                updateTextures();
+                return true;
+            } catch (...) {
+                TextureCollection* dummy = new TextureCollection(spec.name());
+                m_externalCollections.push_back(dummy);
+                m_externalCollectionsByName[spec.name()] = dummy;
+                updateTextures();
+                return false;
+            }
+        }
+
+        void TextureManager::removeExternalTextureCollection(const String& name) {
+            doRemoveTextureCollection(name, m_externalCollections, m_externalCollectionsByName, m_toRemove);
             updateTextures();
         }
         
-        void TextureManager::addExternalTextureCollections(const IO::Path::List& paths) {
+        void TextureManager::moveExternalTextureCollectionUp(const String& name) {
             assert(m_game != NULL);
-            if (paths.empty())
-                return;
-            
-            doAddTextureCollections(paths, m_externalCollections, m_externalCollectionsByPath);
-            updateTextures();
-        }
-
-        void TextureManager::removeExternalTextureCollection(const IO::Path& path) {
-            doRemoveTextureCollection(path, m_externalCollections, m_externalCollectionsByPath, m_toRemove);
-            updateTextures();
-        }
-        
-        void TextureManager::removeExternalTextureCollections(const IO::Path::List& paths) {
-            assert(m_game != NULL);
-            if (paths.empty())
-                return;
-            
-            doRemoveTextureCollections(paths, m_externalCollections, m_externalCollectionsByPath, m_toRemove);
-            updateTextures();
-        }
-
-        void TextureManager::moveExternalTextureCollectionUp(const IO::Path& path) {
-            assert(m_game != NULL);
-            TextureCollectionMap::iterator it = m_externalCollectionsByPath.find(path);
-            if (it == m_externalCollectionsByPath.end())
-                throw AssetException("Could not find external texture collection: '" + path.asString() + "'");
+            TextureCollectionMap::iterator it = m_externalCollectionsByName.find(name);
+            if (it == m_externalCollectionsByName.end())
+                throw AssetException("Unknown external texture collection: '" + name + "'");
             
             TextureCollection* collection = it->second;
             const size_t index = VectorUtils::indexOf(m_externalCollections, collection);
@@ -100,11 +109,11 @@ namespace TrenchBroom {
             updateTextures();
         }
     
-        void TextureManager::moveExternalTextureCollectionDown(const IO::Path& path) {
+        void TextureManager::moveExternalTextureCollectionDown(const String& name) {
             assert(m_game != NULL);
-            TextureCollectionMap::iterator it = m_externalCollectionsByPath.find(path);
-            if (it == m_externalCollectionsByPath.end())
-                throw AssetException("Could not find external texture collection: '" + path.asString() + "'");
+            TextureCollectionMap::iterator it = m_externalCollectionsByName.find(name);
+            if (it == m_externalCollectionsByName.end())
+                throw AssetException("Unknown external texture collection: '" + name + "'");
             
             TextureCollection* collection = it->second;
             const size_t index = VectorUtils::indexOf(m_externalCollections, collection);
@@ -145,72 +154,49 @@ namespace TrenchBroom {
             return m_allCollections;
         }
 
-        void TextureManager::doAddTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath) {
-
-            TextureCollectionList newCollections;
-            TextureCollectionMap newCollectionsByPath;
-
-            try {
-                IO::Path::List::const_iterator it, end;
-                for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                    const IO::Path& path = *it;
-                    doAddTextureCollection(path, newCollections, newCollectionsByPath);
-                }
-            } catch (...) {
-                VectorUtils::clearAndDelete(newCollections);
-                throw;
+        const StringList TextureManager::externalCollectionNames() const {
+            StringList names;
+            names.reserve(m_externalCollections.size());
+            
+            TextureCollectionList::const_iterator it, end;
+            for (it = m_externalCollections.begin(), end = m_externalCollections.end(); it != end; ++it) {
+                const TextureCollection* collection = *it;
+                names.push_back(collection->name());
             }
             
-            collections.insert(collections.end(), newCollections.begin(), newCollections.end());
-            collectionsByPath.insert(newCollectionsByPath.begin(), newCollectionsByPath.end());
+            return names;
         }
 
-        void TextureManager::doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath) {
-            if (collectionsByPath.find(path) == collectionsByPath.end()) {
-                TextureCollection* collection = m_game->loadTextureCollection(path);
+        void TextureManager::doAddTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName) {
+            if (collectionsByName.find(spec.name()) == collectionsByName.end()) {
+                TextureCollection* collection = m_game->loadTextureCollection(spec);
                 collections.push_back(collection);
-                collectionsByPath.insert(std::make_pair(path, collection));
+                collectionsByName.insert(std::make_pair(spec.name(), collection));
             }
         }
 
-        void TextureManager::doRemoveTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove) {
-            TextureCollectionList newCollections = collections;
-            TextureCollectionMap newCollectionsByPath = collectionsByPath;
-            TextureCollectionMap newToRemove = toRemove;
-            
-            IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const IO::Path& path = *it;
-                doRemoveTextureCollection(path, newCollections, newCollectionsByPath, newToRemove);
-            }
-            
-            collections = newCollections;
-            collectionsByPath = newCollectionsByPath;
-            toRemove = newToRemove;
-        }
-        
-        void TextureManager::doRemoveTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove) {
-            TextureCollectionMap::iterator it = collectionsByPath.find(path);
-            if (it == collectionsByPath.end())
-                throw AssetException("Could not find external texture collection: '" + path.asString() + "'");
+        void TextureManager::doRemoveTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName, TextureCollectionMap& toRemove) {
+            TextureCollectionMap::iterator it = collectionsByName.find(name);
+            if (it == collectionsByName.end())
+                throw AssetException("Unknown external texture collection: '" + name + "'");
             
             TextureCollection* collection = it->second;
             VectorUtils::remove(collections, collection);
             
-            collectionsByPath.erase(it);
-            toRemove.insert(TextureCollectionMapEntry(path, collection));
+            collectionsByName.erase(it);
+            toRemove.insert(TextureCollectionMapEntry(name, collection));
         }
 
         void TextureManager::clearBuiltinTextureCollections() {
-            m_toRemove.insert(m_builtinCollectionsByPath.begin(), m_builtinCollectionsByPath.end());
+            m_toRemove.insert(m_builtinCollectionsByName.begin(), m_builtinCollectionsByName.end());
             m_builtinCollections.clear();
-            m_builtinCollectionsByPath.clear();
+            m_builtinCollectionsByName.clear();
         }
         
         void TextureManager::clearExternalTextureCollections() {
-            m_toRemove.insert(m_externalCollectionsByPath.begin(), m_externalCollectionsByPath.end());
+            m_toRemove.insert(m_externalCollectionsByName.begin(), m_externalCollectionsByName.end());
             m_externalCollections.clear();
-            m_externalCollectionsByPath.clear();
+            m_externalCollectionsByName.clear();
         }
 
         void TextureManager::updateTextures() {

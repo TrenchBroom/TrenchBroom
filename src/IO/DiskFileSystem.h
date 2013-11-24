@@ -38,7 +38,7 @@ namespace TrenchBroom {
             MappedFile::Ptr openFile(const Path& path);
             Path getCurrentWorkingDir();
             
-            void resolvePaths(const Path::List& searchPaths, const Path::List& paths, Path::List& foundPaths, Path::List& notFoundPaths);
+            IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
         }
         
         class DiskFileSystem : public FileSystem {

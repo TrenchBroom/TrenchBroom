@@ -24,7 +24,12 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        TextureCollection::TextureCollection(const String& name) :
+        m_loaded(false),
+        m_name(name) {}
+
         TextureCollection::TextureCollection(const String& name, const TextureList& textures) :
+        m_loaded(true),
         m_name(name),
         m_textures(textures.size()) {
             for (size_t i = 0; i < textures.size(); ++i) {
@@ -40,6 +45,10 @@ namespace TrenchBroom {
                 glDeleteTextures(m_textureIds.size(), &m_textureIds.front());
                 m_textureIds.clear();
             }
+        }
+
+        bool TextureCollection::loaded() const {
+            return m_loaded;
         }
 
         const String& TextureCollection::name() const {

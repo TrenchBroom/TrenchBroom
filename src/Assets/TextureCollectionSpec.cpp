@@ -17,28 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WadTextureLoader__
-#define __TrenchBroom__WadTextureLoader__
+#include "TextureCollectionSpec.h"
 
-#include "IO/TextureLoader.h"
-#include "Assets/AssetTypes.h"
+#include <cassert>
 
 namespace TrenchBroom {
-    namespace IO {
-        struct MipData;
-        class Path;
+    namespace Assets {
+        TextureCollectionSpec::TextureCollectionSpec(const String& name, const IO::Path& path) :
+        m_name(name),
+        m_path(path) {
+            assert(!path.isEmpty());
+        }
         
-        class WadTextureLoader : public TextureLoader {
-        private:
-            const Assets::Palette& m_palette;
-        public:
-            WadTextureLoader(const Assets::Palette& palette);
-        private:
-            static const size_t InitialBufferSize = 3 * 512 * 512;
-            
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec);
-        };
+        bool TextureCollectionSpec::operator==(const TextureCollectionSpec& rhs) const {
+            return m_name == rhs.m_name && m_path == rhs.m_path;
+        }
+
+        const String& TextureCollectionSpec::name() const {
+            return m_name;
+        }
+        
+        const IO::Path& TextureCollectionSpec::path() const {
+            return m_path;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__WadTextureLoader__) */

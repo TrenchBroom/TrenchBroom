@@ -159,7 +159,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != NULL);
         }
         
-        TEST(DiskTest, resolvePaths) {
+        TEST(DiskTest, resolvePath) {
             TestEnvironment env;
 
             Path::List rootPaths;
@@ -173,20 +173,11 @@ namespace TrenchBroom {
             paths.push_back(Path("/asfd/blah"));
             paths.push_back(Path("adk3kdk/bhb"));
             
-            Path::List found, notFound;
-            
-            Disk::resolvePaths(rootPaths, paths, found, notFound);
-            ASSERT_EQ(3u, found.size());
-            ASSERT_EQ(2u, notFound.size());
-            
-            ASSERT_EQ(env.dir() + Path("test.txt"), found[0]);
-            ASSERT_EQ(env.dir() + Path("anotherDir/test3.map"), found[1]);
-            ASSERT_EQ(env.dir() + Path("anotherDir/subDirTest/test2.map"), found[2]);
-            ASSERT_EQ(paths[3], notFound[0]);
-            ASSERT_EQ(paths[4], notFound[1]);
-            
-            rootPaths.push_back(Path("asdf"));
-            ASSERT_THROW(Disk::resolvePaths(rootPaths, paths, found, notFound), FileSystemException);
+            ASSERT_EQ(env.dir() + Path("test.txt"), Disk::resolvePath(rootPaths, paths[0]));
+            ASSERT_EQ(env.dir() + Path("anotherDir/test3.map"), Disk::resolvePath(rootPaths, paths[1]));
+            ASSERT_EQ(env.dir() + Path("anotherDir/subDirTest/test2.map"), Disk::resolvePath(rootPaths, paths[2]));
+            ASSERT_EQ(Path(""), Disk::resolvePath(rootPaths, paths[3]));
+            ASSERT_EQ(Path(""), Disk::resolvePath(rootPaths, paths[4]));
         }
         
         TEST(DiskFileSystemTest, createDiskFileSystem) {

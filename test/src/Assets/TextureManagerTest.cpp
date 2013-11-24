@@ -26,6 +26,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "Assets/TextureManager.h"
 #include "Model/MockGame.h"
 
@@ -54,10 +55,13 @@ namespace TrenchBroom {
             TextureManager textureManager;
             textureManager.reset(game);
             
-            const IO::Path path("./_does_not_exist.wad");
-            EXPECT_CALL(*game, doLoadTextureCollection(path)).WillOnce(Throw(FileSystemException("")));
+            const TextureCollectionSpec spec("somename.wad", IO::Path("./_does_not_exist.wad"));
+            EXPECT_CALL(*game, doLoadTextureCollection(spec)).WillOnce(Throw(FileSystemException("")));
             
-            ASSERT_THROW(textureManager.addExternalTextureCollection(path), FileSystemException);
+            ASSERT_FALSE(textureManager.addExternalTextureCollection(spec));
+            const TextureCollectionList& collections = textureManager.collections();
+            ASSERT_EQ(1u, collections.size());
+            ASSERT_FALSE(collections.front()->loaded());
         }
         
         TEST(TextureCollectionTest, addExistingTextureCollection) {
@@ -68,75 +72,17 @@ namespace TrenchBroom {
             TextureManager textureManager;
             textureManager.reset(game);
 
-            TextureCollection* collection = new TextureCollection("name", TextureList());
+            TextureCollection* collection = new TextureCollection("somename.wad", TextureList());
             
-            const IO::Path path("./some_collection.wad");
-            EXPECT_CALL(*game, doLoadTextureCollection(path)).WillOnce(Return(collection));
+            const TextureCollectionSpec spec("somename.wad", IO::Path("./does_exist.wad"));
+            EXPECT_CALL(*game, doLoadTextureCollection(spec)).WillOnce(Return(collection));
             
-            textureManager.addExternalTextureCollection(path);
+            ASSERT_TRUE(textureManager.addExternalTextureCollection(spec));
             const TextureCollectionList& collections = textureManager.collections();
             ASSERT_EQ(1u, collections.size());
             ASSERT_EQ(collection, collections.front());
         }
         
-        TEST(TextureManagerTest, addExistingTextureCollections) {
-            using namespace testing;
-            InSequence forceInSequenceMockCalls;
-            
-            Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
-            textureManager.reset(game);
-            
-            TextureCollectionList collections;
-            collections.push_back(new TextureCollection("name1", TextureList()));
-            collections.push_back(new TextureCollection("name2", TextureList()));
-            collections.push_back(new TextureCollection("name3", TextureList()));
-            
-            IO::Path::List paths;
-            paths.push_back(IO::Path("./some_collection1.wad"));
-            paths.push_back(IO::Path("./some_collection2.wad"));
-            paths.push_back(IO::Path("./some_collection3.wad"));
-            
-            for (size_t i = 0; i < 3; ++i)
-                EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
-            
-            textureManager.addExternalTextureCollections(paths);
-            
-            const TextureCollectionList& managerCollections = textureManager.collections();
-            ASSERT_EQ(3u, managerCollections.size());
-            for (size_t i = 0; i < 3; ++i)
-                ASSERT_EQ(collections[i], managerCollections[i]);
-        }
-        
-        TEST(TextureManagerTest, addNonExistingTextureCollections) {
-            using namespace testing;
-            InSequence forceInSequenceMockCalls;
-            
-            Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
-            textureManager.reset(game);
-            
-            bool deleted[2];
-            TextureCollectionList collections;
-            collections.push_back(new TestTextureCollection("name1", TextureList(), deleted[0]));
-            collections.push_back(new TestTextureCollection("name3", TextureList(), deleted[1]));
-            
-            IO::Path::List paths;
-            paths.push_back(IO::Path("./some_collection1.wad"));
-            paths.push_back(IO::Path("./some_collection2.wad"));
-            paths.push_back(IO::Path("./some_collection3.wad"));
-
-            EXPECT_CALL(*game, doLoadTextureCollection(paths[0])).WillOnce(Return(collections[0]));
-            EXPECT_CALL(*game, doLoadTextureCollection(paths[1])).WillOnce(Throw(FileSystemException("")));
-
-            ASSERT_THROW(textureManager.addExternalTextureCollections(paths), FileSystemException);
-            ASSERT_TRUE(textureManager.collections().empty());
-            ASSERT_TRUE(deleted[0]);
-            ASSERT_FALSE(deleted[1]); // because it has not been constructed when the exception is thrown
-            
-            delete collections[1];
-        }
-
         TEST(TextureManagerTest, removeTextureCollection) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
@@ -150,19 +96,20 @@ namespace TrenchBroom {
             collections.push_back(new TextureCollection("name2", TextureList()));
             collections.push_back(new TextureCollection("name3", TextureList()));
             
-            IO::Path::List paths;
-            paths.push_back(IO::Path("./some_collection1.wad"));
-            paths.push_back(IO::Path("./some_collection2.wad"));
-            paths.push_back(IO::Path("./some_collection3.wad"));
+            typedef std::vector<TextureCollectionSpec> SpecList;
+            SpecList specs;
+            specs.push_back(TextureCollectionSpec("name1", IO::Path("./coll1.wad")));
+            specs.push_back(TextureCollectionSpec("name2", IO::Path("./coll2.wad")));
+            specs.push_back(TextureCollectionSpec("name3", IO::Path("./coll3.wad")));
             
             for (size_t i = 0; i < 3; ++i)
-                EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
+                EXPECT_CALL(*game, doLoadTextureCollection(specs[i])).WillOnce(Return(collections[i]));
+            for (size_t i = 0; i < 3; ++i)
+                textureManager.addExternalTextureCollection(specs[i]);
+                
+            ASSERT_THROW(textureManager.removeExternalTextureCollection("does_not_exist"), AssetException);
             
-            textureManager.addExternalTextureCollections(paths);
-            
-            ASSERT_THROW(textureManager.removeExternalTextureCollection(IO::Path("does_not_exist")), AssetException);
-            
-            textureManager.removeExternalTextureCollection(paths[1]);
+            textureManager.removeExternalTextureCollection(specs[1].name());
             
             const TextureCollectionList& managerCollections = textureManager.collections();
             ASSERT_EQ(2u, managerCollections.size());
@@ -183,15 +130,17 @@ namespace TrenchBroom {
             collections.push_back(new TextureCollection("name2", TextureList()));
             collections.push_back(new TextureCollection("name3", TextureList()));
             
-            IO::Path::List paths;
-            paths.push_back(IO::Path("./some_collection1.wad"));
-            paths.push_back(IO::Path("./some_collection2.wad"));
-            paths.push_back(IO::Path("./some_collection3.wad"));
+            typedef std::vector<TextureCollectionSpec> SpecList;
+            SpecList specs;
+            specs.push_back(TextureCollectionSpec("name1", IO::Path("./coll1.wad")));
+            specs.push_back(TextureCollectionSpec("name2", IO::Path("./coll2.wad")));
+            specs.push_back(TextureCollectionSpec("name3", IO::Path("./coll3.wad")));
             
             for (size_t i = 0; i < 3; ++i)
-                EXPECT_CALL(*game, doLoadTextureCollection(paths[i])).WillOnce(Return(collections[i]));
+                EXPECT_CALL(*game, doLoadTextureCollection(specs[i])).WillOnce(Return(collections[i]));
+            for (size_t i = 0; i < 3; ++i)
+                textureManager.addExternalTextureCollection(specs[i]);
             
-            textureManager.addExternalTextureCollections(paths);
             textureManager.reset(game);
             ASSERT_TRUE(textureManager.collections().empty());
         }
@@ -204,33 +153,33 @@ namespace TrenchBroom {
             textures1.push_back(new Texture("t1",  64,  64, Color(), TextureBuffer( 64* 64*3)));
             textures1.push_back(new Texture("t2", 128, 128, Color(), TextureBuffer(128*128*3)));
             TextureCollection* collection1 = new TextureCollection("c1", textures1);
-            const IO::Path path1("asfd");
+            const TextureCollectionSpec spec1("name1", IO::Path("asdf"));
             
             TextureList textures2;
             textures2.push_back(new Texture("t2",  32,  32, Color(), TextureBuffer( 32* 32*3)));
             textures2.push_back(new Texture("t3", 128, 128, Color(), TextureBuffer(128*128*3)));
             TextureCollection* collection2 = new TextureCollection("c2", textures2);
-            const IO::Path path2("fdsa");
+            const TextureCollectionSpec spec2("name2", IO::Path("fsda"));
             
             Model::MockGamePtr game = Model::MockGame::newGame();
             TextureManager textureManager;
             textureManager.reset(game);
             
-            EXPECT_CALL(*game, doLoadTextureCollection(path1)).WillOnce(Return(collection1));
-            EXPECT_CALL(*game, doLoadTextureCollection(path2)).WillOnce(Return(collection2));
+            EXPECT_CALL(*game, doLoadTextureCollection(spec1)).WillOnce(Return(collection1));
+            EXPECT_CALL(*game, doLoadTextureCollection(spec2)).WillOnce(Return(collection2));
             
-            textureManager.addExternalTextureCollection(path1);
+            textureManager.addExternalTextureCollection(spec1);
             
             ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
             ASSERT_TRUE(textureManager.texture("t2") == textures1[1]);
             
-            textureManager.addExternalTextureCollection(path2);
+            textureManager.addExternalTextureCollection(spec2);
             ASSERT_TRUE(textureManager.texture("t1") == textures1[0]);
             ASSERT_TRUE(textureManager.texture("t2") == textures2[0]);
             ASSERT_TRUE(textureManager.texture("t3") == textures2[1]);
             
             ASSERT_FALSE(textures1[0]->overridden());
-            ASSERT_TRUE(textures1[1]->overridden());
+            ASSERT_TRUE( textures1[1]->overridden());
             ASSERT_FALSE(textures2[0]->overridden());
             ASSERT_FALSE(textures2[1]->overridden());
         }

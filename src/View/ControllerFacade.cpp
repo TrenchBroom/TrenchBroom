@@ -313,31 +313,31 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::addTextureCollection(const IO::Path& path) {
+        bool ControllerFacade::addTextureCollection(const String& name) {
             using namespace Controller;
 
-            Command::Ptr command = TextureCollectionCommand::add(m_document, path);
+            Command::Ptr command = TextureCollectionCommand::add(m_document, name);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::removeTextureCollections(const IO::Path::List& paths) {
+        bool ControllerFacade::removeTextureCollections(const StringList& names) {
             using namespace Controller;
             
-            Command::Ptr command = TextureCollectionCommand::remove(m_document, paths);
+            Command::Ptr command = TextureCollectionCommand::remove(m_document, names);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::moveTextureCollectionUp(const IO::Path& path) {
+        bool ControllerFacade::moveTextureCollectionUp(const String& name) {
             using namespace Controller;
             
-            Command::Ptr command = TextureCollectionCommand::moveUp(m_document, path);
+            Command::Ptr command = TextureCollectionCommand::moveUp(m_document, name);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::moveTextureCollectionDown(const IO::Path& path) {
+        bool ControllerFacade::moveTextureCollectionDown(const String& name) {
             using namespace Controller;
             
-            Command::Ptr command = TextureCollectionCommand::moveDown(m_document, path);
+            Command::Ptr command = TextureCollectionCommand::moveDown(m_document, name);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

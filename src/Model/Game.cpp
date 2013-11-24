@@ -34,6 +34,10 @@ namespace TrenchBroom {
             return gameFactory.isGamePathPreference(gameName(), prefPath);
         }
 
+        IO::Path Game::gamePath() const {
+            return doGamePath();
+        }
+
         void Game::setGamePath(const IO::Path& gamePath) {
             doSetGamePath(gamePath);
         }
@@ -78,16 +82,16 @@ namespace TrenchBroom {
             return doFindBuiltinTextureCollections();
         }
         
-        IO::Path::List Game::extractTexturePaths(const Map* map) const {
-            return doExtractTexturePaths(map);
+        StringList Game::extractExternalTextureCollections(const Map* map) const {
+            return doExtractExternalTextureCollections(map);
         }
         
-        void Game::updateTexturePaths(Map* map, const IO::Path::List& paths) const {
-            doUpdateTexturePaths(map, paths);
+        void Game::updateExternalTextureCollections(Map* map, const StringList& collections) const {
+            doUpdateExternalTextureCollections(map, collections);
         }
 
-        Assets::TextureCollection* Game::loadTextureCollection(const IO::Path& path) const {
-            return doLoadTextureCollection(path);
+        Assets::TextureCollection* Game::loadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
+            return doLoadTextureCollection(spec);
         }
         
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {

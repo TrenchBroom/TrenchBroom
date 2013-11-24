@@ -215,11 +215,10 @@ namespace VectorUtils {
         typedef std::vector<T> Vec;
         
         typename Vec::iterator mIt = minuend.begin();
-        typename Vec::iterator mEnd = minuend.end();
         typename Vec::const_iterator sIt = subtrahend.begin();
         typename Vec::const_iterator sEnd = subtrahend.end();
         
-        while (mIt != mEnd && sIt != sEnd) {
+        while (mIt != minuend.end() && sIt != sEnd) {
             const T& m = *mIt;
             const T& s = *sIt;
             if (cmp(m, s)) { // m < s

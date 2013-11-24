@@ -20,6 +20,7 @@
 #include "GameImpl.h"
 
 #include "Assets/Palette.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/DiskFileSystem.h"
@@ -57,6 +58,10 @@ namespace TrenchBroom {
 
         const String& GameImpl::doGameName() const {
             return m_config.name();
+        }
+
+        IO::Path GameImpl::doGamePath() const {
+            return m_gamePath;
         }
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath) {
@@ -123,35 +128,23 @@ namespace TrenchBroom {
             }
         }
         
-        IO::Path::List GameImpl::doExtractTexturePaths(const Map* map) const {
-            IO::Path::List paths;
-            
+        StringList GameImpl::doExtractExternalTextureCollections(const Map* map) const {
             const String& property = m_config.textureConfig().property;
             if (property.empty())
-                return paths;
+                return EmptyStringList;
             
             const Entity* worldspawn = map->worldspawn();
             if (worldspawn == NULL)
-                return paths;
+                return EmptyStringList;
             
             const Model::PropertyValue& pathsValue = worldspawn->property(property);
             if (pathsValue.empty())
-                return paths;
+                return EmptyStringList;
             
-            const StringList pathStrs = StringUtils::splitAndTrim(pathsValue, ';');
-            StringList::const_iterator it, end;
-            for (it = pathStrs.begin(), end = pathStrs.end(); it != end; ++it) {
-                const String pathStr = *it;
-                if (!pathStr.empty()) {
-                    const IO::Path path(pathStr);
-                    paths.push_back(path);
-                }
-            }
-            
-            return paths;
+            return StringUtils::splitAndTrim(pathsValue, ';');
         }
         
-        void GameImpl::doUpdateTexturePaths(Map* map, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateExternalTextureCollections(Map* map, const StringList& collections) const {
             const String& property = m_config.textureConfig().property;
             if (property.empty())
                 return;
@@ -160,16 +153,16 @@ namespace TrenchBroom {
             if (worldspawn == NULL)
                 return;
             
-            const String value = StringUtils::join(paths, ';', IO::Path::ToString());
+            const String value = StringUtils::join(collections, ';');
             worldspawn->addOrUpdateProperty(property, value);
         }
 
-        Assets::TextureCollection* GameImpl::doLoadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* GameImpl::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             const String& type = m_config.textureConfig().type;
             if (type == "wad")
-                return loadWadTextureCollection(path);
+                return loadWadTextureCollection(spec);
             if (type == "wal")
-                return loadWalTextureCollection(path);
+                return loadWalTextureCollection(spec);
             throw GameException("Unknown texture collection type '" + type + "'");
         }
         
@@ -270,23 +263,25 @@ namespace TrenchBroom {
             throw GameException("Map format is not supported for writing");
         }
         
-        Assets::TextureCollection* GameImpl::loadWadTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             assert(m_palette != NULL);
             
             IO::WadTextureLoader loader(*m_palette);
-            return loader.loadTextureCollection(path);
+            return loader.loadTextureCollection(spec);
         }
         
-        Assets::TextureCollection* GameImpl::loadWalTextureCollection(const IO::Path& path) const {
+        Assets::TextureCollection* GameImpl::loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             assert(m_palette != NULL);
             
+            const IO::Path& path = spec.path();
             if (path.isAbsolute()) {
                 IO::DiskFileSystem diskFS(path.deleteLastComponent());
                 IO::WalTextureLoader loader(diskFS, *m_palette);
-                return loader.loadTextureCollection(path.lastComponent());
+                const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
+                return loader.loadTextureCollection(newSpec);
             } else {
                 IO::WalTextureLoader loader(m_fs, *m_palette);
-                return loader.loadTextureCollection(path);
+                return loader.loadTextureCollection(spec);
             }
         }
         

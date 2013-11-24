@@ -149,7 +149,7 @@ namespace TrenchBroom {
                     if (event.GetEventObject() == m_moveModUpButton)
                         event.Enable(selections.front() > 0);
                     else
-                        event.Enable(selections.front() < static_cast<size_t>(m_enabledModList->GetCount()) - 1);
+                        event.Enable(selections.front() < static_cast<int>(m_enabledModList->GetCount()) - 1);
                 } else {
                     event.Enable(false);
                 }

@@ -23,9 +23,10 @@
 #include "ByteBuffer.h"
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Assets/Palette.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
@@ -37,8 +38,8 @@ namespace TrenchBroom {
         m_fs(fs),
         m_palette(palette) {}
 
-        Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Path& path) {
-            Path::List texturePaths = m_fs.findItems(path, FileSystem::ExtensionMatcher("wal"));
+        Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
+            Path::List texturePaths = m_fs.findItems(spec.path(), FileSystem::ExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
             
             Assets::TextureList textures;
@@ -51,7 +52,7 @@ namespace TrenchBroom {
                 textures.push_back(texture);
             }
             
-            return new Assets::TextureCollection(path.lastComponent().asString(), textures);
+            return new Assets::TextureCollection(spec.name(), textures);
         }
         
         Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) {

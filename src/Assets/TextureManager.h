@@ -21,33 +21,37 @@
 #define __TrenchBroom__TextureManager__
 
 #include "Assets/AssetTypes.h"
-#include "Model/ModelTypes.h"
 #include "IO/Path.h"
+#include "Model/ModelTypes.h"
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
+        class TextureCollectionSpec;
+        
         class TextureManager {
         public:
             enum SortOrder {
                 Name  = 0,
                 Usage = 1
             };
+            
             typedef std::pair<TextureCollection*, TextureList> Group;
             typedef std::vector<Group> GroupList;
         private:
-            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
-            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
+            typedef std::map<String, TextureCollection*> TextureCollectionMap;
+            typedef std::pair<String, TextureCollection*> TextureCollectionMapEntry;
             typedef std::map<String, Texture*> TextureMap;
             
             Model::GamePtr m_game;
             
             TextureCollectionList m_builtinCollections;
-            TextureCollectionMap m_builtinCollectionsByPath;
+            TextureCollectionMap m_builtinCollectionsByName;
             
             TextureCollectionList m_externalCollections;
-            TextureCollectionMap m_externalCollectionsByPath;
+            TextureCollectionMap m_externalCollectionsByName;
             TextureCollectionMap m_toRemove;
             
             TextureCollectionList m_allCollections;
@@ -60,12 +64,10 @@ namespace TrenchBroom {
 
             void setBuiltinTextureCollections(const IO::Path::List& paths);
             
-            void addExternalTextureCollection(const IO::Path& path);
-            void addExternalTextureCollections(const IO::Path::List& paths);
-            void removeExternalTextureCollection(const IO::Path& path);
-            void removeExternalTextureCollections(const IO::Path::List& paths);
-            void moveExternalTextureCollectionUp(const IO::Path& path);
-            void moveExternalTextureCollectionDown(const IO::Path& path);
+            bool addExternalTextureCollection(const TextureCollectionSpec& spec);
+            void removeExternalTextureCollection(const String& name);
+            void moveExternalTextureCollectionUp(const String& name);
+            void moveExternalTextureCollectionDown(const String& name);
             
             void reset(Model::GamePtr game);
             void commitChanges();
@@ -74,12 +76,11 @@ namespace TrenchBroom {
             const TextureList& textures(const SortOrder sortOrder) const;
             const GroupList& groups(const SortOrder sortOrder) const;
             const TextureCollectionList& collections() const;
+            const StringList externalCollectionNames() const;
         private:
-            void doAddTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
-            void doAddTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath);
+            void doAddTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
             
-            void doRemoveTextureCollections(const IO::Path::List& paths, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
-            void doRemoveTextureCollection(const IO::Path& path, TextureCollectionList& collections, TextureCollectionMap& collectionsByPath, TextureCollectionMap& toRemove);
+            void doRemoveTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName, TextureCollectionMap& toRemove);
             
             void clearBuiltinTextureCollections();
             void clearExternalTextureCollections();

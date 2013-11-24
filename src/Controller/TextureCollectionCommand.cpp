@@ -22,53 +22,51 @@
 #include "Assets/TextureManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType TextureCollectionCommand::Type = Command::freeType();
 
-        TextureCollectionCommand::Ptr TextureCollectionCommand::add(View::MapDocumentPtr document, const IO::Path& path) {
-            const IO::Path::List paths(1, path);
+        TextureCollectionCommand::Ptr TextureCollectionCommand::add(View::MapDocumentPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Add Texture Collection",
                                                     AAdd,
-                                                    paths));
+                                                    StringList(1, name)));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::remove(View::MapDocumentPtr document, const IO::Path::List& paths) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::remove(View::MapDocumentPtr document, const StringList& names) {
             return Ptr(new TextureCollectionCommand(document,
-                                                    paths.size() == 1 ? "Remove Texture Collection" : "Remove Texture Collections",
+                                                    names.size() == 1 ? "Remove Texture Collection" : "Remove Texture Collections",
                                                     ARemove,
-                                                    paths));
+                                                    names));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(View::MapDocumentPtr document, const IO::Path& path) {
-            const IO::Path::List paths(1, path);
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(View::MapDocumentPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
-                                                    "Move Texture Collections Up",
+                                                    "Move Texture Collection Up",
                                                     AMoveUp,
-                                                    paths));
+                                                    StringList(1, name)));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(View::MapDocumentPtr document, const IO::Path& path) {
-            const IO::Path::List paths(1, path);
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(View::MapDocumentPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
-                                                    "Move Texture Collections Up",
+                                                    "Move Texture Collection Down",
                                                     AMoveDown,
-                                                    paths));
+                                                    StringList(1, name)));
         }
 
-        TextureCollectionCommand::TextureCollectionCommand(View::MapDocumentPtr document, const String& name, const Action action, const IO::Path::List& paths) :
+        TextureCollectionCommand::TextureCollectionCommand(View::MapDocumentPtr document, const String& name, const Action action, const StringList& names) :
         Command(Type, name, true, true),
         m_document(document),
         m_action(action),
-        m_paths(paths) {
+        m_names(names) {
             switch (m_action) {
                 case AAdd:
                 case AMoveUp:
                 case AMoveDown:
-                    assert(paths.size() == 1);
+                    assert(m_names.size() == 1);
                     break;
                 case ARemove:
                     break;
@@ -76,71 +74,52 @@ namespace TrenchBroom {
         }
         
         bool TextureCollectionCommand::doPerformDo() {
-            m_previousCollections = m_document->externalTextureCollections();
-
             Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
             
             switch (m_action) {
                 case AAdd:
-                    return addTextureCollections(m_paths);
+                    m_document->addExternalTextureCollections(m_names);
+                    break;
                 case ARemove:
-                    return removeTextureCollections(m_paths);
+                    m_document->removeExternalTextureCollections(m_names);
+                    break;
                 case AMoveUp:
-                    return moveUp(m_paths.front());
+                    m_document->moveExternalTextureCollectionUp(m_names.front());
+                    break;
                 case AMoveDown:
-                    return moveDown(m_paths.front());
+                    m_document->moveExternalTextureCollectionDown(m_names.front());
+                    break;
             }
 
+            m_document->objectWillChangeNotifier(worldspawn);
+            m_document->updateExternalTextureCollectionProperty();
             m_document->objectDidChangeNotifier(worldspawn);
             m_document->textureCollectionsDidChangeNotifier();
+            return true;
         }
         
         bool TextureCollectionCommand::doPerformUndo() {
             Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
 
             switch (m_action) {
                 case AAdd:
-                    return removeTextureCollections(m_paths);
+                    m_document->removeExternalTextureCollections(m_names);
+                    break;
                 case ARemove:
-                    return addTextureCollections(m_paths);
+                    m_document->addExternalTextureCollections(m_names);
+                    break;
                 case AMoveUp:
-                    return moveDown(m_paths.front());
+                    m_document->moveExternalTextureCollectionDown(m_names.front());
+                    break;
                 case AMoveDown:
-                    return moveUp(m_paths.front());
+                    m_document->moveExternalTextureCollectionUp(m_names.front());
+                    break;
             }
 
+            m_document->objectWillChangeNotifier(worldspawn);
+            m_document->updateExternalTextureCollectionProperty();
             m_document->objectDidChangeNotifier(worldspawn);
             m_document->textureCollectionsDidChangeNotifier();
-        }
-        
-        bool TextureCollectionCommand::addTextureCollections(const IO::Path::List& paths) {
-            try {
-                Assets::TextureManager& textureManager = m_document->textureManager();
-                textureManager.addExternalTextureCollections(paths);
-                return true;
-            } catch (const Exception& e) {
-                m_document->error(String(e.what()));
-                return false;
-            }
-        }
-        
-        bool TextureCollectionCommand::removeTextureCollections(const IO::Path::List& paths) {
-            Assets::TextureManager& textureManager = m_document->textureManager();
-            textureManager.removeExternalTextureCollections(paths);
-            return true;
-        }
-        
-        bool TextureCollectionCommand::moveUp(const IO::Path& path) {
-            Assets::TextureManager& textureManager = m_document->textureManager();
-            textureManager.moveExternalTextureCollectionUp(path);
-            return true;
-        }
-        
-        bool TextureCollectionCommand::moveDown(const IO::Path& path) {
-            Assets::TextureManager& textureManager = m_document->textureManager();
-            textureManager.moveExternalTextureCollectionDown(path);
             return true;
         }
     }

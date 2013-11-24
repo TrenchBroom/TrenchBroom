@@ -25,6 +25,7 @@
 #include <wx/grid.h>
 #include <wx/panel.h>
 
+class wxButton;
 class wxWindow;
 
 namespace TrenchBroom {

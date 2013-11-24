@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 assert(model != NULL);
                 m_models[path] = model;
                 return model;
-            } catch (const GameException& e) {
+            } catch (const GameException&) {
                 m_modelMismatches.insert(path);
                 throw;
             }

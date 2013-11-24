@@ -23,8 +23,8 @@ namespace TrenchBroom {
     namespace IO {
         TextureLoader::~TextureLoader() {}
         
-        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
-            return doLoadTextureCollection(path);
+        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Assets::TextureCollectionSpec& spec) {
+            return doLoadTextureCollection(spec);
         }
     }
 }

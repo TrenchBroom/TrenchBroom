@@ -27,6 +27,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/Game.h"
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             static MockGamePtr newGame();
 
             MOCK_CONST_METHOD0(doGameName, const String&());
+            MOCK_CONST_METHOD0(doGamePath, IO::Path());
             MOCK_METHOD1(doSetGamePath, void(const IO::Path&));
             MOCK_METHOD1(doSetAdditionalSearchPaths, void(const IO::Path::List& searchPaths));
             
@@ -61,9 +63,9 @@ namespace TrenchBroom {
             MOCK_CONST_METHOD3(doWriteFacesToStream, void(Model::MapFormat::Type, const Model::BrushFaceList&, std::ostream&));
             
             MOCK_CONST_METHOD0(doFindBuiltinTextureCollections, IO::Path::List());
-            MOCK_CONST_METHOD1(doExtractTexturePaths, IO::Path::List(const Map*));
-            MOCK_CONST_METHOD2(doUpdateTexturePaths, void(Map*, const IO::Path::List&));
-            MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::TextureCollection*(const IO::Path&));
+            MOCK_CONST_METHOD1(doExtractExternalTextureCollections, StringList(const Map*));
+            MOCK_CONST_METHOD2(doUpdateExternalTextureCollections, void(Map*, const StringList&));
+            MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::TextureCollection*(const Assets::TextureCollectionSpec&));
             
             MOCK_CONST_METHOD1(doLoadEntityDefinitions, Assets::EntityDefinitionList(const IO::Path&));
             MOCK_CONST_METHOD0(doAllEntityDefinitionFiles, IO::Path::List());

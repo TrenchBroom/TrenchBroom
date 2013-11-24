@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 static const bool caseSensitive = doCheckCaseSensitive();
                 return caseSensitive;
             }
-
+            
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
                 Path::List::const_iterator it, end;
                 for (it = list.begin(), end = list.end(); it != end; ++it) {
@@ -146,27 +146,18 @@ namespace TrenchBroom {
                 return Path(::wxGetCwd().ToStdString());
             }
             
-            void resolvePaths(const Path::List& searchPaths, const Path::List& paths, Path::List& foundPaths, Path::List& notFoundPaths) {
-                
-                for (size_t i = 0; i < paths.size(); ++i) {
-                    const Path& path = paths[i];
-                    if (path.isAbsolute()) {
-                        if (fileExists(path) || directoryExists(path))
-                            foundPaths.push_back(path);
-                        else
-                            notFoundPaths.push_back(path);
-                    } else {
-                        bool found = false;
-                        for (size_t j = 0; j < searchPaths.size() && !found; ++j) {
-                            const Path& searchPath = searchPaths[j];
-                            found = fileExists(searchPath + path) || directoryExists(searchPath + path);
-                            if (found)
-                                foundPaths.push_back(searchPath + path);
-                        }
-                        if (!found)
-                            notFoundPaths.push_back(path);
+            IO::Path resolvePath(const Path::List& searchPaths, const Path& path) {
+                if (path.isAbsolute()) {
+                    if (fileExists(path) || directoryExists(path))
+                        return path;
+                } else {
+                    for (size_t j = 0; j < searchPaths.size(); ++j) {
+                        const Path& searchPath = searchPaths[j];
+                        if (fileExists(searchPath + path) || directoryExists(searchPath + path))
+                            return searchPath + path;
                     }
                 }
+                return Path("");
             }
         }
         
@@ -183,7 +174,7 @@ namespace TrenchBroom {
         const Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
             return getPath() + fixPath(relPath);
         }
-
+        
         Path DiskFileSystem::fixPath(const Path& path) const {
             if (path.isAbsolute())
                 throw FileSystemException("Cannot handle absolute path: '" + path.asString() + "'");

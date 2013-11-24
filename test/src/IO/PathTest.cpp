@@ -127,13 +127,14 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
-            ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")), PathException);
-            ASSERT_THROW(Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello")), PathException);
+            ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("d:\\asdf\\test")), PathException);
+            ASSERT_EQ(Path("..\\hurr\\hello"), Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")));
+            ASSERT_EQ(Path("..\\hello"), Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello")));
             ASSERT_EQ(Path("hello"), Path("c:\\asdf").makeRelative(Path("c:\\asdf\\hello")));
             ASSERT_EQ(Path("hello"), Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")));
             ASSERT_EQ(Path("hello"), Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")));
-            ASSERT_EQ(Path(".\\hello"), Path("c:\\asdf\\test\\..").makeRelative(Path("c:\\asdf\\.\\hello")));
-            ASSERT_EQ(Path("hurr\\..\\hello"), Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
+            ASSERT_EQ(Path("hello"), Path("c:\\asdf\\test\\..").makeRelative(Path("c:\\asdf\\.\\hello")));
+            ASSERT_EQ(Path("hello"), Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
         
         TEST(PathTest, makeCanonical) {
@@ -240,13 +241,13 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/")), PathException);
-            ASSERT_THROW(Path("/asdf").makeRelative(Path("/hurr/hello")), PathException);
-            ASSERT_THROW(Path("/asdf/test/blah").makeRelative(Path("/asdf/test/hello")), PathException);
+            ASSERT_EQ(Path("../hello"), Path("/asdf/test/blah").makeRelative(Path("/asdf/test/hello")));
+            ASSERT_EQ(Path("../hurr/hello"), Path("/asdf").makeRelative(Path("/hurr/hello")));
             ASSERT_EQ(Path("hello"), Path("/asdf").makeRelative(Path("/asdf/hello")));
             ASSERT_EQ(Path("hello"), Path("/./asdf").makeRelative(Path("/asdf/hello")));
             ASSERT_EQ(Path("hello"), Path("/./asdf").makeRelative(Path("/asdf/hello")));
-            ASSERT_EQ(Path("./hello"), Path("/asdf/test/..").makeRelative(Path("/asdf/./hello")));
-            ASSERT_EQ(Path("hurr/../hello"), Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")));
+            ASSERT_EQ(Path("hello"), Path("/asdf/test/..").makeRelative(Path("/asdf/./hello")));
+            ASSERT_EQ(Path("hello"), Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")));
         }
         
         TEST(PathTest, makeCanonical) {

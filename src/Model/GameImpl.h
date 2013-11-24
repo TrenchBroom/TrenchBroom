@@ -47,6 +47,7 @@ namespace TrenchBroom {
             ~GameImpl();
         private:
             const String& doGameName() const;
+            IO::Path doGamePath() const;
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
@@ -61,9 +62,9 @@ namespace TrenchBroom {
             void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List doFindBuiltinTextureCollections() const;
-            IO::Path::List doExtractTexturePaths(const Map* map) const;
-            void doUpdateTexturePaths(Map* map, const IO::Path::List& paths) const;
-            Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const;
+            StringList doExtractExternalTextureCollections(const Map* map) const;
+            void doUpdateExternalTextureCollections(Map* map, const StringList& collections) const;
+            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             IO::Path::List doAllEntityDefinitionFiles() const;
@@ -73,8 +74,8 @@ namespace TrenchBroom {
 
             MapWriterPtr mapWriter(MapFormat::Type format) const;
             
-            Assets::TextureCollection* loadWadTextureCollection(const IO::Path& path) const;
-            Assets::TextureCollection* loadWalTextureCollection(const IO::Path& path) const;
+            Assets::TextureCollection* loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            Assets::TextureCollection* loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr file) const;
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr file) const;

@@ -24,6 +24,9 @@
 #include "Assets/TextureCollection.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
+#include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
@@ -50,6 +53,21 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
+            const wxString pathWxStr = ::wxFileSelector(_("Load Texture Collection"), wxEmptyString, wxEmptyString, wxEmptyString, _(""), wxFD_OPEN);
+            if (pathWxStr.empty())
+                return;
+            
+            const IO::Path absPath(pathWxStr.ToStdString());
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path docPath = m_document->path();
+            const IO::Path gamePath = gameFactory.gamePath(m_document->game()->gameName());
+            
+            ChoosePathTypeDialog pathDialog(this, absPath, docPath, gamePath);
+            if (pathDialog.ShowModal() != wxID_OK)
+                return;
+            
+            const IO::Path collectionPath = pathDialog.path();
+            m_controller->addTextureCollection(collectionPath.asString());
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
@@ -57,16 +75,16 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(!selections.empty());
             
-            const IO::Path::List paths = m_document->externalTextureCollections();
-            IO::Path::List removePaths;
-            
+            const StringList names = m_document->textureManager().externalCollectionNames();
+            StringList removeNames;
+
             for (size_t i = 0; i < selections.size(); ++i) {
                 const size_t index = static_cast<size_t>(selections[i]);
-                assert(index < paths.size());
-                removePaths.push_back(paths[index]);
+                assert(index < names.size());
+                removeNames.push_back(names[index]);
             }
             
-            m_controller->removeTextureCollections(removePaths);
+            m_controller->removeTextureCollections(removeNames);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
@@ -75,10 +93,13 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             const size_t index = static_cast<size_t>(selections.front());
-            const IO::Path::List paths = m_document->externalTextureCollections();
-            assert(index < paths.size());
+            assert(index > 0);
             
-            m_controller->moveTextureCollectionUp(paths[index]);
+            const StringList names = m_document->textureManager().externalCollectionNames();
+            assert(index < names.size());
+            
+            m_controller->moveTextureCollectionUp(names[index]);
+            m_collections->SetSelection(index - 1);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
@@ -87,10 +108,11 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             const size_t index = static_cast<size_t>(selections.front());
-            const IO::Path::List paths = m_document->externalTextureCollections();
-            assert(index < paths.size());
+            const StringList names = m_document->textureManager().externalCollectionNames();
+            assert(index < names.size() - 1);
             
-            m_controller->moveTextureCollectionDown(paths[index]);
+            m_controller->moveTextureCollectionDown(names[index]);
+            m_collections->SetSelection(index + 1);
         }
 
         void TextureCollectionEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
@@ -198,11 +220,11 @@ namespace TrenchBroom {
         void TextureCollectionEditor::updateControls() {
             m_collections->Clear();
             
-            const IO::Path::List paths = m_document->externalTextureCollections();
-            IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const IO::Path& path = *it;
-                m_collections->Append(path.asString());
+            const StringList names = m_document->textureManager().externalCollectionNames();
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                m_collections->Append(name);
             }
         }
     }

@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/Texture.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "Model/BrushFace.h"
@@ -285,7 +286,7 @@ namespace TrenchBroom {
         
         void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             assert(game != NULL);
-            info("Opening document document " + path.asString());
+            info("Opening document " + path.asString());
             
             m_selection.clear();
             m_worldBounds = worldBounds;
@@ -363,12 +364,32 @@ namespace TrenchBroom {
             return m_game->allEntityDefinitionFiles();
         }
 
-        IO::Path::List MapDocument::externalTextureCollections() const {
-            return m_game->extractTexturePaths(m_map);
+        void MapDocument::addExternalTextureCollections(const StringList& names) {
+            doAddExternalTextureCollections(names);
+            updateTextures();
+        }
+        
+        void MapDocument::removeExternalTextureCollections(const StringList& names) {
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                m_textureManager.removeExternalTextureCollection(name);
+            }
+            updateTextures();
+        }
+        
+        void MapDocument::moveExternalTextureCollectionUp(const String& name) {
+            m_textureManager.moveExternalTextureCollectionUp(name);
+            updateTextures();
+        }
+        
+        void MapDocument::moveExternalTextureCollectionDown(const String& name) {
+            m_textureManager.moveExternalTextureCollectionDown(name);
+            updateTextures();
         }
 
-        void MapDocument::updateExternalTextureCollections(const IO::Path::List& paths) {
-            m_game->updateTexturePaths(m_map, paths);
+        void MapDocument::updateExternalTextureCollectionProperty() {
+            m_game->updateExternalTextureCollections(m_map, m_textureManager.externalCollectionNames());
         }
 
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
@@ -747,26 +768,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadExternalTextures() {
-            try {
-                IO::Path::List rootPaths;
-                rootPaths.push_back(IO::SystemPaths::appDirectory());
-                if (m_path.isAbsolute())
-                    rootPaths.push_back(m_path.deleteLastComponent());
-                
-                const IO::Path::List texturePaths = externalTextureCollections();
-                IO::Path::List found, notFound;
-                IO::Disk::resolvePaths(rootPaths, texturePaths, found, notFound);
-                
-                if (!found.empty()) {
-                    m_textureManager.addExternalTextureCollections(found);
-                    info("Loaded external texture collections " + StringUtils::join(IO::Path::asStrings(found), ", "));
-                }
-                
-                if (!notFound.empty())
-                    warn("Could not find external texture collections " + StringUtils::join(IO::Path::asStrings(notFound), ", "));
-            } catch (Exception e) {
-                error("Error external loading texture collection: %s", e.what());
-            }
+            const StringList names = m_game->extractExternalTextureCollections(m_map);
+            doAddExternalTextureCollections(names);
         }
         
         void MapDocument::updateTextures() {
@@ -776,6 +779,31 @@ namespace TrenchBroom {
                         Model::MatchAll());
         }
         
+        void MapDocument::doAddExternalTextureCollections(const StringList& names) {
+            IO::Path::List searchPaths;
+            if (!m_path.isEmpty() && m_path.isAbsolute())
+                searchPaths.push_back(m_path.deleteLastComponent());
+            
+            const IO::Path gamePath = m_game->gamePath();
+            if (!gamePath.isEmpty())
+                searchPaths.push_back(gamePath);
+            
+            searchPaths.push_back(IO::SystemPaths::appDirectory());
+            
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                const IO::Path texturePath(name);
+                const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
+                
+                const Assets::TextureCollectionSpec spec(name, absPath);
+                if (m_textureManager.addExternalTextureCollection(spec))
+                    info("Loaded external texture collection '" + name +  "'");
+                else
+                    warn("External texture collection not found: '" + name +  "'");
+            }
+        }
+
         void MapDocument::doSaveDocument(const IO::Path& path) {
             m_game->writeMap(*m_map, path);
             clearModificationCount();

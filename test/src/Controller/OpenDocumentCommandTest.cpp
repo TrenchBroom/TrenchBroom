@@ -47,7 +47,9 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
 
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
-            EXPECT_CALL(*game, doExtractTexturePaths(map)).WillOnce(Return(IO::Path::List()));
+            
+            EXPECT_CALL(*game, doExtractExternalTextureCollections(map)).WillOnce(Return(EmptyStringList));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("Quake")));
 
             Command::Ptr command = Command::Ptr(new OpenDocumentCommand(doc, worldBounds, game, path));
             ASSERT_FALSE(command->undoable());
@@ -75,9 +77,11 @@ namespace TrenchBroom {
 
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map1)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
-            
+
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
-            EXPECT_CALL(*game, doExtractTexturePaths(map1)).WillOnce(Return(IO::Path::List()));
+            
+            EXPECT_CALL(*game, doExtractExternalTextureCollections(map1)).WillOnce(Return(EmptyStringList));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("Quake")));
 
             EXPECT_CALL(*game, doLoadMap(worldBounds, path2)).WillOnce(Return(map2));
             EXPECT_CALL(*game, doExtractEnabledMods(map2)).WillOnce(Return(StringList()));
@@ -87,7 +91,9 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/someotherfile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
-            EXPECT_CALL(*game, doExtractTexturePaths(map2)).WillOnce(Return(IO::Path::List()));
+            
+            EXPECT_CALL(*game, doExtractExternalTextureCollections(map2)).WillOnce(Return(EmptyStringList));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("Quake")));
 
             doc->openDocument(worldBounds, game, path1);
             

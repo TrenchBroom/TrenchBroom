@@ -22,6 +22,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureCollectionSpec.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
@@ -41,8 +42,9 @@ namespace TrenchBroom {
             const Assets::Palette palette(Path("data/colormap.pcx"));
             WalTextureLoader loader(fs, palette);
             
-            const Path walDirPath("data/IO/Wal/rtz");
-            Assets::TextureCollection* collection = loader.loadTextureCollection(walDirPath);
+            const Assets::TextureCollectionSpec spec("rtz", IO::Path("data/IO/Wal/rtz"));
+            Assets::TextureCollection* collection = loader.loadTextureCollection(spec);
+            ASSERT_TRUE(collection->loaded());
             
             const Assets::TextureList& textures = collection->textures();
             ASSERT_EQ(7u, textures.size());

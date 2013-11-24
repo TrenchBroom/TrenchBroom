@@ -17,39 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureCollection__
-#define __TrenchBroom__TextureCollection__
+#ifndef __TrenchBroom__TextureCollectionSpec__
+#define __TrenchBroom__TextureCollectionSpec__
 
 #include "StringUtils.h"
-#include "Assets/AssetTypes.h"
-#include "Renderer/GL.h"
-
-#include <vector>
+#include "IO/Path.h"
 
 namespace TrenchBroom {
     namespace Assets {
-        class TextureCollection {
+        class TextureCollectionSpec {
         private:
-            typedef std::vector<GLuint> TextureIdList;
-            
-            bool m_loaded;
             String m_name;
-            TextureList m_textures;
-            TextureIdList m_textureIds;
+            IO::Path m_path;
         public:
-            TextureCollection(const String& name);
-            TextureCollection(const String& name, const TextureList& textures);
-            virtual ~TextureCollection();
-
-            bool loaded() const;
+            TextureCollectionSpec(const String& name, const IO::Path& path);
+            
+            bool operator==(const TextureCollectionSpec& rhs) const;
+            
             const String& name() const;
-            const TextureList& textures() const;
-        private:
-            void prepare();
-            friend class Texture;
+            const IO::Path& path() const;
         };
     }
 }
 
-
-#endif /* defined(__TrenchBroom__TextureCollection__) */
+#endif /* defined(__TrenchBroom__TextureCollectionSpec__) */

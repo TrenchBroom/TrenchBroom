@@ -27,14 +27,15 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureCollectionSpec.h"
 
 namespace TrenchBroom {
     namespace IO {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
 
-        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Path& path) {
-            Wad wad(path);
+        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
+            Wad wad(spec.path());
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
 
@@ -60,7 +61,7 @@ namespace TrenchBroom {
                 textures.push_back(new Assets::Texture(entry.name(), mipSize.width, mipSize.height, averageColor, buffers));
             }
             
-            return new Assets::TextureCollection(path.lastComponent().asString(), textures);
+            return new Assets::TextureCollection(spec.name(), textures);
         }
     }
 }

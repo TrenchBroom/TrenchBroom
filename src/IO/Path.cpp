@@ -245,40 +245,37 @@ namespace TrenchBroom {
         }
 
         Path Path::makeRelative(const Path& absolutePath) const {
+            if (isEmpty())
+                throw PathException("Cannot make relative path from an empty reference path");
+            if (absolutePath.isEmpty())
+                throw PathException("Cannot make relative path with empty sub path");
             if (!isAbsolute())
                 throw PathException("Cannot make relative path from relative reference path");
             if (!absolutePath.isAbsolute())
                 throw PathException("Cannot make relative path with relative sub path");
 
-            const StringList resolved = resolvePath(m_absolute, m_components);
-            StringList prefix;
-            bool prefixEqual = false;
+#ifdef _WIN32
+            if (m_components[0] != absolutePath.m_components[0])
+                throw PathException("Cannot make relative path if reference path has different drive spec");
+#endif
             
-            const StringList& theirComponents = absolutePath.m_components;
-            StringList::const_iterator theirIt = theirComponents.begin();
-            const StringList::const_iterator theirEnd = theirComponents.end();
+            const StringList myResolved = resolvePath(true, m_components);
+            const StringList theirResolved = resolvePath(true, absolutePath.m_components);
             
-            while (theirIt != theirEnd && !prefixEqual) {
-                const String& comp = *theirIt;
-                if (comp != ".") {
-                    if (comp == "..") {
-                        if (prefix.empty())
-                            throw PathException("Cannot resolve sub path");
-                        prefix.pop_back();
-                    } else {
-                        prefix.push_back(comp);
-                    }
-                    prefixEqual = resolved.size() == prefix.size() && std::equal(resolved.begin(), resolved.end(), prefix.begin());
-                }
-                ++theirIt;
+            // cross off all common prefixes
+            size_t p = 0;
+            while (p < std::min(myResolved.size(), theirResolved.size())) {
+                if (myResolved[p] != theirResolved[p])
+                    break;
+                ++p;
             }
-            
-            if (!prefixEqual)
-                throw PathException("Sub path is not relative to reference path");
-            
 
             StringList components;
-            components.insert(components.end(), theirIt, theirEnd);
+            for (size_t i = p; i < myResolved.size(); ++i)
+                components.push_back("..");
+            for (size_t i = p; i < theirResolved.size(); ++i)
+                components.push_back(theirResolved[i]);
+            
             return Path(false, components);
         }
 
@@ -331,7 +328,7 @@ namespace TrenchBroom {
         StringList Path::resolvePath(const bool absolute, const StringList& components) const {
             StringList::const_iterator it, end;
             StringList resolved;
-            for (it = m_components.begin(), end = m_components.end(); it != end; ++it) {
+            for (it = components.begin(), end = components.end(); it != end; ++it) {
                 const String& comp = *it;
                 if (comp == ".")
                     continue;

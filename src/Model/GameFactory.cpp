@@ -121,7 +121,13 @@ namespace TrenchBroom {
         
         void GameFactory::loadGameConfigs() {
             const IO::Path resourceDir = IO::SystemPaths::resourceDirectory();
+            if (!IO::Disk::directoryExists(resourceDir))
+                return;
+            
             const IO::DiskFileSystem fs(resourceDir);
+            if (!fs.directoryExists(IO::Path("games")))
+                return;
+            
             const IO::Path::List configFiles = fs.findItems(IO::Path("games"), IO::FileSystem::ExtensionMatcher("cfg"));
             
             IO::Path::List::const_iterator it, end;

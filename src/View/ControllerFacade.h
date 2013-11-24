@@ -98,10 +98,10 @@ namespace TrenchBroom {
             bool setMods(const StringList& mods);
             bool setEntityDefinitionFile(const IO::Path& file);
 
-            bool addTextureCollection(const IO::Path& path);
-            bool removeTextureCollections(const IO::Path::List& paths);
-            bool moveTextureCollectionUp(const IO::Path& path);
-            bool moveTextureCollectionDown(const IO::Path& path);
+            bool addTextureCollection(const String& name);
+            bool removeTextureCollections(const StringList& names);
+            bool moveTextureCollectionUp(const String& name);
+            bool moveTextureCollectionDown(const String& name);
             
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);

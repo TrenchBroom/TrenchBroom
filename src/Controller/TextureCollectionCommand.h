@@ -45,23 +45,17 @@ namespace TrenchBroom {
             
             View::MapDocumentPtr m_document;
             Action m_action;
-            IO::Path::List m_paths;
-            IO::Path::List m_previousCollections;
+            StringList m_names;
         public:
-            static Ptr add(View::MapDocumentPtr document, const IO::Path& path);
-            static Ptr remove(View::MapDocumentPtr document, const IO::Path::List& paths);
-            static Ptr moveUp(View::MapDocumentPtr document, const IO::Path& path);
-            static Ptr moveDown(View::MapDocumentPtr document, const IO::Path& path);
+            static Ptr add(View::MapDocumentPtr document, const String& name);
+            static Ptr remove(View::MapDocumentPtr document, const StringList& names);
+            static Ptr moveUp(View::MapDocumentPtr document, const String& name);
+            static Ptr moveDown(View::MapDocumentPtr document, const String& name);
         private:
-            TextureCollectionCommand(View::MapDocumentPtr document, const String& name, Action action, const IO::Path::List& paths);
+            TextureCollectionCommand(View::MapDocumentPtr document, const String& name, Action action, const StringList& names);
             
             bool doPerformDo();
             bool doPerformUndo();
-            
-            bool addTextureCollections(const IO::Path::List& paths);
-            bool removeTextureCollections(const IO::Path::List& paths);
-            bool moveUp(const IO::Path& path);
-            bool moveDown(const IO::Path& path);
         };
     }
 }

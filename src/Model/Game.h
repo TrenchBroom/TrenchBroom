@@ -42,6 +42,7 @@ namespace TrenchBroom {
             const String& gameName() const;
             bool isGamePathPreference(const IO::Path& prefPath) const;
             
+            IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
             
@@ -56,9 +57,9 @@ namespace TrenchBroom {
             void writeFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List findBuiltinTextureCollections() const;
-            IO::Path::List extractTexturePaths(const Map* map) const;
-            void updateTexturePaths(Map* map, const IO::Path::List& paths) const;
-            Assets::TextureCollection* loadTextureCollection(const IO::Path& path) const;
+            StringList extractExternalTextureCollections(const Map* map) const;
+            void updateExternalTextureCollections(Map* map, const StringList& collections) const;
+            Assets::TextureCollection* loadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
             IO::Path::List allEntityDefinitionFiles() const;
@@ -69,6 +70,7 @@ namespace TrenchBroom {
             StringList extractEnabledMods(const Map* map) const;
         private:
             virtual const String& doGameName() const = 0;
+            virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             
@@ -83,9 +85,9 @@ namespace TrenchBroom {
             virtual void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
-            virtual IO::Path::List doExtractTexturePaths(const Map* map) const = 0;
-            virtual void doUpdateTexturePaths(Map* map, const IO::Path::List& paths) const = 0;
-            virtual Assets::TextureCollection* doLoadTextureCollection(const IO::Path& path) const = 0;
+            virtual StringList doExtractExternalTextureCollections(const Map* map) const = 0;
+            virtual void doUpdateExternalTextureCollections(Map* map, const StringList& collections) const = 0;
+            virtual Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const = 0;
             
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
             virtual IO::Path::List doAllEntityDefinitionFiles() const = 0;
