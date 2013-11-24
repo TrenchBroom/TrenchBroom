@@ -69,7 +69,7 @@ namespace TrenchBroom {
             m_appRelativeRadio->SetFont(m_appRelativeRadio->GetFont().MakeBold());
             wxStaticText* appRelativePathText = new wxStaticText(box, wxID_ANY, m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_gameRelativeRadio = new wxRadioButton(box, wxID_ANY, _("Relative to Game directory"));
+            m_gameRelativeRadio = new wxRadioButton(box, wxID_ANY, _("Relative to game directory"));
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->Enable(false);
             m_gameRelativeRadio->SetFont(m_gameRelativeRadio->GetFont().MakeBold());
@@ -117,10 +117,7 @@ namespace TrenchBroom {
             
             box->SetSizerAndFit(innerSizer);
             
-            wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-            SetAffirmativeId(wxOK);
-            SetEscapeId(wxCANCEL);
-            
+            wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(box, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);

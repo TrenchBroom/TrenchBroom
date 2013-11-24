@@ -46,7 +46,7 @@ namespace TrenchBroom {
             ~FrameManager();
             
             MapFrame* newFrame();
-            void closeAllFrames();
+            bool closeAllFrames();
 
             FrameList frames() const;
             bool allFramesClosed() const;
@@ -55,6 +55,7 @@ namespace TrenchBroom {
         private:
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocumentPtr document);
+            bool closeAllFrames(bool force);
             void removeAndDestroyFrame(MapFrame* frame);
             
             friend class MapFrame;

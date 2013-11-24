@@ -34,27 +34,21 @@ namespace TrenchBroom {
         m_topFrame(NULL) {}
         
         FrameManager::~FrameManager() {
-            closeAllFrames();
+            closeAllFrames(true);
         }
 
         MapFrame* FrameManager::newFrame() {
             return createOrReuseFrame();
         }
         
-        void FrameManager::closeAllFrames() {
-            MapFrame* lastFrame = NULL;
-            while (!m_frames.empty()) {
-                MapFrame* frame = m_frames.front();
-                assert(frame != lastFrame);
-                frame->Close(true);
-            }
-            assert(m_frames.empty());
-        }
-
         FrameList FrameManager::frames() const {
             return m_frames;
         }
 
+        bool FrameManager::closeAllFrames() {
+            return closeAllFrames(false);
+        }
+        
         bool FrameManager::allFramesClosed() const {
             return m_frames.empty();
         }
@@ -82,6 +76,18 @@ namespace TrenchBroom {
             frame->Show();
             frame->Raise();
             return frame;
+        }
+
+        bool FrameManager::closeAllFrames(bool force) {
+            MapFrame* lastFrame = NULL;
+            while (!m_frames.empty()) {
+                MapFrame* frame = m_frames.front();
+                assert(frame != lastFrame);
+                if (!frame->Close(force))
+                    return false;
+            }
+            assert(m_frames.empty());
+            return true;
         }
 
         void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
