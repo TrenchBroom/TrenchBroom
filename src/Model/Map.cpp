@@ -57,11 +57,15 @@ namespace TrenchBroom {
         }
 
         void Map::addEntity(Entity* entity) {
+            m_entityPropertyIndex.addEntity(entity);
             m_entities.push_back(entity);
+            entity->setMap(this);
         }
 
         void Map::removeEntity(Entity* entity) {
             VectorUtils::remove(m_entities, entity);
+            entity->setMap(NULL);
+            m_entityPropertyIndex.removeEntity(entity);
         }
 
         Entity* Map::worldspawn() const {
@@ -79,6 +83,18 @@ namespace TrenchBroom {
             if (brush != NULL)
                 return brush;
             return entity;
+        }
+
+        const EntityList& Map::entitiesWithProperty(const EntityProperty& property) {
+            return m_entityPropertyIndex.entitiesWithProperty(property);
+        }
+        
+        void Map::addEntityPropertyToIndex(Entity* entity, const EntityProperty& property) {
+            m_entityPropertyIndex.addEntityProperty(entity, property);
+        }
+        
+        void Map::removeEntityPropertyFromIndex(Entity* entity, const EntityProperty& property) {
+            m_entityPropertyIndex.removeEntityProperty(entity, property);
         }
 
         const BrushList Map::brushes() const {

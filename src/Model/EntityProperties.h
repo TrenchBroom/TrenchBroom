@@ -50,17 +50,17 @@ namespace TrenchBroom {
 
         bool isPropertyKeyMutable(const PropertyKey& key);
         bool isPropertyValueMutable(const PropertyKey& key);
-        
+        bool isNumberedProperty(const String& prefix, const PropertyKey& key);
         
         struct EntityProperty {
+        public:
             typedef std::vector<EntityProperty> List;
 
             PropertyKey key;
             PropertyValue value;
             
-            EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value) :
-            key(i_key),
-            value(i_value) {}
+            EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value);
+            bool operator<(const EntityProperty& rhs) const;
         };
         
 
@@ -73,18 +73,20 @@ namespace TrenchBroom {
             void setProperties(const EntityProperty::List& properties);
 
             template <typename T>
-            void addOrUpdateProperty(const PropertyKey& key, const T& value) {
+            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const T& value) {
                 StringStream str;
                 str << value;
-                addOrUpdateProperty(key, str.str());
+                return addOrUpdateProperty(key, str.str());
             }
             
-            void addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
+            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
             void removeProperty(const PropertyKey& key);
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue* property(const PropertyKey& key) const;
             const PropertyValue safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const;
+            
+            EntityProperty::List numberedProperties(const String& prefix) const;
         private:
             EntityProperty::List::const_iterator findProperty(const PropertyKey& key) const;
             EntityProperty::List::iterator findProperty(const PropertyKey& key);

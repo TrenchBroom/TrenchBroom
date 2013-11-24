@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 #include "Model/Entity.h"
+#include "Model/EntityPropertyIndex.h"
 #include "Model/ModelFactory.h"
 #include "Model/ModelTypes.h"
 
@@ -29,11 +30,14 @@
 
 namespace TrenchBroom {
     namespace Model {
+        struct EntityProperty;
+        
         class Map {
         private:
             MapFormat::Type m_format;
             ModelFactory m_factory;
             EntityList m_entities;
+            EntityPropertyIndex m_entityPropertyIndex;
             mutable Entity* m_worldspawn;
         public:
             Map(MapFormat::Type format);
@@ -50,6 +54,10 @@ namespace TrenchBroom {
             void removeEntity(Entity* entity);
             Entity* worldspawn() const;
             Object* findObjectByFilePosition(const size_t position) const;
+            
+            const EntityList& entitiesWithProperty(const EntityProperty& property);
+            void addEntityPropertyToIndex(Entity* entity, const EntityProperty& property);
+            void removeEntityPropertyFromIndex(Entity* entity, const EntityProperty& property);
             
             const BrushList brushes() const;
         private:

@@ -24,6 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
+#include "Model/Map.h"
 #include "Model/ModelUtils.h"
 
 namespace TrenchBroom {
@@ -41,6 +42,31 @@ namespace TrenchBroom {
         
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
+        }
+
+        Map* Entity::map() const {
+            return m_map;
+        }
+        
+        void Entity::setMap(Map* map) {
+            if (map == m_map)
+                return;
+            
+            removeAllLinkSources();
+            removeAllLinkTargets();
+            removeAllKillSources();
+            removeAllKillTargets();
+            
+            m_map = map;
+            
+            addAllLinkTargets();
+            addAllKillTargets();
+            
+            const PropertyValue* targetname = m_properties.property(PropertyKeys::Targetname);
+            if (targetname != NULL && !targetname->empty()) {
+                addAllLinkSources(*targetname);
+                addAllKillSources(*targetname);
+            }
         }
 
         Entity* Entity::clone(const BBox3& worldBounds) const {
@@ -131,11 +157,32 @@ namespace TrenchBroom {
         }
         
         void Entity::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
+            if (key == newKey)
+                return;
+            
+            const PropertyValue* valuePtr = m_properties.property(key);
+            if (valuePtr == NULL)
+                return;
+            
+            const PropertyValue value = *valuePtr;
             m_properties.renameProperty(key, newKey);
+            
+            const EntityProperty oldProperty(key, value);
+            const EntityProperty newProperty(newKey, value);
+            updatePropertyIndex(oldProperty, newProperty);
+            updateLinks(oldProperty, newProperty);
         }
 
         void Entity::removeProperty(const PropertyKey& key) {
+            const PropertyValue* valuePtr = m_properties.property(key);
+            if (valuePtr == NULL)
+                return;
+            const PropertyValue value = *valuePtr;
             m_properties.removeProperty(key);
+            
+            const EntityProperty property(key, value);
+            removePropertyFromIndex(property);
+            removeLinks(property);
         }
 
         const PropertyValue& Entity::classname(const PropertyValue& defaultClassname) const {
@@ -178,6 +225,194 @@ namespace TrenchBroom {
             return *it;
         }
 
+        void Entity::addPropertyToIndex(const EntityProperty& property) {
+            if (m_map != NULL)
+                m_map->addEntityPropertyToIndex(this, property);
+        }
+        
+        void Entity::removePropertyFromIndex(const EntityProperty& property) {
+            if (m_map != NULL)
+                m_map->removeEntityPropertyFromIndex(this, property);
+        }
+
+        void Entity::updatePropertyIndex(const EntityProperty& oldProperty, const EntityProperty& newProperty) {
+            removePropertyFromIndex(oldProperty);
+            addPropertyToIndex(newProperty);
+        }
+
+        void Entity::addLinks(const EntityProperty& property) {
+            if (isNumberedProperty(PropertyKeys::Target, property.key)) {
+                addLinkTargets(property.value);
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, property.key)) {
+                addKillTargets(property.value);
+            } else if (property.key == PropertyKeys::Targetname) {
+                addAllLinkSources(property.value);
+                addAllKillSources(property.value);
+            }
+        }
+        
+        void Entity::removeLinks(const EntityProperty& property) {
+            if (isNumberedProperty(PropertyKeys::Target, property.key)) {
+                removeLinkTargets(property.value);
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, property.key)) {
+                removeKillTargets(property.value);
+            } else if (property.key == PropertyKeys::Targetname) {
+                removeAllLinkSources();
+                removeAllKillSources();
+            }
+        }
+        
+        void Entity::updateLinks(const EntityProperty& oldProperty, const EntityProperty& newProperty) {
+            removeLinks(oldProperty);
+            addLinks(newProperty);
+        }
+
+        void Entity::addLinkTargets(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList& targets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                EntityList::const_iterator it, end;
+                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                    Entity* target = *it;
+                    target->addLinkSource(this);
+                    m_linkTargets.push_back(target);
+                }
+            }
+        }
+        
+        void Entity::addKillTargets(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList& targets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                EntityList::const_iterator it, end;
+                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                    Entity* target = *it;
+                    target->addKillSource(this);
+                    m_killTargets.push_back(target);
+                }
+            }
+        }
+
+        void Entity::removeLinkTargets(const PropertyValue& targetname) {
+            EntityList::iterator it = m_linkTargets.begin();
+            while (it != m_linkTargets.end()) {
+                Entity* target = *it;
+                const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
+                if (entityTargetname == targetname) {
+                    target->removeLinkSource(this);
+                    it = m_linkTargets.erase(it);
+                }
+            }
+        }
+        
+        void Entity::removeKillTargets(const PropertyValue& targetname) {
+            EntityList::iterator it = m_killTargets.begin();
+            while (it != m_killTargets.end()) {
+                Entity* target = *it;
+                const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
+                if (entityTargetname == targetname) {
+                    target->removeKillSource(this);
+                    it = m_killTargets.erase(it);
+                }
+            }
+        }
+
+        void Entity::addAllLinkSources(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList& linkSources = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Target, targetname));
+                EntityList::const_iterator it, end;
+                for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
+                    Entity* linkSource = *it;
+                    linkSource->addLinkTarget(this);
+                    m_linkSources.push_back(linkSource);
+                }
+            }
+        }
+        
+        void Entity::addAllLinkTargets() {
+            if (m_map != NULL) {
+                const EntityProperty::List properties = m_properties.numberedProperties(PropertyKeys::Target);
+                EntityProperty::List::const_iterator pIt, pEnd;
+                for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
+                    const EntityProperty& property = *pIt;
+                    const String& targetname = property.value;
+                    const EntityList& linkTargets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                    VectorUtils::append(m_linkTargets, linkTargets);
+                }
+                
+                EntityList::const_iterator eIt, eEnd;
+                for (eIt = m_linkTargets.begin(), eEnd = m_linkTargets.end(); eIt != eEnd; ++eIt) {
+                    Entity* linkTarget = *eIt;
+                    linkTarget->addLinkSource(this);
+                }
+            }
+        }
+        
+        void Entity::addAllKillSources(const PropertyValue& targetname) {
+            if (m_map != NULL) {
+                const EntityList& killSources = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Killtarget, targetname));
+                EntityList::const_iterator it, end;
+                for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
+                    Entity* killSource = *it;
+                    killSource->addKillTarget(this);
+                    m_killSources.push_back(killSource);
+                }
+            }
+        }
+        
+        void Entity::addAllKillTargets() {
+            if (m_map != NULL) {
+                const EntityProperty::List properties = m_properties.numberedProperties(PropertyKeys::Killtarget);
+                EntityProperty::List::const_iterator pIt, pEnd;
+                for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
+                    const EntityProperty& property = *pIt;
+                    const String& targetname = property.value;
+                    const EntityList& killTargets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                    VectorUtils::append(m_killTargets, killTargets);
+                }
+                
+                EntityList::const_iterator eIt, eEnd;
+                for (eIt = m_killTargets.begin(), eEnd = m_killTargets.end(); eIt != eEnd; ++eIt) {
+                    Entity* killTarget = *eIt;
+                    killTarget->addLinkSource(this);
+                }
+            }
+        }
+        
+        void Entity::removeAllLinkSources() {
+            EntityList::const_iterator it, end;
+            for (it = m_linkSources.begin(), end = m_linkSources.end(); it != end; ++it) {
+                Entity* entity = *it;
+                entity->removeLinkTarget(this);
+            }
+            m_linkSources.clear();
+        }
+        
+        void Entity::removeAllLinkTargets() {
+            EntityList::const_iterator it, end;
+            for (it = m_linkTargets.begin(), end = m_linkTargets.end(); it != end; ++it) {
+                Entity* entity = *it;
+                entity->removeLinkSource(this);
+            }
+            m_linkTargets.clear();
+        }
+        
+        void Entity::removeAllKillSources() {
+            EntityList::const_iterator it, end;
+            for (it = m_killSources.begin(), end = m_killSources.end(); it != end; ++it) {
+                Entity* entity = *it;
+                entity->removeKillTarget(this);
+            }
+            m_killSources.clear();
+        }
+        
+        void Entity::removeAllKillTargets() {
+            EntityList::const_iterator it, end;
+            for (it = m_killTargets.begin(), end = m_killTargets.end(); it != end; ++it) {
+                Entity* entity = *it;
+                entity->removeKillSource(this);
+            }
+            m_killTargets.clear();
+        }
+        
         bool Entity::doContains(const Object& object) const {
             return object.containedBy(*this);
         }
@@ -214,8 +449,41 @@ namespace TrenchBroom {
             return brush.intersects(*this);
         }
 
+        void Entity::addLinkSource(Entity* entity) {
+            m_linkSources.push_back(entity);
+        }
+        
+        void Entity::addLinkTarget(Entity* entity) {
+            m_linkTargets.push_back(entity);
+        }
+        
+        void Entity::addKillSource(Entity* entity) {
+            m_killSources.push_back(entity);
+        }
+        
+        void Entity::addKillTarget(Entity* entity) {
+            m_killTargets.push_back(entity);
+        }
+        
+        void Entity::removeLinkSource(Entity* entity) {
+            VectorUtils::remove(m_linkSources, entity);
+        }
+        
+        void Entity::removeLinkTarget(Entity* entity) {
+            VectorUtils::remove(m_linkTargets, entity);
+        }
+        
+        void Entity::removeKillSource(Entity* entity) {
+            VectorUtils::remove(m_killSources, entity);
+        }
+        
+        void Entity::removeKillTarget(Entity* entity) {
+            VectorUtils::remove(m_killTargets, entity);
+        }
+        
         Entity::Entity() :
         Object(OTEntity),
+        m_map(NULL),
         m_definition(NULL),
         m_model(NULL) {}
         
@@ -229,10 +497,9 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const Vec3& origin) {
-            m_properties.addOrUpdateProperty(PropertyKeys::Origin, origin.rounded().asString());
+            addOrUpdateProperty(PropertyKeys::Origin, origin.rounded().asString());
         }
 
         void Entity::applyRotation(const Mat4x4& rotation) {}
-        
     }
 }

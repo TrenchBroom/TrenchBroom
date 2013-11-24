@@ -72,6 +72,31 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool isNumberedProperty(const String& prefix, const PropertyKey& key) {
+            if (key.size() < prefix.size())
+                return false;
+            for (size_t i = 0; i < prefix.size(); ++i)
+                if (key[i] != prefix[i])
+                    return false;
+            for (size_t i = prefix.size(); i < key.size(); ++i)
+                if (key[i] < '0' || key[i] > '9')
+                    return false;
+            return true;
+        }
+
+        EntityProperty::EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value) :
+        key(i_key),
+        value(i_value) {}
+        
+        bool EntityProperty::operator<(const EntityProperty& rhs) const {
+            const int keyCmp = key.compare(rhs.key);
+            if (keyCmp < 0)
+                return true;
+            if (keyCmp > 0)
+                return false;
+            return value.compare(rhs.value) < 0;
+        }
+
         const EntityProperty::List& EntityProperties::properties() const {
             return m_properties;
         }
@@ -80,12 +105,15 @@ namespace TrenchBroom {
             m_properties = properties;
         }
 
-        void EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
+        const EntityProperty& EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
             EntityProperty::List::iterator it = findProperty(key);
-            if (it != m_properties.end())
+            if (it != m_properties.end()) {
                 it->value = value;
-            else
+                return *it;
+            } else {
                 m_properties.push_back(EntityProperty(key, value));
+                return m_properties.back();
+            }
         }
 
         void EntityProperties::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
@@ -118,6 +146,19 @@ namespace TrenchBroom {
             if (value == NULL)
                 return defaultValue;
             return *value;
+        }
+
+        EntityProperty::List EntityProperties::numberedProperties(const String& prefix) const {
+            EntityProperty::List result;
+            
+            EntityProperty::List::const_iterator it, end;
+            for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
+                const EntityProperty& property = *it;
+                if (isNumberedProperty(prefix, property.key))
+                    result.push_back(property);
+            }
+            
+            return result;
         }
 
         EntityProperty::List::const_iterator EntityProperties::findProperty(const PropertyKey& key) const {

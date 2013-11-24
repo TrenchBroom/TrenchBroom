@@ -55,12 +55,21 @@ namespace TrenchBroom {
         private:
             static const String DefaultPropertyValue;
             
+            Map* m_map;
             Assets::EntityDefinition* m_definition;
             Assets::EntityModel* m_model;
             EntityProperties m_properties;
             BrushList m_brushes;
+            
+            EntityList m_linkSources;
+            EntityList m_linkTargets;
+            EntityList m_killSources;
+            EntityList m_killTargets;
         public:
             virtual ~Entity();
+            
+            Map* map() const;
+            void setMap(Map* map);
             
             Entity* clone(const BBox3& worldBounds) const;
             EntitySnapshot takeSnapshot();
@@ -83,12 +92,30 @@ namespace TrenchBroom {
             
             template <typename T>
             void addOrUpdateProperty(const PropertyKey& key, const T& value) {
-                m_properties.addOrUpdateProperty(key, value);
+                const PropertyValue* oldValue = m_properties.property(key);
+                if (oldValue != NULL) {
+                    const EntityProperty oldProperty(key, *oldValue);
+                    removePropertyFromIndex(oldProperty);
+                    removeLinks(oldProperty);
+                }
+                
+                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value);
+                addPropertyToIndex(newProperty);
+                addLinks(newProperty);
             }
             
             template <typename T, size_t S>
             void addOrUpdateProperty(const PropertyKey& key, const Vec<T,S> value) {
-                m_properties.addOrUpdateProperty(key, value.asString());
+                const PropertyValue* oldValue = m_properties.property(key);
+                if (oldValue != NULL) {
+                    const EntityProperty oldProperty(key, *oldValue);
+                    removePropertyFromIndex(oldProperty);
+                    removeLinks(oldProperty);
+                }
+
+                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value.asString());
+                addPropertyToIndex(newProperty);
+                addLinks(newProperty);
             }
             
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
@@ -103,6 +130,29 @@ namespace TrenchBroom {
             void removeBrush(Brush* brush);
             Brush* findBrushByFilePosition(const size_t position) const;
         private:
+            void addPropertyToIndex(const EntityProperty& property);
+            void removePropertyFromIndex(const EntityProperty& property);
+            void updatePropertyIndex(const EntityProperty& oldProperty, const EntityProperty& newProperty);
+            void addLinks(const EntityProperty& property);
+            void removeLinks(const EntityProperty& property);
+            void updateLinks(const EntityProperty& oldProperty, const EntityProperty& newProperty);
+            
+            void addLinkTargets(const PropertyValue& targetname);
+            void addKillTargets(const PropertyValue& targetname);
+            
+            void removeLinkTargets(const PropertyValue& targetname);
+            void removeKillTargets(const PropertyValue& targetname);
+            
+            void addAllLinkSources(const PropertyValue& targetname);
+            void addAllLinkTargets();
+            void addAllKillSources(const PropertyValue& targetname);
+            void addAllKillTargets();
+            
+            void removeAllLinkSources();
+            void removeAllLinkTargets();
+            void removeAllKillSources();
+            void removeAllKillTargets();
+            
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             void setOrigin(const Vec3& origin);
             virtual void applyRotation(const Mat4x4& rotation);
@@ -117,6 +167,16 @@ namespace TrenchBroom {
             bool doIntersects(const Entity& entity) const;
             bool doIntersects(const Brush& brush) const;
         protected:
+            void addLinkSource(Entity* entity);
+            void addLinkTarget(Entity* entity);
+            void addKillSource(Entity* entity);
+            void addKillTarget(Entity* entity);
+            
+            void removeLinkSource(Entity* entity);
+            void removeLinkTarget(Entity* entity);
+            void removeKillSource(Entity* entity);
+            void removeKillTarget(Entity* entity);
+
             Entity();
         private:
             Entity(const Entity& other);
