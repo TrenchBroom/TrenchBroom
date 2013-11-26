@@ -72,6 +72,20 @@ namespace TrenchBroom {
             return true;
         }
 
+        String numberedPropertyPrefix(const String& key) {
+            size_t i = 0;
+            while (i < key.size() && key[i] < '0' && key[i] > '9')
+                ++i;
+            if (i == key.size())
+                return "";
+            for (size_t j = i; j < key.size(); ++j) {
+                if (key[j] < '0' || key[j] > '9')
+                    return "";
+                ++j;
+            }
+            return key.substr(0, i);
+        }
+
         bool isNumberedProperty(const String& prefix, const PropertyKey& key) {
             if (key.size() < prefix.size())
                 return false;

@@ -50,6 +50,7 @@ namespace TrenchBroom {
 
         bool isPropertyKeyMutable(const PropertyKey& key);
         bool isPropertyValueMutable(const PropertyKey& key);
+        String numberedPropertyPrefix(const String& key);
         bool isNumberedProperty(const String& prefix, const PropertyKey& key);
         
         struct EntityProperty {

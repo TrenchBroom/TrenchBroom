@@ -129,6 +129,11 @@ namespace TrenchBroom {
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
             Brush* findBrushByFilePosition(const size_t position) const;
+            
+            const EntityList& linkSources() const;
+            const EntityList& linkTargets() const;
+            const EntityList& killSources() const;
+            const EntityList& killTargets() const;
         private:
             void addPropertyToIndex(const EntityProperty& property);
             void removePropertyFromIndex(const EntityProperty& property);

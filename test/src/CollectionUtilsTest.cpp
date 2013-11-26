@@ -324,13 +324,13 @@ TEST(CollectionUtilsTest, vecContainsPtr) {
     const int* i0 = new int(0);
     const int* i110 = new int(110);
     
-    ASSERT_TRUE(VectorUtils::contains(vec, i10));
-    ASSERT_TRUE(VectorUtils::contains(vec, i4));
-    ASSERT_TRUE(VectorUtils::contains(vec, i232));
-    ASSERT_TRUE(VectorUtils::contains(vec, i11111));
-    ASSERT_FALSE(VectorUtils::contains(vec, i11));
-    ASSERT_FALSE(VectorUtils::contains(vec, i0));
-    ASSERT_FALSE(VectorUtils::contains(vec, i110));
+    ASSERT_TRUE(VectorUtils::containsPtr(vec, i10));
+    ASSERT_TRUE(VectorUtils::containsPtr(vec, i4));
+    ASSERT_TRUE(VectorUtils::containsPtr(vec, i232));
+    ASSERT_TRUE(VectorUtils::containsPtr(vec, i11111));
+    ASSERT_FALSE(VectorUtils::containsPtr(vec, i11));
+    ASSERT_FALSE(VectorUtils::containsPtr(vec, i0));
+    ASSERT_FALSE(VectorUtils::containsPtr(vec, i110));
     
     VectorUtils::clearAndDelete(vec);
     delete i10;

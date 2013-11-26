@@ -51,16 +51,25 @@ namespace StringUtils {
         return str.substr(first, last - first + 1);
     }
     
+    size_t findFirstDifference(const String& str1, const String& str2) {
+        const size_t max = std::min(str1.size(), str2.size());
+        size_t index = 0;
+        while (index < max) {
+            if (str1[index] != str2[index])
+                break;
+            ++index;
+        }
+        return index;
+    }
+
     bool isPrefix(const String& str, const String& prefix) {
         if (prefix.empty())
             return true;
         if (prefix.size() > str.size())
             return false;
         
-        for (size_t i = 0; i < prefix.size(); i++)
-            if (prefix[i] != str[i])
-                return false;
-        return true;
+        const size_t firstDiff = findFirstDifference(str, prefix);
+        return firstDiff == prefix.size();
     }
     
     bool containsCaseSensitive(const String& haystack, const String& needle) {

@@ -22,7 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/BrushFace.h"
-#include "Model/QuakeEntityRotator.h"
+#include "Model/QuakeEntityRotationPolicy.h"
 
 namespace TrenchBroom {
     namespace Model {

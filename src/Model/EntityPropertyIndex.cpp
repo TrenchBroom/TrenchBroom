@@ -45,23 +45,47 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyIndex::addEntityProperty(Entity* entity, const EntityProperty& property) {
-            EntityList& entities = m_propertyMap[property];
+            EntityList& entities = m_propertyMap[std::make_pair(property.key, property.value)];
             VectorUtils::setInsert(entities, entity);
+
+            const String unnumberedKey = numberedPropertyPrefix(property.key);
+            if (!unnumberedKey.empty()) {
+                EntityList& entities = m_numberedPropertyMap[std::make_pair(unnumberedKey, property.value)];
+                VectorUtils::setInsert(entities, entity);
+            }
         }
         
         void EntityPropertyIndex::removeEntityProperty(Entity* entity, const EntityProperty& property) {
-            EntityPropertyMap::iterator it = m_propertyMap.find(property);
+            EntityPropertyMap::iterator it = m_propertyMap.find(std::make_pair(property.key, property.value));
             assert(it != m_propertyMap.end());
             
             EntityList& entities = it->second;
             VectorUtils::setRemove(entities, entity);
             if (entities.empty())
                 m_propertyMap.erase(it);
+            
+            const String unnumberedKey = numberedPropertyPrefix(property.key);
+            if (!unnumberedKey.empty()) {
+                EntityPropertyMap::iterator it = m_numberedPropertyMap.find(std::make_pair(unnumberedKey, property.value));
+                assert(it != m_numberedPropertyMap.end());
+                
+                EntityList& entities = it->second;
+                VectorUtils::setRemove(entities, entity);
+                if (entities.empty())
+                    m_numberedPropertyMap.erase(it);
+            }
         }
 
-        const EntityList& EntityPropertyIndex::entitiesWithProperty(const EntityProperty& property) const {
-            EntityPropertyMap::const_iterator it = m_propertyMap.find(property);
+        const EntityList& EntityPropertyIndex::findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const {
+            EntityPropertyMap::const_iterator it = m_propertyMap.find(std::make_pair(key, value));
             if (it == m_propertyMap.end())
+                return EmptyEntityList;
+            return it->second;
+        }
+        
+        const EntityList& EntityPropertyIndex::findEntitiesWithNumberedProperty(const PropertyKey& unnumberedKey, const PropertyValue& value) const {
+            EntityPropertyMap::const_iterator it = m_numberedPropertyMap.find(std::make_pair(unnumberedKey, value));
+            if (it == m_numberedPropertyMap.end())
                 return EmptyEntityList;
             return it->second;
         }

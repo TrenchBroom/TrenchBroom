@@ -26,7 +26,7 @@
 #include "Model/BrushFaceTypes.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
-#include "Model/QuakeEntityRotator.h"
+#include "Model/QuakeEntityRotationPolicy.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 

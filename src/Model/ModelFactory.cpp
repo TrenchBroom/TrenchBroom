@@ -24,7 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
-#include "Model/QuakeEntityRotator.h"
+#include "Model/QuakeEntityRotationPolicy.h"
 
 #include <cassert>
 

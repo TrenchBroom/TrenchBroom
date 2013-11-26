@@ -27,7 +27,7 @@
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
 #include "Model/ModelUtils.h"
-#include "Model/QuakeEntityRotator.h"
+#include "Model/QuakeEntityRotationPolicy.h"
 
 namespace TrenchBroom {
     namespace Model {

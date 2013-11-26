@@ -36,6 +36,16 @@ namespace VectorUtils {
             delete ptr;
         }
     };
+    
+    template <typename T, typename Cmp = std::equal_to<T> >
+    struct PtrCmp {
+    private:
+        Cmp m_cmp;
+    public:
+        bool operator()(const T* lhs, const T* rhs) const {
+            return m_cmp(*lhs, *rhs);
+        }
+    };
 
     template <typename T>
     void shiftLeft(std::vector<T>& vec, const size_t offset) {
@@ -133,22 +143,28 @@ namespace VectorUtils {
         return &(*it);
     }
     
-    template <typename T>
-    bool contains(const std::vector<T>& vec, const T& item) {
-        return std::find(vec.begin(), vec.end(), item) != vec.end();
-    }
-    
-    template <typename T>
-    bool contains(std::vector<T*>& vec, const T* item) {
-        typedef std::vector<T*> VecType;
+    template <typename T, typename Cmp>
+    bool contains(const std::vector<T>& vec, const T& item, const Cmp& cmp) {
+        typedef std::vector<T> VecType;
         typedef typename VecType::const_iterator VecIter;
         
         VecIter first = vec.begin();
         const VecIter last = vec.end();
         while (first != last)
-            if (**(first++) == *item)
+            if (cmp(*(first++), item))
                 return true;
         return false;
+    }
+    
+    template <typename T>
+    bool contains(const std::vector<T>& vec, const T& item) {
+        return contains(vec, item, std::equal_to<T>());
+    }
+    
+    template <typename T>
+    bool containsPtr(const std::vector<T*>& vec, const T* item) {
+        // this const_cast is okay because we won't modify *item
+        return contains(vec, const_cast<T*>(item), PtrCmp<T, std::equal_to<T> >());
     }
     
     template <typename T>
@@ -349,16 +365,21 @@ namespace MapUtils {
         }
     };
     
-    template <typename K, typename V>
-    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
+    template <typename K, typename V, typename W>
+    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key, const W& value) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            return map.insert(insertPos, std::pair<K, V>(key, V()));
+            return map.insert(insertPos, std::pair<K, V>(key, V(value)));
         }
         return insertPos;
+    }
+
+    template <typename K, typename V>
+    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
+        return findOrInsert(map, key, V());
     }
 
     template <typename K, typename V>

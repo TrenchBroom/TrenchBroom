@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeEntityRotator__
-#define __TrenchBroom__QuakeEntityRotator__
+#ifndef __TrenchBroom__QuakeEntityRotationPolicy__
+#define __TrenchBroom__QuakeEntityRotationPolicy__
 
 #include "Model/Entity.h"
 
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeEntityRotator__) */
+#endif /* defined(__TrenchBroom__QuakeEntityRotationPolicy__) */

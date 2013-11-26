@@ -29,14 +29,19 @@ namespace TrenchBroom {
     namespace Model {
         class EntityPropertyIndex {
         private:
-            typedef std::map<EntityProperty, EntityList> EntityPropertyMap;
+            typedef std::pair<PropertyKey, PropertyValue> PropertyPair;
+            typedef std::map<PropertyPair, EntityList> EntityPropertyMap;
             EntityPropertyMap m_propertyMap;
+            EntityPropertyMap m_numberedPropertyMap;
         public:
             void addEntity(Entity* entity);
             void removeEntity(Entity* entity);
+            
             void addEntityProperty(Entity* entity, const EntityProperty& property);
             void removeEntityProperty(Entity* entity, const EntityProperty& property);
-            const EntityList& entitiesWithProperty(const EntityProperty& property) const;
+            
+            const EntityList& findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const;
+            const EntityList& findEntitiesWithNumberedProperty(const PropertyKey& unnumberedKey, const PropertyValue& value) const;
         };
     }
 }

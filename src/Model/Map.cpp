@@ -85,16 +85,20 @@ namespace TrenchBroom {
             return entity;
         }
 
-        const EntityList& Map::entitiesWithProperty(const EntityProperty& property) {
-            return m_entityPropertyIndex.entitiesWithProperty(property);
-        }
-        
         void Map::addEntityPropertyToIndex(Entity* entity, const EntityProperty& property) {
             m_entityPropertyIndex.addEntityProperty(entity, property);
         }
         
         void Map::removeEntityPropertyFromIndex(Entity* entity, const EntityProperty& property) {
             m_entityPropertyIndex.removeEntityProperty(entity, property);
+        }
+
+        const EntityList& Map::findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) {
+            return m_entityPropertyIndex.findEntitiesWithProperty(key, value);
+        }
+        
+        const EntityList& Map::findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value) {
+            return m_entityPropertyIndex.findEntitiesWithNumberedProperty(prefix, value);
         }
 
         const BrushList Map::brushes() const {

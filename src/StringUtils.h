@@ -106,6 +106,7 @@ namespace StringUtils {
     String formatString(const char* format, va_list arguments);
     String trim(const String& str, const String& chars = " \n\t\r");
 
+    size_t findFirstDifference(const String& str1, const String& str2);
     bool isPrefix(const String& str, const String& prefix);
     bool containsCaseSensitive(const String& haystack, const String& needle);
     bool containsCaseInsensitive(const String& haystack, const String& needle);

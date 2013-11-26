@@ -225,6 +225,22 @@ namespace TrenchBroom {
             return *it;
         }
 
+        const EntityList& Entity::linkSources() const {
+            return m_linkSources;
+        }
+        
+        const EntityList& Entity::linkTargets() const {
+            return m_linkTargets;
+        }
+        
+        const EntityList& Entity::killSources() const {
+            return m_killSources;
+        }
+        
+        const EntityList& Entity::killTargets() const {
+            return m_killTargets;
+        }
+
         void Entity::addPropertyToIndex(const EntityProperty& property) {
             if (m_map != NULL)
                 m_map->addEntityPropertyToIndex(this, property);
@@ -269,7 +285,7 @@ namespace TrenchBroom {
 
         void Entity::addLinkTargets(const PropertyValue& targetname) {
             if (m_map != NULL) {
-                const EntityList& targets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                const EntityList& targets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                 EntityList::const_iterator it, end;
                 for (it = targets.begin(), end = targets.end(); it != end; ++it) {
                     Entity* target = *it;
@@ -281,7 +297,7 @@ namespace TrenchBroom {
         
         void Entity::addKillTargets(const PropertyValue& targetname) {
             if (m_map != NULL) {
-                const EntityList& targets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                const EntityList& targets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                 EntityList::const_iterator it, end;
                 for (it = targets.begin(), end = targets.end(); it != end; ++it) {
                     Entity* target = *it;
@@ -317,7 +333,7 @@ namespace TrenchBroom {
 
         void Entity::addAllLinkSources(const PropertyValue& targetname) {
             if (m_map != NULL) {
-                const EntityList& linkSources = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Target, targetname));
+                const EntityList& linkSources = m_map->findEntitiesWithNumberedProperty(PropertyKeys::Target, targetname);
                 EntityList::const_iterator it, end;
                 for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
                     Entity* linkSource = *it;
@@ -334,7 +350,7 @@ namespace TrenchBroom {
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
                     const String& targetname = property.value;
-                    const EntityList& linkTargets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                    const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                     VectorUtils::append(m_linkTargets, linkTargets);
                 }
                 
@@ -348,7 +364,7 @@ namespace TrenchBroom {
         
         void Entity::addAllKillSources(const PropertyValue& targetname) {
             if (m_map != NULL) {
-                const EntityList& killSources = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Killtarget, targetname));
+                const EntityList& killSources = m_map->findEntitiesWithNumberedProperty(PropertyKeys::Killtarget, targetname);
                 EntityList::const_iterator it, end;
                 for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
                     Entity* killSource = *it;
@@ -365,7 +381,7 @@ namespace TrenchBroom {
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
                     const String& targetname = property.value;
-                    const EntityList& killTargets = m_map->entitiesWithProperty(EntityProperty(PropertyKeys::Targetname, targetname));
+                    const EntityList& killTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                     VectorUtils::append(m_killTargets, killTargets);
                 }
                 
