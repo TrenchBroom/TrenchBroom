@@ -86,10 +86,10 @@ namespace TrenchBroom {
                         insert(key, value);
                     } else if (firstDiff == m_key.size()) {
                         // m_key is a prefix of key, find or create a child that shares a common prefix with remainder, and insert there, and insert here
-                        insertValue(value);
                         const String remainder = key.substr(firstDiff);
                         const Node& child = findOrCreateChild(remainder);
                         child.insert(remainder, value);
+                        insertValue(value);
                     }
                 } else if (firstDiff == key.size()) {
                     if (firstDiff < m_key.size()) {
@@ -124,7 +124,17 @@ namespace TrenchBroom {
         private:
             void insertValue(const V& value) const {
                 typename ValueMap::iterator it = MapUtils::findOrInsert(m_values, value, 0u);
-                it->second++;
+                ++it->second;
+            }
+            
+            void removeValue(const V& value) const {
+                typename ValueMap::iterator it = m_values.find(value);
+                assert(it != m_values.end());
+                if (it->second == 1) {
+                    m_values.erase(it);
+                } else {
+                    --it->second;
+                }
             }
             
             const Node& findOrCreateChild(const String& key) const {
