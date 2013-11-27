@@ -20,7 +20,9 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
 #include "RadixTree.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     TEST(RadixTreeTest, insert) {
@@ -55,5 +57,50 @@ namespace TrenchBroom {
         ASSERT_TRUE(VectorUtils::contains(result5, String("value2")));
         ASSERT_TRUE(VectorUtils::contains(result5, String("value3")));
         ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+    }
+    
+    TEST(RadixTreeTest, remove) {
+        RadixTree<String> tree;
+        tree.insert("andrew", "value");
+        tree.insert("andreas", "value");
+        tree.insert("andrar", "value2");
+        tree.insert("andrary", "value3");
+        tree.insert("andy", "value4");
+
+        ASSERT_THROW(tree.remove("andrary", "value2"), Exception);
+        
+        tree.remove("andrary", "value3");
+        
+        StringList result1 = tree.query("andrary");
+        ASSERT_TRUE(result1.empty());
+        
+        StringList result2 = tree.query("andrar");
+        ASSERT_EQ(1u, result2.size());
+        ASSERT_TRUE(VectorUtils::contains(result2, String("value2")));
+
+        tree.remove("andrar", "value2");
+        
+        StringList result3 = tree.query("andrar");
+        ASSERT_TRUE(result3.empty());
+        
+        StringList result4 = tree.query("andre");
+        ASSERT_EQ(1u, result4.size());
+        ASSERT_TRUE(VectorUtils::contains(result4, String("value")));
+
+        StringList result5 = tree.query("andreas");
+        ASSERT_EQ(1u, result5.size());
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
+
+        tree.remove("andy", "value4");
+        ASSERT_TRUE(tree.query("andy").empty());
+        ASSERT_EQ(tree.query("andreas"), StringList(1, String("value")));
+        ASSERT_EQ(tree.query("andrew"), StringList(1, String("value")));
+        
+        tree.remove("andreas", "value");
+        ASSERT_TRUE(tree.query("andreas").empty());
+        ASSERT_EQ(tree.query("andrew"), StringList(1, String("value")));
+        
+        tree.remove("andrew", "value");
+        ASSERT_TRUE(tree.query("andrew").empty());
     }
 }

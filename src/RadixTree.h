@@ -21,6 +21,7 @@
 #define __TrenchBroom__RadixTree__
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
 #include "StringUtils.h"
 
 #include <cassert>
@@ -104,6 +105,30 @@ namespace TrenchBroom {
                 }
             }
             
+            bool remove(const String& key, const V& value) const {
+                const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
+                if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
+                    // this node's key is a prefix of the given key
+                    if (firstDiff < key.size()) {
+                        // the given key is longer than this node's key, so we must contain at the appropriate child node
+                        const String remainder(key.substr(firstDiff));
+                        typename NodeSet::iterator it = m_children.find(remainder);
+                        assert(it != m_children.end());
+                        const Node& child = *it;
+                        if (child.remove(remainder, value))
+                            m_children.erase(it);
+                    }
+                    
+                    removeValue(value);
+                    if (m_children.size() == 1) {
+                        const Node& child = *m_children.begin();
+                        if (m_values.size() == child.m_values.size())
+                            mergeNode();
+                    }
+                }
+                return m_values.empty() && m_children.empty();
+            }
+            
             void query(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0)
@@ -130,12 +155,12 @@ namespace TrenchBroom {
             
             void removeValue(const V& value) const {
                 typename ValueMap::iterator it = m_values.find(value);
-                assert(it != m_values.end());
-                if (it->second == 1) {
+                if (it == m_values.end())
+                    throw Exception("Cannot remove value (does not belong to this node)");
+                if (it->second == 1)
                     m_values.erase(it);
-                } else {
+                else
                     --it->second;
-                }
             }
             
             const Node& findOrCreateChild(const String& key) const {
@@ -146,7 +171,7 @@ namespace TrenchBroom {
             
             void splitNode(const size_t index) const {
                 assert(m_key.size() > 1);
-                assert(index < m_key.size() - 1);
+                assert(index < m_key.size());
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
 
@@ -158,7 +183,21 @@ namespace TrenchBroom {
                 const Node& newChild = findOrCreateChild(remainder);
                 newChild.m_values = m_values;
                 std::swap(newChild.m_children, newChildren);
+                
                 m_key = newKey;
+            }
+            
+            void mergeNode() const {
+                assert(m_children.size() == 1);
+                
+                NodeSet oldChildren;
+                std::swap(oldChildren, m_children);
+                
+                const Node& child = *oldChildren.begin();
+                assert(m_values == child.m_values);
+                std::swap(m_children, child.m_children);
+                
+                m_key += child.m_key;
             }
             
             void getValues(ValueList& result) const {
@@ -184,14 +223,21 @@ namespace TrenchBroom {
             m_root->insert(key, value);
         }
         
+        void remove(const String& key, const V& value) {
+            if (m_root != NULL) {
+                if (m_root->remove(key, value)) {
+                    delete m_root;
+                    m_root = NULL;
+                }
+            }
+        }
+        
         ValueList query(const String& prefix) const {
             ValueList result;
             if (m_root != NULL)
                 m_root->query(prefix, result);
             return result;
         }
-        
-        friend class RadixTreeTest;
     };
 }
 
