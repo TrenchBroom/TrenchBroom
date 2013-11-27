@@ -26,12 +26,13 @@
 #include <cassert>
 #include <map>
 #include <set>
+#include <vector>
 
 namespace TrenchBroom {
     template <typename V>
     class RadixTree {
     public:
-        typedef std::set<V> ValueSet;
+        typedef std::vector<V> ValueList;
     private:
         class Node {
         private:
@@ -103,15 +104,15 @@ namespace TrenchBroom {
                 }
             }
             
-            void query(const String& prefix, ValueSet& result) const {
+            void query(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0)
                     // no common prefix
                     return;
-                if (firstDiff == prefix.size()) {
+                if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
                     // this node represents the given (remaining) prefix
                     getValues(result);
-                } else {
+                } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
                     typename NodeSet::iterator it = m_children.find(remainder);
@@ -160,10 +161,10 @@ namespace TrenchBroom {
                 m_key = newKey;
             }
             
-            void getValues(ValueSet& result) const {
+            void getValues(ValueList& result) const {
                 typename ValueMap::const_iterator it, end;
                 for (it = m_values.begin(), end = m_values.end(); it != end; ++it)
-                    result.insert(it->first);
+                    result.push_back(it->first);
             }
         };
         
@@ -183,8 +184,8 @@ namespace TrenchBroom {
             m_root->insert(key, value);
         }
         
-        ValueSet query(const String& prefix) const {
-            ValueSet result;
+        ValueList query(const String& prefix) const {
+            ValueList result;
             if (m_root != NULL)
                 m_root->query(prefix, result);
             return result;

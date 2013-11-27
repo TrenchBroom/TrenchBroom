@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "CollectionUtils.h"
 #include "RadixTree.h"
 
 namespace TrenchBroom {
@@ -28,24 +29,31 @@ namespace TrenchBroom {
         tree.insert("key2", "value");
         tree.insert("key22", "value2");
         tree.insert("k1", "value3");
-        tree.insert("k", "value4");
         
-        StringSet result1 = tree.query("woops");
+        StringList result1 = tree.query("woops");
         ASSERT_TRUE(result1.empty());
         
-        StringSet result2 = tree.query("key222");
+        StringList result2 = tree.query("key222");
         ASSERT_TRUE(result2.empty());
         
-        StringSet result3 = tree.query("key");
+        StringList result3 = tree.query("key");
         ASSERT_EQ(2u, result3.size());
-        ASSERT_TRUE(result3.count("value"));
-        ASSERT_TRUE(result3.count("value2"));
+        ASSERT_TRUE(VectorUtils::contains(result3, String("value")));
+        ASSERT_TRUE(VectorUtils::contains(result3, String("value2")));
         
-        StringSet result4 = tree.query("k");
-        ASSERT_EQ(4u, result4.size());
-        ASSERT_TRUE(result4.count("value"));
-        ASSERT_TRUE(result4.count("value2"));
-        ASSERT_TRUE(result4.count("value3"));
-        ASSERT_TRUE(result4.count("value4"));
+        StringList result4 = tree.query("k");
+        ASSERT_EQ(3u, result4.size());
+        ASSERT_TRUE(VectorUtils::contains(result4, String("value")));
+        ASSERT_TRUE(VectorUtils::contains(result4, String("value2")));
+        ASSERT_TRUE(VectorUtils::contains(result4, String("value3")));
+
+        tree.insert("k", "value4");
+
+        StringList result5 = tree.query("k");
+        ASSERT_EQ(4u, result5.size());
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value2")));
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value3")));
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
     }
 }
