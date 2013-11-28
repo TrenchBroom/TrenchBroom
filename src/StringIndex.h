@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RadixTree__
-#define __TrenchBroom__RadixTree__
+#ifndef __TrenchBroom__StringIndex__
+#define __TrenchBroom__StringIndex__
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     template <typename V>
-    class RadixTree {
+    class StringIndex {
     public:
         typedef std::vector<V> ValueList;
     private:
@@ -43,7 +43,8 @@ namespace TrenchBroom {
             // The key is declared mutable because we must change in splitNode and mergeNode, but the resulting new key
             // will still compare equal to the old key.
             mutable String m_key;
-            mutable ValueMap m_values;
+            mutable ValueMap m_partialValues;
+            mutable ValueMap m_exactValues;
             mutable NodeSet m_children;
         public:
             Node(const String& key) :
@@ -91,16 +92,16 @@ namespace TrenchBroom {
                         const String remainder = key.substr(firstDiff);
                         const Node& child = findOrCreateChild(remainder);
                         child.insert(remainder, value);
-                        insertValue(value);
+                        insertValue(value, false);
                     }
                 } else if (firstDiff == key.size()) {
                     if (firstDiff < m_key.size()) {
                         // key is prefix of m_key, split this node and insert here
                         splitNode(firstDiff);
-                        insertValue(value);
+                        insertValue(value, true);
                     } else if (firstDiff == m_key.size()) {
                         // keys are equal, insert here
-                        insertValue(value);
+                        insertValue(value, true);
                     }
                 }
             }
@@ -110,55 +111,72 @@ namespace TrenchBroom {
                 if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
                     // this node's key is a prefix of the given key
                     if (firstDiff < key.size()) {
-                        // the given key is longer than this node's key, so we must contain at the appropriate child node
+                        // the given key is longer than this node's key, so we must continue at the appropriate child node
                         const String remainder(key.substr(firstDiff));
                         typename NodeSet::iterator it = m_children.find(remainder);
                         assert(it != m_children.end());
                         const Node& child = *it;
                         if (child.remove(remainder, value))
                             m_children.erase(it);
+                        removeValue(value, false);
+                    } else {
+                        removeValue(value, true);
                     }
                     
-                    removeValue(value);
                     if (m_children.size() == 1) {
                         const Node& child = *m_children.begin();
-                        if (m_values.size() == child.m_values.size())
+                        if (m_partialValues.size() == child.m_partialValues.size())
                             mergeNode();
                     }
                 }
-                return m_values.empty() && m_children.empty();
+                return m_partialValues.empty() && m_children.empty();
             }
             
-            void query(const String& prefix, ValueList& result) const {
+            void query(const String& prefix, const bool partial, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0)
                     // no common prefix
                     return;
                 if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
                     // this node represents the given (remaining) prefix
-                    getValues(result);
+                    if (partial)
+                        getPartialValues(result);
+                    else if (firstDiff == m_key.size())
+                        getExactValues(result);
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
                     typename NodeSet::iterator it = m_children.find(remainder);
                     if (it != m_children.end()) {
                         const Node& child = *it;
-                        child.query(remainder, result);
+                        child.query(remainder, partial, result);
                     }
                 }
             }
         private:
-            void insertValue(const V& value) const {
-                typename ValueMap::iterator it = MapUtils::findOrInsert(m_values, value, 0u);
+            void insertValue(const V& value, const bool endshere) const {
+                insertValue(value, m_partialValues);
+                if (endshere)
+                    insertValue(value, m_exactValues);
+            }
+            
+            void insertValue(const V& value, ValueMap& values) const {
+                typename ValueMap::iterator it = MapUtils::findOrInsert(values, value, 0u);
                 ++it->second;
             }
             
-            void removeValue(const V& value) const {
-                typename ValueMap::iterator it = m_values.find(value);
-                if (it == m_values.end())
+            void removeValue(const V& value, const bool endshere) const {
+                removeValue(value, m_partialValues);
+                if (endshere)
+                    removeValue(value, m_exactValues);
+            }
+            
+            void removeValue(const V& value, ValueMap& values) const {
+                typename ValueMap::iterator it = values.find(value);
+                if (it == values.end())
                     throw Exception("Cannot remove value (does not belong to this node)");
                 if (it->second == 1)
-                    m_values.erase(it);
+                    values.erase(it);
                 else
                     --it->second;
             }
@@ -181,38 +199,47 @@ namespace TrenchBroom {
                 std::swap(newChildren, m_children);
 
                 const Node& newChild = findOrCreateChild(remainder);
-                newChild.m_values = m_values;
+                newChild.m_partialValues = m_partialValues;
                 std::swap(newChild.m_children, newChildren);
+                std::swap(newChild.m_exactValues, m_exactValues);
                 
                 m_key = newKey;
             }
             
             void mergeNode() const {
                 assert(m_children.size() == 1);
+                assert(m_exactValues.empty());
                 
                 NodeSet oldChildren;
                 std::swap(oldChildren, m_children);
                 
                 const Node& child = *oldChildren.begin();
-                assert(m_values == child.m_values);
+                assert(m_partialValues == child.m_partialValues);
                 std::swap(m_children, child.m_children);
+                m_exactValues = child.m_exactValues;
                 
                 m_key += child.m_key;
             }
             
-            void getValues(ValueList& result) const {
+            void getPartialValues(ValueList& result) const {
                 typename ValueMap::const_iterator it, end;
-                for (it = m_values.begin(), end = m_values.end(); it != end; ++it)
+                for (it = m_partialValues.begin(), end = m_partialValues.end(); it != end; ++it)
+                    result.push_back(it->first);
+            }
+            
+            void getExactValues(ValueList& result) const {
+                typename ValueMap::const_iterator it, end;
+                for (it = m_exactValues.begin(), end = m_exactValues.end(); it != end; ++it)
                     result.push_back(it->first);
             }
         };
         
         Node* m_root;
     public:
-        RadixTree() :
+        StringIndex() :
         m_root(NULL) {}
         
-        ~RadixTree() {
+        ~StringIndex() {
             delete m_root;
             m_root = NULL;
         }
@@ -232,13 +259,20 @@ namespace TrenchBroom {
             }
         }
         
-        ValueList query(const String& prefix) const {
+        ValueList queryPartialMatches(const String& prefix) const {
             ValueList result;
             if (m_root != NULL)
-                m_root->query(prefix, result);
+                m_root->query(prefix, true, result);
+            return result;
+        }
+        
+        ValueList queryExactMatches(const String& prefix) const {
+            ValueList result;
+            if (m_root != NULL)
+                m_root->query(prefix, false, result);
             return result;
         }
     };
 }
 
-#endif /* defined(__TrenchBroom__RadixTree__) */
+#endif /* defined(__TrenchBroom__StringIndex__) */

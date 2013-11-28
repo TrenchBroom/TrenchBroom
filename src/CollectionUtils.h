@@ -253,13 +253,14 @@ namespace VectorUtils {
     }
 
     template <typename T, typename Compare>
-    bool setInsert(std::vector<T>& vec, T& object) {
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
+    bool setInsert(std::vector<T>& vec, const T& object) {
+        Compare cmp;
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
         if (it == vec.end()) {
             vec.push_back(object);
             return true;
         }
-        if (*it != object) {
+        if (cmp(*it, object) || cmp(object, *it)) {
             vec.insert(it, object);
             return true;
         }
@@ -274,7 +275,7 @@ namespace VectorUtils {
             typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
             if (it == vec.end())
                 vec.push_back(*cur);
-            else if (*it != *cur)
+            else if (cmp(*it, *cur) || cmp(*cur, *it))
                 vec.insert(it, *cur);
             else
                 *it = *cur;
@@ -283,9 +284,10 @@ namespace VectorUtils {
     }
     
     template <typename T, typename Compare>
-    bool setRemove(std::vector<T>& vec, T& object) {
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, Compare());
-        if (it != vec.end() && *it == object) {
+    bool setRemove(std::vector<T>& vec, const T& object) {
+        Compare cmp;
+        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
+        if (it != vec.end() && !cmp(*it, object) && !cmp(object, *it)) {
             vec.erase(it);
             return true;
         }
@@ -297,14 +299,14 @@ namespace VectorUtils {
         Compare cmp;
         while (cur != end) {
             typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
-            if (it != vec.end() && *it == *cur)
+            if (it != vec.end() && !cmp(*it, *cur) && !cmp(*cur, *it))
                 vec.erase(it);
             ++cur;
         }
     }
 
     template <typename T>
-    bool setInsert(std::vector<T>& vec, T& object) {
+    bool setInsert(std::vector<T>& vec, const T& object) {
         return setInsert<T, std::less<T> >(vec, object);
     }
     
@@ -314,13 +316,143 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    bool setRemove(std::vector<T>& vec, T& object) {
+    bool setRemove(std::vector<T>& vec, const T& object) {
         return setRemove<T, std::less<T> >(vec, object);
     }
 
     template <typename T, typename I>
     void setRemove(std::vector<T>& vec, I cur, const I end) {
         setRemove<T, I, std::less<T> >(vec, cur, end);
+    }
+    
+    template <typename T, typename Compare>
+    bool setContains(const std::vector<T>& vec, const T& object) {
+        Compare cmp;
+        typename std::vector<T>::const_iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
+        return it != vec.end() && !cmp(*it, object) && !cmp(object, *it);
+    }
+    
+    template <typename T>
+    bool setContains(const std::vector<T>& vec, const T& object) {
+        return setContains<T, std::less<T> >(vec, object);
+    }
+    
+    template <typename T, typename Compare>
+    std::vector<T> setUnion(const std::vector<T> vec1, const std::vector<T> vec2) {
+        if (vec1.empty())
+            return vec2;
+        if (vec2.empty())
+            return vec1;
+        
+        typedef typename std::vector<T> Vec;
+        typedef typename Vec::const_iterator I;
+        
+        I cur1 = vec1.begin();
+        const I end1 = vec1.end();
+        I cur2 = vec2.begin();
+        const I end2 = vec2.end();
+        
+        Vec result;
+        Compare cmp;
+        
+        while (cur1 != end1 && cur2 != end2) {
+            if (cmp(*cur1, *cur2)) {
+                result.push_back(*cur1);
+                ++cur1;
+            } else if (cmp(*cur2, *cur1)) {
+                result.push_back(*cur2);
+                ++cur2;
+            } else {
+                // both values are equal
+                result.push_back(*cur1);
+                ++cur1;
+                ++cur2;
+            }
+        }
+        
+        while (cur1 != end1)
+            result.push_back(*cur1++);
+        while (cur2 != end2)
+            result.push_back(*cur2++);
+        
+        return result;
+    }
+
+    template <typename T>
+    std::vector<T> setUnion(const std::vector<T> vec1, const std::vector<T> vec2) {
+        return setUnion<T, std::less<T> >(vec1, vec2);
+    }
+    
+    template <typename T, typename Compare>
+    std::vector<T> setMinus(const std::vector<T> minuend, const std::vector<T> subtrahend) {
+        if (minuend.empty() || subtrahend.empty())
+            return minuend;
+        
+        typedef typename std::vector<T> Vec;
+        
+        Vec result = minuend;
+        typename Vec::iterator curMin = result.begin();
+        typename Vec::const_iterator curSub = subtrahend.begin();
+        const typename Vec::const_iterator endSub = subtrahend.end();
+        
+        Compare cmp;
+        
+        while (curMin != result.end() && curSub != endSub) {
+            if (cmp(*curMin, *curSub)) {
+                ++curMin;
+            } else if (cmp(*curSub, *curMin)) {
+                ++curSub;
+            } else {
+                // both values are equal
+                curMin = result.erase(curMin);
+            }
+        }
+        
+        return result;
+    }
+
+    template <typename T>
+    std::vector<T> setMinus(const std::vector<T> minuend, const std::vector<T> subtrahend) {
+        return setMinus<T, std::less<T> >(minuend, subtrahend);
+    }
+    
+    template <typename T, typename Compare>
+    std::vector<T> setIntersection(const std::vector<T> vec1, const std::vector<T> vec2) {
+        if (vec1.empty())
+            return vec1;
+        if (vec2.empty())
+            return vec2;
+        
+        typedef typename std::vector<T> Vec;
+        typedef typename Vec::const_iterator I;
+        
+        I cur1 = vec1.begin();
+        const I end1 = vec1.end();
+        I cur2 = vec2.begin();
+        const I end2 = vec2.end();
+        
+        Vec result;
+        Compare cmp;
+        
+        while (cur1 != end1 && cur2 != end2) {
+            if (cmp(*cur1, *cur2)) {
+                ++cur1;
+            } else if (cmp(*cur2, *cur1)) {
+                ++cur2;
+            } else {
+                // both values are equal
+                result.push_back(*cur1);
+                ++cur1;
+                ++cur2;
+            }
+        }
+        
+        return result;
+    }
+
+    template <typename T>
+    std::vector<T> setIntersection(const std::vector<T> vec1, const std::vector<T> vec2) {
+        return setIntersection<T, std::less<T> >(vec1, vec2);
     }
 }
 

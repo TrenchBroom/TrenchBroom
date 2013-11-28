@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <map>
@@ -389,6 +390,139 @@ TEST(CollectionUtilsTest, vecSetInsertRange) {
     ASSERT_EQ(2u, set.size());
     ASSERT_EQ(i1, set[0]);
     ASSERT_EQ(i2, set[1]);
+}
+
+TEST(CollectionUtilsTest, vecSetContains) {
+    const String a("a");
+    const String b("b");
+    const String ab("ab");
+    const String c("c");
+    
+    StringList set;
+    VectorUtils::setInsert(set, a);
+    VectorUtils::setInsert(set, b);
+    VectorUtils::setInsert(set, ab);
+    VectorUtils::setInsert(set, c);
+    
+    ASSERT_TRUE(VectorUtils::setContains(set, a));
+    ASSERT_TRUE(VectorUtils::setContains(set, b));
+    ASSERT_TRUE(VectorUtils::setContains(set, ab));
+    ASSERT_TRUE(VectorUtils::setContains(set, c));
+    ASSERT_FALSE(VectorUtils::setContains(set, String("d")));
+}
+
+TEST(CollectionUtilsTest, vecSetUnion) {
+    const int i0(0);
+    const int i1(1);
+    const int i2(2);
+    const int i3(3);
+    const int i4(4);
+    const int i5(5);
+    const int i6(6);
+    const int i7(7);
+    const int i8(8);
+    const int i9(9);
+    
+    std::vector<int> set1;
+    VectorUtils::setInsert(set1, i0);
+    VectorUtils::setInsert(set1, i2);
+    VectorUtils::setInsert(set1, i4);
+    VectorUtils::setInsert(set1, i7);
+    VectorUtils::setInsert(set1, i9);
+    
+    std::vector<int> set2;
+    VectorUtils::setInsert(set2, i0);
+    VectorUtils::setInsert(set2, i1);
+    VectorUtils::setInsert(set2, i2);
+    VectorUtils::setInsert(set2, i3);
+    VectorUtils::setInsert(set2, i4);
+    VectorUtils::setInsert(set2, i5);
+    VectorUtils::setInsert(set2, i6);
+    VectorUtils::setInsert(set2, i8);
+    
+    const std::vector<int> uni = VectorUtils::setUnion(set1, set2);
+    ASSERT_EQ(10u, uni.size());
+    ASSERT_TRUE(VectorUtils::setContains(uni, i0));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i1));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i2));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i3));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i4));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i5));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i6));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i7));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i8));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i9));
+}
+
+TEST(CollectionUtilsTest, vecSetMinus) {
+    const int i0(0);
+    const int i1(1);
+    const int i2(2);
+    const int i3(3);
+    const int i4(4);
+    const int i5(5);
+    const int i6(6);
+    const int i7(7);
+    const int i8(8);
+    const int i9(9);
+    
+    std::vector<int> set1;
+    VectorUtils::setInsert(set1, i0);
+    VectorUtils::setInsert(set1, i2);
+    VectorUtils::setInsert(set1, i4);
+    VectorUtils::setInsert(set1, i7);
+    VectorUtils::setInsert(set1, i9);
+    
+    std::vector<int> set2;
+    VectorUtils::setInsert(set2, i0);
+    VectorUtils::setInsert(set2, i1);
+    VectorUtils::setInsert(set2, i2);
+    VectorUtils::setInsert(set2, i3);
+    VectorUtils::setInsert(set2, i4);
+    VectorUtils::setInsert(set2, i5);
+    VectorUtils::setInsert(set2, i6);
+    VectorUtils::setInsert(set2, i8);
+    
+    const std::vector<int> uni = VectorUtils::setMinus(set1, set2);
+    ASSERT_EQ(2u, uni.size());
+    ASSERT_TRUE(VectorUtils::setContains(uni, i7));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i9));
+}
+
+TEST(CollectionUtilsTest, vecSetIntersection) {
+    const int i0(0);
+    const int i1(1);
+    const int i2(2);
+    const int i3(3);
+    const int i4(4);
+    const int i5(5);
+    const int i6(6);
+    const int i7(7);
+    const int i8(8);
+    const int i9(9);
+    
+    std::vector<int> set1;
+    VectorUtils::setInsert(set1, i0);
+    VectorUtils::setInsert(set1, i2);
+    VectorUtils::setInsert(set1, i4);
+    VectorUtils::setInsert(set1, i7);
+    VectorUtils::setInsert(set1, i9);
+    
+    std::vector<int> set2;
+    VectorUtils::setInsert(set2, i0);
+    VectorUtils::setInsert(set2, i1);
+    VectorUtils::setInsert(set2, i2);
+    VectorUtils::setInsert(set2, i3);
+    VectorUtils::setInsert(set2, i4);
+    VectorUtils::setInsert(set2, i5);
+    VectorUtils::setInsert(set2, i6);
+    VectorUtils::setInsert(set2, i8);
+    
+    const std::vector<int> uni = VectorUtils::setIntersection(set1, set2);
+    ASSERT_EQ(3u, uni.size());
+    ASSERT_TRUE(VectorUtils::setContains(uni, i0));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i2));
+    ASSERT_TRUE(VectorUtils::setContains(uni, i4));
 }
 
 TEST(CollectionUtilsTest, vecOrderedDifference) {
