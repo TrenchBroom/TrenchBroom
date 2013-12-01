@@ -132,25 +132,77 @@ namespace TrenchBroom {
                 return m_partialValues.empty() && m_children.empty();
             }
             
-            void query(const String& prefix, const bool partial, ValueList& result) const {
+            void queryExact(const String& key, ValueList& result) const {
+                const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
+                if (firstDiff == 0)
+                    // no common prefix
+                    return;
+                if (firstDiff == key.size() && firstDiff <= m_key.size()) {
+                    // this node represents the given (remaining) prefix
+                    if (firstDiff == m_key.size())
+                        getExactValues(result);
+                } else if (firstDiff < key.size() && firstDiff == m_key.size()) {
+                    // this node is only a partial match, try to find a child to continue searching
+                    const String remainder(key.substr(firstDiff));
+                    typename NodeSet::iterator it = m_children.find(remainder);
+                    if (it != m_children.end()) {
+                        const Node& child = *it;
+                        child.queryExact(remainder, result);
+                    }
+                }
+            }
+            
+            void queryPrefix(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0)
                     // no common prefix
                     return;
                 if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
                     // this node represents the given (remaining) prefix
-                    if (partial)
-                        getPartialValues(result);
-                    else if (firstDiff == m_key.size())
-                        getExactValues(result);
+                    getPartialValues(result);
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
                     typename NodeSet::iterator it = m_children.find(remainder);
                     if (it != m_children.end()) {
                         const Node& child = *it;
-                        child.query(remainder, partial, result);
+                        child.queryPrefix(remainder, result);
                     }
+                }
+            }
+            
+            void queryNumbered(const String& prefix, ValueList& result) const {
+                const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
+                if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
+                    if (firstDiff < m_key.size()) {
+                        const String remainder(m_key.substr(firstDiff));
+                        if (StringUtils::isNumber(remainder)) {
+                            getExactValues(result);
+                            queryAllNumberedChildren(result);
+                        }
+                    } else {
+                        queryAllNumberedChildren(result);
+                    }
+                } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
+                    // if the surplus of the given key is a number, we must also include this node's values
+                    const String remainder(prefix.substr(firstDiff));
+                    if (StringUtils::isNumber(remainder))
+                        getExactValues(result);
+                    
+                    // this node is only a partial match, try to find a child to continue searching
+                    typename NodeSet::iterator it = m_children.find(remainder);
+                    if (it != m_children.end()) {
+                        const Node& child = *it;
+                        child.queryNumbered(remainder, result);
+                    }
+                }
+            }
+            
+            void queryAllNumberedChildren(ValueList& result) const {
+                typename NodeSet::const_iterator it, end;
+                for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
+                    const Node& child = *it;
+                    child.queryNumbered("", result);
                 }
             }
         private:
@@ -259,17 +311,24 @@ namespace TrenchBroom {
             }
         }
         
-        ValueList queryPartialMatches(const String& prefix) const {
+        ValueList queryPrefixMatches(const String& prefix) const {
             ValueList result;
             if (m_root != NULL)
-                m_root->query(prefix, true, result);
+                m_root->queryPrefix(prefix, result);
+            return result;
+        }
+        
+        ValueList queryNumberedMatches(const String& prefix) const {
+            ValueList result;
+            if (m_root != NULL)
+                m_root->queryNumbered(prefix, result);
             return result;
         }
         
         ValueList queryExactMatches(const String& prefix) const {
             ValueList result;
             if (m_root != NULL)
-                m_root->query(prefix, false, result);
+                m_root->queryExact(prefix, result);
             return result;
         }
     };

@@ -26,6 +26,39 @@
 
 namespace TrenchBroom {
     namespace Model {
+        EntityPropertyQuery EntityPropertyQuery::exact(const String& pattern) {
+            return EntityPropertyQuery(Exact, pattern);
+        }
+        
+        EntityPropertyQuery EntityPropertyQuery::prefix(const String& pattern) {
+            return EntityPropertyQuery(Prefix, pattern);
+        }
+        
+        EntityPropertyQuery EntityPropertyQuery::numbered(const String& pattern) {
+            return EntityPropertyQuery(Numbered, pattern);
+        }
+        
+        EntityPropertyQuery EntityPropertyQuery::any() {
+            return EntityPropertyQuery(Any);
+        }
+        
+        EntityList EntityPropertyQuery::execute(const StringIndex<Entity*> index) const {
+            switch (m_type) {
+                case Exact:
+                    return index.queryExactMatches(m_pattern);
+                case Prefix:
+                    return index.queryPrefixMatches(m_pattern);
+                case Numbered:
+                    return index.queryNumberedMatches(m_pattern);
+                default:
+                    return EmptyEntityList;
+            }
+        }
+        
+        EntityPropertyQuery::EntityPropertyQuery(const Type type, const String& pattern) :
+        m_type(type),
+        m_pattern(pattern) {}
+
         void EntityPropertyIndex::addEntity(Entity* entity) {
             const EntityProperty::List& properties = entity->properties();
             EntityProperty::List::const_iterator it, end;
@@ -45,49 +78,26 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyIndex::addEntityProperty(Entity* entity, const EntityProperty& property) {
-            EntityList& entities = m_propertyMap[std::make_pair(property.key, property.value)];
-            VectorUtils::setInsert(entities, entity);
-
-            const String unnumberedKey = numberedPropertyPrefix(property.key);
-            if (!unnumberedKey.empty()) {
-                EntityList& entities = m_numberedPropertyMap[std::make_pair(unnumberedKey, property.value)];
-                VectorUtils::setInsert(entities, entity);
-            }
+            m_keyIndex.insert(property.key, entity);
+            m_valueIndex.insert(property.value, entity);
         }
         
         void EntityPropertyIndex::removeEntityProperty(Entity* entity, const EntityProperty& property) {
-            EntityPropertyMap::iterator it = m_propertyMap.find(std::make_pair(property.key, property.value));
-            assert(it != m_propertyMap.end());
-            
-            EntityList& entities = it->second;
-            VectorUtils::setRemove(entities, entity);
-            if (entities.empty())
-                m_propertyMap.erase(it);
-            
-            const String unnumberedKey = numberedPropertyPrefix(property.key);
-            if (!unnumberedKey.empty()) {
-                EntityPropertyMap::iterator it = m_numberedPropertyMap.find(std::make_pair(unnumberedKey, property.value));
-                assert(it != m_numberedPropertyMap.end());
-                
-                EntityList& entities = it->second;
-                VectorUtils::setRemove(entities, entity);
-                if (entities.empty())
-                    m_numberedPropertyMap.erase(it);
-            }
+            m_keyIndex.remove(property.key, entity);
+            m_valueIndex.remove(property.value, entity);
         }
 
-        const EntityList& EntityPropertyIndex::findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const {
-            EntityPropertyMap::const_iterator it = m_propertyMap.find(std::make_pair(key, value));
-            if (it == m_propertyMap.end())
+        EntityList EntityPropertyIndex::findEntities(const EntityPropertyQuery& keyQuery, const EntityPropertyQuery& valueQuery) const {
+            EntityList keyResult = keyQuery.execute(m_keyIndex);
+            EntityList valueResult = valueQuery.execute(m_valueIndex);
+            
+            if (keyResult.empty() || valueResult.empty())
                 return EmptyEntityList;
-            return it->second;
-        }
-        
-        const EntityList& EntityPropertyIndex::findEntitiesWithNumberedProperty(const PropertyKey& unnumberedKey, const PropertyValue& value) const {
-            EntityPropertyMap::const_iterator it = m_numberedPropertyMap.find(std::make_pair(unnumberedKey, value));
-            if (it == m_numberedPropertyMap.end())
-                return EmptyEntityList;
-            return it->second;
+            
+            VectorUtils::setCreate(keyResult);
+            VectorUtils::setCreate(valueResult);
+            
+            return VectorUtils::setIntersection(keyResult, valueResult);
         }
     }
 }

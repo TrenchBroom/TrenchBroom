@@ -108,6 +108,7 @@ namespace StringUtils {
 
     size_t findFirstDifference(const String& str1, const String& str2);
     bool isPrefix(const String& str, const String& prefix);
+    bool isNumber(const String& str);
     bool containsCaseSensitive(const String& haystack, const String& needle);
     bool containsCaseInsensitive(const String& haystack, const String& needle);
     void sortCaseSensitive(StringList& strs);

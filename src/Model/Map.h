@@ -57,8 +57,9 @@ namespace TrenchBroom {
             
             void addEntityPropertyToIndex(Entity* entity, const EntityProperty& property);
             void removeEntityPropertyFromIndex(Entity* entity, const EntityProperty& property);
-            const EntityList& findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value);
-            const EntityList& findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value);
+            
+            EntityList findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const;
+            EntityList findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value) const;
             
             const BrushList brushes() const;
         private:

@@ -253,6 +253,17 @@ namespace VectorUtils {
     }
 
     template <typename T, typename Compare>
+    void setCreate(std::vector<T>& vec) {
+        std::sort(vec.begin(), vec.end(), Compare());
+        std::unique(vec.begin(), vec.end());
+    }
+    
+    template <typename T>
+    void setCreate(std::vector<T>& vec) {
+        setCreate<T, std::less<T> >(vec);
+    }
+
+    template <typename T, typename Compare>
     bool setInsert(std::vector<T>& vec, const T& object) {
         Compare cmp;
         typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);

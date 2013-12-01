@@ -29,6 +29,16 @@ namespace TrenchBroom {
     namespace Model {
         typedef ConfigurableEntity<QuakeEntityRotationPolicy> QuakeEntity;
 
+        EntityList findExactExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
+            return index.findEntities(EntityPropertyQuery::exact(key),
+                                      EntityPropertyQuery::exact(value));
+        }
+        
+        EntityList findNumberedExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
+            return index.findEntities(EntityPropertyQuery::numbered(key),
+                                      EntityPropertyQuery::exact(value));
+        }
+        
         TEST(EntityPropertyIndexTest, addEntity) {
             EntityPropertyIndex index;
             
@@ -42,14 +52,14 @@ namespace TrenchBroom {
             index.addEntity(entity1);
             index.addEntity(entity2);
             
-            ASSERT_TRUE(index.findEntitiesWithProperty("test", "notfound").empty());
+            ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
             
-            EntityList entities = index.findEntitiesWithProperty("test", "somevalue");
+            EntityList entities = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity1));
             ASSERT_TRUE(VectorUtils::contains(entities, entity2));
             
-            entities = index.findEntitiesWithProperty("other", "someothervalue");
+            entities = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity2));
             
@@ -72,7 +82,7 @@ namespace TrenchBroom {
             
             index.removeEntity(entity2);
             
-            const EntityList& entities = index.findEntitiesWithProperty("test", "somevalue");
+            const EntityList& entities = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(1u, entities.size());
             ASSERT_EQ(entity1, entities.front());
             
@@ -95,14 +105,14 @@ namespace TrenchBroom {
             entity2->addOrUpdateProperty("other", "someothervalue");
             index.addEntityProperty(entity2, Model::EntityProperty("other", "someothervalue"));
             
-            ASSERT_TRUE(index.findEntitiesWithProperty("test", "notfound").empty());
+            ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
             
-            EntityList entities = index.findEntitiesWithProperty("test", "somevalue");
+            EntityList entities = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity1));
             ASSERT_TRUE(VectorUtils::contains(entities, entity2));
             
-            entities = index.findEntitiesWithProperty("other", "someothervalue");
+            entities = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity2));
             
@@ -125,12 +135,12 @@ namespace TrenchBroom {
             
             index.removeEntityProperty(entity2, EntityProperty("other", "someothervalue"));
             
-            const EntityList& entities = index.findEntitiesWithProperty("test", "somevalue");
+            const EntityList& entities = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity1));
             ASSERT_TRUE(VectorUtils::contains(entities, entity2));
             
-            ASSERT_TRUE(index.findEntitiesWithProperty("other", "someothervalue").empty());
+            ASSERT_TRUE(findExactExact(index, "other", "someothervalue").empty());
 
             delete entity1;
             delete entity2;
@@ -145,9 +155,9 @@ namespace TrenchBroom {
             
             index.addEntity(entity1);
             
-            ASSERT_TRUE(index.findEntitiesWithNumberedProperty("test", "notfound").empty());
+            ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
             
-            EntityList entities = index.findEntitiesWithNumberedProperty("test", "somevalue");
+            EntityList entities = findNumberedExact(index, "test", "somevalue");
             ASSERT_EQ(1u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity1));
             

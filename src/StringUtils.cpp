@@ -72,6 +72,15 @@ namespace StringUtils {
         return firstDiff == prefix.size();
     }
     
+    bool isNumber(const String& str) {
+        for (size_t i = 0; i < str.size(); ++i) {
+            const char c = str[i];
+            if (c < '0' || c > '9')
+                return false;
+        }
+        return true;
+    }
+
     bool containsCaseSensitive(const String& haystack, const String& needle) {
         return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>()) != haystack.end();
     }

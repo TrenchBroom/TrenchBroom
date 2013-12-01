@@ -20,19 +20,41 @@
 #ifndef __TrenchBroom__EntityPropertyIndex__
 #define __TrenchBroom__EntityPropertyIndex__
 
+#include "StringUtils.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
+#include "StringIndex.h"
 
 #include <map>
 
 namespace TrenchBroom {
     namespace Model {
+        class EntityPropertyQuery {
+        public:
+            typedef enum {
+                Exact,
+                Prefix,
+                Numbered,
+                Any
+            } Type;
+        private:
+            Type m_type;
+            String m_pattern;
+        public:
+            static EntityPropertyQuery exact(const String& pattern);
+            static EntityPropertyQuery prefix(const String& pattern);
+            static EntityPropertyQuery numbered(const String& pattern);
+            static EntityPropertyQuery any();
+
+            EntityList execute(const StringIndex<Entity*> index) const;
+        private:
+            EntityPropertyQuery(Type type, const String& pattern = "");
+        };
+        
         class EntityPropertyIndex {
         private:
-            typedef std::pair<PropertyKey, PropertyValue> PropertyPair;
-            typedef std::map<PropertyPair, EntityList> EntityPropertyMap;
-            EntityPropertyMap m_propertyMap;
-            EntityPropertyMap m_numberedPropertyMap;
+            StringIndex<Entity*> m_keyIndex;
+            StringIndex<Entity*> m_valueIndex;
         public:
             void addEntity(Entity* entity);
             void removeEntity(Entity* entity);
@@ -40,8 +62,7 @@ namespace TrenchBroom {
             void addEntityProperty(Entity* entity, const EntityProperty& property);
             void removeEntityProperty(Entity* entity, const EntityProperty& property);
             
-            const EntityList& findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const;
-            const EntityList& findEntitiesWithNumberedProperty(const PropertyKey& unnumberedKey, const PropertyValue& value) const;
+            EntityList findEntities(const EntityPropertyQuery& keyQuery, const EntityPropertyQuery& valueQuery) const;
         };
     }
 }

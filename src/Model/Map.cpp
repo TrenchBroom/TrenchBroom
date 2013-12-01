@@ -93,12 +93,14 @@ namespace TrenchBroom {
             m_entityPropertyIndex.removeEntityProperty(entity, property);
         }
 
-        const EntityList& Map::findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) {
-            return m_entityPropertyIndex.findEntitiesWithProperty(key, value);
+        EntityList Map::findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const {
+            return m_entityPropertyIndex.findEntities(EntityPropertyQuery::exact(key),
+                                                      EntityPropertyQuery::exact(value));
         }
         
-        const EntityList& Map::findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value) {
-            return m_entityPropertyIndex.findEntitiesWithNumberedProperty(prefix, value);
+        EntityList Map::findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value) const {
+            return m_entityPropertyIndex.findEntities(EntityPropertyQuery::numbered(prefix),
+                                                      EntityPropertyQuery::exact(value));
         }
 
         const BrushList Map::brushes() const {
