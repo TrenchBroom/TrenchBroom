@@ -45,18 +45,18 @@ INCLUDE_DIRECTORIES("${LIB_INCLUDE_DIR}" "${SOURCE_DIR}" "${TEST_SOURCE_DIR}")
 
 # Compiler configuration
 IF(MSVC)
-	SET(CMAKE_CXX_FLAGS "/W3 /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
-	SET(CMAKE_C_FLAGS "/W3 /MP")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3 /MP")
 ELSE()
-	SET(CMAKE_CXX_FLAGS_RELEASE "-Os")
-	SET(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++0x")
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++0x")
 
 	# Xcode requires these flags to allow debugging
-	SET(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -fno-inline")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -fno-inline")
 
 	# Hide some bogus warnings and enable color diagnostics if ccache is used with clang
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		SET(CMAKE_CXX_FLAGS "-Qunused-arguments -fcolor-diagnostics")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -fcolor-diagnostics")
 	ENDIF()
 ENDIF()
 
