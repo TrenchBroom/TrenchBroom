@@ -80,7 +80,7 @@ namespace TrenchBroom {
              */
             void insert(const String& key, const V& value) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
-                if (firstDiff == 0)
+                if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
                 if (firstDiff < key.size()) {
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             
             void queryExact(const String& key, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
-                if (firstDiff == 0)
+                if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
                 if (firstDiff == key.size() && firstDiff <= m_key.size()) {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             
             void queryPrefix(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
-                if (firstDiff == 0)
+                if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
                 if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             
             void queryNumbered(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
-                if (firstDiff == 0)
+                if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
                 if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
@@ -287,7 +287,7 @@ namespace TrenchBroom {
         Node* m_root;
     public:
         StringIndex() :
-        m_root(NULL) {}
+        m_root(new Node("")) {}
         
         ~StringIndex() {
             delete m_root;
@@ -295,38 +295,33 @@ namespace TrenchBroom {
         }
         
         void insert(const String& key, const V& value) {
-            if (m_root == NULL)
-                m_root = new Node(key);
+            assert(m_root != NULL);
             m_root->insert(key, value);
         }
         
         void remove(const String& key, const V& value) {
-            if (m_root != NULL) {
-                if (m_root->remove(key, value)) {
-                    delete m_root;
-                    m_root = NULL;
-                }
-            }
+            assert(m_root != NULL);
+            m_root->remove(key, value);
         }
         
         ValueList queryPrefixMatches(const String& prefix) const {
+            assert(m_root != NULL);
             ValueList result;
-            if (m_root != NULL)
-                m_root->queryPrefix(prefix, result);
+            m_root->queryPrefix(prefix, result);
             return result;
         }
         
         ValueList queryNumberedMatches(const String& prefix) const {
+            assert(m_root != NULL);
             ValueList result;
-            if (m_root != NULL)
-                m_root->queryNumbered(prefix, result);
+            m_root->queryNumbered(prefix, result);
             return result;
         }
         
         ValueList queryExactMatches(const String& prefix) const {
+            assert(m_root != NULL);
             ValueList result;
-            if (m_root != NULL)
-                m_root->queryExact(prefix, result);
+            m_root->queryExact(prefix, result);
             return result;
         }
     private:

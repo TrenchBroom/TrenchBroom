@@ -31,6 +31,7 @@ namespace TrenchBroom {
         index.insert("key2", "value");
         index.insert("key22", "value2");
         index.insert("k1", "value3");
+        index.insert("test", "value4");
         
         StringList result1 = index.queryPrefixMatches("woops");
         ASSERT_TRUE(result1.empty());
@@ -49,14 +50,25 @@ namespace TrenchBroom {
         ASSERT_TRUE(VectorUtils::contains(result4, String("value2")));
         ASSERT_TRUE(VectorUtils::contains(result4, String("value3")));
 
+        StringList result5 = index.queryPrefixMatches("test");
+        ASSERT_EQ(1u, result5.size());
+        ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+        
         index.insert("k", "value4");
 
-        StringList result5 = index.queryPrefixMatches("k");
-        ASSERT_EQ(4u, result5.size());
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value2")));
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value3")));
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+        StringList result6 = index.queryPrefixMatches("k");
+        ASSERT_EQ(4u, result6.size());
+        ASSERT_TRUE(VectorUtils::contains(result6, String("value")));
+        ASSERT_TRUE(VectorUtils::contains(result6, String("value2")));
+        ASSERT_TRUE(VectorUtils::contains(result6, String("value3")));
+        ASSERT_TRUE(VectorUtils::contains(result6, String("value4")));
+        
+        StringList result7 = index.queryPrefixMatches("");
+        ASSERT_EQ(4u, result7.size());
+        ASSERT_TRUE(VectorUtils::contains(result7, String("value")));
+        ASSERT_TRUE(VectorUtils::contains(result7, String("value2")));
+        ASSERT_TRUE(VectorUtils::contains(result7, String("value3")));
+        ASSERT_TRUE(VectorUtils::contains(result7, String("value4")));
     }
     
     TEST(StringIndexTest, remove) {
@@ -129,6 +141,9 @@ namespace TrenchBroom {
         ASSERT_EQ(2u, result5.size());
         ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
         ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+
+        StringList result6 = index.queryExactMatches("");
+        ASSERT_TRUE(result6.empty());
     }
     
     TEST(StringIndexTest, queryNumberedMatches) {
