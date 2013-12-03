@@ -45,6 +45,7 @@ namespace TrenchBroom {
             mutable String m_key;
             mutable ValueMap m_partialValues;
             mutable ValueMap m_exactValues;
+            mutable ValueMap m_numberedValues;
             mutable NodeSet m_children;
         public:
             Node(const String& key) :
@@ -92,16 +93,16 @@ namespace TrenchBroom {
                         const String remainder = key.substr(firstDiff);
                         const Node& child = findOrCreateChild(remainder);
                         child.insert(remainder, value);
-                        insertValue(value, false);
+                        insertValue(value, false, StringUtils::isNumber(remainder));
                     }
                 } else if (firstDiff == key.size()) {
                     if (firstDiff < m_key.size()) {
                         // key is prefix of m_key, split this node and insert here
                         splitNode(firstDiff);
-                        insertValue(value, true);
+                        insertValue(value, true, false);
                     } else if (firstDiff == m_key.size()) {
                         // keys are equal, insert here
-                        insertValue(value, true);
+                        insertValue(value, true, false);
                     }
                 }
             }
@@ -118,9 +119,9 @@ namespace TrenchBroom {
                         const Node& child = *it;
                         if (child.remove(remainder, value))
                             m_children.erase(it);
-                        removeValue(value, false);
+                        removeValue(value, false, StringUtils::isNumber(remainder));
                     } else {
-                        removeValue(value, true);
+                        removeValue(value, true, false);
                     }
                     
                     if (m_children.size() == 1) {
@@ -173,23 +174,16 @@ namespace TrenchBroom {
             
             void queryNumbered(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
+                if (firstDiff == 0)
+                    // no common prefix
+                    return;
                 if (firstDiff == prefix.size() && firstDiff <= m_key.size()) {
-                    if (firstDiff < m_key.size()) {
-                        const String remainder(m_key.substr(firstDiff));
-                        if (StringUtils::isNumber(remainder)) {
-                            getExactValues(result);
-                            queryAllNumberedChildren(result);
-                        }
-                    } else {
-                        queryAllNumberedChildren(result);
-                    }
+                    // the given string is a prefix of this node's key, only return the numbered values if the remainder of this key is a number
+                    if (firstDiff == m_key.size() || StringUtils::isNumber(m_key.substr(firstDiff)))
+                        getNumberedValues(result);
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
-                    // if the surplus of the given key is a number, we must also include this node's values
-                    const String remainder(prefix.substr(firstDiff));
-                    if (StringUtils::isNumber(remainder))
-                        getExactValues(result);
-                    
                     // this node is only a partial match, try to find a child to continue searching
+                    const String remainder(prefix.substr(firstDiff));
                     typename NodeSet::iterator it = m_children.find(remainder);
                     if (it != m_children.end()) {
                         const Node& child = *it;
@@ -197,19 +191,13 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            void queryAllNumberedChildren(ValueList& result) const {
-                typename NodeSet::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                    const Node& child = *it;
-                    child.queryNumbered("", result);
-                }
-            }
         private:
-            void insertValue(const V& value, const bool endshere) const {
+            void insertValue(const V& value, const bool endshere, const bool numbered) const {
                 insertValue(value, m_partialValues);
                 if (endshere)
                     insertValue(value, m_exactValues);
+                if (numbered || endshere)
+                    insertValue(value, m_numberedValues);
             }
             
             void insertValue(const V& value, ValueMap& values) const {
@@ -217,10 +205,12 @@ namespace TrenchBroom {
                 ++it->second;
             }
             
-            void removeValue(const V& value, const bool endshere) const {
+            void removeValue(const V& value, const bool endshere, const bool numbered) const {
                 removeValue(value, m_partialValues);
                 if (endshere)
                     removeValue(value, m_exactValues);
+                if (numbered || endshere)
+                    removeValue(value, m_numberedValues);
             }
             
             void removeValue(const V& value, ValueMap& values) const {
@@ -254,6 +244,7 @@ namespace TrenchBroom {
                 newChild.m_partialValues = m_partialValues;
                 std::swap(newChild.m_children, newChildren);
                 std::swap(newChild.m_exactValues, m_exactValues);
+                std::swap(newChild.m_numberedValues, m_numberedValues);
                 
                 m_key = newKey;
             }
@@ -269,8 +260,15 @@ namespace TrenchBroom {
                 assert(m_partialValues == child.m_partialValues);
                 std::swap(m_children, child.m_children);
                 m_exactValues = child.m_exactValues;
+                m_numberedValues = child.m_numberedValues;
                 
                 m_key += child.m_key;
+            }
+            
+            void getExactValues(ValueList& result) const {
+                typename ValueMap::const_iterator it, end;
+                for (it = m_exactValues.begin(), end = m_exactValues.end(); it != end; ++it)
+                    result.push_back(it->first);
             }
             
             void getPartialValues(ValueList& result) const {
@@ -279,9 +277,9 @@ namespace TrenchBroom {
                     result.push_back(it->first);
             }
             
-            void getExactValues(ValueList& result) const {
+            void getNumberedValues(ValueList& result) const {
                 typename ValueMap::const_iterator it, end;
-                for (it = m_exactValues.begin(), end = m_exactValues.end(); it != end; ++it)
+                for (it = m_numberedValues.begin(), end = m_numberedValues.end(); it != end; ++it)
                     result.push_back(it->first);
             }
         };
@@ -331,6 +329,9 @@ namespace TrenchBroom {
                 m_root->queryExact(prefix, result);
             return result;
         }
+    private:
+        StringIndex(const StringIndex& other);
+        StringIndex& operator=(const StringIndex& other);
     };
 }
 

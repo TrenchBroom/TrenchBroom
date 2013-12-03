@@ -155,5 +155,10 @@ namespace TrenchBroom {
         StringList result4 = index.queryNumberedMatches("k");
         ASSERT_EQ(1u, result4.size());
         ASSERT_TRUE(VectorUtils::contains(result4, String("value3")));
+        
+        index.remove("k1", "value3");
+
+        StringList result5 = index.queryNumberedMatches("k");
+        ASSERT_TRUE(result5.empty());
     }
 }

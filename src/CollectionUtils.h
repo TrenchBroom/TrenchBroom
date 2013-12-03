@@ -253,6 +253,31 @@ namespace VectorUtils {
     }
 
     template <typename T, typename Compare>
+    bool setIsSet(const std::vector<T>& set) {
+        if (set.size() < 2)
+            return true;
+        
+        typedef typename std::vector<T>::const_iterator I;
+        I cur = set.begin();
+        I next = cur + 1;
+        
+        Compare cmp;
+        while (next != set.end()) {
+            if (!cmp(*cur, *next))
+                return false;
+            ++cur;
+            ++next;
+        }
+        return true;
+    }
+    
+    template <typename T>
+    bool setIsSet(const std::vector<T>& set) {
+        return setIsSet<T, std::less<T> >(set);
+    }
+    
+
+    template <typename T, typename Compare>
     void setCreate(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end(), Compare());
         std::unique(vec.begin(), vec.end());
