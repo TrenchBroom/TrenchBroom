@@ -1,4 +1,4 @@
-/*
+</*
  Copyright (C) 2010-2013 Kristian Duske
  
  This file is part of TrenchBroom.

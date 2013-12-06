@@ -19,12 +19,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
 uniform float MaxDistance;
+uniform float Alpha;
 
 varying float distance;
 
 void main() {
     float scale = (1.0 - clamp(distance / MaxDistance * 0.2 + 0.25, 0.0, 1.0));// * 0.35 + 0.65);
-    gl_FragColor = vec4(Color.rgb, Color.a * scale);
+    gl_FragColor = vec4(gl_Color, gl_Color.a * scale * Alpha);
 }
