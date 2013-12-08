@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_frames.push_back(frame);
         }
 
-        Renderer::MeshRenderer* MdlModel::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::MeshRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
                 return NULL;
             if (frameIndex >= m_frames.size())
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             mesh.addTrianglesToSet(frame->triangles());
             mesh.endTriangleSet();
             
-            return new Renderer::MeshRenderer(vbo, mesh);
+            return new Renderer::MeshRenderer(mesh);
         }
 
         BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

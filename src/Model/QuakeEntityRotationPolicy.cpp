@@ -154,7 +154,8 @@ namespace TrenchBroom {
                         xAngle = 0.0;
                     } else {
                         Vec3 xzDirection = direction;
-                        std::swap(xzDirection[1], xzDirection[2]);
+                        using std::swap;
+                        swap(xzDirection[1], xzDirection[2]);
                         xAngle = getAngle(xzDirection);
                     }
                     

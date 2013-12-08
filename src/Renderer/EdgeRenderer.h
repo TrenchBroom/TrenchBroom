@@ -40,13 +40,13 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             EdgeRenderer();
-            EdgeRenderer(VertexSpecs::P3::Vertex::List& vertices);
-            EdgeRenderer(VertexSpecs::P3C4::Vertex::List& vertices);
+            EdgeRenderer(const VertexArray& vertexArray);
             EdgeRenderer(const EdgeRenderer& other);
             EdgeRenderer& operator= (EdgeRenderer other);
             
             friend void swap(EdgeRenderer& left, EdgeRenderer& right);
 
+            void setUseColor(bool useColor);
             void setColor(const Color& color);
             
             void render(RenderContext& context);

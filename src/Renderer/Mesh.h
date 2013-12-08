@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 return m_triangleStrips;
             }
             
-            typename MeshRenderData<Key>::List renderData(Vbo& vbo) {
+            typename MeshRenderData<Key>::List renderData() {
                 typename MeshRenderData<Key>::List result;
                 typename KeySet::const_iterator keyIt, keyEnd;
                 for (keyIt = m_keys.begin(), keyEnd = m_keys.end(); keyIt != keyEnd; ++keyIt) {
@@ -122,17 +122,17 @@ namespace TrenchBroom {
                     
                     if (setIt != m_triangleSets.end()) {
                         typename VertexSpec::Vertex::List& vertices = setIt->second;
-                        renderData.triangles = VertexArray::swap(vbo, GL_TRIANGLES, vertices);
+                        renderData.triangles = VertexArray::swap(GL_TRIANGLES, vertices);
                     }
                     
                     if (fanIt != m_triangleFans.end()) {
                         TriangleSeries& series = fanIt->second;
-                        renderData.triangleFans = triangleSeriesArray(vbo, GL_TRIANGLE_FAN, series);
+                        renderData.triangleFans = triangleSeriesArray(GL_TRIANGLE_FAN, series);
                     }
                     
                     if (stripIt != m_triangleStrips.end()) {
                         TriangleSeries& series = stripIt->second;
-                        renderData.triangleStrips = triangleSeriesArray(vbo, GL_TRIANGLE_STRIP, series);
+                        renderData.triangleStrips = triangleSeriesArray(GL_TRIANGLE_STRIP, series);
                     }
                     
                     result.push_back(renderData);
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             }
 
         private:
-            VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, TriangleSeries& series) const {
+            VertexArray triangleSeriesArray(const GLenum primType, TriangleSeries& series) const {
                 IndexedVertexList<VertexSpec> indexList;
                 typename TriangleSeries::const_iterator sIt, sEnd;
                 for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                     indexList.addPrimitive(vertices);
                 }
                 
-                return VertexArray::swap(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
+                return VertexArray::swap(primType, indexList.vertices(), indexList.indices(), indexList.counts());
             }
         };
     }

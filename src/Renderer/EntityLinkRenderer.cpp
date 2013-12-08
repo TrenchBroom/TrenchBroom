@@ -79,19 +79,24 @@ namespace TrenchBroom {
             SetVboState mapVbo(m_vbo);
             mapVbo.mapped();
             
-            m_entityLinks = VertexArray::swap(m_vbo, GL_LINES, vertices);
+            m_entityLinks = VertexArray::swap(GL_LINES, vertices);
             m_valid = true;
         }
         
         void EntityLinkRenderer::render(RenderContext& renderContext) {
             assert(m_valid);
             
-            SetVboState activateVbo(m_vbo);
-            activateVbo.active();
-
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
             shader.set("CameraPosition", renderContext.camera().position());
             shader.set("MaxDistance", 1000.0f);
+
+            SetVboState activateVbo(m_vbo);
+            activateVbo.active();
+            if (!m_entityLinks.prepared()) {
+                SetVboState mapVbo(m_vbo);
+                mapVbo.mapped();
+                m_entityLinks.prepare(m_vbo);
+            }
 
             glDisable(GL_DEPTH_TEST);
             shader.set("Alpha", 0.4f);

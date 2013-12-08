@@ -104,12 +104,14 @@ namespace TrenchBroom {
             
             if (renderOccludedEdges()) {
                 glDisable(GL_DEPTH_TEST);
+                m_edgeRenderer.setUseColor(true);
                 m_edgeRenderer.setColor(occludedEdgeColor());
                 m_edgeRenderer.render(context);
                 glEnable(GL_DEPTH_TEST);
             }
             
             glSetEdgeOffset(0.02f);
+            m_edgeRenderer.setUseColor(true);
             m_edgeRenderer.setColor(edgeColor());
             m_edgeRenderer.render(context);
             glResetEdgeOffset();
@@ -185,7 +187,7 @@ namespace TrenchBroom {
                  *m_filter);
             
             m_faceRenderer = FaceRenderer(buildFaces.mesh, faceColor());
-            m_edgeRenderer = EdgeRenderer(buildEdges.vertices);
+            m_edgeRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, buildEdges.vertices));
             
             m_valid = true;
         }

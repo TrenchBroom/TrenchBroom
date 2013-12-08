@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Ring::Ring(Vbo& vbo, const float radius, const float width, const float startAngle, const float angleLength, const size_t segments) {
+        Ring::Ring(const float radius, const float width, const float startAngle, const float angleLength, const size_t segments) {
             typedef VertexSpecs::P2::Vertex Vertex;
             Vertex::List vertices(2 * segments + 2);
             
@@ -40,7 +40,11 @@ namespace TrenchBroom {
                 a += d;
             }
             
-            m_array = VertexArray::swap(vbo, GL_TRIANGLE_STRIP, vertices);
+            m_array = VertexArray::swap(GL_TRIANGLE_STRIP, vertices);
+        }
+
+        void Ring::prepare(Vbo& vbo) {
+            m_array.prepare(vbo);
         }
 
         void Ring::render() {

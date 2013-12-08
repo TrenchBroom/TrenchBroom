@@ -33,8 +33,9 @@ namespace TrenchBroom {
         private:
             VertexArray m_array;
         public:
-            Ring(Vbo& vbo, const float radius, const float width, const float startAngle, const float angleLength, const size_t segments);
+            Ring(const float radius, const float width, const float startAngle, const float angleLength, const size_t segments);
             
+            void prepare(Vbo& vbo);
             void render();
         };
     }

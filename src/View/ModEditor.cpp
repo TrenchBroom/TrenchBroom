@@ -115,7 +115,8 @@ namespace TrenchBroom {
             StringList mods = m_document->mods();
             assert(index > 0 && index < mods.size());
             
-            std::swap(mods[index - 1], mods[index]);
+            using std::swap;
+            swap(mods[index - 1], mods[index]);
             m_controller->setMods(mods);
 
             m_enabledModList->DeselectAll();
@@ -131,7 +132,8 @@ namespace TrenchBroom {
             StringList mods = m_document->mods();
             assert(index < mods.size() - 1);
             
-            std::swap(mods[index + 1], mods[index]);
+            using std::swap;
+            swap(mods[index + 1], mods[index]);
             m_controller->setMods(mods);
             
             m_enabledModList->DeselectAll();

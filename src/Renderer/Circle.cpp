@@ -27,19 +27,19 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled) {
+        Circle::Circle(const float radius, const size_t segments, const bool filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(vbo, radius, segments, filled, 0.0f, Math::Constants<float>::TwoPi);
+            init2D(radius, segments, filled, 0.0f, Math::Constants<float>::TwoPi);
         }
         
-        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(vbo, radius, segments, filled, startAngle, angleLength);
+            init2D(radius, segments, filled, startAngle, angleLength);
         }
         
-        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) {
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) {
             assert(radius > 0.0f);
             assert(segments > 0);
 
@@ -65,42 +65,42 @@ namespace TrenchBroom {
             const float maxAngle = std::max(angle1, angle2);
             const float startAngle = (maxAngle - minAngle <= Math::Constants<float>::Pi ? minAngle : maxAngle);
 
-            init3D(vbo, radius, segments, filled, axis, startAngle, angleLength);
+            init3D(radius, segments, filled, axis, startAngle, angleLength);
         }
         
-        Circle::Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
             assert(radius > 0.0f);
             assert(segments > 0);
             assert(angleLength > 0.0);
-            init3D(vbo, radius, segments, filled, axis, startAngle, angleLength);
+            init3D(radius, segments, filled, axis, startAngle, angleLength);
         }
 
-        void Circle::prepare() {
-            m_array.prepare();
+        void Circle::prepare(Vbo& vbo) {
+            m_array.prepare(vbo);
         }
         
         void Circle::render() {
             m_array.render();
         }
         
-        void Circle::init2D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
+        void Circle::init2D(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
             Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
             if (filled)
                 positions.push_back(Vec2f::Null);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray::swap(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
+            m_array = VertexArray::swap(filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }
         
-        void Circle::init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
+        void Circle::init3D(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
             Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (filled)
                 positions.push_back(Vec3f::Null);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray::swap(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
+            m_array = VertexArray::swap(filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }
     }
 }

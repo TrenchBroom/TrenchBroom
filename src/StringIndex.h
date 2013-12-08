@@ -230,35 +230,40 @@ namespace TrenchBroom {
             }
             
             void splitNode(const size_t index) const {
+                using std::swap;
+
                 assert(m_key.size() > 1);
                 assert(index < m_key.size());
+                
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
 
                 // We want to avoid copying the children of this node to the new child, therefore we swap with an empty
                 // node set. Afterwards this node's children are empty.
                 NodeSet newChildren;
-                std::swap(newChildren, m_children);
+                swap(newChildren, m_children);
 
                 const Node& newChild = findOrCreateChild(remainder);
                 newChild.m_partialValues = m_partialValues;
-                std::swap(newChild.m_children, newChildren);
-                std::swap(newChild.m_exactValues, m_exactValues);
-                std::swap(newChild.m_numberedValues, m_numberedValues);
+                swap(newChild.m_children, newChildren);
+                swap(newChild.m_exactValues, m_exactValues);
+                swap(newChild.m_numberedValues, m_numberedValues);
                 
                 m_key = newKey;
             }
             
             void mergeNode() const {
+                using std::swap;
+
                 assert(m_children.size() == 1);
                 assert(m_exactValues.empty());
                 
                 NodeSet oldChildren;
-                std::swap(oldChildren, m_children);
+                swap(oldChildren, m_children);
                 
                 const Node& child = *oldChildren.begin();
                 assert(m_partialValues == child.m_partialValues);
-                std::swap(m_children, child.m_children);
+                swap(m_children, child.m_children);
                 m_exactValues = child.m_exactValues;
                 m_numberedValues = child.m_numberedValues;
                 

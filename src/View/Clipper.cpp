@@ -174,7 +174,8 @@ namespace TrenchBroom {
         }
 
         void Clipper::ClipPoints::invertPlaneNormal() {
-            std::swap(m_points[1], m_points[2]);
+            using std::swap;
+            swap(m_points[1], m_points[2]);
         }
         
         Vec3 Clipper::ClipPoints::selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) {

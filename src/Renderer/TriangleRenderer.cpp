@@ -27,21 +27,16 @@
 namespace TrenchBroom {
     namespace Renderer {
         TriangleRenderer::TriangleRenderer() :
-        m_prepared(true) {}
-        
-        TriangleRenderer::TriangleRenderer(VertexSpecs::P3N::Vertex::List& vertices) :
-        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
-        m_vertexArray(VertexArray::swap(*m_vbo, GL_TRIANGLES, vertices)),
-        m_useColor(true),
+        m_useColor(false),
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(VertexSpecs::P3NC4::Vertex::List& vertices) :
-        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
-        m_vertexArray(VertexArray::swap(*m_vbo, GL_TRIANGLES, vertices)),
+        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray) :
+        m_vbo(new Vbo(vertexArray.size())),
+        m_vertexArray(vertexArray),
         m_useColor(false),
         m_applyTinting(false),
-        m_prepared(false)  {}
+        m_prepared(false) {}
         
         TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) {
             m_vertexArray = other.m_vertexArray;
@@ -66,6 +61,10 @@ namespace TrenchBroom {
             swap(left.m_prepared, right.m_prepared);
         }
         
+        void TriangleRenderer::setUseColor(const bool useColor) {
+            m_useColor = useColor;
+        }
+
         void TriangleRenderer::setColor(const Color& color) {
             m_color = color;
         }
@@ -100,7 +99,7 @@ namespace TrenchBroom {
             assert(!m_prepared);
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();
-            m_vertexArray.prepare();
+            m_vertexArray.prepare(*m_vbo);
             m_prepared = true;
         }
     }

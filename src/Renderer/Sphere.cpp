@@ -28,16 +28,16 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Sphere::Sphere(Vbo& vbo, const float radius, const size_t iterations) {
+        Sphere::Sphere(const float radius, const size_t iterations) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
             const Vec3f::List positions = sphere3D(radius, iterations);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray::swap(vbo, GL_TRIANGLES, vertices);
+            m_array = VertexArray::swap(GL_TRIANGLES, vertices);
         }
         
-        void Sphere::prepare() {
-            m_array.prepare();
+        void Sphere::prepare(Vbo& vbo) {
+            m_array.prepare(vbo);
         }
         
         void Sphere::render() {

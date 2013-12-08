@@ -50,12 +50,12 @@ namespace TrenchBroom {
             VertexArray m_backgroundOutline;
             VertexArray m_background;
         public:
-            Compass(Vbo& vbo);
-            void prepare();
+            Compass();
+            void prepare(Vbo& vbo);
             void render(RenderContext& renderContext, const View::MovementRestriction& restriction);
         private:
-            void makeArrows(Vbo& vbo);
-            void makeBackground(Vbo& vbo);
+            void makeArrows();
+            void makeBackground();
             
             Mat4x4f cameraRotationMatrix(const Camera& camera) const;
             void renderBackground(RenderContext& renderContext);

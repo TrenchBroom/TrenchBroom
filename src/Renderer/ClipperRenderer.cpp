@@ -76,9 +76,9 @@ namespace TrenchBroom {
             
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            pointHandle.prepare();
-            lineArray.prepare();
-            triangleArray.prepare();
+            pointHandle.prepare(m_vbo);
+            lineArray.prepare(m_vbo);
+            triangleArray.prepare(m_vbo);
             setVboState.active();
             
             renderPointHandles(renderContext, positions, pointHandle);
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             Circle highlight = makePointHandleHighlight();
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            highlight.prepare();
+            highlight.prepare(m_vbo);
             setVboState.active();
 
             glDisable(GL_DEPTH_TEST);
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            pointHandle.prepare();
+            pointHandle.prepare(m_vbo);
             setVboState.active();
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -188,12 +188,12 @@ namespace TrenchBroom {
 
         Sphere ClipperRenderer::makePointHandle() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return Sphere(m_vbo, prefs.get(Preferences::HandleRadius), 1);
+            return Sphere(prefs.get(Preferences::HandleRadius), 1);
         }
         
         Circle ClipperRenderer::makePointHandleHighlight() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            return Circle(m_vbo, 2.0f * prefs.get(Preferences::HandleRadius), 16, false);
+            return Circle(2.0f * prefs.get(Preferences::HandleRadius), 16, false);
         }
         
         VertexArray ClipperRenderer::makeLineArray(const Vec3::List& positions) {
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < positions.size(); ++i)
                 vertices.push_back(Vertex(Vec3f(positions[i])));
-            return VertexArray::swap(m_vbo, GL_LINE_LOOP, vertices);
+            return VertexArray::swap(GL_LINE_LOOP, vertices);
         }
         
         VertexArray ClipperRenderer::makeTriangleArray(const Vec3::List& positions) {
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < positions.size(); ++i)
                 vertices.push_back(Vertex(Vec3f(positions[i])));
-            return VertexArray::swap(m_vbo, GL_TRIANGLE_FAN, vertices);
+            return VertexArray::swap(GL_TRIANGLE_FAN, vertices);
         }
 
         void ClipperRenderer::setupBrushRenderer(BrushRenderer& renderer, const bool keep) {

@@ -26,19 +26,14 @@
 namespace TrenchBroom {
     namespace Renderer {
         EdgeRenderer::EdgeRenderer() :
-        m_prepared(true) {}
-        
-        EdgeRenderer::EdgeRenderer(VertexSpecs::P3::Vertex::List& vertices) :
-        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
-        m_vertexArray(VertexArray::swap(*m_vbo, GL_LINES, vertices)),
-        m_useColor(true),
+        m_useColor(false),
         m_prepared(false) {}
         
-        EdgeRenderer::EdgeRenderer(VertexSpecs::P3C4::Vertex::List& vertices) :
-        m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
-        m_vertexArray(VertexArray::swap(*m_vbo, GL_LINES, vertices)),
+        EdgeRenderer::EdgeRenderer(const VertexArray& vertexArray) :
+        m_vbo(new Vbo(vertexArray.size())),
+        m_vertexArray(vertexArray),
         m_useColor(false),
-        m_prepared(false)  {}
+        m_prepared(false) {}
         
         EdgeRenderer::EdgeRenderer(const EdgeRenderer& other) {
             m_vertexArray = other.m_vertexArray;
@@ -63,6 +58,10 @@ namespace TrenchBroom {
             swap(left.m_prepared, right.m_prepared);
         }
 
+        void EdgeRenderer::setUseColor(bool useColor) {
+            m_useColor = useColor;
+        }
+
         void EdgeRenderer::setColor(const Color& color) {
             m_color = color;
         }
@@ -75,6 +74,7 @@ namespace TrenchBroom {
             setVboState.active();
             if (!m_prepared)
                 prepare();
+
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_color);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             assert(!m_prepared);
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();
-            m_vertexArray.prepare();
+            m_vertexArray.prepare(*m_vbo);
             m_prepared = true;
         }
     }

@@ -75,7 +75,9 @@ namespace TrenchBroom {
                 addObjects(m_objectsToAdd);
             else
                 removeObjects(m_objectsToRemove);
-            std::swap(m_objectsToAdd, m_objectsToRemove);
+            
+            using std::swap;
+            swap(m_objectsToAdd, m_objectsToRemove);
             return true;
         }
         
@@ -87,7 +89,9 @@ namespace TrenchBroom {
                 removeObjects(m_objectsToRemove);
             else
                 addObjects(m_objectsToAdd);
-            std::swap(m_objectsToAdd, m_objectsToRemove);
+
+            using std::swap;
+            swap(m_objectsToAdd, m_objectsToRemove);
             return true;
         }
 

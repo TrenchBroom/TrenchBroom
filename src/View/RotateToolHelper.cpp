@@ -142,11 +142,14 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
             
+            Renderer::Circle circle(handleRadius, 24, true, m_axis.firstComponent(), startAxis, endAxis);
+
             Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            circle.prepare(m_vbo);
             setVboState.active();
-            
-            Renderer::Circle circle(m_vbo, handleRadius, 24, true, m_axis.firstComponent(), startAxis, endAxis);
             circle.render();
+
             glPolygonMode(GL_FRONT, GL_FILL);
             glEnable(GL_CULL_FACE);
         }

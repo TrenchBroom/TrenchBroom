@@ -323,9 +323,10 @@ typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Ma
 
 template <typename T, size_t S>
 Mat<T,S,S>& transposeMatrix(Mat<T,S,S>& mat) {
+    using std::swap;
     for (size_t c = 0; c < S; c++)
         for (size_t r = c + 1; r < S; r++)
-            std::swap(mat[c][r], mat[r][c]);
+            swap(mat[c][r], mat[r][c]);
     return mat;
 }
 

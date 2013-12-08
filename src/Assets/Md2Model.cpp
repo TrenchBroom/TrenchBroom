@@ -29,8 +29,10 @@
 namespace TrenchBroom {
     namespace Assets {
         Md2Model::Frame::Frame(Mesh::TriangleSeries& triangleFans, Mesh::TriangleSeries& triangleStrips) {
-            std::swap(m_triangleFans, triangleFans);
-            std::swap(m_triangleStrips, triangleStrips);
+            using std::swap;
+
+            swap(m_triangleFans, triangleFans);
+            swap(m_triangleStrips, triangleStrips);
             
             if (!m_triangleFans.empty())
                 m_bounds.min = m_bounds.max = m_triangleFans.front().front().v1;
@@ -94,7 +96,7 @@ namespace TrenchBroom {
             m_skins = NULL;
         }
 
-        Renderer::MeshRenderer* Md2Model::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::MeshRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             const TextureList& textures = m_skins->textures();
             
             assert(skinIndex < textures.size());
@@ -107,7 +109,7 @@ namespace TrenchBroom {
             mesh.addTriangleFans(skin, frame->triangleFans());
             mesh.addTriangleStrips(skin, frame->triangleStrips());
             
-            return new Renderer::MeshRenderer(vbo, mesh);
+            return new Renderer::MeshRenderer(mesh);
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

@@ -485,7 +485,9 @@ namespace TrenchBroom {
             ASSERT_FALSE(face.hasVertexPositions(reversed));
             
             Vec3::List swapped = list;
-            std::swap(swapped.front(), swapped.back());
+
+            using std::swap;
+            swap(swapped.front(), swapped.back());
             ASSERT_FALSE(face.hasVertexPositions(swapped));
             
             Vec3::List shorter = list;

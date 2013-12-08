@@ -63,7 +63,7 @@ namespace TrenchBroom {
         m_controller(controller),
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_document, m_renderResources.fontManager()),
-        m_compass(m_auxVbo),
+        m_compass(),
         m_inputState(m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
@@ -834,7 +834,12 @@ namespace TrenchBroom {
         
         void MapView::renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor) {
             Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(m_document->worldBounds(), xColor, yColor, zColor);
-            Renderer::VertexArray array = Renderer::VertexArray::swap(m_auxVbo, GL_LINES, vertices);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(GL_LINES, vertices);
+            
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.mapped();
+            array.prepare(m_auxVbo);
+            setVboState.active();
             array.render();
         }
         
@@ -895,11 +900,13 @@ namespace TrenchBroom {
             const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
             
-            Renderer::SetVboState setVboState(m_auxVbo);
-            setVboState.active();
-            
             glDisable(GL_DEPTH_TEST);
-            Renderer::VertexArray array = Renderer::VertexArray::swap(m_auxVbo, GL_QUADS, vertices);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            
+            Renderer::SetVboState setVboState(m_auxVbo);
+            setVboState.mapped();
+            array.prepare(m_auxVbo);
+            setVboState.active();
             array.render();
             glEnable(GL_DEPTH_TEST);
         }
@@ -926,7 +933,7 @@ namespace TrenchBroom {
 
                 Renderer::SetVboState setVboState(m_auxVbo);
                 setVboState.mapped();
-                m_compass.prepare();
+                m_compass.prepare(m_auxVbo);
             } else {
                 m_logger->info("Cannot set current GL context");
             }

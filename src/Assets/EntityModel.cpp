@@ -23,8 +23,8 @@ namespace TrenchBroom {
     namespace Assets {
         EntityModel::~EntityModel() {}
         
-        Renderer::MeshRenderer* EntityModel::buildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
-            return doBuildRenderer(vbo, skinIndex, frameIndex);
+        Renderer::MeshRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            return doBuildRenderer(skinIndex, frameIndex);
         }
 
         BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {

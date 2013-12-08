@@ -243,11 +243,14 @@ namespace TrenchBroom {
                 }
             }
             
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.active();
-
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_LINES, vertices);
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::VaryingPCShader);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_LINES, vertices);
+
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+
+            setVboState.active();
             vertexArray.render();
         }
 
@@ -314,11 +317,17 @@ namespace TrenchBroom {
                 }
             }
 
-            PreferenceManager& prefs = PreferenceManager::instance();
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::BrowserGroupShader);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
             shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
             
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            
+            setVboState.mapped();
             vertexArray.render();
         }
         
@@ -326,6 +335,9 @@ namespace TrenchBroom {
             typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
             StringRendererMap stringRenderers;
             
+            Renderer::SetVboState activateVbo(m_vbo);
+            activateVbo.mapped();
+
             { // create and upload all vertex arrays
                 Renderer::SetVboState mapVbo(m_vbo);
                 mapVbo.mapped();
@@ -335,8 +347,8 @@ namespace TrenchBroom {
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const StringVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(m_vbo, GL_QUADS, vertices);
-                    stringRenderers[descriptor].prepare();
+                    stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
+                    stringRenderers[descriptor].prepare(m_vbo);
                 }
             }
             

@@ -97,7 +97,7 @@ namespace TrenchBroom {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
-        Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             
             Renderer::Mesh<const Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 mesh.endTriangleSet();
             }
             
-            return new Renderer::MeshRenderer(vbo, mesh);
+            return new Renderer::MeshRenderer(mesh);
         }
 
         BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

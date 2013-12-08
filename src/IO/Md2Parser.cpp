@@ -376,12 +376,13 @@ namespace TrenchBroom {
                     triangles[i] = Vertex(position, normal, texCoords);
                 }
                 
+                using std::swap;
                 if (md2Mesh.type == Md2Mesh::Strip) {
                     triangleStrips.push_back(Vertex::List());
-                    std::swap(triangleStrips.back(), triangles);
+                    swap(triangleStrips.back(), triangles);
                 } else {
                     triangleFans.push_back(Vertex::List());
-                    std::swap(triangleFans.back(), triangles);
+                    swap(triangleFans.back(), triangles);
                 }
             }
             

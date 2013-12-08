@@ -56,7 +56,7 @@ namespace TrenchBroom {
         
         FaceRenderer::FaceRenderer(Model::BrushFace::Mesh& mesh, const Color& faceColor) :
         m_vbo(new Vbo(mesh.size())),
-        m_meshRenderer(*m_vbo, mesh),
+        m_meshRenderer(mesh),
         m_faceColor(faceColor),
         m_prepared(false) {}
 
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             assert(!m_prepared);
             SetVboState setVboState(*m_vbo);
             setVboState.mapped();
-            m_meshRenderer.prepare();
+            m_meshRenderer.prepare(*m_vbo);
             m_prepared = true;
         }
     }

@@ -212,8 +212,13 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
             vertexArray.render();
         }
         
@@ -239,6 +244,8 @@ namespace TrenchBroom {
             
             size_t num = 0;
             
+            Renderer::SetVboState setVboState(m_vbo);
+
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -255,12 +262,17 @@ namespace TrenchBroom {
                                 vertices[2] = TextureVertex(Vec2f(bounds.right(), height - (bounds.bottom() - y)), Vec2f(1.0f, 1.0f));
                                 vertices[3] = TextureVertex(Vec2f(bounds.right(), height - (bounds.top() - y)),    Vec2f(1.0f, 0.0f));
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
+
+                                setVboState.mapped();
+                                vertexArray.prepare(m_vbo);
+                                setVboState.active();
                                 vertexArray.render();
-                                num++;
+                                
+                                ++num;
                             }
                         }
                     }
@@ -292,7 +304,12 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::BrowserGroupShader);
             shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
             
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
             vertexArray.render();
         }
         
@@ -300,6 +317,9 @@ namespace TrenchBroom {
             typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
             StringRendererMap stringRenderers;
             
+            Renderer::SetVboState activateVbo(m_vbo);
+            activateVbo.active();
+
             { // create and upload all vertex arrays
                 Renderer::SetVboState mapVbo(m_vbo);
                 mapVbo.mapped();
@@ -309,8 +329,8 @@ namespace TrenchBroom {
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const StringVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(m_vbo, GL_QUADS, vertices);
-                    stringRenderers[descriptor].prepare();
+                    stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
+                    stringRenderers[descriptor].prepare(m_vbo);
                 }
             }
             

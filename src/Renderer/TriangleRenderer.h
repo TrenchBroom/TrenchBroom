@@ -42,15 +42,15 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             TriangleRenderer();
-            TriangleRenderer(VertexSpecs::P3N::Vertex::List& vertices);
-            TriangleRenderer(VertexSpecs::P3NC4::Vertex::List& vertices);
+            TriangleRenderer(const VertexArray& vertexArray);
             TriangleRenderer(const TriangleRenderer& other);
             TriangleRenderer& operator= (TriangleRenderer other);
             
             friend void swap(TriangleRenderer& left, TriangleRenderer& right);
             
+            void setUseColor(bool useColor);
             void setColor(const Color& color);
-            void setApplyTinting(const bool applyTinting);
+            void setApplyTinting(bool applyTinting);
             void setTintColor(const Color& tintColor);
             
             void render(RenderContext& context);

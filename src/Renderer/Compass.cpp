@@ -42,17 +42,17 @@ namespace TrenchBroom {
         const float Compass::m_headLength = 7.0f;
         const float Compass::m_headRadius = 3.5f;
 
-        Compass::Compass(Vbo& vbo) {
-            makeArrows(vbo);
-            makeBackground(vbo);
+        Compass::Compass() {
+            makeArrows();
+            makeBackground();
         }
 
-        void Compass::prepare() {
-            m_strip.prepare();
-            m_set.prepare();
-            m_fans.prepare();
-            m_backgroundOutline.prepare();
-            m_background.prepare();
+        void Compass::prepare(Vbo& vbo) {
+            m_strip.prepare(vbo);
+            m_set.prepare(vbo);
+            m_fans.prepare(vbo);
+            m_backgroundOutline.prepare(vbo);
+            m_background.prepare(vbo);
         }
         
         void Compass::render(RenderContext& renderContext, const View::MovementRestriction& restriction) {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Compass::makeArrows(Vbo& vbo) {
+        void Compass::makeArrows() {
             const Vec3f shaftOffset(0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f);
             const Vec3f headOffset = Vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
             
@@ -132,18 +132,18 @@ namespace TrenchBroom {
             counts[0] = shaftCap.vertices.size();
             counts[1] = headCap.vertices.size();
             
-            m_strip = VertexArray::swap(vbo, GL_TRIANGLE_STRIP, shaftVertices);
-            m_set = VertexArray::swap(vbo, GL_TRIANGLES, headVertices);
-            m_fans = VertexArray::swap(vbo, GL_TRIANGLE_FAN, capVertices, indices, counts);
+            m_strip = VertexArray::swap(GL_TRIANGLE_STRIP, shaftVertices);
+            m_set = VertexArray::swap(GL_TRIANGLES, headVertices);
+            m_fans = VertexArray::swap(GL_TRIANGLE_FAN, capVertices, indices, counts);
         }
         
-        void Compass::makeBackground(Vbo& vbo) {
+        void Compass::makeBackground() {
             typedef VertexSpecs::P2::Vertex Vertex;
             Vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Constants<float>::TwoPi, m_segments);
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
-            m_background = VertexArray::swap(vbo, GL_TRIANGLE_FAN, verts);
-            m_backgroundOutline = VertexArray::swap(vbo, GL_LINE_LOOP, verts);
+            m_background = VertexArray::swap(GL_TRIANGLE_FAN, verts);
+            m_backgroundOutline = VertexArray::swap(GL_LINE_LOOP, verts);
         }
 
         Mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {

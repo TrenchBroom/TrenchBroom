@@ -155,9 +155,10 @@ public:
     }
     
     BBox<T,S>& repair() {
+        using std::swap;
         for (size_t i = 0; i < S; i++)
             if (min[i] > max[i])
-                std::swap(min[i], max[i]);
+                swap(min[i], max[i]);
         return *this;
     }
     

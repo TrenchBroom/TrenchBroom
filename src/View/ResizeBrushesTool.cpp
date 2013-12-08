@@ -159,6 +159,7 @@ namespace TrenchBroom {
             Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(m_dragFaces);
             
             glDisable(GL_DEPTH_TEST);
+            edgeRenderer.setUseColor(true);
             edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
             edgeRenderer.render(renderContext);
             glEnable(GL_DEPTH_TEST);
@@ -286,7 +287,7 @@ namespace TrenchBroom {
             CollectVertices collect(vertices);
             Model::each(begin, end, collect, Model::MatchAll());
             
-            return Renderer::EdgeRenderer(vertices);
+            return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
         }
 
         bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {

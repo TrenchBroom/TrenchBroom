@@ -69,7 +69,7 @@ namespace TrenchBroom {
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
         private:
-            Renderer::MeshRenderer* doBuildRenderer(Renderer::Vbo& vbo, const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
         };

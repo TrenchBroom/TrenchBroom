@@ -84,7 +84,7 @@ namespace TrenchBroom {
             if (m_rendererMismatches.count(spec) > 0)
                 return NULL;
             
-            Renderer::MeshRenderer* renderer = entityModel->buildRenderer(m_vbo, spec.skinIndex, spec.frameIndex);
+            Renderer::MeshRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == NULL) {
                 m_rendererMismatches.insert(spec);
             } else {
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             RendererCache::const_iterator it, end;
             for (it = m_renderers.begin(), end = m_renderers.end(); it != end; ++it) {
                 Renderer::MeshRenderer* renderer = it->second;
-                renderer->prepare();
+                renderer->prepare(m_vbo);
             }
             m_prepared = true;
         }

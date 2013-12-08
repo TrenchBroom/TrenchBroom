@@ -105,7 +105,8 @@ namespace TrenchBroom {
             if (index == 0)
                 throw AssetException("Could not move texture collection");
             
-            std::swap(m_externalCollections[index-1], m_externalCollections[index]);
+            using std::swap;
+            swap(m_externalCollections[index-1], m_externalCollections[index]);
             updateTextures();
         }
     
@@ -120,7 +121,8 @@ namespace TrenchBroom {
             if (index == m_externalCollections.size() - 1)
                 throw AssetException("Could not move texture collection");
             
-            std::swap(m_externalCollections[index+1], m_externalCollections[index]);
+            using std::swap;
+            swap(m_externalCollections[index+1], m_externalCollections[index]);
             updateTextures();
         }
 

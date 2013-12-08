@@ -32,16 +32,16 @@ namespace TrenchBroom {
         private:
             VertexArray m_array;
         public:
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled);
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength);
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
-            Circle(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength);
+            Circle(float radius, size_t segments, bool filled);
+            Circle(float radius, size_t segments, bool filled, float startAngle, float angleLength);
+            Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
+            Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, float startAngle, float angleLength);
             
-            void prepare();
+            void prepare(Vbo& vbo);
             void render();
         private:
-            void init2D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength);
-            void init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength);
+            void init3D(float radius, size_t segments, bool filled, Math::Axis::Type axis, float startAngle, float angleLength);
+            void init2D(float radius, size_t segments, bool filled, float startAngle, float angleLength);
         };
     }
 }

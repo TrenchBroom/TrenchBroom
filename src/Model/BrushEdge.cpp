@@ -166,8 +166,9 @@ namespace TrenchBroom {
         }
 
         void BrushEdge::flip() {
-            std::swap(m_left, m_right);
-            std::swap(m_start, m_end);
+            using std::swap;
+            swap(m_left, m_right);
+            swap(m_start, m_end);
         }
 
         void BrushEdge::setLeftNull() {

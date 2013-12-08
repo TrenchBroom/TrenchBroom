@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,16 +32,19 @@ namespace TrenchBroom {
             return m_renderData.empty();
         }
 
-        void MeshRenderer::prepare() {
+        void MeshRenderer::prepare(Vbo& vbo) {
             if (m_prepared)
                 return;
+            
+            SetVboState mapVbo(vbo);
+            mapVbo.mapped();
             
             RenderData::List::iterator it, end;
             for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
                 RenderData& renderData = *it;
-                renderData.triangles.prepare();
-                renderData.triangleFans.prepare();
-                renderData.triangleStrips.prepare();
+                renderData.triangles.prepare(vbo);
+                renderData.triangleFans.prepare(vbo);
+                renderData.triangleStrips.prepare(vbo);
             }
             
             m_prepared = true;

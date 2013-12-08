@@ -223,15 +223,15 @@ namespace TrenchBroom {
         void EntityRenderer::renderWireframeBounds(RenderContext& context) {
             if (renderOccludedBounds()) {
                 glDisable(GL_DEPTH_TEST);
-                if (overrideBoundsColor())
-                    m_wireframeBoundsRenderer.setColor(occludedBoundsColor());
+                m_wireframeBoundsRenderer.setUseColor(overrideBoundsColor());
+                m_wireframeBoundsRenderer.setColor(occludedBoundsColor());
                 m_wireframeBoundsRenderer.render(context);
                 glEnable(GL_DEPTH_TEST);
             }
             
             glSetEdgeOffset(0.025f);
-            if (overrideBoundsColor())
-                m_wireframeBoundsRenderer.setColor(boundsColor());
+            m_wireframeBoundsRenderer.setUseColor(overrideBoundsColor());
+            m_wireframeBoundsRenderer.setColor(boundsColor());
             m_wireframeBoundsRenderer.render(context);
             glResetEdgeOffset();
         }
@@ -331,7 +331,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(wireframeVertices);
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -350,9 +350,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(wireframeVertices);
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
             }
-            m_solidBoundsRenderer = TriangleRenderer(solidVertices);
+            
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(GL_TRIANGLES, solidVertices));
             m_boundsValid = true;
         }
 
