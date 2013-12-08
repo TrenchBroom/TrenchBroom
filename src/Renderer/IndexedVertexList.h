@@ -59,15 +59,15 @@ namespace TrenchBroom {
                 m_primStart = m_vertices.size();
             }
             
-            const IndexArray& indices() const {
+            IndexArray& indices() {
                 return m_indices;
             }
             
-            const CountArray& counts() const {
+            CountArray& counts() {
                 return m_counts;
             }
             
-            const typename T::Vertex::List& vertices() const {
+            typename T::Vertex::List& vertices() {
                 return m_vertices;
             }
         };

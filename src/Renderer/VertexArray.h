@@ -41,56 +41,116 @@ namespace TrenchBroom {
         
         template <typename VertexSpec>
         class Holder : public BaseHolder {
-        public:
+        private:
             typedef typename VertexSpec::Vertex::List VertexList;
         private:
             Vbo& m_vbo;
             VboBlock* m_block;
-            
-            VertexList m_vertices;
             size_t m_size;
         public:
-            Holder(Vbo& vbo, const VertexList& vertices) :
-            m_vbo(vbo),
-            m_block(NULL),
-            m_vertices(vertices),
-            m_size(m_vertices.size()) {}
-            
-            ~Holder() {
-                if (m_block != NULL) {
-                    m_block->free();
-                    m_block = NULL;
-                }
-            }
-            
             size_t size() const {
                 return m_size;
             }
             
-            void setup() {
+            virtual void setup() {
                 assert(m_size > 0);
                 if (m_block == NULL) {
                     SetVboState mapVbo(m_vbo);
                     mapVbo.mapped();
 
-                    const size_t capacity = VertexSpec::Size * m_vertices.size();
+                    const VertexList& vertices = doGetVertices();
+                    const size_t capacity = VertexSpec::Size * vertices.size();
                     m_block = m_vbo.allocateBlock(capacity);
-                    m_block->writeBuffer(0, m_vertices);
-                    m_vertices.resize(0);
+                    m_block->writeBuffer(0, vertices);
                 }
                 
                 VertexSpec::setup(m_block->offset());
             }
             
-            void cleanup() {
+            virtual void cleanup() {
                 VertexSpec::cleanup();
+            }
+        protected:
+            Holder(Vbo& vbo, const size_t vertexCount) :
+            m_vbo(vbo),
+            m_block(NULL),
+            m_size(vertexCount) {}
+            
+            virtual ~Holder() {
+                if (m_block != NULL) {
+                    m_block->free();
+                    m_block = NULL;
+                }
+            }
+        private:
+            virtual const VertexList& doGetVertices() const = 0;
+        };
+        
+        template <typename VertexSpec>
+        class CopyHolder : public Holder<VertexSpec> {
+        public:
+            typedef typename VertexSpec::Vertex::List VertexList;
+        private:
+            VertexList m_vertices;
+        public:
+            CopyHolder(Vbo& vbo, const VertexList& vertices) :
+            Holder<VertexSpec>(vbo, vertices.size()),
+            m_vertices(vertices) {}
+            
+            void setup() {
+                Holder<VertexSpec>::setup();
+                m_vertices.resize(0);
+            }
+        private:
+            const VertexList& doGetVertices() const {
+                return m_vertices;
             }
         };
         
+        template <typename VertexSpec>
+        class SwapHolder : public Holder<VertexSpec> {
+        public:
+            typedef typename VertexSpec::Vertex::List VertexList;
+        private:
+            VertexList m_vertices;
+        public:
+            SwapHolder(Vbo& vbo, VertexList& vertices) :
+            Holder<VertexSpec>(vbo, vertices.size()) {
+                std::swap(m_vertices, vertices);
+            }
+            
+            void setup() {
+                Holder<VertexSpec>::setup();
+                m_vertices.resize(0);
+            }
+        private:
+            const VertexList& doGetVertices() const {
+                return m_vertices;
+            }
+        };
+        
+        template <typename VertexSpec>
+        class RefHolder : public Holder<VertexSpec> {
+        public:
+            typedef typename VertexSpec::Vertex::List VertexList;
+        private:
+            const VertexList& m_vertices;
+        public:
+            RefHolder(Vbo& vbo, const VertexList& vertices) :
+            Holder<VertexSpec>(vbo, vertices.size()),
+            m_vertices(vertices) {}
+        private:
+            const VertexList& doGetVertices() const {
+                return m_vertices;
+            }
+        };
+
         class VertexArray {
         public:
             typedef std::vector<GLint> IndexArray;
             typedef std::vector<GLsizei> CountArray;
+            static const IndexArray EmptyIndexArray;
+            static const CountArray EmptyCountArray;
         private:
             GLenum m_primType;
             size_t m_vertexCount;
@@ -98,94 +158,195 @@ namespace TrenchBroom {
             IndexArray m_indices;
             CountArray m_counts;
         public:
-            explicit VertexArray() :
-            m_primType(GL_INVALID_ENUM),
-            m_vertexCount(0) {}
+            explicit VertexArray();
             
             template <typename A1>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))) {}
-
-            template <typename A1, typename A2>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))) {}
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
             
-            template <typename A1, typename A2, typename A3>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))) {}
-
-            template <typename A1, typename A2, typename A3, typename A4>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))) {}
-
-            template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))) {}
+            template <typename A1>
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
 
             template <typename A1>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, const IndexArray& indices, const CountArray& counts) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex1<A1>::Spec>(vbo, vertices))),
-            m_indices(indices),
-            m_counts(counts) {
-                assert(m_indices.size() == m_counts.size());
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex1<A1> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex1<A1> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex1<A1> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex1<A1>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1, typename A2>
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
             }
             
             template <typename A1, typename A2>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices, const CountArray& counts) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex2<A1, A2>::Spec>(vbo, vertices))),
-            m_indices(indices),
-            m_counts(counts) {
-                assert(m_indices.size() == m_counts.size());
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1, typename A2>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex2<A1, A2> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1, typename A2>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex2<A1, A2>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1, typename A2, typename A3>
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
             }
             
             template <typename A1, typename A2, typename A3>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices, const CountArray& counts) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices))),
-            m_indices(indices),
-            m_counts(counts) {
-                assert(m_indices.size() == m_counts.size());
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+
+            template <typename A1, typename A2, typename A3>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex3<A1, A2, A3> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex3<A1, A2, A3>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
             }
             
             template <typename A1, typename A2, typename A3, typename A4>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices, const CountArray& counts) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices))),
-            m_indices(indices),
-            m_counts(counts) {
-                assert(m_indices.size() == m_counts.size());
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4>
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex4<A1, A2, A3, A4> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
             }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            explicit VertexArray(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices, const CountArray& counts) :
-            m_primType(primType),
-            m_vertexCount(vertices.size()),
-            m_holder(BaseHolder::Ptr(new Holder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices))),
-            m_indices(indices),
-            m_counts(counts) {
-                assert(m_indices.size() == m_counts.size());
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
             }
-
+            
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            static VertexArray copy(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new CopyHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            static VertexArray swap(Vbo& vbo, const GLenum primType, std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new SwapHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
+            template <typename A1, typename A2, typename A3, typename A4, typename A5>
+            static VertexArray ref(Vbo& vbo, const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices, IndexArray& indices, CountArray& counts) {
+                BaseHolder::Ptr holder(new RefHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vbo, vertices));
+                return VertexArray(primType, holder->size(), holder, indices, counts);
+            }
+            
             size_t vertexCount() const;
             
             void prepare();
             void render();
+        private:
+            VertexArray(const GLenum primType, const size_t vertexCount, BaseHolder::Ptr holder, const IndexArray& indices, const CountArray& counts);
+            VertexArray(const GLenum primType, const size_t vertexCount, BaseHolder::Ptr holder, IndexArray& indices, CountArray& counts);
         };
     }
 }

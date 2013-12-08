@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 a += d;
             }
             
-            m_array = VertexArray(vbo, GL_TRIANGLE_STRIP, vertices);
+            m_array = VertexArray::swap(vbo, GL_TRIANGLE_STRIP, vertices);
         }
 
         void Ring::render() {

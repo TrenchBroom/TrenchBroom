@@ -29,16 +29,16 @@ namespace TrenchBroom {
         TriangleRenderer::TriangleRenderer() :
         m_prepared(true) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3N::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(VertexSpecs::P3N::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
-        m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
+        m_vertexArray(VertexArray::swap(*m_vbo, GL_TRIANGLES, vertices)),
         m_useColor(true),
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexSpecs::P3NC4::Vertex::List& vertices) :
+        TriangleRenderer::TriangleRenderer(VertexSpecs::P3NC4::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
-        m_vertexArray(*m_vbo, GL_TRIANGLES, vertices),
+        m_vertexArray(VertexArray::swap(*m_vbo, GL_TRIANGLES, vertices)),
         m_useColor(false),
         m_applyTinting(false),
         m_prepared(false)  {}

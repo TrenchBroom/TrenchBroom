@@ -32,8 +32,8 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3::Vertex Vertex;
             
             const Vec3f::List positions = sphere3D(radius, iterations);
-            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray(vbo, GL_TRIANGLES, vertices);
+            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            m_array = VertexArray::swap(vbo, GL_TRIANGLES, vertices);
         }
         
         void Sphere::prepare() {

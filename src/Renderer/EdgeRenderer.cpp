@@ -28,15 +28,15 @@ namespace TrenchBroom {
         EdgeRenderer::EdgeRenderer() :
         m_prepared(true) {}
         
-        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3::Vertex::List& vertices) :
+        EdgeRenderer::EdgeRenderer(VertexSpecs::P3::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3::Size)),
-        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_vertexArray(VertexArray::swap(*m_vbo, GL_LINES, vertices)),
         m_useColor(true),
         m_prepared(false) {}
         
-        EdgeRenderer::EdgeRenderer(const VertexSpecs::P3C4::Vertex::List& vertices) :
+        EdgeRenderer::EdgeRenderer(VertexSpecs::P3C4::Vertex::List& vertices) :
         m_vbo(new Vbo(vertices.size() * VertexSpecs::P3C4::Size)),
-        m_vertexArray(*m_vbo, GL_LINES, vertices),
+        m_vertexArray(VertexArray::swap(*m_vbo, GL_LINES, vertices)),
         m_useColor(false),
         m_prepared(false)  {}
         

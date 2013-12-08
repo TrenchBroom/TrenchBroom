@@ -29,18 +29,19 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <typename A1>
+        template <typename _A1>
         class VertexSpec1 {
         public:
-            typedef Vertex1<A1> Vertex;
+            typedef _A1 A1;
+            typedef Vertex1<_A1> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                A1::setup(0, Size, baseOffset);
+                _A1::setup(0, Size, baseOffset);
             }
             
             static void cleanup() {
-                A1::cleanup(0);
+                _A1::cleanup(0);
             }
         private:
             VertexSpec1();
@@ -49,20 +50,22 @@ namespace TrenchBroom {
         template <typename A1>
         const size_t VertexSpec1<A1>::Size = sizeof(VertexSpec1<A1>::Vertex);
 
-        template <typename A1, typename A2>
+        template <typename _A1, typename _A2>
         class VertexSpec2 {
         public:
-            typedef Vertex2<A1, A2> Vertex;
+            typedef _A1 A1;
+            typedef _A2 A2;
+            typedef Vertex2<_A1, _A2> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                A1::setup(0, Size, baseOffset);
-                A2::setup(1, Size, baseOffset + A1::Size);
+                _A1::setup(0, Size, baseOffset);
+                _A2::setup(1, Size, baseOffset + _A1::Size);
             }
             
             static void cleanup() {
-                A2::cleanup(1);
-                A1::cleanup(0);
+                _A2::cleanup(1);
+                _A1::cleanup(0);
             }
         private:
             VertexSpec2();
@@ -71,22 +74,25 @@ namespace TrenchBroom {
         template <typename A1, typename A2>
         const size_t VertexSpec2<A1, A2>::Size = sizeof(VertexSpec2<A1, A2>::Vertex);
 
-        template <typename A1, typename A2, typename A3>
+        template <typename _A1, typename _A2, typename _A3>
         class VertexSpec3 {
         public:
-            typedef Vertex3<A1, A2, A3> Vertex;
+            typedef _A1 A1;
+            typedef _A2 A2;
+            typedef _A3 A3;
+            typedef Vertex3<_A1, _A2, _A3> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                A1::setup(0, Size, baseOffset);
-                A2::setup(1, Size, baseOffset + A1::Size);
-                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
+                _A1::setup(0, Size, baseOffset);
+                _A2::setup(1, Size, baseOffset + _A1::Size);
+                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
             }
             
             static void cleanup() {
-                A3::cleanup(2);
-                A2::cleanup(1);
-                A1::cleanup(0);
+                _A3::cleanup(2);
+                _A2::cleanup(1);
+                _A1::cleanup(0);
             }
         private:
             VertexSpec3();
@@ -95,24 +101,28 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3>
         const size_t VertexSpec3<A1, A2, A3>::Size = sizeof(VertexSpec3<A1, A2, A3>::Vertex);
 
-        template <typename A1, typename A2, typename A3, typename A4>
+        template <typename _A1, typename _A2, typename _A3, typename _A4>
         class VertexSpec4 {
         public:
-            typedef Vertex4<A1, A2, A3, A4> Vertex;
+            typedef _A1 A1;
+            typedef _A2 A2;
+            typedef _A3 A3;
+            typedef _A4 A4;
+            typedef Vertex4<_A1, _A2, _A3, _A4> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                A1::setup(0, Size, baseOffset);
-                A2::setup(1, Size, baseOffset + A1::Size);
-                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
-                A4::setup(3, Size, baseOffset + A1::Size + A2::Size + A3::Size);
+                _A1::setup(0, Size, baseOffset);
+                _A2::setup(1, Size, baseOffset + _A1::Size);
+                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
+                _A4::setup(3, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size);
             }
             
             static void cleanup() {
-                A4::cleanup(3);
-                A3::cleanup(2);
-                A2::cleanup(1);
-                A1::cleanup(0);
+                _A4::cleanup(3);
+                _A3::cleanup(2);
+                _A2::cleanup(1);
+                _A1::cleanup(0);
             }
         private:
             VertexSpec4();
@@ -121,26 +131,31 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3, typename A4>
         const size_t VertexSpec4<A1, A2, A3, A4>::Size = sizeof(VertexSpec4<A1, A2, A3, A4>::Vertex);
 
-        template <typename A1, typename A2, typename A3, typename A4, typename A5>
+        template <typename _A1, typename _A2, typename _A3, typename _A4, typename _A5>
         class VertexSpec5 {
         public:
-            typedef Vertex5<A1, A2, A3, A4, A5> Vertex;
+            typedef _A1 A1;
+            typedef _A2 A2;
+            typedef _A3 A3;
+            typedef _A4 A4;
+            typedef _A5 A5;
+            typedef Vertex5<_A1, _A2, _A3, _A4, _A5> Vertex;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
-                A1::setup(0, Size, baseOffset);
-                A2::setup(1, Size, baseOffset + A1::Size);
-                A3::setup(2, Size, baseOffset + A1::Size + A2::Size);
-                A4::setup(3, Size, baseOffset + A1::Size + A2::Size + A3::Size);
-                A5::setup(4, Size, baseOffset + A1::Size + A2::Size + A3::Size + A4::Size);
+                _A1::setup(0, Size, baseOffset);
+                _A2::setup(1, Size, baseOffset + _A1::Size);
+                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
+                _A4::setup(3, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size);
+                _A5::setup(4, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size + _A4::Size);
             }
             
             static void cleanup() {
-                A5::cleanup(4);
-                A4::cleanup(3);
-                A3::cleanup(2);
-                A2::cleanup(1);
-                A1::cleanup(0);
+                _A5::cleanup(4);
+                _A4::cleanup(3);
+                _A3::cleanup(2);
+                _A2::cleanup(1);
+                _A1::cleanup(0);
             }
         private:
             VertexSpec5();

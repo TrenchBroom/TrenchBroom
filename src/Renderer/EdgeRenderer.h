@@ -40,8 +40,8 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             EdgeRenderer();
-            EdgeRenderer(const VertexSpecs::P3::Vertex::List& vertices);
-            EdgeRenderer(const VertexSpecs::P3C4::Vertex::List& vertices);
+            EdgeRenderer(VertexSpecs::P3::Vertex::List& vertices);
+            EdgeRenderer(VertexSpecs::P3C4::Vertex::List& vertices);
             EdgeRenderer(const EdgeRenderer& other);
             EdgeRenderer& operator= (EdgeRenderer other);
             

@@ -212,7 +212,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray(m_vbo, GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
             vertexArray.render();
         }
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                                 vertices[2] = TextureVertex(Vec2f(bounds.right(), height - (bounds.bottom() - y)), Vec2f(1.0f, 1.0f));
                                 vertices[3] = TextureVertex(Vec2f(bounds.right(), height - (bounds.top() - y)),    Vec2f(1.0f, 0.0f));
 
-                                Renderer::VertexArray vertexArray(m_vbo, GL_QUADS, vertices);
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(m_resources.shaderManager(), Renderer::Shaders::BrowserGroupShader);
             shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
             
-            Renderer::VertexArray vertexArray(m_vbo, GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(m_vbo, GL_QUADS, vertices);
             vertexArray.render();
         }
         
@@ -309,7 +309,7 @@ namespace TrenchBroom {
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const StringVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray(m_vbo, GL_QUADS, vertices);
+                    stringRenderers[descriptor] = Renderer::VertexArray::ref(m_vbo, GL_QUADS, vertices);
                     stringRenderers[descriptor].prepare();
                 }
             }

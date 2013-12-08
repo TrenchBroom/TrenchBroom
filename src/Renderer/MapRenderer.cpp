@@ -109,6 +109,7 @@ namespace TrenchBroom {
             
             renderGeometry(context);
             renderEntities(context);
+            renderEntityLinks(context);
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
@@ -263,7 +264,7 @@ namespace TrenchBroom {
             m_killColor(0.0f, 0.0f, 1.0f, 1.0f) {}
             
             bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                return true;
+                return source->selected() || target->selected() || isConnectedToSelected;
             }
             
             const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
@@ -298,7 +299,9 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }
-
+        }
+        
+        void MapRenderer::renderEntityLinks(RenderContext& context) {
             if (!m_entityLinkRenderer.valid() && m_document->map() != NULL) {
                 const Model::EntityList& selectedEntities = m_document->selectedEntities();
                 const Model::EntityList unselectedEntities = m_document->unselectedEntities();

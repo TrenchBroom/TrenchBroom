@@ -264,8 +264,8 @@ namespace TrenchBroom {
                 const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
                 
                 ReplaceTransformation ortho(context.transformation(), projection, view);
-                VertexArray fontArray(m_vbo, GL_QUADS, fontVertices);
-                VertexArray rectArray(m_vbo, GL_TRIANGLES, rectVertices);
+                VertexArray fontArray = VertexArray::swap(m_vbo, GL_QUADS, fontVertices);
+                VertexArray rectArray = VertexArray::swap(m_vbo, GL_TRIANGLES, rectVertices);
 
                 SetVboState vboState(m_vbo);
                 vboState.mapped();

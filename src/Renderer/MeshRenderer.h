@@ -46,7 +46,7 @@ namespace TrenchBroom {
             MeshRenderer();
             
             template <typename VertexSpec>
-            MeshRenderer(Vbo& vbo, const Mesh<const Assets::Texture*, VertexSpec>& mesh) :
+            MeshRenderer(Vbo& vbo, Mesh<const Assets::Texture*, VertexSpec>& mesh) :
             m_renderData(mesh.renderData(vbo)),
             m_prepared(false) {}
             

@@ -833,8 +833,8 @@ namespace TrenchBroom {
         }
         
         void MapView::renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor) {
-            Renderer::VertexArray array(m_auxVbo, GL_LINES,
-                                        Renderer::coordinateSystem(m_document->worldBounds(), xColor, yColor, zColor));
+            Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(m_document->worldBounds(), xColor, yColor, zColor);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(m_auxVbo, GL_LINES, vertices);
             array.render();
         }
         
@@ -899,7 +899,7 @@ namespace TrenchBroom {
             setVboState.active();
             
             glDisable(GL_DEPTH_TEST);
-            Renderer::VertexArray array(m_auxVbo, GL_QUADS, vertices);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(m_auxVbo, GL_QUADS, vertices);
             array.render();
             glEnable(GL_DEPTH_TEST);
         }

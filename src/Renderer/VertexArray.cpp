@@ -24,6 +24,13 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        const VertexArray::IndexArray VertexArray::EmptyIndexArray(0);
+        const VertexArray::CountArray VertexArray::EmptyCountArray(0);
+
+        VertexArray::VertexArray() :
+        m_primType(GL_INVALID_ENUM),
+        m_vertexCount(0) {}
+        
         size_t VertexArray::vertexCount() const {
             return m_vertexCount;
         }
@@ -49,5 +56,22 @@ namespace TrenchBroom {
             m_holder->cleanup();
         }
 
+        VertexArray::VertexArray(const GLenum primType, const size_t vertexCount, BaseHolder::Ptr holder, const IndexArray& indices, const CountArray& counts) :
+        m_primType(primType),
+        m_vertexCount(vertexCount),
+        m_holder(holder),
+        m_indices(indices),
+        m_counts(counts) {
+            assert(m_indices.size() == m_counts.size());
+        }
+        
+        VertexArray::VertexArray(const GLenum primType, const size_t vertexCount, BaseHolder::Ptr holder, IndexArray& indices, CountArray& counts) :
+        m_primType(primType),
+        m_vertexCount(vertexCount),
+        m_holder(holder) {
+            std::swap(m_indices, indices);
+            std::swap(m_counts, counts);
+            assert(m_indices.size() == m_counts.size());
+        }
     }
 }

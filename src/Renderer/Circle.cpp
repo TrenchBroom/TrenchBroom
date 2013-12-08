@@ -89,8 +89,8 @@ namespace TrenchBroom {
             Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
             if (filled)
                 positions.push_back(Vec2f::Null);
-            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
+            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            m_array = VertexArray::swap(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }
         
         void Circle::init3D(Vbo& vbo, const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (filled)
                 positions.push_back(Vec3f::Null);
-            const Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
+            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            m_array = VertexArray::swap(vbo, filled ? GL_TRIANGLE_FAN : GL_LINE_STRIP, vertices);
         }
     }
 }

@@ -206,7 +206,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < positions.size(); ++i)
                 vertices.push_back(Vertex(Vec3f(positions[i])));
-            return VertexArray(m_vbo, GL_LINE_LOOP, vertices);
+            return VertexArray::swap(m_vbo, GL_LINE_LOOP, vertices);
         }
         
         VertexArray ClipperRenderer::makeTriangleArray(const Vec3::List& positions) {
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < positions.size(); ++i)
                 vertices.push_back(Vertex(Vec3f(positions[i])));
-            return VertexArray(m_vbo, GL_TRIANGLE_FAN, vertices);
+            return VertexArray::swap(m_vbo, GL_TRIANGLE_FAN, vertices);
         }
 
         void ClipperRenderer::setupBrushRenderer(BrushRenderer& renderer, const bool keep) {

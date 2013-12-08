@@ -114,7 +114,7 @@ namespace TrenchBroom {
                     Renderer::SetVboState setVboState(vbo);
                     setVboState.mapped();
                     
-                    Renderer::VertexArray vertexArray(vbo, GL_QUADS, vertices);
+                    Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vbo, GL_QUADS, vertices);
                     m_texture->activate();
                     
                     setVboState.active();

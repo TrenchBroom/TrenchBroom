@@ -60,6 +60,7 @@ namespace TrenchBroom {
             void setupGL(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
+            void renderEntityLinks(RenderContext& context);
             
             void bindObservers();
             void unbindObservers();

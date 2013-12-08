@@ -104,14 +104,14 @@ namespace TrenchBroom {
                 return m_triangleStrips;
             }
             
-            typename MeshRenderData<Key>::List renderData(Vbo& vbo) const {
+            typename MeshRenderData<Key>::List renderData(Vbo& vbo) {
                 typename MeshRenderData<Key>::List result;
                 typename KeySet::const_iterator keyIt, keyEnd;
                 for (keyIt = m_keys.begin(), keyEnd = m_keys.end(); keyIt != keyEnd; ++keyIt) {
                     const Key& key = *keyIt;
-                    typename TriangleSetMap::const_iterator setIt = m_triangleSets.find(key);
-                    typename TriangleSeriesMap::const_iterator fanIt = m_triangleFans.find(key);
-                    typename TriangleSeriesMap::const_iterator stripIt = m_triangleStrips.find(key);
+                    typename TriangleSetMap::iterator setIt = m_triangleSets.find(key);
+                    typename TriangleSeriesMap::iterator fanIt = m_triangleFans.find(key);
+                    typename TriangleSeriesMap::iterator stripIt = m_triangleStrips.find(key);
                     
                     if (setIt == m_triangleSets.end() &&
                         fanIt == m_triangleFans.end() &&
@@ -121,17 +121,17 @@ namespace TrenchBroom {
                     MeshRenderData<Key> renderData(key);
                     
                     if (setIt != m_triangleSets.end()) {
-                        const typename VertexSpec::Vertex::List& vertices = setIt->second;
-                        renderData.triangles = VertexArray(vbo, GL_TRIANGLES, vertices);
+                        typename VertexSpec::Vertex::List& vertices = setIt->second;
+                        renderData.triangles = VertexArray::swap(vbo, GL_TRIANGLES, vertices);
                     }
                     
                     if (fanIt != m_triangleFans.end()) {
-                        const TriangleSeries& series = fanIt->second;
+                        TriangleSeries& series = fanIt->second;
                         renderData.triangleFans = triangleSeriesArray(vbo, GL_TRIANGLE_FAN, series);
                     }
                     
                     if (stripIt != m_triangleStrips.end()) {
-                        const TriangleSeries& series = stripIt->second;
+                        TriangleSeries& series = stripIt->second;
                         renderData.triangleStrips = triangleSeriesArray(vbo, GL_TRIANGLE_STRIP, series);
                     }
                     
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             }
 
         private:
-            VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, const TriangleSeries& series) const {
+            VertexArray triangleSeriesArray(Vbo& vbo, const GLenum primType, TriangleSeries& series) const {
                 IndexedVertexList<VertexSpec> indexList;
                 typename TriangleSeries::const_iterator sIt, sEnd;
                 for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                     indexList.addPrimitive(vertices);
                 }
                 
-                return VertexArray(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
+                return VertexArray::swap(vbo, primType, indexList.vertices(), indexList.indices(), indexList.counts());
             }
         };
     }

@@ -213,9 +213,10 @@ namespace TrenchBroom {
             const BBox3f bounds(handleRadius);
             Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
             
+            Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(bounds, xColor, yColor, zColor);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(m_vbo, GL_LINES, vertices);
+
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPCShader);
-            Renderer::VertexArray array(m_vbo, GL_LINES,
-                                        Renderer::coordinateSystem(bounds, xColor, yColor, zColor));
             array.render();
         }
 

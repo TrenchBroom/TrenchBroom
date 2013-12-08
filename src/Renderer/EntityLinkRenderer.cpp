@@ -79,7 +79,7 @@ namespace TrenchBroom {
             SetVboState mapVbo(m_vbo);
             mapVbo.mapped();
             
-            m_entityLinks = VertexArray(m_vbo, GL_LINES, vertices);
+            m_entityLinks = VertexArray::swap(m_vbo, GL_LINES, vertices);
             m_valid = true;
         }
         

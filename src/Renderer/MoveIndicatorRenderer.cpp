@@ -51,8 +51,8 @@ namespace TrenchBroom {
                 makeOutlineXArrows(offset, outlineVerts);
             }
             
-            VertexArray triangleArray(m_vbo, GL_TRIANGLES, triangleVerts);
-            VertexArray outlineArray(m_vbo, GL_LINES, outlineVerts);
+            VertexArray triangleArray = VertexArray::swap(m_vbo, GL_TRIANGLES, triangleVerts);
+            VertexArray outlineArray = VertexArray::swap(m_vbo, GL_LINES, outlineVerts);
             
             SetVboState vboState(m_vbo);
             vboState.mapped();

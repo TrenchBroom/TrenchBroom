@@ -43,7 +43,7 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             FaceRenderer();
-            FaceRenderer(const Model::BrushFace::Mesh& mesh, const Color& faceColor);
+            FaceRenderer(Model::BrushFace::Mesh& mesh, const Color& faceColor);
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator= (FaceRenderer other);
             
