@@ -20,6 +20,7 @@
 #include "ImageLoaderImpl.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {
@@ -139,6 +140,7 @@ namespace TrenchBroom {
                         BYTE index = 0;
                         const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
                         assert(success);
+                        _unused(success);
                         m_indices[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
                     }
                 }
@@ -178,8 +180,10 @@ namespace TrenchBroom {
                     BYTE paletteIndex = 0;
                     const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
                     assert(success);
+                    _unused(success);
+
                     assert(paletteIndex < paletteSize());
-                    
+
                     const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
                     m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
                     m_pixels[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
@@ -194,6 +198,7 @@ namespace TrenchBroom {
                     RGBQUAD pixel;
                     const bool success = (FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
                     assert(success);
+                    _unused(success);
 
                     const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
                     m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);

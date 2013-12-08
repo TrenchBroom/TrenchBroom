@@ -19,6 +19,7 @@
 
 #include "Bsp29Parser.h"
 
+#include "Macros.h"
 #include "ByteBuffer.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             const char* cursor = m_begin;
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
+            _unused(version);
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();

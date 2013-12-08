@@ -55,18 +55,14 @@ namespace TrenchBroom {
             return m_selected;
         }
         
-        bool Object::select() {
-            if (m_selected)
-                return false;
+        void Object::select() {
+            assert(!m_selected);
             m_selected = true;
-            return true;
         }
         
-        bool Object::deselect() {
-            if (!m_selected)
-                return false;
+        void Object::deselect() {
+            assert(m_selected);
             m_selected = false;
-            return true;
         }
 
         bool Object::partiallySelected() const {

@@ -20,6 +20,7 @@
 #include "ResizeBrushesTool.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -313,6 +314,7 @@ namespace TrenchBroom {
                 newBrush->moveBoundary(document()->worldBounds(), *newDragFace, delta, document()->textureLock());
                 const bool clipResult = newBrush->clip(document()->worldBounds(), clipFace);
                 assert(clipResult);
+                _unused(clipResult);
                 
                 newObjects.push_back(Model::ObjectParentPair(newBrush, brush->parent()));
                 newDragFaces.push_back(newDragFace);

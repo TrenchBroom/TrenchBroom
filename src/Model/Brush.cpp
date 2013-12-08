@@ -90,20 +90,16 @@ namespace TrenchBroom {
             }
         }
 
-        bool Brush::select() {
-            if (!Object::select())
-                return false;
+        void Brush::select() {
+            Object::select();
             if (m_parent != NULL)
                 m_parent->incChildSelectionCount();
-            return true;
         }
         
-        bool Brush::deselect() {
-            if (!Object::deselect())
-                return false;
+        void Brush::deselect() {
+            Object::deselect();
             if (m_parent != NULL)
                 m_parent->decChildSelectionCount();
-            return true;
         }
         
         BBox3 Brush::bounds() const {

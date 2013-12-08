@@ -20,6 +20,7 @@
 #include "FrameManager.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 
@@ -80,6 +81,7 @@ namespace TrenchBroom {
 
         bool FrameManager::closeAllFrames(bool force) {
             MapFrame* lastFrame = NULL;
+            _unused(lastFrame);
             while (!m_frames.empty()) {
                 MapFrame* frame = m_frames.front();
                 assert(frame != lastFrame);

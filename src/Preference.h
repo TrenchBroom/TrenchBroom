@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "Exceptions.h"
+#include "Macros.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
@@ -326,6 +327,8 @@ namespace TrenchBroom {
                 wxString string = m_converter.toWxString(m_value);
                 bool success = config->Write(m_path.asString('/'), string);
                 assert(success);
+                _unused(success);
+                
                 m_modified = false;
             }
         }

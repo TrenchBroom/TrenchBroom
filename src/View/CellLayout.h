@@ -21,6 +21,7 @@
 #define TrenchBroom_CellLayout_h
 
 #include "VecMath.h"
+#include "Macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -391,8 +392,9 @@ namespace TrenchBroom {
                     const float y = oldBounds.bottom() + m_rowMargin;
                     m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_titleMargin, m_contentBounds.width(), m_maxCellsPerRow, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight));
 
-                    bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
+                    const bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
                     assert(added);
+                    _unused(added);
 
                     const float newRowHeight = m_rows.back().bounds().height();
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + newRowHeight + m_rowMargin);

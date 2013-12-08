@@ -19,6 +19,7 @@
 
 #include "KeyboardPreferencePane.h"
 
+#include "Macros.h"
 #include "Preferences.h"
 #include "View/CommandIds.h"
 #include "View/KeyboardShortcutEditor.h"
@@ -301,10 +302,11 @@ namespace TrenchBroom {
             assert(col == 2);
 
             int modifierKey1, modifierKey2, modifierKey3, key;
-            bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
+            const bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
             assert(success);
+            _unused(success);
 
-            size_t rowIndex = static_cast<size_t>(row);
+            const size_t rowIndex = static_cast<size_t>(row);
             const KeyboardShortcut& oldShortcut = m_entries[rowIndex]->shortcut();
             KeyboardShortcut newShortcut = KeyboardShortcut(oldShortcut.commandId(),
                                                             modifierKey1, modifierKey2, modifierKey3, key,

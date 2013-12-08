@@ -183,17 +183,21 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::objectWasAdded(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
+            if (object->type() == Model::Object::OTEntity) {
                 m_unselectedEntityRenderer.addEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::OTBrush)
+                m_entityLinkRenderer.invalidate();
+            } else if (object->type() == Model::Object::OTBrush) {
                 m_unselectedBrushRenderer.addBrush(static_cast<Model::Brush*>(object));
+            }
         }
         
         void MapRenderer::objectWillBeRemoved(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
+            if (object->type() == Model::Object::OTEntity) {
                 m_unselectedEntityRenderer.removeEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::OTBrush)
+                m_entityLinkRenderer.invalidate();
+            } else if (object->type() == Model::Object::OTBrush) {
                 m_unselectedBrushRenderer.removeBrush(static_cast<Model::Brush*>(object));
+            }
         }
         
         void MapRenderer::objectDidChange(Model::Object* object) {
@@ -202,6 +206,7 @@ namespace TrenchBroom {
                     m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
                 else
                     m_unselectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
+                m_entityLinkRenderer.invalidate();
             } else if (object->type() == Model::Object::OTBrush) {
                 if (object->selected())
                     m_selectedBrushRenderer.invalidate();
@@ -226,6 +231,7 @@ namespace TrenchBroom {
                                                     Model::entityIterator(result.deselectedObjects().end()));
             m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                  Model::entityIterator(result.selectedObjects().end()));
+            m_entityLinkRenderer.invalidate();
         }
 
         void MapRenderer::modsDidChange() {
@@ -245,6 +251,34 @@ namespace TrenchBroom {
             }
         }
 
+        class EntityLinkFilter : public EntityLinkRenderer::Filter {
+        private:
+            Color m_selectedColor;
+            Color m_linkColor;
+            Color m_killColor;
+        public:
+            EntityLinkFilter() :
+            m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
+            m_linkColor(0.0f, 1.0f, 0.0f, 1.0f),
+            m_killColor(0.0f, 0.0f, 1.0f, 1.0f) {}
+            
+            bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                return true;
+            }
+            
+            const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                if (source->selected() || target->selected() || isConnectedToSelected)
+                    return m_selectedColor;
+                return m_linkColor;
+            }
+            
+            const Color& doGetKillColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                if (source->selected() || target->selected() || isConnectedToSelected)
+                    return m_selectedColor;
+                return m_killColor;
+            }
+        };
+        
         void MapRenderer::renderEntities(RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
@@ -264,6 +298,15 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }
+
+            if (!m_entityLinkRenderer.valid() && m_document->map() != NULL) {
+                const Model::EntityList& selectedEntities = m_document->selectedEntities();
+                const Model::EntityList unselectedEntities = m_document->unselectedEntities();
+                m_entityLinkRenderer.validate(EntityLinkFilter(), unselectedEntities, selectedEntities);
+            }
+            
+            if (m_entityLinkRenderer.valid())
+                m_entityLinkRenderer.render(context);
         }
 
         void MapRenderer::clearState() {
@@ -271,6 +314,7 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.clear();
             m_unselectedEntityRenderer.clear();
             m_selectedEntityRenderer.clear();
+            m_entityLinkRenderer.invalidate();
         }
 
         void MapRenderer::loadMap(Model::Map& map) {
@@ -278,6 +322,7 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.addEntities(map.entities().begin(),
                                                    map.entities().end());
+            m_entityLinkRenderer.invalidate();
         }
     }
 }

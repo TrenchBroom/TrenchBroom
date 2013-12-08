@@ -45,13 +45,16 @@ namespace TrenchBroom {
         m_vbo(0xFFFF),
         m_valid(false) {}
         
+        bool EntityLinkRenderer::valid() const {
+            return m_valid;
+        }
+
         void EntityLinkRenderer::invalidate() {
             m_valid = false;
         }
         
         void EntityLinkRenderer::validate(const Filter& filter, const Model::EntityList& unselectedEntities, const Model::EntityList& selectedEntities) {
-            if (m_valid)
-                return;
+            assert(!m_valid);
             
             if (unselectedEntities.empty() && selectedEntities.empty()) {
                 m_entityLinks = VertexArray();
@@ -73,6 +76,9 @@ namespace TrenchBroom {
                 buildLinks(filter, visitedEntities, entity, false, vertices);
             }
             
+            SetVboState mapVbo(m_vbo);
+            mapVbo.mapped();
+            
             m_entityLinks = VertexArray(m_vbo, GL_LINES, vertices);
             m_valid = true;
         }
@@ -80,13 +86,18 @@ namespace TrenchBroom {
         void EntityLinkRenderer::render(RenderContext& renderContext) {
             assert(m_valid);
             
-            ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
+            SetVboState activateVbo(m_vbo);
+            activateVbo.active();
+
+            ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
             shader.set("CameraPosition", renderContext.camera().position());
             shader.set("MaxDistance", 1000.0f);
 
-            shader.set("Alpha", 0.5f);
+            glDisable(GL_DEPTH_TEST);
+            shader.set("Alpha", 0.4f);
             m_entityLinks.render();
             
+            glEnable(GL_DEPTH_TEST);
             shader.set("Alpha", 1.0f);
             m_entityLinks.render();
         }

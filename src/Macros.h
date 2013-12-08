@@ -1,5 +1,3 @@
-#version 120
-
 /*
  Copyright (C) 2010-2012 Kristian Duske
  
@@ -19,13 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec3 CameraPosition;
+#ifndef TrenchBroom_Macros_h
+#define TrenchBroom_Macros_h
 
-varying float distance;
-varying vec4 color;
+#define _unused(x) ((void)x)
 
-void main(void) {
-    gl_Position = ftransform();
-    distance = length(CameraPosition - gl_Vertex.xyz);
-    color = gl_Color;
-}
+#endif

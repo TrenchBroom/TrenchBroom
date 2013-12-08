@@ -67,14 +67,12 @@ namespace TrenchBroom {
             void operator()(Object* object) const {
                 if (m_select) {
                     if (!object->selected() && m_filter.selectable(object)) {
-                        const bool success = object->select();
-                        assert(success);
+                        object->select();
                         m_result.addSelectedObject(object);
                     }
                 } else {
                     if (object->selected()) {
-                        const bool success = object->deselect();
-                        assert(success);
+                        object->deselect();
                         m_result.addDeselectedObject(object);
                     }
                 }
@@ -83,14 +81,12 @@ namespace TrenchBroom {
             void operator()(Entity* entity) const {
                 if (m_select) {
                     if (!entity->selected() && m_filter.selectable(entity)) {
-                        const bool success = entity->select();
-                        assert(success);
+                        entity->select();
                         m_result.addSelectedObject(entity);
                     }
                 } else {
                     if (entity->selected()) {
-                        const bool success = entity->deselect();
-                        assert(success);
+                        entity->deselect();
                         m_result.addDeselectedObject(entity);
                     }
                 }
@@ -99,14 +95,12 @@ namespace TrenchBroom {
             void operator()(Brush* brush) const {
                 if (m_select) {
                     if (!brush->selected() && m_filter.selectable(brush)) {
-                        const bool success = brush->select();
-                        assert(success);
+                        brush->select();
                         m_result.addSelectedObject(brush);
                     }
                 } else {
                     if (brush->selected()) {
-                        const bool success = brush->deselect();
-                        assert(success);
+                        brush->deselect();
                         m_result.addDeselectedObject(brush);
                     }
                 }

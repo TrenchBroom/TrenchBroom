@@ -75,8 +75,8 @@ namespace TrenchBroom {
             Entity* parent() const;
             void setParent(Entity* parent);
             
-            bool select();
-            bool deselect();
+            void select();
+            void deselect();
             
             BBox3 bounds() const;
             void pick(const Ray3& ray, PickResult& result);

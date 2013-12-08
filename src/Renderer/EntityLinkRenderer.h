@@ -51,12 +51,16 @@ namespace TrenchBroom {
         public:
             EntityLinkRenderer();
             
+            bool valid() const;
             void invalidate();
             void validate(const Filter& filter, const Model::EntityList& unselectedEntities, const Model::EntityList& selectedEntities);
             void render(RenderContext& renderContext);
         private:
             void buildLinks(const Filter& filter, Model::EntitySet& visitedEntities, Model::Entity* source, bool isConnectedToSelected, Vertex::List& vertices) const;
             void addLink(const Model::Entity* source, const Model::Entity* target, const Color& color, Vertex::List& vertices) const;
+            
+            EntityLinkRenderer(const EntityLinkRenderer& other);
+            EntityLinkRenderer& operator=(const EntityLinkRenderer& other);
         };
     }
 }

@@ -20,6 +20,7 @@
 #include "MdlParser.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Assets/Texture.h"
 #include "Assets/MdlModel.h"
 #include "Assets/Palette.h"
@@ -211,6 +212,7 @@ namespace TrenchBroom {
         m_end(end),
         m_palette(palette) {
             assert(begin < end);
+            _unused(m_end);
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {

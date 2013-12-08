@@ -111,9 +111,7 @@ namespace TrenchBroom {
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
-            const TextureList& textures = m_skins->textures();
-
-            assert(skinIndex < textures.size());
+            assert(skinIndex < m_skins->textures().size());
             assert(frameIndex < m_frames.size());
             
             const Frame* frame = m_frames[frameIndex];
@@ -121,9 +119,7 @@ namespace TrenchBroom {
         }
         
         BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            const TextureList& textures = m_skins->textures();
-
-            assert(skinIndex < textures.size());
+            assert(skinIndex < m_skins->textures().size());
             assert(frameIndex < m_frames.size());
             
             const Frame* frame = m_frames[frameIndex];

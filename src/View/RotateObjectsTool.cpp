@@ -19,6 +19,7 @@
 
 #include "RotateObjectsTool.h"
 
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/HitAdapter.h"
@@ -210,6 +211,7 @@ namespace TrenchBroom {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
             assert(first.matches);
             const RotateObjectsHandle::HitArea area = first.hit.target<RotateObjectsHandle::HitArea>();
+            _unused(area);
             assert(area != RotateObjectsHandle::HANone &&
                    area != RotateObjectsHandle::HACenter);
 
