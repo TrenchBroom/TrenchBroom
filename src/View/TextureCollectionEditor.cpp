@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     if (event.GetEventObject() == m_moveTextureCollectionUpButton) {
                         event.Enable(selections.front() > 0);
                     } else if (event.GetEventObject() == m_moveTextureCollectionDownButton) {
-                        event.Enable(selections.front() < m_collections->GetCount() - 1);
+                        event.Enable(static_cast<size_t>(selections.front()) < m_collections->GetCount() - 1);
                     }
                 } else {
                     event.Enable(false);
