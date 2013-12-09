@@ -53,10 +53,10 @@ namespace TrenchBroom {
             m_valid = false;
         }
         
-        void EntityLinkRenderer::validate(const Filter& filter, const Model::EntityList& unselectedEntities, const Model::EntityList& selectedEntities) {
+        void EntityLinkRenderer::validate(const Filter& filter, const Model::EntityList& entities) {
             assert(!m_valid);
             
-            if (unselectedEntities.empty() && selectedEntities.empty()) {
+            if (entities.empty()) {
                 m_entityLinks = VertexArray();
                 m_valid = true;
                 return;
@@ -66,14 +66,16 @@ namespace TrenchBroom {
             Vertex::List vertices;
             Model::EntityList::const_iterator it, end;
             
-            for (it = selectedEntities.begin(), end = selectedEntities.end(); it != end; ++it) {
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 Model::Entity* entity = *it;
-                buildLinks(filter, visitedEntities, entity, true, vertices);
+                if (entity->selected() || entity->partiallySelected())
+                    buildLinks(filter, visitedEntities, entity, true, vertices);
             }
             
-            for (it = unselectedEntities.begin(), end = unselectedEntities.end(); it != end; ++it) {
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 Model::Entity* entity = *it;
-                buildLinks(filter, visitedEntities, entity, false, vertices);
+                if (!entity->selected() && !entity->partiallySelected())
+                    buildLinks(filter, visitedEntities, entity, false, vertices);
             }
             
             SetVboState mapVbo(m_vbo);

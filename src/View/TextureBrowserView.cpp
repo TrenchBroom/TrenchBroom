@@ -262,7 +262,7 @@ namespace TrenchBroom {
                                 vertices[2] = TextureVertex(Vec2f(bounds.right(), height - (bounds.bottom() - y)), Vec2f(1.0f, 1.0f));
                                 vertices[3] = TextureVertex(Vec2f(bounds.right(), height - (bounds.top() - y)),    Vec2f(1.0f, 0.0f));
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::copy(GL_QUADS, vertices);
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();

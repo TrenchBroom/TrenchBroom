@@ -302,11 +302,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityLinks(RenderContext& context) {
-            if (!m_entityLinkRenderer.valid() && m_document->map() != NULL) {
-                const Model::EntityList& selectedEntities = m_document->selectedEntities();
-                const Model::EntityList unselectedEntities = m_document->unselectedEntities();
-                m_entityLinkRenderer.validate(EntityLinkFilter(), unselectedEntities, selectedEntities);
-            }
+            if (!m_entityLinkRenderer.valid() && m_document->map() != NULL)
+                m_entityLinkRenderer.validate(EntityLinkFilter(), m_document->map()->entities());
             
             if (m_entityLinkRenderer.valid())
                 m_entityLinkRenderer.render(context);

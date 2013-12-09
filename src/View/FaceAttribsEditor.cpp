@@ -244,7 +244,7 @@ namespace TrenchBroom {
                     m_textureNameLabel->SetLabel(_("multi"));
                 } else {
                     m_textureView->setTexture(texture);
-                    m_textureNameLabel->SetLabel(texture != NULL ? textureName : "n/a");
+                    m_textureNameLabel->SetLabel(textureName.empty() ? "n/a" : textureName);
                 }
                 if (xOffsetMulti) {
                     m_xOffsetEditor->SetHint(_("multi"));

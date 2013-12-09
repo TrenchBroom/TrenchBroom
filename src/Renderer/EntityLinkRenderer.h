@@ -53,7 +53,7 @@ namespace TrenchBroom {
             
             bool valid() const;
             void invalidate();
-            void validate(const Filter& filter, const Model::EntityList& unselectedEntities, const Model::EntityList& selectedEntities);
+            void validate(const Filter& filter, const Model::EntityList& entities);
             void render(RenderContext& renderContext);
         private:
             void buildLinks(const Filter& filter, Model::EntitySet& visitedEntities, Model::Entity* source, bool isConnectedToSelected, Vertex::List& vertices) const;

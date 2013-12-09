@@ -222,7 +222,6 @@ namespace TrenchBroom {
         }
         
         const BrushFaceList& Selection::allSelectedFaces() const {
-            assert(!(!m_selectedFaces.empty() && !m_selectedBrushFaces.empty()));
             if (!m_selectedFaces.empty())
                 return m_selectedFaces;
             return m_selectedBrushFaces;
