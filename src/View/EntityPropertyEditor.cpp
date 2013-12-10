@@ -141,9 +141,6 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            // TODO: implemented better TAB behavior once wxWidgets 2.9.5 is out
-            // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
-            
             /*
              wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
              m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel, m_documentViewHolder);

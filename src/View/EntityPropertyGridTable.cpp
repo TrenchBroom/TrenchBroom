@@ -108,6 +108,17 @@ namespace TrenchBroom {
             return !isPropertyRow(rowIndex);
         }
 
+        size_t EntityPropertyGridTable::RowManager::indexOf(const String& key) const {
+            PropertyRow::List::const_iterator propIt = findPropertyRow(m_propertyRows, key);
+            if (propIt != m_propertyRows.end())
+                return std::distance(m_propertyRows.begin(), propIt);
+            
+            DefaultRow::List::const_iterator defIt = findDefaultRow(m_defaultRows, key);
+            if (defIt != m_defaultRows.end())
+                return std::distance(m_defaultRows.begin(), defIt);
+            return rowCount();
+        }
+
         const String& EntityPropertyGridTable::RowManager::key(const size_t rowIndex) const {
             if (isPropertyRow(rowIndex))
                 return propertyRow(rowIndex).key();
@@ -272,7 +283,7 @@ namespace TrenchBroom {
             return defaultRows;
         }
         
-        EntityPropertyGridTable::PropertyRow::List::iterator EntityPropertyGridTable::RowManager::findPropertyRow(PropertyRow::List& rows, const String& key) const {
+        EntityPropertyGridTable::PropertyRow::List::iterator EntityPropertyGridTable::RowManager::findPropertyRow(PropertyRow::List& rows, const String& key) {
             PropertyRow::List::iterator it, end;
             for (it = rows.begin(), end = rows.end(); it != end; ++it) {
                 const PropertyRow& row = *it;
@@ -282,7 +293,7 @@ namespace TrenchBroom {
             return end;
         }
 
-        EntityPropertyGridTable::PropertyRow::List::const_iterator EntityPropertyGridTable::RowManager::findPropertyRow(const PropertyRow::List& rows, const String& key) const {
+        EntityPropertyGridTable::PropertyRow::List::const_iterator EntityPropertyGridTable::RowManager::findPropertyRow(const PropertyRow::List& rows, const String& key) {
             PropertyRow::List::const_iterator it, end;
             for (it = rows.begin(), end = rows.end(); it != end; ++it) {
                 const PropertyRow& row = *it;
@@ -292,7 +303,7 @@ namespace TrenchBroom {
             return end;
         }
 
-        EntityPropertyGridTable::DefaultRow::List::iterator EntityPropertyGridTable::RowManager::findDefaultRow(DefaultRow::List& rows, const String& key) const {
+        EntityPropertyGridTable::DefaultRow::List::iterator EntityPropertyGridTable::RowManager::findDefaultRow(DefaultRow::List& rows, const String& key) {
             DefaultRow::List::iterator it, end;
             for (it = rows.begin(), end = rows.end(); it != end; ++it) {
                 const DefaultRow& row = *it;
@@ -302,6 +313,16 @@ namespace TrenchBroom {
             return end;
         }
 
+        EntityPropertyGridTable::DefaultRow::List::const_iterator EntityPropertyGridTable::RowManager::findDefaultRow(const DefaultRow::List& rows, const String& key) {
+            DefaultRow::List::const_iterator it, end;
+            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+                const DefaultRow& row = *it;
+                if (row.key() == key)
+                    return it;
+            }
+            return end;
+        }
+        
         StringList EntityPropertyGridTable::RowManager::newKeyNames(const size_t count, const Model::EntityList& entities) const {
             StringList result;
             result.reserve(count);
@@ -446,6 +467,7 @@ namespace TrenchBroom {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     attr->SetFont(GetView()->GetFont().MakeItalic());
+                    attr->SetReadOnly();
                 } else {
                     const String& key = m_rows.key(rowIndex);
                     const bool subset = m_rows.subset(rowIndex);
@@ -510,15 +532,21 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
+            assert(rowIndex < m_rows.propertyCount());
             const String& oldKey = m_rows.key(rowIndex);
-            if (m_controller->renameEntityProperty(entities, oldKey, newKey))
+            if (m_controller->renameEntityProperty(entities, oldKey, newKey)) {
                 m_rows.updateRows(entities);
+                notifyRowsUpdated(0, m_rows.rowCount());
+            }
         }
         
         void EntityPropertyGridTable::updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities) {
+            assert(rowIndex < m_rows.rowCount());
             const String& key = m_rows.key(rowIndex);
-            if (m_controller->setEntityProperty(entities, key, newValue))
+            if (m_controller->setEntityProperty(entities, key, newValue)) {
                 m_rows.updateRows(entities);
+                notifyRowsUpdated(0, m_rows.rowCount());
+            }
         }
         
         void EntityPropertyGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {

@@ -44,8 +44,6 @@ namespace TrenchBroom {
 
         String PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
             switch (definition.type()) {
-                case TargetSourceProperty:
-                case TargetDestinationProperty:
                 case StringProperty: {
                     const StringPropertyDefinition& stringDef = static_cast<const StringPropertyDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())

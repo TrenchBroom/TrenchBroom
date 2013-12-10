@@ -120,7 +120,7 @@ namespace TrenchBroom {
                         removeValue(value);
                     }
                     
-                    if (m_children.size() == 1)
+                    if (m_values.empty() && m_children.size() == 1)
                         mergeNode();
                 }
                 return m_values.empty() && m_children.empty();

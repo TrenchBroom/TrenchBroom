@@ -83,6 +83,8 @@ namespace TrenchBroom {
                 bool isPropertyRow(size_t rowIndex) const;
                 bool isDefaultRow(size_t rowIndex) const;
 
+                size_t indexOf(const String& key) const;
+                
                 const String& key(size_t rowIndex) const;
                 const String& value(size_t rowIndex) const;
                 const String& tooltip(size_t rowIndex) const;
@@ -102,9 +104,10 @@ namespace TrenchBroom {
                 PropertyRow::List collectPropertyRows(const Model::EntityList& entities) const;
                 DefaultRow::List collectDefaultRows(const Model::EntityList& entities, const PropertyRow::List& propertyRows) const;
 
-                PropertyRow::List::iterator findPropertyRow(PropertyRow::List& rows, const String& key) const;
-                PropertyRow::List::const_iterator findPropertyRow(const PropertyRow::List& rows, const String& key) const;
-                DefaultRow::List::iterator findDefaultRow(DefaultRow::List& rows, const String& key) const;
+                static PropertyRow::List::iterator findPropertyRow(PropertyRow::List& rows, const String& key);
+                static PropertyRow::List::const_iterator findPropertyRow(const PropertyRow::List& rows, const String& key);
+                static DefaultRow::List::iterator findDefaultRow(DefaultRow::List& rows, const String& key);
+                static DefaultRow::List::const_iterator findDefaultRow(const DefaultRow::List& rows, const String& key);
                 
                 StringList newKeyNames(size_t count, const Model::EntityList& entities) const;
             };
