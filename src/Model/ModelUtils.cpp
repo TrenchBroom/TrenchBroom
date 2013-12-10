@@ -26,6 +26,23 @@
 
 namespace TrenchBroom {
     namespace Model {
+        Assets::EntityDefinition* selectEntityDefinition(const Model::EntityList& entities) {
+            Assets::EntityDefinition* definition = NULL;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                if (definition == NULL) {
+                    definition = entity->definition();
+                } else if (definition != entity->definition()) {
+                    definition = NULL;
+                    break;
+                }
+            }
+            
+            return definition;
+        }
+
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName) {
             const Vec3 size = brushBounds.size();
             const Vec3 x = Vec3(size.x(), 0.0, 0.0);

@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__EntityInspector__
 #define __TrenchBroom__EntityInspector__
 
-#include "Controller/Command.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>

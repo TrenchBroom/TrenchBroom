@@ -32,10 +32,16 @@
 #include <iterator>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+    
     namespace Model {
         class BrushEdge;
         class BrushVertex;
         class Map;
+        
+        Assets::EntityDefinition* selectEntityDefinition(const Model::EntityList& entities);
         
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         

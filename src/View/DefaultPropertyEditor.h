@@ -14,31 +14,28 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityPropertyEditor__
-#define __TrenchBroom__EntityPropertyEditor__
+#ifndef __TrenchBroom__DefaultPropertyEditor__
+#define __TrenchBroom__DefaultPropertyEditor__
 
-#include "View/ViewTypes.h"
+#include "View/SmartPropertyEditor.h"
 
-#include <wx/panel.h>
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityPropertyGrid;
-        class SmartPropertyEditorManager;
-        
-        class EntityPropertyEditor : public wxPanel {
+        class DefaultPropertyEditor : public SmartPropertyEditor {
         private:
-            EntityPropertyGrid* m_propertyGrid;
-            SmartPropertyEditorManager* m_smartEditorManager;
+            wxTextCtrl* m_descriptionTxt;
         public:
-            EntityPropertyEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            DefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
         private:
-            void createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            wxWindow* doCreateVisual(wxWindow* parent);
+            void doUpdateVisual(const Model::PropertyKey& key, const Model::EntityList& entities);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityPropertyEditor__) */
+#endif /* defined(__TrenchBroom__DefaultPropertyEditor__) */

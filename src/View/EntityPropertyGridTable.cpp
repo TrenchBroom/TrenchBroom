@@ -23,6 +23,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/ModelUtils.h"
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
@@ -248,18 +249,7 @@ namespace TrenchBroom {
         
         EntityPropertyGridTable::DefaultRow::List EntityPropertyGridTable::RowManager::collectDefaultRows(const Model::EntityList& entities, const PropertyRow::List& propertyRows) const {
             DefaultRow::List defaultRows;
-            Assets::EntityDefinition* definition = NULL;
-            
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity* entity = *entityIt;
-                if (definition == NULL) {
-                    definition = entity->definition();
-                } else if (definition != entity->definition()) {
-                    definition = NULL;
-                    break;
-                }
-            }
+            const Assets::EntityDefinition* definition = selectEntityDefinition(entities);
             
             if (definition != NULL) {
                 const Assets::PropertyDefinitionList& propertyDefs = definition->propertyDefinitions();
