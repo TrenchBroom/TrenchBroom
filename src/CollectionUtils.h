@@ -501,10 +501,25 @@ namespace SetUtils {
     }
     
     template <typename T>
+    void minus(const std::set<T>& lhs, const std::set<T>& rhs, std::set<T>& result) {
+        std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+    }
+    
+    template <typename T>
     std::set<T> minus(const std::set<T>& lhs, const std::set<T>& rhs) {
         std::set<T> result;
-        std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+        minus(lhs, rhs, result);
         return result;
+    }
+    
+    template <typename T>
+    void intersection(const std::set<T>& lhs, const std::set<T>& rhs, std::set<T>& result) {
+        std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+    }
+    
+    template <typename T>
+    void intersection(const std::set<T>& lhs, const std::set<T>& rhs, std::vector<T>& result) {
+        std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::back_inserter(result));
     }
 }
 

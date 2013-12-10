@@ -42,6 +42,51 @@ namespace TrenchBroom {
             return m_description;
         }
 
+        String PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
+            switch (definition.type()) {
+                case TargetSourceProperty:
+                case TargetDestinationProperty:
+                case StringProperty: {
+                    const StringPropertyDefinition& stringDef = static_cast<const StringPropertyDefinition&>(definition);
+                    if (!stringDef.hasDefaultValue())
+                        return "";
+                    return stringDef.defaultValue();
+                }
+                case IntegerProperty: {
+                    const IntegerPropertyDefinition& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
+                    if (!intDef.hasDefaultValue())
+                        return "";
+                    StringStream str;
+                    str << intDef.defaultValue();
+                    return str.str();
+                }
+                case FloatProperty: {
+                    const FloatPropertyDefinition& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
+                    if (!floatDef.hasDefaultValue())
+                        return "";
+                    StringStream str;
+                    str << floatDef.defaultValue();
+                    return str.str();
+                }
+                case ChoiceProperty: {
+                    const ChoicePropertyDefinition& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
+                    if (!choiceDef.hasDefaultValue())
+                        return "";
+                    StringStream str;
+                    str << choiceDef.defaultValue();
+                    return str.str();
+                }
+                case FlagsProperty: {
+                    const FlagsPropertyDefinition& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
+                    StringStream str;
+                    str << flagsDef.defaultValue();
+                    return str.str();
+                }
+                default:
+                    return "";
+            }
+        }
+
         StringPropertyDefinition::StringPropertyDefinition(const String& name, const String& description, const String& defaultValue) :
         PropertyDefinitionWithDefaultValue(name, StringProperty, description, defaultValue) {}
         

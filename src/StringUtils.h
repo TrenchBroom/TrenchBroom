@@ -33,7 +33,9 @@ typedef std::stringstream StringStream;
 typedef std::set<String> StringSet;
 typedef std::vector<String> StringList;
 typedef std::map<String, String> StringMap;
-static const StringList EmptyStringList;
+
+static const String EmptyString("");
+static const StringList EmptyStringList(0);
 
 namespace StringUtils {
     struct CaseSensitiveCharCompare {

@@ -72,6 +72,7 @@ namespace TrenchBroom {
         typedef std::vector<Entity*> EntityList;
         static const EntityList EmptyEntityList(0);
         typedef std::set<Entity*> EntitySet;
+        static const EntitySet EmptyEntitySet;
         
         struct EntityProperty;
         

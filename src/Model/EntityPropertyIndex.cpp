@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return EntityPropertyQuery(Any);
         }
         
-        EntityList EntityPropertyQuery::execute(const StringIndex<Entity*>& index) const {
+        EntitySet EntityPropertyQuery::execute(const StringIndex<Entity*>& index) const {
             switch (m_type) {
                 case Exact:
                     return index.queryExactMatches(m_pattern);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 case Numbered:
                     return index.queryNumberedMatches(m_pattern);
                 default:
-                    return EmptyEntityList;
+                    return EmptyEntitySet;
             }
         }
         
@@ -88,16 +88,15 @@ namespace TrenchBroom {
         }
 
         EntityList EntityPropertyIndex::findEntities(const EntityPropertyQuery& keyQuery, const EntityPropertyQuery& valueQuery) const {
-            EntityList keyResult = keyQuery.execute(m_keyIndex);
-            EntityList valueResult = valueQuery.execute(m_valueIndex);
+            const EntitySet keyResult = keyQuery.execute(m_keyIndex);
+            const EntitySet valueResult = valueQuery.execute(m_valueIndex);
             
             if (keyResult.empty() || valueResult.empty())
                 return EmptyEntityList;
-            
-            assert(VectorUtils::setIsSet(keyResult));
-            assert(VectorUtils::setIsSet(valueResult));
 
-            return VectorUtils::setIntersection(keyResult, valueResult);
+            EntityList result;
+            SetUtils::intersection(keyResult, valueResult, result);
+            return result;
         }
     }
 }

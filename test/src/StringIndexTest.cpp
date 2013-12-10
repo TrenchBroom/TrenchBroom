@@ -33,42 +33,42 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
         
-        StringList result1 = index.queryPrefixMatches("woops");
+        StringSet result1 = index.queryPrefixMatches("woops");
         ASSERT_TRUE(result1.empty());
         
-        StringList result2 = index.queryPrefixMatches("key222");
+        StringSet result2 = index.queryPrefixMatches("key222");
         ASSERT_TRUE(result2.empty());
         
-        StringList result3 = index.queryPrefixMatches("key");
+        StringSet result3 = index.queryPrefixMatches("key");
         ASSERT_EQ(2u, result3.size());
-        ASSERT_TRUE(VectorUtils::contains(result3, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result3, String("value2")));
+        ASSERT_TRUE(result3.count("value") > 0);
+        ASSERT_TRUE(result3.count("value2") > 0);
         
-        StringList result4 = index.queryPrefixMatches("k");
+        StringSet result4 = index.queryPrefixMatches("k");
         ASSERT_EQ(3u, result4.size());
-        ASSERT_TRUE(VectorUtils::contains(result4, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result4, String("value2")));
-        ASSERT_TRUE(VectorUtils::contains(result4, String("value3")));
+        ASSERT_TRUE(result4.count("value") > 0);
+        ASSERT_TRUE(result4.count("value2") > 0);
+        ASSERT_TRUE(result4.count("value3") > 0);
 
-        StringList result5 = index.queryPrefixMatches("test");
+        StringSet result5 = index.queryPrefixMatches("test");
         ASSERT_EQ(1u, result5.size());
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+        ASSERT_TRUE(result5.count("value4") > 0);
         
         index.insert("k", "value4");
 
-        StringList result6 = index.queryPrefixMatches("k");
+        StringSet result6 = index.queryPrefixMatches("k");
         ASSERT_EQ(4u, result6.size());
-        ASSERT_TRUE(VectorUtils::contains(result6, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result6, String("value2")));
-        ASSERT_TRUE(VectorUtils::contains(result6, String("value3")));
-        ASSERT_TRUE(VectorUtils::contains(result6, String("value4")));
+        ASSERT_TRUE(result6.count("value") > 0);
+        ASSERT_TRUE(result6.count("value2") > 0);
+        ASSERT_TRUE(result6.count("value3") > 0);
+        ASSERT_TRUE(result6.count("value4") > 0);
         
-        StringList result7 = index.queryPrefixMatches("");
+        StringSet result7 = index.queryPrefixMatches("");
         ASSERT_EQ(4u, result7.size());
-        ASSERT_TRUE(VectorUtils::contains(result7, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result7, String("value2")));
-        ASSERT_TRUE(VectorUtils::contains(result7, String("value3")));
-        ASSERT_TRUE(VectorUtils::contains(result7, String("value4")));
+        ASSERT_TRUE(result7.count("value") > 0);
+        ASSERT_TRUE(result7.count("value2") > 0);
+        ASSERT_TRUE(result7.count("value3") > 0);
+        ASSERT_TRUE(result7.count("value4") > 0);
     }
     
     TEST(StringIndexTest, remove) {
@@ -83,34 +83,43 @@ namespace TrenchBroom {
         
         index.remove("andrary", "value3");
         
-        StringList result1 = index.queryPrefixMatches("andrary");
+        StringSet result1 = index.queryPrefixMatches("andrary");
         ASSERT_TRUE(result1.empty());
         
-        StringList result2 = index.queryPrefixMatches("andrar");
+        StringSet result2 = index.queryPrefixMatches("andrar");
         ASSERT_EQ(1u, result2.size());
-        ASSERT_TRUE(VectorUtils::contains(result2, String("value2")));
+        ASSERT_TRUE(result2.count("value2") > 0);
 
         index.remove("andrar", "value2");
         
-        StringList result3 = index.queryPrefixMatches("andrar");
+        StringSet result3 = index.queryPrefixMatches("andrar");
         ASSERT_TRUE(result3.empty());
         
-        StringList result4 = index.queryPrefixMatches("andre");
+        StringSet result4 = index.queryPrefixMatches("andre");
         ASSERT_EQ(1u, result4.size());
-        ASSERT_TRUE(VectorUtils::contains(result4, String("value")));
+        ASSERT_TRUE(result4.count("value") > 0);
 
-        StringList result5 = index.queryPrefixMatches("andreas");
+        StringSet result5 = index.queryPrefixMatches("andreas");
         ASSERT_EQ(1u, result5.size());
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
+        ASSERT_TRUE(result5.count("value") > 0);
 
         index.remove("andy", "value4");
         ASSERT_TRUE(index.queryPrefixMatches("andy").empty());
-        ASSERT_EQ(index.queryExactMatches("andreas"), StringList(1, String("value")));
-        ASSERT_EQ(index.queryExactMatches("andrew"), StringList(1, String("value")));
+        
+        StringSet result6 = index.queryExactMatches("andreas");
+        ASSERT_EQ(1u, result6.size());
+        ASSERT_TRUE(result6.count("value") > 0);
+        
+        StringSet result7 = index.queryExactMatches("andrew");
+        ASSERT_EQ(1u, result7.size());
+        ASSERT_TRUE(result7.count("value") > 0);
         
         index.remove("andreas", "value");
         ASSERT_TRUE(index.queryPrefixMatches("andreas").empty());
-        ASSERT_EQ(index.queryPrefixMatches("andrew"), StringList(1, String("value")));
+        
+        StringSet result8 = index.queryPrefixMatches("andrew");
+        ASSERT_EQ(1u, result8.size());
+        ASSERT_TRUE(result8.count("value") > 0);
         
         index.remove("andrew", "value");
         ASSERT_TRUE(index.queryPrefixMatches("andrew").empty());
@@ -123,26 +132,26 @@ namespace TrenchBroom {
         index.insert("key22", "value2");
         index.insert("k1", "value3");
         
-        StringList result1 = index.queryExactMatches("woops");
+        StringSet result1 = index.queryExactMatches("woops");
         ASSERT_TRUE(result1.empty());
         
-        StringList result2 = index.queryExactMatches("key222");
+        StringSet result2 = index.queryExactMatches("key222");
         ASSERT_TRUE(result2.empty());
         
-        StringList result3 = index.queryExactMatches("key");
+        StringSet result3 = index.queryExactMatches("key");
         ASSERT_EQ(1u, result3.size());
-        ASSERT_TRUE(VectorUtils::contains(result3, String("value")));
+        ASSERT_TRUE(result3.count("value") > 0);
         
-        StringList result4 = index.queryExactMatches("k");
+        StringSet result4 = index.queryExactMatches("k");
         ASSERT_TRUE(result4.empty());
         
         index.insert("key", "value4");
-        StringList result5 = index.queryExactMatches("key");
+        StringSet result5 = index.queryExactMatches("key");
         ASSERT_EQ(2u, result5.size());
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result5, String("value4")));
+        ASSERT_TRUE(result5.count("value") > 0);
+        ASSERT_TRUE(result5.count("value4") > 0);
 
-        StringList result6 = index.queryExactMatches("");
+        StringSet result6 = index.queryExactMatches("");
         ASSERT_TRUE(result6.empty());
     }
     
@@ -154,26 +163,58 @@ namespace TrenchBroom {
         index.insert("key22bs", "value4");
         index.insert("k1", "value3");
 
-        StringList result1 = index.queryNumberedMatches("woops");
+        StringSet result1 = index.queryNumberedMatches("woops");
         ASSERT_TRUE(result1.empty());
 
-        StringList result2 = index.queryNumberedMatches("key");
+        StringSet result2 = index.queryNumberedMatches("key");
         ASSERT_EQ(2u, result2.size());
-        ASSERT_TRUE(VectorUtils::contains(result2, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result2, String("value2")));
+        ASSERT_TRUE(result2.count("value") > 0);
+        ASSERT_TRUE(result2.count("value2") > 0);
         
-        StringList result3 = index.queryNumberedMatches("key2");
+        StringSet result3 = index.queryNumberedMatches("key2");
         ASSERT_EQ(2u, result3.size());
-        ASSERT_TRUE(VectorUtils::contains(result3, String("value")));
-        ASSERT_TRUE(VectorUtils::contains(result3, String("value2")));
+        ASSERT_TRUE(result3.count("value") > 0);
+        ASSERT_TRUE(result3.count("value2") > 0);
         
-        StringList result4 = index.queryNumberedMatches("k");
+        StringSet result4 = index.queryNumberedMatches("k");
         ASSERT_EQ(1u, result4.size());
-        ASSERT_TRUE(VectorUtils::contains(result4, String("value3")));
+        ASSERT_TRUE(result4.count("value3") > 0);
         
         index.remove("k1", "value3");
 
-        StringList result5 = index.queryNumberedMatches("k");
+        StringSet result5 = index.queryNumberedMatches("k");
         ASSERT_TRUE(result5.empty());
+    }
+    
+    TEST(StringIndexTest, splitMergeWithNumbers) {
+        StringIndex<String> index;
+        index.insert("3.67", "value3");
+        index.insert("3.6", "value2");
+        index.insert("3.5", "value1");
+        
+        /*
+         The insertion of the given values in the given order results in a tree with the following structure. Note that
+         splitting nodes can introduce new numbered values at the new child nodes because a non-number string can have
+         a numbered prefix or suffix. This must be considered when nodes are split.
+         
+          3.67 no numbered values
+         
+          3.6  no numbered values
+           |
+           7   no numbered values (error)
+         
+           3.  no numbered values
+          / \
+         5   6 no numbered values (error)
+             |
+             7 no numbered values (error)
+         
+         
+         */
+        
+        // This statement will attempt to remove "value2" from node '6'. Because '6' is a number, it will consider "value"
+        // as numbered at node '6', but the value was not added to the numbered values when the node was split. Thus, an
+        // exception will be thrown.
+        ASSERT_NO_THROW(index.remove("3.6", "value2"));
     }
 }

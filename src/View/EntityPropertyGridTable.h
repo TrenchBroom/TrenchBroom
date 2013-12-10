@@ -31,18 +31,24 @@ namespace TrenchBroom {
     namespace View {
         class EntityPropertyGridTable : public wxGridTableBase {
         private:
-            class Entry {
+            class PropertyRow {
+            public:
+                typedef std::vector<PropertyRow> List;
             private:
+                String m_key;
+                String m_value;
+                String m_tooltip;
+                
                 size_t m_maxCount;
                 size_t m_count;
                 bool m_multi;
             public:
-                String key;
-                String value;
-                String tooltip;
+                PropertyRow();
+                PropertyRow(const String& key, const String& value, const String& tooltip, size_t maxCount);
                 
-                Entry();
-                Entry(const String& i_key, const String& i_value, const String& i_tooltip, size_t maxCount);
+                const String& key() const;
+                const String& value() const;
+                const String& tooltip() const;
                 
                 void compareValue(const String& i_value);
                 bool multi() const;
@@ -50,11 +56,62 @@ namespace TrenchBroom {
                 void reset();
             };
             
-            typedef std::vector<Entry> EntryList;
+            class DefaultRow {
+            public:
+                typedef std::vector<DefaultRow> List;
+            private:
+                String m_key;
+                String m_value;
+                String m_tooltip;
+            public:
+                DefaultRow();
+                DefaultRow(const String& key, const String& value, const String& tooltip);
+                
+                const String& key() const;
+                const String& value() const;
+                const String& tooltip() const;
+            };
+            
+            class RowManager {
+            private:
+                PropertyRow::List m_propertyRows;
+                DefaultRow::List m_defaultRows;
+            public:
+                size_t propertyCount() const;
+                size_t rowCount() const;
+                
+                bool isPropertyRow(size_t rowIndex) const;
+                bool isDefaultRow(size_t rowIndex) const;
+
+                const String& key(size_t rowIndex) const;
+                const String& value(size_t rowIndex) const;
+                const String& tooltip(size_t rowIndex) const;
+                bool multi(size_t rowIndex) const;
+                bool subset(size_t rowIndex) const;
+                const StringList keys(size_t rowIndex, size_t count) const;
+                
+                void updateRows(const Model::EntityList& entities);
+                StringList insertRows(size_t rowIndex, size_t count, const Model::EntityList& entities);
+                void deleteRows(size_t rowIndex, size_t count);
+            private:
+                const PropertyRow& propertyRow(size_t rowIndex) const;
+                PropertyRow& propertyRow(size_t rowIndex);
+                const DefaultRow& defaultRow(size_t rowIndex) const;
+                DefaultRow& defaultRow(size_t rowIndex);
+                
+                PropertyRow::List collectPropertyRows(const Model::EntityList& entities) const;
+                DefaultRow::List collectDefaultRows(const Model::EntityList& entities, const PropertyRow::List& propertyRows) const;
+
+                PropertyRow::List::iterator findPropertyRow(PropertyRow::List& rows, const String& key) const;
+                PropertyRow::List::const_iterator findPropertyRow(const PropertyRow::List& rows, const String& key) const;
+                DefaultRow::List::iterator findDefaultRow(DefaultRow::List& rows, const String& key) const;
+                
+                StringList newKeyNames(size_t count, const Model::EntityList& entities) const;
+            };
             
             MapDocumentPtr m_document;
             ControllerPtr m_controller;
-            EntryList m_entries;
+            RowManager m_rows;
             bool m_ignoreUpdates;
             wxColor m_readonlyCellColor;
             wxColor m_specialCellColor;
@@ -76,9 +133,10 @@ namespace TrenchBroom {
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
             
             void update();
-            String tooltip(const wxGridCellCoords cellCoords) const;
+            String tooltip(wxGridCellCoords cellCoords) const;
         private:
-            EntryList::iterator findEntry(EntryList& entries, const String& key) const;
+            void renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities);
+            void updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities);
             
             void notifyRowsUpdated(size_t pos, size_t numRows = 1);
             void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);

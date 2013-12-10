@@ -50,6 +50,8 @@ namespace TrenchBroom {
             const String& name() const;
             Type type() const;
             const String& description() const;
+            
+            static String defaultValue(const PropertyDefinition& definition);
         };
         
         template <typename T>

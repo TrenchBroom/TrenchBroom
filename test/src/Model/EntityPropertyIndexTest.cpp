@@ -164,5 +164,22 @@ namespace TrenchBroom {
             delete entity1;
         }
         
+        
+        TEST(EntityPropertyIndexTest, addRemoveFloatProperty) {
+            EntityPropertyIndex index;
+            
+            Entity* entity1 = new QuakeEntity();
+            entity1->addOrUpdateProperty("delay", "3.5");
+            
+            index.addEntity(entity1);
+
+            EntityList entities = findExactExact(index, "delay", "3.5");
+            ASSERT_EQ(1u, entities.size());
+            ASSERT_TRUE(VectorUtils::contains(entities, entity1));
+            
+            index.removeEntityProperty(entity1, EntityProperty("delay", "3.5"));
+            
+            delete entity1;
+        }
     }
 }

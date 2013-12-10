@@ -46,7 +46,7 @@ namespace TrenchBroom {
             static EntityPropertyQuery numbered(const String& pattern);
             static EntityPropertyQuery any();
 
-            EntityList execute(const StringIndex<Entity*>& index) const;
+            EntitySet execute(const StringIndex<Entity*>& index) const;
         private:
             EntityPropertyQuery(Type type, const String& pattern = "");
         };

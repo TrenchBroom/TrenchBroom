@@ -25,38 +25,309 @@
 #include "Model/EntityProperties.h"
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
+#include "View/ViewUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        EntityPropertyGridTable::Entry::Entry() :
+        EntityPropertyGridTable::PropertyRow::PropertyRow() :
         m_maxCount(0),
         m_count(0),
         m_multi(false) {}
         
-        EntityPropertyGridTable::Entry::Entry(const String& i_key, const String& i_value, const String& i_tooltip, size_t maxCount) :
+        EntityPropertyGridTable::PropertyRow::PropertyRow(const String& key, const String& value, const String& tooltip, const size_t maxCount) :
+        m_key(key),
+        m_value(value),
+        m_tooltip(tooltip),
         m_maxCount(maxCount),
         m_count(1),
-        m_multi(false),
-        key(i_key),
-        value(i_value),
-        tooltip(i_tooltip) {}
+        m_multi(false) {}
         
-        void EntityPropertyGridTable::Entry::compareValue(const String& i_value) {
-            m_multi |= (value != i_value);
+        const String& EntityPropertyGridTable::PropertyRow::key() const {
+            return m_key;
+        }
+        
+        const String& EntityPropertyGridTable::PropertyRow::value() const {
+            return m_value;
+        }
+        
+        const String& EntityPropertyGridTable::PropertyRow::tooltip() const {
+            return m_multi ? EmptyString : m_tooltip;
+        }
+
+        void EntityPropertyGridTable::PropertyRow::compareValue(const String& i_value) {
+            m_multi |= (m_value != i_value);
             ++m_count;
         }
         
-        bool EntityPropertyGridTable::Entry::multi() const {
+        bool EntityPropertyGridTable::PropertyRow::multi() const {
             return m_multi;
         }
         
-        bool EntityPropertyGridTable::Entry::subset() const {
+        bool EntityPropertyGridTable::PropertyRow::subset() const {
             return m_count < m_maxCount;
         }
         
-        void EntityPropertyGridTable::Entry::reset() {
+        void EntityPropertyGridTable::PropertyRow::reset() {
             m_count = m_maxCount;
             m_multi = false;
+        }
+
+        EntityPropertyGridTable::DefaultRow::DefaultRow() {}
+        
+        EntityPropertyGridTable::DefaultRow::DefaultRow(const String& key, const String& value, const String& tooltip) :
+        m_key(key),
+        m_value(value),
+        m_tooltip(tooltip) {}
+
+        const String& EntityPropertyGridTable::DefaultRow::key() const {
+            return m_key;
+        }
+        
+        const String& EntityPropertyGridTable::DefaultRow::value() const {
+            return m_value;
+        }
+        
+        const String& EntityPropertyGridTable::DefaultRow::tooltip() const {
+            return m_tooltip;
+        }
+
+        size_t EntityPropertyGridTable::RowManager::propertyCount() const {
+            return m_propertyRows.size();
+        }
+
+        size_t EntityPropertyGridTable::RowManager::rowCount() const {
+            return m_propertyRows.size() + m_defaultRows.size();
+        }
+
+        bool EntityPropertyGridTable::RowManager::isPropertyRow(const size_t rowIndex) const {
+            assert(rowIndex < rowCount());
+            return rowIndex < m_propertyRows.size();
+        }
+        
+        bool EntityPropertyGridTable::RowManager::isDefaultRow(const size_t rowIndex) const {
+            return !isPropertyRow(rowIndex);
+        }
+
+        const String& EntityPropertyGridTable::RowManager::key(const size_t rowIndex) const {
+            if (isPropertyRow(rowIndex))
+                return propertyRow(rowIndex).key();
+            return defaultRow(rowIndex).key();
+        }
+        
+        const String& EntityPropertyGridTable::RowManager::value(const size_t rowIndex) const {
+            if (isPropertyRow(rowIndex)) {
+                const PropertyRow& row = propertyRow(rowIndex);
+                return row.multi() ? EmptyString : row.value();
+            }
+            return defaultRow(rowIndex).value();
+        }
+        
+        const String& EntityPropertyGridTable::RowManager::tooltip(const size_t rowIndex) const {
+            if (isPropertyRow(rowIndex))
+                return propertyRow(rowIndex).tooltip();
+            return defaultRow(rowIndex).tooltip();
+        }
+
+        bool EntityPropertyGridTable::RowManager::multi(size_t rowIndex) const {
+            if (!isPropertyRow(rowIndex))
+                return false;
+            const PropertyRow& row = propertyRow(rowIndex);
+            return row.multi();
+        }
+
+        bool EntityPropertyGridTable::RowManager::subset(const size_t rowIndex) const {
+            if (!isPropertyRow(rowIndex))
+                return false;
+            const PropertyRow& row = propertyRow(rowIndex);
+            return row.subset();
+        }
+
+        const StringList EntityPropertyGridTable::RowManager::keys(const size_t rowIndex, const size_t count) const {
+            assert(rowIndex + count < propertyCount());
+            
+            StringList result(count);
+            for (size_t i = 0; i < count; ++i)
+                result[i] = m_propertyRows[rowIndex + i].key();
+            return result;
+        }
+
+        void EntityPropertyGridTable::RowManager::updateRows(const Model::EntityList& entities) {
+            PropertyRow::List newPropertyRows = collectPropertyRows(entities);
+            DefaultRow::List newDefaultRows = collectDefaultRows(entities, newPropertyRows);
+            
+            std::swap(m_propertyRows, newPropertyRows);
+            std::swap(m_defaultRows, newDefaultRows);
+        }
+
+        StringList EntityPropertyGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::EntityList& entities) {
+            assert(rowIndex <= propertyCount());
+            
+            const StringList keyNames = newKeyNames(count, entities);
+            assert(keyNames.size() == count);
+            
+            PropertyRow::List::iterator entryIt = m_propertyRows.begin();
+            std::advance(entryIt, rowIndex);
+            for (size_t i = 0; i < count; i++) {
+                entryIt = m_propertyRows.insert(entryIt, PropertyRow(keyNames[i], "", "", entities.size()));
+                entryIt->reset();
+                std::advance(entryIt, 1);
+            }
+            
+            return keyNames;
+        }
+
+        void EntityPropertyGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
+            assert(rowIndex + count < propertyCount());
+            
+            PropertyRow::List::iterator first = m_propertyRows.begin();
+            PropertyRow::List::iterator last = first;
+            std::advance(first, rowIndex);
+            std::advance(last, rowIndex + count);
+            m_propertyRows.erase(first, last);
+        }
+
+        const EntityPropertyGridTable::PropertyRow& EntityPropertyGridTable::RowManager::propertyRow(const size_t rowIndex) const {
+            assert(rowIndex < m_propertyRows.size());
+            return m_propertyRows[rowIndex];
+        }
+        
+        EntityPropertyGridTable::PropertyRow& EntityPropertyGridTable::RowManager::propertyRow(const size_t rowIndex) {
+            assert(rowIndex < m_propertyRows.size());
+            return m_propertyRows[rowIndex];
+        }
+        
+        const EntityPropertyGridTable::DefaultRow& EntityPropertyGridTable::RowManager::defaultRow(const size_t rowIndex) const {
+            assert(rowIndex >= m_propertyRows.size());
+            assert(rowIndex < rowCount());
+            return m_defaultRows[rowIndex - m_propertyRows.size()];
+        }
+
+        EntityPropertyGridTable::DefaultRow& EntityPropertyGridTable::RowManager::defaultRow(const size_t rowIndex) {
+            assert(rowIndex >= m_propertyRows.size());
+            assert(rowIndex < rowCount());
+            return m_defaultRows[rowIndex - m_propertyRows.size()];
+        }
+        
+        EntityPropertyGridTable::PropertyRow::List EntityPropertyGridTable::RowManager::collectPropertyRows(const Model::EntityList& entities) const {
+            EntityPropertyGridTable::PropertyRow::List rows;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                const Assets::EntityDefinition* entityDefinition = entity.definition();
+                
+                const Model::EntityProperty::List& properties = entity.properties();
+                Model::EntityProperty::List::const_iterator propertyIt, propertyEnd;
+                for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
+                    const Model::EntityProperty& property = *propertyIt;
+                    const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key) : NULL;
+                    
+                    PropertyRow::List::iterator rowIt = findPropertyRow(rows, property.key);
+                    if (rowIt != rows.end()) {
+                        rowIt->compareValue(property.value);
+                    } else {
+                        const String& tooltip = propertyDefinition != NULL ? propertyDefinition->description() : EmptyString;
+                        rows.push_back(PropertyRow(property.key, property.value, tooltip, entities.size()));
+                    }
+                }
+            }
+
+            return rows;
+        }
+        
+        EntityPropertyGridTable::DefaultRow::List EntityPropertyGridTable::RowManager::collectDefaultRows(const Model::EntityList& entities, const PropertyRow::List& propertyRows) const {
+            DefaultRow::List defaultRows;
+            Assets::EntityDefinition* definition = NULL;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                if (definition == NULL) {
+                    definition = entity->definition();
+                } else if (definition != entity->definition()) {
+                    definition = NULL;
+                    break;
+                }
+            }
+            
+            if (definition != NULL) {
+                const Assets::PropertyDefinitionList& propertyDefs = definition->propertyDefinitions();
+                Assets::PropertyDefinitionList::const_iterator propertyIt, propertyEnd;
+                for (propertyIt = propertyDefs.begin(), propertyEnd = propertyDefs.end(); propertyIt != propertyEnd; ++propertyIt) {
+                    const Assets::PropertyDefinitionPtr propertyDef = *propertyIt;
+                    const String& name = propertyDef->name();
+                    
+                    if (findPropertyRow(propertyRows, name) != propertyRows.end())
+                        continue;
+                    if (findDefaultRow(defaultRows, name) != defaultRows.end())
+                        continue;
+                    
+                    const String value = Assets::PropertyDefinition::defaultValue(*propertyDef);
+                    const String& tooltip = propertyDef->description();
+                    
+                    defaultRows.push_back(DefaultRow(name, value, tooltip));
+                }
+            }
+            
+            return defaultRows;
+        }
+        
+        EntityPropertyGridTable::PropertyRow::List::iterator EntityPropertyGridTable::RowManager::findPropertyRow(PropertyRow::List& rows, const String& key) const {
+            PropertyRow::List::iterator it, end;
+            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+                const PropertyRow& row = *it;
+                if (row.key() == key)
+                    return it;
+            }
+            return end;
+        }
+
+        EntityPropertyGridTable::PropertyRow::List::const_iterator EntityPropertyGridTable::RowManager::findPropertyRow(const PropertyRow::List& rows, const String& key) const {
+            PropertyRow::List::const_iterator it, end;
+            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+                const PropertyRow& row = *it;
+                if (row.key() == key)
+                    return it;
+            }
+            return end;
+        }
+
+        EntityPropertyGridTable::DefaultRow::List::iterator EntityPropertyGridTable::RowManager::findDefaultRow(DefaultRow::List& rows, const String& key) const {
+            DefaultRow::List::iterator it, end;
+            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+                const DefaultRow& row = *it;
+                if (row.key() == key)
+                    return it;
+            }
+            return end;
+        }
+
+        StringList EntityPropertyGridTable::RowManager::newKeyNames(const size_t count, const Model::EntityList& entities) const {
+            StringList result;
+            result.reserve(count);
+            
+            size_t index = 1;
+            for (size_t i = 0; i < count; ++i) {
+                while (true) {
+                    StringStream keyStream;
+                    keyStream << "property " << index;
+                    
+                    bool indexIsFree = true;
+                    Model::EntityList::const_iterator it, end;
+                    for (it = entities.begin(), end = entities.end(); it != end && indexIsFree; ++it) {
+                        const Model::Entity& entity = **it;
+                        indexIsFree = !entity.hasProperty(keyStream.str());
+                    }
+                    
+                    if (indexIsFree) {
+                        result.push_back(keyStream.str());
+                        break;
+                    }
+                    
+                    ++index;
+                }
+            }
+            return result;
         }
 
         EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller) :
@@ -67,184 +338,145 @@ namespace TrenchBroom {
         m_specialCellColor(wxColor(128, 128, 128)) {}
         
         int EntityPropertyGridTable::GetNumberRows() {
-            return static_cast<int>(m_entries.size());
+            return static_cast<int>(m_rows.rowCount());
         }
         
         int EntityPropertyGridTable::GetNumberCols() {
             return 2;
         }
         
-        wxString EntityPropertyGridTable::GetValue(int row, int col) {
-            assert(row >= 0 && row < GetNumberRows());
-            assert(col >= 0 && col < GetNumberCols());
+        wxString EntityPropertyGridTable::GetValue(const int row, const int col) {
+            assert(row >= 0 && row < GetRowsCount());
+            assert(col >= 0 && col < GetColsCount());
             
-            size_t rowIndex = static_cast<size_t>(row);
+            const size_t rowIndex = static_cast<size_t>(row);
             if (col == 0)
-                return m_entries[rowIndex].key;
-            return m_entries[rowIndex].multi() ? "" : m_entries[rowIndex].value;
+                return m_rows.key(rowIndex);
+            return m_rows.value(rowIndex);
         }
         
-        void EntityPropertyGridTable::SetValue(int row, int col, const wxString& value) {
-            assert(row >= 0 && row < GetNumberRows());
-            assert(col >= 0 && col < GetNumberCols());
+        void EntityPropertyGridTable::SetValue(const int row, const int col, const wxString& value) {
+            assert(row >= 0 && row < GetRowsCount());
+            assert(col >= 0 && col < GetColsCount());
             
-            size_t rowIndex = static_cast<size_t>(row);
+            const size_t rowIndex = static_cast<size_t>(row);
             const Model::EntityList entities = m_document->allSelectedEntities();
             assert(!entities.empty());
             
-            m_ignoreUpdates = true;
-            Entry oldEntry = m_entries[rowIndex];
-            
-            if (col == 0) {
-                const Model::PropertyKey oldKey = m_entries[rowIndex].key;
-                const Model::PropertyKey newKey = value.ToStdString();
-                
-                m_entries[rowIndex].key = newKey;
-                
-                if (!m_controller->renameEntityProperty(entities, oldKey, newKey)) {
-                    m_entries[rowIndex] = oldEntry;
-                } else {
-                    const Model::Entity& entity = *entities.front();
-                    const Assets::EntityDefinition* entityDefinition = entity.definition();
-                    const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(newKey) : NULL;
-                    m_entries[rowIndex].tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
-                }
-            } else {
-                const Model::PropertyKey key = m_entries[rowIndex].key;
-                const Model::PropertyValue newValue = value.ToStdString();
-                
-                m_entries[rowIndex].value = newValue;
-                m_entries[rowIndex].reset();
-                
-                if (!m_controller->setEntityProperty(entities, key, newValue))
-                    m_entries[rowIndex] = oldEntry;
-            }
-            m_ignoreUpdates = false;
+            const SetBool ignoreUpdates(m_ignoreUpdates);
+            if (col == 0)
+                renameProperty(rowIndex, value.ToStdString(), entities);
+            else
+                updateProperty(rowIndex, value.ToStdString(), entities);
         }
         
         void EntityPropertyGridTable::Clear() {
-            DeleteRows(0, m_entries.size());
+            DeleteRows(0, GetRowsCount());
         }
         
-        bool EntityPropertyGridTable::InsertRows(size_t pos, size_t numRows) {
-            assert(pos >= 0 && static_cast<int>(pos) <= GetNumberRows());
+        bool EntityPropertyGridTable::InsertRows(const size_t pos, const size_t numRows) {
+            assert(pos >= 0 && static_cast<int>(pos) <= GetRowsCount());
             
             const Model::EntityList entities = m_document->allSelectedEntities();
             assert(!entities.empty());
             
-            typedef std::vector<Model::PropertyKey> PropertyKeys;
-            PropertyKeys keys;
-            
-            for (size_t i = 0; i < numRows; i++) {
-                size_t index = 1;
-                while (true) {
-                    StringStream keyStream;
-                    keyStream << "property " << index;
-                    
-                    bool indexIsFree = true;
-                    Model::EntityList::const_iterator entityIt, entityEnd;
-                    for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd && indexIsFree; ++entityIt) {
-                        const Model::Entity& entity = **entityIt;
-                        indexIsFree = !entity.hasProperty(keyStream.str());
-                    }
-                    
-                    if (indexIsFree) {
-                        keys.push_back(keyStream.str());
-                        break;
-                    }
-                    index++;
-                }
-            }
-            
-            assert(keys.size() == numRows);
-            
-            m_ignoreUpdates = true;
+            const StringList newKeys = m_rows.insertRows(pos, numRows, entities);
+
+            const SetBool ignoreUpdates(m_ignoreUpdates);
             m_controller->beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
-            
-            EntryList::iterator entryIt = m_entries.begin();
-            std::advance(entryIt, pos);
-            for (size_t i = 0; i < numRows; i++) {
-                entryIt = m_entries.insert(entryIt, Entry(keys[i], "", "", entities.size()));
-                entryIt->reset();
-                std::advance(entryIt, 1);
-                
-                m_controller->setEntityProperty(entities, keys[i], "");
+
+            StringList::const_iterator it, end;
+            for (it = newKeys.begin(), end = newKeys.end(); it != end; ++it) {
+                const String& key = *it;
+                m_controller->setEntityProperty(entities, key, "");
             }
             
             m_controller->closeGroup();
-            m_ignoreUpdates = false;
-            
             notifyRowsInserted(pos, numRows);
+            
             return true;
         }
         
-        bool EntityPropertyGridTable::AppendRows(size_t numRows) {
-            return InsertRows(m_entries.size(), numRows);
+        bool EntityPropertyGridTable::AppendRows(const size_t numRows) {
+            return InsertRows(m_rows.propertyCount(), numRows);
         }
         
-        bool EntityPropertyGridTable::DeleteRows(size_t pos, size_t numRows) {
-            assert(pos >= 0 && static_cast<int>(pos + numRows) <= GetNumberRows());
+        bool EntityPropertyGridTable::DeleteRows(const size_t pos, const size_t numRows) {
+            assert(pos >= 0 && pos + numRows <= m_rows.propertyCount());
             
             const Model::EntityList entities = m_document->allSelectedEntities();
             assert(!entities.empty());
             
-            m_ignoreUpdates = true;
+            const StringList keys = m_rows.keys(pos, numRows);
+            assert(keys.size() == numRows);
+            
+            const SetBool ignoreUpdates(m_ignoreUpdates);
             m_controller->beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
             
             bool success = true;
-            for (size_t i = pos; i < pos + numRows && success; i++) {
-                const Entry& entry = m_entries[i];
-                success = m_controller->removeEntityProperty(entities, entry.key);
-            }
+            for (size_t i = 0; i < numRows && success; i++)
+                success = m_controller->removeEntityProperty(entities, keys[i]);
             
             if (!success) {
                 m_controller->rollbackGroup();
-                m_ignoreUpdates = false;
                 return false;
             }
-            m_ignoreUpdates = false;
             m_controller->closeGroup();
-            
-            EntryList::iterator first, last;
-            std::advance(first = m_entries.begin(), pos);
-            std::advance(last = m_entries.begin(), pos + numRows);
-            m_entries.erase(first, last);
+
+            m_rows.deleteRows(pos, numRows);
             notifyRowsDeleted(pos, numRows);
             return true;
         }
         
-        wxString EntityPropertyGridTable::GetColLabelValue(int col) {
-            assert(col >= 0 && col < GetNumberCols());
+        wxString EntityPropertyGridTable::GetColLabelValue(const int col) {
+            assert(col >= 0 && col < GetColsCount());
             if (col == 0)
                 return _("Key");
             return _("Value");
         }
         
-        wxGridCellAttr* EntityPropertyGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
+        wxGridCellAttr* EntityPropertyGridTable::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
+            assert(row >= 0 && row < GetRowsCount());
+            assert(col >= 0 && col < GetColsCount());
+            
+            const size_t rowIndex = static_cast<size_t>(row);
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (row >= 0 && row < GetNumberRows()) {
-                const Entry& entry = m_entries[static_cast<size_t>(row)];
-                if (col == 0) {
-                    bool readonly = !Model::isPropertyKeyMutable(entry.key) || !Model::isPropertyValueMutable(entry.key);
+            if (col == 0) {
+                if (m_rows.isDefaultRow(rowIndex)) {
+                    if (attr == NULL)
+                        attr = new wxGridCellAttr();
+                    attr->SetFont(GetView()->GetFont().MakeItalic());
+                } else {
+                    const String& key = m_rows.key(rowIndex);
+                    const bool subset = m_rows.subset(rowIndex);
+                    const bool readonly = !Model::isPropertyKeyMutable(key) || !Model::isPropertyValueMutable(key);
                     if (readonly) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
-                    } else if (entry.subset()) {
+                    } else if (subset) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetTextColour(m_specialCellColor);
                     }
-                } else if (col == 1) {
-                    bool readonly = !Model::isPropertyValueMutable(entry.key);
+                }
+            } else if (col == 1) {
+                if (m_rows.isDefaultRow(rowIndex)) {
+                    if (attr == NULL)
+                        attr = new wxGridCellAttr();
+                    attr->SetFont(GetView()->GetFont().MakeItalic());
+                } else {
+                    const String& key = m_rows.key(rowIndex);
+                    const bool multi = m_rows.multi(rowIndex);
+                    const bool readonly = !Model::isPropertyValueMutable(key);
                     if (readonly) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
                     }
-                    if (entry.multi()) {
+                    if (multi) {
                         if (attr == NULL)
                             attr = new wxGridCellAttr();
                         attr->SetTextColour(m_specialCellColor);
@@ -258,60 +490,35 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
-            EntryList newEntries;
-            const Model::EntityList entities = m_document->allSelectedEntities();
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                const Assets::EntityDefinition* entityDefinition = entity.definition();
-                
-                const Model::EntityProperty::List& properties = entity.properties();
-                Model::EntityProperty::List::const_iterator propertyIt, propertyEnd;
-                for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                    const Model::EntityProperty& property = *propertyIt;
-                    const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key) : NULL;
-                    
-                    EntryList::iterator entryIt = findEntry(newEntries, property.key);
-                    if (entryIt != newEntries.end()) {
-                        entryIt->compareValue(property.value);
-                    } else {
-                        const String tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
-                        newEntries.push_back(Entry(property.key, property.value, tooltip, entities.size()));
-                    }
-                }
-            }
+            const size_t oldRowCount = m_rows.rowCount();
+            m_rows.updateRows(m_document->allSelectedEntities());
+            const size_t newRowCount = m_rows.rowCount();
             
-            size_t oldEntryCount = m_entries.size();
-            size_t newEntryCount = newEntries.size();
-            m_entries = newEntries;
-            
-            if (oldEntryCount < newEntryCount) {
-                notifyRowsAppended(newEntryCount - oldEntryCount);
-            } else if (oldEntryCount > newEntryCount) {
-                notifyRowsDeleted(oldEntryCount - 1, oldEntryCount - newEntryCount);
-            }
-            notifyRowsUpdated(0, m_entries.size());
-        }
-        
-        String EntityPropertyGridTable::tooltip(const wxGridCellCoords cellCoords) const {
-            if (cellCoords.GetRow() < 0 || cellCoords.GetRow() >= static_cast<int>(m_entries.size()))
-                return "";
-            
-            const Entry& entry = m_entries[static_cast<size_t>(cellCoords.GetRow())];
-            if (entry.multi())
-                return "";
-            
-            return entry.tooltip;
+            if (oldRowCount < newRowCount)
+                notifyRowsAppended(newRowCount - oldRowCount);
+            else if (oldRowCount > newRowCount)
+                notifyRowsDeleted(oldRowCount - 1, oldRowCount - newRowCount);
+            notifyRowsUpdated(0, newRowCount);
         }
 
-        EntityPropertyGridTable::EntryList::iterator EntityPropertyGridTable::findEntry(EntryList& entries, const String& key) const {
-            EntryList::iterator entryIt, entryEnd;
-            for (entryIt = entries.begin(), entryEnd = entries.end(); entryIt != entryEnd; ++entryIt) {
-                const Entry& entry = *entryIt;
-                if (entry.key == key)
-                    return entryIt;
-            }
-            return entryEnd;
+        String EntityPropertyGridTable::tooltip(const wxGridCellCoords cellCoords) const {
+            if (cellCoords.GetRow() < 0 || cellCoords.GetRow() >= GetRowsCount())
+                return "";
+            
+            const size_t rowIndex = static_cast<size_t>(cellCoords.GetRow());
+            return m_rows.tooltip(rowIndex);
+        }
+        
+        void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
+            const String& oldKey = m_rows.key(rowIndex);
+            if (m_controller->renameEntityProperty(entities, oldKey, newKey))
+                m_rows.updateRows(entities);
+        }
+        
+        void EntityPropertyGridTable::updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities) {
+            const String& key = m_rows.key(rowIndex);
+            if (m_controller->setEntityProperty(entities, key, newValue))
+                m_rows.updateRows(entities);
         }
         
         void EntityPropertyGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {

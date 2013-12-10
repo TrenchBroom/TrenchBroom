@@ -75,13 +75,14 @@ namespace TrenchBroom {
         void EntityPropertyEditor::OnPropertyGridMouseMove(wxMouseEvent& event) {
             int logicalX, logicalY;
             m_grid->CalcUnscrolledPosition(event.GetX(), event.GetY(), &logicalX, &logicalY);
-            logicalY -= m_grid->GetRowHeight(0); // compensate for header row
-            wxGridCellCoords currentCell = m_grid->XYToCell(logicalX, logicalY);
+            // logicalY -= m_grid->GetRowHeight(0); // compensate for header row
+            const wxGridCellCoords currentCell = m_grid->XYToCell(logicalX, logicalY);
             if (m_lastHoveredCell != currentCell) {
                 const String tooltip = m_table->tooltip(currentCell);
                 m_grid->SetToolTip(tooltip);
                 m_lastHoveredCell = currentCell;
             }
+            event.Skip();
         }
         
         void EntityPropertyEditor::OnAddPropertyPressed(wxCommandEvent& event) {
@@ -177,7 +178,7 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_SIZE, &EntityPropertyEditor::OnPropertyGridSize, this);
             m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityPropertyEditor::OnPropertyGridSelectCell, this);
             m_grid->Bind(wxEVT_GRID_TABBING, &EntityPropertyEditor::OnPropertyGridTab, this);
-            m_grid->Bind(wxEVT_MOTION, &EntityPropertyEditor::OnPropertyGridMouseMove, this);
+            m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityPropertyEditor::OnPropertyGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityPropertyEditor::OnUpdatePropertyViewOrAddPropertiesButton, this);
 
             m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityPropertyEditor::OnAddPropertyPressed, this);
