@@ -20,10 +20,11 @@
 #ifndef __TrenchBroom__SmartPropertyEditorManager__
 #define __TrenchBroom__SmartPropertyEditorManager__
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <map>
+#include <vector>
 
 #include <wx/panel.h>
 
@@ -32,26 +33,29 @@ class wxWindow;
 namespace TrenchBroom {
     namespace View {
         class SmartPropertyEditor;
+        class SmartPropertyEditorMatcher;
         
         class SmartPropertyEditorManager : public wxPanel {
         private:
-            typedef std::map<Model::PropertyKey, SmartPropertyEditor*> EditorMap;
+            typedef std::tr1::shared_ptr<SmartPropertyEditor> EditorPtr;
+            typedef std::tr1::shared_ptr<SmartPropertyEditorMatcher> MatcherPtr;
+            typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
+            typedef std::vector<MatcherEditorPair> EditorList;
             
-            EditorMap m_editors;
-            SmartPropertyEditor* m_defaultEditor;
-            SmartPropertyEditor* m_activeEditor;
+            EditorList m_editors;
+            EditorPtr m_activeEditor;
         public:
             SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller);
             ~SmartPropertyEditorManager();
             
-            void switchEditor(const Model::PropertyKey& key);
+            void switchEditor(const Model::PropertyKey& key, const Model::EntityList& entities);
         private:
             void createEditors(View::MapDocumentPtr document, View::ControllerPtr controller);
-            void destroyEditors();
+
+            EditorPtr selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const;
+            EditorPtr defaultEditor() const;
             
-            SmartPropertyEditor* selectEditor(const Model::PropertyKey& key) const;
-            
-            void activateEditor(SmartPropertyEditor* editor, const Model::PropertyKey& key);
+            void activateEditor(EditorPtr editor, const Model::PropertyKey& key);
             void deactivateEditor();
         };
     }

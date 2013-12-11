@@ -30,19 +30,15 @@ namespace TrenchBroom {
     namespace View {
         SmartPropertyEditor::SmartPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         m_document(document),
-        m_controller(controller),
-        m_visual(NULL) {}
+        m_controller(controller) {}
         
-        SmartPropertyEditor::~SmartPropertyEditor() {
-            if (m_visual != NULL)
-                destroyVisual();
-        }
+        SmartPropertyEditor::~SmartPropertyEditor() {}
 
         wxWindow* SmartPropertyEditor::activate(wxWindow* parent, const Model::PropertyKey& key) {
             m_key = key;
-            createVisual(parent);
+            wxWindow* visual = createVisual(parent);
             bindObservers();
-            return m_visual;
+            return visual;
         }
         
         void SmartPropertyEditor::deactivate() {
@@ -74,19 +70,15 @@ namespace TrenchBroom {
                 updateVisual();
         }
 
-        void SmartPropertyEditor::createVisual(wxWindow* parent) {
-            assert(m_visual == NULL);
-            m_visual = doCreateVisual(parent);
+        wxWindow* SmartPropertyEditor::createVisual(wxWindow* parent) {
+            return doCreateVisual(parent);
         }
 
         void SmartPropertyEditor::destroyVisual() {
-            assert(m_visual != NULL);
-            m_visual->Destroy();
-            m_visual = NULL;
+            doDestroyVisual();
         }
 
         void SmartPropertyEditor::updateVisual() {
-            assert(m_visual != NULL);
             doUpdateVisual(m_key, m_document->allSelectedEntities());
         }
     }

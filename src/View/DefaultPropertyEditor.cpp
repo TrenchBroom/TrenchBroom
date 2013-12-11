@@ -35,6 +35,11 @@ namespace TrenchBroom {
             return m_descriptionTxt;
         }
         
+        void DefaultPropertyEditor::doDestroyVisual() {
+            m_descriptionTxt->Destroy();
+            m_descriptionTxt = NULL;
+        }
+
         void DefaultPropertyEditor::doUpdateVisual(const Model::PropertyKey& key, const Model::EntityList& entities) {
             m_descriptionTxt->Clear();
 

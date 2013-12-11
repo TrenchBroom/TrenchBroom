@@ -14,29 +14,46 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DefaultPropertyEditor__
-#define __TrenchBroom__DefaultPropertyEditor__
+#ifndef __TrenchBroom__SmartSpawnflagsEditor__
+#define __TrenchBroom__SmartSpawnflagsEditor__
 
+#include "Model/ModelTypes.h"
 #include "View/SmartPropertyEditor.h"
+#include "View/ViewTypes.h"
 
-class wxTextCtrl;
+#include <wx/gdicmn.h>
+
+class wxCheckBox;
+class wxCommandEvent;
+class wxScrolledWindow;
+class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class DefaultPropertyEditor : public SmartPropertyEditor {
+        class SmartSpawnflagsEditor : public SmartPropertyEditor {
         private:
-            wxTextCtrl* m_descriptionTxt;
+            typedef enum {
+                Unset,
+                On,
+                Off,
+                Mixed
+            } FlagValue;
+            
+            wxScrolledWindow* m_scrolledWindow;
+            wxCheckBox* m_flags[24];
+            wxPoint m_lastScrollPos;
         public:
-            DefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            
+            void OnCheckBoxClicked(wxCommandEvent& event);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
-            void doDestroyVisual();
             void doUpdateVisual(const Model::PropertyKey& key, const Model::EntityList& entities);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__DefaultPropertyEditor__) */
+#endif /* defined(__TrenchBroom__SmartSpawnflagsEditor__) */

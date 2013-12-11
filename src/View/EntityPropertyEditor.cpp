@@ -20,7 +20,9 @@
 #include "EntityPropertyEditor.h"
 
 #include "View/EntityPropertyGrid.h"
+#include "View/EntityPropertySelectedCommand.h"
 #include "View/LayoutConstants.h"
+#include "View/MapDocument.h"
 #include "View/SmartPropertyEditorManager.h"
 
 #include <wx/sizer.h>
@@ -28,8 +30,15 @@
 namespace TrenchBroom {
     namespace View {
         EntityPropertyEditor::EntityPropertyEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
-        wxPanel(parent) {
+        wxPanel(parent),
+        m_document(document) {
             createGui(this, document, controller);
+        }
+
+        void EntityPropertyEditor::OnEntityPropertySelected(EntityPropertySelectedCommand& command) {
+            const String& key = command.key();
+            const Model::EntityList& entities = m_document->allSelectedEntities();
+            m_smartEditorManager->switchEditor(key, entities);
         }
 
         void EntityPropertyEditor::createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
@@ -42,6 +51,8 @@ namespace TrenchBroom {
             sizer->Add(m_smartEditorManager, 0, wxEXPAND);
             sizer->SetItemMinSize(m_smartEditorManager, 100, 120);
             SetSizer(sizer);
+            
+            m_propertyGrid->Bind(EVT_ENTITY_PROPERTY_SELECTED_EVENT, EVT_ENTITY_PROPERTY_SELECTED_HANDLER(EntityPropertyEditor::OnEntityPropertySelected), this);
         }
     }
 }
