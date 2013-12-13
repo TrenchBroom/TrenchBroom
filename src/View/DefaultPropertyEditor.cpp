@@ -40,10 +40,10 @@ namespace TrenchBroom {
             m_descriptionTxt = NULL;
         }
 
-        void DefaultPropertyEditor::doUpdateVisual(const Model::PropertyKey& key, const Model::EntityList& entities) {
+        void DefaultPropertyEditor::doUpdateVisual() {
             m_descriptionTxt->Clear();
 
-            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(entities);
+            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(entities());
             if (entityDefinition != NULL)
                 m_descriptionTxt->AppendText(entityDefinition->description());
         }

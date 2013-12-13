@@ -23,6 +23,7 @@
 #include "View/DefaultPropertyEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartPropertyEditorMatcher.h"
+#include "View/SmartSpawnFlagsEditor.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller) :
         wxPanel(parent) {
             createEditors(document, controller);
-            activateEditor(defaultEditor(), "");
+            activateEditor(defaultEditor(), "", Model::EmptyEntityList);
         }
         
         SmartPropertyEditorManager::~SmartPropertyEditorManager() {
@@ -41,14 +42,14 @@ namespace TrenchBroom {
 
         void SmartPropertyEditorManager::switchEditor(const Model::PropertyKey& key, const Model::EntityList& entities) {
             EditorPtr editor = selectEditor(key, entities);
-            activateEditor(editor, key);
+            activateEditor(editor, key, entities);
         }
 
         void SmartPropertyEditorManager::createEditors(View::MapDocumentPtr document, View::ControllerPtr controller) {
-            EditorPtr defaultEditor(new DefaultPropertyEditor(document, controller));
-            MatcherPtr defaultMatcher(new SmartPropertyEditorDefaultMatcher());
-
-            m_editors.push_back(MatcherEditorPair(defaultMatcher, defaultEditor));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("spawnflags")),
+                                                  EditorPtr(new SmartSpawnflagsEditor(document, controller))));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
+                                                  EditorPtr(new DefaultPropertyEditor(document, controller))));
         }
         
         SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const {
@@ -69,15 +70,18 @@ namespace TrenchBroom {
         SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::defaultEditor() const {
             return m_editors.back().second;
         }
-
-        void SmartPropertyEditorManager::activateEditor(EditorPtr editor, const Model::PropertyKey& key) {
-            deactivateEditor();
-            m_activeEditor = editor;
-            wxWindow* window = m_activeEditor->activate(this, key);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(window, 1, wxEXPAND);
-            SetSizer(sizer);
+        
+        void SmartPropertyEditorManager::activateEditor(EditorPtr editor, const Model::PropertyKey& key, const Model::EntityList& entities) {
+            if (m_activeEditor != editor || !m_activeEditor->usesKey(key)) {
+                deactivateEditor();
+                m_activeEditor = editor;
+                wxWindow* window = m_activeEditor->activate(this, key, entities);
+                
+                wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+                sizer->Add(window, 1, wxEXPAND);
+                SetSizer(sizer);
+                Layout();
+            }
         }
         
         void SmartPropertyEditorManager::deactivateEditor() {

@@ -55,7 +55,7 @@ namespace TrenchBroom {
             EditorPtr selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const;
             EditorPtr defaultEditor() const;
             
-            void activateEditor(EditorPtr editor, const Model::PropertyKey& key);
+            void activateEditor(EditorPtr editor, const Model::PropertyKey& key, const Model::EntityList& entities);
             void deactivateEditor();
         };
     }

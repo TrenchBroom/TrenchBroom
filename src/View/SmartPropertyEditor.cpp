@@ -34,9 +34,12 @@ namespace TrenchBroom {
         
         SmartPropertyEditor::~SmartPropertyEditor() {}
 
-        wxWindow* SmartPropertyEditor::activate(wxWindow* parent, const Model::PropertyKey& key) {
+        wxWindow* SmartPropertyEditor::activate(wxWindow* parent, const Model::PropertyKey& key, const Model::EntityList& entities) {
             m_key = key;
+            m_entities = entities;
+            
             wxWindow* visual = createVisual(parent);
+            updateVisual();
             bindObservers();
             return visual;
         }
@@ -45,6 +48,22 @@ namespace TrenchBroom {
             unbindObservers();
             destroyVisual();
             m_key = "";
+        }
+
+        bool SmartPropertyEditor::usesKey(const Model::PropertyKey& key) const {
+            return m_key == key;
+        }
+
+        View::ControllerPtr SmartPropertyEditor::controller() const {
+            return m_controller;
+        }
+
+        const Model::PropertyKey& SmartPropertyEditor::key() const {
+            return m_key;
+        }
+
+        const Model::EntityList& SmartPropertyEditor::entities() const {
+            return m_entities;
         }
 
         void SmartPropertyEditor::addOrUpdateProperty(const Model::PropertyValue& value) {
@@ -79,7 +98,7 @@ namespace TrenchBroom {
         }
 
         void SmartPropertyEditor::updateVisual() {
-            doUpdateVisual(m_key, m_document->allSelectedEntities());
+            doUpdateVisual();
         }
     }
 }

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__SmartSpawnflagsEditor__
 #define __TrenchBroom__SmartSpawnflagsEditor__
 
+#include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/ViewTypes.h"
@@ -27,8 +28,10 @@
 #include <wx/gdicmn.h>
 
 class wxCheckBox;
+class wxColor;
 class wxCommandEvent;
 class wxScrolledWindow;
+class wxString;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -42,8 +45,14 @@ namespace TrenchBroom {
                 Mixed
             } FlagValue;
             
+            typedef std::vector<FlagValue> FlagList;
+            typedef std::vector<wxCheckBox*> CheckBoxList;
+            
+            static const size_t NumFlags = 24;
+            static const size_t NumCols = 3;
+            
             wxScrolledWindow* m_scrolledWindow;
-            wxCheckBox* m_flags[24];
+            CheckBoxList m_flags;
             wxPoint m_lastScrollPos;
         public:
             SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
@@ -51,7 +60,17 @@ namespace TrenchBroom {
             void OnCheckBoxClicked(wxCommandEvent& event);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
-            void doUpdateVisual(const Model::PropertyKey& key, const Model::EntityList& entities);
+            void doDestroyVisual();
+            void doUpdateVisual();
+            void resetScrollPos();
+            
+            FlagList getFlagValuesFromEntities(const Model::EntityList& entities) const;
+            void setFlagValue(const Model::Entity& entity, FlagList& flags) const;
+            void setFlagCheckBox(const size_t index, const FlagList& flags, const Assets::EntityDefinition* definition);
+            void getColorAndLabelForFlag(const size_t flag, const Assets::EntityDefinition* definition, wxColour& colour, wxString& label) const;
+            
+            int getFlagFromEvent(wxCommandEvent& event) const;
+            Model::PropertyValue getPropertyValueForFlag(const Model::Entity* entity, int flag, bool set) const;
         };
     }
 }
