@@ -54,6 +54,7 @@ namespace TrenchBroom {
             wxScrolledWindow* m_scrolledWindow;
             CheckBoxList m_flags;
             wxPoint m_lastScrollPos;
+            bool m_ignoreUpdates;
         public:
             SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
             
@@ -61,7 +62,7 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual();
+            void doUpdateVisual(const Model::EntityList& entities);
             void resetScrollPos();
             
             FlagList getFlagValuesFromEntities(const Model::EntityList& entities) const;

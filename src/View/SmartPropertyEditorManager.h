@@ -31,6 +31,10 @@
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class SelectionResult;
+    }
+    
     namespace View {
         class SmartPropertyEditor;
         class SmartPropertyEditorMatcher;
@@ -42,7 +46,11 @@ namespace TrenchBroom {
             typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
             typedef std::vector<MatcherEditorPair> EditorList;
             
+            View::MapDocumentPtr m_document;
+            View::ControllerPtr m_controller;
+            
             EditorList m_editors;
+            Model::PropertyKey m_key;
             EditorPtr m_activeEditor;
         public:
             SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller);
@@ -52,11 +60,18 @@ namespace TrenchBroom {
         private:
             void createEditors(View::MapDocumentPtr document, View::ControllerPtr controller);
 
+            void bindObservers();
+            void unbindObservers();
+            
+            void selectionDidChange(const Model::SelectionResult& result);
+            void objectDidChange(Model::Object* object);
+
             EditorPtr selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const;
             EditorPtr defaultEditor() const;
             
-            void activateEditor(EditorPtr editor, const Model::PropertyKey& key, const Model::EntityList& entities);
+            void activateEditor(EditorPtr editor, const Model::PropertyKey& key);
             void deactivateEditor();
+            void updateEditor();
         };
     }
 }

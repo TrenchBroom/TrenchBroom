@@ -23,12 +23,13 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include <list>
 #include <map>
 #include <set>
 #include <vector>
 #include "SharedPointer.h"
 
-namespace VectorUtils {
+namespace Utils {
     template <typename T>
     struct Deleter {
     public:
@@ -46,7 +47,29 @@ namespace VectorUtils {
             return m_cmp(*lhs, *rhs);
         }
     };
+}
 
+namespace ListUtils {
+    template <typename T>
+    void remove(std::vector<T*>& list, const T* item) {
+        list.erase(std::remove(list.begin(), list.end(), item), list.end());
+    }
+
+    template <typename T>
+    void removeAndDelete(std::vector<T*>& list, const T* item) {
+        remove(list, item);
+        delete item;
+    }
+    
+    
+    template <typename T>
+    void clearAndDelete(std::list<T*>& list) {
+        std::for_each(list.begin(), list.end(), Utils::Deleter<T>());
+        list.clear();
+    }
+}
+
+namespace VectorUtils {
     template <typename T>
     void shiftLeft(std::vector<T>& vec, const size_t offset) {
         if (vec.empty() || offset == 0)
@@ -73,7 +96,7 @@ namespace VectorUtils {
     
     template <typename T>
     void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
-        std::for_each(first, last, Deleter<T>());
+        std::for_each(first, last, Utils::Deleter<T>());
         vec.erase(first, last);
     }
     
@@ -84,13 +107,13 @@ namespace VectorUtils {
     
     template <typename T>
     void clearAndDelete(std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Deleter<T>());
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
         vec.clear();
     }
     
     template <typename T>
     void deleteAll(const std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Deleter<T>());
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
     }
     
     template <typename T>
@@ -164,7 +187,7 @@ namespace VectorUtils {
     template <typename T>
     bool containsPtr(const std::vector<T*>& vec, const T* item) {
         // this const_cast is okay because we won't modify *item
-        return contains(vec, const_cast<T*>(item), PtrCmp<T, std::equal_to<T> >());
+        return contains(vec, const_cast<T*>(item), Utils::PtrCmp<T, std::equal_to<T> >());
     }
     
     template <typename T>

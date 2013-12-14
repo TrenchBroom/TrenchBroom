@@ -30,22 +30,27 @@ namespace TrenchBroom {
     namespace View {
         SmartPropertyEditor::SmartPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         m_document(document),
-        m_controller(controller) {}
+        m_controller(controller),
+        m_active(false) {}
         
         SmartPropertyEditor::~SmartPropertyEditor() {}
 
-        wxWindow* SmartPropertyEditor::activate(wxWindow* parent, const Model::PropertyKey& key, const Model::EntityList& entities) {
+        wxWindow* SmartPropertyEditor::activate(wxWindow* parent, const Model::PropertyKey& key) {
+            assert(!m_active);
+            
             m_key = key;
-            m_entities = entities;
             
             wxWindow* visual = createVisual(parent);
-            updateVisual();
-            bindObservers();
+            m_active = true;
             return visual;
         }
         
+        void SmartPropertyEditor::update(const Model::EntityList& entities) {
+            updateVisual(entities);
+        }
+
         void SmartPropertyEditor::deactivate() {
-            unbindObservers();
+            m_active = false;
             destroyVisual();
             m_key = "";
         }
@@ -63,32 +68,13 @@ namespace TrenchBroom {
         }
 
         const Model::EntityList& SmartPropertyEditor::entities() const {
-            return m_entities;
+            return m_document->selectedEntities();
         }
 
         void SmartPropertyEditor::addOrUpdateProperty(const Model::PropertyValue& value) {
+            assert(m_active);
             m_controller->setEntityProperty(m_document->allSelectedEntities(), m_key, value);
         }
-
-        void SmartPropertyEditor::bindObservers() {
-            m_document->objectDidChangeNotifier.addObserver(this, &SmartPropertyEditor::objectDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditor::selectionDidChange);
-        }
-        
-        void SmartPropertyEditor::unbindObservers() {
-            m_document->objectDidChangeNotifier.removeObserver(this, &SmartPropertyEditor::objectDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditor::selectionDidChange);
-        }
-
-        void SmartPropertyEditor::selectionDidChange(const Model::SelectionResult& result) {
-            updateVisual();
-        }
-        
-        void SmartPropertyEditor::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
-                updateVisual();
-        }
-
         wxWindow* SmartPropertyEditor::createVisual(wxWindow* parent) {
             return doCreateVisual(parent);
         }
@@ -97,8 +83,8 @@ namespace TrenchBroom {
             doDestroyVisual();
         }
 
-        void SmartPropertyEditor::updateVisual() {
-            doUpdateVisual();
+        void SmartPropertyEditor::updateVisual(const Model::EntityList& entities) {
+            doUpdateVisual(entities);
         }
     }
 }

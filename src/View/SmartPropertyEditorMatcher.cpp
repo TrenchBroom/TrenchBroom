@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_key(key) {}
         
         bool SmartPropertyEditorKeyMatcher::doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const {
-            return m_key == key;
+            return !entities.empty() && m_key == key;
         }
 
         bool SmartPropertyEditorDefaultMatcher::doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const {

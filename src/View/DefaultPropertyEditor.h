@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual();
+            void doUpdateVisual(const Model::EntityList& entities);
         };
     }
 }

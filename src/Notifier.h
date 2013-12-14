@@ -21,9 +21,11 @@
 #define TrenchBroom_Notifier_h
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
+
 #include <algorithm>
 #include <cassert>
-#include <vector>
+#include <list>
 
 namespace TrenchBroom {
     class SetBool {
@@ -44,7 +46,7 @@ namespace TrenchBroom {
     private:
         class Observer {
         public:
-            typedef std::vector<Observer*> List;
+            typedef std::list<Observer*> List;
         public:
             virtual ~Observer() {}
             
@@ -100,39 +102,21 @@ namespace TrenchBroom {
                 return m_lhs == (*rhs);
             }
         };
-        
-        struct ObserverCommand {
-            typedef std::vector<ObserverCommand> List;
-            
-            Observer* observer;
-            bool add;
-            
-            ObserverCommand() :
-            observer(NULL),
-            add(true) {}
-            
-            ObserverCommand(Observer* i_observer, const bool i_add) :
-            observer(i_observer),
-            add(i_add) {}
-        };
     private:
         Observer::List m_observers;
-        ObserverCommand::List m_commands;
         bool m_notifying;
     public:
         Notifier0() :
         m_notifying(false) {}
         
         ~Notifier0() {
-            applyCommands();
-            VectorUtils::clearAndDelete(m_observers);
+            ListUtils::clearAndDelete(m_observers);
         }
         
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)()) {
-            if (!m_notifying)
-                applyCommands();
-            
+            assert(!m_notifying);
+
             CObserver<R>* observer = new CObserver<R>(receiver, function);
             Observer::List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*observer));
             if (it != m_observers.end()) {
@@ -140,17 +124,13 @@ namespace TrenchBroom {
                 return false;
             }
             
-            if (m_notifying)
-                m_commands.push_back(ObserverCommand(observer, true));
-            else
-                m_observers.push_back(observer);
+            m_observers.push_back(observer);
             return true;
         }
         
         template <typename R>
         bool removeObserver(R* receiver, void (R::*function)()) {
-            if (!m_notifying)
-                applyCommands();
+            assert(!m_notifying);
             
             CObserver<R> test(receiver, function);
             
@@ -158,17 +138,12 @@ namespace TrenchBroom {
             if (it == m_observers.end())
                 return false;
             
-            if (m_notifying) {
-                m_commands.push_back(ObserverCommand(new CObserver<R>(receiver, function), false));
-            } else {
-                delete *it;
-                m_observers.erase(it);
-            }
+            delete *it;
+            m_observers.erase(it);
             return true;
         }
         
         void notify() {
-            applyCommands();
             const SetBool notifying(m_notifying);
             
             Observer::List::const_iterator it, end;
@@ -181,25 +156,6 @@ namespace TrenchBroom {
         void operator()() {
             notify();
         }
-    private:
-        void applyCommands() {
-            ObserverCommand::List::iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                ObserverCommand& command = *it;
-                
-                if (command.add) {
-                    assert(std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer)) == m_observers.end());
-                    m_observers.push_back(command.observer);
-                } else {
-                    Observer::List::iterator found = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer));
-                    assert(found != m_observers.end());
-                    m_observers.erase(found);
-                    delete command.observer;
-                }
-            }
-            
-            m_commands.clear();
-        }
     };
     
     template <typename A1>
@@ -207,7 +163,7 @@ namespace TrenchBroom {
     private:
         class Observer {
         public:
-            typedef std::vector<Observer*> List;
+            typedef std::list<Observer*> List;
         public:
             virtual ~Observer() {}
             
@@ -263,38 +219,20 @@ namespace TrenchBroom {
                 return m_lhs == (*rhs);
             }
         };
-        
-        struct ObserverCommand {
-            typedef std::vector<ObserverCommand> List;
-            
-            Observer* observer;
-            bool add;
-            
-            ObserverCommand() :
-            observer(NULL),
-            add(true) {}
-            
-            ObserverCommand(Observer* i_observer, const bool i_add) :
-            observer(i_observer),
-            add(i_add) {}
-        };
     private:
         typename Observer::List m_observers;
-        typename ObserverCommand::List m_commands;
         bool m_notifying;
     public:
         Notifier1() :
         m_notifying(false) {}
         
         ~Notifier1() {
-            applyCommands();
-            VectorUtils::clearAndDelete(m_observers);
+            ListUtils::clearAndDelete(m_observers);
         }
         
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1)) {
-            if (!m_notifying)
-                applyCommands();
+            assert(!m_notifying);
             
             CObserver<R>* observer = new CObserver<R>(receiver, function);
             typename Observer::List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*observer));
@@ -303,17 +241,13 @@ namespace TrenchBroom {
                 return false;
             }
             
-            if (m_notifying)
-                m_commands.push_back(ObserverCommand(observer, true));
-            else
-                m_observers.push_back(observer);
+            m_observers.push_back(observer);
             return true;
         }
         
         template <typename R>
         bool removeObserver(R* receiver, void (R::*function)(A1)) {
-            if (!m_notifying)
-                applyCommands();
+            assert(!m_notifying);
             
             CObserver<R> test(receiver, function);
             
@@ -321,18 +255,13 @@ namespace TrenchBroom {
             if (it == m_observers.end())
                 return false;
             
-            if (m_notifying) {
-                m_commands.push_back(ObserverCommand(new CObserver<R>(receiver, function), false));
-            } else {
-                delete *it;
-                m_observers.erase(it);
-            }
+            delete *it;
+            m_observers.erase(it);
             return true;
         }
         
         template <typename A>
         void notify(A a1) {
-            applyCommands();
             const SetBool notifying(m_notifying);
             
             typename Observer::List::const_iterator it, end;
@@ -362,25 +291,6 @@ namespace TrenchBroom {
                 ++it;
             }
         }
-    private:
-        void applyCommands() {
-            typename ObserverCommand::List::iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                ObserverCommand& command = *it;
-                
-                if (command.add) {
-                    assert(std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer)) == m_observers.end());
-                    m_observers.push_back(command.observer);
-                } else {
-                    typename Observer::List::iterator found = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer));
-                    assert(found != m_observers.end());
-                    m_observers.erase(found);
-                    delete command.observer;
-                }
-            }
-            
-            m_commands.clear();
-        }
     };
     
     
@@ -389,7 +299,7 @@ namespace TrenchBroom {
     private:
         class Observer {
         public:
-            typedef std::vector<Observer*> List;
+            typedef std::list<Observer*> List;
         public:
             virtual ~Observer() {}
             
@@ -445,38 +355,20 @@ namespace TrenchBroom {
                 return m_lhs == (*rhs);
             }
         };
-        
-        struct ObserverCommand {
-            typedef std::vector<ObserverCommand> List;
-            
-            Observer* observer;
-            bool add;
-            
-            ObserverCommand() :
-            observer(NULL),
-            add(true) {}
-            
-            ObserverCommand(Observer* i_observer, const bool i_add) :
-            observer(i_observer),
-            add(i_add) {}
-        };
     private:
         typename Observer::List m_observers;
-        typename ObserverCommand::List m_commands;
         bool m_notifying;
     public:
         Notifier2() :
         m_notifying(false) {}
         
         ~Notifier2() {
-            applyCommands();
-            VectorUtils::clearAndDelete(m_observers);
+            ListUtils::clearAndDelete(m_observers);
         }
         
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1, A2)) {
-            if (!m_notifying)
-                applyCommands();
+            assert(!m_notifying);
             
             CObserver<R>* observer = new CObserver<R>(receiver, function);
             typename Observer::List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*observer));
@@ -485,17 +377,13 @@ namespace TrenchBroom {
                 return false;
             }
             
-            if (m_notifying)
-                m_commands.push_back(ObserverCommand(observer, true));
-            else
-                m_observers.push_back(observer);
+            m_observers.push_back(observer);
             return true;
         }
         
         template <typename R>
         bool removeObserver(R* receiver, void (R::*function)(A1, A2)) {
-            if (!m_notifying)
-                applyCommands();
+            assert(!m_notifying);
             
             CObserver<R> test(receiver, function);
             
@@ -503,17 +391,12 @@ namespace TrenchBroom {
             if (it == m_observers.end())
                 return false;
             
-            if (m_notifying) {
-                m_commands.push_back(ObserverCommand(new CObserver<R>(receiver, function), false));
-            } else {
-                delete *it;
-                m_observers.erase(it);
-            }
+            delete *it;
+            m_observers.erase(it);
             return true;
         }
         
         void notify(A1 a1, A2 a2) {
-            applyCommands();
             const SetBool notifying(m_notifying);
             
             typename Observer::List::const_iterator it, end;
@@ -525,25 +408,6 @@ namespace TrenchBroom {
         
         void operator()(A1 a1, A2 a2) {
             notify(a1, a2);
-        }
-    private:
-        void applyCommands() {
-            typename ObserverCommand::List::iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                ObserverCommand& command = *it;
-                
-                if (command.add) {
-                    assert(std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer)) == m_observers.end());
-                    m_observers.push_back(command.observer);
-                } else {
-                    typename Observer::List::iterator found = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*command.observer));
-                    assert(found != m_observers.end());
-                    m_observers.erase(found);
-                    delete command.observer;
-                }
-            }
-            
-            m_commands.clear();
         }
     };
 }

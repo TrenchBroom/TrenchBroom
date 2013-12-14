@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "View/DefaultPropertyEditor.h"
+#include "View/MapDocument.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartPropertyEditorMatcher.h"
 #include "View/SmartSpawnFlagsEditor.h"
@@ -31,18 +32,24 @@
 namespace TrenchBroom {
     namespace View {
         SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller) :
-        wxPanel(parent) {
-            createEditors(document, controller);
-            activateEditor(defaultEditor(), "", Model::EmptyEntityList);
+        wxPanel(parent),
+        m_document(document),
+        m_controller(controller),
+        m_key("") {
+            createEditors(m_document, m_controller);
+            activateEditor(defaultEditor(), "");
+            bindObservers();
         }
         
         SmartPropertyEditorManager::~SmartPropertyEditorManager() {
+            unbindObservers();
             deactivateEditor();
         }
 
         void SmartPropertyEditorManager::switchEditor(const Model::PropertyKey& key, const Model::EntityList& entities) {
             EditorPtr editor = selectEditor(key, entities);
-            activateEditor(editor, key, entities);
+            activateEditor(editor, key);
+            updateEditor();
         }
 
         void SmartPropertyEditorManager::createEditors(View::MapDocumentPtr document, View::ControllerPtr controller) {
@@ -52,6 +59,24 @@ namespace TrenchBroom {
                                                   EditorPtr(new DefaultPropertyEditor(document, controller))));
         }
         
+        void SmartPropertyEditorManager::bindObservers() {
+            m_document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+            m_document->objectDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::objectDidChange);
+        }
+        
+        void SmartPropertyEditorManager::unbindObservers() {
+            m_document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+            m_document->objectDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::objectDidChange);
+        }
+
+        void SmartPropertyEditorManager::selectionDidChange(const Model::SelectionResult& result) {
+            switchEditor(m_key, m_document->allSelectedEntities());
+        }
+        
+        void SmartPropertyEditorManager::objectDidChange(Model::Object* object) {
+            switchEditor(m_key, m_document->allSelectedEntities());
+        }
+
         SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const {
             EditorList::const_iterator it, end;
             for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it) {
@@ -71,11 +96,12 @@ namespace TrenchBroom {
             return m_editors.back().second;
         }
         
-        void SmartPropertyEditorManager::activateEditor(EditorPtr editor, const Model::PropertyKey& key, const Model::EntityList& entities) {
+        void SmartPropertyEditorManager::activateEditor(EditorPtr editor, const Model::PropertyKey& key) {
             if (m_activeEditor != editor || !m_activeEditor->usesKey(key)) {
                 deactivateEditor();
                 m_activeEditor = editor;
-                wxWindow* window = m_activeEditor->activate(this, key, entities);
+                m_key = key;
+                wxWindow* window = m_activeEditor->activate(this, key);
                 
                 wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
                 sizer->Add(window, 1, wxEXPAND);
@@ -88,7 +114,13 @@ namespace TrenchBroom {
             if (m_activeEditor != NULL) {
                 m_activeEditor->deactivate();
                 m_activeEditor = EditorPtr();
+                m_key = "";
             }
+        }
+
+        void SmartPropertyEditorManager::updateEditor() {
+            if (m_activeEditor != NULL)
+                m_activeEditor->update(m_document->allSelectedEntities());
         }
     }
 }

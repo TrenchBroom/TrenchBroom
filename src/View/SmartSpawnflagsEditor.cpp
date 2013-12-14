@@ -24,6 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/ModelUtils.h"
 #include "View/ControllerFacade.h"
+#include "View/ViewUtils.h"
 
 #include <wx/checkbox.h>
 #include <wx/settings.h>
@@ -68,7 +69,8 @@ namespace TrenchBroom {
         
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         SmartPropertyEditor(document, controller),
-        m_scrolledWindow(NULL) {}
+        m_scrolledWindow(NULL),
+        m_ignoreUpdates(false) {}
 
         void SmartSpawnflagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
             const Model::EntityList& updateEntities = entities();
@@ -78,6 +80,8 @@ namespace TrenchBroom {
             const int flag = getFlagFromEvent(event);
             if (flag == 0)
                 return;
+            
+            const SetBool ignoreUpdates(m_ignoreUpdates);
             
             controller()->beginUndoableGroup("Set Spawnflags");
             Model::each(updateEntities.begin(), updateEntities.end(),
@@ -120,10 +124,13 @@ namespace TrenchBroom {
             m_flags.clear();
         }
 
-        void SmartSpawnflagsEditor::doUpdateVisual() {
-            assert(!entities().empty());
-            const FlagList flags = getFlagValuesFromEntities(entities());
-            const Assets::EntityDefinition* definition = Model::selectEntityDefinition(entities());
+        void SmartSpawnflagsEditor::doUpdateVisual(const Model::EntityList& entities) {
+            assert(!entities.empty());
+            if (m_ignoreUpdates)
+                return;
+            
+            const FlagList flags = getFlagValuesFromEntities(entities);
+            const Assets::EntityDefinition* definition = Model::selectEntityDefinition(entities);
             
             for (size_t i = 0; i < NumFlags; ++i)
                 setFlagCheckBox(i, flags, definition);
