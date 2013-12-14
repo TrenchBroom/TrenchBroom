@@ -30,6 +30,7 @@
 #include <wx/panel.h>
 #include <wx/radiobut.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -57,12 +58,15 @@ namespace TrenchBroom {
             assert(m_colorHistory == NULL);
             
             m_panel = new wxPanel(parent);
-            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, _("Color range [0,1]"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, _("Color range [0,255]"));
+            wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, _("Color range"));
+            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, _("Float [0,1]"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, _("Byte [0,255]"));
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
             m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
 
             wxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
+            leftSizer->Add(rangeTxt);
+            leftSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             leftSizer->Add(m_floatRadio);
             leftSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             leftSizer->Add(m_byteRadio);
@@ -101,7 +105,54 @@ namespace TrenchBroom {
             assert(m_colorPicker != NULL);
             assert(m_colorHistory != NULL);
             
+            updateColorRange(entities);
             updateColorHistory();
+        }
+
+        void SmartColorEditor::updateColorRange(const Model::EntityList& entities) {
+            const ColorRange range = detectColorRange(entities);
+            switch (range) {
+                case Float:
+                    m_floatRadio->SetValue(true);
+                    m_byteRadio->SetValue(false);
+                    break;
+                case Byte:
+                    m_floatRadio->SetValue(false);
+                    m_byteRadio->SetValue(true);
+                    break;
+                default:
+                    m_floatRadio->SetValue(false);
+                    m_byteRadio->SetValue(false);
+                    break;
+            }
+        }
+
+        SmartColorEditor::ColorRange SmartColorEditor::detectColorRange(const Model::EntityList& entities) const {
+            assert(!entities.empty());
+            
+            Model::EntityList::const_iterator it = entities.begin();
+            Model::EntityList::const_iterator end = entities.end();
+            
+            ColorRange range = detectColorRange(**it);
+            while (++it != end)
+                range = combineColorRanges(range, detectColorRange(**it));
+            return range;
+        }
+
+        SmartColorEditor::ColorRange SmartColorEditor::combineColorRanges(ColorRange oldRange, ColorRange newRange) const {
+            if (oldRange == newRange)
+                return oldRange;
+            return Mixed;
+        }
+
+        SmartColorEditor::ColorRange SmartColorEditor::detectColorRange(const Model::Entity& entity) const {
+            if (!entity.hasProperty(key()))
+                return Byte;
+            const Model::PropertyValue& value = entity.property(key());
+            const Color color(value);
+            if (Color::detectColorRange(color.r(), color.g(), color.b()) == Color::Float)
+                return Float;
+            return Byte;
         }
 
         struct ColorCmp {

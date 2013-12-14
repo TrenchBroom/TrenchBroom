@@ -116,7 +116,7 @@ namespace TrenchBroom {
             
             DefaultRow::List::const_iterator defIt = findDefaultRow(m_defaultRows, key);
             if (defIt != m_defaultRows.end())
-                return std::distance(m_defaultRows.begin(), defIt);
+                return propertyCount() + std::distance(m_defaultRows.begin(), defIt);
             return rowCount();
         }
 
@@ -456,10 +456,11 @@ namespace TrenchBroom {
             
             const size_t rowIndex = static_cast<size_t>(row);
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
+            if (attr == NULL)
+                attr = new wxGridCellAttr();
+            
             if (col == 0) {
                 if (m_rows.isDefaultRow(rowIndex)) {
-                    if (attr == NULL)
-                        attr = new wxGridCellAttr();
                     attr->SetFont(GetView()->GetFont().MakeItalic());
                     attr->SetReadOnly();
                 } else {
@@ -467,36 +468,25 @@ namespace TrenchBroom {
                     const bool subset = m_rows.subset(rowIndex);
                     const bool readonly = !Model::isPropertyKeyMutable(key) || !Model::isPropertyValueMutable(key);
                     if (readonly) {
-                        if (attr == NULL)
-                            attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
                     } else if (subset) {
-                        if (attr == NULL)
-                            attr = new wxGridCellAttr();
                         attr->SetTextColour(m_specialCellColor);
                     }
                 }
             } else if (col == 1) {
                 if (m_rows.isDefaultRow(rowIndex)) {
-                    if (attr == NULL)
-                        attr = new wxGridCellAttr();
                     attr->SetFont(GetView()->GetFont().MakeItalic());
                 } else {
                     const String& key = m_rows.key(rowIndex);
                     const bool multi = m_rows.multi(rowIndex);
                     const bool readonly = !Model::isPropertyValueMutable(key);
                     if (readonly) {
-                        if (attr == NULL)
-                            attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
                     }
-                    if (multi) {
-                        if (attr == NULL)
-                            attr = new wxGridCellAttr();
+                    if (multi)
                         attr->SetTextColour(m_specialCellColor);
-                    }
                 }
             }
             return attr;
@@ -525,6 +515,19 @@ namespace TrenchBroom {
             return m_rows.tooltip(rowIndex);
         }
         
+        Model::PropertyKey EntityPropertyGridTable::propertyKey(const int row) const {
+            if (row < 0 || row >= static_cast<size_t>(m_rows.rowCount()))
+                return "";
+            return m_rows.key(static_cast<size_t>(row));
+        }
+        
+        int EntityPropertyGridTable::rowForKey(const Model::PropertyKey& key) const {
+            const size_t index = m_rows.indexOf(key);
+            if (index >= m_rows.rowCount())
+                return -1;
+            return static_cast<int>(index);
+        }
+
         void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.propertyCount());
             const String& oldKey = m_rows.key(rowIndex);

@@ -36,6 +36,12 @@ namespace TrenchBroom {
         private:
             static const size_t ColorHistoryCellSize = 15;
             
+            typedef enum {
+                Float,
+                Byte,
+                Mixed
+            } ColorRange;
+            
             wxPanel* m_panel;
             wxRadioButton* m_floatRadio;
             wxRadioButton* m_byteRadio;
@@ -47,6 +53,10 @@ namespace TrenchBroom {
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
             void doUpdateVisual(const Model::EntityList& entities);
+            void updateColorRange(const Model::EntityList& entities);
+            ColorRange detectColorRange(const Model::EntityList& entities) const;
+            ColorRange detectColorRange(const Model::Entity& entity) const;
+            ColorRange combineColorRanges(ColorRange oldRange, ColorRange newRange) const;
             void updateColorHistory();
         };
     }

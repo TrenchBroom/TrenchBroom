@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityPropertyGrid__
 #define __TrenchBroom__EntityPropertyGrid__
 
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 #include <wx/grid.h>
@@ -46,6 +47,10 @@ namespace TrenchBroom {
             wxGridCellCoords m_lastHoveredCell;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
+            
+            bool m_ignoreSelection;
+            Model::PropertyKey m_lastSelectedKey;
+            int m_lastSelectedCol;
         public:
             EntityPropertyGrid(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
             ~EntityPropertyGrid();
@@ -72,6 +77,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Model::SelectionResult& result);
             
             void updateControls();
+            Model::PropertyKey selectedRowKey() const;
         };
     }
 }

@@ -83,3 +83,9 @@ void Color::rgbToHSB(const float r, const float g, const float b, float& h, floa
             h = h + 1.0f;
     }
 }
+
+Color::Range Color::detectColorRange(float r, float g, float b) {
+    if (Math::isInteger(r) && Math::isInteger(g) && Math::isInteger(b))
+        return Byte;
+    return Float;
+}

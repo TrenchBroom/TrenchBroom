@@ -163,6 +163,11 @@ namespace Math {
     }
 
     template <typename T>
+    bool isInteger(const T v) {
+        return eq(v, round(v));
+    }
+    
+    template <typename T>
     bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::AlmostZero) {
         if (eq(v, s, epsilon) || eq(v, e, epsilon))
             return true;

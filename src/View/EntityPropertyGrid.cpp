@@ -33,7 +33,9 @@ namespace TrenchBroom {
         EntityPropertyGrid::EntityPropertyGrid(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
         wxPanel(parent),
         m_document(document),
-        m_lastHoveredCell(wxGridCellCoords(-1, -1)) {
+        m_lastHoveredCell(wxGridCellCoords(-1, -1)),
+        m_ignoreSelection(false),
+        m_lastSelectedCol(0) {
             createGui(document, controller);
             bindEvents();
             bindObservers();
@@ -51,8 +53,14 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyGrid::OnPropertyGridSelectCell(wxGridEvent& event) {
+            const Model::PropertyKey key = m_table->propertyKey(event.GetRow());
+            if (!m_ignoreSelection) {
+                m_lastSelectedKey = key;
+                m_lastSelectedCol = event.GetCol();
+            }
+            
             EntityPropertySelectedCommand command;
-            command.setKey(m_table->GetValue(event.GetRow(), 0).ToStdString());
+            command.setKey(key);
             command.SetEventObject(this);
             command.SetId(GetId());
             ProcessEvent(command);
@@ -61,17 +69,22 @@ namespace TrenchBroom {
         void EntityPropertyGrid::OnPropertyGridTab(wxGridEvent& event) {
             if (event.ShiftDown()) {
                 if (event.GetCol() > 0) {
+                    m_grid->SelectRow(event.GetRow());
                     m_grid->GoToCell(event.GetRow(), event.GetCol() - 1);
                 } else if (event.GetRow() > 0) {
+                    m_grid->SelectRow(event.GetRow() - 1);
                     m_grid->GoToCell(event.GetRow() - 1, m_grid->GetNumberCols() - 1);
                 }
             } else {
                 if (event.GetCol() < m_grid->GetNumberCols() - 1) {
+                    m_grid->SelectRow(event.GetRow());
                     m_grid->GoToCell(event.GetRow(), event.GetCol() + 1);
                 } else if (event.GetRow() < m_grid->GetNumberRows() - 1) {
+                    m_grid->SelectRow(event.GetRow() + 1);
                     m_grid->GoToCell(event.GetRow() + 1, 0);
                 } else {
                     m_table->AppendRows();
+                    m_grid->SelectRow(event.GetRow() - 1);
                     m_grid->GoToCell(m_grid->GetNumberRows() - 1, 0);
                 }
             }
@@ -95,7 +108,7 @@ namespace TrenchBroom {
             
             m_grid->SetFocus();
             int row = m_table->GetNumberPropertyRows() - 1;
-            m_grid->SelectBlock(row, 0, row, 0);
+            m_grid->SelectRow(row);
             m_grid->GoToCell(row, 0);
             m_grid->ShowCellEditControl();
         }
@@ -110,7 +123,7 @@ namespace TrenchBroom {
             }
             
             if (firstRowIndex < m_grid->GetNumberRows())
-                m_grid->SelectBlock(firstRowIndex, 0, firstRowIndex, 0);
+                m_grid->SelectRow(firstRowIndex);
         }
         
         void EntityPropertyGrid::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {
@@ -213,7 +226,22 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyGrid::updateControls() {
+            const SetBool ignoreSelection(m_ignoreSelection);
             m_table->update();
+            
+            const int row = m_table->rowForKey(m_lastSelectedKey);
+            if (row != -1) {
+                m_grid->SelectRow(row);
+                m_grid->GoToCell(row, m_lastSelectedCol);
+            }
+        }
+
+        Model::PropertyKey EntityPropertyGrid::selectedRowKey() const {
+            wxArrayInt selectedRows = m_grid->GetSelectedRows();
+            if (selectedRows.empty())
+                return "";
+            const int row = selectedRows.front();
+            return m_table->propertyKey(row);
         }
     }
 }

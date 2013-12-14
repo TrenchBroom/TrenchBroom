@@ -138,6 +138,8 @@ namespace TrenchBroom {
             
             void update();
             String tooltip(wxGridCellCoords cellCoords) const;
+            Model::PropertyKey propertyKey(int row) const;
+            int rowForKey(const Model::PropertyKey& key) const;
         private:
             void renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities);
             void updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities);
