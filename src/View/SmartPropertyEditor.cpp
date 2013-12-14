@@ -59,6 +59,10 @@ namespace TrenchBroom {
             return m_key == key;
         }
 
+        View::MapDocumentPtr SmartPropertyEditor::document() const {
+            return m_document;
+        }
+
         View::ControllerPtr SmartPropertyEditor::controller() const {
             return m_controller;
         }

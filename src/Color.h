@@ -34,6 +34,8 @@ public:
     float g() const;
     float b() const;
     float a() const;
+    
+    static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 };
 
 #endif

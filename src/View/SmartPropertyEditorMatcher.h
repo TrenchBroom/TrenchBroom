@@ -34,9 +34,9 @@ namespace TrenchBroom {
         
         class SmartPropertyEditorKeyMatcher : public SmartPropertyEditorMatcher {
         private:
-            Model::PropertyKey m_key;
+            Model::PropertyKeySet m_keys;
         public:
-            SmartPropertyEditorKeyMatcher(const Model::PropertyKey& key);
+            SmartPropertyEditorKeyMatcher(const Model::PropertyKey& key1, const Model::PropertyKey& key2 = "", const Model::PropertyKey& key3 = "", const Model::PropertyKey& key4 = "", const Model::PropertyKey& key5 = "");
         private:
             bool doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const;
         };

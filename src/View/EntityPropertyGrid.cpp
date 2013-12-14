@@ -94,20 +94,23 @@ namespace TrenchBroom {
             m_grid->AppendRows();
             
             m_grid->SetFocus();
-            int row = m_grid->GetNumberRows() - 1;
+            int row = m_table->GetNumberPropertyRows() - 1;
             m_grid->SelectBlock(row, 0, row, 0);
             m_grid->GoToCell(row, 0);
             m_grid->ShowCellEditControl();
-            
-            // updateSmartEditor(m_grid->GetGridCursorRow());
         }
         
         void EntityPropertyGrid::OnRemovePropertiesPressed(wxCommandEvent& event) {
+            int firstRowIndex = m_grid->GetNumberRows();
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
             wxArrayInt::reverse_iterator it, end;
-            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it)
+            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
                 m_grid->DeleteRows(*it, 1);
-            // updateSmartEditor(m_grid->GetGridCursorRow());
+                firstRowIndex = std::min(*it, firstRowIndex);
+            }
+            
+            if (firstRowIndex < m_grid->GetNumberRows())
+                m_grid->SelectBlock(firstRowIndex, 0, firstRowIndex, 0);
         }
         
         void EntityPropertyGrid::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {
@@ -145,17 +148,6 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-            
-            /*
-             wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
-             m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel, m_documentViewHolder);
-             
-             wxSizer* propertyEditorSizer = new wxBoxSizer(wxVERTICAL);
-             propertyEditorSizer->Add(m_grid, 1, wxEXPAND);
-             propertyEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
-             propertyEditorSizer->Add(smartPropertyEditorPanel, 0, wxEXPAND);
-             propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
-             */
             
             m_addPropertyButton = new wxButton(this, wxID_ANY, _("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             m_addPropertyButton->SetToolTip(_("Add a new property"));

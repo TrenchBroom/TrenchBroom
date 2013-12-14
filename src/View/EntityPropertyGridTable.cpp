@@ -352,6 +352,10 @@ namespace TrenchBroom {
             return static_cast<int>(m_rows.rowCount());
         }
         
+        int EntityPropertyGridTable::GetNumberPropertyRows() const {
+            return static_cast<int>(m_rows.propertyCount());
+        }
+        
         int EntityPropertyGridTable::GetNumberCols() {
             return 2;
         }

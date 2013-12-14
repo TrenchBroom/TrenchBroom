@@ -50,3 +50,36 @@ float Color::b() const {
 float Color::a() const {
     return w();
 }
+
+void Color::rgbToHSB(const float r, const float g, const float b, float& h, float& s, float& br) {
+    assert(r >= 0.0f && r <= 1.0f);
+    assert(g >= 0.0f && g <= 1.0f);
+    assert(b >= 0.0f && b <= 1.0f);
+    
+    const float max = std::max(std::max(r, g), b);
+    const float min = std::min(std::min(r, g), b);
+    const float dist = max - min;
+    
+    br = max;
+    if (br != 0.0f)
+        s = dist / max;
+    else
+        s = 0.0f;
+    
+    if (s == 0.0f) {
+        h = 0.0f;
+    } else {
+        const float rc = (max - r) / dist;
+        const float gc = (max - g) / dist;
+        const float bc = (max - b) / dist;
+        if (r == max)
+            h = bc - gc;
+        else if (g == max)
+            h = 2.0f + rc - bc;
+        else
+            h = 4.0f + gc - rc;
+        h = h / 6.0f;
+        if (h < 0)
+            h = h + 1.0f;
+    }
+}

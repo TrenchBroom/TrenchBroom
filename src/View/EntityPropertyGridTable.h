@@ -122,6 +122,7 @@ namespace TrenchBroom {
             EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller);
             
             int GetNumberRows();
+            int GetNumberPropertyRows() const;
             int GetNumberCols();
             
             wxString GetValue(int row, int col);

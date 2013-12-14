@@ -27,11 +27,21 @@ namespace TrenchBroom {
             return doMatches(key, entities);
         }
 
-        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const Model::PropertyKey& key) :
-        m_key(key) {}
+        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const Model::PropertyKey& key1, const Model::PropertyKey& key2, const Model::PropertyKey& key3, const Model::PropertyKey& key4, const Model::PropertyKey& key5) {
+            if (!key1.empty())
+                m_keys.insert(key1);
+            if (!key2.empty())
+                m_keys.insert(key2);
+            if (!key3.empty())
+                m_keys.insert(key3);
+            if (!key4.empty())
+                m_keys.insert(key4);
+            if (!key5.empty())
+                m_keys.insert(key5);
+        }
         
         bool SmartPropertyEditorKeyMatcher::doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const {
-            return !entities.empty() && m_key == key;
+            return !entities.empty() && m_keys.count(key) > 0;
         }
 
         bool SmartPropertyEditorDefaultMatcher::doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const {

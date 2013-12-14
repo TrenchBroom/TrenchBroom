@@ -44,6 +44,7 @@ namespace TrenchBroom {
             void update(const Model::EntityList& entities);
             void deactivate();
         protected:
+            View::MapDocumentPtr document() const;
             View::ControllerPtr controller() const;
             const Model::PropertyKey& key() const;
             const Model::EntityList& entities() const;

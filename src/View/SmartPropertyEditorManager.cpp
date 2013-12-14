@@ -20,8 +20,9 @@
 #include "SmartPropertyEditorManager.h"
 
 #include "CollectionUtils.h"
-#include "View/DefaultPropertyEditor.h"
 #include "View/MapDocument.h"
+#include "View/SmartColorEditor.h"
+#include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartPropertyEditorMatcher.h"
 #include "View/SmartSpawnFlagsEditor.h"
@@ -55,8 +56,10 @@ namespace TrenchBroom {
         void SmartPropertyEditorManager::createEditors(View::MapDocumentPtr document, View::ControllerPtr controller) {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("spawnflags")),
                                                   EditorPtr(new SmartSpawnflagsEditor(document, controller))));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("_color", "_sunlight_color", "_sunlight_color2")),
+                                                  EditorPtr(new SmartColorEditor(document, controller))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
-                                                  EditorPtr(new DefaultPropertyEditor(document, controller))));
+                                                  EditorPtr(new SmartDefaultPropertyEditor(document, controller))));
         }
         
         void SmartPropertyEditorManager::bindObservers() {

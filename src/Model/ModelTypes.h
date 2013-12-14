@@ -41,6 +41,7 @@ namespace TrenchBroom {
         
         typedef String PropertyKey;
         typedef std::vector<PropertyKey> PropertyKeyList;
+        typedef std::set<PropertyKey> PropertyKeySet;
         typedef String PropertyValue;
         typedef std::vector<PropertyValue> PropertyValueList;
 

@@ -26,11 +26,11 @@ class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
-        class DefaultPropertyEditor : public SmartPropertyEditor {
+        class SmartDefaultPropertyEditor : public SmartPropertyEditor {
         private:
             wxTextCtrl* m_descriptionTxt;
         public:
-            DefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartDefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();

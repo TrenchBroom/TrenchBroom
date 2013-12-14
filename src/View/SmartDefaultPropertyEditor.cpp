@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DefaultPropertyEditor.h"
+#include "SmartDefaultPropertyEditor.h"
 
 #include "Assets/EntityDefinition.h"
 #include "Model/ModelUtils.h"
@@ -27,20 +27,20 @@
 
 namespace TrenchBroom {
     namespace View {
-        DefaultPropertyEditor::DefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         SmartPropertyEditor(document, controller) {}
 
-        wxWindow* DefaultPropertyEditor::doCreateVisual(wxWindow* parent) {
+        wxWindow* SmartDefaultPropertyEditor::doCreateVisual(wxWindow* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP);
             return m_descriptionTxt;
         }
         
-        void DefaultPropertyEditor::doDestroyVisual() {
+        void SmartDefaultPropertyEditor::doDestroyVisual() {
             m_descriptionTxt->Destroy();
             m_descriptionTxt = NULL;
         }
 
-        void DefaultPropertyEditor::doUpdateVisual(const Model::EntityList& entities) {
+        void SmartDefaultPropertyEditor::doUpdateVisual(const Model::EntityList& entities) {
             m_descriptionTxt->Clear();
 
             const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(entities);
