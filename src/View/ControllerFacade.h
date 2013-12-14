@@ -93,6 +93,7 @@ namespace TrenchBroom {
             
             bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
             bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
+            bool setEntityProperty(Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
             
             bool setMods(const StringList& mods);

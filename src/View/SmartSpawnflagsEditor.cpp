@@ -34,19 +34,55 @@
 
 namespace TrenchBroom {
     namespace View {
+        struct UpdateSpawnflag {
+        private:
+            ControllerPtr m_controller;
+            const Model::PropertyKey& m_key;
+            int m_flagIndex;
+            bool m_setFlag;
+        public:
+            UpdateSpawnflag(ControllerPtr controller, const Model::PropertyKey& key, const int flagIndex, const bool setFlag) :
+            m_controller(controller),
+            m_key(key),
+            m_flagIndex(flagIndex),
+            m_setFlag(setFlag) {}
+            
+            void operator()(Model::Entity* entity) const {
+                const Model::PropertyValue value = propertyValue(entity);
+                m_controller->setEntityProperty(*entity, m_key, value);
+            }
+            
+            Model::PropertyValue propertyValue(Model::Entity* entity) const {
+                int intValue = entity->hasProperty(m_key) ? std::atoi(entity->property(m_key).c_str()) : 0;
+                
+                if (m_setFlag)
+                    intValue |= m_flagIndex;
+                else
+                    intValue &= ~m_flagIndex;
+                
+                StringStream str;
+                str << intValue;
+                return str.str();
+            }
+        };
+        
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         SmartPropertyEditor(document, controller),
         m_scrolledWindow(NULL) {}
 
         void SmartSpawnflagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
-            if (entities().empty())
+            const Model::EntityList& updateEntities = entities();
+            if (updateEntities.empty())
                 return;
             
             const int flag = getFlagFromEvent(event);
             if (flag == 0)
                 return;
             
-            controller()->beginUndoableGroup("Set Spawnflag");
+            controller()->beginUndoableGroup("Set Spawnflags");
+            Model::each(updateEntities.begin(), updateEntities.end(),
+                        UpdateSpawnflag(controller(), key(), flag, event.IsChecked()),
+                        Model::MatchAll());
             controller()->closeGroup();
         }
         
@@ -111,19 +147,15 @@ namespace TrenchBroom {
             Model::EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
-                if (entity->hasProperty(key()))
-                    setFlagValue(*entity, result);
+                setFlagValue(*entity, result);
             }
             
             return result;
         }
         
         void SmartSpawnflagsEditor::setFlagValue(const Model::Entity& entity, FlagList& flags) const {
-            const Model::PropertyValue& propertyValue = entity.property(key());
-            const int flagValue = std::atoi(propertyValue.c_str());
-            
             for (size_t i = 0; i < NumFlags; ++i) {
-                const bool set = (flagValue & (1 << i)) != 0;
+                const bool set = isFlagSetOnEntity(entity, i);
                 switch (flags[i]) {
                     case Unset:
                         flags[i] = set ? On : Off;
@@ -140,6 +172,16 @@ namespace TrenchBroom {
                         break;
                 }
             }
+        }
+
+        bool SmartSpawnflagsEditor::isFlagSetOnEntity(const Model::Entity& entity, const size_t index) const {
+            const bool hasFlag = entity.hasProperty(key());
+            if (!hasFlag)
+                return false;
+            
+            const Model::PropertyValue& propertyValue = entity.property(key());
+            const int flagValue = std::atoi(propertyValue.c_str());
+            return (flagValue & (1 << index)) != 0;
         }
 
         void SmartSpawnflagsEditor::setFlagCheckBox(const size_t index, const FlagList& flags, const Assets::EntityDefinition* definition) {
@@ -190,19 +232,6 @@ namespace TrenchBroom {
                     flag = (1 << i);
             }
             return flag;
-        }
-
-        Model::PropertyValue SmartSpawnflagsEditor::getPropertyValueForFlag(const Model::Entity* entity, const int flag, const bool set) const {
-            int intValue = entity->hasProperty(key()) ? std::atoi(entity->property(key()).c_str()) : 0;
-            
-            if (set)
-                intValue |= flag;
-            else
-                intValue &= ~flag;
-            
-            StringStream str;
-            str << intValue;
-            return str.str();
         }
     }
 }

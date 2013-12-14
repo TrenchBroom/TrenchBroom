@@ -65,12 +65,12 @@ namespace TrenchBroom {
             void resetScrollPos();
             
             FlagList getFlagValuesFromEntities(const Model::EntityList& entities) const;
+            bool isFlagSetOnEntity(const Model::Entity& entity, size_t index) const;
             void setFlagValue(const Model::Entity& entity, FlagList& flags) const;
             void setFlagCheckBox(const size_t index, const FlagList& flags, const Assets::EntityDefinition* definition);
             void getColorAndLabelForFlag(const size_t flag, const Assets::EntityDefinition* definition, wxColour& colour, wxString& label) const;
             
             int getFlagFromEvent(wxCommandEvent& event) const;
-            Model::PropertyValue getPropertyValueForFlag(const Model::Entity* entity, int flag, bool set) const;
         };
     }
 }
