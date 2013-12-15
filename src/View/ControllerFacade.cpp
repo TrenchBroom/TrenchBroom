@@ -148,8 +148,7 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::deselectAllAndSelectObject(Model::Object& object) {
-            Model::ObjectList objects;
-            objects.push_back(&object);
+            const Model::ObjectList objects(1, &object);
             return deselectAllAndSelectObjects(objects);
         }
         

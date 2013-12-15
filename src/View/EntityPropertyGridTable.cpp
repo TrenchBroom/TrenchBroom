@@ -517,7 +517,7 @@ namespace TrenchBroom {
         }
         
         Model::PropertyKey EntityPropertyGridTable::propertyKey(const int row) const {
-            if (row < 0 || row >= static_cast<size_t>(m_rows.rowCount()))
+            if (row < 0 || row >= static_cast<int>(m_rows.rowCount()))
                 return "";
             return m_rows.key(static_cast<size_t>(row));
         }
