@@ -451,8 +451,9 @@ namespace TrenchBroom {
         }
         
         wxGridCellAttr* EntityPropertyGridTable::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
-            assert(row >= 0 && row < GetRowsCount());
-            assert(col >= 0 && col < GetColsCount());
+            if (row < 0 || row >= GetRowsCount() ||
+                col < 0 || col >= GetColsCount())
+                return NULL;
             
             const size_t rowIndex = static_cast<size_t>(row);
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
