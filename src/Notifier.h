@@ -402,7 +402,7 @@ namespace TrenchBroom {
             typename Observer::List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 Observer& observer = **it;
-                observer(a1);
+                observer(a1, a2);
             }
         }
         
