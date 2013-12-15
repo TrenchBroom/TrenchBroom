@@ -33,10 +33,12 @@ namespace TrenchBroom {
             int m_cellSize;
             int m_margin;
             ColorList m_colors;
+            ColorList m_selectedColors;
         public:
             ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_SUNKEN);
             
             void setColors(const ColorList& colors);
+            void setSelection(const ColorList& colors);
             
             void OnSize(wxSizeEvent& event);
             void OnPaint(wxPaintEvent& event);

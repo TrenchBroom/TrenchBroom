@@ -23,9 +23,13 @@
 #include "View/SmartPropertyEditor.h"
 #include "View/ViewTypes.h"
 
-class wxRadioButton;
+#include <wx/colour.h>
+
 class wxColourPickerCtrl;
+class wxColourPickerEvent;
+class wxCommandEvent;
 class wxPanel;
+class wxRadioButton;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -35,12 +39,7 @@ namespace TrenchBroom {
         class SmartColorEditor : public SmartPropertyEditor {
         private:
             static const size_t ColorHistoryCellSize = 15;
-            
-            typedef enum {
-                Float,
-                Byte,
-                Mixed
-            } ColorRange;
+            typedef std::vector<wxColour> ColorList;
             
             wxPanel* m_panel;
             wxRadioButton* m_floatRadio;
@@ -49,15 +48,18 @@ namespace TrenchBroom {
             ColorTable* m_colorHistory;
         public:
             SmartColorEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            
+            void OnFloatRangeRadioButton(wxCommandEvent& event);
+            void OnByteRangeRadioButton(wxCommandEvent& event);
+            void OnColorPickerChanged(wxColourPickerEvent& event);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
             void doUpdateVisual(const Model::EntityList& entities);
             void updateColorRange(const Model::EntityList& entities);
-            ColorRange detectColorRange(const Model::EntityList& entities) const;
-            ColorRange detectColorRange(const Model::Entity& entity) const;
-            ColorRange combineColorRanges(ColorRange oldRange, ColorRange newRange) const;
-            void updateColorHistory();
+            void updateColorPicker(const wxColor& color);
+            void updateColorHistory(const ColorList& selectedColors);
+            ColorList collectColors(const Model::EntityList& entities) const;
         };
     }
 }

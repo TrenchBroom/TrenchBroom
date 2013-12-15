@@ -32,6 +32,9 @@ Vec<float, 4>(color.r(), color.g(), color.b(), a) {}
 Color::Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) :
 Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
 
+Color::Color(const int r, const int g, const int b, const int a) :
+Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
+
 Color::Color(const std::string& str) :
 Vec<float, 4>(str) {}
 
@@ -49,6 +52,26 @@ float Color::b() const {
 
 float Color::a() const {
     return w();
+}
+
+Color::Range Color::range() const {
+    return detectColorRange(r(), g(), b(), a());
+}
+
+void Color::convertToRange(const Range toRange) {
+    if (range() == toRange)
+        return;
+    
+    switch (toRange) {
+        case Float:
+            for (size_t i = 0; i < 4; ++i)
+                v[i] /= 255.0f;
+            break;
+        case Byte:
+            for (size_t i = 0; i < 4; ++i)
+                v[i] *= 255.0f;
+            break;
+    }
 }
 
 void Color::rgbToHSB(const float r, const float g, const float b, float& h, float& s, float& br) {
@@ -84,8 +107,8 @@ void Color::rgbToHSB(const float r, const float g, const float b, float& h, floa
     }
 }
 
-Color::Range Color::detectColorRange(float r, float g, float b) {
-    if (Math::isInteger(r) && Math::isInteger(g) && Math::isInteger(b))
+Color::Range Color::detectColorRange(const float r, const float g, const float b, const float a) {
+    if (Math::isInteger(r) && Math::isInteger(g) && Math::isInteger(b) && Math::isInteger(a))
         return Byte;
     return Float;
 }

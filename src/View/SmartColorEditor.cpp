@@ -23,7 +23,9 @@
 #include "CollectionUtils.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/ModelUtils.h"
 #include "View/ColorTable.h"
+#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/LayoutConstants.h"
 
@@ -43,6 +45,40 @@ namespace TrenchBroom {
                             static_cast<unsigned char>(color.b()));
         }
 
+        typedef enum {
+            Float,
+            Byte,
+            Mixed
+        } ColorRange;
+
+        ColorRange combineColorRanges(const ColorRange oldRange, const Color::Range newRange) {
+            if (oldRange == newRange)
+                return oldRange;
+            return Mixed;
+        }
+
+        Color::Range detectColorRange(const Model::Entity& entity, const Model::PropertyKey& key) {
+            if (!entity.hasProperty(key))
+                return Color::Byte;
+            const Model::PropertyValue& value = entity.property(key);
+            const Color color(value);
+            if (Color::detectColorRange(color.r(), color.g(), color.b()) == Color::Float)
+                return Color::Float;
+            return Color::Byte;
+        }
+
+        ColorRange detectColorRange(const Model::EntityList& entities, const Model::PropertyKey& key) {
+            assert(!entities.empty());
+            
+            Model::EntityList::const_iterator it = entities.begin();
+            Model::EntityList::const_iterator end = entities.end();
+            
+            ColorRange range = detectColorRange(**it, key) == Color::Float ? Float : Byte;
+            while (++it != end)
+                range = combineColorRanges(range, detectColorRange(**it, key));
+            return range;
+        }
+        
         SmartColorEditor::SmartColorEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
         SmartPropertyEditor(document, controller),
         m_panel(NULL),
@@ -50,6 +86,73 @@ namespace TrenchBroom {
         m_byteRadio(NULL),
         m_colorPicker(NULL),
         m_colorHistory(NULL) {}
+
+        struct ConvertColorRange {
+        private:
+            View::ControllerPtr m_controller;
+            Model::PropertyKey m_key;
+            Color::Range m_toRange;
+        public:
+            ConvertColorRange(View::ControllerPtr controller, const Model::PropertyKey& key, const Color::Range toRange) :
+            m_controller(controller),
+            m_key(key),
+            m_toRange(toRange) {}
+            
+            void operator()(Model::Entity* entity) const {
+                if (entity->hasProperty(m_key)) {
+                    const Model::PropertyValue& value = entity->property(m_key);
+                    Color color(value);
+                    color.convertToRange(m_toRange);
+                    m_controller->setEntityProperty(*entity, m_key, color.asString(3));
+                }
+            }
+        };
+        
+        void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
+            controller()->beginUndoableGroup("Convert " + key() + " Range");
+            const Model::EntityList& entities = SmartPropertyEditor::entities();
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), Color::Float), Model::MatchAll());
+            controller()->closeGroup();
+        }
+        
+        void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
+            controller()->beginUndoableGroup("Convert " + key() + " Range");
+            const Model::EntityList& entities = SmartPropertyEditor::entities();
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), Color::Byte), Model::MatchAll());
+            controller()->closeGroup();
+        }
+        
+        struct SetColor {
+        private:
+            View::ControllerPtr m_controller;
+            Model::PropertyKey m_key;
+            Color m_color;
+        public:
+            SetColor(View::ControllerPtr controller, const Model::PropertyKey& key, const Color& color) :
+            m_controller(controller),
+            m_key(key),
+            m_color(color) {}
+            
+            void operator()(Model::Entity* entity) const {
+                const Color::Range range = detectColorRange(*entity, m_key);
+                Color actualColor(m_color);
+                actualColor.convertToRange(range);
+                m_controller->setEntityProperty(*entity, m_key, actualColor.asString(3));
+            }
+        };
+
+        void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
+            const wxColor wxColor = event.GetColour();
+            const Color color(static_cast<float>(wxColor.Red()),
+                              static_cast<float>(wxColor.Green()),
+                              static_cast<float>(wxColor.Blue()),
+                              255.0f);
+            
+            controller()->beginUndoableGroup("Set " + key());
+            const Model::EntityList& entities = SmartPropertyEditor::entities();
+            Model::each(entities.begin(), entities.end(), SetColor(controller(), key(), color), Model::MatchAll());
+            controller()->closeGroup();
+        }
 
         wxWindow* SmartColorEditor::doCreateVisual(wxWindow* parent) {
             assert(m_panel == NULL);
@@ -81,6 +184,10 @@ namespace TrenchBroom {
             outerSizer->Add(m_colorHistory, 1, wxEXPAND);
             m_panel->SetSizer(outerSizer);
             
+            m_floatRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnFloatRangeRadioButton, this);
+            m_byteRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnByteRangeRadioButton, this);
+            m_colorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &SmartColorEditor::OnColorPickerChanged, this);
+            
             return m_panel;
         }
 
@@ -106,12 +213,17 @@ namespace TrenchBroom {
             assert(m_colorPicker != NULL);
             assert(m_colorHistory != NULL);
             
+            const ColorList usedColors = collectColors(entities);
+            assert(!usedColors.empty());
+            const wxColor pickerColor = usedColors.back();
+
             updateColorRange(entities);
-            updateColorHistory();
+            updateColorPicker(pickerColor);
+            updateColorHistory(usedColors);
         }
 
         void SmartColorEditor::updateColorRange(const Model::EntityList& entities) {
-            const ColorRange range = detectColorRange(entities);
+            const ColorRange range = detectColorRange(entities, key());
             switch (range) {
                 case Float:
                     m_floatRadio->SetValue(true);
@@ -128,34 +240,11 @@ namespace TrenchBroom {
             }
         }
 
-        SmartColorEditor::ColorRange SmartColorEditor::detectColorRange(const Model::EntityList& entities) const {
-            assert(!entities.empty());
-            
-            Model::EntityList::const_iterator it = entities.begin();
-            Model::EntityList::const_iterator end = entities.end();
-            
-            ColorRange range = detectColorRange(**it);
-            while (++it != end)
-                range = combineColorRanges(range, detectColorRange(**it));
-            return range;
+        
+        void SmartColorEditor::updateColorPicker(const wxColor& color) {
+            m_colorPicker->SetColour(color);
         }
-
-        SmartColorEditor::ColorRange SmartColorEditor::combineColorRanges(ColorRange oldRange, ColorRange newRange) const {
-            if (oldRange == newRange)
-                return oldRange;
-            return Mixed;
-        }
-
-        SmartColorEditor::ColorRange SmartColorEditor::detectColorRange(const Model::Entity& entity) const {
-            if (!entity.hasProperty(key()))
-                return Byte;
-            const Model::PropertyValue& value = entity.property(key());
-            const Color color(value);
-            if (Color::detectColorRange(color.r(), color.g(), color.b()) == Color::Float)
-                return Float;
-            return Byte;
-        }
-
+        
         struct ColorCmp {
             bool operator()(const wxColor& lhs, const wxColor& rhs) const {
                 const float lr = lhs.Red() / 255.0f;
@@ -168,7 +257,7 @@ namespace TrenchBroom {
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
                 Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
-
+                
                 if (Math::lt(lh, rh))
                     return true;
                 if (Math::gt(lh, rh))
@@ -182,11 +271,18 @@ namespace TrenchBroom {
                 return false;
             }
         };
-        
-        void SmartColorEditor::updateColorHistory() {
+
+        void SmartColorEditor::updateColorHistory(const ColorList& selectedColors) {
             const Model::EntityList& entities = document()->map()->entities();
             
-            ColorTable::ColorList colors;
+            ColorList allColors = collectColors(entities);
+            VectorUtils::sortAndRemoveDuplicates(allColors, ColorCmp());
+            m_colorHistory->setColors(allColors);
+            m_colorHistory->setSelection(selectedColors);
+        }
+
+        SmartColorEditor::ColorList SmartColorEditor::collectColors(const Model::EntityList& entities) const {
+            ColorList colors;
             Model::EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
@@ -195,9 +291,7 @@ namespace TrenchBroom {
                     colors.push_back(convertColor(color));
                 }
             }
-            
-            VectorUtils::sortAndRemoveDuplicates(colors, ColorCmp());
-            m_colorHistory->setColors(colors);
+            return colors;
         }
     }
 }

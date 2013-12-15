@@ -30,7 +30,7 @@ namespace TrenchBroom {
         ColorTable::ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos, const wxSize& size, long style) :
         wxScrolledWindow(parent, winId, pos, size, (style & ~wxHSCROLL) | wxVSCROLL),
         m_cellSize(cellSize),
-        m_margin(1) {
+        m_margin(2) {
             assert(m_cellSize > 0);
             
             Bind(wxEVT_SIZE, &ColorTable::OnSize, this);
@@ -42,7 +42,13 @@ namespace TrenchBroom {
 
         void ColorTable::setColors(const ColorList& colors) {
             m_colors = colors;
+            m_selectedColors.clear();
             updateVirtualSize();
+        }
+
+        void ColorTable::setSelection(const ColorList& colors) {
+            m_selectedColors = colors;
+            Refresh();
         }
 
         void ColorTable::OnSize(wxSizeEvent& event) {
@@ -72,9 +78,17 @@ namespace TrenchBroom {
                 for (int col = 0; col < cols; ++col) {
                     if (it != m_colors.end()) {
                         const wxColour& col = *it;
+                        
+                        if (std::find(m_selectedColors.begin(), m_selectedColors.end(), col) != m_selectedColors.end()) {
+                            dc.SetPen(*wxRED_PEN);
+                            dc.SetBrush(*wxRED_BRUSH);
+                            dc.DrawRectangle(x-1, y-1, m_cellSize+2, m_cellSize+2);
+                        }
+
                         dc.SetPen(wxPen(col));
                         dc.SetBrush(wxBrush(col));
                         dc.DrawRectangle(x, y, m_cellSize, m_cellSize);
+
                         ++it;
                     }
                     x += m_cellSize + m_margin;

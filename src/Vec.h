@@ -497,20 +497,20 @@ public:
         return absMajorAxis(2);
     }
     
-    void write(std::ostream& str) const {
-        for (size_t i = 0; i < S; ++i) {
+    void write(std::ostream& str, const size_t components = S) const {
+        for (size_t i = 0; i < components; ++i) {
             str << v[i];
-            if (i < S - 1)
+            if (i < components - 1)
                 str << ' ';
         }
     }
     
-    std::string asString() const {
+    std::string asString(const size_t components = S) const {
         StringStream result;
-        write(result);
+        write(result, components);
         return result.str();
     }
-            
+
     Vec<T,S>& makeAbsolute() {
         for (size_t i = 0; i < S; ++i)
             v[i] = std::abs(v[i]);
