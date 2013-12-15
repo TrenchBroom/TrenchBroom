@@ -22,7 +22,6 @@
 
 #include <wx/scrolwin.h>
 
-#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
@@ -36,12 +35,6 @@ namespace TrenchBroom {
             ColorList m_colors;
         public:
             ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_SUNKEN);
-            
-            template <typename Cmp>
-            void setColors(const ColorList& colors, const Cmp& cmp) {
-                setColors(colors);
-                std::sort(m_colors.begin(), m_colors.end(), cmp);
-            }
             
             void setColors(const ColorList& colors);
             

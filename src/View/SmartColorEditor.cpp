@@ -20,6 +20,7 @@
 #include "SmartColorEditor.h"
 
 #include "Color.h"
+#include "CollectionUtils.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "View/ColorTable.h"
@@ -195,7 +196,8 @@ namespace TrenchBroom {
                 }
             }
             
-            m_colorHistory->setColors(colors, ColorCmp());
+            VectorUtils::sortAndRemoveDuplicates(colors, ColorCmp());
+            m_colorHistory->setColors(colors);
         }
     }
 }

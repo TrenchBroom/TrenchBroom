@@ -47,6 +47,19 @@ namespace Utils {
             return m_cmp(*lhs, *rhs);
         }
     };
+    
+    template <typename T, typename Less>
+    struct EqualsUsingLess {
+    private:
+        const Less& m_less;
+    public:
+        EqualsUsingLess(const Less& less) :
+        m_less(less) {}
+        
+        bool operator()(const T& lhs, const T& rhs) const {
+            return !m_less(lhs, rhs) && !m_less(rhs, lhs);
+        }
+    };
 }
 
 namespace ListUtils {
@@ -222,6 +235,13 @@ namespace VectorUtils {
     void sortAndRemoveDuplicates(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end());
         typename std::vector<T>::iterator it = std::unique(vec.begin(), vec.end());
+        vec.erase(it, vec.end());
+    }
+    
+    template <typename T, class Cmp>
+    void sortAndRemoveDuplicates(std::vector<T>& vec, const Cmp& cmp) {
+        std::sort(vec.begin(), vec.end(), cmp);
+        typename std::vector<T>::iterator it = std::unique(vec.begin(), vec.end(), Utils::EqualsUsingLess<T, Cmp>(cmp));
         vec.erase(it, vec.end());
     }
     
