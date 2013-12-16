@@ -36,17 +36,7 @@ public:
     float b() const;
     float a() const;
     
-    typedef enum {
-        Float,
-        Byte
-    } Range;
-
-    Range range() const;
-    void convertToRange(Range toRange);
-    
     static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
-    
-    static Range detectColorRange(float r, float g, float b, float a = 0.0f);
 };
 
 #endif

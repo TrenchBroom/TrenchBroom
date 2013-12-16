@@ -19,6 +19,8 @@
 
 #include "ColorTable.h"
 
+#include "View/ColorTableSelectedCommand.h"
+
 #include <wx/dcclient.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -99,6 +101,23 @@ namespace TrenchBroom {
         }
         
         void ColorTable::OnMouseUp(wxMouseEvent& event) {
+            const wxSize virtualSize = GetVirtualSize();
+            const int cols = computeCols(virtualSize.x);
+
+            const wxPoint pos = CalcScrolledPosition(event.GetPosition());
+            const int col = (pos.x - m_margin) / (m_cellSize + m_margin);
+            const int row = (pos.y - m_margin) / (m_cellSize + m_margin);
+            
+            const size_t index = static_cast<size_t>(row * cols + col);
+            if (index < m_colors.size()) {
+                const wxColor& color = m_colors[index];
+
+                ColorTableSelectedCommand command;
+                command.setColor(color);
+                command.SetEventObject(this);
+                command.SetId(GetId());
+                ProcessEvent(command);
+            }
         }
 
         void ColorTable::updateVirtualSize() {

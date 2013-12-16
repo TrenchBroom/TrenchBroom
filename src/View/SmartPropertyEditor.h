@@ -23,11 +23,13 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <wx/event.h>
+
 class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class SmartPropertyEditor {
+        class SmartPropertyEditor : public wxEvtHandler {
         private:
             View::MapDocumentPtr m_document;
             View::ControllerPtr m_controller;

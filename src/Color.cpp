@@ -54,26 +54,6 @@ float Color::a() const {
     return w();
 }
 
-Color::Range Color::range() const {
-    return detectColorRange(r(), g(), b(), a());
-}
-
-void Color::convertToRange(const Range toRange) {
-    if (range() == toRange)
-        return;
-    
-    switch (toRange) {
-        case Float:
-            for (size_t i = 0; i < 4; ++i)
-                v[i] /= 255.0f;
-            break;
-        case Byte:
-            for (size_t i = 0; i < 4; ++i)
-                v[i] *= 255.0f;
-            break;
-    }
-}
-
 void Color::rgbToHSB(const float r, const float g, const float b, float& h, float& s, float& br) {
     assert(r >= 0.0f && r <= 1.0f);
     assert(g >= 0.0f && g <= 1.0f);
@@ -107,8 +87,3 @@ void Color::rgbToHSB(const float r, const float g, const float b, float& h, floa
     }
 }
 
-Color::Range Color::detectColorRange(const float r, const float g, const float b, const float a) {
-    if (Math::isInteger(r) && Math::isInteger(g) && Math::isInteger(b) && Math::isInteger(a))
-        return Byte;
-    return Float;
-}
