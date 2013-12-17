@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
         const StringList EntityPropertyGridTable::RowManager::keys(const size_t rowIndex, const size_t count) const {
-            assert(rowIndex + count < propertyCount());
+            assert(rowIndex + count <= propertyCount());
             
             StringList result(count);
             for (size_t i = 0; i < count; ++i)
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
-            assert(rowIndex + count < propertyCount());
+            assert(rowIndex + count <= propertyCount());
             
             PropertyRow::List::iterator first = m_propertyRows.begin();
             PropertyRow::List::iterator last = first;
@@ -417,6 +417,9 @@ namespace TrenchBroom {
         }
         
         bool EntityPropertyGridTable::DeleteRows(const size_t pos, const size_t numRows) {
+            // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
+            // of default properties...
+            
             assert(pos >= 0 && pos + numRows <= m_rows.propertyCount());
             
             const Model::EntityList entities = m_document->allSelectedEntities();

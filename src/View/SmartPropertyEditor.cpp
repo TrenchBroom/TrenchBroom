@@ -46,7 +46,8 @@ namespace TrenchBroom {
         }
         
         void SmartPropertyEditor::update(const Model::EntityList& entities) {
-            updateVisual(entities);
+            m_entities = entities;
+            updateVisual(m_entities);
         }
 
         void SmartPropertyEditor::deactivate() {
@@ -71,8 +72,8 @@ namespace TrenchBroom {
             return m_key;
         }
 
-        const Model::EntityList& SmartPropertyEditor::entities() const {
-            return m_document->selectedEntities();
+        const Model::EntityList SmartPropertyEditor::entities() const {
+            return m_entities;
         }
 
         void SmartPropertyEditor::addOrUpdateProperty(const Model::PropertyValue& value) {

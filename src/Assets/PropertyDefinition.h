@@ -50,8 +50,11 @@ namespace TrenchBroom {
             const String& name() const;
             Type type() const;
             const String& description() const;
+            bool equals(const PropertyDefinition* other) const;
             
             static String defaultValue(const PropertyDefinition& definition);
+        private:
+            virtual bool doEquals(const PropertyDefinition* other) const;
         };
         
         template <typename T>
@@ -106,6 +109,7 @@ namespace TrenchBroom {
             String m_description;
         public:
             ChoicePropertyOption(const String& value, const String& description);
+            bool operator==(const ChoicePropertyOption& other) const;
             const String& value() const;
             const String& description() const;
         };
@@ -117,6 +121,8 @@ namespace TrenchBroom {
             ChoicePropertyDefinition(const String& name, const String& description, const ChoicePropertyOption::List options, const size_t defaultValue);
             ChoicePropertyDefinition(const String& name, const String& description, const ChoicePropertyOption::List options);
             const ChoicePropertyOption::List& options() const;
+        private:
+            bool doEquals(const PropertyDefinition* other) const;
         };
         
         class FlagsPropertyOption {
@@ -128,6 +134,7 @@ namespace TrenchBroom {
             bool m_isDefault;
         public:
             FlagsPropertyOption(const int value, const String& description, const bool isDefault);
+            bool operator==(const FlagsPropertyOption& other) const;
             int value() const;
             const String& description() const;
             bool isDefault() const;
@@ -144,6 +151,8 @@ namespace TrenchBroom {
             const FlagsPropertyOption::List& options() const;
             const FlagsPropertyOption* option(const int value) const;
             void addOption(const int value, const String& description, const bool isDefault);
+        private:
+            bool doEquals(const PropertyDefinition* other) const;
         };
     }
 }

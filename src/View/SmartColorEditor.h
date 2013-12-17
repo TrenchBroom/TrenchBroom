@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/ViewTypes.h"
 
@@ -123,6 +124,7 @@ namespace TrenchBroom {
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
             void doUpdateVisual(const Model::EntityList& entities);
+
             void updateColorRange(const Model::EntityList& entities);
             void updateColorPicker(const wxColor& color);
             void updateColorHistory(const wxColorList& selectedColors);

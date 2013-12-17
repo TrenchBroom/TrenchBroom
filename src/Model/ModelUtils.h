@@ -34,6 +34,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinition;
+        class PropertyDefinition;
     }
     
     namespace Model {
@@ -42,6 +43,8 @@ namespace TrenchBroom {
         class Map;
         
         Assets::EntityDefinition* selectEntityDefinition(const Model::EntityList& entities);
+        const Assets::PropertyDefinition* selectPropertyDefinition(const Model::PropertyKey& key, const Model::EntityList& entities);
+        Model::PropertyValue selectPropertyValue(const Model::PropertyKey& key, const Model::EntityList& entities);
         
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         

@@ -42,6 +42,19 @@ namespace TrenchBroom {
             return m_description;
         }
 
+        bool PropertyDefinition::equals(const PropertyDefinition* other) const {
+            assert(other != NULL);
+            if (type() != other->type())
+                return false;
+            if (name() != other->name())
+                return false;
+            return doEquals(other);
+        }
+
+        bool PropertyDefinition::doEquals(const PropertyDefinition* other) const {
+            return true;
+        }
+
         String PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
             switch (definition.type()) {
                 case StringProperty: {
@@ -107,6 +120,10 @@ namespace TrenchBroom {
         m_value(value),
         m_description(description) {}
         
+        bool ChoicePropertyOption::operator==(const ChoicePropertyOption& other) const {
+            return m_value == other.m_value && m_description == other.m_description;
+        }
+        
         const String& ChoicePropertyOption::value() const {
             return m_value;
         }
@@ -127,10 +144,18 @@ namespace TrenchBroom {
             return m_options;
         }
 
+        bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const {
+            return options() == static_cast<const ChoicePropertyDefinition*>(other)->options();
+        }
+
         FlagsPropertyOption::FlagsPropertyOption(const int value, const String& description, const bool isDefault) :
         m_value(value),
         m_description(description),
         m_isDefault(isDefault) {}
+        
+        bool FlagsPropertyOption::operator==(const FlagsPropertyOption& other) const {
+            return m_value == other.m_value && m_description == other.m_description && m_isDefault == other.m_isDefault;
+        }
         
         int FlagsPropertyOption::value() const {
             return m_value;
@@ -179,6 +204,10 @@ namespace TrenchBroom {
 
         void FlagsPropertyDefinition::addOption(const int value, const String& description, const bool isDefault) {
             m_options.push_back(FlagsPropertyOption(value, description, isDefault));
+        }
+
+        bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const {
+            return options() == static_cast<const FlagsPropertyDefinition*>(other)->options();
         }
     }
 }

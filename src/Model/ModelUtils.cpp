@@ -19,6 +19,8 @@
 
 #include "ModelUtils.h"
 
+#include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/Map.h"
 #include "Model/Entity.h"
 #include "Model/BrushFace.h"
@@ -41,6 +43,63 @@ namespace TrenchBroom {
             }
             
             return definition;
+        }
+
+        const Assets::PropertyDefinition* safeGetPropertyDefinition(const Model::PropertyKey& key, const Model::Entity* entity) {
+            const Assets::EntityDefinition* definition = entity->definition();
+            if (definition == NULL)
+                return NULL;
+            
+            const Assets::PropertyDefinition* propDefinition = definition->propertyDefinition(key);
+            if (propDefinition == NULL)
+                return NULL;
+
+            return propDefinition;
+        }
+        
+        const Assets::PropertyDefinition* selectPropertyDefinition(const Model::PropertyKey& key, const Model::EntityList& entities) {
+            Model::EntityList::const_iterator it = entities.begin();
+            Model::EntityList::const_iterator end = entities.end();
+            if (it == end)
+                return NULL;
+            
+            const Model::Entity* entity = *it;
+            const Assets::PropertyDefinition* definition = safeGetPropertyDefinition(key, entity);
+            if (definition == NULL)
+                return NULL;
+            
+            while (++it != end) {
+                entity = *it;
+                const Assets::PropertyDefinition* currentDefinition = safeGetPropertyDefinition(key, entity);
+                if (currentDefinition == NULL)
+                    return NULL;
+                
+                if (!definition->equals(currentDefinition))
+                    return NULL;
+            }
+            
+            return definition;
+        }
+
+        Model::PropertyValue selectPropertyValue(const Model::PropertyKey& key, const Model::EntityList& entities) {
+            Model::EntityList::const_iterator it = entities.begin();
+            Model::EntityList::const_iterator end = entities.end();
+            if (it == end)
+                return "";
+            
+            const Model::Entity* entity = *it;
+            if (!entity->hasProperty(key))
+                return "";
+            
+            const Model::PropertyValue& value = entity->property(key);
+            while (++it != end) {
+                entity = *it;
+                if (!entity->hasProperty(key))
+                    return "";
+                if (value != entity->property(key))
+                    return "";
+            }
+            return value;
         }
 
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName) {

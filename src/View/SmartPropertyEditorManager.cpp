@@ -21,6 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "View/MapDocument.h"
+#include "View/SmartChoiceEditor.h"
+#include "View/SmartChoiceEditorMatcher.h"
 #include "View/SmartColorEditor.h"
 #include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartPropertyEditor.h"
@@ -58,6 +60,8 @@ namespace TrenchBroom {
                                                   EditorPtr(new SmartSpawnflagsEditor(document, controller))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("_color", "_sunlight_color", "_sunlight_color2")),
                                                   EditorPtr(new SmartColorEditor(document, controller))));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
+                                                  EditorPtr(new SmartChoiceEditor(document, controller))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
                                                   EditorPtr(new SmartDefaultPropertyEditor(document, controller))));
         }
