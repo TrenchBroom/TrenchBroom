@@ -25,6 +25,8 @@
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class GameConfig {
@@ -53,6 +55,23 @@ namespace TrenchBroom {
                 EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
             };
+            
+            struct FlagConfig {
+                String name;
+                String description;
+                
+                FlagConfig(const String& i_name, const String& i_description);
+            };
+            
+            typedef std::vector<FlagConfig> FlagConfigList;
+            
+            struct FaceAttribsConfig {
+                FlagConfigList surfaceFlags;
+                FlagConfigList contentFlags;
+                
+                FaceAttribsConfig();
+                FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags);
+            };
         private:
             String m_name;
             IO::Path m_path;
@@ -61,9 +80,10 @@ namespace TrenchBroom {
             FileSystemConfig m_fileSystemConfig;
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
+            FaceAttribsConfig m_faceAttribsConfig;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig);
+            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig);
             
             const String& name() const;
             const IO::Path& path() const;
@@ -72,6 +92,7 @@ namespace TrenchBroom {
             const FileSystemConfig& fileSystemConfig() const;
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
+            const FaceAttribsConfig& faceAttribsConfig() const;
             const IO::Path findConfigFile(const IO::Path& filePath) const;
         };
     }

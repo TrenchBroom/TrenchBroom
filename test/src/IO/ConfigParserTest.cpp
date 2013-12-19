@@ -158,6 +158,36 @@ namespace TrenchBroom {
             ASSERT_EQ(String("third"), static_cast<const String&>(nested["third"]));
         }
         
+        
+        TEST(GameConfigParserTest, testParseTablesNestedInList) {
+            const String config = "  { {first = \"first\", second=\"second\"}, {third=\"third\", fourth = \"fourth\"} } ";
+            
+            ConfigParser parser(config);
+            const ConfigEntry::Ptr entry = parser.parse();
+            
+            ASSERT_TRUE(entry != NULL);
+            ASSERT_TRUE(entry->type() == ConfigEntry::TList);
+            
+            const ConfigList& list = *entry;
+            ASSERT_EQ(2u, list.count());
+            ASSERT_TRUE(ConfigEntry::TTable == list[0].type());
+            ASSERT_TRUE(ConfigEntry::TTable == list[1].type());
+            
+            const ConfigTable& nested1 = list[0];
+            ASSERT_EQ(2u, nested1.count());
+            ASSERT_TRUE(ConfigEntry::TValue == nested1["first"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested1["second"].type());
+            ASSERT_EQ(String("first"), static_cast<const String&>(nested1["first"]));
+            ASSERT_EQ(String("second"), static_cast<const String&>(nested1["second"]));
+            
+            const ConfigTable& nested2 = list[1];
+            ASSERT_EQ(2u, nested2.count());
+            ASSERT_TRUE(ConfigEntry::TValue == nested2["third"].type());
+            ASSERT_TRUE(ConfigEntry::TValue == nested2["fourth"].type());
+            ASSERT_EQ(String("third"), static_cast<const String&>(nested2["third"]));
+            ASSERT_EQ(String("fourth"), static_cast<const String&>(nested2["fourth"]));
+        }
+
         TEST(ConfigParserTest, testParseListNestedInTable) {
             const String config = "  { first = \"firstValue\", second=\"secondValue\", third = {\"fourth\",\"fifth\"} } ";
             

@@ -47,6 +47,16 @@ namespace TrenchBroom {
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
 
+        GameConfig::FlagConfig::FlagConfig(const String& i_name, const String& i_description) :
+        name(i_name),
+        description(i_description) {}
+
+        GameConfig::FaceAttribsConfig::FaceAttribsConfig() {}
+
+        GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :
+        surfaceFlags(i_surfaceFlags),
+        contentFlags(i_contentFlags) {}
+
         GameConfig::GameConfig() :
         m_path(IO::Path("")),
         m_icon(IO::Path("")),
@@ -54,14 +64,15 @@ namespace TrenchBroom {
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 
-        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig) :
+        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig) :
         m_name(name),
         m_path(path),
         m_icon(icon),
         m_fileFormats(fileFormats),
         m_fileSystemConfig(fileSystemConfig),
         m_textureConfig(textureConfig),
-        m_entityConfig(entityConfig) {
+        m_entityConfig(entityConfig),
+        m_faceAttribsConfig(faceAttribsConfig) {
             assert(!StringUtils::trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -92,6 +103,10 @@ namespace TrenchBroom {
         
         const GameConfig::EntityConfig& GameConfig::entityConfig() const {
             return m_entityConfig;
+        }
+
+        const GameConfig::FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
+            return m_faceAttribsConfig;
         }
 
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {

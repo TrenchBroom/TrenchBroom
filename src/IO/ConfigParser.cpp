@@ -116,7 +116,7 @@ namespace TrenchBroom {
             }
             
             const Token secondToken = m_tokenizer.nextToken();
-            expect(ConfigToken::Identifier | ConfigToken::String | ConfigToken::CBrace, secondToken);
+            expect(ConfigToken::Identifier | ConfigToken::String | ConfigToken::OBrace | ConfigToken::CBrace, secondToken);
 
             const ConfigEntry::Type entryType = secondToken.type() == ConfigToken::Identifier ? ConfigEntry::TTable : ConfigEntry::TList;
             

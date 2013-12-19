@@ -62,7 +62,13 @@ namespace TrenchBroom {
             expectTableEntry("entities", ConfigEntry::TTable, rootTable);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
             
-            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig);
+            GameConfig::FaceAttribsConfig faceAttribsConfig;
+            if (rootTable.contains("faceattribs")) {
+                expectTableEntry("faceattribs", ConfigEntry::TTable, rootTable);
+                faceAttribsConfig = parseFaceAttribsConfig(rootTable["faceattribs"]);
+            }
+            
+            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig);
         }
 
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
@@ -125,6 +131,48 @@ namespace TrenchBroom {
             const Color defaultColor(table["defaultcolor"]);
             
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
+        }
+
+        Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            GameConfig::FlagConfigList surfaceFlags;
+            if (table.contains("surfaceflags")) {
+                expectTableEntry("surfaceflags", ConfigEntry::TList, table);
+                surfaceFlags = parseFlagConfig(table["surfaceflags"]);
+            }
+            
+            GameConfig::FlagConfigList contentFlags;
+            if (table.contains("contentflags")) {
+                expectTableEntry("contentflags", ConfigEntry::TList, table);
+                contentFlags = parseFlagConfig(table["contentflags"]);
+            }
+            
+            return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
+        }
+        
+        Model::GameConfig::FlagConfigList GameConfigParser::parseFlagConfig(const ConfigList& list) const {
+            using Model::GameConfig;
+            
+            GameConfig::FlagConfigList flags;
+            for (size_t i = 0; i < list.count(); ++i) {
+                const ConfigEntry& entry = list[i];
+                expectEntry(ConfigEntry::TTable, entry);
+                const ConfigTable& table = static_cast<const ConfigTable&>(entry);
+                
+                expectTableEntry("name", ConfigEntry::TValue, table);
+                const String name = table["name"];
+                
+                String description;
+                if (table.contains("description")) {
+                    expectTableEntry("description", ConfigEntry::TValue, table);
+                    description = table["description"];
+                }
+                
+                flags.push_back(GameConfig::FlagConfig(name, description));
+            }
+            
+            return flags;
         }
 
         StringSet GameConfigParser::parseSet(const ConfigList& list) const {

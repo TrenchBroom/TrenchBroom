@@ -41,23 +41,23 @@ namespace TrenchBroom {
         
         TEST(GameConfigParserTest, parseQuakeConfig) {
             const String config("{\n"
-                             "  name=\"Quake\",\n"
-                             "  fileformats={\"Quake 1\",\"Valve\"},\n"
-                             "  filesystem={\n"
-                             "    searchpath=\"id1\",\n"
-                             "    packageformat=\"pak\"\n"
-                             "  },\n"
-                             "  textures={\n"
-                             "    type=\"wad\",\n"
-                             "    property=\"wad\",\n"
-                             "    palette=\"palette.lmp\"\n"
-                             "  },\n"
-                             "  entities={\n"
-                             "    definitions={ \"Quake1.fgd\", \"Quoth2.fgd\" },\n"
-                             "    defaultcolor=\"1.0 1.0 1.0 1.0\",\n"
-                             "    modelformats={\"bsp\", \"mdl\"}\n"
-                             "  }\n"
-                             "}\n");
+                                "  name=\"Quake\",\n"
+                                "  fileformats={\"Quake 1\",\"Valve\"},\n"
+                                "  filesystem={\n"
+                                "    searchpath=\"id1\",\n"
+                                "    packageformat=\"pak\"\n"
+                                "  },\n"
+                                "  textures={\n"
+                                "    type=\"wad\",\n"
+                                "    property=\"wad\",\n"
+                                "    palette=\"palette.lmp\"\n"
+                                "  },\n"
+                                "  entities={\n"
+                                "    definitions={ \"Quake1.fgd\", \"Quoth2.fgd\" },\n"
+                                "    defaultcolor=\"1.0 1.0 1.0 1.0\",\n"
+                                "    modelformats={\"bsp\", \"mdl\"}\n"
+                                "  }\n"
+                                "}\n");
             GameConfigParser parser(config);
             
             const Model::GameConfig gameConfig = parser.parse();
@@ -77,6 +77,80 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("bsp"));
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("mdl"));
             ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
+        }
+
+        TEST(GameConfigParserTest, parseQuake2Config) {
+            const String config("{\n"
+                                "	name = \"Quake 2\",\n"
+                                "	icon = \"Quake2/Icon.png\",\n"
+                                " 	fileformats = { \"Quake2\" },\n"
+                                "	filesystem = {\n"
+                                "		searchpath = \"baseq2\",\n"
+                                "		packageformat = \"pak\"\n"
+                                "	},\n"
+                                "	textures = {\n"
+                                "		type = \"wal\",\n"
+                                "    	property = \"_wal\",\n"
+                                "		palette = \"Quake2/colormap.pcx\",\n"
+                                "		builtin = \"textures\"\n"
+                                "	},\n"
+                                "  	entities = {\n"
+                                "		definitions = \"Quake2/Quake2.fgd\",\n"
+                                "    	defaultcolor = \"1.0 1.0 1.0 1.0\",\n"
+                                "		modelformats = { \"md2\" }\n"
+                                "    },\n"
+                                "    faceattribs = {\n"
+                                "        surfaceflags = {\n"
+                                "            {\n"
+                                "                name = \"light\",\n"
+                                "                description = \"Emit light from the surface, brightness is specified in the 'value' field\"\n"
+                                "            },\n"
+                                "            {\n"
+                                "                name = \"slick\",\n"
+                                "                description = \"The surface is slippery\"\n"
+                                "            }\n"
+                                "        },\n"
+                                "        contentflags = {\n"
+                                "            {\n"
+                                "                name = \"solid\",\n"
+                                "                description = \"Default for all brushes\"\n"
+                                "            },\n"
+                                "            {\n"
+                                "                name = \"window\",\n"
+                                "                description = \"Brush is a window (not really used)\"\n"
+                                "            }\n"
+                                "        }\n"
+                                "    }\n"
+                                "}\n");
+            GameConfigParser parser(config);
+            
+            const Model::GameConfig gameConfig = parser.parse();
+            ASSERT_EQ(String("Quake 2"), gameConfig.name());
+            ASSERT_EQ(Path("Quake2/Icon.png"), gameConfig.icon());
+            ASSERT_EQ(1u, gameConfig.fileFormats().size());
+            ASSERT_EQ(1u, gameConfig.fileFormats().count("Quake2"));
+            ASSERT_EQ(Path("baseq2"), gameConfig.fileSystemConfig().searchPath);
+            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
+            ASSERT_EQ(String("wal"), gameConfig.textureConfig().type);
+            ASSERT_EQ(String("_wal"), gameConfig.textureConfig().property);
+            ASSERT_EQ(Path("Quake2/colormap.pcx"), gameConfig.textureConfig().palette);
+            ASSERT_EQ(Path("textures"), gameConfig.textureConfig().builtinTexturesSearchPath);
+            ASSERT_EQ(Path("Quake2/Quake2.fgd"), gameConfig.entityConfig().defFilePaths[0]);
+            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.size());
+            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("md2"));
+            ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
+            
+            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().surfaceFlags.size());
+            ASSERT_EQ(String("light"), gameConfig.faceAttribsConfig().surfaceFlags[0].name);
+            ASSERT_EQ(String("Emit light from the surface, brightness is specified in the 'value' field"), gameConfig.faceAttribsConfig().surfaceFlags[0].description);
+            ASSERT_EQ(String("slick"), gameConfig.faceAttribsConfig().surfaceFlags[1].name);
+            ASSERT_EQ(String("The surface is slippery"), gameConfig.faceAttribsConfig().surfaceFlags[1].description);
+
+            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().contentFlags.size());
+            ASSERT_EQ(String("solid"), gameConfig.faceAttribsConfig().contentFlags[0].name);
+            ASSERT_EQ(String("Default for all brushes"), gameConfig.faceAttribsConfig().contentFlags[0].description);
+            ASSERT_EQ(String("window"), gameConfig.faceAttribsConfig().contentFlags[1].name);
+            ASSERT_EQ(String("Brush is a window (not really used)"), gameConfig.faceAttribsConfig().contentFlags[1].description);
         }
     }
 }

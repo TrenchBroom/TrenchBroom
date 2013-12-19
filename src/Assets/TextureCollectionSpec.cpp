@@ -25,9 +25,7 @@ namespace TrenchBroom {
     namespace Assets {
         TextureCollectionSpec::TextureCollectionSpec(const String& name, const IO::Path& path) :
         m_name(name),
-        m_path(path) {
-            assert(!path.isEmpty());
-        }
+        m_path(path) {}
         
         bool TextureCollectionSpec::operator==(const TextureCollectionSpec& rhs) const {
             return m_name == rhs.m_name && m_path == rhs.m_path;
