@@ -83,6 +83,9 @@ namespace TrenchBroom {
             
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const Map* map) const;
+            
+            const GameConfig::FlagConfigList& doSurfaceFlags() const;
+            const GameConfig::FlagConfigList& doContentFlags() const;
         };
     }
 }

@@ -36,42 +36,32 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class FlagsEditor;
+        class FlagChangedCommand;
+        
         class SmartSpawnflagsEditor : public SmartPropertyEditor {
         private:
-            typedef enum {
-                Unset,
-                On,
-                Off,
-                Mixed
-            } FlagValue;
-            
-            typedef std::vector<FlagValue> FlagList;
-            typedef std::vector<wxCheckBox*> CheckBoxList;
-            
             static const size_t NumFlags = 24;
             static const size_t NumCols = 3;
             
             wxScrolledWindow* m_scrolledWindow;
-            CheckBoxList m_flags;
             wxPoint m_lastScrollPos;
+            FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
             SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
             
-            void OnCheckBoxClicked(wxCommandEvent& event);
+            void OnFlagChanged(FlagChangedCommand& event);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
             void doUpdateVisual(const Model::EntityList& entities);
             void resetScrollPos();
             
-            FlagList getFlagValuesFromEntities(const Model::EntityList& entities) const;
-            bool isFlagSetOnEntity(const Model::Entity& entity, size_t index) const;
-            void setFlagValue(const Model::Entity& entity, FlagList& flags) const;
-            void setFlagCheckBox(const size_t index, const FlagList& flags, const Assets::EntityDefinition* definition);
-            void getColorAndLabelForFlag(const size_t flag, const Assets::EntityDefinition* definition, wxColour& colour, wxString& label) const;
-            
-            int getFlagFromEvent(wxCommandEvent& event) const;
+            void getFlagsFromEntities(const Model::EntityList& entities, wxArrayString& labels) const;
+            void getFlagValuesFromEntities(const Model::EntityList& entities, int& setFlags, int& mixedFlags) const;
+            int getFlagValueFromEntity(const Model::Entity& entity) const;
+            void combineFlags(int newFlagValue, int& setFlags, int& mixedFlags) const;
         };
     }
 }

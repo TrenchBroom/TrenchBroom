@@ -68,6 +68,9 @@ namespace TrenchBroom {
             
             StringList availableMods() const;
             StringList extractEnabledMods(const Map* map) const;
+            
+            const GameConfig::FlagConfigList& surfaceFlags() const;
+            const GameConfig::FlagConfigList& contentFlags() const;
         private:
             virtual const String& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -96,6 +99,9 @@ namespace TrenchBroom {
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const Map* map) const = 0;
+
+            virtual const GameConfig::FlagConfigList& doSurfaceFlags() const = 0;
+            virtual const GameConfig::FlagConfigList& doContentFlags() const = 0;
         };
     }
 }

@@ -110,10 +110,10 @@ namespace TrenchBroom {
                     shader.set("Brightness", prefs.get(Preferences::Brightness));
                     shader.set("GrayScale", m_texture->overridden());
                     
+                    Renderer::Vbo vbo(0xFF);
                     Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
                     m_texture->activate();
 
-                    Renderer::Vbo vbo(0xFF);
                     Renderer::SetVboState setVboState(vbo);
                     setVboState.mapped();
                     vertexArray.prepare(vbo);

@@ -21,7 +21,10 @@
 
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
+#include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "View/ControllerFacade.h"
+#include "View/FlagsPopupEditor.h"
 #include "View/Grid.h"
 #include "View/LayoutConstants.h"
 #include "View/MapDocument.h"
@@ -140,14 +143,24 @@ namespace TrenchBroom {
             faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
             faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
             
-            wxSizer* faceEditorSizer = new wxBoxSizer(wxHORIZONTAL);
-            faceEditorSizer->Add(textureViewSizer);
-            faceEditorSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            faceEditorSizer->Add(faceAttribsSizer, 1, wxEXPAND);
+            wxSizer* standardAttribsSizer = new wxBoxSizer(wxHORIZONTAL);
+            standardAttribsSizer->Add(textureViewSizer);
+            standardAttribsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            standardAttribsSizer->Add(faceAttribsSizer, 1, wxEXPAND);
             
-            SetSizer(faceEditorSizer);
+            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
+            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            
+            wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
+            editorSizer->Add(standardAttribsSizer, 0, wxEXPAND);
+            editorSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            editorSizer->Add(m_surfaceFlagsEditor, 0, wxEXPAND);
+            editorSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            editorSizer->Add(m_contentFlagsEditor, 0, wxEXPAND);
+            
+            SetSizer(editorSizer);
         }
-        
+
         void FaceAttribsEditor::bindEvents() {
             m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
@@ -207,6 +220,12 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::updateControls() {
+            wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
+            getSurfaceFlags(surfaceFlagLabels, surfaceFlagTooltips);
+            getContentFlags(contentFlagLabels, contentFlagTooltips);
+            m_surfaceFlagsEditor->setFlags(surfaceFlagLabels, surfaceFlagTooltips);
+            m_contentFlagsEditor->setFlags(contentFlagLabels, contentFlagTooltips);
+            
             if (!m_faces.empty()) {
                 bool textureMulti = false;
                 bool xOffsetMulti = false;
@@ -296,6 +315,28 @@ namespace TrenchBroom {
                 m_textureNameLabel->SetLabel("n/a");
             }
             Layout();
+        }
+
+        
+        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
+            Model::GameConfig::FlagConfigList::const_iterator it, end;
+            for (it = flags.begin(), end = flags.end(); it != end; ++it) {
+                const Model::GameConfig::FlagConfig& flag = *it;
+                names.push_back(flag.name);
+                descriptions.push_back(flag.description);
+            }
+        }
+        
+        void FaceAttribsEditor::getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const {
+            const Model::GamePtr game = m_document->game();
+            const Model::GameConfig::FlagConfigList& surfaceFlags = game->surfaceFlags();
+            getFlags(surfaceFlags, names, descriptions);
+        }
+        
+        void FaceAttribsEditor::getContentFlags(wxArrayString& names, wxArrayString& descriptions) const {
+            const Model::GamePtr game = m_document->game();
+            const Model::GameConfig::FlagConfigList& contentFlags = game->contentFlags();
+            getFlags(contentFlags, names, descriptions);
         }
     }
 }

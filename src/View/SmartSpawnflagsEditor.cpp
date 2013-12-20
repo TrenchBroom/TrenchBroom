@@ -24,9 +24,10 @@
 #include "Model/Entity.h"
 #include "Model/ModelUtils.h"
 #include "View/ControllerFacade.h"
+#include "View/FlagChangedCommand.h"
+#include "View/FlagsEditor.h"
 #include "View/ViewUtils.h"
 
-#include <wx/checkbox.h>
 #include <wx/settings.h>
 #include <wx/scrolwin.h>
 #include <wx/sizer.h>
@@ -39,10 +40,10 @@ namespace TrenchBroom {
         private:
             ControllerPtr m_controller;
             const Model::PropertyKey& m_key;
-            int m_flagIndex;
+            size_t m_flagIndex;
             bool m_setFlag;
         public:
-            UpdateSpawnflag(ControllerPtr controller, const Model::PropertyKey& key, const int flagIndex, const bool setFlag) :
+            UpdateSpawnflag(ControllerPtr controller, const Model::PropertyKey& key, const size_t flagIndex, const bool setFlag) :
             m_controller(controller),
             m_key(key),
             m_flagIndex(flagIndex),
@@ -55,11 +56,12 @@ namespace TrenchBroom {
             
             Model::PropertyValue propertyValue(Model::Entity* entity) const {
                 int intValue = entity->hasProperty(m_key) ? std::atoi(entity->property(m_key).c_str()) : 0;
+                const int flagValue = (1 << m_flagIndex);
                 
                 if (m_setFlag)
-                    intValue |= m_flagIndex;
+                    intValue |= flagValue;
                 else
-                    intValue &= ~m_flagIndex;
+                    intValue &= ~flagValue;
                 
                 StringStream str;
                 str << intValue;
@@ -72,20 +74,19 @@ namespace TrenchBroom {
         m_scrolledWindow(NULL),
         m_ignoreUpdates(false) {}
 
-        void SmartSpawnflagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
+        void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
             const Model::EntityList& updateEntities = entities();
             if (updateEntities.empty())
                 return;
-            
-            const int flag = getFlagFromEvent(event);
-            if (flag == 0)
-                return;
+
+            const size_t index = event.index();
+            const bool set = event.flagSet();
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
             
             controller()->beginUndoableGroup("Set Spawnflags");
             Model::each(updateEntities.begin(), updateEntities.end(),
-                        UpdateSpawnflag(controller(), key(), flag, event.IsChecked()),
+                        UpdateSpawnflag(controller(), key(), index, set),
                         Model::MatchAll());
             controller()->closeGroup();
         }
@@ -96,22 +97,12 @@ namespace TrenchBroom {
             m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN));
             m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
-            const size_t numRows = NumFlags / NumCols;
-            wxFlexGridSizer* sizer = new wxFlexGridSizer(static_cast<int>(numRows),
-                                                         static_cast<int>(NumCols),
-                                                         0, 0);
-            m_flags = CheckBoxList(NumFlags, NULL);
-            for (size_t row = 0; row < numRows; ++row) {
-                for (size_t col = 0; col < NumCols; ++col) {
-                    const size_t index = col * numRows + row;
-                    m_flags[index] = new wxCheckBox(m_scrolledWindow, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-                    m_flags[index]->Bind(wxEVT_COMMAND_CHECKBOX_CLICKED, &SmartSpawnflagsEditor::OnCheckBoxClicked, this);
-                    sizer->Add(m_flags[index]);
-                }
-            }
+            m_flagsEditor = new FlagsEditor(m_scrolledWindow, NumCols);
+            m_flagsEditor->Bind(EVT_FLAG_CHANGED_EVENT, EVT_FLAG_CHANGED_HANDLER(SmartSpawnflagsEditor::OnFlagChanged), this);
             
+            wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_flagsEditor, 1, wxEXPAND);
             m_scrolledWindow->SetSizerAndFit(sizer);
-            m_scrolledWindow->SetScrollRate(1, m_flags[0]->GetSize().y);
             
             return m_scrolledWindow;
         }
@@ -121,7 +112,7 @@ namespace TrenchBroom {
             m_lastScrollPos = m_scrolledWindow->GetViewStart();
             m_scrolledWindow->Destroy();
             m_scrolledWindow = NULL;
-            m_flags.clear();
+            m_flagsEditor = NULL;
         }
 
         void SmartSpawnflagsEditor::doUpdateVisual(const Model::EntityList& entities) {
@@ -129,12 +120,15 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
-            const FlagList flags = getFlagValuesFromEntities(entities);
-            const Assets::EntityDefinition* definition = Model::selectEntityDefinition(entities);
+            wxArrayString labels;
+            getFlagsFromEntities(entities, labels);
+            m_flagsEditor->setFlags(labels);
             
-            for (size_t i = 0; i < NumFlags; ++i)
-                setFlagCheckBox(i, flags, definition);
+            int set, mixed;
+            getFlagValuesFromEntities(entities, set, mixed);
+            m_flagsEditor->setFlagValue(set, mixed);
             
+            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
             m_scrolledWindow->Layout();
             m_scrolledWindow->FitInside();
             m_scrolledWindow->Refresh();
@@ -148,97 +142,61 @@ namespace TrenchBroom {
             m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        SmartSpawnflagsEditor::FlagList SmartSpawnflagsEditor::getFlagValuesFromEntities(const Model::EntityList& entities) const {
-            FlagList result(NumFlags, Unset);
+        void SmartSpawnflagsEditor::getFlagsFromEntities(const Model::EntityList& entities, wxArrayString& labels) const {
+            const Assets::EntityDefinition* definition = Model::selectEntityDefinition(entities);
             
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                const Model::Entity* entity = *it;
-                setFlagValue(*entity, result);
-            }
-            
-            return result;
-        }
-        
-        void SmartSpawnflagsEditor::setFlagValue(const Model::Entity& entity, FlagList& flags) const {
             for (size_t i = 0; i < NumFlags; ++i) {
-                const bool set = isFlagSetOnEntity(entity, i);
-                switch (flags[i]) {
-                    case Unset:
-                        flags[i] = set ? On : Off;
-                        break;
-                    case On:
-                        if (!set)
-                            flags[i] = Mixed;
-                        break;
-                    case Off:
-                        if (set)
-                            flags[i] = Mixed;
-                        break;
-                    default:
-                        break;
+                wxString label;
+                if (definition != NULL) {
+                    const Assets::FlagsPropertyDefinition* flagDefs = definition->spawnflags();
+                    
+                    const Assets::FlagsPropertyOption* flagDef = flagDefs != NULL ? flagDefs->option(static_cast<int>(1 << i)) : NULL;
+                    if (flagDef != NULL) {
+                        label << flagDef->description();
+                    } else {
+                        label << (1 << i);
+                    }
+                } else {
+                    label << (1 << i);
                 }
+                labels.push_back(label);
             }
         }
 
-        bool SmartSpawnflagsEditor::isFlagSetOnEntity(const Model::Entity& entity, const size_t index) const {
-            const bool hasFlag = entity.hasProperty(key());
-            if (!hasFlag)
-                return false;
+        void SmartSpawnflagsEditor::getFlagValuesFromEntities(const Model::EntityList& entities, int& setFlags, int& mixedFlags) const {
+            if (entities.empty()) {
+                setFlags = 0;
+                mixedFlags = 0;
+                return;
+            }
             
+            Model::EntityList::const_iterator it = entities.begin();
+            Model::EntityList::const_iterator end = entities.end();
+            setFlags = getFlagValueFromEntity(**it);
+            mixedFlags = 0;
+            
+            while (++it != end)
+                combineFlags(getFlagValueFromEntity(**it), setFlags, mixedFlags);
+        }
+
+        int SmartSpawnflagsEditor::getFlagValueFromEntity(const Model::Entity& entity) const {
+            if (!entity.hasProperty(key()))
+                return 0;
+
             const Model::PropertyValue& propertyValue = entity.property(key());
-            const int flagValue = std::atoi(propertyValue.c_str());
-            return (flagValue & (1 << index)) != 0;
-        }
-
-        void SmartSpawnflagsEditor::setFlagCheckBox(const size_t index, const FlagList& flags, const Assets::EntityDefinition* definition) {
-            wxColour colour;
-            wxString label;
-            getColorAndLabelForFlag(index, definition, colour, label);
-            
-            wxCheckBox* checkBox = m_flags[index];
-            checkBox->SetLabel(label);
-            checkBox->SetForegroundColour(colour);
-
-            const FlagValue flag = flags[index];
-            switch (flag) {
-                case On:
-                    checkBox->Set3StateValue(wxCHK_CHECKED);
-                    break;
-                case Mixed:
-                    checkBox->Set3StateValue(wxCHK_UNDETERMINED);
-                    break;
-                default:
-                    checkBox->Set3StateValue(wxCHK_UNCHECKED);
-                    break;
-            }
+            return std::atoi(propertyValue.c_str());
         }
         
-        void SmartSpawnflagsEditor::getColorAndLabelForFlag(const size_t flag, const Assets::EntityDefinition* definition, wxColour& colour, wxString& label) const {
-            if (definition != NULL) {
-                const Assets::FlagsPropertyDefinition* flagDefs = definition->spawnflags();
+        void SmartSpawnflagsEditor::combineFlags(const int newFlagValue, int& setFlags, int& mixedFlags) const {
+            for (size_t i = 0; i < NumFlags; ++i) {
+                const bool setOnEntity = newFlagValue & (1 << i);
+                const bool setOnFlags = setFlags & (1 << i);
+                if (setOnEntity == setOnFlags)
+                    continue;
                 
-                const Assets::FlagsPropertyOption* flagDef = flagDefs != NULL ? flagDefs->option(static_cast<int>(1 << flag)) : NULL;
-                if (flagDef != NULL) {
-                    colour = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
-                    label << flagDef->description();
-                } else {
-                    colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
-                    label << (1 << flag);
-                }
-            } else {
-                colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
-                label << (1 << flag);
+                setFlags &= ~(1 << i);
+                mixedFlags |= (1 << i);
             }
-        }
-
-        int SmartSpawnflagsEditor::getFlagFromEvent(wxCommandEvent& event) const {
-            int flag = 0;
-            for (size_t i = 0; i < NumFlags && flag == 0; i++) {
-                if (m_flags[i]->GetId() == event.GetId())
-                    flag = (1 << i);
-            }
-            return flag;
         }
     }
 }

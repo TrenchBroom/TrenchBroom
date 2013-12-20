@@ -40,6 +40,7 @@ namespace TrenchBroom {
     
     namespace View {
         class ControllerFacade;
+        class FlagsPopupEditor;
         class TextureView;
         
         class FaceAttribsEditor : public wxPanel {
@@ -56,6 +57,9 @@ namespace TrenchBroom {
             SpinControl* m_xScaleEditor;
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
+            
+            FlagsPopupEditor* m_surfaceFlagsEditor;
+            FlagsPopupEditor* m_contentFlagsEditor;
         public:
             FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller);
             ~FaceAttribsEditor();
@@ -80,6 +84,8 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
             
             void updateControls();
+            void getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const;
+            void getContentFlags(wxArrayString& names, wxArrayString& descriptions) const;
         };
     }
 }

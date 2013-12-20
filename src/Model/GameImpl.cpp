@@ -335,5 +335,13 @@ namespace TrenchBroom {
             
             return StringUtils::splitAndTrim(modStr, ';');
         }
+        
+        const GameConfig::FlagConfigList& GameImpl::doSurfaceFlags() const {
+            return m_config.faceAttribsConfig().surfaceFlags;
+        }
+        
+        const GameConfig::FlagConfigList& GameImpl::doContentFlags() const {
+            return m_config.faceAttribsConfig().contentFlags;
+        }
     }
 }
