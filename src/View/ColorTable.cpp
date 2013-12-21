@@ -25,6 +25,7 @@
 #include <wx/panel.h>
 #include <wx/sizer.h>
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {

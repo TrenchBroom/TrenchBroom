@@ -31,11 +31,17 @@ class wxWindow;
 namespace TrenchBroom {
     namespace View {
         class PopupButton : public wxPanel {
+        public:
+            typedef enum {
+                Left,
+                Right
+            } Align;
         private:
+            Align m_popupAlign;
             wxToggleButton* m_button;
             wxPopupTransientWindow* m_window;
         public:
-            PopupButton(wxWindow* parent, const wxString& caption);
+            PopupButton(wxWindow* parent, const wxString& caption, Align popupAlign = Left);
             
             wxWindow* GetPopupWindow() const;
 

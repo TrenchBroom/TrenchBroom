@@ -28,10 +28,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlagsPopupEditor::FlagsPopupEditor(wxWindow* parent, const size_t numCols) :
+        FlagsPopupEditor::FlagsPopupEditor(wxWindow* parent, const wxString& label, const size_t numCols) :
         wxPanel(parent) {
-            m_flagsTxt = new wxStaticText(this, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END | wxST_NO_AUTORESIZE);
-            m_button = new PopupButton(this, _("..."));
+            wxStaticText* labelTxt = new wxStaticText(this, wxID_ANY, label);
+            m_flagsTxt = new wxStaticText(this, wxID_ANY, _("none"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
+            m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            m_button = new PopupButton(this, _("..."), PopupButton::Right);
             
             wxPanel* editorContainer = new wxPanel(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
@@ -44,11 +46,18 @@ namespace TrenchBroom {
             popupSizer->Add(editorContainer, 1, wxEXPAND);
             m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_flagsTxt, 1, wxEXPAND);
+            wxSizer* flagsTxtSizer = new wxBoxSizer(wxVERTICAL);
+            flagsTxtSizer->AddStretchSpacer();
+            flagsTxtSizer->Add(m_flagsTxt, 0, wxEXPAND);
+            flagsTxtSizer->AddStretchSpacer();
+            
+            wxFlexGridSizer* sizer = new wxFlexGridSizer(1, 4, 0, 0);
+            sizer->Add(labelTxt, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->Add(flagsTxtSizer, 0, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            sizer->Add(m_button);
-            SetSizer(sizer);
+            sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->AddGrowableCol(1);
+            SetSizerAndFit(sizer);
             
             m_editor->Bind(EVT_FLAG_CHANGED_EVENT, EVT_FLAG_CHANGED_HANDLER(FlagsPopupEditor::OnFlagChanged), this);
         }
@@ -79,6 +88,13 @@ namespace TrenchBroom {
                     label << m_editor->getFlagLabel(i);
                     first = false;
                 }
+            }
+            
+            if (first) {
+                label = "none";
+                m_flagsTxt->SetForegroundColour(wxColour(100, 100, 100));
+            } else {
+                m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
             }
             
             m_flagsTxt->SetLabel(label);

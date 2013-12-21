@@ -69,7 +69,7 @@ namespace TrenchBroom {
             const size_t width = readSize<uint32_t>(cursor);
             const size_t height = readSize<uint32_t>(cursor);
             const String textureName = path.suffix(2).deleteExtension().asString('/');
-
+            
             Color tempColor, averageColor;
             Assets::TextureBuffer::List buffers(4);
             Assets::setMipBufferSize(buffers, width, height);

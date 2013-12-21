@@ -42,6 +42,7 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp();
+            ~TrenchBroomApp();
             
             FrameManager* frameManager();
             

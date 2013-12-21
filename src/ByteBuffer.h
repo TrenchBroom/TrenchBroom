@@ -22,6 +22,7 @@
 
 #include "SharedPointer.h"
 
+#include <cassert>
 #include <vector>
 
 template <typename T>
@@ -47,11 +48,15 @@ public:
     }
     
     const T* ptr() const {
-        return &((*m_buffer)[0]);
+        const InternalBuffer* actualBuffer = m_buffer.get();
+        assert(actualBuffer != NULL);
+        return &actualBuffer->front();
     }
     
     T* ptr() {
-        return &((*m_buffer)[0]);
+        InternalBuffer* actualBuffer = m_buffer.get();
+        assert(actualBuffer != NULL);
+        return &actualBuffer->front();
     }
     
     size_t size() const {

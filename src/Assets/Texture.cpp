@@ -154,14 +154,12 @@ namespace TrenchBroom {
             
             size_t mipWidth = m_width;
             size_t mipHeight = m_height;
-            size_t offset = 0;
             for (size_t j = 0; j < m_buffers.size(); ++j) {
-                const GLvoid* data = static_cast<GLvoid*>(m_buffers[j].ptr());
+                const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
                              static_cast<GLsizei>(mipWidth),
                              static_cast<GLsizei>(mipHeight),
                              0, GL_RGB, GL_UNSIGNED_BYTE, data);
-                offset += mipWidth * mipHeight;
                 mipWidth /= 2;
                 mipHeight /= 2;
             }

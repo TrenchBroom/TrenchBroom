@@ -31,6 +31,7 @@
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
 
@@ -74,6 +75,9 @@ namespace TrenchBroom {
 
             MOCK_CONST_METHOD0(doAvailableMods, StringList());
             MOCK_CONST_METHOD1(doExtractEnabledMods, StringList(const Map*));
+            
+            MOCK_CONST_METHOD0(doSurfaceFlags, const GameConfig::FlagConfigList&());
+            MOCK_CONST_METHOD0(doContentFlags, const GameConfig::FlagConfigList&());
         };
         
     }

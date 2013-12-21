@@ -59,6 +59,12 @@ namespace TrenchBroom {
             SetVendorName("Kristian Duske");
         }
         
+        TrenchBroomApp::~TrenchBroomApp() {
+            // we must delete the recent documents here instead of in OnExit because they might still be used by the frame destructors
+            delete m_recentDocuments;
+            m_recentDocuments = NULL;
+        }
+        
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
@@ -192,10 +198,6 @@ namespace TrenchBroom {
         int TrenchBroomApp::OnExit() {
             delete m_frameManager;
             m_frameManager = NULL;
-            /* / We intentionally do not delete the recent documents here as they are still used by the map frame destructors which may be called after this was called.
-            delete m_recentDocuments;
-            m_recentDocuments = NULL;
-             */
             
             wxImage::CleanUpHandlers();
             return wxApp::OnExit();

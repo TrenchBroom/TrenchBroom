@@ -122,15 +122,15 @@ namespace TrenchBroom {
             faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
             faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Offset"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Offset:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
             faceAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 1), wxDefaultSpan, wxEXPAND);
             faceAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Scale"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Scale:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
             
             faceAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 1), wxDefaultSpan, wxEXPAND);
             faceAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Rotation"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
+            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Rotation:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
             faceAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
             
             //            faceAttribsSizer->Add(buttonSizer, wxGBPosition(4, 0), wxGBSpan(1, 3), wxALIGN_RIGHT);
@@ -148,8 +148,8 @@ namespace TrenchBroom {
             standardAttribsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             standardAttribsSizer->Add(faceAttribsSizer, 1, wxEXPAND);
             
-            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
-            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            m_surfaceFlagsEditor = new FlagsPopupEditor(this, _("Surface Flags:"), 2);
+            m_contentFlagsEditor = new FlagsPopupEditor(this, _("Content Flags:"), 2);
             
             wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
             editorSizer->Add(standardAttribsSizer, 0, wxEXPAND);

@@ -18,6 +18,7 @@
  */
 
 #include "PopupButton.h"
+#include "View/LayoutConstants.h"
 
 #include <wx/tglbtn.h>
 #include <wx/popupwin.h>
@@ -52,9 +53,10 @@ namespace TrenchBroom {
             }
         };
         
-        PopupButton::PopupButton(wxWindow* parent, const wxString& caption) :
-        wxPanel(parent) {
-            m_button = new wxToggleButton(this, wxID_ANY, caption);
+        PopupButton::PopupButton(wxWindow* parent, const wxString& caption, const Align popupAlign) :
+        wxPanel(parent),
+        m_popupAlign(popupAlign) {
+            m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             m_window = new PopupWindow(this);
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -74,7 +76,9 @@ namespace TrenchBroom {
 
         void PopupButton::OnButtonToggled(wxCommandEvent& event) {
             if (m_button->GetValue()) {
-                wxPoint position = GetScreenRect().GetLeftBottom();
+                wxPoint position;
+                position.x = m_popupAlign == Left ? GetScreenRect().GetLeft() : GetScreenRect().GetRight() - m_window->GetSize().x;
+                position.y = GetScreenRect().GetBottom();
 #ifdef __APPLE__
                 position.y += 1;
 #endif
