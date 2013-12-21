@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::HandleHit = Model::Hit::freeHitType();
 
-        ClipTool::ClipTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, const Renderer::Camera& camera) :
+        ClipTool::ClipTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera) :
         Tool(next, document, controller),
         m_clipper(camera),
         m_renderer(m_clipper) {}

@@ -32,13 +32,13 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<SetModsCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             StringList m_newMods;
             StringList m_oldMods;
         public:
-            static Ptr setMods(View::MapDocumentPtr document, const StringList& mods);
+            static Ptr setMods(View::MapDocumentWPtr document, const StringList& mods);
         private:
-            SetModsCommand(View::MapDocumentPtr document, const StringList& mods);
+            SetModsCommand(View::MapDocumentWPtr document, const StringList& mods);
             
             bool doPerformDo();
             bool doPerformUndo();

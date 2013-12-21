@@ -39,11 +39,11 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<NewDocumentCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
         public:
-            NewDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game);
+            NewDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game);
             
             Model::Map* map() const;
         private:

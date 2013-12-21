@@ -42,7 +42,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
 
-            MapDocumentPtr document = MapDocument::newMapDocument();
+            MapDocumentSPtr document = MapDocument::newMapDocument();
             document->newDocument(worldBounds, game);
             
             ASSERT_EQ(IO::Path("unnamed.map"), document->path());
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doExtractExternalTextureCollections(map)).WillOnce(Return(EmptyStringList));
             EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("Quake")));
             
-            MapDocumentPtr document = MapDocument::newMapDocument();
+            MapDocumentSPtr document = MapDocument::newMapDocument();
             document->openDocument(worldBounds, game, path);
             
             ASSERT_EQ(path, document->path());

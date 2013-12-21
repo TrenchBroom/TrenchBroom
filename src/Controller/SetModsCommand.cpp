@@ -27,31 +27,33 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        SetModsCommand::Ptr SetModsCommand::setMods(View::MapDocumentPtr document, const StringList& mods) {
+        SetModsCommand::Ptr SetModsCommand::setMods(View::MapDocumentWPtr document, const StringList& mods) {
             return Ptr(new SetModsCommand(document, mods));
         }
         
-        SetModsCommand::SetModsCommand(View::MapDocumentPtr document, const StringList& mods) :
+        SetModsCommand::SetModsCommand(View::MapDocumentWPtr document, const StringList& mods) :
         Command(Type, "Set Mods", true, true),
         m_document(document),
         m_newMods(mods) {}
         
         bool SetModsCommand::doPerformDo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
-            m_oldMods = m_document->mods();
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
+            document->objectWillChangeNotifier(worldspawn);
+            m_oldMods = document->mods();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_newMods, ';'));
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->modsDidChangeNotifier();
+            document->objectDidChangeNotifier(worldspawn);
+            document->modsDidChangeNotifier();
             return true;
         }
         
         bool SetModsCommand::doPerformUndo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
+            document->objectWillChangeNotifier(worldspawn);
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'));
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->modsDidChangeNotifier();
+            document->objectDidChangeNotifier(worldspawn);
+            document->modsDidChangeNotifier();
             return true;
         }
     }

@@ -73,8 +73,8 @@ namespace TrenchBroom {
             Renderer::Vbo m_auxVbo;
             Color m_focusColor;
             
-            View::MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            View::MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             Renderer::Camera m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             bool m_ignoreNextClick;
             wxDateTime m_lastFrameActivation;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerPtr controller);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller);
             ~MapView();
             
             Renderer::RenderResources& renderResources();

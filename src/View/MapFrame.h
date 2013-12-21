@@ -54,8 +54,8 @@ namespace TrenchBroom {
             static const wxEventType EVT_REBUILD_MENUBAR;
         private:
             FrameManager* m_frameManager;
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentSPtr m_document;
+            ControllerSPtr m_controller;
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
 
@@ -65,8 +65,8 @@ namespace TrenchBroom {
             Inspector* m_inspector;
         public:
             MapFrame();
-            MapFrame(FrameManager* frameManager, MapDocumentPtr document);
-            void Create(FrameManager* frameManager, MapDocumentPtr document);
+            MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
+            void Create(FrameManager* frameManager, MapDocumentSPtr document);
             ~MapFrame();
             
             Logger* logger() const;

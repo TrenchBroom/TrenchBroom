@@ -45,7 +45,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ModEditor::ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        ModEditor::ModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
@@ -73,7 +73,10 @@ namespace TrenchBroom {
             m_availableModList->GetSelections(selections);
             assert(!selections.empty());
             
-            StringList mods = m_document->mods();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            StringList mods = document->mods();
             for (size_t i = 0; i < selections.size(); ++i) {
                 const unsigned int index = selections[i] - i;
                 const wxString item = m_availableModList->GetString(index);
@@ -86,7 +89,7 @@ namespace TrenchBroom {
             m_availableModList->DeselectAll();
             m_enabledModList->DeselectAll();
 
-            m_controller->setMods(mods);
+            controller->setMods(mods);
         }
         
         void ModEditor::OnRemoveModClicked(wxCommandEvent& event) {
@@ -94,7 +97,10 @@ namespace TrenchBroom {
             m_enabledModList->GetSelections(selections);
             assert(!selections.empty());
             
-            StringList mods = m_document->mods();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            StringList mods = document->mods();
             std::sort(selections.begin(), selections.end());
             
             wxArrayInt::const_reverse_iterator it, end;
@@ -103,7 +109,7 @@ namespace TrenchBroom {
                 mods.erase(mods.begin() + *it);
             }
 
-            m_controller->setMods(mods);
+            controller->setMods(mods);
         }
         
         void ModEditor::OnMoveModUpClicked(wxCommandEvent& event) {
@@ -111,13 +117,17 @@ namespace TrenchBroom {
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
             
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            StringList mods = document->mods();
+
             const size_t index = static_cast<size_t>(selections.front());
-            StringList mods = m_document->mods();
             assert(index > 0 && index < mods.size());
             
             using std::swap;
             swap(mods[index - 1], mods[index]);
-            m_controller->setMods(mods);
+            controller->setMods(mods);
 
             m_enabledModList->DeselectAll();
             m_enabledModList->SetSelection(index - 1);
@@ -128,13 +138,17 @@ namespace TrenchBroom {
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
             
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            StringList mods = document->mods();
+            
             const size_t index = static_cast<size_t>(selections.front());
-            StringList mods = m_document->mods();
             assert(index < mods.size() - 1);
             
             using std::swap;
             swap(mods[index + 1], mods[index]);
-            m_controller->setMods(mods);
+            controller->setMods(mods);
             
             m_enabledModList->DeselectAll();
             m_enabledModList->SetSelection(index + 1);
@@ -227,18 +241,22 @@ namespace TrenchBroom {
         }
 
         void ModEditor::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
-            m_document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
+            document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &ModEditor::preferenceDidChange);
         }
         
         void ModEditor::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
-            m_document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
+                document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
@@ -260,14 +278,16 @@ namespace TrenchBroom {
         }
 
         void ModEditor::preferenceDidChange(const IO::Path& path) {
-            if (m_document->isGamePathPreference(path)) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->isGamePathPreference(path)) {
                 updateAvailableMods();
                 updateMods();
             }
         }
 
         void ModEditor::updateAvailableMods() {
-            StringList availableMods = m_document->game()->availableMods();
+            MapDocumentSPtr document = lock(m_document);
+            StringList availableMods = document->game()->availableMods();
             StringUtils::sortCaseInsensitive(availableMods);
 
             m_availableMods.clear();
@@ -279,7 +299,8 @@ namespace TrenchBroom {
         void ModEditor::updateMods() {
             const String pattern = m_filterBox->GetValue().ToStdString();
             
-            StringList enabledMods = m_document->mods();
+            MapDocumentSPtr document = lock(m_document);
+            StringList enabledMods = document->mods();
             
             wxArrayString availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {

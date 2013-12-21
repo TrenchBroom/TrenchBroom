@@ -28,11 +28,11 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::transformObjects(View::MapDocumentPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::transformObjects(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects) {
             return Ptr(new TransformObjectsCommand(document, transformation, lockTextures, action, objects));
         }
 
-        TransformObjectsCommand::TransformObjectsCommand(View::MapDocumentPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects) :
+        TransformObjectsCommand::TransformObjectsCommand(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects) :
         Command(Type, makeName(action, objects), true, true),
         m_document(document),
         m_transformation(transformation),
@@ -48,28 +48,30 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformDo() {
             m_snapshot = Model::Snapshot(m_objects);
 
-            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
             
 
-            m_document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
-            Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, m_document->worldBounds()), Model::MatchAll());
-            m_document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
+            document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
+            Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, document->worldBounds()), Model::MatchAll());
+            document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
 
-            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
             return true;
         }
         
         bool TransformObjectsCommand::doPerformUndo() {
-            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
 
-            m_document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
-            m_snapshot.restore(m_document->worldBounds());
-            m_document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
+            document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
+            m_snapshot.restore(document->worldBounds());
+            document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
 
-            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
             return true;
         }

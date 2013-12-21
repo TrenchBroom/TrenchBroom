@@ -33,13 +33,13 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             IO::Path m_newFile;
             IO::Path m_oldFile;
         public:
-            static Ptr setEntityDefinitionFile(View::MapDocumentPtr document, const IO::Path& file);
+            static Ptr setEntityDefinitionFile(View::MapDocumentWPtr document, const IO::Path& file);
         private:
-            SetEntityDefinitionFileCommand(View::MapDocumentPtr document, const IO::Path& file);
+            SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const IO::Path& file);
             
             bool doPerformDo();
             bool doPerformUndo();

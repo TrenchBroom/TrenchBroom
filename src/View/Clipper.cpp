@@ -272,7 +272,7 @@ namespace TrenchBroom {
             }
         }
 
-        ClipResult Clipper::clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const {
+        ClipResult Clipper::clip(const Model::BrushList& brushes, const View::MapDocumentSPtr document) const {
             ClipResult result;
             
             const BBox3& worldBounds = document->worldBounds();

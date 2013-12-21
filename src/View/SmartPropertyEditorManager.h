@@ -46,19 +46,19 @@ namespace TrenchBroom {
             typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
             typedef std::vector<MatcherEditorPair> EditorList;
             
-            View::MapDocumentPtr m_document;
-            View::ControllerPtr m_controller;
+            View::MapDocumentWPtr m_document;
+            View::ControllerWPtr m_controller;
             
             EditorList m_editors;
             Model::PropertyKey m_key;
             EditorPtr m_activeEditor;
         public:
-            SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentWPtr document, View::ControllerWPtr controller);
             ~SmartPropertyEditorManager();
             
             void switchEditor(const Model::PropertyKey& key, const Model::EntityList& entities);
         private:
-            void createEditors(View::MapDocumentPtr document, View::ControllerPtr controller);
+            void createEditors(View::MapDocumentWPtr document, View::ControllerWPtr controller);
 
             void bindObservers();
             void unbindObservers();

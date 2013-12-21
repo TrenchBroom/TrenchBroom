@@ -46,10 +46,10 @@ namespace TrenchBroom {
     namespace View {
         class ControllerFacade {
         private:
-            MapDocumentPtr m_document;
+            MapDocumentWPtr m_document;
             Controller::CommandProcessor m_commandProcessor;
         public:
-            ControllerFacade(MapDocumentPtr document);
+            ControllerFacade(MapDocumentWPtr document);
             ~ControllerFacade();
             
             Notifier1<Controller::Command::Ptr> commandDoneNotifier;

@@ -38,12 +38,12 @@ namespace TrenchBroom {
     namespace View {
         struct UpdateSpawnflag {
         private:
-            ControllerPtr m_controller;
+            ControllerSPtr m_controller;
             const Model::PropertyKey& m_key;
             size_t m_flagIndex;
             bool m_setFlag;
         public:
-            UpdateSpawnflag(ControllerPtr controller, const Model::PropertyKey& key, const size_t flagIndex, const bool setFlag) :
+            UpdateSpawnflag(ControllerSPtr controller, const Model::PropertyKey& key, const size_t flagIndex, const bool setFlag) :
             m_controller(controller),
             m_key(key),
             m_flagIndex(flagIndex),
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         };
         
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
         SmartPropertyEditor(document, controller),
         m_scrolledWindow(NULL),
         m_ignoreUpdates(false) {}

@@ -32,15 +32,15 @@ namespace TrenchBroom {
         
         class EntityPropertyEditor : public wxPanel {
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             EntityPropertyGrid* m_propertyGrid;
             SmartPropertyEditorManager* m_smartEditorManager;
         public:
-            EntityPropertyEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            EntityPropertyEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             
             void OnEntityPropertySelected(EntityPropertySelectedCommand& command);
         private:
-            void createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            void createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };
     }
 }

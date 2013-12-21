@@ -45,8 +45,8 @@ namespace TrenchBroom {
         
         class FaceAttribsEditor : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             Model::BrushFaceList m_faces;
             
             TextureView* m_textureView;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             FlagsPopupEditor* m_surfaceFlagsEditor;
             FlagsPopupEditor* m_contentFlagsEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller);
+            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller);
             ~FaceAttribsEditor();
             
             void OnXOffsetChanged(SpinControlEvent& event);

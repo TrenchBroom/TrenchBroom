@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         class TextureBrowser : public wxPanel {
         private:
-            MapDocumentPtr m_document;
+            MapDocumentWPtr m_document;
             wxChoice* m_sortOrderChoice;
             wxToggleButton* m_groupButton;
             wxToggleButton* m_usedButton;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document);
+            TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document);
             ~TextureBrowser();
             
             Assets::Texture* selectedTexture() const;

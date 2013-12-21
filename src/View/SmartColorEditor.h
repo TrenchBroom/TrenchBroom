@@ -114,7 +114,7 @@ namespace TrenchBroom {
             wxColourPickerCtrl* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            SmartColorEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartColorEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
             
             void OnFloatRangeRadioButton(wxCommandEvent& event);
             void OnByteRangeRadioButton(wxCommandEvent& event);

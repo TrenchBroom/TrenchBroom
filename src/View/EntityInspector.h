@@ -44,21 +44,21 @@ namespace TrenchBroom {
         
         class EntityInspector : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
 
             EntityPropertyEditor* m_propertyEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
+            EntityInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
 
             void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources);
+            void createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
-            wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };
     }
 }

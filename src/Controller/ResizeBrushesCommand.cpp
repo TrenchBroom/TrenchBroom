@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resizeBrushes(View::MapDocumentPtr document, const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures) {
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resizeBrushes(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures) {
             return Ptr(new ResizeBrushesCommand(document, faces, collectBrushes(faces), delta, lockTextures));
         }
         
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             return m_brushes;
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures) :
+        ResizeBrushesCommand::ResizeBrushesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures) :
         Command(Type, makeName(brushes), true, true),
         m_document(document),
         m_faces(faces),
@@ -75,7 +75,8 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesCommand::moveBoundary(const Vec3& delta) {
-            const BBox3& worldBounds = m_document->worldBounds();
+            View::MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
             
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
@@ -90,11 +91,11 @@ namespace TrenchBroom {
                 Model::Brush* brush = face->parent();
                 Model::Entity* entity = brush->parent();
                 
-                m_document->objectWillChangeNotifier(entity);
-                m_document->objectWillChangeNotifier(brush);
+                document->objectWillChangeNotifier(entity);
+                document->objectWillChangeNotifier(brush);
                 brush->moveBoundary(worldBounds, *face, delta, m_lockTextures);
-                m_document->objectDidChangeNotifier(brush);
-                m_document->objectDidChangeNotifier(entity);
+                document->objectDidChangeNotifier(brush);
+                document->objectDidChangeNotifier(entity);
             }
             return true;
         }

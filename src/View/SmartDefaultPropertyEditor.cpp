@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
         SmartPropertyEditor(document, controller) {}
 
         wxWindow* SmartDefaultPropertyEditor::doCreateVisual(wxWindow* parent) {

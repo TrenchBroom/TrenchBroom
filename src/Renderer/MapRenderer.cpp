@@ -90,13 +90,13 @@ namespace TrenchBroom {
             }
         };
         
-        MapRenderer::MapRenderer(View::MapDocumentPtr document, FontManager& fontManager) :
+        MapRenderer::MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager) :
         m_document(document),
         m_fontManager(fontManager),
-        m_unselectedBrushRenderer(UnselectedBrushRendererFilter(m_document->filter())),
-        m_selectedBrushRenderer(SelectedBrushRendererFilter(m_document->filter())),
-        m_unselectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()),
-        m_selectedEntityRenderer(m_document->entityModelManager(), m_fontManager, m_document->filter()) {
+        m_unselectedBrushRenderer(UnselectedBrushRendererFilter(lock(document)->filter())),
+        m_selectedBrushRenderer(SelectedBrushRendererFilter(lock(document)->filter())),
+        m_unselectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
+        m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()) {
             bindObservers();
         }
         
@@ -144,43 +144,49 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
-            m_document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
-            m_document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
-            m_document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
-            m_document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
-            m_document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
-            m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            View::MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
+            document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
+            document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
+            document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
+            document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
         }
         
         void MapRenderer::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
-            m_document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
-            m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
-            m_document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
-            m_document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
-            m_document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
-            m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            if (!expired(m_document)) {
+                View::MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
+                document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
+                document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
+                document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
+                document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+                document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
         void MapRenderer::documentWasNewed() {
+            View::MapDocumentSPtr document = lock(m_document);
             clearState();
-            loadMap(*m_document->map());
+            loadMap(*document->map());
         }
         
         void MapRenderer::documentWasLoaded() {
+            View::MapDocumentSPtr document = lock(m_document);
             clearState();
-            loadMap(*m_document->map());
+            loadMap(*document->map());
         }
         
         void MapRenderer::objectWasAdded(Model::Object* object) {
@@ -221,8 +227,10 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
-            m_unselectedBrushRenderer.setBrushes(m_document->unselectedBrushes());
-            m_selectedBrushRenderer.setBrushes(m_document->allSelectedBrushes());
+            View::MapDocumentSPtr document = lock(m_document);
+
+            m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
+            m_selectedBrushRenderer.setBrushes(document->allSelectedBrushes());
             
             m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                       Model::entityIterator(result.selectedObjects().end()));
@@ -246,7 +254,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
-            if (m_document->isGamePathPreference(path)) {
+            View::MapDocumentSPtr document = lock(m_document);
+            if (document->isGamePathPreference(path)) {
                 m_unselectedEntityRenderer.reloadModels();
                 m_selectedEntityRenderer.reloadModels();
             }
@@ -302,8 +311,10 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityLinks(RenderContext& context) {
-            if (!m_entityLinkRenderer.valid() && m_document->map() != NULL)
-                m_entityLinkRenderer.validate(EntityLinkFilter(), m_document->map()->entities());
+            View::MapDocumentSPtr document = lock(m_document);
+            
+            if (!m_entityLinkRenderer.valid() && document->map() != NULL)
+                m_entityLinkRenderer.validate(EntityLinkFilter(), document->map()->entities());
             
             if (m_entityLinkRenderer.valid())
                 m_entityLinkRenderer.render(context);

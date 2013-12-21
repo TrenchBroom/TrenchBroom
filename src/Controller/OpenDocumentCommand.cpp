@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType OpenDocumentCommand::Type = Command::freeType();
         
-        OpenDocumentCommand::OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) :
+        OpenDocumentCommand::OpenDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) :
         Command(Type, "Open Document", false, false),
         m_document(document),
         m_worldBounds(worldBounds),
@@ -33,12 +33,13 @@ namespace TrenchBroom {
         m_path(path) {}
         
         Model::Map* OpenDocumentCommand::map() const {
-            return m_document->map();
+            return lock(m_document)->map();
         }
 
         bool OpenDocumentCommand::doPerformDo() {
-            m_document->openDocument(m_worldBounds, m_game, m_path);
-            m_document->documentWasLoadedNotifier();
+            View::MapDocumentSPtr document = lock(m_document);
+            document->openDocument(m_worldBounds, m_game, m_path);
+            document->documentWasLoadedNotifier();
             return true;
         }
     }

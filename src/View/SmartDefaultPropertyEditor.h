@@ -30,7 +30,7 @@ namespace TrenchBroom {
         private:
             wxTextCtrl* m_descriptionTxt;
         public:
-            SmartDefaultPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartDefaultPropertyEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();

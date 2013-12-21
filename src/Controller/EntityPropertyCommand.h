@@ -41,7 +41,7 @@ namespace TrenchBroom {
             } PropertyCommand;
             
             const PropertyCommand m_command;
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             const Model::EntityList m_entities;
             bool m_force;
             Model::PropertyKeyList m_keys;
@@ -55,11 +55,11 @@ namespace TrenchBroom {
             void setNewKey(const Model::PropertyKey& key);
             void setNewValue(const Model::PropertyValue& newValue);
         public:
-            EntityPropertyCommand(View::MapDocumentPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force);
+            EntityPropertyCommand(View::MapDocumentWPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force);
 
-            static Command::Ptr renameEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force);
-            static Command::Ptr setEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force);
-            static Command::Ptr removeEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force);
+            static Command::Ptr renameEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force);
+            static Command::Ptr setEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force);
+            static Command::Ptr removeEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force);
             
             const Model::PropertyKey& key() const;
             const Model::PropertyKeyList& keys() const;

@@ -29,35 +29,35 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType TextureCollectionCommand::Type = Command::freeType();
 
-        TextureCollectionCommand::Ptr TextureCollectionCommand::add(View::MapDocumentPtr document, const String& name) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::add(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Add Texture Collection",
                                                     AAdd,
                                                     StringList(1, name)));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::remove(View::MapDocumentPtr document, const StringList& names) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::remove(View::MapDocumentWPtr document, const StringList& names) {
             return Ptr(new TextureCollectionCommand(document,
                                                     names.size() == 1 ? "Remove Texture Collection" : "Remove Texture Collections",
                                                     ARemove,
                                                     names));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(View::MapDocumentPtr document, const String& name) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Move Texture Collection Up",
                                                     AMoveUp,
                                                     StringList(1, name)));
         }
         
-        TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(View::MapDocumentPtr document, const String& name) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Move Texture Collection Down",
                                                     AMoveDown,
                                                     StringList(1, name)));
         }
 
-        TextureCollectionCommand::TextureCollectionCommand(View::MapDocumentPtr document, const String& name, const Action action, const StringList& names) :
+        TextureCollectionCommand::TextureCollectionCommand(View::MapDocumentWPtr document, const String& name, const Action action, const StringList& names) :
         Command(Type, name, true, true),
         m_document(document),
         m_action(action),
@@ -74,52 +74,54 @@ namespace TrenchBroom {
         }
         
         bool TextureCollectionCommand::doPerformDo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
             
             switch (m_action) {
                 case AAdd:
-                    m_document->addExternalTextureCollections(m_names);
+                    document->addExternalTextureCollections(m_names);
                     break;
                 case ARemove:
-                    m_document->removeExternalTextureCollections(m_names);
+                    document->removeExternalTextureCollections(m_names);
                     break;
                 case AMoveUp:
-                    m_document->moveExternalTextureCollectionUp(m_names.front());
+                    document->moveExternalTextureCollectionUp(m_names.front());
                     break;
                 case AMoveDown:
-                    m_document->moveExternalTextureCollectionDown(m_names.front());
+                    document->moveExternalTextureCollectionDown(m_names.front());
                     break;
             }
 
-            m_document->objectWillChangeNotifier(worldspawn);
-            m_document->updateExternalTextureCollectionProperty();
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->textureCollectionsDidChangeNotifier();
+            document->objectWillChangeNotifier(worldspawn);
+            document->updateExternalTextureCollectionProperty();
+            document->objectDidChangeNotifier(worldspawn);
+            document->textureCollectionsDidChangeNotifier();
             return true;
         }
         
         bool TextureCollectionCommand::doPerformUndo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
 
             switch (m_action) {
                 case AAdd:
-                    m_document->removeExternalTextureCollections(m_names);
+                    document->removeExternalTextureCollections(m_names);
                     break;
                 case ARemove:
-                    m_document->addExternalTextureCollections(m_names);
+                    document->addExternalTextureCollections(m_names);
                     break;
                 case AMoveUp:
-                    m_document->moveExternalTextureCollectionDown(m_names.front());
+                    document->moveExternalTextureCollectionDown(m_names.front());
                     break;
                 case AMoveDown:
-                    m_document->moveExternalTextureCollectionUp(m_names.front());
+                    document->moveExternalTextureCollectionUp(m_names.front());
                     break;
             }
 
-            m_document->objectWillChangeNotifier(worldspawn);
-            m_document->updateExternalTextureCollectionProperty();
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->textureCollectionsDidChangeNotifier();
+            document->objectWillChangeNotifier(worldspawn);
+            document->updateExternalTextureCollectionProperty();
+            document->objectDidChangeNotifier(worldspawn);
+            document->textureCollectionsDidChangeNotifier();
             return true;
         }
     }

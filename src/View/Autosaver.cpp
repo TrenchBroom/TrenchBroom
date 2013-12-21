@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Autosaver::Autosaver(View::MapDocumentPtr document, const time_t saveInterval, const time_t idleInterval, const size_t maxBackups) :
+        Autosaver::Autosaver(View::MapDocumentWPtr document, const time_t saveInterval, const time_t idleInterval, const size_t maxBackups) :
         m_document(document),
         m_logger(NULL),
         m_saveInterval(saveInterval),
@@ -44,18 +44,19 @@ namespace TrenchBroom {
         void Autosaver::triggerAutosave(Logger* logger) {
             const time_t currentTime = time(NULL);
             
-            const IO::Path documentPath = m_document->path();
-            if (m_document->modified() &&
+            MapDocumentSPtr document = lock(m_document);
+            const IO::Path documentPath = document->path();
+            if (document->modified() &&
                 m_dirty &&
                 m_lastModificationTime > 0 &&
                 currentTime - m_lastModificationTime >= m_idleInterval &&
                 currentTime - m_lastSaveTime >= m_saveInterval &&
                 documentPath.isAbsolute() &&
-                IO::Disk::fileExists(IO::Disk::fixPath(m_document->path()))) {
+                IO::Disk::fileExists(IO::Disk::fixPath(document->path()))) {
                 
                 m_logger = logger;
                 try {
-                    autosave();
+                    autosave(document);
                     m_logger = NULL;
                 } catch (...) {
                     m_logger = NULL;
@@ -69,8 +70,8 @@ namespace TrenchBroom {
             m_dirty = true;
         }
         
-        void Autosaver::autosave() {
-            const IO::Path& mapPath = m_document->path();
+        void Autosaver::autosave(MapDocumentSPtr document) {
+            const IO::Path& mapPath = document->path();
             assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
             
             const IO::Path mapFilename = mapPath.lastComponent();
@@ -87,7 +88,7 @@ namespace TrenchBroom {
                 const size_t backupNo = backups.size() + 1;
                 
                 const IO::Path backupFilePath = fs.getPath() + makeBackupName(mapBasename, backupNo);
-                m_document->saveBackup(backupFilePath);
+                document->saveBackup(backupFilePath);
                 
                 if (m_logger != NULL)
                     m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());

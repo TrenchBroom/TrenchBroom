@@ -31,14 +31,14 @@ namespace TrenchBroom {
     namespace View {
         class SmartPropertyEditor : public wxEvtHandler {
         private:
-            View::MapDocumentPtr m_document;
-            View::ControllerPtr m_controller;
+            View::MapDocumentWPtr m_document;
+            View::ControllerWPtr m_controller;
             
             Model::PropertyKey m_key;
             Model::EntityList m_entities;
             bool m_active;
         public:
-            SmartPropertyEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartPropertyEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
             virtual ~SmartPropertyEditor();
             
             bool usesKey(const Model::PropertyKey& key) const;
@@ -47,8 +47,8 @@ namespace TrenchBroom {
             void update(const Model::EntityList& entities);
             void deactivate();
         protected:
-            View::MapDocumentPtr document() const;
-            View::ControllerPtr controller() const;
+            View::MapDocumentSPtr document() const;
+            View::ControllerSPtr controller() const;
             const Model::PropertyKey& key() const;
             const Model::EntityList entities() const;
             void addOrUpdateProperty(const Model::PropertyValue& value);

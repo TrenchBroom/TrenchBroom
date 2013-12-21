@@ -48,28 +48,28 @@ namespace TrenchBroom {
             m_newValue = newValue;
         }
         
-        EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force) :
+        EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentWPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force) :
         Command(Type, makeName(command), true, true),
         m_command(command),
         m_document(document),
         m_entities(entities),
         m_force(force) {}
 
-        Command::Ptr EntityPropertyCommand::renameEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
+        Command::Ptr EntityPropertyCommand::renameEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
             EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCRenameProperty, entities, force));
             command->setKey(oldKey);
             command->setNewKey(newKey);
             return command;
         }
         
-        Command::Ptr EntityPropertyCommand::setEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force) {
+        Command::Ptr EntityPropertyCommand::setEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force) {
             EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCSetProperty, entities, force));
             command->setKey(key);
             command->setNewValue(newValue);
             return command;
         }
         
-        Command::Ptr EntityPropertyCommand::removeEntityProperty(View::MapDocumentPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
+        Command::Ptr EntityPropertyCommand::removeEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
             EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCRemoveProperty, entities, force));
             command->setKey(key);
             return command;
@@ -129,9 +129,10 @@ namespace TrenchBroom {
                 if (!canSetKey() || (!m_force && affectsImmutablePropertyKey()))
                     return false;
             
+            View::MapDocumentSPtr document = lock(m_document);
             m_snapshot = Model::Snapshot(m_entities);
             
-            m_document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
+            document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
             switch (m_command) {
                 case PCRenameProperty:
                     rename();
@@ -145,15 +146,16 @@ namespace TrenchBroom {
                 default:
                     break;
             }
-            m_document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
+            document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
             
             return true;
         }
         
         bool EntityPropertyCommand::doPerformUndo() {
-            m_document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
-            m_snapshot.restore(m_document->worldBounds());
-            m_document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
+            View::MapDocumentSPtr document = lock(m_document);
+            document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
+            m_snapshot.restore(document->worldBounds());
+            document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
             return true;
         }
 

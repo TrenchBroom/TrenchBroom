@@ -44,7 +44,7 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             FontManager& m_fontManager;
             BrushRenderer m_unselectedBrushRenderer;
             BrushRenderer m_selectedBrushRenderer;
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             EntityRenderer m_selectedEntityRenderer;
             EntityLinkRenderer m_entityLinkRenderer;
         public:
-            MapRenderer(View::MapDocumentPtr document, FontManager& fontManager);
+            MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager);
             ~MapRenderer();
             
             void render(RenderContext& context);

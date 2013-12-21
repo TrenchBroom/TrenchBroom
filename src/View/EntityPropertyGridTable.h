@@ -112,14 +112,14 @@ namespace TrenchBroom {
                 StringList newKeyNames(size_t count, const Model::EntityList& entities) const;
             };
             
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             RowManager m_rows;
             bool m_ignoreUpdates;
             wxColor m_readonlyCellColor;
             wxColor m_specialCellColor;
         public:
-            EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller);
+            EntityPropertyGridTable(MapDocumentWPtr document, ControllerWPtr controller);
             
             int GetNumberRows();
             int GetNumberPropertyRows() const;

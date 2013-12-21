@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class Autosaver {
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             Logger* m_logger;
             
             time_t m_saveInterval;
@@ -46,13 +46,13 @@ namespace TrenchBroom {
             time_t m_lastModificationTime;
             bool m_dirty;
         public:
-            Autosaver(View::MapDocumentPtr document, const time_t saveInterval = 10 * 60, const time_t idleInterval = 3, const size_t maxBackups = 30);
+            Autosaver(View::MapDocumentWPtr document, const time_t saveInterval = 10 * 60, const time_t idleInterval = 3, const size_t maxBackups = 30);
             ~Autosaver();
             
             void triggerAutosave(Logger* logger);
             void updateLastModificationTime();
         private:
-            void autosave();
+            void autosave(View::MapDocumentSPtr document);
             IO::WritableDiskFileSystem createBackupFileSystem(const IO::Path& mapPath) const;
             IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
             bool isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const;

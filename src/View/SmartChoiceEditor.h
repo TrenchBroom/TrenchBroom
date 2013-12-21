@@ -41,7 +41,7 @@ namespace TrenchBroom {
             wxPanel* m_panel;
             wxComboBox* m_comboBox;
         public:
-            SmartChoiceEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartChoiceEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
             
             void OnComboBox(wxCommandEvent& event);
             void OnTextEnter(wxCommandEvent& event);

@@ -34,17 +34,17 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
             Model::BrushList m_brushes;
             Vec3 m_delta;
             bool m_lockTextures;
         public:
-            static ResizeBrushesCommand::Ptr resizeBrushes(View::MapDocumentPtr document, const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+            static ResizeBrushesCommand::Ptr resizeBrushes(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
            
             const Model::BrushList& brushes() const;
         private:
-            ResizeBrushesCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures);
+            ResizeBrushesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures);
             static Model::BrushList collectBrushes(const Model::BrushFaceList& faces);
             static String makeName(const Model::BrushList& brushes);
 

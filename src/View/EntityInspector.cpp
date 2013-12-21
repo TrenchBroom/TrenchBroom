@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
+        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             Layout();
         }
 
-        void EntityInspector::createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) {
+        void EntityInspector::createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
@@ -60,11 +60,11 @@ namespace TrenchBroom {
         }
         
         wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
-            m_entityBrowser = new EntityBrowser(parent, resources, m_document);
+            m_entityBrowser = new EntityBrowser(parent, m_document, resources);
             return m_entityBrowser;
         }
         
-        wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+        wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Entity Definitions"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
 
 #if defined _WIN32

@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void OnFrameActivate(wxActivateEvent& event);
         private:
             MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(MapDocumentPtr document);
+            MapFrame* createFrame(MapDocumentSPtr document);
             bool closeAllFrames(bool force);
             void removeAndDestroyFrame(MapFrame* frame);
             

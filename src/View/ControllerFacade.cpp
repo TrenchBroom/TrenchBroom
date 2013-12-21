@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ControllerFacade::ControllerFacade(MapDocumentPtr document) :
+        ControllerFacade::ControllerFacade(MapDocumentWPtr document) :
         m_document(document) {
             m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
             m_commandProcessor.commandUndoneNotifier.addObserver(this, &ControllerFacade::commandUndone);

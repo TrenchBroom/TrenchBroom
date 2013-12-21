@@ -34,13 +34,13 @@ namespace TrenchBroom {
         
         class MapInspector : public wxPanel {
         public:
-            MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
 
             void OnPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(MapDocumentPtr document, ControllerPtr controller);
-            wxWindow* createMapTree(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
-            wxWindow* createModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            void createGui(MapDocumentWPtr document, ControllerWPtr controller);
+            wxWindow* createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };
     }
 }

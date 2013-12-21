@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartChoiceEditor::SmartChoiceEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartChoiceEditor::SmartChoiceEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
         SmartPropertyEditor(document, controller),
         m_panel(NULL),
         m_comboBox(NULL) {}

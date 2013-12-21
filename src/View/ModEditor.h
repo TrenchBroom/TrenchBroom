@@ -42,8 +42,8 @@ namespace TrenchBroom {
     namespace View {
         class ModEditor : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             
             wxListBox* m_availableModList;
             wxListBox* m_enabledModList;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             StringList m_availableMods;
             bool m_ignoreNotifier;
         public:
-            ModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            ModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~ModEditor();
             
             void OnAddModClicked(wxCommandEvent& event);

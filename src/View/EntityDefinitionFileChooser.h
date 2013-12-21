@@ -32,14 +32,14 @@ namespace TrenchBroom {
     namespace View {
         class EntityDefinitionFileChooser : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             
             wxListBox* m_builtin;
             wxStaticText* m_external;
             wxButton* m_chooseExternal;
         public:
-            EntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~EntityDefinitionFileChooser();
             
             void OnBuiltinSelectionChanged(wxCommandEvent& event);

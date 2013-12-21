@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType FaceAttributeCommand::Type = Command::freeType();
 
-        FaceAttributeCommand::FaceAttributeCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces) :
+        FaceAttributeCommand::FaceAttributeCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) :
         Command(Type, "Change face attributes", true, true),
         m_document(document),
         m_faces(faces),
@@ -153,12 +153,13 @@ namespace TrenchBroom {
         }
 
         bool FaceAttributeCommand::doPerformDo() {
+            View::MapDocumentSPtr document = lock(m_document);
             m_snapshot = Model::Snapshot(m_faces);
             
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                m_document->faceWillChangeNotifier(face);
+                document->faceWillChangeNotifier(face);
                 if (m_setTexture)
                     face->setTexture(m_texture);
                 face->setXOffset(evaluate(face->xOffset(), m_xOffset, m_xOffsetOp));
@@ -172,15 +173,17 @@ namespace TrenchBroom {
                     face->setSurfaceFlags(m_surfaceFlags);
                 if (m_setSurfaceValue)
                     face->setSurfaceValue(m_surfaceValue);
-                m_document->faceDidChangeNotifier(face);
+                document->faceDidChangeNotifier(face);
             }
             return true;
         }
         
         bool FaceAttributeCommand::doPerformUndo() {
-            m_document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
-            m_snapshot.restore(m_document->worldBounds());
-            m_document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
+            View::MapDocumentSPtr document = lock(m_document);
+
+            document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
+            m_snapshot.restore(document->worldBounds());
+            document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
             return true;
         }
     }

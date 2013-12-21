@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityPropertyGrid::EntityPropertyGrid(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        EntityPropertyGrid::EntityPropertyGrid(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)),
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         void EntityPropertyGrid::OnPropertyGridMouseMove(wxMouseEvent& event) {
             int logicalX, logicalY;
             m_grid->CalcUnscrolledPosition(event.GetX(), event.GetY(), &logicalX, &logicalY);
-
+            
             const wxGridCellCoords currentCell = m_grid->XYToCell(logicalX, logicalY);
             if (m_lastHoveredCell != currentCell) {
                 const String tooltip = m_table->tooltip(currentCell);
@@ -127,7 +127,8 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyGrid::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {
-            event.Enable(m_document->hasSelectedObjects());
+            MapDocumentSPtr document = lock(m_document);
+            event.Enable(document->hasSelectedObjects());
         }
         
         void EntityPropertyGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
@@ -143,8 +144,8 @@ namespace TrenchBroom {
                 }
             }
         }
-
-        void EntityPropertyGrid::createGui(MapDocumentPtr document, ControllerPtr controller) {
+        
+        void EntityPropertyGrid::createGui(MapDocumentWPtr document, ControllerWPtr controller) {
             m_table = new EntityPropertyGridTable(document, controller);
             
             m_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
@@ -187,25 +188,29 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_GRID_TABBING, &EntityPropertyGrid::OnPropertyGridTab, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityPropertyGrid::OnPropertyGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdatePropertyViewOrAddPropertiesButton, this);
-
+            
             m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnAddPropertyPressed, this);
             m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdatePropertyViewOrAddPropertiesButton, this);
             m_removePropertiesButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnRemovePropertiesPressed, this);
             m_removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateRemovePropertiesButton, this);
         }
-
+        
         void EntityPropertyGrid::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
-            m_document->objectDidChangeNotifier.addObserver(this, &EntityPropertyGrid::objectDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
+            document->objectDidChangeNotifier.addObserver(this, &EntityPropertyGrid::objectDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
         }
         
         void EntityPropertyGrid::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
-            m_document->objectDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::objectDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
+                document->objectDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::objectDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
+            }
         }
         
         void EntityPropertyGrid::documentWasNewed() {
@@ -224,7 +229,7 @@ namespace TrenchBroom {
         void EntityPropertyGrid::selectionDidChange(const Model::SelectionResult& result) {
             updateControls();
         }
-
+        
         void EntityPropertyGrid::updateControls() {
             const SetBool ignoreSelection(m_ignoreSelection);
             m_table->update();
@@ -235,7 +240,7 @@ namespace TrenchBroom {
                 m_grid->GoToCell(row, m_lastSelectedCol);
             }
         }
-
+        
         Model::PropertyKey EntityPropertyGrid::selectedRowKey() const {
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
             if (selectedRows.empty())

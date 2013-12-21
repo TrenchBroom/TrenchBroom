@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces) :
+        SelectionCommand::SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces) :
         Command(Type, makeName(command, objects, faces), true, false),
         m_document(document),
         m_command(command),
@@ -63,36 +63,32 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentPtr document, const Model::ObjectList& objects) {
+        SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentWPtr document, const Model::ObjectList& objects) {
             return Ptr(new SelectionCommand(document, SCSelectObjects, objects, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentPtr document, const Model::BrushFaceList& faces) {
+        SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) {
             return Ptr(new SelectionCommand(document, SCSelectFaces, Model::EmptyObjectList, faces));
         }
         
-        SelectionCommand::Ptr SelectionCommand::selectAllObjects(View::MapDocumentPtr document) {
+        SelectionCommand::Ptr SelectionCommand::selectAllObjects(View::MapDocumentWPtr document) {
             return Ptr(new SelectionCommand(document, SCSelectAllObjects, Model::EmptyObjectList, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand::Ptr SelectionCommand::selectAllFaces(View::MapDocumentPtr document) {
+        SelectionCommand::Ptr SelectionCommand::selectAllFaces(View::MapDocumentWPtr document) {
             return Ptr(new SelectionCommand(document, SCSelectAllFaces, Model::EmptyObjectList, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentPtr document, const Model::ObjectList& objects) {
+        SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentWPtr document, const Model::ObjectList& objects) {
             return Ptr(new SelectionCommand(document, SCDeselectObjects, objects, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentPtr document, const Model::BrushFaceList& faces) {
+        SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) {
             return Ptr(new SelectionCommand(document, SCDeselectFaces, Model::EmptyObjectList, faces));
         }
         
-        SelectionCommand::Ptr SelectionCommand::deselectAll(View::MapDocumentPtr document) {
+        SelectionCommand::Ptr SelectionCommand::deselectAll(View::MapDocumentWPtr document) {
             return Ptr(new SelectionCommand(document, SCDeselectAll, Model::EmptyObjectList, Model::EmptyBrushFaceList));
-        }
-
-        View::MapDocumentPtr SelectionCommand::document() const {
-            return m_document;
         }
 
         const Model::SelectionResult& SelectionCommand::lastResult() const {
@@ -100,41 +96,43 @@ namespace TrenchBroom {
         }
 
         bool SelectionCommand::doPerformDo() {
-            m_previouslySelectedObjects = m_document->selectedObjects();
-            m_previouslySelectedFaces = m_document->selectedFaces();
+            View::MapDocumentSPtr document = lock(m_document);
+            m_previouslySelectedObjects = document->selectedObjects();
+            m_previouslySelectedFaces = document->selectedFaces();
             
             switch (m_command) {
                 case SCSelectObjects:
-                    m_lastResult = m_document->selectObjects(m_objects);
+                    m_lastResult = document->selectObjects(m_objects);
                     break;
                 case SCSelectFaces:
-                    m_lastResult = m_document->selectFaces(m_faces);
+                    m_lastResult = document->selectFaces(m_faces);
                     break;
                 case SCSelectAllObjects:
-                    m_lastResult = m_document->selectAllObjects();
+                    m_lastResult = document->selectAllObjects();
                     break;
                 case SCSelectAllFaces:
-                    m_lastResult = m_document->selectAllFaces();
+                    m_lastResult = document->selectAllFaces();
                     break;
                 case SCDeselectObjects:
-                    m_lastResult = m_document->deselectObjects(m_objects);
+                    m_lastResult = document->deselectObjects(m_objects);
                     break;
                 case SCDeselectFaces:
-                    m_lastResult = m_document->deselectFaces(m_faces);
+                    m_lastResult = document->deselectFaces(m_faces);
                     break;
                 case SCDeselectAll:
-                    m_lastResult = m_document->deselectAll();
+                    m_lastResult = document->deselectAll();
                     break;
             }
-            m_document->selectionDidChangeNotifier(m_lastResult);
+            document->selectionDidChangeNotifier(m_lastResult);
             return true;
         }
         
         bool SelectionCommand::doPerformUndo() {
-            m_lastResult = m_document->deselectAll();
-            m_lastResult += m_document->selectObjects(m_previouslySelectedObjects);
-            m_lastResult += m_document->selectFaces(m_previouslySelectedFaces);
-            m_document->selectionDidChangeNotifier(m_lastResult);
+            View::MapDocumentSPtr document = lock(m_document);
+            m_lastResult = document->deselectAll();
+            m_lastResult += document->selectObjects(m_previouslySelectedObjects);
+            m_lastResult += document->selectFaces(m_previouslySelectedFaces);
+            document->selectionDidChangeNotifier(m_lastResult);
             return true;
         }
     }

@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent) {
             createGui(document, controller);
         }
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Layout();
         }
 
-        void MapInspector::createGui(MapDocumentPtr document, ControllerPtr controller) {
+        void MapInspector::createGui(MapDocumentWPtr document, ControllerWPtr controller) {
             wxWindow* mapTree = createMapTree(this, document, controller);
             wxWindow* modEditor = createModEditor(this, document, controller);
             
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             SetSizerAndFit(sizer);
         }
 
-        wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+        wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             return new MapTreeView(parent, document, controller);
         }
         
-        wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+        wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Mods"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
             
 #if defined _WIN32

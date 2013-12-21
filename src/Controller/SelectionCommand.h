@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 SCDeselectAll
             } SelectCommand;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             SelectCommand m_command;
             
             Model::ObjectList m_objects;
@@ -59,19 +59,18 @@ namespace TrenchBroom {
             
             Model::SelectionResult m_lastResult;
         public:
-            static Ptr select(View::MapDocumentPtr document, const Model::ObjectList& objects);
-            static Ptr select(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
-            static Ptr selectAllObjects(View::MapDocumentPtr document);
-            static Ptr selectAllFaces(View::MapDocumentPtr document);
+            static Ptr select(View::MapDocumentWPtr document, const Model::ObjectList& objects);
+            static Ptr select(View::MapDocumentWPtr document, const Model::BrushFaceList& faces);
+            static Ptr selectAllObjects(View::MapDocumentWPtr document);
+            static Ptr selectAllFaces(View::MapDocumentWPtr document);
             
-            static Ptr deselect(View::MapDocumentPtr document, const Model::ObjectList& objects);
-            static Ptr deselect(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
-            static Ptr deselectAll(View::MapDocumentPtr document);
-            
-            View::MapDocumentPtr document() const;
+            static Ptr deselect(View::MapDocumentWPtr document, const Model::ObjectList& objects);
+            static Ptr deselect(View::MapDocumentWPtr document, const Model::BrushFaceList& faces);
+            static Ptr deselectAll(View::MapDocumentWPtr document);
+
             const Model::SelectionResult& lastResult() const;
         private:
-            SelectionCommand(View::MapDocumentPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
 
             static String makeName(const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();

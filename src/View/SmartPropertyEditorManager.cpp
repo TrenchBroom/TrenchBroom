@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, View::MapDocumentWPtr document, View::ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             updateEditor();
         }
 
-        void SmartPropertyEditorManager::createEditors(View::MapDocumentPtr document, View::ControllerPtr controller) {
+        void SmartPropertyEditorManager::createEditors(View::MapDocumentWPtr document, View::ControllerWPtr controller) {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("spawnflags")),
                                                   EditorPtr(new SmartSpawnflagsEditor(document, controller))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher("_color", "_sunlight_color", "_sunlight_color2")),
@@ -67,21 +67,27 @@ namespace TrenchBroom {
         }
         
         void SmartPropertyEditorManager::bindObservers() {
-            m_document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-            m_document->objectDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::objectDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+            document->objectDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::objectDidChange);
         }
         
         void SmartPropertyEditorManager::unbindObservers() {
-            m_document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-            m_document->objectDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::objectDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+                document->objectDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::objectDidChange);
+            }
         }
 
         void SmartPropertyEditorManager::selectionDidChange(const Model::SelectionResult& result) {
-            switchEditor(m_key, m_document->allSelectedEntities());
+            MapDocumentSPtr document = lock(m_document);
+            switchEditor(m_key, document->allSelectedEntities());
         }
         
         void SmartPropertyEditorManager::objectDidChange(Model::Object* object) {
-            switchEditor(m_key, m_document->allSelectedEntities());
+            MapDocumentSPtr document = lock(m_document);
+            switchEditor(m_key, document->allSelectedEntities());
         }
 
         SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const {
@@ -126,8 +132,10 @@ namespace TrenchBroom {
         }
 
         void SmartPropertyEditorManager::updateEditor() {
-            if (m_activeEditor != NULL)
-                m_activeEditor->update(m_document->allSelectedEntities());
+            if (m_activeEditor != NULL) {
+                MapDocumentSPtr document = lock(m_document);
+                m_activeEditor->update(document->allSelectedEntities());
+            }
         }
     }
 }

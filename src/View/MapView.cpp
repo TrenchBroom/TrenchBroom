@@ -53,7 +53,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentPtr document, ControllerPtr controller) :
+        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller) :
         wxGLCanvas(parent, wxID_ANY, &attribs().front()),
         m_logger(logger),
         m_initialized(false),
@@ -164,19 +164,21 @@ namespace TrenchBroom {
         }
 
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
-            const Grid& grid = m_document->grid();
+            MapDocumentSPtr document = lock(m_document);
+            
+            const Grid& grid = document->grid();
             const wxMouseState mouseState = wxGetMouseState();
             const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
                 const Ray3 pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
-                Model::PickResult pickResult = m_document->pick(pickRay);
+                Model::PickResult pickResult = document->pick(pickRay);
                 pickResult.sortHits();
                 
-                const Model::PickResult::FirstHit first = Model::firstHit(pickResult, Model::Brush::BrushHit, m_document->filter(), true);
+                const Model::PickResult::FirstHit first = Model::firstHit(pickResult, Model::Brush::BrushHit, document->filter(), true);
                 if (first.matches) {
                     const Model::BrushFace* face = Model::hitAsFace(first.hit);
                     const Vec3 snappedHitPoint = grid.snap(first.hit.hitPoint());
-                    return grid.moveDeltaForBounds(*face, bounds, m_document->worldBounds(), pickRay, snappedHitPoint);
+                    return grid.moveDeltaForBounds(*face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
                     const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay.direction));
@@ -328,9 +330,10 @@ namespace TrenchBroom {
             if (SetCurrent(*m_glContext)) {
                 wxPaintDC paintDC(this);
 
-                m_document->commitPendingRenderStateChanges();
+                MapDocumentSPtr document = lock(m_document);
+                document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    const View::Grid& grid = m_document->grid();
+                    const View::Grid& grid = document->grid();
                     Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                     setupGL(context);
                     setRenderOptions(context);
@@ -354,7 +357,8 @@ namespace TrenchBroom {
         }
 
         void MapView::OnPopupReparentBrushes(wxCommandEvent& event) {
-            const Model::BrushList& brushes = m_document->selectedBrushes();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushList& brushes = document->selectedBrushes();
             Model::Entity* newParent = findNewBrushParent(brushes);
             assert(newParent != NULL);
             
@@ -362,12 +366,14 @@ namespace TrenchBroom {
         }
         
         void MapView::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
-            const Model::BrushList& brushes = m_document->selectedBrushes();
-            reparentBrushes(brushes, m_document->worldspawn());
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushList& brushes = document->selectedBrushes();
+            reparentBrushes(brushes, document->worldspawn());
         }
         
         void MapView::OnPopupCreatePointEntity(wxCommandEvent& event) {
-            Assets::EntityDefinitionManager& manager = m_document->entityDefinitionManager();
+            MapDocumentSPtr document = lock(m_document);
+            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
             const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::PointEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
@@ -377,7 +383,8 @@ namespace TrenchBroom {
         }
         
         void MapView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
-            Assets::EntityDefinitionManager& manager = m_document->entityDefinitionManager();
+            MapDocumentSPtr document = lock(m_document);
+            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
             const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::BrushEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
@@ -401,11 +408,12 @@ namespace TrenchBroom {
         }
         
         void MapView::updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const {
-            const Model::BrushList& brushes = m_document->selectedBrushes();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushList& brushes = document->selectedBrushes();
             StringStream name;
             name << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to ";
             
-            if (!m_document->hasSelectedBrushes() || m_document->hasSelectedEntities() || m_document->hasSelectedFaces()) {
+            if (!document->hasSelectedBrushes() || document->hasSelectedEntities() || document->hasSelectedFaces()) {
                 event.Enable(false);
                 name << "Entity";
             } else {
@@ -422,16 +430,19 @@ namespace TrenchBroom {
         }
 
         void MapView::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
-            const Model::BrushList& brushes = m_document->selectedBrushes();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushList& brushes = document->selectedBrushes();
             StringStream name;
             name << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to World";
-            event.Enable(canReparentBrushes(brushes, m_document->worldspawn()));
+            event.Enable(canReparentBrushes(brushes, document->worldspawn()));
             event.SetText(name.str());
         }
 
         Model::Entity* MapView::findNewBrushParent(const Model::BrushList& brushes) const {
             Model::Entity* newParent = NULL;
-            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, m_document->filter(), true);
+
+            MapDocumentSPtr document = lock(m_document);
+            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
             if (first.matches) {
                 if (first.hit.type() == Model::Entity::EntityHit) {
                     newParent = Model::hitAsEntity(first.hit);
@@ -463,14 +474,16 @@ namespace TrenchBroom {
             assert(newParent != NULL);
             assert(canReparentBrushes(brushes, newParent));
             
+            ControllerSPtr controller = lock(m_controller);
+
             StringStream name;
             name << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to " << newParent->classname("<missing classname>");
             
-            m_controller->beginUndoableGroup(name.str());
-            m_controller->deselectAll();
-            m_controller->reparentBrushes(brushes, newParent);
-            m_controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
-            m_controller->closeGroup();
+            controller->beginUndoableGroup(name.str());
+            controller->deselectAll();
+            controller->reparentBrushes(brushes, newParent);
+            controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
+            controller->closeGroup();
         }
 
         Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const {
@@ -488,18 +501,21 @@ namespace TrenchBroom {
         }
 
         void MapView::createPointEntity(const Assets::PointEntityDefinition& definition) {
-            Model::Entity* entity = m_document->map()->createEntity();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            Model::Entity* entity = document->map()->createEntity();
             entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition.name());
             
             Vec3 delta;
-            View::Grid& grid = m_document->grid();
+            View::Grid& grid = document->grid();
             
-            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Brush::BrushHit, m_document->filter(), true);
+            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
             if (first.matches) {
-                delta = grid.moveDeltaForBounds(*Model::hitAsFace(first.hit), definition.bounds(), m_document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
+                delta = grid.moveDeltaForBounds(*Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
             } else {
                 const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay().direction));
-                delta = grid.moveDeltaForPoint(definition.bounds().center(), m_document->worldBounds(), newPosition - definition.bounds().center());
+                delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());
             }
             
             StringStream name;
@@ -508,16 +524,19 @@ namespace TrenchBroom {
             Model::ObjectList objects(1);
             objects[0] = entity;
             
-            m_controller->beginUndoableGroup(name.str());
-            m_controller->deselectAll();
-            m_controller->addObjects(objects);
-            m_controller->selectObjects(objects);
-            m_controller->moveObjects(objects, delta, false);
-            m_controller->closeGroup();
+            controller->beginUndoableGroup(name.str());
+            controller->deselectAll();
+            controller->addObjects(objects);
+            controller->selectObjects(objects);
+            controller->moveObjects(objects, delta, false);
+            controller->closeGroup();
         }
         
         void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {
-            const Model::BrushList brushes = m_document->selectedBrushes();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const Model::BrushList brushes = document->selectedBrushes();
             assert(!brushes.empty());
 
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
@@ -528,7 +547,7 @@ namespace TrenchBroom {
                 if ((*it++)->parent() != entityTemplate)
                     entityTemplate = NULL;
             
-            Model::Entity* entity = m_document->map()->createEntity();
+            Model::Entity* entity = document->map()->createEntity();
             if (entityTemplate != NULL && !entityTemplate->worldspawn())
                 entity->setProperties(entityTemplate->properties());
             entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition.name());
@@ -536,39 +555,49 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition.name();
             
-            m_controller->beginUndoableGroup(name.str());
-            m_controller->deselectAll();
-            m_controller->addObject(*entity);
-            m_controller->reparentBrushes(brushes, entity);
-            m_controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
-            m_controller->closeGroup();
+            controller->beginUndoableGroup(name.str());
+            controller->deselectAll();
+            controller->addObject(*entity);
+            controller->reparentBrushes(brushes, entity);
+            controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
+            controller->closeGroup();
         }
 
         void MapView::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &MapView::documentWasLoaded);
-            m_document->objectWasAddedNotifier.addObserver(this, &MapView::objectWasAdded);
-            m_document->objectDidChangeNotifier.addObserver(this, &MapView::objectDidChange);
-            m_document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
-            m_document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
-            m_controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &MapView::documentWasLoaded);
+            document->objectWasAddedNotifier.addObserver(this, &MapView::objectWasAdded);
+            document->objectDidChangeNotifier.addObserver(this, &MapView::objectDidChange);
+            document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+            document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
+
+            ControllerSPtr controller = lock(m_controller);
+            controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
+            controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapView::preferenceDidChange);
         }
         
         void MapView::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &MapView::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &MapView::documentWasLoaded);
-            m_document->objectWasAddedNotifier.removeObserver(this, &MapView::objectWasAdded);
-            m_document->objectDidChangeNotifier.removeObserver(this, &MapView::objectDidChange);
-            m_document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
-            m_document->modsDidChangeNotifier.removeObserver(this, &MapView::modsDidChange);
-            m_controller->commandDoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
-            m_controller->commandUndoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &MapView::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapView::documentWasLoaded);
+                document->objectWasAddedNotifier.removeObserver(this, &MapView::objectWasAdded);
+                document->objectDidChangeNotifier.removeObserver(this, &MapView::objectDidChange);
+                document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
+                document->modsDidChangeNotifier.removeObserver(this, &MapView::modsDidChange);
+            }
+            
+            if (!expired(m_controller)) {
+                ControllerSPtr controller = lock(m_controller);
+                controller->commandDoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+                controller->commandUndoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView::preferenceDidChange);
@@ -614,8 +643,10 @@ namespace TrenchBroom {
         }
 
         void MapView::updatePickResults(const int x, const int y) {
+            MapDocumentSPtr document = lock(m_document);
+
             m_inputState.setPickRay(m_camera.pickRay(x, y));
-            Model::PickResult pickResult = m_document->pick(m_inputState.pickRay());
+            Model::PickResult pickResult = document->pick(m_inputState.pickRay());
             m_toolChain->pick(m_inputState, pickResult);
             pickResult.sortHits();
             m_inputState.setPickResult(pickResult);
@@ -721,7 +752,8 @@ namespace TrenchBroom {
         }
 
         void MapView::showPopupMenu() {
-            Assets::EntityDefinitionManager& manager = m_document->entityDefinitionManager();
+            MapDocumentSPtr document = lock(m_document);
+            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
             const Assets::EntityDefinitionGroups pointGroups = manager.groups(Assets::EntityDefinition::PointEntity);
             const Assets::EntityDefinitionGroups brushGroups = manager.groups(Assets::EntityDefinition::BrushEntity);
             
@@ -833,7 +865,8 @@ namespace TrenchBroom {
         }
         
         void MapView::renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor) {
-            Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(m_document->worldBounds(), xColor, yColor, zColor);
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(document->worldBounds(), xColor, yColor, zColor);
             Renderer::VertexArray array = Renderer::VertexArray::swap(GL_LINES, vertices);
             
             Renderer::SetVboState setVboState(m_auxVbo);

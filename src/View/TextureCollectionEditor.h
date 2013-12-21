@@ -35,8 +35,8 @@ namespace TrenchBroom {
     namespace View {
         class TextureCollectionEditor : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             
             wxListBox* m_collections;
             wxBitmapButton* m_addTextureCollectionsButton;
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             wxBitmapButton* m_moveTextureCollectionUpButton;
             wxBitmapButton* m_moveTextureCollectionDownButton;
         public:
-            TextureCollectionEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~TextureCollectionEditor();
             
             void OnAddTextureCollectionsClicked(wxCommandEvent& event);

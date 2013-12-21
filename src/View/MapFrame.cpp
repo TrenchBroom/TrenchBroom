@@ -75,7 +75,7 @@ namespace TrenchBroom {
         m_navBar(NULL),
         m_mapView(NULL) {}
 
-        MapFrame::MapFrame(FrameManager* frameManager, MapDocumentPtr document) :
+        MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, _("")),
         m_frameManager(NULL),
         m_autosaver(NULL),
@@ -86,10 +86,10 @@ namespace TrenchBroom {
             Create(frameManager, document);
         }
 
-        void MapFrame::Create(FrameManager* frameManager, MapDocumentPtr document) {
+        void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
             m_frameManager = frameManager;
             m_document = document;
-            m_controller = ControllerPtr(new ControllerFacade(m_document));
+            m_controller = ControllerSPtr(new ControllerFacade(m_document));
             m_autosaver = new Autosaver(m_document);
             
             createGui();
@@ -726,9 +726,9 @@ namespace TrenchBroom {
         class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {
         private:
             const MapView* m_mapView;
-            const MapDocumentPtr m_document;
+            const MapDocumentSPtr m_document;
         public:
-            FrameMenuSelector(const MapView* mapView, const MapDocumentPtr document) :
+            FrameMenuSelector(const MapView* mapView, const MapDocumentSPtr document) :
             m_mapView(mapView),
             m_document(document) {}
             

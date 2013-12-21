@@ -36,13 +36,13 @@ namespace TrenchBroom {
     namespace View {
         class MapTreeView : public wxPanel {
         private:
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             wxDataViewCtrl* m_tree;
             bool m_ignoreTreeSelection;
             bool m_ignoreDocumentSelection;
         public:
-            MapTreeView(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            MapTreeView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~MapTreeView();
             
             void OnTreeViewSize(wxSizeEvent& event);

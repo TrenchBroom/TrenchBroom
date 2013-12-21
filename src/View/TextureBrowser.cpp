@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
+        TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document) {
             createGui(resources);
@@ -102,9 +102,11 @@ namespace TrenchBroom {
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+
+            MapDocumentSPtr document = lock(m_document);
             m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                             resources,
-                                            m_document->textureManager());
+                                            document->textureManager());
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
@@ -132,18 +134,22 @@ namespace TrenchBroom {
         }
         
         void TextureBrowser::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
-            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
         }
         
         void TextureBrowser::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
-            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
@@ -162,8 +168,9 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
+            MapDocumentSPtr document = lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
-                m_document->isGamePathPreference(path))
+                document->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

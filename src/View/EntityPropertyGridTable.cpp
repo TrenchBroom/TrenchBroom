@@ -341,7 +341,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentPtr document, ControllerPtr controller) :
+        EntityPropertyGridTable::EntityPropertyGridTable(MapDocumentWPtr document, ControllerWPtr controller) :
         m_document(document),
         m_controller(controller),
         m_ignoreUpdates(false),
@@ -374,8 +374,10 @@ namespace TrenchBroom {
             assert(row >= 0 && row < GetRowsCount());
             assert(col >= 0 && col < GetColsCount());
             
+            MapDocumentSPtr document = lock(m_document);
+            
             const size_t rowIndex = static_cast<size_t>(row);
-            const Model::EntityList entities = m_document->allSelectedEntities();
+            const Model::EntityList entities = document->allSelectedEntities();
             assert(!entities.empty());
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
@@ -392,21 +394,24 @@ namespace TrenchBroom {
         bool EntityPropertyGridTable::InsertRows(const size_t pos, const size_t numRows) {
             assert(pos >= 0 && static_cast<int>(pos) <= GetRowsCount());
             
-            const Model::EntityList entities = m_document->allSelectedEntities();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const Model::EntityList entities = document->allSelectedEntities();
             assert(!entities.empty());
             
             const StringList newKeys = m_rows.insertRows(pos, numRows, entities);
 
             const SetBool ignoreUpdates(m_ignoreUpdates);
-            m_controller->beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
+            controller->beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
 
             StringList::const_iterator it, end;
             for (it = newKeys.begin(), end = newKeys.end(); it != end; ++it) {
                 const String& key = *it;
-                m_controller->setEntityProperty(entities, key, "");
+                controller->setEntityProperty(entities, key, "");
             }
             
-            m_controller->closeGroup();
+            controller->closeGroup();
             notifyRowsInserted(pos, numRows);
             
             return true;
@@ -422,24 +427,27 @@ namespace TrenchBroom {
             
             assert(pos >= 0 && pos + numRows <= m_rows.propertyCount());
             
-            const Model::EntityList entities = m_document->allSelectedEntities();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const Model::EntityList entities = document->allSelectedEntities();
             assert(!entities.empty());
             
             const StringList keys = m_rows.keys(pos, numRows);
             assert(keys.size() == numRows);
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
-            m_controller->beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
+            controller->beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
             
             bool success = true;
             for (size_t i = 0; i < numRows && success; i++)
-                success = m_controller->removeEntityProperty(entities, keys[i]);
+                success = controller->removeEntityProperty(entities, keys[i]);
             
             if (!success) {
-                m_controller->rollbackGroup();
+                controller->rollbackGroup();
                 return false;
             }
-            m_controller->closeGroup();
+            controller->closeGroup();
 
             m_rows.deleteRows(pos, numRows);
             notifyRowsDeleted(pos, numRows);
@@ -500,8 +508,9 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
+            MapDocumentSPtr document = lock(m_document);
             const size_t oldRowCount = m_rows.rowCount();
-            m_rows.updateRows(m_document->allSelectedEntities());
+            m_rows.updateRows(document->allSelectedEntities());
             const size_t newRowCount = m_rows.rowCount();
             
             if (oldRowCount < newRowCount)
@@ -534,8 +543,10 @@ namespace TrenchBroom {
 
         void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.propertyCount());
+            
+            ControllerSPtr controller = lock(m_controller);
             const String& oldKey = m_rows.key(rowIndex);
-            if (m_controller->renameEntityProperty(entities, oldKey, newKey)) {
+            if (controller->renameEntityProperty(entities, oldKey, newKey)) {
                 m_rows.updateRows(entities);
                 notifyRowsUpdated(0, m_rows.rowCount());
             }
@@ -543,8 +554,10 @@ namespace TrenchBroom {
         
         void EntityPropertyGridTable::updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.rowCount());
+
+            ControllerSPtr controller = lock(m_controller);
             const String& key = m_rows.key(rowIndex);
-            if (m_controller->setEntityProperty(entities, key, newValue)) {
+            if (controller->setEntityProperty(entities, key, newValue)) {
                 m_rows.updateRows(entities);
                 notifyRowsUpdated(0, m_rows.rowCount());
             }

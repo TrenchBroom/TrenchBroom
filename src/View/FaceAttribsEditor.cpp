@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document, ControllerPtr controller) :
+        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -51,32 +51,39 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
-            if (!m_controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
-            Grid& grid = m_document->grid();
+            MapDocumentSPtr document = lock(m_document);
+            Grid& grid = document->grid();
+            
             m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
@@ -181,28 +188,34 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
-            m_document->faceDidChangeNotifier.addObserver(this, &FaceAttribsEditor::faceDidChange);
-            m_document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
-            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
+            document->faceDidChangeNotifier.addObserver(this, &FaceAttribsEditor::faceDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
         
         void FaceAttribsEditor::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
-            m_document->faceDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::faceDidChange);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
-            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
+                document->faceDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
+            }
         }
         
         void FaceAttribsEditor::documentWasNewed() {
-            m_faces = m_document->allSelectedFaces();
+            MapDocumentSPtr document = lock(m_document);
+            m_faces = document->allSelectedFaces();
             updateControls();
         }
         
         void FaceAttribsEditor::documentWasLoaded() {
-            m_faces = m_document->allSelectedFaces();
+            MapDocumentSPtr document = lock(m_document);
+            m_faces = document->allSelectedFaces();
             updateControls();
         }
         
@@ -211,7 +224,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::selectionDidChange(const Model::SelectionResult& result) {
-            m_faces = m_document->allSelectedFaces();
+            MapDocumentSPtr document = lock(m_document);
+            m_faces = document->allSelectedFaces();
             updateControls();
         }
         
@@ -328,13 +342,15 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const {
-            const Model::GamePtr game = m_document->game();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::GamePtr game = document->game();
             const Model::GameConfig::FlagConfigList& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags, names, descriptions);
         }
         
         void FaceAttribsEditor::getContentFlags(wxArrayString& names, wxArrayString& descriptions) const {
-            const Model::GamePtr game = m_document->game();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::GamePtr game = document->game();
             const Model::GameConfig::FlagConfigList& contentFlags = game->contentFlags();
             getFlags(contentFlags, names, descriptions);
         }

@@ -40,12 +40,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<OpenDocumentCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
             IO::Path m_path;
         public:
-            OpenDocumentCommand(View::MapDocumentPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            OpenDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
             Model::Map* map() const;
         private:

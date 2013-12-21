@@ -50,7 +50,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit = Model::Hit::freeHitType();
 
-        ResizeBrushesTool::ResizeBrushesTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
+        ResizeBrushesTool::ResizeBrushesTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
         Tool(next, document, controller) {}
 
         void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {

@@ -86,7 +86,7 @@ namespace TrenchBroom {
             
             Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
-            static MapDocumentPtr newMapDocument();
+            static MapDocumentSPtr newMapDocument();
             ~MapDocument();
             
             const BBox3& worldBounds() const;

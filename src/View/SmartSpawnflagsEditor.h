@@ -49,7 +49,7 @@ namespace TrenchBroom {
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            SmartSpawnflagsEditor(View::MapDocumentPtr document, View::ControllerPtr controller);
+            SmartSpawnflagsEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
             
             void OnFlagChanged(FlagChangedCommand& event);
         private:

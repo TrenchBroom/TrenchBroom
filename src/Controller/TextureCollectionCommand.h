@@ -43,16 +43,16 @@ namespace TrenchBroom {
             } Action;
             
             
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             Action m_action;
             StringList m_names;
         public:
-            static Ptr add(View::MapDocumentPtr document, const String& name);
-            static Ptr remove(View::MapDocumentPtr document, const StringList& names);
-            static Ptr moveUp(View::MapDocumentPtr document, const String& name);
-            static Ptr moveDown(View::MapDocumentPtr document, const String& name);
+            static Ptr add(View::MapDocumentWPtr document, const String& name);
+            static Ptr remove(View::MapDocumentWPtr document, const StringList& names);
+            static Ptr moveUp(View::MapDocumentWPtr document, const String& name);
+            static Ptr moveDown(View::MapDocumentWPtr document, const String& name);
         private:
-            TextureCollectionCommand(View::MapDocumentPtr document, const String& name, Action action, const StringList& names);
+            TextureCollectionCommand(View::MapDocumentWPtr document, const String& name, Action action, const StringList& names);
             
             bool doPerformDo();
             bool doPerformUndo();

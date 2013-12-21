@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -52,15 +52,18 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::OnBuiltinSelectionChanged(wxCommandEvent& event) {
             assert(m_builtin->GetSelection() != wxNOT_FOUND);
 
-            const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            IO::Path::List paths = m_document->entityDefinitionFiles();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            IO::Path::List paths = document->entityDefinitionFiles();
             std::sort(paths.begin(), paths.end());
             
+            const size_t index = static_cast<size_t>(m_builtin->GetSelection());
             assert(index < paths.size());
             const IO::Path& path = paths[index];
             
             assert(!path.isAbsolute());
-            m_controller->setEntityDefinitionFile(path);
+            controller->setEntityDefinitionFile(path);
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
@@ -69,9 +72,10 @@ namespace TrenchBroom {
                 return;
             
             const IO::Path path(pathWxStr.ToStdString());
-
             assert(path.isAbsolute());
-            m_controller->setEntityDefinitionFile(path);
+
+            ControllerSPtr controller = lock(m_controller);
+            controller->setEntityDefinitionFile(path);
         }
 
         void EntityDefinitionFileChooser::createGui() {
@@ -110,15 +114,19 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
-            m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
         }
         
         void EntityDefinitionFileChooser::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
-            m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
+            }
         }
         
         void EntityDefinitionFileChooser::documentWasNewed() {
@@ -136,7 +144,8 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::updateControls() {
             m_builtin->Clear();
             
-            IO::Path::List paths = m_document->entityDefinitionFiles();
+            MapDocumentSPtr document = lock(m_document);
+            IO::Path::List paths = document->entityDefinitionFiles();
             std::sort(paths.begin(), paths.end());
             
             IO::Path::List::const_iterator it, end;
@@ -145,7 +154,7 @@ namespace TrenchBroom {
                 m_builtin->Append(path.lastComponent().asString());
             }
             
-            const Model::EntityDefinitionFileSpec spec = m_document->entityDefinitionFile();
+            const Model::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
                 const size_t index = VectorUtils::indexOf(paths, spec.path());
                 if (index < paths.size())

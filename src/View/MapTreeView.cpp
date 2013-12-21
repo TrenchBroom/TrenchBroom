@@ -52,9 +52,9 @@ namespace TrenchBroom {
         
         class MapTreeViewDataModel : public wxDataViewModel {
         private:
-            MapDocumentPtr m_document;
+            MapDocumentWPtr m_document;
         public:
-            MapTreeViewDataModel(MapDocumentPtr document) :
+            MapTreeViewDataModel(MapDocumentWPtr document) :
             m_document(document) {
                 bindObservers();
             }
@@ -86,9 +86,13 @@ namespace TrenchBroom {
             }
             
             unsigned int GetChildren(const wxDataViewItem& item, wxDataViewItemArray& children) const {
+                if (expired(m_document))
+                    return 0;
+                
+                MapDocumentSPtr document = lock(m_document);
                 const void* data = item.GetID();
                 if (data == NULL) {
-                    const Model::Map* map = m_document->map();
+                    const Model::Map* map = document->map();
                     if (map != NULL) {
                         const Model::EntityList& entities = map->entities();
                         
@@ -161,19 +165,23 @@ namespace TrenchBroom {
             }
 
             void bindObservers() {
-                m_document->documentWasNewedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewed);
-                m_document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasLoaded);
-                m_document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
-                m_document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                m_document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewed);
+                document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasLoaded);
+                document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
+                document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
             }
             
             void unbindObservers() {
-                m_document->documentWasNewedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewed);
-                m_document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasLoaded);
-                m_document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
-                m_document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                m_document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
+                if (!expired(m_document)) {
+                    MapDocumentSPtr document = lock(m_document);
+                    document->documentWasNewedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewed);
+                    document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasLoaded);
+                    document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
+                    document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                    document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
+                }
             }
             
             void documentWasNewed() {
@@ -211,7 +219,7 @@ namespace TrenchBroom {
             }
         };
         
-        MapTreeView::MapTreeView(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        MapTreeView::MapTreeView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
@@ -247,6 +255,8 @@ namespace TrenchBroom {
             if (m_ignoreTreeSelection)
                 return;
             
+            ControllerSPtr controller = lock(m_controller);
+
             SetBool disableDocumentSelection(m_ignoreDocumentSelection);
 
             wxDataViewItemArray selections;
@@ -261,16 +271,20 @@ namespace TrenchBroom {
                 selectObjects.push_back(object);
             }
             
-            m_controller->deselectAllAndSelectObjects(selectObjects);
+            controller->deselectAllAndSelectObjects(selectObjects);
             // TODO: make the selected objects visible in the 3D view
         }
 
         void MapTreeView::bindObservers() {
-            m_document->selectionDidChangeNotifier.addObserver(this, &MapTreeView::selectionDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &MapTreeView::selectionDidChange);
         }
         
         void MapTreeView::unbindObservers() {
-            m_document->selectionDidChangeNotifier.removeObserver(this, &MapTreeView::selectionDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &MapTreeView::selectionDidChange);
+            }
         }
         
         void MapTreeView::selectionDidChange(const Model::SelectionResult& result) {
@@ -279,7 +293,8 @@ namespace TrenchBroom {
             
             SetBool disableTreeSelection(m_ignoreTreeSelection);
             
-            const Model::ObjectList& selectedObjects = m_document->selectedObjects();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& selectedObjects = document->selectedObjects();
 
             wxDataViewItemArray selections;
             AddObjectToItemArray addObjects(selections);

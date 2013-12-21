@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 OpMul
             } Operation;
 
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             const Model::BrushFaceList m_faces;
             Model::Snapshot m_snapshot;
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             bool m_setSurfaceFlags;
             bool m_setSurfaceValue;
         public:
-            FaceAttributeCommand(View::MapDocumentPtr document, const Model::BrushFaceList& faces);
+            FaceAttributeCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces);
             
             void setTexture(Assets::Texture* texture);
             void setXOffset(const float xOffset);

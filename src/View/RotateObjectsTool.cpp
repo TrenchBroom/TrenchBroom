@@ -42,7 +42,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType RotateObjectsTool::HandleHit = Model::Hit::freeHitType();
 
-        RotateObjectsTool::RotateObjectsTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
+        RotateObjectsTool::RotateObjectsTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         Tool(next, document, controller),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),

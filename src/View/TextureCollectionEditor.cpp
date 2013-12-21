@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -57,17 +57,21 @@ namespace TrenchBroom {
             if (pathWxStr.empty())
                 return;
             
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
             const IO::Path absPath(pathWxStr.ToStdString());
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const IO::Path docPath = m_document->path();
-            const IO::Path gamePath = gameFactory.gamePath(m_document->game()->gameName());
+
+            const IO::Path docPath = document->path();
+            const IO::Path gamePath = gameFactory.gamePath(document->game()->gameName());
             
             ChoosePathTypeDialog pathDialog(this, absPath, docPath, gamePath);
             if (pathDialog.ShowModal() != wxID_OK)
                 return;
             
             const IO::Path collectionPath = pathDialog.path();
-            m_controller->addTextureCollection(collectionPath.asString());
+            controller->addTextureCollection(collectionPath.asString());
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
@@ -75,7 +79,10 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(!selections.empty());
             
-            const StringList names = m_document->textureManager().externalCollectionNames();
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const StringList names = document->textureManager().externalCollectionNames();
             StringList removeNames;
 
             for (size_t i = 0; i < selections.size(); ++i) {
@@ -84,7 +91,7 @@ namespace TrenchBroom {
                 removeNames.push_back(names[index]);
             }
             
-            m_controller->removeTextureCollections(removeNames);
+            controller->removeTextureCollections(removeNames);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
@@ -92,13 +99,15 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
             
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const StringList names = document->textureManager().externalCollectionNames();
+            
             const size_t index = static_cast<size_t>(selections.front());
-            assert(index > 0);
+            assert(index > 0 && index < names.size());
             
-            const StringList names = m_document->textureManager().externalCollectionNames();
-            assert(index < names.size());
-            
-            m_controller->moveTextureCollectionUp(names[index]);
+            controller->moveTextureCollectionUp(names[index]);
             m_collections->SetSelection(index - 1);
         }
         
@@ -107,11 +116,15 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
             
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+
+            const StringList names = document->textureManager().externalCollectionNames();
+
             const size_t index = static_cast<size_t>(selections.front());
-            const StringList names = m_document->textureManager().externalCollectionNames();
             assert(index < names.size() - 1);
             
-            m_controller->moveTextureCollectionDown(names[index]);
+            controller->moveTextureCollectionDown(names[index]);
             m_collections->SetSelection(index + 1);
         }
 
@@ -183,18 +196,22 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
-            m_document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureCollectionEditor::preferenceDidChange);
         }
         
         void TextureCollectionEditor::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
-            m_document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::textureCollectionsDidChange);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::preferenceDidChange);
@@ -213,14 +230,16 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
-            if (m_document->isGamePathPreference(path))
+            MapDocumentSPtr document = lock(m_document);
+            if (document->isGamePathPreference(path))
                 updateControls();
         }
 
         void TextureCollectionEditor::updateControls() {
             m_collections->Clear();
             
-            const StringList names = m_document->textureManager().externalCollectionNames();
+            MapDocumentSPtr document = lock(m_document);
+            const StringList names = document->textureManager().externalCollectionNames();
             StringList::const_iterator it, end;
             for (it = names.begin(), end = names.end(); it != end; ++it) {
                 const String& name = *it;

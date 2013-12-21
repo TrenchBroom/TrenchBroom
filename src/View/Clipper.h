@@ -114,7 +114,7 @@ namespace TrenchBroom {
             void reset();
 
             void toggleClipSide();
-            ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentPtr document) const;
+            ClipResult clip(const Model::BrushList& brushes, const View::MapDocumentSPtr document) const;
         private:
             Vec3::List getNormals(const Vec3& point, const Model::BrushFace& face) const;
             Vec3::List getNormals(const Model::BrushFaceList& faces) const;

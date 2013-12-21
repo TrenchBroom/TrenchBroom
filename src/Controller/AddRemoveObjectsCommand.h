@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 ARemove
             } Action;
             
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             Action m_action;
             Model::ObjectParentList m_objectsToAdd;
             Model::ObjectParentList m_objectsToRemove;
@@ -46,13 +46,13 @@ namespace TrenchBroom {
         public:
             ~AddRemoveObjectsCommand();
             
-            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects);
-            static AddRemoveObjectsCommand::Ptr removeObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects);
+            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects);
+            static AddRemoveObjectsCommand::Ptr removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects);
             
             const Model::ObjectList& addedObjects() const;
             const Model::ObjectList& removedObjects() const;
         private:
-            AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectParentList& objects);
+            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects);
             static String makeName(const Action action, const Model::ObjectParentList& objects);
 
             bool doPerformDo();

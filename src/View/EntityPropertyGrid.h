@@ -40,7 +40,7 @@ namespace TrenchBroom {
         
         class EntityPropertyGrid : public wxPanel {
         private:
-            MapDocumentPtr m_document;
+            MapDocumentWPtr m_document;
             
             EntityPropertyGridTable* m_table;
             wxGrid* m_grid;
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             Model::PropertyKey m_lastSelectedKey;
             int m_lastSelectedCol;
         public:
-            EntityPropertyGrid(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller);
+            EntityPropertyGrid(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~EntityPropertyGrid();
             
             void OnPropertyGridSize(wxSizeEvent& event);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
         private:
-            void createGui(MapDocumentPtr document, ControllerPtr controller);
+            void createGui(MapDocumentWPtr document, ControllerWPtr controller);
             void bindEvents();
             
             void bindObservers();

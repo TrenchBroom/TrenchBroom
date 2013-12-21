@@ -29,19 +29,21 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityPropertyEditor::EntityPropertyEditor(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) :
+        EntityPropertyEditor::EntityPropertyEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document) {
             createGui(this, document, controller);
         }
 
         void EntityPropertyEditor::OnEntityPropertySelected(EntityPropertySelectedCommand& command) {
+            MapDocumentSPtr document = lock(m_document);
+
             const String& key = command.key();
-            const Model::EntityList& entities = m_document->allSelectedEntities();
+            const Model::EntityList& entities = document->allSelectedEntities();
             m_smartEditorManager->switchEditor(key, entities);
         }
 
-        void EntityPropertyEditor::createGui(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller) {
+        void EntityPropertyEditor::createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             m_propertyGrid = new EntityPropertyGrid(parent, document, controller);
             m_smartEditorManager = new SmartPropertyEditorManager(parent, document, controller);
             

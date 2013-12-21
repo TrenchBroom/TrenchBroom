@@ -190,7 +190,7 @@ namespace TrenchBroom {
             return range;
         }
         
-        SmartColorEditor::SmartColorEditor(View::MapDocumentPtr document, View::ControllerPtr controller) :
+        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
         SmartPropertyEditor(document, controller),
         m_panel(NULL),
         m_floatRadio(NULL),
@@ -200,11 +200,11 @@ namespace TrenchBroom {
         
         struct ConvertColorRange {
         private:
-            View::ControllerPtr m_controller;
+            View::ControllerSPtr m_controller;
             Model::PropertyKey m_key;
             SmartColorEditor::ColorRange m_toRange;
         public:
-            ConvertColorRange(View::ControllerPtr controller, const Model::PropertyKey& key, const SmartColorEditor::ColorRange toRange) :
+            ConvertColorRange(View::ControllerSPtr controller, const Model::PropertyKey& key, const SmartColorEditor::ColorRange toRange) :
             m_controller(controller),
             m_key(key),
             m_toRange(toRange) {}
@@ -235,11 +235,11 @@ namespace TrenchBroom {
         
         struct SetColor {
         private:
-            View::ControllerPtr m_controller;
+            View::ControllerSPtr m_controller;
             Model::PropertyKey m_key;
             SmartColorEditor::ColorPtr m_color;
         public:
-            SetColor(View::ControllerPtr controller, const Model::PropertyKey& key, SmartColorEditor::ColorPtr color) :
+            SetColor(View::ControllerSPtr controller, const Model::PropertyKey& key, SmartColorEditor::ColorPtr color) :
             m_controller(controller),
             m_key(key),
             m_color(color) {}

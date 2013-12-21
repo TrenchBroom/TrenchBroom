@@ -187,12 +187,12 @@ namespace TrenchBroom {
         class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             BaseTool* m_next;
-            MapDocumentPtr m_document;
-            ControllerPtr m_controller;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             bool m_dragging;
             bool m_active;
         public:
-            Tool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller) :
+            Tool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
             m_next(next),
             m_document(document),
             m_controller(controller),
@@ -326,20 +326,20 @@ namespace TrenchBroom {
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) {}
             
-            MapDocumentPtr document() {
-                return m_document;
+            MapDocumentSPtr document() {
+                return lock(m_document);
             }
             
-            MapDocumentPtr document() const {
-                return m_document;
+            MapDocumentSPtr document() const {
+                return lock(m_document);
             }
             
-            ControllerPtr controller() {
-                return m_controller;
+            ControllerSPtr controller() {
+                return lock(m_controller);
             }
             
-            const ControllerPtr controller() const {
-                return m_controller;
+            const ControllerSPtr controller() const {
+                return lock(m_controller);
             }
             
             bool dragging() const {

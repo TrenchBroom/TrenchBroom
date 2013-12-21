@@ -34,11 +34,11 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_removedObjects);
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects) {
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
             return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, AAdd, objects));
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentPtr document, const Model::ObjectParentList& objects) {
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
             return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, ARemove, objects));
         }
 
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return m_removedObjects;
         }
 
-        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentPtr document, const Action action, const Model::ObjectParentList& objects) :
+        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects) :
         Command(Type, makeName(action, objects), true, true),
         m_document(document),
         m_action(action) {
@@ -97,10 +97,10 @@ namespace TrenchBroom {
 
         struct AddObjectToDocument {
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentSPtr m_document;
             Model::ObjectList& m_addedObjects;
         public:
-            AddObjectToDocument(View::MapDocumentPtr document, Model::ObjectList& addedObjects) :
+            AddObjectToDocument(View::MapDocumentSPtr document, Model::ObjectList& addedObjects) :
             m_document(document),
             m_addedObjects(addedObjects) {}
             
@@ -113,10 +113,10 @@ namespace TrenchBroom {
         
         struct RemoveObjectFromDocument {
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentSPtr m_document;
             Model::ObjectList& m_removedObjects;
         public:
-            RemoveObjectFromDocument(View::MapDocumentPtr document, Model::ObjectList& removedObjects) :
+            RemoveObjectFromDocument(View::MapDocumentSPtr document, Model::ObjectList& removedObjects) :
             m_document(document),
             m_removedObjects(removedObjects) {}
             
@@ -128,25 +128,29 @@ namespace TrenchBroom {
         };
         
         void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
-            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            View::MapDocumentSPtr document = lock(m_document);
+
+            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
             
-            AddObjectToDocument addObjectToDocument(m_document, m_addedObjects);
+            AddObjectToDocument addObjectToDocument(document, m_addedObjects);
             Model::each(objects.begin(), objects.end(), addObjectToDocument, Model::MatchAll());
 
-            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
             
         }
         
         void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
-            Model::NotifyParent parentWillChange(m_document->objectWillChangeNotifier);
+            View::MapDocumentSPtr document = lock(m_document);
+
+            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
             
-            RemoveObjectFromDocument removeObjectFromDocument(m_document, m_removedObjects);
+            RemoveObjectFromDocument removeObjectFromDocument(document, m_removedObjects);
             Model::each(objects.begin(), objects.end(), removeObjectFromDocument, Model::MatchAll());
             
-            Model::NotifyParent parentDidChange(m_document->objectDidChangeNotifier);
+            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
         }
     }

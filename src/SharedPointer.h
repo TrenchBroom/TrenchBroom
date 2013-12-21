@@ -20,11 +20,34 @@
 #ifndef TrenchBroom_SharedPointer_h
 #define TrenchBroom_SharedPointer_h
 
+#include <cassert>
+
 #if defined _WIN32
 #include <memory>
 #else
 #include <tr1/memory>
 #endif
+
+template <typename T>
+std::tr1::shared_ptr<T> lock(std::tr1::shared_ptr<T> ptr) {
+    return ptr;
+}
+
+template <typename T>
+bool expired(std::tr1::shared_ptr<T> ptr) {
+    return true;
+}
+
+template <typename T>
+std::tr1::shared_ptr<T> lock(std::tr1::weak_ptr<T> ptr) {
+    assert(!ptr.expired());
+    return ptr.lock();
+}
+
+template <typename T>
+bool expired(std::tr1::weak_ptr<T> ptr) {
+    return ptr.expired();
+}
 
 template <typename T>
 struct ArrayDeleter {

@@ -38,7 +38,7 @@ namespace TrenchBroom {
             bool m_orbit;
             Vec3f m_orbitCenter;
         public:
-            CameraTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller, Renderer::Camera& camera);
+            CameraTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
         private:
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);

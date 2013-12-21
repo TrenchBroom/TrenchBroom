@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document) :
+        EntityBrowser::EntityBrowser(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document) {
             createGui(resources);
@@ -97,11 +97,13 @@ namespace TrenchBroom {
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+
+            MapDocumentSPtr document = lock(m_document);
             m_view = new EntityBrowserView(browserPanel, wxID_ANY, m_scrollBar,
                                            resources,
-                                           m_document->entityDefinitionManager(),
-                                           m_document->entityModelManager(),
-                                           *m_document);
+                                           document->entityDefinitionManager(),
+                                           document->entityModelManager(),
+                                           *document);
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
@@ -118,20 +120,24 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::bindObservers() {
-            m_document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
-            m_document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
-            m_document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
+            document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
         }
         
         void EntityBrowser::unbindObservers() {
-            m_document->documentWasNewedNotifier.removeObserver(this, &EntityBrowser::documentWasNewed);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &EntityBrowser::documentWasLoaded);
-            m_document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
-            m_document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
+            if (!expired(m_document)) {
+            MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &EntityBrowser::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &EntityBrowser::documentWasLoaded);
+                document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
+            }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
@@ -154,7 +160,8 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
-            if (m_document->isGamePathPreference(path))
+            MapDocumentSPtr document = lock(m_document);
+            if (document->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

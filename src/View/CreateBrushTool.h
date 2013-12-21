@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Renderer::BrushRenderer m_brushRenderer;
             Model::Brush* m_brush;
         public:
-            CreateBrushTool(BaseTool* next, MapDocumentPtr document, ControllerPtr controller);
+            CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
         private:
             void doModifierKeyChange(const InputState& inputState);
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);

@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentPtr document, ControllerPtr controller, Renderer::RenderResources& resources) :
+        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
@@ -45,7 +45,9 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
-            if (!m_controller->setTexture(m_document->allSelectedFaces(), event.texture()))
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setTexture(document->allSelectedFaces(), event.texture()))
                 event.Veto();
         }
 

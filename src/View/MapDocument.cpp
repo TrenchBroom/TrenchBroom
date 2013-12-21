@@ -186,8 +186,8 @@ namespace TrenchBroom {
         
         const BBox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         
-        MapDocumentPtr MapDocument::newMapDocument() {
-            return MapDocumentPtr(new MapDocument());
+        MapDocumentSPtr MapDocument::newMapDocument() {
+            return MapDocumentSPtr(new MapDocument());
         }
         
         MapDocument::~MapDocument() {

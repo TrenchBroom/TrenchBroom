@@ -33,7 +33,7 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
 
-            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");

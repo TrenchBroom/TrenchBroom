@@ -36,15 +36,15 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
         private:
-            View::MapDocumentPtr m_document;
+            View::MapDocumentWPtr m_document;
             Mat4x4 m_transformation;
             bool m_lockTextures;
             Model::ObjectList m_objects;
             Model::Snapshot m_snapshot;
         public:
-            static TransformObjectsCommand::Ptr transformObjects(View::MapDocumentPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
+            static TransformObjectsCommand::Ptr transformObjects(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
         private:
-            TransformObjectsCommand(View::MapDocumentPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
+            TransformObjectsCommand(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
             static String makeName(const String& action, const Model::ObjectList& objects);
             
             bool doPerformDo();

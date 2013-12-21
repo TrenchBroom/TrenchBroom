@@ -27,32 +27,34 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SetEntityDefinitionFileCommand::Type = Command::freeType();
 
-        SetEntityDefinitionFileCommand::Ptr SetEntityDefinitionFileCommand::setEntityDefinitionFile(View::MapDocumentPtr document, const IO::Path& file) {
+        SetEntityDefinitionFileCommand::Ptr SetEntityDefinitionFileCommand::setEntityDefinitionFile(View::MapDocumentWPtr document, const IO::Path& file) {
             return Ptr(new SetEntityDefinitionFileCommand(document, file));
         }
 
-        SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentPtr document, const IO::Path& file) :
+        SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const IO::Path& file) :
         Command(Type, "Set Entity Definition File", true, true),
         m_document(document),
         m_newFile(file),
         m_oldFile("") {}
         
         bool SetEntityDefinitionFileCommand::doPerformDo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
-            m_oldFile = m_document->entityDefinitionFile().path();
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
+            document->objectWillChangeNotifier(worldspawn);
+            m_oldFile = document->entityDefinitionFile().path();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_newFile.asString());
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->entityDefinitionsDidChangeNotifier();
+            document->objectDidChangeNotifier(worldspawn);
+            document->entityDefinitionsDidChangeNotifier();
             return true;
         }
         
         bool SetEntityDefinitionFileCommand::doPerformUndo() {
-            Model::Entity* worldspawn = m_document->worldspawn();
-            m_document->objectWillChangeNotifier(worldspawn);
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::Entity* worldspawn = document->worldspawn();
+            document->objectWillChangeNotifier(worldspawn);
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldFile.asString());
-            m_document->objectDidChangeNotifier(worldspawn);
-            m_document->entityDefinitionsDidChangeNotifier();
+            document->objectDidChangeNotifier(worldspawn);
+            document->entityDefinitionsDidChangeNotifier();
             return true;
         }
     }

@@ -41,7 +41,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             
-            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));
             ASSERT_FALSE(command->undoable());
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/someotherfile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
             
-            View::MapDocumentPtr doc = View::MapDocument::newMapDocument();
+            View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             doc->openDocument(worldBounds, game, path);
             
             Command::Ptr command = Command::Ptr(new NewDocumentCommand(doc, worldBounds, game));

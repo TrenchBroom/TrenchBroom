@@ -45,7 +45,7 @@ namespace TrenchBroom {
         
         class EntityBrowser : public wxPanel {
         private:
-            MapDocumentPtr m_document;
+            MapDocumentWPtr m_document;
             wxChoice* m_sortOrderChoice;
             wxToggleButton* m_groupButton;
             wxToggleButton* m_usedButton;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentPtr document);
+            EntityBrowser(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources);
             ~EntityBrowser();
             
             void reload();
