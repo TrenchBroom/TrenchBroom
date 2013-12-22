@@ -82,6 +82,7 @@ namespace TrenchBroom {
 
         bool FlagsPopupEditor::Enable(bool enable) {
             if (wxPanel::Enable(enable)) {
+                m_button->Enable(enable);
                 updateFlagsText();
                 return true;
             }

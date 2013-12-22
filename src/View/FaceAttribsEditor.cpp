@@ -179,9 +179,9 @@ namespace TrenchBroom {
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
             
             wxFlexGridSizer* flagsSizer = new wxFlexGridSizer(2, 2, LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
-            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Surface Flags:")), 0, wxALIGN_CENTER_VERTICAL);
+            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Surface Flags:")), 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
             flagsSizer->Add(m_surfaceFlagsEditor, 0, wxEXPAND);
-            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Content Flags:")), 0, wxALIGN_CENTER_VERTICAL);
+            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Content Flags:")), 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
             flagsSizer->Add(m_contentFlagsEditor, 0, wxEXPAND);
             flagsSizer->AddGrowableCol(1);
             
@@ -303,8 +303,8 @@ namespace TrenchBroom {
                     yScaleMulti             |= (yScale          != face->yScale());
                     surfaceValueMulti       |= (surfaceValue    != face->surfaceValue());
                     
-                    combineFlags(sizeof(int), face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int), face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
                 
                 m_xOffsetEditor->Enable();

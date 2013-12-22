@@ -70,5 +70,13 @@ namespace TrenchBroom {
             if (m_button->GetValue() != event.IsShown())
                 m_button->SetValue(event.IsShown());
         }
+
+        bool PopupButton::Enable(bool enable) {
+            if (wxPanel::Enable(enable)) {
+                m_button->Enable(enable);
+                return true;
+            }
+            return false;
+        }
     }
 }
