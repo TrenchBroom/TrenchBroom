@@ -60,6 +60,11 @@ ELSE()
 	ENDIF()
 ENDIF()
 
+# Set debug mode directives
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
+ENDIF()
+
 # TrenchBroom executable
 # OS X app bundle configuration
 IF(APPLE)

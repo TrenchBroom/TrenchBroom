@@ -53,6 +53,14 @@ namespace TrenchBroom {
                 SetPosition(origin);
             }
              */
+            
+            bool ProcessLeftDown(wxMouseEvent& event) {
+                const wxPoint mousePos = event.GetPosition();
+                const wxPoint screenPos = ClientToScreen(event.GetPosition());
+                wxWindow* window = wxFindWindowAtPoint(screenPos);
+                wxLogDebug(window->GetClassInfo()->GetClassName());
+                return wxPopupTransientWindow::ProcessLeftDown(event);
+            }
         };
         
         PopupButton::PopupButton(wxWindow* parent, const wxString& caption, const Align popupAlign) :

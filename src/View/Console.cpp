@@ -19,6 +19,8 @@
 
 #include "Console.h"
 
+#include <wx/log.h>
+
 namespace TrenchBroom {
     namespace View {
         Console::Console(wxWindow* parent) :
@@ -28,7 +30,12 @@ namespace TrenchBroom {
         }
 
         void Console::log(const LogLevel level, const String& message) {
+            logToDebugOut(level, message);
             logToConsole(level, message);
+        }
+
+        void Console::logToDebugOut(const LogLevel level, const String& message) {
+            wxLogDebug(message.c_str());
         }
 
         void Console::logToConsole(const LogLevel level, const String& message) {

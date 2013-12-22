@@ -32,6 +32,7 @@ namespace TrenchBroom {
             Console(wxWindow* parent);
             void log(const LogLevel level, const String& message);
         private:
+            void logToDebugOut(const LogLevel level, const String& message);
             void logToConsole(const LogLevel level, const String& message);
         };
     }
