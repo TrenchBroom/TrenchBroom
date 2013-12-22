@@ -32,6 +32,7 @@ namespace TrenchBroom {
             PopupWindow(wxWindow* parent) :
             wxPopupTransientWindow(parent) {}
             
+            /*
             void Position(const wxPoint& desiredOrigin, const wxSize& buttonSize) {
                 const int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X, this);
                 const int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y, this);
@@ -51,6 +52,7 @@ namespace TrenchBroom {
                 
                 SetPosition(origin);
             }
+             */
         };
         
         PopupButton::PopupButton(wxWindow* parent, const wxString& caption, const Align popupAlign) :
@@ -76,13 +78,17 @@ namespace TrenchBroom {
 
         void PopupButton::OnButtonToggled(wxCommandEvent& event) {
             if (m_button->GetValue()) {
-                wxPoint position;
+                wxPoint position = GetScreenRect().GetRightBottom();
+                position.x -= 2*m_window->GetSize().x;
+                position.y -= m_window->GetSize().y;
+                /*
                 position.x = m_popupAlign == Left ? GetScreenRect().GetLeft() : GetScreenRect().GetRight() - m_window->GetSize().x;
                 position.y = GetScreenRect().GetBottom();
 #ifdef __APPLE__
                 position.y += 1;
 #endif
-                m_window->Position(position, GetSize());
+                 */
+                m_window->Position(position, m_window->GetSize());
                 m_window->Popup();
             } else {
                 m_window->Dismiss();
