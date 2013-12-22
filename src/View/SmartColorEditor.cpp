@@ -27,7 +27,7 @@
 #include "View/ColorTableSelectedCommand.h"
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <wx/clrpicker.h>
 #include <wx/panel.h>

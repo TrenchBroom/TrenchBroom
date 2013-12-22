@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <wx/button.h>
 #include <wx/checkbox.h>

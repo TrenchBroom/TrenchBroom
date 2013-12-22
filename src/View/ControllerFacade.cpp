@@ -375,43 +375,91 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset) {
+        bool ControllerFacade::setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset, const bool add) {
             using namespace Controller;
 
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
-            command->setXOffset(xOffset);
+            if (add)
+                command->addXOffset(xOffset);
+            else
+                command->setXOffset(xOffset);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset) {
+        bool ControllerFacade::setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset, const bool add) {
             using namespace Controller;
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
-            command->setYOffset(yOffset);
+            if (add)
+                command->addYOffset(yOffset);
+            else
+                command->setYOffset(yOffset);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::setFaceRotation(const Model::BrushFaceList& faces, const float rotation) {
+        bool ControllerFacade::setFaceRotation(const Model::BrushFaceList& faces, const float rotation, const bool add) {
             using namespace Controller;
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
-            command->setRotation(rotation);
+            if (add)
+                command->addRotation(rotation);
+            else
+                command->setRotation(rotation);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::setFaceXScale(const Model::BrushFaceList& faces, const float xScale) {
+        bool ControllerFacade::setFaceXScale(const Model::BrushFaceList& faces, const float xScale, const bool add) {
             using namespace Controller;
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
-            command->setXScale(xScale);
+            if (add)
+                command->addXScale(xScale);
+            else
+                command->setXScale(xScale);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
-        bool ControllerFacade::setFaceYScale(const Model::BrushFaceList& faces, const float yScale) {
+        bool ControllerFacade::setFaceYScale(const Model::BrushFaceList& faces, const float yScale, const bool add) {
             using namespace Controller;
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
-            command->setYScale(yScale);
+            if (add)
+                command->addYScale(yScale);
+            else
+                command->setYScale(yScale);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::setSurfaceFlag(const Model::BrushFaceList& faces, const size_t index, const bool set) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            if (set)
+                command->setSurfaceFlag(index);
+            else
+                command->unsetSurfaceFlag(index);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setContentFlag(const Model::BrushFaceList& faces, const size_t index, const bool set) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            if (set)
+                command->setContentFlag(index);
+            else
+                command->unsetContentFlag(index);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::setSurfaceValue(const Model::BrushFaceList& faces, const float value, const bool add) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            if (add)
+                command->addSurfaceValue(value);
+            else
+                command->setSurfaceValue(value);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

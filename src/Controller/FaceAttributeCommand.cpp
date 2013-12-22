@@ -35,15 +35,18 @@ namespace TrenchBroom {
         m_rotation(0.0f),
         m_xScale(0.0f),
         m_yScale(0.0f),
+        m_surfaceFlags(0),
+        m_contentFlags(0),
+        m_surfaceValue(0.0f),
         m_setTexture(false),
-        m_xOffsetOp(OpNone),
-        m_yOffsetOp(OpNone),
-        m_rotationOp(OpNone),
-        m_xScaleOp(OpNone),
-        m_yScaleOp(OpNone),
-        m_setSurfaceContents(false),
-        m_setSurfaceFlags(false),
-        m_setSurfaceValue(false) {}
+        m_xOffsetOp(ValNone),
+        m_yOffsetOp(ValNone),
+        m_rotationOp(ValNone),
+        m_xScaleOp(ValNone),
+        m_yScaleOp(ValNone),
+        m_surfaceFlagsOp(FlagNone),
+        m_contentFlagsOp(FlagNone),
+        m_surfaceValueOp(ValNone) {}
         
         void FaceAttributeCommand::setTexture(Assets::Texture* texture) {
             m_texture = texture;
@@ -52,92 +55,126 @@ namespace TrenchBroom {
         
         void FaceAttributeCommand::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = OpSet;
+            m_xOffsetOp = ValSet;
         }
         
         void FaceAttributeCommand::addXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = OpAdd;
+            m_xOffsetOp = ValAdd;
         }
         
         void FaceAttributeCommand::mulXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = OpMul;
+            m_xOffsetOp = ValMul;
         }
         
         void FaceAttributeCommand::setYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = OpSet;
+            m_yOffsetOp = ValSet;
         }
         
         void FaceAttributeCommand::addYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = OpAdd;
+            m_yOffsetOp = ValAdd;
         }
         
         void FaceAttributeCommand::mulYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = OpMul;
+            m_yOffsetOp = ValMul;
         }
         
         void FaceAttributeCommand::setRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = OpSet;
+            m_rotationOp = ValSet;
         }
         
         void FaceAttributeCommand::addRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = OpAdd;
+            m_rotationOp = ValAdd;
         }
         
         void FaceAttributeCommand::mulRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = OpMul;
+            m_rotationOp = ValMul;
         }
 
         void FaceAttributeCommand::setXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = OpSet;
+            m_xScaleOp = ValSet;
         }
         
         void FaceAttributeCommand::addXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = OpAdd;
+            m_xScaleOp = ValAdd;
         }
         
         void FaceAttributeCommand::mulXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = OpMul;
+            m_xScaleOp = ValMul;
         }
         
         void FaceAttributeCommand::setYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = OpSet;
+            m_yScaleOp = ValSet;
         }
         
         void FaceAttributeCommand::addYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = OpAdd;
+            m_yScaleOp = ValAdd;
         }
         
         void FaceAttributeCommand::mulYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = OpMul;
+            m_yScaleOp = ValMul;
         }
         
-        void FaceAttributeCommand::setSurfaceContents(const size_t surfaceContents) {
-            m_surfaceContents = surfaceContents;
-            m_setSurfaceContents = true;
-        }
-        
-        void FaceAttributeCommand::setSurfaceFlags(const size_t surfaceFlags) {
+        void FaceAttributeCommand::replaceSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
-            m_setSurfaceFlags = true;
+            m_surfaceFlagsOp = FlagReplace;
+        }
+        
+        void FaceAttributeCommand::setSurfaceFlag(const size_t surfaceFlag) {
+            assert(surfaceFlag < sizeof(int) * 8);
+            m_surfaceFlags = (1 << surfaceFlag);
+            m_surfaceFlagsOp = FlagSet;
+        }
+        
+        void FaceAttributeCommand::unsetSurfaceFlag(const size_t surfaceFlag) {
+            assert(surfaceFlag < sizeof(int) * 8);
+            m_surfaceFlags = (1 << surfaceFlag);
+            m_surfaceFlagsOp = FlagUnset;
+        }
+        
+        void FaceAttributeCommand::replaceContentFlags(const int contentFlags) {
+            m_contentFlags = contentFlags;
+            m_contentFlagsOp = FlagReplace;
+        }
+        
+        void FaceAttributeCommand::setContentFlag(const size_t contentFlag) {
+            assert(contentFlag < sizeof(int) * 8);
+            m_contentFlags = (1 << contentFlag);
+            m_contentFlagsOp = FlagSet;
+        }
+        
+        void FaceAttributeCommand::unsetContentFlag(const size_t contentFlag) {
+            assert(contentFlag < sizeof(int) * 8);
+            m_contentFlags = (1 << contentFlag);
+            m_contentFlagsOp = FlagUnset;
         }
         
         void FaceAttributeCommand::setSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
-            m_setSurfaceValue = true;
+            m_surfaceValueOp = ValSet;
+        }
+        
+        void FaceAttributeCommand::addSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+            m_surfaceValueOp = ValAdd;
+        }
+        
+        void FaceAttributeCommand::mulSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+            m_surfaceValueOp = ValMul;
         }
 
         void FaceAttributeCommand::setAll(const Model::BrushFace& original) {
@@ -147,8 +184,8 @@ namespace TrenchBroom {
             setRotation(original.rotation());
             setXScale(original.xScale());
             setYScale(original.yScale());
-            setSurfaceContents(original.surfaceContents());
-            setSurfaceFlags(original.surfaceFlags());
+            replaceSurfaceFlags(original.surfaceFlags());
+            replaceContentFlags(original.surfaceContents());
             setSurfaceValue(original.surfaceValue());
         }
 
@@ -167,12 +204,9 @@ namespace TrenchBroom {
                 face->setRotation(evaluate(face->rotation(), m_rotation, m_rotationOp));
                 face->setXScale(evaluate(face->xScale(), m_xScale, m_xScaleOp));
                 face->setYScale(evaluate(face->yScale(), m_yScale, m_yScaleOp));
-                if (m_setSurfaceContents)
-                    face->setSurfaceContents(m_surfaceContents);
-                if (m_setSurfaceFlags)
-                    face->setSurfaceFlags(m_surfaceFlags);
-                if (m_setSurfaceValue)
-                    face->setSurfaceValue(m_surfaceValue);
+                face->setSurfaceFlags(evaluate(face->surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+                face->setSurfaceContents(evaluate(face->surfaceContents(), m_contentFlags, m_contentFlagsOp));
+                face->setSurfaceValue(evaluate(face->surfaceValue(), m_surfaceValue, m_surfaceValueOp));
                 document->faceDidChangeNotifier(face);
             }
             return true;

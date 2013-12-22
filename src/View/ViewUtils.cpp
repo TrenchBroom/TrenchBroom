@@ -43,5 +43,17 @@ namespace TrenchBroom {
                 return NULL;
             }
         }
+
+        void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags) {
+            for (size_t i = 0; i < numFlags; ++i) {
+                const bool alreadySet = newFlagValue & (1 << i);
+                const bool willBeSet = setFlags & (1 << i);
+                if (alreadySet == willBeSet)
+                    continue;
+                
+                setFlags &= ~(1 << i);
+                mixedFlags |= (1 << i);
+            }
+        }
     }
 }

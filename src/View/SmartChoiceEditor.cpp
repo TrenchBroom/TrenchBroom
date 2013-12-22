@@ -21,7 +21,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "Model/ModelUtils.h"
 #include "View/ControllerFacade.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <wx/combobox.h>
 #include <wx/panel.h>

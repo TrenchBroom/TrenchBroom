@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectedCommand.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "TrenchBroomApp.h"
 
 #include <wx/panel.h>

@@ -20,7 +20,7 @@
 #include "ChoosePathTypeDialog.h"
 
 #include "IO/SystemPaths.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <wx/gbsizer.h>
 #include <wx/radiobut.h>

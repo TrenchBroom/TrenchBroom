@@ -22,7 +22,7 @@
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
 

@@ -37,12 +37,13 @@ namespace TrenchBroom {
             PopupButton* m_button;
             FlagsEditor* m_editor;
         public:
-            FlagsPopupEditor(wxWindow* parent, const wxString& label, size_t numCols);
+            FlagsPopupEditor(wxWindow* parent, size_t numCols);
 
             void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlagValue(int set, int mixed = 0);
             
             void OnFlagChanged(FlagChangedCommand& event);
+            bool Enable(bool enable = true);
         private:
             void updateFlagsText();
         };

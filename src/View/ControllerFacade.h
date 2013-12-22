@@ -91,10 +91,10 @@ namespace TrenchBroom {
             Model::ObjectList duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds);
             bool reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             
-            bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force = false);
-            bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
-            bool setEntityProperty(Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, const bool force = false);
-            bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const bool force = false);
+            bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, bool force = false);
+            bool setEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue, bool force = false);
+            bool setEntityProperty(Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue, bool force = false);
+            bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, bool force = false);
             
             bool setMods(const StringList& mods);
             bool setEntityDefinitionFile(const IO::Path& file);
@@ -109,11 +109,14 @@ namespace TrenchBroom {
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
 
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
-            bool setFaceXOffset(const Model::BrushFaceList& faces, const float xOffset);
-            bool setFaceYOffset(const Model::BrushFaceList& faces, const float yOffset);
-            bool setFaceRotation(const Model::BrushFaceList& faces, const float rotation);
-            bool setFaceXScale(const Model::BrushFaceList& faces, const float xScale);
-            bool setFaceYScale(const Model::BrushFaceList& faces, const float yScale);
+            bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);
+            bool setFaceYOffset(const Model::BrushFaceList& faces, float yOffset, bool add);
+            bool setFaceRotation(const Model::BrushFaceList& faces, float rotation, bool add);
+            bool setFaceXScale(const Model::BrushFaceList& faces, float xScale, bool add);
+            bool setFaceYScale(const Model::BrushFaceList& faces, float yScale, bool add);
+            bool setSurfaceFlag(const Model::BrushFaceList& faces, size_t index, bool set);
+            bool setContentFlag(const Model::BrushFaceList& faces, size_t index, bool set);
+            bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
         private:
             void commandDone(Controller::Command::Ptr command);

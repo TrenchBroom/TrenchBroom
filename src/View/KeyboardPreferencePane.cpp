@@ -24,7 +24,7 @@
 #include "View/CommandIds.h"
 #include "View/KeyboardShortcutEditor.h"
 #include "View/KeyboardShortcutEvent.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/Menu.h"
 
 #include <wx/msgdlg.h>

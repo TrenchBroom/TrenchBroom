@@ -26,7 +26,7 @@
 #include "View/GamesPreferencePane.h"
 #include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 
 #include <wx/panel.h>

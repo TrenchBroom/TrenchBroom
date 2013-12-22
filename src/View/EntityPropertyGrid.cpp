@@ -22,7 +22,7 @@
 #include "Model/Object.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/EntityPropertySelectedCommand.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
 #include <wx/button.h>

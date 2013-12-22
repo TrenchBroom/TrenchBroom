@@ -61,7 +61,6 @@ namespace TrenchBroom {
             void getFlagsFromEntities(const Model::EntityList& entities, wxArrayString& labels) const;
             void getFlagValuesFromEntities(const Model::EntityList& entities, int& setFlags, int& mixedFlags) const;
             int getFlagValueFromEntity(const Model::Entity& entity) const;
-            void combineFlags(int newFlagValue, int& setFlags, int& mixedFlags) const;
         };
     }
 }

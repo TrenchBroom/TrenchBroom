@@ -23,7 +23,7 @@
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyEditor.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
 #include <wx/collpane.h>

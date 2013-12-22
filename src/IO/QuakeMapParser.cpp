@@ -392,9 +392,9 @@ namespace TrenchBroom {
 
             if (m_format == Model::MapFormat::Quake2) {
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                surfaceContents = token.toInteger<size_t>();
+                surfaceContents = token.toInteger<int>();
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                surfaceFlags = token.toInteger<size_t>();
+                surfaceFlags = token.toInteger<int>();
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceValue = token.toFloat<float>();
             } else if (m_format == Model::MapFormat::Hexen2) {

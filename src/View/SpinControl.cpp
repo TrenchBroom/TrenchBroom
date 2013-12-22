@@ -28,13 +28,24 @@
 DEFINE_EVENT_TYPE(EVT_SPINCONTROL_EVENT)
 
 IMPLEMENT_DYNAMIC_CLASS(SpinControlEvent, wxNotifyEvent)
-SpinControlEvent::SpinControlEvent(wxEventType commandType, int winId, double value) :
+SpinControlEvent::SpinControlEvent() :
+wxNotifyEvent(wxEVT_NULL, wxID_ANY),
+m_spin(true),
+m_value(0.0) {}
+
+SpinControlEvent::SpinControlEvent(wxEventType commandType, int winId, bool spin, double value) :
 wxNotifyEvent(commandType, winId),
+m_spin(spin),
 m_value(value) {}
 
 SpinControlEvent::SpinControlEvent(const SpinControlEvent& event) :
 wxNotifyEvent(event),
+m_spin(event.IsSpin()),
 m_value(event.GetValue()) {}
+
+bool SpinControlEvent::IsSpin() const {
+    return m_spin;
+}
 
 double SpinControlEvent::GetValue() const {
     return m_value;
@@ -180,8 +191,8 @@ bool SpinControl::DoSetValue(double value) {
     return true;
 }
 
-void SpinControl::DoSendEvent() {
-    SpinControlEvent event(EVT_SPINCONTROL_EVENT, GetId(), m_value);
+void SpinControl::DoSendEvent(const bool spin, const double value) {
+    SpinControlEvent event(EVT_SPINCONTROL_EVENT, GetId(), spin, value);
     event.SetEventObject( this );
     GetEventHandler()->ProcessEvent( event );
 }
@@ -200,12 +211,12 @@ bool SpinControl::SyncFromText() {
 
 void SpinControl::OnTextEnter(wxCommandEvent& event) {
     if (SyncFromText())
-        DoSendEvent();
+        DoSendEvent(false, GetValue());
 }
 
 void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
     if (SyncFromText())
-        DoSendEvent();
+        DoSendEvent(false, GetValue());
     event.Skip();
 }
 
@@ -236,13 +247,9 @@ void SpinControl::OnSpinButton(bool up) {
     else if (keys == CTRLCMD)
         increment = m_ctrlIncrement;
     
-    double newValue = up ? m_value + increment : m_value - increment;
-    newValue = AdjustToRange(newValue);
-    
-    if (DoSetValue(newValue))
-        DoSendEvent();
-    
-    // m_spin->SetValue(0);
+    if (!up)
+        increment *= -1.0;
+    DoSendEvent(true, increment);
 }
 
 void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {

@@ -17,32 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewUtils__
-#define __TrenchBroom__ViewUtils__
+#include "wxUtils.h"
 
-#include <iostream>
+#include <wx/frame.h>
+#include <wx/window.h>
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
-    
     namespace View {
-        class SetBool {
-        private:
-            bool& m_value;
-        public:
-            SetBool(bool& value);
-            ~SetBool();
-        };
-
-        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
-        void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
+        wxFrame* findFrame(wxWindow* window) {
+            if (window == NULL)
+                return NULL;
+            
+            wxFrame* frame = wxDynamicCast(window, wxFrame);
+            wxWindow* parent = window->GetParent();
+            while (frame == NULL && parent != NULL) {
+                frame = wxDynamicCast(parent, wxFrame);
+                parent = parent->GetParent();
+            }
+            return frame;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__ViewUtils__) */

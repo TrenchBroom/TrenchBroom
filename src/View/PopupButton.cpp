@@ -18,7 +18,8 @@
  */
 
 #include "PopupButton.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <wx/tglbtn.h>
 #include <wx/popupwin.h>
@@ -27,52 +28,21 @@
 
 namespace TrenchBroom {
     namespace View {
-        class PopupWindow : public wxPopupTransientWindow {
-        public:
-            PopupWindow(wxWindow* parent) :
-            wxPopupTransientWindow(parent) {}
-            
-            /*
-            void Position(const wxPoint& desiredOrigin, const wxSize& buttonSize) {
-                const int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X, this);
-                const int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y, this);
-                
-                wxPoint origin = desiredOrigin;
-                const wxSize size = GetSize();
-                
-                if (origin.x + size.x > width)
-                    origin.x = width - size.x;
-                if (origin.y + size.y > height) {
-                    origin.y = desiredOrigin.y - buttonSize.y - size.y;
-                    if (origin.y < 0) {
-                        origin.x = desiredOrigin.x - size.x;
-                        origin.y = height - size.y;
-                    }
-                }
-                
-                SetPosition(origin);
-            }
-             */
-            
-            bool ProcessLeftDown(wxMouseEvent& event) {
-                const wxPoint mousePos = event.GetPosition();
-                const wxPoint screenPos = ClientToScreen(event.GetPosition());
-                wxWindow* window = wxFindWindowAtPoint(screenPos);
-                wxLogDebug(window->GetClassInfo()->GetClassName());
-                return wxPopupTransientWindow::ProcessLeftDown(event);
-            }
-        };
-        
         PopupButton::PopupButton(wxWindow* parent, const wxString& caption, const Align popupAlign) :
         wxPanel(parent),
         m_popupAlign(popupAlign) {
             m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_window = new PopupWindow(this);
+            
+            wxFrame* frame = findFrame(this);
+            m_window = new wxPopupTransientWindow(frame);
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_button);
 #ifdef __APPLE__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x, m_button->GetSize().y + 1);
+#endif
+#ifdef __linux__
+            sizer->SetItemMinSize(m_button, m_button->GetSize().x + 3, m_button->GetSize().y);
 #endif
             SetSizerAndFit(sizer);
             
@@ -89,13 +59,6 @@ namespace TrenchBroom {
                 wxPoint position = GetScreenRect().GetRightBottom();
                 position.x -= 2*m_window->GetSize().x;
                 position.y -= m_window->GetSize().y;
-                /*
-                position.x = m_popupAlign == Left ? GetScreenRect().GetLeft() : GetScreenRect().GetRight() - m_window->GetSize().x;
-                position.y = GetScreenRect().GetBottom();
-#ifdef __APPLE__
-                position.y += 1;
-#endif
-                 */
                 m_window->Position(position, m_window->GetSize());
                 m_window->Popup();
             } else {

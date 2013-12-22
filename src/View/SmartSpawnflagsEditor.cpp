@@ -176,7 +176,7 @@ namespace TrenchBroom {
             mixedFlags = 0;
             
             while (++it != end)
-                combineFlags(getFlagValueFromEntity(**it), setFlags, mixedFlags);
+                combineFlags(NumFlags, getFlagValueFromEntity(**it), setFlags, mixedFlags);
         }
 
         int SmartSpawnflagsEditor::getFlagValueFromEntity(const Model::Entity& entity) const {
@@ -185,18 +185,6 @@ namespace TrenchBroom {
 
             const Model::PropertyValue& propertyValue = entity.property(key());
             return std::atoi(propertyValue.c_str());
-        }
-        
-        void SmartSpawnflagsEditor::combineFlags(const int newFlagValue, int& setFlags, int& mixedFlags) const {
-            for (size_t i = 0; i < NumFlags; ++i) {
-                const bool setOnEntity = newFlagValue & (1 << i);
-                const bool setOnFlags = setFlags & (1 << i);
-                if (setOnEntity == setOnFlags)
-                    continue;
-                
-                setFlags &= ~(1 << i);
-                mixedFlags |= (1 << i);
-            }
         }
     }
 }

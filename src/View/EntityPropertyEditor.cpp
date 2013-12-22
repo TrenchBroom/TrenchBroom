@@ -21,7 +21,7 @@
 
 #include "View/EntityPropertyGrid.h"
 #include "View/EntityPropertySelectedCommand.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SmartPropertyEditorManager.h"
 

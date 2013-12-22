@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/TextureManager.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowserView.h"
 #include "View/TextureSelectedCommand.h"

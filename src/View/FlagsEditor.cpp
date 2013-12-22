@@ -20,7 +20,7 @@
 #include "FlagsEditor.h"
 
 #include "View/FlagChangedCommand.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <cassert>
 #include <wx/checkbox.h>

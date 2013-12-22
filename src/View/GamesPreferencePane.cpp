@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 
 #include <wx/button.h>
 #include <wx/choice.h>

@@ -23,7 +23,7 @@
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "View/EntityBrowserView.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
 #include <wx/choice.h>

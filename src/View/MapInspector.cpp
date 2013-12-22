@@ -19,7 +19,7 @@
 
 #include "MapInspector.h"
 
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapTreeView.h"
 #include "View/ModEditor.h"
 

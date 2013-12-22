@@ -24,7 +24,7 @@
 #include "Model/Object.h"
 #include "View/ControllerFacade.h"
 #include "View/FaceAttribsEditor.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"

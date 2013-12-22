@@ -32,6 +32,7 @@
 #include "View/ChooseGameDialog.h"
 #include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
+#include "View/wxUtils.h"
 
 #include <wx/choicdlg.h>
 #include <wx/filedlg.h>
@@ -251,30 +252,22 @@ namespace TrenchBroom {
                 if (event.GetEventType() == wxEVT_SET_FOCUS) {
                     // find the frame containing the focused control
                     wxWindow* window = wxDynamicCast(event.GetEventObject(), wxWindow);
-                    wxFrame* frame = wxDynamicCast(window, wxFrame);
-                    wxWindow* parent = window->GetParent();
-                    while (frame == NULL && parent != NULL) {
-                        frame = wxDynamicCast(parent, wxFrame);
-                        parent = parent->GetParent();
-                    }
-                    
+                    wxFrame* frame = findFrame(window);
                     if (frame != NULL) {
                         if (window != m_lastFocusedWindow) {
                             const bool windowIsMapView = wxDynamicCast(window, MapView) != NULL;
                             if (windowIsMapView || m_lastFocusedWindowIsMapView) {
                                 /*
-                                 If we found a frame, then send a command event to the frame that will cause it to rebuild its
-                                 menu.
-                                 Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update the
-                                 focus states!
+                                 If we found a frame, then send a command event to the frame that will cause it to 
+                                 rebuild its menu.
+                                 Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update
+                                 the focus states!
                                  */
-                                if (frame != NULL) {
-                                    wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
-                                    buildMenuEvent.SetClientData(event.GetEventObject());
-                                    buildMenuEvent.SetEventObject(frame);
-                                    buildMenuEvent.SetId(event.GetId());
-                                    AddPendingEvent(buildMenuEvent);
-                                }
+                                wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
+                                buildMenuEvent.SetClientData(event.GetEventObject());
+                                buildMenuEvent.SetEventObject(frame);
+                                buildMenuEvent.SetId(event.GetId());
+                                AddPendingEvent(buildMenuEvent);
                             }
                             m_lastFocusedWindow = window;
                             m_lastFocusedWindowIsMapView = windowIsMapView;

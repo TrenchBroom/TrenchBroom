@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayoutConstants_h
-#define TrenchBroom_LayoutConstants_h
+#ifndef TrenchBroom_ViewConstants_h
+#define TrenchBroom_ViewConstants_h
 
+#include <wx/settings.h>
 #include <wx/wx.h>
 
 namespace TrenchBroom {
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonTopMargin    = 10;
             static const int ChooseGameDialogButtonSideMargin   = 7;
             static const int ChooseGameDialogButtonBottomMargin = 10;
+            static const int TextBoxInnerMargin                 = 5;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -68,6 +70,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonTopMargin    = 0;
             static const int ChooseGameDialogButtonSideMargin   = 0;
             static const int ChooseGameDialogButtonBottomMargin = 3;
+            static const int TextBoxInnerMargin                 = 0;
 #elif defined __linux__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -89,9 +92,20 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonTopMargin    = 10;
             static const int ChooseGameDialogButtonSideMargin   = 0;
             static const int ChooseGameDialogButtonBottomMargin = 10;
+            static const int TextBoxInnerMargin                 = 2;
 #endif
             static const int MinPreferenceLabelWidth            = 100;
             static const int HighlightBoxMargin                 = 5;
+        }
+        
+        namespace Colors {
+#if defined _WIN32
+            static const wxColour DisabledText(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+#elif defined __APPLE__
+            static const wxColour DisabledText(108, 108, 108);
+#elif defined __linux__
+            static const wxColour DisabledText(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+#endif
         }
     }
 }

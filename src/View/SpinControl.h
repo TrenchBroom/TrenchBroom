@@ -31,10 +31,13 @@ class wxTextCtrl;
 
 class SpinControlEvent : public wxNotifyEvent {
 private:
+    bool m_spin;
     double m_value;
 public:
-    SpinControlEvent(wxEventType commandType = wxEVT_NULL, int winId = wxID_ANY, double value = 0.0);
+    SpinControlEvent();
+    SpinControlEvent(wxEventType commandType, int winId, bool spin, double value);
     SpinControlEvent(const SpinControlEvent& event);
+    bool IsSpin() const;
     double GetValue() const;
     virtual wxEvent* Clone() const;
 private:
@@ -72,7 +75,7 @@ private:
     bool InRange(double value);
     double AdjustToRange(double value);
     bool DoSetValue(double value);
-    void DoSendEvent();
+    void DoSendEvent(bool spin, double value);
     bool SyncFromText();
     
     void OnTextEnter(wxCommandEvent& event);

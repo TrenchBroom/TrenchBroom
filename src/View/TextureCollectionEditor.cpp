@@ -28,7 +28,7 @@
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
 #include <wx/bitmap.h>

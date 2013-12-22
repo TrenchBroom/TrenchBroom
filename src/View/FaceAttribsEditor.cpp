@@ -24,12 +24,14 @@
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "View/ControllerFacade.h"
+#include "View/FlagChangedCommand.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/Grid.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SpinControl.h"
 #include "View/TextureView.h"
+#include "View/ViewUtils.h"
 
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
@@ -52,34 +54,52 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            if (!controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue())))
+            if (!controller->setFaceXOffset(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            if (!controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue())))
+            if (!controller->setFaceYOffset(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            if (!controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue())))
+            if (!controller->setFaceRotation(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            if (!controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue())))
+            if (!controller->setFaceXScale(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
         void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            if (!controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue())))
+            if (!controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
+        void FaceAttribsEditor::OnSurfaceFlagChanged(FlagChangedCommand& command) {
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setSurfaceFlag(m_faces, command.index(), command.flagSet()))
+                command.Veto();
+        }
+        
+        void FaceAttribsEditor::OnContentFlagChanged(FlagChangedCommand& command) {
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setContentFlag(m_faces, command.index(), command.flagSet()))
+                command.Veto();
+        }
+
+        void FaceAttribsEditor::OnSetSurfaceValue(SpinControlEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            if (!controller->setSurfaceValue(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
+                event.Veto();
+        }
+
         void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
@@ -155,15 +175,20 @@ namespace TrenchBroom {
             standardAttribsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             standardAttribsSizer->Add(faceAttribsSizer, 1, wxEXPAND);
             
-            m_surfaceFlagsEditor = new FlagsPopupEditor(this, _("Surface Flags:"), 2);
-            m_contentFlagsEditor = new FlagsPopupEditor(this, _("Content Flags:"), 2);
+            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
+            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            
+            wxFlexGridSizer* flagsSizer = new wxFlexGridSizer(2, 2, LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
+            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Surface Flags:")), 0, wxALIGN_CENTER_VERTICAL);
+            flagsSizer->Add(m_surfaceFlagsEditor, 0, wxEXPAND);
+            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Content Flags:")), 0, wxALIGN_CENTER_VERTICAL);
+            flagsSizer->Add(m_contentFlagsEditor, 0, wxEXPAND);
+            flagsSizer->AddGrowableCol(1);
             
             wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
             editorSizer->Add(standardAttribsSizer, 0, wxEXPAND);
-            editorSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            editorSizer->Add(m_surfaceFlagsEditor, 0, wxEXPAND);
-            editorSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            editorSizer->Add(m_contentFlagsEditor, 0, wxEXPAND);
+            editorSizer->AddSpacer(2 * LayoutConstants::ControlVerticalMargin);
+            editorSizer->Add(flagsSizer, 0, wxEXPAND);
             
             SetSizer(editorSizer);
         }
@@ -184,6 +209,12 @@ namespace TrenchBroom {
             m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
                                    EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
                                    this);
+            m_surfaceFlagsEditor->Bind(EVT_FLAG_CHANGED_EVENT,
+                                       EVT_FLAG_CHANGED_HANDLER(FaceAttribsEditor::OnSurfaceFlagChanged),
+                                       this);
+            m_contentFlagsEditor->Bind(EVT_FLAG_CHANGED_EVENT,
+                                       EVT_FLAG_CHANGED_HANDLER(FaceAttribsEditor::OnContentFlagChanged),
+                                       this);
             Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
         
@@ -247,6 +278,7 @@ namespace TrenchBroom {
                 bool rotationMulti = false;
                 bool xScaleMulti = false;
                 bool yScaleMulti = false;
+                bool surfaceValueMulti = false;
                 
                 Assets::Texture* texture = m_faces[0]->texture();
                 const String& textureName = m_faces[0]->textureName();
@@ -255,15 +287,24 @@ namespace TrenchBroom {
                 const float rotation = m_faces[0]->rotation();
                 const float xScale = m_faces[0]->xScale();
                 const float yScale = m_faces[0]->yScale();
+                int setSurfaceFlags = m_faces[0]->surfaceFlags();
+                int setSurfaceContents = m_faces[0]->surfaceContents();
+                int mixedSurfaceFlags = 0;
+                int mixedSurfaceContents = 0;
+                const float surfaceValue = m_faces[0]->surfaceValue();
                 
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
-                    textureMulti  |= (texture  != face->texture());
-                    xOffsetMulti  |= (xOffset  != face->xOffset());
-                    yOffsetMulti  |= (yOffset  != face->yOffset());
-                    rotationMulti |= (rotation != face->rotation());
-                    xScaleMulti   |= (xScale   != face->xScale());
-                    yScaleMulti   |= (yScale   != face->yScale());
+                    textureMulti            |= (texture         != face->texture());
+                    xOffsetMulti            |= (xOffset         != face->xOffset());
+                    yOffsetMulti            |= (yOffset         != face->yOffset());
+                    rotationMulti           |= (rotation        != face->rotation());
+                    xScaleMulti             |= (xScale          != face->xScale());
+                    yScaleMulti             |= (yScale          != face->yScale());
+                    surfaceValueMulti       |= (surfaceValue    != face->surfaceValue());
+                    
+                    combineFlags(sizeof(int), face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int), face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
                 
                 m_xOffsetEditor->Enable();
@@ -271,6 +312,8 @@ namespace TrenchBroom {
                 m_rotationEditor->Enable();
                 m_xScaleEditor->Enable();
                 m_yScaleEditor->Enable();
+                m_surfaceFlagsEditor->Enable();
+                m_contentFlagsEditor->Enable();
                 
                 if (textureMulti) {
                     m_textureView->setTexture(NULL);
@@ -314,6 +357,8 @@ namespace TrenchBroom {
                     m_yScaleEditor->SetHint(_(""));
                     m_yScaleEditor->SetValue(yScale);
                 }
+                m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
+                m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
             } else {
                 m_xOffsetEditor->SetValue(_("n/a"));
                 m_xOffsetEditor->Disable();
@@ -327,6 +372,8 @@ namespace TrenchBroom {
                 m_rotationEditor->Disable();
                 m_textureView->setTexture(NULL);
                 m_textureNameLabel->SetLabel("n/a");
+                m_surfaceFlagsEditor->Disable();
+                m_contentFlagsEditor->Disable();
             }
             Layout();
         }

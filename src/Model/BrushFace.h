@@ -50,8 +50,8 @@ namespace TrenchBroom {
             float m_xScale;
             float m_yScale;
             
-            size_t m_surfaceContents;
-            size_t m_surfaceFlags;
+            int m_surfaceContents;
+            int m_surfaceFlags;
             float m_surfaceValue;
         public:
             BrushFaceAttribs(const String& textureName);
@@ -64,19 +64,19 @@ namespace TrenchBroom {
             float rotation() const;
             float xScale() const;
             float yScale() const;
-            size_t surfaceContents() const;
-            size_t surfaceFlags() const;
+            int surfaceContents() const;
+            int surfaceFlags() const;
             float surfaceValue() const;
             
             void setTexture(Assets::Texture* texture);
-            void setXOffset(const float xOffset);
-            void setYOffset(const float yOffset);
-            void setRotation(const float rotation);
-            void setXScale(const float xScale);
-            void setYScale(const float yScale);
-            void setSurfaceContents(const size_t surfaceContents);
-            void setSurfaceFlags(const size_t surfaceFlags);
-            void setSurfaceValue(const float surfaceValue);
+            void setXOffset(float xOffset);
+            void setYOffset(float yOffset);
+            void setRotation(float rotation);
+            void setXScale(float xScale);
+            void setYScale(float yScale);
+            void setSurfaceContents(int surfaceContents);
+            void setSurfaceFlags(int surfaceFlags);
+            void setSurfaceValue(float surfaceValue);
         };
         
         class BrushFaceSnapshot {
@@ -143,19 +143,19 @@ namespace TrenchBroom {
             float rotation() const;
             float xScale() const;
             float yScale() const;
-            size_t surfaceContents() const;
-            size_t surfaceFlags() const;
+            int surfaceContents() const;
+            int surfaceFlags() const;
             float surfaceValue() const;
             
             void setTexture(Assets::Texture* texture);
-            void setXOffset(const float xOffset);
-            void setYOffset(const float yOffset);
-            void setRotation(const float rotation);
-            void setXScale(const float xScale);
-            void setYScale(const float yScale);
-            void setSurfaceContents(const size_t surfaceContents);
-            void setSurfaceFlags(const size_t surfaceFlags);
-            void setSurfaceValue(const float surfaceValue);
+            void setXOffset(float xOffset);
+            void setYOffset(float yOffset);
+            void setRotation(float rotation);
+            void setXScale(float xScale);
+            void setYScale(float yScale);
+            void setSurfaceContents(int surfaceContents);
+            void setSurfaceFlags(int surfaceFlags);
+            void setSurfaceValue(float surfaceValue);
             void setAttributes(const BrushFace& other);
 
             void transform(const Mat4x4& transform, const bool lockTexture);

@@ -40,6 +40,7 @@ namespace TrenchBroom {
     
     namespace View {
         class ControllerFacade;
+        class FlagChangedCommand;
         class FlagsPopupEditor;
         class TextureView;
         
@@ -69,6 +70,9 @@ namespace TrenchBroom {
             void OnRotationChanged(SpinControlEvent& event);
             void OnXScaleChanged(SpinControlEvent& event);
             void OnYScaleChanged(SpinControlEvent& event);
+            void OnSurfaceFlagChanged(FlagChangedCommand& command);
+            void OnContentFlagChanged(FlagChangedCommand& command);
+            void OnSetSurfaceValue(SpinControlEvent& event);
             void OnIdle(wxIdleEvent& event);
         private:
             void createGui(Renderer::RenderResources& resources);

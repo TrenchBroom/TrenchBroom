@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "View/ControllerFacade.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
 #include <wx/button.h>

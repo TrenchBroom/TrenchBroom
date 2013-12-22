@@ -28,7 +28,7 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/ControllerFacade.h"
-#include "View/LayoutConstants.h"
+#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 

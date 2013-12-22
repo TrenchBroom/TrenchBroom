@@ -68,11 +68,11 @@ namespace TrenchBroom {
             return m_yScale;
         }
         
-        size_t BrushFaceAttribs::surfaceContents() const {
+        int BrushFaceAttribs::surfaceContents() const {
             return m_surfaceContents;
         }
         
-        size_t BrushFaceAttribs::surfaceFlags() const {
+        int BrushFaceAttribs::surfaceFlags() const {
             return m_surfaceFlags;
         }
         
@@ -108,11 +108,11 @@ namespace TrenchBroom {
             m_yScale = yScale;
         }
         
-        void BrushFaceAttribs::setSurfaceContents(const size_t surfaceContents) {
+        void BrushFaceAttribs::setSurfaceContents(const int surfaceContents) {
             m_surfaceContents = surfaceContents;
         }
         
-        void BrushFaceAttribs::setSurfaceFlags(const size_t surfaceFlags) {
+        void BrushFaceAttribs::setSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
         }
         
@@ -232,11 +232,11 @@ namespace TrenchBroom {
             return m_attribs.yScale();
         }
         
-        size_t BrushFace::surfaceContents() const {
+        int BrushFace::surfaceContents() const {
             return m_attribs.surfaceContents();
         }
         
-        size_t BrushFace::surfaceFlags() const {
+        int BrushFace::surfaceFlags() const {
             return m_attribs.surfaceFlags();
         }
         
@@ -290,13 +290,13 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
         
-        void BrushFace::setSurfaceContents(const size_t surfaceContents) {
+        void BrushFace::setSurfaceContents(const int surfaceContents) {
             if (surfaceContents == m_attribs.surfaceContents())
                 return;
             m_attribs.setSurfaceContents(surfaceContents);
         }
         
-        void BrushFace::setSurfaceFlags(const size_t surfaceFlags) {
+        void BrushFace::setSurfaceFlags(const int surfaceFlags) {
             if (surfaceFlags == m_attribs.surfaceFlags())
                 return;
             m_attribs.setSurfaceFlags(surfaceFlags);
