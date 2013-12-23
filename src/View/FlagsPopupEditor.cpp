@@ -43,6 +43,7 @@ namespace TrenchBroom {
             flagsPanel->SetSizer(flagsPanelSizer);
             
             m_button = new PopupButton(this, _("..."), PopupButton::Right);
+            m_button->SetToolTip(_("Click to edit flags"));
             
             wxPanel* editorContainer = new wxPanel(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
@@ -112,6 +113,7 @@ namespace TrenchBroom {
             }
             
             m_flagsTxt->SetLabel(label);
+            m_flagsTxt->SetToolTip(label);
             
             if (mixed)
                 m_flagsTxt->SetForegroundColour(Colors::DisabledText);
