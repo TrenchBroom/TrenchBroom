@@ -94,6 +94,7 @@ namespace TrenchBroom {
             if (!IsEnabled()) {
                 m_flagsTxt->SetForegroundColour(Colors::DisabledText);
                 m_flagsTxt->SetLabel(_("n/a"));
+                m_flagsTxt->UnsetToolTip();
                 return;
             }
             
@@ -113,7 +114,10 @@ namespace TrenchBroom {
             }
             
             m_flagsTxt->SetLabel(label);
-            m_flagsTxt->SetToolTip(label);
+            if (!first)
+                m_flagsTxt->SetToolTip(label);
+            else
+                m_flagsTxt->UnsetToolTip();
             
             if (mixed)
                 m_flagsTxt->SetForegroundColour(Colors::DisabledText);
