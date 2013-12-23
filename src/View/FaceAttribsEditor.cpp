@@ -42,7 +42,21 @@ namespace TrenchBroom {
         FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
-        m_controller(controller) {
+        m_controller(controller),
+        m_textureView(NULL),
+        m_textureNameLabel(NULL),
+        m_xOffsetEditor(NULL),
+        m_yOffsetEditor(NULL),
+        m_xScaleEditor(NULL),
+        m_yScaleEditor(NULL),
+        m_rotationEditor(NULL),
+        m_surfaceValueLabel(NULL),
+        m_surfaceValueEditor(NULL),
+        m_faceAttribsSizer(NULL),
+        m_surfaceFlagsLabel(NULL),
+        m_surfaceFlagsEditor(NULL),
+        m_contentFlagsLabel(NULL),
+        m_contentFlagsEditor(NULL) {
             createGui(resources);
             bindEvents();
             bindObservers();
@@ -94,7 +108,7 @@ namespace TrenchBroom {
                 command.Veto();
         }
 
-        void FaceAttribsEditor::OnSetSurfaceValue(SpinControlEvent& event) {
+        void FaceAttribsEditor::OnSurfaceValueChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
             if (!controller->setSurfaceValue(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
@@ -110,8 +124,9 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::createGui(Renderer::RenderResources& resources) {
-            m_textureView = new TextureView(this, wxID_ANY, resources);
-            m_textureNameLabel = new wxStaticText(this, wxID_ANY, _("n/a"));
+            wxPanel* textureViewPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER);
+            m_textureView = new TextureView(textureViewPanel, wxID_ANY, resources);
+            m_textureNameLabel = new wxStaticText(textureViewPanel, wxID_ANY, _("n/a"));
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
@@ -133,66 +148,68 @@ namespace TrenchBroom {
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
             
+            m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, _("Value:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_surfaceValueEditor = new SpinControl(this);
+            m_surfaceValueEditor->SetRange(min, max);
+            m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
+            
+            m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, _("Surface:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
+            
+            m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, _("Content:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            
             wxSizer* textureLabelSizer = new wxBoxSizer(wxHORIZONTAL);
             textureLabelSizer->AddStretchSpacer();
             textureLabelSizer->Add(m_textureNameLabel);
             textureLabelSizer->AddStretchSpacer();
             
-            wxSizer* textureViewSizer = new wxBoxSizer(wxVERTICAL);
-            textureViewSizer->Add(m_textureView, 0, wxEXPAND);
-            textureViewSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            textureViewSizer->Add(textureLabelSizer, 1, wxEXPAND);
-            textureViewSizer->SetItemMinSize(m_textureView, 128, 128);
+            wxSizer* texturePanelSizer = new wxBoxSizer(wxVERTICAL);
+            texturePanelSizer->Add(m_textureView, 1, wxEXPAND);
+            texturePanelSizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
+            texturePanelSizer->Add(textureLabelSizer, 0, wxEXPAND);
+            texturePanelSizer->SetItemMinSize(m_textureView, 128, 128);
+            textureViewPanel->SetSizer(texturePanelSizer);
             
-            wxGridBagSizer* faceAttribsSizer = new wxGridBagSizer(LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("")), wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER); // fake
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+            m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
+            m_faceAttribsSizer->Add(textureViewPanel, wxGBPosition(0, 0), wxGBSpan(7, 1), wxEXPAND);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Offset:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
-            faceAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 1), wxDefaultSpan, wxEXPAND);
-            faceAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Scale:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("")), wxGBPosition(0, 1), wxDefaultSpan, wxALIGN_CENTER); // fake
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 3), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
             
-            faceAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 1), wxDefaultSpan, wxEXPAND);
-            faceAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Offset:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 1), wxDefaultSpan, wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 3), wxDefaultSpan, wxEXPAND);
             
-            faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Rotation:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
-            faceAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Scale:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 1), wxDefaultSpan, wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 3), wxDefaultSpan, wxEXPAND);
             
-            //            faceAttribsSizer->Add(buttonSizer, wxGBPosition(4, 0), wxGBSpan(1, 3), wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, _("Angle:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 1), wxDefaultSpan, wxEXPAND | wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
             
-            faceAttribsSizer->AddGrowableCol(1);
-            faceAttribsSizer->AddGrowableCol(2);
-            faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
-            faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
-            faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
-            faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
-            faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
+            m_faceAttribsSizer->Add(m_surfaceValueLabel, wxGBPosition(4, 1), wxDefaultSpan, wxEXPAND | wxALIGN_RIGHT);
+            m_faceAttribsSizer->Add(m_surfaceValueEditor, wxGBPosition(4, 2), wxDefaultSpan, wxEXPAND);
             
-            wxSizer* standardAttribsSizer = new wxBoxSizer(wxHORIZONTAL);
-            standardAttribsSizer->Add(textureViewSizer);
-            standardAttribsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            standardAttribsSizer->Add(faceAttribsSizer, 1, wxEXPAND);
+            m_faceAttribsSizer->Add(m_surfaceFlagsLabel, wxGBPosition(5, 1), wxDefaultSpan, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+            m_faceAttribsSizer->Add(m_surfaceFlagsEditor, wxGBPosition(5, 2), wxGBSpan(1, 3), wxEXPAND);
             
-            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
-            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            m_faceAttribsSizer->Add(m_contentFlagsLabel, wxGBPosition(6, 1), wxDefaultSpan, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+            m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(6, 2), wxGBSpan(1, 3), wxEXPAND);
             
-            wxFlexGridSizer* flagsSizer = new wxFlexGridSizer(2, 2, LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
-            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Surface Flags:")), 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
-            flagsSizer->Add(m_surfaceFlagsEditor, 0, wxEXPAND);
-            flagsSizer->Add(new wxStaticText(this, wxID_ANY, _("Content Flags:")), 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
-            flagsSizer->Add(m_contentFlagsEditor, 0, wxEXPAND);
-            flagsSizer->AddGrowableCol(1);
+            m_faceAttribsSizer->AddGrowableCol(2);
+            m_faceAttribsSizer->AddGrowableCol(3);
+            m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
             
-            wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
-            editorSizer->Add(standardAttribsSizer, 0, wxEXPAND);
-            editorSizer->AddSpacer(2 * LayoutConstants::ControlVerticalMargin);
-            editorSizer->Add(flagsSizer, 0, wxEXPAND);
-            
-            SetSizer(editorSizer);
+            SetSizer(m_faceAttribsSizer);
         }
-
+        
         void FaceAttribsEditor::bindEvents() {
             m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
@@ -209,6 +226,9 @@ namespace TrenchBroom {
             m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
                                    EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
                                    this);
+            m_surfaceValueEditor->Bind(EVT_SPINCONTROL_EVENT,
+                                       EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnSurfaceValueChanged),
+                                       this);
             m_surfaceFlagsEditor->Bind(EVT_FLAG_CHANGED_EVENT,
                                        EVT_FLAG_CHANGED_HANDLER(FaceAttribsEditor::OnSurfaceFlagChanged),
                                        this);
@@ -265,11 +285,16 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::updateControls() {
-            wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
-            getSurfaceFlags(surfaceFlagLabels, surfaceFlagTooltips);
-            getContentFlags(contentFlagLabels, contentFlagTooltips);
-            m_surfaceFlagsEditor->setFlags(surfaceFlagLabels, surfaceFlagTooltips);
-            m_contentFlagsEditor->setFlags(contentFlagLabels, contentFlagTooltips);
+            if (hasSurfaceAttribs()) {
+                showSurfaceAttribEditors();
+                wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
+                getSurfaceFlags(surfaceFlagLabels, surfaceFlagTooltips);
+                getContentFlags(contentFlagLabels, contentFlagTooltips);
+                m_surfaceFlagsEditor->setFlags(surfaceFlagLabels, surfaceFlagTooltips);
+                m_contentFlagsEditor->setFlags(contentFlagLabels, contentFlagTooltips);
+            } else {
+                hideSurfaceAttribEditors();
+            }
             
             if (!m_faces.empty()) {
                 bool textureMulti = false;
@@ -312,6 +337,7 @@ namespace TrenchBroom {
                 m_rotationEditor->Enable();
                 m_xScaleEditor->Enable();
                 m_yScaleEditor->Enable();
+                m_surfaceValueEditor->Enable();
                 m_surfaceFlagsEditor->Enable();
                 m_contentFlagsEditor->Enable();
                 
@@ -357,6 +383,13 @@ namespace TrenchBroom {
                     m_yScaleEditor->SetHint(_(""));
                     m_yScaleEditor->SetValue(yScale);
                 }
+                if (surfaceValueMulti) {
+                    m_surfaceValueEditor->SetHint(_("multi"));
+                    m_surfaceValueEditor->SetValue(_(""));
+                } else {
+                    m_surfaceValueEditor->SetHint(_(""));
+                    m_surfaceValueEditor->SetValue(surfaceValue);
+                }
                 m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
                 m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
             } else {
@@ -370,6 +403,8 @@ namespace TrenchBroom {
                 m_yScaleEditor->Disable();
                 m_rotationEditor->SetValue(_("n/a"));
                 m_rotationEditor->Disable();
+                m_surfaceValueEditor->SetValue(_("n/a"));
+                m_surfaceValueEditor->Disable();
                 m_textureView->setTexture(NULL);
                 m_textureNameLabel->SetLabel("n/a");
                 m_surfaceFlagsEditor->Disable();
@@ -379,6 +414,35 @@ namespace TrenchBroom {
         }
 
         
+        bool FaceAttribsEditor::hasSurfaceAttribs() const {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::GamePtr game = document->game();
+            const Model::GameConfig::FlagConfigList& surfaceFlags = game->surfaceFlags();
+            const Model::GameConfig::FlagConfigList& contentFlags = game->contentFlags();
+            
+            return !surfaceFlags.empty() && !contentFlags.empty();
+        }
+        
+        void FaceAttribsEditor::showSurfaceAttribEditors() {
+            m_faceAttribsSizer->Show(m_surfaceValueLabel);
+            m_faceAttribsSizer->Show(m_surfaceValueEditor);
+            m_faceAttribsSizer->Show(m_surfaceFlagsLabel);
+            m_faceAttribsSizer->Show(m_surfaceFlagsEditor);
+            m_faceAttribsSizer->Show(m_contentFlagsLabel);
+            m_faceAttribsSizer->Show(m_contentFlagsEditor);
+            GetParent()->Layout();
+        }
+        
+        void FaceAttribsEditor::hideSurfaceAttribEditors() {
+            m_faceAttribsSizer->Hide(m_surfaceValueLabel);
+            m_faceAttribsSizer->Hide(m_surfaceValueEditor);
+            m_faceAttribsSizer->Hide(m_surfaceFlagsLabel);
+            m_faceAttribsSizer->Hide(m_surfaceFlagsEditor);
+            m_faceAttribsSizer->Hide(m_contentFlagsLabel);
+            m_faceAttribsSizer->Hide(m_contentFlagsEditor);
+            GetParent()->Layout();
+        }
+
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
             Model::GameConfig::FlagConfigList::const_iterator it, end;
             for (it = flags.begin(), end = flags.end(); it != end; ++it) {

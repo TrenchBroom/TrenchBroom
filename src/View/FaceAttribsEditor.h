@@ -25,6 +25,7 @@
 
 #include <wx/panel.h>
 
+class wxGridBagSizer;
 class wxStaticText;
 class SpinControl;
 class SpinControlEvent;
@@ -58,8 +59,13 @@ namespace TrenchBroom {
             SpinControl* m_xScaleEditor;
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
+            wxStaticText* m_surfaceValueLabel;
+            SpinControl* m_surfaceValueEditor;
+            wxGridBagSizer* m_faceAttribsSizer;
             
+            wxStaticText* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;
+            wxStaticText* m_contentFlagsLabel;
             FlagsPopupEditor* m_contentFlagsEditor;
         public:
             FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller);
@@ -72,7 +78,7 @@ namespace TrenchBroom {
             void OnYScaleChanged(SpinControlEvent& event);
             void OnSurfaceFlagChanged(FlagChangedCommand& command);
             void OnContentFlagChanged(FlagChangedCommand& command);
-            void OnSetSurfaceValue(SpinControlEvent& event);
+            void OnSurfaceValueChanged(SpinControlEvent& event);
             void OnIdle(wxIdleEvent& event);
         private:
             void createGui(Renderer::RenderResources& resources);
@@ -88,6 +94,11 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
             
             void updateControls();
+
+            bool hasSurfaceAttribs() const;
+            void showSurfaceAttribEditors();
+            void hideSurfaceAttribEditors();
+
             void getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const;
             void getContentFlags(wxArrayString& names, wxArrayString& descriptions) const;
         };
