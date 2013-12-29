@@ -145,8 +145,9 @@ namespace TrenchBroom {
 
         void MapRenderer::bindObservers() {
             View::MapDocumentSPtr document = lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasLoaded);
+            document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
+            document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
             document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
             document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
@@ -162,8 +163,9 @@ namespace TrenchBroom {
         void MapRenderer::unbindObservers() {
             if (!expired(m_document)) {
                 View::MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasLoaded);
+                document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
+                document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
                 document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
                 document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
@@ -177,15 +179,12 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
-        void MapRenderer::documentWasNewed() {
-            View::MapDocumentSPtr document = lock(m_document);
+        void MapRenderer::documentWasCleared() {
             clearState();
-            loadMap(*document->map());
         }
-        
-        void MapRenderer::documentWasLoaded() {
+
+        void MapRenderer::documentWasNewedOrLoaded() {
             View::MapDocumentSPtr document = lock(m_document);
-            clearState();
             loadMap(*document->map());
         }
         

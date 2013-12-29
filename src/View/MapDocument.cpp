@@ -30,6 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
+#include "Model/FloatPointsIssueGenerator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Map.h"
@@ -184,6 +185,42 @@ namespace TrenchBroom {
             }
         };
         
+        class AddObjectToIssueManager {
+        private:
+            Model::IssueManager& m_issueManager;
+        public:
+            AddObjectToIssueManager(Model::IssueManager& issueManager) :
+            m_issueManager(issueManager) {}
+            
+            void operator()(Model::Object* object) const {
+                m_issueManager.addObject(object);
+            }
+        };
+        
+        class UpdateObjectInIssueManager {
+        private:
+            Model::IssueManager& m_issueManager;
+        public:
+            UpdateObjectInIssueManager(Model::IssueManager& issueManager) :
+            m_issueManager(issueManager) {}
+            
+            void operator()(Model::Object* object) const {
+                m_issueManager.updateObject(object);
+            }
+        };
+        
+        class RemoveObjectFromIssueManager {
+        private:
+            Model::IssueManager& m_issueManager;
+        public:
+            RemoveObjectFromIssueManager(Model::IssueManager& issueManager) :
+            m_issueManager(issueManager) {}
+            
+            void operator()(Model::Object* object) const {
+                m_issueManager.removeObject(object);
+            }
+        };
+        
         const BBox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         
         MapDocumentSPtr MapDocument::newMapDocument() {
@@ -266,17 +303,14 @@ namespace TrenchBroom {
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
             assert(game != NULL);
             info("Creating new document");
-            
-            m_selection.clear();
+
+            clearMap();
             m_worldBounds = worldBounds;
             m_game = game;
-            delete m_map;
-            m_map = game->newMap(Model::MapFormat::Quake);
+            m_map = m_game->newMap(Model::MapFormat::Quake);
             
-            m_entityDefinitionManager.clear();
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
-            m_picker = Model::Picker(m_worldBounds);
             
             setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
@@ -288,16 +322,13 @@ namespace TrenchBroom {
             assert(game != NULL);
             info("Opening document " + path.asString());
             
-            m_selection.clear();
+            clearMap();
             m_worldBounds = worldBounds;
             m_game = game;
-            delete m_map;
             m_map = m_game->loadMap(worldBounds, path);
             
-            m_entityDefinitionManager.clear();
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
-            m_picker = Model::Picker(m_worldBounds);
             
             setDocumentPath(path);
             clearModificationCount();
@@ -309,6 +340,10 @@ namespace TrenchBroom {
             Model::each(Model::MapObjectsIterator::begin(*m_map),
                         Model::MapObjectsIterator::end(*m_map),
                         AddToPicker(m_picker),
+                        Model::MatchAll());
+            Model::each(Model::MapObjectsIterator::begin(*m_map),
+                        Model::MapObjectsIterator::end(*m_map),
+                        AddObjectToIssueManager(m_issueManager),
                         Model::MatchAll());
         }
         
@@ -589,6 +624,9 @@ namespace TrenchBroom {
                             setTexture,
                             Model::MatchAll());
             }
+            
+            AddObjectToIssueManager addToIssueManager(m_issueManager);
+            addToIssueManager(object);
         }
         
         void MapDocument::objectWillBeRemoved(Model::Object* object) {
@@ -617,6 +655,9 @@ namespace TrenchBroom {
                             unsetTexture,
                             Model::MatchAll());
             }
+            
+            RemoveObjectFromIssueManager removeFromIssueManager(m_issueManager);
+            removeFromIssueManager(object);
         }
         
         void MapDocument::objectWillChange(Model::Object* object) {
@@ -630,6 +671,9 @@ namespace TrenchBroom {
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);
             }
+            
+            UpdateObjectInIssueManager updateIssueManager(m_issueManager);
+            updateIssueManager(object);
         }
         
         void MapDocument::modsDidChange() {
@@ -672,8 +716,13 @@ namespace TrenchBroom {
         m_textureLock(true),
         m_modificationCount(0) {
             bindObservers();
+            registerIssueGenerators();
         }
         
+        void MapDocument::registerIssueGenerators() {
+            m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator());
+        }
+
         void MapDocument::addEntity(Model::Entity* entity) {
             AddToMap addToMap(*m_map);
             addToMap(entity);
@@ -693,6 +742,17 @@ namespace TrenchBroom {
         void MapDocument::removeBrush(Model::Brush* brush, Model::Entity* entity) {
             RemoveFromEntity removeFromEntity(*entity);
             removeFromEntity(brush);
+        }
+
+        void MapDocument::clearMap() {
+            m_selection.clear();
+            m_picker = Model::Picker(m_worldBounds);
+            m_issueManager.clearIssues();
+
+            delete m_map;
+            m_map = NULL;
+            
+            documentWasClearedNotifier();
         }
         
         void MapDocument::updateGameSearchPaths() {

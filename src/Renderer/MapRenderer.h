@@ -65,8 +65,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasNewed();
-            void documentWasLoaded();
+            void documentWasCleared();
+            void documentWasNewedOrLoaded();
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
             void objectDidChange(Model::Object* object);

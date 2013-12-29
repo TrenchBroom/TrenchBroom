@@ -28,6 +28,7 @@
 #include "View/MapDocument.h"
 
 #include <wx/button.h>
+#include <wx/filedlg.h>
 #include <wx/listbox.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -67,7 +68,10 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
-            const wxString pathWxStr = ::wxFileSelector(_("Load Entity Definition File"), wxEmptyString, wxEmptyString, wxEmptyString, _("Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            const wxString pathWxStr = ::wxFileSelector(_("Load Entity Definition File"),
+                                                        wxEmptyString, wxEmptyString, wxEmptyString,
+                                                        _("Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def"),
+                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (pathWxStr.empty())
                 return;
             

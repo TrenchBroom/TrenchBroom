@@ -31,6 +31,7 @@
 #include "Controller/Command.h"
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
+#include "Model/IssueManager.h"
 #include "Model/ModelFilter.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
@@ -66,11 +67,13 @@ namespace TrenchBroom {
             Model::Picker m_picker;
             Model::ModelFilter m_filter;
             Model::Selection m_selection;
+            Model::IssueManager m_issueManager;
             View::Grid m_grid;
             
             bool m_textureLock;
             size_t m_modificationCount;
         public:
+            Notifier0 documentWasClearedNotifier;
             Notifier0 documentWasNewedNotifier;
             Notifier0 documentWasLoadedNotifier;
             
@@ -177,6 +180,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
+            void registerIssueGenerators();
+            
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
@@ -190,6 +195,8 @@ namespace TrenchBroom {
             void addBrush(Model::Brush* brush, Model::Entity* entity);
             void removeEntity(Model::Entity* entity);
             void removeBrush(Model::Brush* brush, Model::Entity* entity);
+            
+            void clearMap();
             
             void updateGameSearchPaths();
             void loadAndUpdateEntityDefinitions();

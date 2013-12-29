@@ -195,19 +195,19 @@ namespace TrenchBroom {
             return result;
         }
         
-        void GameConfigParser::expectEntry(const ConfigEntry::Type typeMask, const ConfigEntry& entry) const {
+        void GameConfigParser::expectEntry(const int typeMask, const ConfigEntry& entry) const {
             if ((typeMask & entry.type()) == 0)
                 throw ParserException("Expected " + typeNames(typeMask) + ", but got " + typeNames(entry.type()));
         }
 
-        void GameConfigParser::expectTableEntry(const String& key, const ConfigEntry::Type typeMask, const ConfigTable& parent) const {
+        void GameConfigParser::expectTableEntry(const String& key, const int typeMask, const ConfigTable& parent) const {
             if (!parent.contains(key))
                 throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask));
             if ((parent[key].type() & typeMask) == 0)
                 throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask) + ", but got table entry with type '" + typeNames(parent[key].type()) + "'");
         }
         
-        String GameConfigParser::typeNames(const ConfigEntry::Type typeMask) const {
+        String GameConfigParser::typeNames(const int typeMask) const {
             StringList result;
             if ((typeMask & ConfigEntry::TValue) != 0)
                 result.push_back("value");

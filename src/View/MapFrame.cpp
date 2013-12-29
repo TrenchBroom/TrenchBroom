@@ -32,7 +32,7 @@
 #include "Model/Selection.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
-#include "View/Console.h"
+#include "View/InfoPanel.h"
 #include "View/FrameManager.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
-        m_console(NULL),
+        m_infoPanel(NULL),
         m_navBar(NULL),
         m_mapView(NULL) {}
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
-        m_console(NULL),
+        m_infoPanel(NULL),
         m_navBar(NULL),
         m_mapView(NULL) {
             Create(frameManager, document);
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             createGui();
             createMenuBar(false);
             updateTitle();
-            m_document->setParentLogger(m_console);
+            m_document->setParentLogger(logger());
 
             bindEvents();
             bindObservers();
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         }
 
         Logger* MapFrame::logger() const {
-            return m_console;
+            return m_infoPanel->logger();
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
@@ -586,7 +586,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
-            m_autosaver->triggerAutosave(m_console);
+            m_autosaver->triggerAutosave(logger());
         }
 
         void MapFrame::OnIdleSetFocusToMapView(wxIdleEvent& event) {
@@ -641,7 +641,7 @@ namespace TrenchBroom {
             consoleSplitter->SetSashGravity(1.0f);
             consoleSplitter->SetMinimumPaneSize(0);
             
-            m_console = new Console(consoleSplitter);
+            m_infoPanel = new InfoPanel(consoleSplitter);
 
             wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 #ifdef _WIN32
@@ -652,14 +652,14 @@ namespace TrenchBroom {
                                              );
             
             m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, m_console, m_document, m_controller);
+            m_mapView = new MapView(container, logger(), m_document, m_controller);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);
             containerSizer->Add(m_mapView, 1, wxEXPAND);
             container->SetSizer(containerSizer);
             
-            consoleSplitter->SplitHorizontally(container, m_console, -100);
+            consoleSplitter->SplitHorizontally(container, m_infoPanel, -100);
             m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources());
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
             

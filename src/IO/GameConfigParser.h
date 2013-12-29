@@ -47,9 +47,9 @@ namespace TrenchBroom {
             StringSet parseSet(const ConfigList& list) const;
             StringList parseList(const ConfigList& list) const;
             
-            void expectEntry(const ConfigEntry::Type typeMask, const ConfigEntry& entry) const;
-            void expectTableEntry(const String& key, const ConfigEntry::Type typeMask, const ConfigTable& table) const;
-            String typeNames(const ConfigEntry::Type typeMask) const;
+            void expectEntry(int typeMask, const ConfigEntry& entry) const;
+            void expectTableEntry(const String& key, int typeMask, const ConfigTable& table) const;
+            String typeNames(int typeMask) const;
         };
     }
 }

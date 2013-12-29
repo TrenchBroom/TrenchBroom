@@ -23,6 +23,19 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ObjectVisitor::~ObjectVisitor() {}
+        
+        void ObjectVisitor::visit(Entity* entity) {
+            doVisit(entity);
+        }
+        
+        void ObjectVisitor::visit(Brush* brush) {
+            doVisit(brush);
+        }
+        
+        void ObjectVisitor::doVisit(Entity* entity) {}
+        void ObjectVisitor::doVisit(Brush* brush) {}
+
         Object::~Object() {}
 
         BBox3 Object::bounds(const ObjectList& objects) {
@@ -125,6 +138,10 @@ namespace TrenchBroom {
             return doIntersects(brush);
         }
         
+        void Object::visit(ObjectVisitor& visitor) {
+            doVisit(visitor);
+        }
+
         Object::Object(const Type type) :
         m_type(type),
         m_lineNumber(0),

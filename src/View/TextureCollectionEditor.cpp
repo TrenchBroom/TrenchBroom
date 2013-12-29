@@ -33,6 +33,7 @@
 
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
+#include <wx/filedlg.h>
 #include <wx/listbox.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>

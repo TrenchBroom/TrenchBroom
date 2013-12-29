@@ -34,10 +34,11 @@ namespace TrenchBroom {
     
     class ConfigEntry {
     public:
-        typedef size_t Type;
-        static const Type TValue = 1 << 0;
-        static const Type TList  = 1 << 1;
-        static const Type TTable = 1 << 2;
+        typedef enum {
+            TValue  = 1 << 0,
+            TList   = 1 << 1,
+            TTable  = 1 << 2
+        } Type;
         
         typedef std::tr1::shared_ptr<ConfigEntry> Ptr;
     private:

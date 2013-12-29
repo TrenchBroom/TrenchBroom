@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_ViewConstants_h
 #define TrenchBroom_ViewConstants_h
 
-#include <wx/settings.h>
-#include <wx/wx.h>
+class wxColour;
 
 namespace TrenchBroom {
     namespace View {
@@ -62,7 +61,7 @@ namespace TrenchBroom {
             static const int DefaultVerticalMargin              = 5;
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonMargin                 = 0;
-            static const int ToggleButtonStyle                  = wxBORDER_SUNKEN;
+            static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
             static const int ChoiceLeftMargin                   = 1;
             static const int BrowserControlsHorizontalMargin    = 3;
             static const int FaceAttribsControlMargin           = 5;
@@ -99,13 +98,7 @@ namespace TrenchBroom {
         }
         
         namespace Colors {
-#if defined _WIN32
-            static const wxColour DisabledText(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-#elif defined __APPLE__
-            static const wxColour DisabledText(108, 108, 108);
-#elif defined __linux__
-            static const wxColour DisabledText(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-#endif
+            const wxColour& disabledText();
         }
     }
 }

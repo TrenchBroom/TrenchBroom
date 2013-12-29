@@ -92,7 +92,7 @@ namespace TrenchBroom {
         
         void FlagsPopupEditor::updateFlagsText() {
             if (!IsEnabled()) {
-                m_flagsTxt->SetForegroundColour(Colors::DisabledText);
+                m_flagsTxt->SetForegroundColour(Colors::disabledText());
                 m_flagsTxt->SetLabel(_("n/a"));
                 return;
             }
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             m_flagsTxt->SetToolTip(label);
             
             if (mixed)
-                m_flagsTxt->SetForegroundColour(Colors::DisabledText);
+                m_flagsTxt->SetForegroundColour(Colors::disabledText());
             else
                 m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
         }

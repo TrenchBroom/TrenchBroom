@@ -21,6 +21,7 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <wx/frame.h>
 #include <wx/tglbtn.h>
 #include <wx/popupwin.h>
 #include <wx/settings.h>
