@@ -21,9 +21,11 @@
 
 #include "Model/Issue.h"
 #include "Model/IssueManager.h"
+#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 
 #include <wx/dataview.h>
+#include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/variant.h>
 
@@ -104,7 +106,7 @@ namespace TrenchBroom {
                     const void* data = item.GetID();
                     assert(data != NULL);
                     const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
-                    result = wxVariant(wxString(issue->asString()));
+                    result = wxVariant(wxString(issue->description()));
                 }
             }
             
@@ -150,8 +152,9 @@ namespace TrenchBroom {
             }
         };
         
-        IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document) :
+        IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
+        m_controller(controller),
         m_tree(NULL) {
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
             m_tree->AssociateModel(new IssueBrowserDataModel(lock(document)->issueManager()));
@@ -159,16 +162,115 @@ namespace TrenchBroom {
             m_tree->Expand(wxDataViewItem(NULL));
             
             m_tree->Bind(wxEVT_SIZE, &IssueBrowser::OnTreeViewSize, this);
+            m_tree->Bind(wxEVT_DATAVIEW_ITEM_CONTEXT_MENU, &IssueBrowser::OnTreeViewContextMenu, this);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tree, 1, wxEXPAND);
             SetSizerAndFit(sizer);
         }
 
+        Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections) {
+            assert(!selections.empty());
+            Model::QuickFix::List result = reinterpret_cast<Model::Issue*>(selections[0].GetID())->quickFixes();
+            for (size_t i = 1; i < selections.size(); ++i) {
+                const Model::QuickFix::List quickFixes = reinterpret_cast<Model::Issue*>(selections[0].GetID())->quickFixes();
+                
+                Model::QuickFix::List::iterator it = result.begin();
+                while (it != result.end()) {
+                    Model::QuickFix& quickFix = *it;
+                    if (!VectorUtils::contains(quickFixes, quickFix))
+                        it = result.erase(it);
+                    else
+                        ++it;
+                }
+            }
+            return result;
+        }
+        
+        void IssueBrowser::OnTreeViewContextMenu(wxDataViewEvent& event) {
+            const wxDataViewItem& item = event.GetItem();
+            if (!item.IsOk())
+                return;
+            if (!m_tree->IsSelected(item))
+                return;
+
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+            assert(!selections.empty());
+
+            const Model::QuickFix::List quickFixes = collectQuickFixes(selections);
+
+            wxMenu* quickFixMenu = new wxMenu();
+            for (size_t i = 0; i < quickFixes.size(); ++i) {
+                const Model::QuickFix& quickFix = quickFixes[i];
+                quickFixMenu->Append(FixObjectsBaseId + i, quickFix.description());
+            }
+            
+            wxMenu popupMenu;
+            popupMenu.Append(SelectObjectsCommandId, "Select");
+            popupMenu.AppendSubMenu(quickFixMenu, "Fix");
+            
+            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssue, this, SelectObjectsCommandId);
+            quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
+            
+            PopupMenu(&popupMenu);
+        }
+        
+        void IssueBrowser::OnSelectIssue(wxCommandEvent& event) {
+            View::ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Select fixable objects");
+
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+            selectIssueObjects(selections, controller);
+            
+            controller->closeGroup();
+        }
+        
+        void IssueBrowser::OnApplyQuickFix(wxCommandEvent& event) {
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+            assert(!selections.empty());
+            
+            Model::QuickFix::List quickFixes = collectQuickFixes(selections);
+            const size_t index = static_cast<size_t>(event.GetId()) - FixObjectsBaseId;
+            assert(index < quickFixes.size());
+            Model::QuickFix& quickFix = quickFixes[index];
+            
+            View::ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("");
+
+            selectIssueObjects(selections, controller);
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const wxDataViewItem& item = selections[i];
+                void* data = item.GetID();
+                assert(data != NULL);
+                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
+                
+                issue->select(controller);
+                quickFix.apply(*issue, controller);
+            }
+            
+            controller->closeGroup();
+        }
+        
         void IssueBrowser::OnTreeViewSize(wxSizeEvent& event) {
-            int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
+            const int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
             m_tree->GetColumn(0)->SetWidth(newWidth);
             event.Skip();
+        }
+
+        void IssueBrowser::selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller) {
+            controller->deselectAll();
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const wxDataViewItem& item = selections[i];
+                void* data = item.GetID();
+                assert(data != NULL);
+                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
+                issue->select(controller);
+            }
         }
     }
 }

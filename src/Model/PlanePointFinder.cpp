@@ -17,22 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PlanePointsPolicies.h"
+#include "PlanePointFinder.h"
 
 namespace TrenchBroom {
     namespace Model {
-        void FloatPlanePointsPolicy::computePoints(const Plane3& plane, BrushFace::Points& points) {
-            for (size_t i = 0; i < 3; ++i)
-                points[i].correct();
-        }
-
-        void RoundDownIntegerPlanePointsPolicy::computePoints(const Plane3& plane, BrushFace::Points& points) {
-            for (size_t i = 0; i < 3; ++i)
-                for (size_t j = 0; j < 3; ++j)
-                    points[i][j] = static_cast<long>(points[i][j]);
-        }
-
-        
         class GridSearchCursor {
         private:
             static const size_t Center = 4;
@@ -125,5 +113,98 @@ namespace TrenchBroom {
             Vec2(-1.0,  0.0), Vec2( 0.0,  0.0), Vec2( 1.0,  0.0),
             Vec2(-1.0, -1.0), Vec2( 0.0, -1.0), Vec2( 1.0, -1.0)
         };
+
+        FloatType computePlaneFrequency(const Plane3& plane) {
+            static const FloatType c = 1.0 - std::sin(Math::Constants<FloatType>::Pi / 4.0);
+            
+            const Vec3& axis = plane.normal.firstAxis();
+            const FloatType d = plane.normal.dot(axis);
+            assert(d != 0.0);
+            
+            return (1.0 - d) / c;
+        }
+        
+        void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points) {
+            points[0] = plane.anchor().rounded();
+            const Math::Axis::Type axis = plane.normal.firstComponent();
+            switch (axis) {
+                case Math::Axis::AX:
+                    if (plane.normal.x() > 0.0) {
+                        points[1] = points[0] + 64.0 * Vec3::PosZ;
+                        points[2] = points[0] + 64.0 * Vec3::PosY;
+                    } else {
+                        points[1] = points[0] + 64.0 * Vec3::PosY;
+                        points[2] = points[0] + 64.0 * Vec3::PosZ;
+                    }
+                    break;
+                case Math::Axis::AY:
+                    if (plane.normal.y() > 0.0) {
+                        points[1] = points[0] + 64.0 * Vec3::PosX;
+                        points[2] = points[0] + 64.0 * Vec3::PosZ;
+                    } else {
+                        points[1] = points[0] + 64.0 * Vec3::PosZ;
+                        points[2] = points[0] + 64.0 * Vec3::PosX;
+                    }
+                    break;
+                default:
+                    if  (plane.normal.z() > 0.0) {
+                        points[1] = points[0] + 64.0 * Vec3::PosY;
+                        points[2] = points[0] + 64.0 * Vec3::PosX;
+                    } else {
+                        points[1] = points[0] + 64.0 * Vec3::PosX;
+                        points[2] = points[0] + 64.0 * Vec3::PosY;
+                    }
+                    break;
+            }
+        }
+
+        void PlanePointFinder::findPoints(const Plane3& plane, BrushFace::Points& points, const size_t numPoints) {
+            using std::swap;
+            
+            assert(numPoints <= 3);
+            
+            if (numPoints == 3 && points[0].isInteger() && points[1].isInteger() && points[2].isInteger())
+                return;
+            
+            const FloatType frequency = computePlaneFrequency(plane);
+            if (Math::zero(frequency, 1.0 / 7084.0)) {
+                setDefaultPlanePoints(plane, points);
+                return;
+            }
+            
+            const Math::Axis::Type axis = plane.normal.firstComponent();
+            const Plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
+            const FloatType waveLength = 1.0 / frequency;
+            const FloatType pointDistance = std::max(64.0, waveLength);
+            
+            FloatType multiplier = 10.0;
+            GridSearchCursor cursor(plane, frequency);
+            if (numPoints == 0)
+                points[0] = cursor.findMinimum(swizzledPlane.anchor());
+            else if (!points[0].isInteger())
+                points[0] = cursor.findMinimum(points[0]);
+            
+            Vec3 v1, v2;
+            FloatType cos;
+            size_t count = 0;
+            do {
+                if (numPoints < 2 || !points[1].isInteger())
+                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * Vec3::PosX);
+                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3::PosY - pointDistance / 2.0 * Vec3::PosX));
+                v1 = points[2] - points[0];
+                v2 = points[1] - points[0];
+                v1.normalize();
+                v2.normalize();
+                cos = v1.dot(v2);
+                ++count;
+            } while (Math::isnan(cos) || std::abs(cos) > 0.9);
+            
+            cross(v1, v2);
+            if (v1.z() > 0.0 != (swizzledPlane.normal.z() > 0.0))
+                swap(points[0], points[2]);
+            
+            for (size_t i = 0; i < 3; ++i)
+                points[i] = unswizzle(points[i], axis);
+        }
     }
 }

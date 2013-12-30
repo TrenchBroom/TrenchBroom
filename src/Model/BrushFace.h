@@ -160,6 +160,9 @@ namespace TrenchBroom {
 
             void transform(const Mat4x4& transform, const bool lockTexture);
             void invert();
+
+            void snapPlanePointsToInteger();
+            void findIntegerPlanePoints();
             
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;

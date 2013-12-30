@@ -207,6 +207,24 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds, m_faces);
         }
         
+        void Brush::snapPlanePointsToInteger(const BBox3& worldBounds) {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                brushFace->snapPlanePointsToInteger();
+            }
+            rebuildGeometry(worldBounds, m_faces);
+        }
+        
+        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                brushFace->findIntegerPlanePoints();
+            }
+            rebuildGeometry(worldBounds, m_faces);
+        }
+
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds, m_faces);

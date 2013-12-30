@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PlanePointsPolicies_h
-#define TrenchBroom_PlanePointsPolicies_h
+#ifndef TrenchBroom_PlanePointFinder_h
+#define TrenchBroom_PlanePointFinder_h
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -26,19 +26,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class FloatPlanePointsPolicy {
+        class PlanePointFinder {
         public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
-        };
-
-        class RoundDownIntegerPlanePointsPolicy {
-        public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
-        };
-        
-        class GridSearchPlanePointsPolicy {
-        public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
+            static void findPoints(const Plane3& plane, BrushFace::Points& points, size_t numPoints);
         };
     }
 }

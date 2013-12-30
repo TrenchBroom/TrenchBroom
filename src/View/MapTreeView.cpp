@@ -283,7 +283,7 @@ namespace TrenchBroom {
         }
 
         void MapTreeView::OnTreeViewSize(wxSizeEvent& event) {
-            int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
+            const int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
             m_tree->GetColumn(0)->SetWidth(newWidth);
             event.Skip();
         }

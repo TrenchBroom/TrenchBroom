@@ -24,7 +24,10 @@
 
 #include <wx/panel.h>
 
+class wxCommandEvent;
 class wxDataViewCtrl;
+class wxDataViewEvent;
+class wxDataViewItemArray;
 class wxSizeEvent;
 class wxWindow;
 
@@ -32,11 +35,20 @@ namespace TrenchBroom {
     namespace View {
         class IssueBrowser : public wxPanel {
         private:
+            static const int SelectObjectsCommandId = 1;
+            static const int FixObjectsBaseId = 2;
+            
+            ControllerWPtr m_controller;
             wxDataViewCtrl* m_tree;
         public:
-            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
-            
+            IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+
+            void OnTreeViewContextMenu(wxDataViewEvent& event);
+            void OnSelectIssue(wxCommandEvent& event);
+            void OnApplyQuickFix(wxCommandEvent& event);
             void OnTreeViewSize(wxSizeEvent& event);
+        private:
+            void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
         };
     }
 }

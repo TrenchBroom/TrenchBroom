@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
+            InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             Logger* logger();
         };
     }

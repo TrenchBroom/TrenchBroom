@@ -641,7 +641,7 @@ namespace TrenchBroom {
             consoleSplitter->SetSashGravity(1.0f);
             consoleSplitter->SetMinimumPaneSize(0);
             
-            m_infoPanel = new InfoPanel(consoleSplitter, m_document);
+            m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
 
             wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 #ifdef _WIN32

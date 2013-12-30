@@ -23,13 +23,35 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Issue::Issue() :
-        m_previous(NULL),
-        m_next(NULL),
-        m_parent(NULL) {}
+        QuickFix::QuickFix(const QuickFixType fixType, const IssueType issueType, const String& description) :
+        m_fixType(fixType),
+        m_issueType(issueType),
+        m_description(description) {}
         
+        bool QuickFix::operator==(const QuickFix& rhs) const {
+            return m_fixType == rhs.m_fixType && m_issueType == rhs.m_issueType;
+        }
+
+        const String& QuickFix::description() const {
+            return m_description;
+        }
+        
+        void QuickFix::apply(Issue& issue, View::ControllerSPtr controller) {
+            assert(issue.m_type == m_issueType);
+            issue.applyQuickFix(m_fixType, controller);
+        }
+
         Issue::~Issue() {}
         
+        IssueType Issue::freeType() {
+            static IssueType type = 0;
+            return type++;
+        }
+
+        const QuickFix::List& Issue::quickFixes() const {
+            return m_quickFixes;
+        }
+
         size_t Issue::subIssueCount() const {
             return 0;
         }
@@ -82,8 +104,10 @@ namespace TrenchBroom {
         }
 
         void Issue::remove() {
-            m_previous->m_next = m_next;
-            m_next->m_previous = m_previous;
+            if (m_previous != NULL)
+                m_previous->m_next = m_next;
+            if (m_next != NULL)
+                m_next->m_previous = m_previous;
             m_previous = NULL;
             m_next = NULL;
         }
@@ -93,7 +117,20 @@ namespace TrenchBroom {
             return group->mergeWith(issue);
         }
 
+        Issue::Issue(const IssueType type) :
+        m_type(type),
+        m_previous(NULL),
+        m_next(NULL),
+        m_parent(NULL) {}
+        
+        void Issue::addQuickFix(const QuickFix& quickFix) {
+            m_quickFixes.push_back(quickFix);
+        }
+
+        const IssueType IssueGroup::Type = Issue::freeType();
+        
         IssueGroup::IssueGroup(Issue* first) :
+        Issue(Type),
         m_first(first),
         m_count(1) {
             assert(m_first != NULL);
@@ -111,16 +148,28 @@ namespace TrenchBroom {
             m_first = NULL;
         }
 
-        String IssueGroup::asString() const {
+        String IssueGroup::description() const {
             StringStream str;
             Issue* issue = m_first;
             while (issue != NULL) {
-                str << issue->asString();
+                str << issue->description();
                 issue = issue->next();
                 if (issue != NULL)
                     str << ", ";
             }
             return str.str();
+        }
+
+        void IssueGroup::select(View::ControllerSPtr controller) {
+            m_first->select(controller);
+        }
+
+        void IssueGroup::applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
+            Issue* issue = m_first;
+            while (issue != NULL) {
+                issue->applyQuickFix(fixType, controller);
+                issue = issue->next();
+            }
         }
 
         size_t IssueGroup::subIssueCount() const {

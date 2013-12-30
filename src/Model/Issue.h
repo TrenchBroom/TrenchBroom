@@ -22,22 +22,57 @@
 
 #include "StringUtils.h"
 
+/*
+ As an exception, this module is allowed to access modules from the View namespace.
+ */
+#include "View/ViewTypes.h"
+
+#include <vector>
+
+
 namespace TrenchBroom {
     namespace Model {
+        class Issue;
         class IssueGroup;
+        
+        typedef size_t QuickFixType;
+        typedef size_t IssueType;
+        
+        class QuickFix {
+        public:
+            typedef std::vector<QuickFix> List;
+        private:
+            QuickFixType m_fixType;
+            IssueType m_issueType;
+            String m_description;
+        public:
+            QuickFix(QuickFixType fixType, IssueType issueType, const String& description);
+            
+            bool operator==(const QuickFix& rhs) const;
+            
+            const String& description() const;
+            void apply(Issue& issue, View::ControllerSPtr controller);
+        };
         
         class Issue {
         private:
+            IssueType m_type;
             Issue* m_previous;
             Issue* m_next;
             Issue* m_parent;
+            QuickFix::List m_quickFixes;
         public:
             friend class IssueGroup;
+            friend class QuickFix;
             
-            Issue();
             virtual ~Issue();
             
-            virtual String asString() const = 0;
+            static IssueType freeType();
+
+            virtual String description() const = 0;
+            virtual void select(View::ControllerSPtr controller) = 0;
+            const QuickFix::List& quickFixes() const;
+            virtual void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller) = 0;
             
             virtual size_t subIssueCount() const;
             virtual Issue* subIssues() const;
@@ -52,17 +87,23 @@ namespace TrenchBroom {
             void remove();
             
             virtual Issue* mergeWith(Issue* issue);
+        protected:
+            Issue(IssueType type);
+            void addQuickFix(const QuickFix& quickFix);
         };
 
         class IssueGroup : public Issue {
         private:
+            static const IssueType Type;
             Issue* m_first;
             size_t m_count;
         public:
             IssueGroup(Issue* first);
             ~IssueGroup();
             
-            String asString() const;
+            String description() const;
+            void select(View::ControllerSPtr controller);
+            void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller);
 
             size_t subIssueCount() const;
             Issue* subIssues() const;

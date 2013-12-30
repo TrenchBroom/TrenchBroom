@@ -107,6 +107,8 @@ namespace TrenchBroom {
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+            bool snapPlanePoints(Model::Brush& brush);
+            bool findPlanePoints(Model::Brush& brush);
 
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);

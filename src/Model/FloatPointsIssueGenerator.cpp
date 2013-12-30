@@ -23,6 +23,8 @@
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
+#include "View/ControllerFacade.h"
+#include "View/ViewTypes.h"
 
 #include <cassert>
 
@@ -30,15 +32,50 @@ namespace TrenchBroom {
     namespace Model {
         class FloatPointsIssue : public Issue {
         private:
+            static const QuickFixType SnapPointsToIntegerFix = 0;
+            static const QuickFixType FindIntegerPointsFix = 1;
+            static const IssueType Type;
+            
             Brush* m_brush;
         public:
             FloatPointsIssue(Brush* brush) :
-            m_brush(brush) {}
+            Issue(Type),
+            m_brush(brush) {
+                addQuickFix(QuickFix(SnapPointsToIntegerFix, Type, "Snap plane points to integer"));
+                addQuickFix(QuickFix(FindIntegerPointsFix, Type, "Find integer plane points"));
+            }
             
-            String asString() const {
+            String description() const {
                 return "Brush has floating point plane points";
             }
+            
+            void select(View::ControllerSPtr controller) {
+                controller->selectObject(*m_brush);
+            }
+            
+            void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
+                switch (fixType) {
+                    case SnapPointsToIntegerFix:
+                        snapPointsToInteger(controller);
+                        break;
+                    case FindIntegerPointsFix:
+                        findIntegerPoints(controller);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        private:
+            void snapPointsToInteger(View::ControllerSPtr controller) {
+                controller->snapPlanePoints(*m_brush);
+            }
+            
+            void findIntegerPoints(View::ControllerSPtr controller) {
+                controller->findPlanePoints(*m_brush);
+            }
         };
+        
+        const IssueType FloatPointsIssue::Type = Issue::freeType();
         
         Issue* FloatPointsIssueGenerator::generate(Brush* brush) const {
             assert(brush != NULL);
