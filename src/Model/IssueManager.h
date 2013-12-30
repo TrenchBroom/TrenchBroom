@@ -21,6 +21,7 @@
 #define __TrenchBroom__IssueManager__
 
 #include "Model/ModelTypes.h"
+#include "Notifier.h"
 
 #include <map>
 #include <vector>
@@ -39,10 +40,17 @@ namespace TrenchBroom {
             Issue* m_issueList;
             IssueMap m_issueMap;
         public:
+            Notifier1<Issue*> issueWasAddedNotifier;
+            Notifier1<Issue*> issueWillBeRemovedNotifier;
+            Notifier0 issuesClearedNotifier;
+        public:
             IssueManager();
             ~IssueManager();
             
             void registerGenerator(IssueGenerator* generator);
+            
+            size_t issueCount() const;
+            Issue* issues() const;
             
             void addObject(Object* object);
             void updateObject(Object* object);

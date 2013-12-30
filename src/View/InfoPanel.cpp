@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        InfoPanel::InfoPanel(wxWindow* parent) :
+        InfoPanel::InfoPanel(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_console(NULL),
         m_issueBrowser(NULL) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             assert(issueBrowserIconIndex != -1);
 
             m_console = new Console(m_notebook);
-            m_issueBrowser = new IssueBrowser(m_notebook);
+            m_issueBrowser = new IssueBrowser(m_notebook, document);
             
             m_notebook->AddPage(m_console, _("Console"), true, consoleIconIndex);
             m_notebook->AddPage(m_issueBrowser, _("Issues"), false, issueBrowserIconIndex);

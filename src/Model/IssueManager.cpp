@@ -40,6 +40,14 @@ namespace TrenchBroom {
             m_generators.push_back(generator);
         }
 
+        size_t IssueManager::issueCount() const {
+            return m_issueMap.size();
+        }
+        
+        Issue* IssueManager::issues() const {
+            return m_issueList;
+        }
+
         void IssueManager::addObject(Object* object) {
             Issue* issue = findIssues(object);
             if (issue != NULL) {
@@ -48,6 +56,7 @@ namespace TrenchBroom {
                 
                 issue->insertBefore(m_issueList);
                 m_issueList = issue;
+                issueWasAddedNotifier(issue);
             }
         }
         
@@ -62,6 +71,7 @@ namespace TrenchBroom {
                 Issue* issue = it->second;
                 if (m_issueList == issue)
                     m_issueList = issue->next();
+                issueWillBeRemovedNotifier(issue);
                 issue->remove();
                 delete issue;
                 m_issueMap.erase(it);
@@ -77,6 +87,7 @@ namespace TrenchBroom {
             }
             m_issueList = NULL;
             m_issueMap.clear();
+            issuesClearedNotifier();
         }
         
         void IssueManager::clearGenerators() {

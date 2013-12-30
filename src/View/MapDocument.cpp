@@ -275,6 +275,10 @@ namespace TrenchBroom {
             return m_textureManager;
         }
         
+        Model::IssueManager& MapDocument::issueManager() {
+            return m_issueManager;
+        }
+
         View::Grid& MapDocument::grid() {
             return m_grid;
         }

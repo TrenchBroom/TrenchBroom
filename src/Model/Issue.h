@@ -24,18 +24,27 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class IssueGroup;
+        
         class Issue {
         private:
             Issue* m_previous;
             Issue* m_next;
+            Issue* m_parent;
         public:
+            friend class IssueGroup;
+            
             Issue();
             virtual ~Issue();
             
             virtual String asString() const = 0;
             
+            virtual size_t subIssueCount() const;
+            virtual Issue* subIssues() const;
+            
             Issue* previous() const;
             Issue* next() const;
+            Issue* parent() const;
 
             void insertAfter(Issue* previous);
             void insertBefore(Issue* next);
@@ -48,11 +57,16 @@ namespace TrenchBroom {
         class IssueGroup : public Issue {
         private:
             Issue* m_first;
+            size_t m_count;
         public:
             IssueGroup(Issue* first);
             ~IssueGroup();
             
             String asString() const;
+
+            size_t subIssueCount() const;
+            Issue* subIssues() const;
+            
             Issue* mergeWith(Issue* issue);
         };
         

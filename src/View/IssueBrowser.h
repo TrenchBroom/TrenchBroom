@@ -20,15 +20,23 @@
 #ifndef __TrenchBroom__IssueBrowser__
 #define __TrenchBroom__IssueBrowser__
 
+#include "View/ViewTypes.h"
+
 #include <wx/panel.h>
 
+class wxDataViewCtrl;
+class wxSizeEvent;
 class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
         class IssueBrowser : public wxPanel {
+        private:
+            wxDataViewCtrl* m_tree;
         public:
-            IssueBrowser(wxWindow* parent);
+            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
+            
+            void OnTreeViewSize(wxSizeEvent& event);
         };
     }
 }

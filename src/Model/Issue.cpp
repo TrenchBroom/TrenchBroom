@@ -25,9 +25,18 @@ namespace TrenchBroom {
     namespace Model {
         Issue::Issue() :
         m_previous(NULL),
-        m_next(NULL) {}
+        m_next(NULL),
+        m_parent(NULL) {}
         
         Issue::~Issue() {}
+        
+        size_t Issue::subIssueCount() const {
+            return 0;
+        }
+        
+        Issue* Issue::subIssues() const {
+            return NULL;
+        }
         
         Issue* Issue::previous() const {
             return m_previous;
@@ -35,6 +44,10 @@ namespace TrenchBroom {
         
         Issue* Issue::next() const {
             return m_next;
+        }
+
+        Issue* Issue::parent() const {
+            return m_parent;
         }
 
         void Issue::insertAfter(Issue* previous) {
@@ -81,9 +94,11 @@ namespace TrenchBroom {
         }
 
         IssueGroup::IssueGroup(Issue* first) :
-        m_first(first) {
+        m_first(first),
+        m_count(1) {
             assert(m_first != NULL);
             m_first->replaceWith(this);
+            m_first->m_parent = this;
         }
         
         IssueGroup::~IssueGroup() {
@@ -108,9 +123,19 @@ namespace TrenchBroom {
             return str.str();
         }
 
+        size_t IssueGroup::subIssueCount() const {
+            return m_count;
+        }
+        
+        Issue* IssueGroup::subIssues() const {
+            return m_first;
+        }
+
         Issue* IssueGroup::mergeWith(Issue* issue) {
             issue->insertBefore(m_first);
             m_first = issue;
+            m_first->m_parent = this;
+            ++m_count;
             return this;
         }
     }

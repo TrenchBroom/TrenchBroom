@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__InfoPanel__
 #define __TrenchBroom__InfoPanel__
 
+#include "View/ViewTypes.h"
+
 #include <wx/panel.h>
 
 class wxToolbook;
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            InfoPanel(wxWindow* parent);
+            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
             Logger* logger();
         };
     }

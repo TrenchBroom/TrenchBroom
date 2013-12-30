@@ -103,6 +103,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
             Assets::TextureManager& textureManager();
+            Model::IssueManager& issueManager();
             View::Grid& grid();
             
             bool isGamePathPreference(const IO::Path& path) const;
