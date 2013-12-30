@@ -30,6 +30,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class ObjectVisitor {
+        public:
+            virtual ~ObjectVisitor();
+            void visit(Entity* entity);
+            void visit(Brush* brush);
+        private:
+            virtual void doVisit(Entity* entity);
+            virtual void doVisit(Brush* entity);
+        };
+        
         class Object : public Pickable {
         public:
             typedef enum {
@@ -70,6 +80,7 @@ namespace TrenchBroom {
             bool intersects(const Object& object) const;
             bool intersects(const Entity& entity) const;
             bool intersects(const Brush& brush) const;
+            void visit(ObjectVisitor& visitor);
         protected:
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
@@ -84,6 +95,7 @@ namespace TrenchBroom {
             virtual bool doIntersects(const Object& object) const = 0;
             virtual bool doIntersects(const Entity& entity) const = 0;
             virtual bool doIntersects(const Brush& brush) const = 0;
+            virtual void doVisit(ObjectVisitor& visitor) = 0;
         };
     }
 }

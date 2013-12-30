@@ -17,22 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TrenchBroom_h
-#define TrenchBroom_TrenchBroom_h
+#ifndef __TrenchBroom__IssueGenerator__
+#define __TrenchBroom__IssueGenerator__
 
-#include "VecMath.h"
+namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class Entity;
+        class Issue;
+        class Object;
+        
+        class IssueGenerator {
+        public:
+            virtual ~IssueGenerator();
+            
+            Issue* generate(Object* object) const;
+            
+            virtual Issue* generate(Entity* entity) const;
+            virtual Issue* generate(Brush* brush) const;
+        };
+    }
+}
 
-typedef double FloatType;
-typedef BBox<FloatType, 3> BBox3;
-typedef Vec<FloatType, 3> Vec3;
-typedef Vec<FloatType, 2> Vec2;
-typedef Plane<FloatType, 3> Plane3;
-typedef Quat<FloatType> Quat3;
-typedef Mat<FloatType, 4, 4> Mat4x4;
-typedef Mat<FloatType, 3, 3> Mat3x3;
-typedef Mat<FloatType, 2, 2> Mat2x2;
-typedef Line<FloatType, 3> Line3;
-typedef Ray<FloatType, 3> Ray3;
-typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
 
-#endif
+#endif /* defined(__TrenchBroom__IssueGenerator__) */

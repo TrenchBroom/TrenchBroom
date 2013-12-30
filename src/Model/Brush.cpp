@@ -303,6 +303,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Brush::doVisit(ObjectVisitor& visitor) {
+            visitor.visit(this);
+        }
+
         Object* Brush::doClone(const BBox3& worldBounds) const {
             BrushFaceList newFaces;
             newFaces.reserve(m_faces.size());

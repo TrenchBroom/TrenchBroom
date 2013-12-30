@@ -17,22 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TrenchBroom_h
-#define TrenchBroom_TrenchBroom_h
+#ifndef __TrenchBroom__IssueBrowser__
+#define __TrenchBroom__IssueBrowser__
 
-#include "VecMath.h"
+#include "View/ViewTypes.h"
 
-typedef double FloatType;
-typedef BBox<FloatType, 3> BBox3;
-typedef Vec<FloatType, 3> Vec3;
-typedef Vec<FloatType, 2> Vec2;
-typedef Plane<FloatType, 3> Plane3;
-typedef Quat<FloatType> Quat3;
-typedef Mat<FloatType, 4, 4> Mat4x4;
-typedef Mat<FloatType, 3, 3> Mat3x3;
-typedef Mat<FloatType, 2, 2> Mat2x2;
-typedef Line<FloatType, 3> Line3;
-typedef Ray<FloatType, 3> Ray3;
-typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
+#include <wx/panel.h>
 
-#endif
+class wxDataViewCtrl;
+class wxSizeEvent;
+class wxWindow;
+
+namespace TrenchBroom {
+    namespace View {
+        class IssueBrowser : public wxPanel {
+        private:
+            wxDataViewCtrl* m_tree;
+        public:
+            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
+            
+            void OnTreeViewSize(wxSizeEvent& event);
+        };
+    }
+}
+
+#endif /* defined(__TrenchBroom__IssueBrowser__) */

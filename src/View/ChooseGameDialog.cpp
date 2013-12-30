@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 return dialog.selectedGameName();
             return "";
         }
-
+        
         ChooseGameDialog::~ChooseGameDialog() {
             unbindObservers();
         }
@@ -53,16 +53,16 @@ namespace TrenchBroom {
         const String ChooseGameDialog::selectedGameName() const {
             return m_gameListBox->selectedGameName();
         }
-
+        
         void ChooseGameDialog::OnGameSelected(GameSelectedCommand& event) {
             EndModal(wxID_OK);
         }
-
+        
         void ChooseGameDialog::OnOpenPreferencesClicked(wxCommandEvent& event) {
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.openPreferences();
         }
-
+        
         void ChooseGameDialog::OnUpdateOkButton(wxUpdateUIEvent& event) {
             event.Enable(m_gameListBox->GetSelectedCount() > 0);
         }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             bindObservers();
             CentreOnParent();
         }
-
+        
         void ChooseGameDialog::createGui(const wxString& title, const wxString& infoText) {
             wxPanel* infoPanel = createInfoPanel(this, title, infoText);
             wxPanel* gameList = createGameList(this);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             m_openPreferencesButton->Bind(wxEVT_BUTTON, &ChooseGameDialog::OnOpenPreferencesClicked, this);
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &ChooseGameDialog::OnUpdateOkButton, this);
         }
-
+        
         void ChooseGameDialog::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &ChooseGameDialog::preferenceDidChange);
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ChooseGameDialog::preferenceDidChange);
         }
-
+        
         void ChooseGameDialog::preferenceDidChange(const IO::Path& path) {
             m_gameListBox->reloadGameInfos();
         }

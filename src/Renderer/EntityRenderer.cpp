@@ -127,6 +127,8 @@ namespace TrenchBroom {
         
         void EntityRenderer::clear() {
             m_entities.clear();
+            m_wireframeBoundsRenderer = EdgeRenderer();
+            m_solidBoundsRenderer = TriangleRenderer();
             m_classnameRenderer.clear();
             m_modelRenderer.clear();
         }

@@ -42,7 +42,7 @@ namespace TrenchBroom {
     
     namespace View {
         class Autosaver;
-        class Console;
+        class InfoPanel;
         class FrameManager;
         class Inspector;
         class KeyboardShortcut;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
 
-            Console* m_console;
+            InfoPanel* m_infoPanel;
             NavBar* m_navBar;
             MapView* m_mapView;
             Inspector* m_inspector;

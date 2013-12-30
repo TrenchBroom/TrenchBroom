@@ -465,6 +465,10 @@ namespace TrenchBroom {
             return brush.intersects(*this);
         }
 
+        void Entity::doVisit(ObjectVisitor& visitor) {
+            visitor.visit(this);
+        }
+
         void Entity::addLinkSource(Entity* entity) {
             m_linkSources.push_back(entity);
         }

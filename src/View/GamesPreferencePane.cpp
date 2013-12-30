@@ -28,6 +28,7 @@
 
 #include <wx/button.h>
 #include <wx/choice.h>
+#include <wx/dirdlg.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
 #include <wx/statbox.h>
@@ -47,9 +48,9 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
-            wxDirDialog chooseQuakePathDialog(NULL, _("Choose game directory"), _(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-            if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
-                const IO::Path gamePath(chooseQuakePathDialog.GetPath().ToStdString());
+            const wxString pathStr = ::wxDirSelector(_("Choose game directory"), wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+            if (!pathStr.empty()) {
+                const IO::Path gamePath(pathStr.ToStdString());
                 const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 gameFactory.setGamePath(gameName, gamePath);

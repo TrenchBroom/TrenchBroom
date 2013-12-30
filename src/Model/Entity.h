@@ -171,6 +171,7 @@ namespace TrenchBroom {
             bool doIntersects(const Object& object) const;
             bool doIntersects(const Entity& entity) const;
             bool doIntersects(const Brush& brush) const;
+            void doVisit(ObjectVisitor& visitor);
         protected:
             void addLinkSource(Entity* entity);
             void addLinkTarget(Entity* entity);
