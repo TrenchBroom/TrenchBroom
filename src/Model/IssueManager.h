@@ -52,9 +52,9 @@ namespace TrenchBroom {
             size_t issueCount() const;
             Issue* issues() const;
             
-            void addObject(Object* object);
-            void updateObject(Object* object);
-            void removeObject(Object* object);
+            void objectAdded(Object* object);
+            void objectChanged(Object* object);
+            void objectRemoved(Object* object);
             
             void clearIssues();
             void clearGenerators();

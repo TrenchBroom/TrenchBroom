@@ -19,6 +19,8 @@
 
 #include "EntityLinkIssueGenerator.h"
 
+#include "CollectionUtils.h"
+#include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/Issue.h"
@@ -46,11 +48,15 @@ namespace TrenchBroom {
             }
             
             String description() const {
-                return "Entity has missing target for key '" + m_key + "'";
+                return m_entity->classname() + " entity has missing target for key '" + m_key + "'";
             }
             
             void select(View::ControllerSPtr controller) {
-                controller->selectObject(*m_entity);
+                const BrushList& brushes = m_entity->brushes();
+                if (brushes.empty())
+                    controller->selectObject(*m_entity);
+                else
+                    controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
             }
             
             void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
@@ -72,7 +78,7 @@ namespace TrenchBroom {
             return issue;
         }
 
-        void EntityLinkIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue* issue) const {
+        void EntityLinkIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const {
             Model::PropertyKeyList::const_iterator it, end;
             for (it = keys.begin(), end = keys.end(); it != end; ++it) {
                 const Model::PropertyKey& key = *it;

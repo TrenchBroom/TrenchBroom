@@ -30,6 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
+#include "Model/EntityLinkIssueGenerator.h"
 #include "Model/FloatPointsIssueGenerator.h"
 #include "Model/FloatVerticesIssueGenerator.h"
 #include "Model/Game.h"
@@ -195,7 +196,7 @@ namespace TrenchBroom {
             m_issueManager(issueManager) {}
             
             void operator()(Model::Object* object) const {
-                m_issueManager.addObject(object);
+                m_issueManager.objectAdded(object);
             }
         };
         
@@ -207,7 +208,7 @@ namespace TrenchBroom {
             m_issueManager(issueManager) {}
             
             void operator()(Model::Object* object) const {
-                m_issueManager.updateObject(object);
+                m_issueManager.objectChanged(object);
             }
         };
         
@@ -219,7 +220,7 @@ namespace TrenchBroom {
             m_issueManager(issueManager) {}
             
             void operator()(Model::Object* object) const {
-                m_issueManager.removeObject(object);
+                m_issueManager.objectRemoved(object);
             }
         };
         
@@ -584,6 +585,7 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
+            entityPropertyDidChangeNotifier.addObserver(this, &MapDocument::entityPropertyDidChange);
             faceDidChangeNotifier.addObserver(this, &MapDocument::faceDidChange);
             modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
@@ -599,6 +601,7 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
+            entityPropertyDidChangeNotifier.removeObserver(this, &MapDocument::entityPropertyDidChange);
             faceDidChangeNotifier.removeObserver(this, &MapDocument::faceDidChange);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
@@ -686,6 +689,26 @@ namespace TrenchBroom {
             updateIssueManager(object);
         }
         
+        void MapDocument::entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after) {
+            if (before.key == Model::PropertyKeys::Targetname ||
+                after.key == Model::PropertyKeys::Targetname) {
+                
+                const Model::EntityList oldLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, before.value);
+                const Model::EntityList oldKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, before.value);
+                const Model::EntityList newLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, after.value);
+                const Model::EntityList newKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, after.value);
+                
+                Model::EntitySet entities;
+                entities.insert(oldLinkSources.begin(), oldLinkSources.end());
+                entities.insert(oldKillSources.begin(), oldKillSources.end());
+                entities.insert(newLinkSources.begin(), newLinkSources.end());
+                entities.insert(newKillSources.begin(), newKillSources.end());
+                
+                UpdateObjectInIssueManager updateIssueManager(m_issueManager);
+                Model::each(entities.begin(), entities.end(), updateIssueManager, Model::MatchAll());
+            }
+        }
+        
         void MapDocument::faceDidChange(Model::BrushFace* face) {
             Model::Brush* brush = face->parent();
             
@@ -740,6 +763,7 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator());
             m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator());
             m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()));
+            m_issueManager.registerGenerator(new Model::EntityLinkIssueGenerator());
         }
 
         void MapDocument::addEntity(Model::Entity* entity) {

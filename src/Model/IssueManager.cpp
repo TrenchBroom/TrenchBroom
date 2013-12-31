@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return m_issueList;
         }
 
-        void IssueManager::addObject(Object* object) {
+        void IssueManager::objectAdded(Object* object) {
             Issue* issue = findIssues(object);
             if (issue != NULL) {
                 assert(m_issueMap.count(object) == 0);
@@ -60,12 +60,12 @@ namespace TrenchBroom {
             }
         }
         
-        void IssueManager::updateObject(Object* object) {
-            removeObject(object);
-            addObject(object);
+        void IssueManager::objectChanged(Object* object) {
+            objectRemoved(object);
+            objectAdded(object);
         }
         
-        void IssueManager::removeObject(Object* object) {
+        void IssueManager::objectRemoved(Object* object) {
             IssueMap::iterator it = m_issueMap.find(object);
             if (it != m_issueMap.end()) {
                 Issue* issue = it->second;

@@ -209,8 +209,8 @@ namespace TrenchBroom {
                     const Model::EntityProperty before(key(), oldValue);
 
                     m_snapshot[entity] = before;
-                    document->entityPropertyDidChangeNotifier(entity, before, empty);
                     entity->removeProperty(key());
+                    document->entityPropertyDidChangeNotifier(entity, before, empty);
                 }
             }
         }
@@ -240,8 +240,8 @@ namespace TrenchBroom {
                 Model::Entity* entity = *entityIt;
                 PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
                 if (snapshotIt == m_snapshot.end()) {
-                    document->entityPropertyDidChangeNotifier(entity, after, empty);
                     entity->removeProperty(key());
+                    document->entityPropertyDidChangeNotifier(entity, after, empty);
                 } else {
                     const Model::EntityProperty& before = snapshotIt->second;
                     entity->addOrUpdateProperty(before.key, before.value);

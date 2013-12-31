@@ -191,7 +191,11 @@ namespace TrenchBroom {
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            
+            void entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after);
+            
             void faceDidChange(Model::BrushFace* face);
+            
             void modsDidChange();
             void entityDefinitionsDidChange();
             void textureCollectionsDidChange();

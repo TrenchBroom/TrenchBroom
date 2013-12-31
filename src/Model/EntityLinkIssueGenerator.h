@@ -31,7 +31,7 @@ namespace TrenchBroom {
         public:
             Issue* generate(Entity* entity) const;
         private:
-            void processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue* issue) const;
+            void processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const;
         };
     }
 }
