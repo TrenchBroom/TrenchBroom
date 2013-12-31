@@ -65,12 +65,23 @@ namespace TrenchBroom {
             
             typedef std::vector<FlagConfig> FlagConfigList;
             
+            struct FlagsConfig {
+                FlagConfigList flags;
+                
+                FlagsConfig();
+                FlagsConfig(const FlagConfigList& i_flags);
+
+                String flagName(size_t index) const;
+                StringList flagNames(int mask = ~0) const;
+            };
+            
             struct FaceAttribsConfig {
-                FlagConfigList surfaceFlags;
-                FlagConfigList contentFlags;
+                FlagsConfig surfaceFlags;
+                FlagsConfig contentFlags;
                 
                 FaceAttribsConfig();
                 FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags);
+                
             };
         private:
             String m_name;

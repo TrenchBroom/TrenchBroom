@@ -81,8 +81,12 @@ namespace TrenchBroom {
             Notifier1<Model::Object*> objectWillBeRemovedNotifier;
             Notifier1<Model::Object*> objectWillChangeNotifier;
             Notifier1<Model::Object*> objectDidChangeNotifier;
+            
+            Notifier3<Model::Entity*, const Model::EntityProperty&, const Model::EntityProperty&> entityPropertyDidChangeNotifier;
+            
             Notifier1<Model::BrushFace*> faceWillChangeNotifier;
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
+            
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
@@ -187,6 +191,7 @@ namespace TrenchBroom {
             void objectWillBeRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
             void modsDidChange();
             void entityDefinitionsDidChange();
             void textureCollectionsDidChange();

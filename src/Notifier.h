@@ -293,7 +293,6 @@ namespace TrenchBroom {
         }
     };
     
-    
     template <typename A1, typename A2>
     class Notifier2 {
     private:
@@ -408,6 +407,155 @@ namespace TrenchBroom {
         
         void operator()(A1 a1, A2 a2) {
             notify(a1, a2);
+        }
+        
+        template <typename I>
+        void notify(I it, I end, A2 a2) {
+            while (it != end) {
+                notify(*it, a2);
+                ++it;
+            }
+        }
+        
+        template <typename I>
+        void operator()(I it, I end, A2 a2) {
+            while (it != end) {
+                notify(*it, a2);
+                ++it;
+            }
+        }
+    };
+
+    template <typename A1, typename A2, typename A3>
+    class Notifier3 {
+    private:
+        class Observer {
+        public:
+            typedef std::list<Observer*> List;
+        public:
+            virtual ~Observer() {}
+            
+            virtual void* receiver() const = 0;
+            
+            virtual void operator()(A1 a1, A2 a2, A3 a3) = 0;
+            
+            bool operator==(const Observer& rhs) const {
+                if (receiver() != rhs.receiver())
+                    return false;
+                return compareFunctions(rhs);
+            }
+        private:
+            virtual bool compareFunctions(const Observer& rhs) const = 0;
+        };
+        
+        template <typename R>
+        class CObserver : public Observer {
+        private:
+            typedef void (R::*F)(A1 a1, A2 a2, A3 a3);
+            
+            R* m_receiver;
+            F m_function;
+        public:
+            CObserver(R* receiver, F function) :
+            m_receiver(receiver),
+            m_function(function) {}
+            
+            void operator()(A1 a1, A2 a2, A3 a3) {
+                (m_receiver->*m_function)(a1, a2, a3);
+            }
+            
+            void* receiver() const {
+                return static_cast<void*>(m_receiver);
+            }
+            
+            F function() const {
+                return m_function;
+            }
+            
+            bool compareFunctions(const Observer& rhs) const {
+                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
+                return m_function == rhsR.function();
+            }
+        };
+        
+        struct CompareObservers {
+        private:
+            const Observer& m_lhs;
+        public:
+            CompareObservers(const Observer& lhs) : m_lhs(lhs) {}
+            bool operator()(const Observer* rhs) const {
+                return m_lhs == (*rhs);
+            }
+        };
+    private:
+        typename Observer::List m_observers;
+        bool m_notifying;
+    public:
+        Notifier3() :
+        m_notifying(false) {}
+        
+        ~Notifier3() {
+            ListUtils::clearAndDelete(m_observers);
+        }
+        
+        template <typename R>
+        bool addObserver(R* receiver, void (R::*function)(A1, A2, A3)) {
+            assert(!m_notifying);
+            
+            CObserver<R>* observer = new CObserver<R>(receiver, function);
+            typename Observer::List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*observer));
+            if (it != m_observers.end()) {
+                delete observer;
+                return false;
+            }
+            
+            m_observers.push_back(observer);
+            return true;
+        }
+        
+        template <typename R>
+        bool removeObserver(R* receiver, void (R::*function)(A1, A2, A3)) {
+            assert(!m_notifying);
+            
+            CObserver<R> test(receiver, function);
+            
+            typename Observer::List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(test));
+            if (it == m_observers.end())
+                return false;
+            
+            delete *it;
+            m_observers.erase(it);
+            return true;
+        }
+        
+        void notify(A1 a1, A2 a2, A3 a3) {
+            const SetBool notifying(m_notifying);
+            
+            typename Observer::List::const_iterator it, end;
+            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+                Observer& observer = **it;
+                observer(a1, a2, a3);
+            }
+        }
+        
+        void operator()(A1 a1, A2 a2, A3 a3) {
+            notify(a1, a2, a3);
+        }
+        
+        template <typename I>
+        void notify(I it, I end, A2 a2, A3 a3) {
+            while (it != end) {
+                notify(*it, a2, a3);
+                ++it;
+            }
+        }
+        
+        template <typename I>
+        void operator()(I it, I end, A2 a2, A3 a3) {
+            while (it != end) {
+                notify(*it, a2, a3);
+                ++it;
+            }
         }
     };
 }

@@ -90,12 +90,14 @@ namespace TrenchBroom {
         protected:
             Issue(IssueType type);
             void addQuickFix(const QuickFix& quickFix);
+            void addQuickFixes(const QuickFix::List& quickFixes);
         };
 
         class IssueGroup : public Issue {
         private:
             static const IssueType Type;
             Issue* m_first;
+            Issue* m_last;
             size_t m_count;
         public:
             IssueGroup(Issue* first);

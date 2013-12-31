@@ -57,8 +57,8 @@ namespace TrenchBroom {
             void removeObject(Object* object);
             
             void clearIssues();
-        private:
             void clearGenerators();
+        private:
             
             Issue* findIssues(Object* object);
         };

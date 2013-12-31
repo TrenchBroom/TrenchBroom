@@ -118,6 +118,7 @@ namespace TrenchBroom {
             bool setFaceYScale(const Model::BrushFaceList& faces, float yScale, bool add);
             bool setSurfaceFlag(const Model::BrushFaceList& faces, size_t index, bool set);
             bool setContentFlag(const Model::BrushFaceList& faces, size_t index, bool set);
+            bool setContentFlags(const Model::BrushFaceList& faces, int flags);
             bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
         private:

@@ -19,6 +19,8 @@
 
 #include "Issue.h"
 
+#include "CollectionUtils.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -127,15 +129,21 @@ namespace TrenchBroom {
             m_quickFixes.push_back(quickFix);
         }
 
+        void Issue::addQuickFixes(const QuickFix::List& quickFixes) {
+            VectorUtils::append(m_quickFixes, quickFixes);
+        }
+
         const IssueType IssueGroup::Type = Issue::freeType();
         
         IssueGroup::IssueGroup(Issue* first) :
         Issue(Type),
         m_first(first),
+        m_last(first),
         m_count(1) {
             assert(m_first != NULL);
             m_first->replaceWith(this);
             m_first->m_parent = this;
+            addQuickFixes(m_first->quickFixes());
         }
         
         IssueGroup::~IssueGroup() {
@@ -146,6 +154,7 @@ namespace TrenchBroom {
                 issue = next;
             }
             m_first = NULL;
+            m_last = NULL;
         }
 
         String IssueGroup::description() const {
@@ -181,10 +190,25 @@ namespace TrenchBroom {
         }
 
         Issue* IssueGroup::mergeWith(Issue* issue) {
-            issue->insertBefore(m_first);
-            m_first = issue;
-            m_first->m_parent = this;
-            ++m_count;
+            if (issue->subIssueCount() == 0) {
+                issue->insertAfter(m_last);
+                m_last = issue;
+                m_last->m_parent = this;
+                addQuickFixes(m_last->quickFixes());
+                ++m_count;
+            } else {
+                Issue* subIssue = issue->subIssues();
+                while (subIssue != NULL) {
+                    subIssue->insertAfter(m_last);
+                    m_last = subIssue;
+                    m_last->m_parent = this;
+                    addQuickFixes(m_last->quickFixes());
+                    ++m_count;
+                    subIssue = subIssue->next();
+                }
+                delete issue;
+            }
+            
             return this;
         }
     }

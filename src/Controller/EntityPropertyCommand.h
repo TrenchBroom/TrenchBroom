@@ -23,9 +23,11 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
+#include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
-#include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -39,16 +41,18 @@ namespace TrenchBroom {
                 PCSetProperty,
                 PCRemoveProperty
             } PropertyCommand;
+
+            typedef std::map<Model::Entity*, Model::EntityProperty> PropertySnapshot;
             
             const PropertyCommand m_command;
             View::MapDocumentWPtr m_document;
             const Model::EntityList m_entities;
             bool m_force;
-            Model::PropertyKeyList m_keys;
+            Model::PropertyKey m_oldKey;
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
             bool m_definitionAffected;
-            Model::Snapshot m_snapshot;
+            PropertySnapshot m_snapshot;
 
             void setKey(const Model::PropertyKey& key);
             void setKeys(const Model::PropertyKeyList& newKeys);
@@ -75,10 +79,14 @@ namespace TrenchBroom {
             bool doPerformDo();
             bool doPerformUndo();
             
-            void rename();
-            void setValue();
-            void remove();
+            void doRename(View::MapDocumentSPtr document);
+            void doSetValue(View::MapDocumentSPtr document);
+            void doRemove(View::MapDocumentSPtr document);
             
+            void undoRename(View::MapDocumentSPtr document);
+            void undoSetValue(View::MapDocumentSPtr document);
+            void undoRemove(View::MapDocumentSPtr document);
+
             bool affectsImmutablePropertyKey() const;
             bool affectsImmutablePropertyValue() const;
             bool canSetKey() const;

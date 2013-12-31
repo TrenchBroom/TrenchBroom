@@ -31,11 +31,13 @@
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
 #include "Model/FloatPointsIssueGenerator.h"
+#include "Model/FloatVerticesIssueGenerator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Map.h"
 #include "Model/MapFacesIterator.h"
 #include "Model/MapObjectsIterator.h"
+#include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
 #include "View/MapFrame.h"
@@ -315,7 +317,8 @@ namespace TrenchBroom {
             
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
-            
+
+            registerIssueGenerators();
             setDocumentPath(IO::Path("unnamed.map"));
             clearModificationCount();
             loadAndUpdateEntityDefinitions();
@@ -334,6 +337,7 @@ namespace TrenchBroom {
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
             
+            registerIssueGenerators();
             setDocumentPath(path);
             clearModificationCount();
 
@@ -580,6 +584,7 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
+            faceDidChangeNotifier.addObserver(this, &MapDocument::faceDidChange);
             modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
             textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
@@ -594,6 +599,7 @@ namespace TrenchBroom {
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
+            faceDidChangeNotifier.removeObserver(this, &MapDocument::faceDidChange);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
             textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
@@ -680,6 +686,13 @@ namespace TrenchBroom {
             updateIssueManager(object);
         }
         
+        void MapDocument::faceDidChange(Model::BrushFace* face) {
+            Model::Brush* brush = face->parent();
+            
+            UpdateObjectInIssueManager updateIssueManager(m_issueManager);
+            updateIssueManager(brush);
+        }
+
         void MapDocument::modsDidChange() {
             updateGameSearchPaths();
             clearEntityModels();
@@ -720,11 +733,13 @@ namespace TrenchBroom {
         m_textureLock(true),
         m_modificationCount(0) {
             bindObservers();
-            registerIssueGenerators();
         }
         
         void MapDocument::registerIssueGenerators() {
+            m_issueManager.clearGenerators();
             m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator());
+            m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator());
+            m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()));
         }
 
         void MapDocument::addEntity(Model::Entity* entity) {

@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FloatPointsIssueGenerator__
-#define __TrenchBroom__FloatPointsIssueGenerator__
+#ifndef __TrenchBroom__MixedBrushContentsIssueGenerator__
+#define __TrenchBroom__MixedBrushContentsIssueGenerator__
 
+#include "Model/GameConfig.h"
 #include "Model/IssueGenerator.h"
 
 namespace TrenchBroom {
@@ -27,11 +28,15 @@ namespace TrenchBroom {
         class Brush;
         class Issue;
         
-        class FloatPointsIssueGenerator : public IssueGenerator {
+        class MixedBrushContentsIssueGenerator : public IssueGenerator {
+        private:
+            const GameConfig::FlagsConfig& m_flagsConfig;
         public:
+            MixedBrushContentsIssueGenerator(const GameConfig::FlagsConfig& flagsConfig);
+            
             Issue* generate(Brush* brush) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FloatPointsIssueGenerator__) */
+#endif /* defined(__TrenchBroom__MixedBrushContentsIssueGenerator__) */

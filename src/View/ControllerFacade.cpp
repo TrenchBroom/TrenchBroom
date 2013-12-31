@@ -467,6 +467,14 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::setContentFlags(const Model::BrushFaceList& faces, int flags) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->replaceContentFlags(flags);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setSurfaceValue(const Model::BrushFaceList& faces, const float value, const bool add) {
             using namespace Controller;
             

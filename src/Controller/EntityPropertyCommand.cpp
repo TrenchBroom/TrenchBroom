@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Model/Entity.h"
-#include "Model/EntityProperties.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -29,15 +28,7 @@ namespace TrenchBroom {
         const Command::CommandType EntityPropertyCommand::Type = Command::freeType();
 
         void EntityPropertyCommand::setKey(const Model::PropertyKey& key) {
-            assert(m_keys.size() <= 1);
-            if (m_keys.empty())
-                m_keys.push_back(key);
-            else
-                m_keys[0] = key;
-        }
-        
-        void EntityPropertyCommand::setKeys(const Model::PropertyKeyList& keys) {
-            m_keys = keys;
+            m_oldKey = key;
         }
         
         void EntityPropertyCommand::setNewKey(const Model::PropertyKey& newKey) {
@@ -76,12 +67,7 @@ namespace TrenchBroom {
         }
 
         const Model::PropertyKey& EntityPropertyCommand::key() const {
-            assert(m_keys.size() == 1);
-            return m_keys.front();
-        }
-        
-        const Model::PropertyKeyList& EntityPropertyCommand::keys() const {
-            return m_keys;
+            return m_oldKey;
         }
         
         const Model::PropertyKey& EntityPropertyCommand::newKey() const {
@@ -97,7 +83,7 @@ namespace TrenchBroom {
         }
         
         bool EntityPropertyCommand::propertyAffected(const Model::PropertyKey& key) {
-            return m_newKey == key || std::find(m_keys.begin(), m_keys.end(), key) != m_keys.end();
+            return m_newKey == key || m_oldKey == key;
         }
         
         bool EntityPropertyCommand::entityAffected(const Model::Entity* entity) {
@@ -130,18 +116,18 @@ namespace TrenchBroom {
                     return false;
             
             View::MapDocumentSPtr document = lock(m_document);
-            m_snapshot = Model::Snapshot(m_entities);
+            m_snapshot.clear();
             
             document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
             switch (m_command) {
                 case PCRenameProperty:
-                    rename();
+                    doRename(document);
                     break;
                 case PCSetProperty:
-                    setValue();
+                    doSetValue(document);
                     break;
                 case PCRemoveProperty:
-                    remove();
+                    doRemove(document);
                     break;
                 default:
                     break;
@@ -153,60 +139,144 @@ namespace TrenchBroom {
         
         bool EntityPropertyCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
+            
             document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
-            m_snapshot.restore(document->worldBounds());
+            switch(m_command) {
+                case PCRenameProperty:
+                    undoRename(document);
+                    break;
+                case PCSetProperty:
+                    undoSetValue(document);
+                    break;
+                case PCRemoveProperty:
+                    undoRemove(document);
+                    break;
+                default:
+                    break;
+            };
             document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
+            m_snapshot.clear();
+            
             return true;
         }
 
-        void EntityPropertyCommand::rename() {
+        void EntityPropertyCommand::doRename(View::MapDocumentSPtr document) {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                if (entity.hasProperty(key()))
-                    entity.renameProperty(key(), m_newKey);
+                Model::Entity* entity = *entityIt;
+                if (entity->hasProperty(key())) {
+                    const Model::PropertyValue& value = entity->property(key());
+                    const Model::EntityProperty before(key(), value);
+                    const Model::EntityProperty after(newKey(), value);
+                    
+                    m_snapshot[entity] = before;
+                    entity->renameProperty(after.key, after.value);
+                    document->entityPropertyDidChangeNotifier(entity, before, after);
+                }
             }
         }
         
-        void EntityPropertyCommand::setValue() {
+        void EntityPropertyCommand::doSetValue(View::MapDocumentSPtr document) {
             m_definitionAffected = (key() == Model::PropertyKeys::Classname);
+            const Model::EntityProperty empty;
+            const Model::EntityProperty after(key(), newValue());
             
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                entity.addOrUpdateProperty(key(), m_newValue);
+                Model::Entity* entity = *entityIt;
+                if (entity->hasProperty(key())) {
+                    const Model::PropertyValue& oldValue = entity->property(key());
+                    const Model::EntityProperty before(key(), oldValue);
+                    
+                    m_snapshot[entity] = before;
+                    entity->addOrUpdateProperty(after.key, after.value);
+                    document->entityPropertyDidChangeNotifier(entity, before, after);
+                } else {
+                    entity->addOrUpdateProperty(after.key, after.value);
+                    document->entityPropertyDidChangeNotifier(entity, empty, after);
+                }
             }
         }
         
-        void EntityPropertyCommand::remove() {
-            for (size_t i = 0; i < m_keys.size(); i++) {
-                const Model::PropertyKey& key = m_keys[i];
-                Model::EntityList::const_iterator entityIt, entityEnd;
-                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                    Model::Entity& entity = **entityIt;
-                    entity.removeProperty(key);
+        void EntityPropertyCommand::doRemove(View::MapDocumentSPtr document) {
+            const Model::EntityProperty empty;
+
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                if (entity->hasProperty(key())) {
+                    const Model::PropertyValue& oldValue = entity->property(key());
+                    const Model::EntityProperty before(key(), oldValue);
+
+                    m_snapshot[entity] = before;
+                    document->entityPropertyDidChangeNotifier(entity, before, empty);
+                    entity->removeProperty(key());
+                }
+            }
+        }
+
+        void EntityPropertyCommand::undoRename(View::MapDocumentSPtr document) {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                if (snapshotIt != m_snapshot.end()) {
+                    const Model::PropertyValue& value = snapshotIt->second.value;
+                    const Model::EntityProperty before(key(), value);
+                    const Model::EntityProperty after(newKey(), value);
+                    
+                    entity->renameProperty(newKey(), key());
+                    document->entityPropertyDidChangeNotifier(entity, after, before);
+                }
+            }
+        }
+        
+        void EntityPropertyCommand::undoSetValue(View::MapDocumentSPtr document) {
+            const Model::EntityProperty empty;
+            const Model::EntityProperty after(key(), newValue());
+
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                if (snapshotIt == m_snapshot.end()) {
+                    document->entityPropertyDidChangeNotifier(entity, after, empty);
+                    entity->removeProperty(key());
+                } else {
+                    const Model::EntityProperty& before = snapshotIt->second;
+                    entity->addOrUpdateProperty(before.key, before.value);
+                    document->entityPropertyDidChangeNotifier(entity, after, before);
+                }
+            }
+        }
+        
+        void EntityPropertyCommand::undoRemove(View::MapDocumentSPtr document) {
+            const Model::EntityProperty empty;
+
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                if (snapshotIt != m_snapshot.end()) {
+                    const Model::EntityProperty& before = snapshotIt->second;
+                    entity->addOrUpdateProperty(before.key, before.value);
+                    document->entityPropertyDidChangeNotifier(entity, empty, before);
                 }
             }
         }
 
         bool EntityPropertyCommand::affectsImmutablePropertyKey() const {
-            return (!Model::isPropertyKeyMutable(m_newKey) ||
+            return (!Model::isPropertyKeyMutable(newKey()) ||
                     !Model::isPropertyKeyMutable(key()));
         }
         
         bool EntityPropertyCommand::affectsImmutablePropertyValue() const {
-            Model::PropertyKeyList::const_iterator it, end;
-            for (it = m_keys.begin(), end = m_keys.end(); it != end; ++it) {
-                const Model::PropertyKey& key = *it;
-                if (!Model::isPropertyValueMutable(key))
-                    return true;
-            }
-            return false;
+            return !Model::isPropertyValueMutable(key());
         }
 
         bool EntityPropertyCommand::canSetKey() const {
             return (key() != m_newKey &&
-                    !anyEntityHasProperty(m_newKey));
+                    !anyEntityHasProperty(newKey()));
         }
 
         bool EntityPropertyCommand::anyEntityHasProperty(const Model::PropertyKey& key) const {

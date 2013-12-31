@@ -17,21 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FloatPointsIssueGenerator__
-#define __TrenchBroom__FloatPointsIssueGenerator__
+#ifndef __TrenchBroom__FloatVerticesIssueGenerator__
+#define __TrenchBroom__FloatVerticesIssueGenerator__
 
 #include "Model/IssueGenerator.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
         class Issue;
         
-        class FloatPointsIssueGenerator : public IssueGenerator {
+        class FloatVerticesIssueGenerator : public IssueGenerator {
         public:
             Issue* generate(Brush* brush) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FloatPointsIssueGenerator__) */
+#endif /* defined(__TrenchBroom__FloatVerticesIssueGenerator__) */

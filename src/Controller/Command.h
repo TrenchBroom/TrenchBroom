@@ -45,7 +45,7 @@ namespace TrenchBroom {
             CommandState m_state;
             String m_name;
             bool m_undoable;
-            bool m_modifiesDocument; 
+            bool m_modifiesDocument;
         public:
             static CommandType freeType();
             

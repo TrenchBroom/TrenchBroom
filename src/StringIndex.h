@@ -300,6 +300,11 @@ namespace TrenchBroom {
             m_root->remove(key, value);
         }
         
+        void clear() {
+            delete m_root;
+            m_root = new Node("");
+        }
+        
         ValueSet queryPrefixMatches(const String& prefix) const {
             assert(m_root != NULL);
             ValueSet result;
