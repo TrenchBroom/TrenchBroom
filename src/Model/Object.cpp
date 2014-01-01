@@ -94,6 +94,26 @@ namespace TrenchBroom {
             --m_childSelectionCount;
         }
 
+        IssueType Object::ignoredIssues() const {
+            return m_ignoredIssues;
+        }
+
+        void Object::setIgnoredIssues(const IssueType ignoredIssues) {
+            m_ignoredIssues = ignoredIssues;
+        }
+        
+        bool Object::isIssueIgnored(const Issue* issue) const {
+            assert(issue != NULL);
+            return issue->hasType(m_ignoredIssues);
+        }
+        
+        void Object::setIgnoreIssue(const IssueType type, const bool ignore) {
+            if (ignore)
+                m_ignoredIssues |= type;
+            else
+                m_ignoredIssues &= ~type;
+        }
+        
         Object* Object::clone(const BBox3& worldBounds) const {
             return doClone(worldBounds);
         }
@@ -147,6 +167,7 @@ namespace TrenchBroom {
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
-        m_childSelectionCount(0) {}
+        m_childSelectionCount(0),
+        m_ignoredIssues(0) {}
     }
 }

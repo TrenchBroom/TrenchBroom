@@ -26,15 +26,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        SetBool::SetBool(bool& value) :
-        m_value(value) {
-            m_value = true;
-        }
-        
-        SetBool::~SetBool() {
-            m_value = false;
-        }
-
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger) {
             try {
                 return manager.model(spec.path);

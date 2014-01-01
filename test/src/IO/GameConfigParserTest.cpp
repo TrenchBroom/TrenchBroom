@@ -140,17 +140,17 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("md2"));
             ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
             
-            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().surfaceFlags.size());
-            ASSERT_EQ(String("light"), gameConfig.faceAttribsConfig().surfaceFlags[0].name);
-            ASSERT_EQ(String("Emit light from the surface, brightness is specified in the 'value' field"), gameConfig.faceAttribsConfig().surfaceFlags[0].description);
-            ASSERT_EQ(String("slick"), gameConfig.faceAttribsConfig().surfaceFlags[1].name);
-            ASSERT_EQ(String("The surface is slippery"), gameConfig.faceAttribsConfig().surfaceFlags[1].description);
+            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().surfaceFlags.flags.size());
+            ASSERT_EQ(String("light"), gameConfig.faceAttribsConfig().surfaceFlags.flags[0].name);
+            ASSERT_EQ(String("Emit light from the surface, brightness is specified in the 'value' field"), gameConfig.faceAttribsConfig().surfaceFlags.flags[0].description);
+            ASSERT_EQ(String("slick"), gameConfig.faceAttribsConfig().surfaceFlags.flags[1].name);
+            ASSERT_EQ(String("The surface is slippery"), gameConfig.faceAttribsConfig().surfaceFlags.flags[1].description);
 
-            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().contentFlags.size());
-            ASSERT_EQ(String("solid"), gameConfig.faceAttribsConfig().contentFlags[0].name);
-            ASSERT_EQ(String("Default for all brushes"), gameConfig.faceAttribsConfig().contentFlags[0].description);
-            ASSERT_EQ(String("window"), gameConfig.faceAttribsConfig().contentFlags[1].name);
-            ASSERT_EQ(String("Brush is a window (not really used)"), gameConfig.faceAttribsConfig().contentFlags[1].description);
+            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().contentFlags.flags.size());
+            ASSERT_EQ(String("solid"), gameConfig.faceAttribsConfig().contentFlags.flags[0].name);
+            ASSERT_EQ(String("Default for all brushes"), gameConfig.faceAttribsConfig().contentFlags.flags[0].description);
+            ASSERT_EQ(String("window"), gameConfig.faceAttribsConfig().contentFlags.flags[1].name);
+            ASSERT_EQ(String("Brush is a window (not really used)"), gameConfig.faceAttribsConfig().contentFlags.flags[1].description);
         }
     }
 }

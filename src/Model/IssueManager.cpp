@@ -78,6 +78,13 @@ namespace TrenchBroom {
             }
         }
 
+        void IssueManager::setIgnoreIssue(Issue* issue, const bool ignore) {
+            if (issue->ignore() != ignore) {
+                issue->setIgnore(ignore);
+                issueIgnoreChangedNotifier(issue);
+            }
+        }
+
         void IssueManager::clearIssues() {
             Issue* issue = m_issueList;
             while (issue != NULL) {

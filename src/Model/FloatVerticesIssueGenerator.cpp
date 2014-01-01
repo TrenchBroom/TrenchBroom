@@ -53,6 +53,14 @@ namespace TrenchBroom {
             
             void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
             }
+        private:
+            bool doGetIgnore(IssueType type) const {
+                return m_brush->ignoredIssues() & type;
+            }
+
+            void doSetIgnore(IssueType type, const bool ignore) {
+                m_brush->setIgnoreIssue(type, ignore);
+            }
         };
         
         const IssueType FloatVerticesIssue::Type = Issue::freeType();

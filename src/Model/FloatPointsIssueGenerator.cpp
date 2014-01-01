@@ -73,6 +73,14 @@ namespace TrenchBroom {
             void findIntegerPoints(View::ControllerSPtr controller) {
                 controller->findPlanePoints(*m_brush);
             }
+
+            bool doGetIgnore(IssueType type) const {
+                return m_brush->ignoredIssues() & type;
+            }
+            
+            void doSetIgnore(IssueType type, const bool ignore) {
+                m_brush->setIgnoreIssue(type, ignore);
+            }
         };
         
         const IssueType FloatPointsIssue::Type = Issue::freeType();

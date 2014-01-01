@@ -45,6 +45,7 @@ namespace TrenchBroom {
             virtual size_t writeEntityHeader(Model::Entity& entity, FILE* stream);
             virtual size_t writeEntityProperty(const Model::EntityProperty& property, FILE* stream);
             virtual size_t writeEntityFooter(FILE* stream);
+            virtual size_t writeExtraProperties(const Model::Object& object, FILE* stream);
             
             void writeEntity(const Model::Entity& entity, const Model::BrushList& brushes, std::ostream& stream);
             virtual void writeFace(const Model::BrushFace& face, std::ostream& stream) = 0;
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             virtual void writeEntityHeader(const Model::Entity& entity, std::ostream& stream);
             virtual void writeEntityProperty(const Model::EntityProperty& property, std::ostream& stream);
             virtual void writeEntityFooter(std::ostream& stream);
+            virtual void writeExtraProperties(const Model::Object& object, std::ostream& stream);
         };
     }
 }

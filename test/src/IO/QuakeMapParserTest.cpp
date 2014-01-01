@@ -373,5 +373,46 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = entity->brushes();
             ASSERT_EQ(1u, brushes.size());
         }
+
+        TEST(QuakeMapParserTest, parseIssueIgnoreFlags) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "{\n"
+                              "/// ignoreIssues 2\n"
+                              "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
+                              "}\n"
+                              "}"
+                              "{"
+                              "/// ignoreIssues 3\n"
+                              "\"classname\" \"info_player_deathmatch\""
+                              "\"origin\" \"1 22 -3\""
+                              "\"angle\" \" -1 \""
+                              "}");
+            BBox3 worldBounds(-8192, 8192);
+            
+            QuakeMapParser parser(data);
+            Model::Map* map = parser.parseMap(worldBounds);
+            
+            const Model::EntityList& entities = map->entities();
+            ASSERT_EQ(2u, entities.size());
+            
+            const Model::Entity* firstEntity = entities[0];
+            ASSERT_EQ(0u, firstEntity->ignoredIssues());
+            
+            const Model::BrushList& brushes = firstEntity->brushes();
+            ASSERT_EQ(1u, brushes.size());
+            
+            const Model::Brush* brush = brushes[0];
+            ASSERT_EQ(2u, brush->ignoredIssues());
+            
+            const Model::Entity* secondEntity = entities[1];
+            ASSERT_EQ(3u, secondEntity->ignoredIssues());
+        }
+        
     }
 }

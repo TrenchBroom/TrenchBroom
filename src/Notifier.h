@@ -22,26 +22,13 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "SetBool.h"
 
 #include <algorithm>
 #include <cassert>
 #include <list>
 
 namespace TrenchBroom {
-    class SetBool {
-    private:
-        bool& m_value;
-    public:
-        SetBool(bool& value) :
-        m_value(value) {
-            m_value = true;
-        }
-        
-        ~SetBool() {
-            m_value = false;
-        }
-    };
-
     class Notifier0 {
     private:
         class Observer {

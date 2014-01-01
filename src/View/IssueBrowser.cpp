@@ -69,7 +69,8 @@ namespace TrenchBroom {
                 if (!item.IsOk()) {
                     Model::Issue* issue = m_issueManager.issues();
                     while (issue != NULL) {
-                        children.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
+                        if (!issue->ignore())
+                            children.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
                         issue = issue->next();
                     }
                 } else {
@@ -78,7 +79,8 @@ namespace TrenchBroom {
                     const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
                     Model::Issue* subIssue = issue->subIssues();
                     while (subIssue != NULL) {
-                        children.Add(wxDataViewItem(reinterpret_cast<void*>(subIssue)));
+                        if (!subIssue->ignore())
+                            children.Add(wxDataViewItem(reinterpret_cast<void*>(subIssue)));
                         subIssue = subIssue->next();
                     }
                 }
@@ -118,42 +120,68 @@ namespace TrenchBroom {
             void bindObservers() {
                 m_issueManager.issueWasAddedNotifier.addObserver(this, &IssueBrowserDataModel::issueWasAdded);
                 m_issueManager.issueWillBeRemovedNotifier.addObserver(this, &IssueBrowserDataModel::issueWillBeRemoved);
+                m_issueManager.issueIgnoreChangedNotifier.addObserver(this, &IssueBrowserDataModel::issueIgnoreChanged);
                 m_issueManager.issuesClearedNotifier.addObserver(this, &IssueBrowserDataModel::issuesCleared);
             }
             
             void unbindObservers() {
                 m_issueManager.issueWasAddedNotifier.removeObserver(this, &IssueBrowserDataModel::issueWasAdded);
                 m_issueManager.issueWillBeRemovedNotifier.removeObserver(this, &IssueBrowserDataModel::issueWillBeRemoved);
+                m_issueManager.issueIgnoreChangedNotifier.removeObserver(this, &IssueBrowserDataModel::issueIgnoreChanged);
                 m_issueManager.issuesClearedNotifier.removeObserver(this, &IssueBrowserDataModel::issuesCleared);
             }
             
             void issueWasAdded(Model::Issue* issue) {
                 assert(issue != NULL);
-                
-                ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
-                if (issue->subIssueCount() > 0) {
-                    Model::Issue* subIssue = issue->subIssues();
-                    assert(subIssue != NULL);
-                    while (subIssue != NULL) {
-                        ItemAdded(wxDataViewItem(reinterpret_cast<void*>(issue)),
-                                  wxDataViewItem(reinterpret_cast<void*>(subIssue)));
-                        subIssue = subIssue->next();
-                    }
-                }
+                addIssue(issue);
             }
             
             void issueWillBeRemoved(Model::Issue* issue) {
                 assert(issue != NULL);
-                ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                removeIssue(issue);
+            }
+            
+            void issueIgnoreChanged(Model::Issue* issue) {
+                assert(issue != NULL);
+                if (issue->ignore())
+                    removeIssue(issue);
+                else
+                    addIssue(issue);
             }
             
             void issuesCleared() {
                 Cleared();
             }
+
+            void addIssue(Model::Issue* issue) {
+                if (!issue->ignore()) {
+                    const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    assert(success);
+                    if (issue->subIssueCount() > 0) {
+                        Model::Issue* subIssue = issue->subIssues();
+                        assert(subIssue != NULL);
+                        while (subIssue != NULL) {
+                            if (!subIssue->ignore()) {
+                                const bool success =
+                                ItemAdded(wxDataViewItem(reinterpret_cast<void*>(issue)),
+                                          wxDataViewItem(reinterpret_cast<void*>(subIssue)));
+                                assert(success);
+                            }
+                            subIssue = subIssue->next();
+                        }
+                    }
+                }
+            }
+            
+            void removeIssue(Model::Issue* issue) {
+                const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                assert(success);
+            }
         };
         
         IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
+        m_document(document),
         m_controller(controller),
         m_tree(NULL) {
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
@@ -193,7 +221,7 @@ namespace TrenchBroom {
                 return;
             if (!m_tree->IsSelected(item))
                 return;
-
+            
             wxDataViewItemArray selections;
             m_tree->GetSelections(selections);
             assert(!selections.empty());
@@ -206,17 +234,22 @@ namespace TrenchBroom {
                 quickFixMenu->Append(FixObjectsBaseId + i, quickFix.description());
             }
             
+            wxString ignoreStr;
+            ignoreStr << "Ignore " << (selections.size() == 1 ? "this issue" : "these issues");
+            
             wxMenu popupMenu;
             popupMenu.Append(SelectObjectsCommandId, "Select");
+            popupMenu.Append(IgnoreIssuesCommandId, ignoreStr);
             popupMenu.AppendSubMenu(quickFixMenu, "Fix");
             
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssue, this, SelectObjectsCommandId);
+            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssues, this, SelectObjectsCommandId);
+            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnIgnoreIssues, this, IgnoreIssuesCommandId);
             quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
             
             PopupMenu(&popupMenu);
         }
         
-        void IssueBrowser::OnSelectIssue(wxCommandEvent& event) {
+        void IssueBrowser::OnSelectIssues(wxCommandEvent& event) {
             View::ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Select fixable objects");
 
@@ -227,6 +260,24 @@ namespace TrenchBroom {
             controller->closeGroup();
         }
         
+        void IssueBrowser::OnIgnoreIssues(wxCommandEvent& event) {
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::IssueManager& issueManager = document->issueManager();
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const wxDataViewItem& item = selections[i];
+                void* data = item.GetID();
+                assert(data != NULL);
+                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
+                issueManager.setIgnoreIssue(issue, true);
+            }
+            
+            document->incModificationCount();
+        }
+
         void IssueBrowser::OnApplyQuickFix(wxCommandEvent& event) {
             wxDataViewItemArray selections;
             m_tree->GetSelections(selections);

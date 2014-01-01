@@ -28,6 +28,7 @@ class wxCommandEvent;
 class wxDataViewCtrl;
 class wxDataViewEvent;
 class wxDataViewItemArray;
+class wxMouseEvent;
 class wxSizeEvent;
 class wxWindow;
 
@@ -36,15 +37,18 @@ namespace TrenchBroom {
         class IssueBrowser : public wxPanel {
         private:
             static const int SelectObjectsCommandId = 1;
-            static const int FixObjectsBaseId = 2;
-            
+            static const int IgnoreIssuesCommandId = 2;
+            static const int FixObjectsBaseId = 3;
+
+            MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             wxDataViewCtrl* m_tree;
         public:
             IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
 
             void OnTreeViewContextMenu(wxDataViewEvent& event);
-            void OnSelectIssue(wxCommandEvent& event);
+            void OnSelectIssues(wxCommandEvent& event);
+            void OnIgnoreIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);
             void OnTreeViewSize(wxSizeEvent& event);
         private:

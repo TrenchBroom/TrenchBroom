@@ -17,24 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewUtils__
-#define __TrenchBroom__ViewUtils__
-
-#include <iostream>
+#include "SetBool.h"
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
+    SetBool::SetBool(bool& value, bool setTo) :
+    m_value(value),
+    m_setTo(setTo) {
+        m_value = m_setTo;
     }
     
-    namespace View {
-        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
-        void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
+    SetBool::~SetBool() {
+        m_value = !m_setTo;
     }
 }
-
-#endif /* defined(__TrenchBroom__ViewUtils__) */

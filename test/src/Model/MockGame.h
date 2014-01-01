@@ -76,8 +76,8 @@ namespace TrenchBroom {
             MOCK_CONST_METHOD0(doAvailableMods, StringList());
             MOCK_CONST_METHOD1(doExtractEnabledMods, StringList(const Map*));
             
-            MOCK_CONST_METHOD0(doSurfaceFlags, const GameConfig::FlagConfigList&());
-            MOCK_CONST_METHOD0(doContentFlags, const GameConfig::FlagConfigList&());
+            MOCK_CONST_METHOD0(doSurfaceFlags, const GameConfig::FlagsConfig&());
+            MOCK_CONST_METHOD0(doContentFlags, const GameConfig::FlagsConfig&());
         };
         
     }

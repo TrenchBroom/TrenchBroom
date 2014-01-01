@@ -62,6 +62,14 @@ namespace TrenchBroom {
             void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
                 controller->removeEntityProperty(EntityList(1, m_entity), m_key);
             }
+        private:
+            bool doGetIgnore(IssueType type) const {
+                return m_entity->ignoredIssues() & type;
+            }
+
+            void doSetIgnore(IssueType type, const bool ignore) {
+                m_entity->setIgnoreIssue(type, ignore);
+            }
         };
         
         const IssueType EntityLinkIssue::Type = Issue::freeType();

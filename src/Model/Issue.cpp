@@ -46,12 +46,25 @@ namespace TrenchBroom {
         Issue::~Issue() {}
         
         IssueType Issue::freeType() {
-            static IssueType type = 0;
-            return type++;
+            static size_t index = 0;
+            assert(index < sizeof(IssueType) * 8);
+            return 1 << index++;
+        }
+
+        bool Issue::hasType(IssueType mask) const {
+            return m_type & mask;
         }
 
         const QuickFix::List& Issue::quickFixes() const {
             return m_quickFixes;
+        }
+
+        bool Issue::ignore() const {
+            return doGetIgnore(m_type);
+        }
+
+        void Issue::setIgnore(const bool ignore) {
+            doSetIgnore(m_type, ignore);
         }
 
         size_t Issue::subIssueCount() const {
@@ -210,6 +223,24 @@ namespace TrenchBroom {
             }
             
             return this;
+        }
+
+        bool IssueGroup::doGetIgnore(IssueType type) const {
+            Issue* issue = m_first;
+            while (issue != NULL) {
+                if (!issue->ignore())
+                    return false;
+                issue = issue->next();
+            }
+            return true;
+        }
+
+        void IssueGroup::doSetIgnore(IssueType type, const bool ignore) {
+            Issue* issue = m_first;
+            while (issue != NULL) {
+                issue->setIgnore(ignore);
+                issue = issue->next();
+            }
         }
     }
 }

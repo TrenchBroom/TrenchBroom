@@ -583,6 +583,7 @@ namespace TrenchBroom {
         void MapDocument::bindObservers() {
             objectWasAddedNotifier.addObserver(this, &MapDocument::objectWasAdded);
             objectWillBeRemovedNotifier.addObserver(this, &MapDocument::objectWillBeRemoved);
+            objectWasRemovedNotifier.addObserver(this, &MapDocument::objectWasRemoved);
             objectWillChangeNotifier.addObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.addObserver(this, &MapDocument::objectDidChange);
             entityPropertyDidChangeNotifier.addObserver(this, &MapDocument::entityPropertyDidChange);
@@ -599,6 +600,7 @@ namespace TrenchBroom {
         void MapDocument::unbindObservers() {
             objectWasAddedNotifier.removeObserver(this, &MapDocument::objectWasAdded);
             objectWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectWillBeRemoved);
+            objectWasRemovedNotifier.removeObserver(this, &MapDocument::objectWasRemoved);
             objectWillChangeNotifier.removeObserver(this, &MapDocument::objectWillChange);
             objectDidChangeNotifier.removeObserver(this, &MapDocument::objectDidChange);
             entityPropertyDidChangeNotifier.removeObserver(this, &MapDocument::entityPropertyDidChange);
@@ -613,12 +615,12 @@ namespace TrenchBroom {
         
         void MapDocument::objectWasAdded(Model::Object* object) {
             AddToPicker addToPicker(m_picker);
-            addToPicker(object);
             
             if (object->type() == Model::Object::OTEntity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);
+                addToPicker(object);
                 
                 Model::each(entity->brushes().begin(),
                             entity->brushes().end(),
@@ -629,6 +631,7 @@ namespace TrenchBroom {
                 Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
                             Model::BrushFacesIterator::end(entity->brushes()),
                             setTexture, Model::MatchAll());
+                updateLinkSourcesInIssueManager(entity);
             } else if (object->type() == Model::Object::OTBrush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 SetTexture setTexture(m_textureManager);
@@ -637,6 +640,9 @@ namespace TrenchBroom {
                             setTexture,
                             Model::MatchAll());
             }
+            
+            // do not move this to before the entity definition is set for an entity!
+            addToPicker(object);
             
             AddObjectToIssueManager addToIssueManager(m_issueManager);
             addToIssueManager(object);
@@ -673,6 +679,13 @@ namespace TrenchBroom {
             removeFromIssueManager(object);
         }
         
+        void MapDocument::objectWasRemoved(Model::Object* object) {
+            if (object->type() == Model::Object::OTEntity) {
+                Model::Entity* entity = static_cast<Model::Entity*>(object);
+                updateLinkSourcesInIssueManager(entity);
+            }
+        }
+
         void MapDocument::objectWillChange(Model::Object* object) {
             m_picker.removeObject(object);
         }
@@ -689,6 +702,21 @@ namespace TrenchBroom {
             updateIssueManager(object);
         }
         
+        void MapDocument::updateLinkSourcesInIssueManager(Model::Entity* entity) {
+            const Model::PropertyValue& targetname = entity->property(Model::PropertyKeys::Targetname);
+            if (!targetname.empty()) {
+                const Model::EntityList linkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, targetname);
+                const Model::EntityList killSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, targetname);
+                
+                Model::EntitySet entities;
+                entities.insert(linkSources.begin(), linkSources.end());
+                entities.insert(killSources.begin(), killSources.end());
+                
+                UpdateObjectInIssueManager updateIssueManager(m_issueManager);
+                Model::each(entities.begin(), entities.end(), updateIssueManager, Model::MatchAll());
+            }
+        }
+
         void MapDocument::entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after) {
             if (before.key == Model::PropertyKeys::Targetname ||
                 after.key == Model::PropertyKeys::Targetname) {

@@ -75,6 +75,14 @@ namespace TrenchBroom {
                     controller->setContentFlags(faces, faceTemplate->surfaceContents());
                 }
             }
+        private:
+            bool doGetIgnore(IssueType type) const {
+                return m_brush->ignoredIssues() & type;
+            }
+
+            void doSetIgnore(IssueType type, const bool ignore) {
+                m_brush->setIgnoreIssue(type, ignore);
+            }
         };
         
         const IssueType MixedBrushContentsIssue::Type = Issue::freeType();

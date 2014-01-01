@@ -515,7 +515,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Enable(m_document->hasSelectedObjects());
+                    event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
                     event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:

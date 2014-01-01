@@ -69,10 +69,14 @@ namespace TrenchBroom {
             
             static IssueType freeType();
 
+            bool hasType(IssueType mask) const;
+            
             virtual String description() const = 0;
             virtual void select(View::ControllerSPtr controller) = 0;
             const QuickFix::List& quickFixes() const;
             virtual void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller) = 0;
+            bool ignore() const;
+            void setIgnore(bool ignore);
             
             virtual size_t subIssueCount() const;
             virtual Issue* subIssues() const;
@@ -91,6 +95,8 @@ namespace TrenchBroom {
             Issue(IssueType type);
             void addQuickFix(const QuickFix& quickFix);
             void addQuickFixes(const QuickFix::List& quickFixes);
+            virtual bool doGetIgnore(IssueType type) const = 0;
+            virtual void doSetIgnore(IssueType type, bool ignore) = 0;
         };
 
         class IssueGroup : public Issue {
@@ -111,6 +117,9 @@ namespace TrenchBroom {
             Issue* subIssues() const;
             
             Issue* mergeWith(Issue* issue);
+        private:
+            bool doGetIgnore(IssueType type) const;
+            void doSetIgnore(IssueType type, bool ignore);
         };
         
     }

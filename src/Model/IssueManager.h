@@ -42,6 +42,7 @@ namespace TrenchBroom {
         public:
             Notifier1<Issue*> issueWasAddedNotifier;
             Notifier1<Issue*> issueWillBeRemovedNotifier;
+            Notifier1<Issue*> issueIgnoreChangedNotifier;
             Notifier0 issuesClearedNotifier;
         public:
             IssueManager();
@@ -55,6 +56,7 @@ namespace TrenchBroom {
             void objectAdded(Object* object);
             void objectChanged(Object* object);
             void objectRemoved(Object* object);
+            void setIgnoreIssue(Issue* issue, bool ignore);
             
             void clearIssues();
             void clearGenerators();

@@ -79,6 +79,7 @@ namespace TrenchBroom {
             
             Notifier1<Model::Object*> objectWasAddedNotifier;
             Notifier1<Model::Object*> objectWillBeRemovedNotifier;
+            Notifier1<Model::Object*> objectWasRemovedNotifier;
             Notifier1<Model::Object*> objectWillChangeNotifier;
             Notifier1<Model::Object*> objectDidChangeNotifier;
             
@@ -189,8 +190,10 @@ namespace TrenchBroom {
             
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
+            void objectWasRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void updateLinkSourcesInIssueManager(Model::Entity* entity);
             
             void entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after);
             

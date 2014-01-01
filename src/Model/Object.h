@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
+#include "Model/Issue.h"
 #include "Model/ModelTypes.h"
 #include "Model/Pickable.h"
 
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             size_t m_childSelectionCount;
+            IssueType m_ignoredIssues;
         public:
             virtual ~Object();
             
@@ -67,6 +69,11 @@ namespace TrenchBroom {
             size_t childSelectionCount() const;
             void incChildSelectionCount();
             void decChildSelectionCount();
+            
+            IssueType ignoredIssues() const;
+            void setIgnoredIssues(IssueType ignoredIssues);
+            bool isIssueIgnored(const Issue* issue) const;
+            void setIgnoreIssue(IssueType type, bool ignore);
             
             Object* clone(const BBox3& worldBounds) const;
             void transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
