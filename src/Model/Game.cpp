@@ -118,11 +118,11 @@ namespace TrenchBroom {
             return doExtractEnabledMods(map);
         }
         
-        const GameConfig::FlagConfigList& Game::surfaceFlags() const {
+        const GameConfig::FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }
         
-        const GameConfig::FlagConfigList& Game::contentFlags() const {
+        const GameConfig::FlagsConfig& Game::contentFlags() const {
             return doContentFlags();
         }
     }

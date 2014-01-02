@@ -142,6 +142,12 @@ namespace TrenchBroom {
                 return *curPos();
             }
             
+            char lookAhead(const size_t offset = 1) {
+                if (m_state.cur + offset >= m_end)
+                    return 0;
+                return *(m_state.cur + offset);
+            }
+            
             void advance() {
                 errorIfEof();
                 

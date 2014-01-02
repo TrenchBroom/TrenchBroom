@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2012 Kristian Duske
+ Copyright (C) 2010-2013 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,30 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PlanePointsPolicies_h
-#define TrenchBroom_PlanePointsPolicies_h
+#ifndef __TrenchBroom__MixedBrushContentsIssueGenerator__
+#define __TrenchBroom__MixedBrushContentsIssueGenerator__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Model/BrushFace.h"
+#include "Model/GameConfig.h"
+#include "Model/IssueGenerator.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class FloatPlanePointsPolicy {
-        public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
-        };
-
-        class RoundDownIntegerPlanePointsPolicy {
-        public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
-        };
+        class Brush;
+        class Issue;
         
-        class GridSearchPlanePointsPolicy {
+        class MixedBrushContentsIssueGenerator : public IssueGenerator {
+        private:
+            const GameConfig::FlagsConfig& m_flagsConfig;
         public:
-            static void computePoints(const Plane3& plane, BrushFace::Points& points);
+            MixedBrushContentsIssueGenerator(const GameConfig::FlagsConfig& flagsConfig);
+            
+            IssueType type() const;
+            const String& description() const;
+
+            Issue* generate(Brush* brush) const;
         };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__MixedBrushContentsIssueGenerator__) */

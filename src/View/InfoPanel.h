@@ -22,9 +22,13 @@
 
 #include "View/ViewTypes.h"
 
+#include <wx/bitmap.h>
 #include <wx/panel.h>
 
-class wxToolbook;
+class wxBookCtrlEvent;
+class wxButton;
+class wxCommandEvent;
+class wxSimplebook;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -36,12 +40,24 @@ namespace TrenchBroom {
         
         class InfoPanel : public wxPanel {
         private:
-            wxToolbook* m_notebook;
+            wxBitmap m_consoleInactiveBitmap;
+            wxBitmap m_consoleActiveBitmap;
+            wxBitmap m_issueBrowserActiveBitmap;
+            wxBitmap m_issueBrowserInactiveBitmap;
+            
+            wxSimplebook* m_mainBook;
+            wxSimplebook* m_extraBook;
             Console* m_console;
             IssueBrowser* m_issueBrowser;
+            wxButton* m_consoleButton;
+            wxButton* m_issueBrowserButton;
         public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
+            InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             Logger* logger();
+            
+            void OnConsoleButtonPressed(wxCommandEvent& event);
+            void OnIssueBrowserButtonPressed(wxCommandEvent& event);
+            void OnNotebookPageChanged(wxBookCtrlEvent& event);
         };
     }
 }

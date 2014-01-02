@@ -23,23 +23,82 @@
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
+#include "View/ControllerFacade.h"
+#include "View/ViewTypes.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
         class FloatPointsIssue : public Issue {
+        public:
+            static const IssueType Type;
         private:
+            static const QuickFixType SnapPointsToIntegerFix = 0;
+            static const QuickFixType FindIntegerPointsFix = 1;
+            
             Brush* m_brush;
         public:
             FloatPointsIssue(Brush* brush) :
-            m_brush(brush) {}
+            Issue(Type),
+            m_brush(brush) {
+                addQuickFix(QuickFix(SnapPointsToIntegerFix, Type, "Snap plane points to integer"));
+                addQuickFix(QuickFix(FindIntegerPointsFix, Type, "Find integer plane points"));
+            }
             
-            String asString() const {
-                return "Brush has floating point plane points";
+            size_t filePosition() const {
+                return m_brush->filePosition();
+            }
+
+            String description() const {
+                return "Brush has non-integer plane points";
+            }
+            
+            void select(View::ControllerSPtr controller) {
+                controller->selectObject(*m_brush);
+            }
+            
+            void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
+                switch (fixType) {
+                    case SnapPointsToIntegerFix:
+                        snapPointsToInteger(controller);
+                        break;
+                    case FindIntegerPointsFix:
+                        findIntegerPoints(controller);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        private:
+            void snapPointsToInteger(View::ControllerSPtr controller) {
+                controller->snapPlanePoints(*m_brush);
+            }
+            
+            void findIntegerPoints(View::ControllerSPtr controller) {
+                controller->findPlanePoints(*m_brush);
+            }
+
+            bool doIsHidden(const IssueType type) const {
+                return m_brush->isIssueHidden(this);
+            }
+            
+            void doSetHidden(const IssueType type, const bool hidden) {
+                m_brush->setIssueHidden(type, hidden);
             }
         };
         
+        const IssueType FloatPointsIssue::Type = Issue::freeType();
+        
+        IssueType FloatPointsIssueGenerator::type() const {
+            return FloatPointsIssue::Type;
+        }
+        
+        const String& FloatPointsIssueGenerator::description() const {
+            static const String description("Non-integer plane points");
+            return description;
+        }
+
         Issue* FloatPointsIssueGenerator::generate(Brush* brush) const {
             assert(brush != NULL);
             const BrushFaceList& faces = brush->faces();

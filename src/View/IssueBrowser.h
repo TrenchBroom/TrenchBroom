@@ -24,19 +24,61 @@
 
 #include <wx/panel.h>
 
+class wxCheckBox;
+class wxCommandEvent;
 class wxDataViewCtrl;
+class wxDataViewEvent;
+class wxDataViewItemArray;
+class wxMouseEvent;
+class wxSimplebook;
 class wxSizeEvent;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Issue;
+    }
+    
     namespace View {
+        class FlagChangedCommand;
+        class FlagsPopupEditor;
+        class IssueBrowserDataModel;
+        
         class IssueBrowser : public wxPanel {
         private:
+            static const int SelectObjectsCommandId = 1;
+            static const int ShowIssuesCommandId = 2;
+            static const int HideIssuesCommandId = 3;
+            static const int FixObjectsBaseId = 4;
+
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+            IssueBrowserDataModel* m_model;
             wxDataViewCtrl* m_tree;
+            wxCheckBox* m_showHiddenIssuesCheckBox;
+            FlagsPopupEditor* m_filterEditor;
         public:
-            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
-            
+            IssueBrowser(wxWindow* parent, wxSimplebook* extraBook, MapDocumentWPtr document, ControllerWPtr controller);
+            ~IssueBrowser();
+
+            void OnShowHiddenIssuesChanged(wxCommandEvent& event);
+            void OnFilterChanged(FlagChangedCommand& command);
+            void OnTreeViewContextMenu(wxDataViewEvent& event);
+            void OnSelectIssues(wxCommandEvent& event);
+            void OnShowIssues(wxCommandEvent& event);
+            void OnHideIssues(wxCommandEvent& event);
+            void OnApplyQuickFix(wxCommandEvent& event);
             void OnTreeViewSize(wxSizeEvent& event);
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void documentWasNewedOrLoaded();
+            void documentWasSaved();
+
+            void updateFilterFlags();
+            
+            void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
+            void setIssueVisibility(bool show);
         };
     }
 }

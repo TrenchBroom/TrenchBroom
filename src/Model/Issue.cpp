@@ -19,25 +19,54 @@
 
 #include "Issue.h"
 
+#include "CollectionUtils.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        Issue::Issue() :
-        m_previous(NULL),
-        m_next(NULL),
-        m_parent(NULL) {}
+        QuickFix::QuickFix(const QuickFixType fixType, const IssueType issueType, const String& description) :
+        m_fixType(fixType),
+        m_issueType(issueType),
+        m_description(description) {}
         
+        bool QuickFix::operator==(const QuickFix& rhs) const {
+            return m_fixType == rhs.m_fixType && m_issueType == rhs.m_issueType;
+        }
+
+        const String& QuickFix::description() const {
+            return m_description;
+        }
+        
+        void QuickFix::apply(Issue& issue, View::ControllerSPtr controller) {
+            assert(issue.m_type == m_issueType);
+            issue.applyQuickFix(m_fixType, controller);
+        }
+
         Issue::~Issue() {}
         
-        size_t Issue::subIssueCount() const {
-            return 0;
+        IssueType Issue::freeType() {
+            static size_t index = 0;
+            assert(index < sizeof(IssueType) * 8);
+            return 1 << index++;
         }
-        
-        Issue* Issue::subIssues() const {
-            return NULL;
+
+        bool Issue::hasType(IssueType mask) const {
+            return m_type & mask;
         }
-        
+
+        const QuickFix::List& Issue::quickFixes() const {
+            return m_quickFixes;
+        }
+
+        bool Issue::isHidden() const {
+            return doIsHidden(m_type);
+        }
+
+        void Issue::setHidden(const bool hidden) {
+            doSetHidden(m_type, hidden);
+        }
+
         Issue* Issue::previous() const {
             return m_previous;
         }
@@ -46,97 +75,63 @@ namespace TrenchBroom {
             return m_next;
         }
 
-        Issue* Issue::parent() const {
-            return m_parent;
-        }
-
         void Issue::insertAfter(Issue* previous) {
             if (previous != NULL) {
+                Issue* next = previous->m_next;
+                
+                Issue* lastSuccessor = this;
+                while (lastSuccessor->next() != NULL)
+                    lastSuccessor = lastSuccessor->next();
+                
                 m_previous = previous;
-                m_next = previous->m_next;
                 m_previous->m_next = this;
-                if (m_next != NULL)
-                    m_next->m_previous = this;
+                
+                lastSuccessor->m_next = next;
+                if (next != NULL)
+                    next->m_previous = lastSuccessor;
             }
         }
         
         void Issue::insertBefore(Issue* next) {
             if (next != NULL) {
-                m_previous = next->m_previous;
-                m_next = next;
-                if (m_previous != NULL)
-                    m_previous->m_next = this;
-                m_next->m_previous = this;
+                Issue* previous = next->m_previous;
+                
+                Issue* lastSuccessor = this;
+                while (lastSuccessor->next() != NULL)
+                    lastSuccessor = lastSuccessor->next();
+                
+                if (previous != NULL)
+                    previous->m_next = this;
+                m_previous = previous;
+                
+                next->m_previous = lastSuccessor;
+                lastSuccessor->m_next = next;
             }
         }
         
-        void Issue::replaceWith(Issue* issue) {
+        void Issue::remove(Issue* last) {
+            if (last == NULL)
+                last = this;
+            
             if (m_previous != NULL)
-                m_previous->m_next = issue;
-            if (m_next != NULL)
-                m_next->m_previous = issue;
-            issue->m_previous = m_previous;
-            issue->m_next = m_next;
+                m_previous->m_next = last->m_next;
+            if (last->m_next != NULL)
+                last->m_next->m_previous = m_previous;
             m_previous = NULL;
-            m_next = NULL;
+            last->m_next = NULL;
         }
 
-        void Issue::remove() {
-            m_previous->m_next = m_next;
-            m_next->m_previous = m_previous;
-            m_previous = NULL;
-            m_next = NULL;
-        }
-
-        Issue* Issue::mergeWith(Issue* issue) {
-            IssueGroup* group = new IssueGroup(this);
-            return group->mergeWith(issue);
-        }
-
-        IssueGroup::IssueGroup(Issue* first) :
-        m_first(first),
-        m_count(1) {
-            assert(m_first != NULL);
-            m_first->replaceWith(this);
-            m_first->m_parent = this;
-        }
+        Issue::Issue(const IssueType type) :
+        m_type(type),
+        m_previous(NULL),
+        m_next(NULL) {}
         
-        IssueGroup::~IssueGroup() {
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                Issue* next = issue->next();
-                delete issue;
-                issue = next;
-            }
-            m_first = NULL;
+        void Issue::addQuickFix(const QuickFix& quickFix) {
+            m_quickFixes.push_back(quickFix);
         }
 
-        String IssueGroup::asString() const {
-            StringStream str;
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                str << issue->asString();
-                issue = issue->next();
-                if (issue != NULL)
-                    str << ", ";
-            }
-            return str.str();
-        }
-
-        size_t IssueGroup::subIssueCount() const {
-            return m_count;
-        }
-        
-        Issue* IssueGroup::subIssues() const {
-            return m_first;
-        }
-
-        Issue* IssueGroup::mergeWith(Issue* issue) {
-            issue->insertBefore(m_first);
-            m_first = issue;
-            m_first->m_parent = this;
-            ++m_count;
-            return this;
+        void Issue::addQuickFixes(const QuickFix::List& quickFixes) {
+            VectorUtils::append(m_quickFixes, quickFixes);
         }
     }
 }

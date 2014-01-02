@@ -24,10 +24,14 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
         class Issue;
         
         class FloatPointsIssueGenerator : public IssueGenerator {
         public:
+            IssueType type() const;
+            const String& description() const;
+
             Issue* generate(Brush* brush) const;
         };
     }

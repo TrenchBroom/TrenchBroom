@@ -21,10 +21,12 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
+#include "SetBool.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceTypes.h"
 #include "Model/Entity.h"
+#include "Model/Issue.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotationPolicy.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -33,10 +35,16 @@
 namespace TrenchBroom {
     namespace IO {
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end) {}
+        Tokenizer(begin, end),
+        m_skipEol(true) {}
         
         QuakeMapTokenizer::QuakeMapTokenizer(const String& str) :
-        Tokenizer(str) {}
+        Tokenizer(str),
+        m_skipEol(true) {}
+
+        void QuakeMapTokenizer::setSkipEol(bool skipEol) {
+            m_skipEol = skipEol;
+        }
 
         QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken() {
             while (!eof()) {
@@ -46,8 +54,14 @@ namespace TrenchBroom {
                 switch (*c) {
                     case '/':
                         advance();
-                        if (curChar() == '/')
+                        if (curChar() == '/') {
+                            advance();
+                            if (curChar() == '/') {
+                                advance();
+                                return Token(QuakeMapToken::Comment, c, c+3, offset(c), startLine, startColumn);
+                            }
                             discardUntil("\n\r");
+                        }
                         break;
                     case '{':
                         advance();
@@ -73,10 +87,14 @@ namespace TrenchBroom {
                         const char* e = readQuotedString();
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
-                    case ' ':
-                    case '\t':
                     case '\n':
                     case '\r':
+                        if (!m_skipEol) {
+                            advance();
+                            return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
+                        }
+                    case ' ':
+                    case '\t':
                         discardWhile(Whitespace);
                         break;
                     default: { // whitespace, integer, decimal or word
@@ -103,6 +121,30 @@ namespace TrenchBroom {
 
         QuakeMapParser::FaceWeightOrder::FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
         m_planeOrder(planeOrder) {}
+
+        QuakeMapParser::ExtraProperty::ExtraProperty(Type type, const String& name, const String& value, const size_t line, const size_t column) :
+        m_type(type),
+        m_name(name),
+        m_value(value),
+        m_line(line),
+        m_column(column) {}
+        
+        QuakeMapParser::ExtraProperty::Type QuakeMapParser::ExtraProperty::type() const {
+            return m_type;
+        }
+        
+        const String& QuakeMapParser::ExtraProperty::name() const {
+            return m_name;
+        }
+        
+        const String& QuakeMapParser::ExtraProperty::strValue() const {
+            return m_value;
+        }
+
+        void QuakeMapParser::ExtraProperty::assertType(const Type expected) const {
+            if (expected != m_type)
+                throw ParserException(m_line, m_column, "Invalid extra property type");
+        }
 
         bool QuakeMapParser::FaceWeightOrder::operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const  {
             return m_planeOrder(lhs->boundary(), rhs->boundary());
@@ -256,19 +298,21 @@ namespace TrenchBroom {
             if (token.type() == QuakeMapToken::CBrace)
                 return NULL;
             
+            ExtraProperties extraProperties;
             Model::Entity* entity = new Model::ConfigurableEntity<Model::QuakeEntityRotationPolicy>();
             const size_t firstLine = token.line();
             
             try {
                 while ((token = m_tokenizer.nextToken()).type() != QuakeMapToken::Eof) {
                     switch (token.type()) {
-                        case QuakeMapToken::String: {
-                            String key = token.data();
-                            expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
-                            String value = token.data();
-                            entity->addOrUpdateProperty(key, value);
+                        case QuakeMapToken::Comment: {
+                            parseExtraProperties(extraProperties);
                             break;
                         }
+                        case QuakeMapToken::String:
+                            m_tokenizer.pushToken(token);
+                            parseEntityProperty(entity);
+                            break;
                         case QuakeMapToken::OBrace: {
                             m_tokenizer.pushToken(token);
                             bool moreBrushes = true;
@@ -284,10 +328,11 @@ namespace TrenchBroom {
                         }
                         case QuakeMapToken::CBrace: {
                             entity->setFilePosition(firstLine, token.line() - firstLine);
+                            setExtraObjectProperties(entity, extraProperties);
                             return entity;
                         }
                         default:
-                            expect(QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
+                            expect(QuakeMapToken::Comment | QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
                     }
                 }
             } catch (...) {
@@ -298,6 +343,16 @@ namespace TrenchBroom {
             return entity;
         }
         
+        void QuakeMapParser::parseEntityProperty(Model::Entity* entity) {
+            Token token = m_tokenizer.nextToken();
+            assert(token.type() == QuakeMapToken::String);
+            const String key = token.data();
+            
+            expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
+            const String value = token.data();
+            entity->addOrUpdateProperty(key, value);
+        }
+
         Model::Brush* QuakeMapParser::parseBrush(const BBox3& worldBounds) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
@@ -306,12 +361,17 @@ namespace TrenchBroom {
             expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
             if (token.type() == QuakeMapToken::CBrace)
                 return NULL;
-            
+
+            ExtraProperties extraProperties;
             const size_t firstLine = token.line();
-            Model::BrushFaceList faces;
             
+            Model::BrushFaceList faces;
             while ((token = m_tokenizer.nextToken()).type() != QuakeMapToken::Eof) {
                 switch (token.type()) {
+                    case QuakeMapToken::Comment: {
+                        parseExtraProperties(extraProperties);
+                        break;
+                    }
                     case QuakeMapToken::OParenthesis: {
                         m_tokenizer.pushToken(token);
                         Model::BrushFace* face = parseFace(worldBounds);
@@ -320,7 +380,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case QuakeMapToken::CBrace: {
-                        return createBrush(worldBounds, faces, firstLine, token.line() - firstLine);
+                        return createBrush(worldBounds, faces, extraProperties, firstLine, token.line() - firstLine);
                     }
                     default: {
                         expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis, token);
@@ -330,7 +390,7 @@ namespace TrenchBroom {
             
             return NULL;
         }
-        
+
         Model::BrushFace* QuakeMapParser::parseFace(const BBox3& worldBounds) {
             float xOffset, yOffset, rotation, xScale, yScale, surfaceValue;
             size_t surfaceContents, surfaceFlags;
@@ -431,7 +491,32 @@ namespace TrenchBroom {
             return vec;
         }
 
-        Model::Brush* QuakeMapParser::createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const {
+        void QuakeMapParser::parseExtraProperties(ExtraProperties& properties) {
+            const SetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
+            Token token = m_tokenizer.nextToken();
+            expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
+            while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {
+                const String name = token.data();
+                expect(QuakeMapToken::String | QuakeMapToken::Integer, token = m_tokenizer.nextToken());
+                const String value = token.data();
+                const ExtraProperty::Type type = token.type() == QuakeMapToken::String ? ExtraProperty::TString : ExtraProperty::TInteger;
+                properties.insert(std::make_pair(name, ExtraProperty(type, name, value, token.line(), token.column())));
+                expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token = m_tokenizer.nextToken());
+            }
+        }
+
+        void QuakeMapParser::setExtraObjectProperties(Model::Object* object, const ExtraProperties properties) const {
+            ExtraProperties::const_iterator it;
+            it = properties.find("hideIssues");
+            if (it != properties.end()) {
+                const ExtraProperty& property = it->second;
+                property.assertType(ExtraProperty::TInteger);
+                const Model::IssueType mask = property.intValue<Model::IssueType>();
+                object->setHiddenIssues(mask);
+            }
+        }
+
+        Model::Brush* QuakeMapParser::createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const ExtraProperties& extraProperties, const size_t firstLine, const size_t lineCount) const {
             Model::Brush* brush = NULL;
             try {
                 // sort the faces by the weight of their plane normals like QBSP does
@@ -441,6 +526,7 @@ namespace TrenchBroom {
 
                 brush = new Model::Brush(worldBounds, sortedFaces);
                 brush->setFilePosition(firstLine, lineCount);
+                setExtraObjectProperties(brush, extraProperties);
             } catch (GeometryException& e) {
                 if (m_logger != NULL)
                     m_logger->error("Error parsing brush at line %u: %s", firstLine, e.what());

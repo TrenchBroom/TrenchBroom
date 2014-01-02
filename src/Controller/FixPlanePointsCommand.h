@@ -17,35 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TransformObjectsCommand__
-#define __TrenchBroom__TransformObjectsCommand__
+#ifndef __TrenchBroom__FixPlanePointsCommand__
+#define __TrenchBroom__FixPlanePointsCommand__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Controller/Command.h"
-#include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class TransformObjectsCommand : public Command {
+        class FixPlanePointsCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
+            typedef std::tr1::shared_ptr<FixPlanePointsCommand> Ptr;
         private:
+            typedef enum {
+                SnapPoints,
+                FindPoints
+            } Action;
+            
             View::MapDocumentWPtr m_document;
-            Mat4x4 m_transformation;
-            bool m_lockTextures;
-            Model::ObjectList m_objects;
+            Action m_action;
+            Model::BrushList m_brushes;
             Model::Snapshot m_snapshot;
         public:
-            static Ptr transformObjects(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
+            static Ptr snapPlanePoints(View::MapDocumentWPtr document, const Model::BrushList& brushes);
+            static Ptr findPlanePoints(View::MapDocumentWPtr document, const Model::BrushList& brushes);
         private:
-            TransformObjectsCommand(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
-            static String makeName(const String& action, const Model::ObjectList& objects);
+            FixPlanePointsCommand(View::MapDocumentWPtr document, Action action, const Model::BrushList& brushes);
+            static String makeName(Action action, const Model::BrushList& brushes);
             
             bool doPerformDo();
             bool doPerformUndo();
@@ -53,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TransformObjectsCommand__) */
+#endif /* defined(__TrenchBroom__FixPlanePointsCommand__) */

@@ -26,6 +26,8 @@
 #include "IO/Tokenizer.h"
 #include "Model/ModelTypes.h"
 
+#include <map>
+
 namespace TrenchBroom {
     class Logger;
     
@@ -41,20 +43,27 @@ namespace TrenchBroom {
             static const Type CBrace        = 1 <<  6; // closing brace: }
             static const Type OBracket      = 1 <<  7; // opening bracket: [
             static const Type CBracket      = 1 <<  8; // closing bracket: ]
-            static const Type Comment       = 1 <<  9; // line comment starting with //
+            static const Type Comment       = 1 <<  9; // line comment starting with ///
             static const Type Eof           = 1 << 10; // end of file
+            static const Type Eol           = 1 << 11; // end of line
         }
 
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
+        private:
+            bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
             QuakeMapTokenizer(const String& str);
+            
+            void setSkipEol(bool skipEol);
         private:
             Token emitToken();
         };
         
         class QuakeMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
+            typedef QuakeMapTokenizer::Token Token;
+
             class PlaneWeightOrder {
             private:
                 bool m_deterministic;
@@ -76,11 +85,40 @@ namespace TrenchBroom {
                 FaceWeightOrder(const PlaneWeightOrder& planeOrder);
                 bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
             };
-                    
+
+            class ExtraProperty {
+            public:
+                typedef enum {
+                    TString,
+                    TInteger
+                } Type;
+            private:
+                Type m_type;
+                String m_name;
+                String m_value;
+                size_t m_line;
+                size_t m_column;
+            public:
+                ExtraProperty(Type type, const String& name, const String& value, size_t line, size_t column);
+                
+                Type type() const;
+                const String& name() const;
+                const String& strValue() const;
+                
+                void assertType(Type expected) const;
+                
+                template <typename T>
+                T intValue() const {
+                    assert(m_type == TInteger);
+                    return static_cast<T>(std::atoi(m_value.c_str()));
+                }
+            };
+            
+            typedef std::map<String, ExtraProperty> ExtraProperties;
+            
             Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
             Model::MapFormat::Type m_format;
-            typedef QuakeMapTokenizer::Token Token;
         public:
             QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
             QuakeMapParser(const String& str, Logger* logger = NULL);
@@ -93,11 +131,15 @@ namespace TrenchBroom {
             
             Model::MapFormat::Type detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);
+            void parseEntityProperty(Model::Entity* entity);
             Model::Brush* parseBrush(const BBox3& worldBounds);
             Model::BrushFace* parseFace(const BBox3& worldBounds);
             Vec3 parseVector();
             
-            Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const size_t firstLine, const size_t lineCount) const;
+            Model::Brush* createBrush(const BBox3& worldBounds, const Model::BrushFaceList faces, const ExtraProperties& extraProperties, const size_t firstLine, const size_t lineCount) const;
+            
+            void parseExtraProperties(ExtraProperties& properties);
+            void setExtraObjectProperties(Model::Object* object, const ExtraProperties properties) const;
         };
     }
 }

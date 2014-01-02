@@ -20,13 +20,16 @@
 #include "Console.h"
 
 #include <wx/log.h>
+#include <wx/panel.h>
+#include <wx/simplebook.h>
 
 namespace TrenchBroom {
     namespace View {
-        Console::Console(wxWindow* parent) :
+        Console::Console(wxWindow* parent, wxSimplebook* extraBook) :
         wxTextCtrl(parent, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2) {
             SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             SetBackgroundColour(*wxBLACK);
+            extraBook->AddPage(new wxPanel(extraBook), "");
         }
 
         void Console::log(const LogLevel level, const String& message) {

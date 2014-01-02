@@ -23,6 +23,7 @@
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"
+#include "Controller/FixPlanePointsCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
@@ -367,6 +368,20 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::snapPlanePoints(Model::Brush& brush) {
+            using namespace Controller;
+            
+            Command::Ptr command = FixPlanePointsCommand::snapPlanePoints(m_document, Model::BrushList(1, &brush));
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::findPlanePoints(Model::Brush& brush) {
+            using namespace Controller;
+            
+            Command::Ptr command = FixPlanePointsCommand::findPlanePoints(m_document, Model::BrushList(1, &brush));
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {
             using namespace Controller;
             
@@ -452,6 +467,14 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::setContentFlags(const Model::BrushFaceList& faces, int flags) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->replaceContentFlags(flags);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setSurfaceValue(const Model::BrushFaceList& faces, const float value, const bool add) {
             using namespace Controller;
             

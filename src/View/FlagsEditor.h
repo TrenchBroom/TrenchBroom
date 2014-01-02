@@ -33,13 +33,16 @@ namespace TrenchBroom {
         class FlagsEditor : public wxPanel {
         private:
             typedef std::vector<wxCheckBox*> CheckBoxList;
+            typedef std::vector<int> ValueList;
 
             size_t m_numCols;
             CheckBoxList m_checkBoxes;
+            ValueList m_values;
         public:
             FlagsEditor(wxWindow* parent, size_t numCols);
             
             void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
+            void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlagValue(int set, int mixed = 0);
 
             size_t getNumFlags() const;

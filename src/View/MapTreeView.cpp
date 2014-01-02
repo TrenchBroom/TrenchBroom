@@ -32,6 +32,7 @@
 #include "View/ViewUtils.h"
 
 #include <wx/dataview.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/variant.h>
 
@@ -175,6 +176,7 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                 document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
                 document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                document->objectWillChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectWillChange);
                 document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
             }
 
@@ -186,6 +188,7 @@ namespace TrenchBroom {
                     document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                     document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
                     document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
+                    document->objectWillChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillChange);
                     document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
                 }
             }
@@ -251,8 +254,12 @@ namespace TrenchBroom {
                 }
             }
 
+            void objectWillChange(Model::Object* object) {
+                objectWillBeRemoved(object);
+            }
+            
             void objectDidChange(Model::Object* object) {
-                ItemChanged(wxDataViewItem(reinterpret_cast<void*>(object)));
+                objectWasAdded(object);
             }
         };
 
@@ -283,7 +290,8 @@ namespace TrenchBroom {
         }
 
         void MapTreeView::OnTreeViewSize(wxSizeEvent& event) {
-            int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
+            const int scrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+            const int newWidth = std::max(0, m_tree->GetClientSize().x - scrollbarWidth);
             m_tree->GetColumn(0)->SetWidth(newWidth);
             event.Skip();
         }

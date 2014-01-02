@@ -123,6 +123,7 @@ namespace TrenchBroom {
             void operator()(const Model::ObjectParentPair& pair) {
                 m_document->objectWillBeRemovedNotifier(pair.object);
                 m_document->removeObject(pair.object);
+                m_document->objectWasRemovedNotifier(pair.object);
                 m_removedObjects.push_back(pair.object);
             }
         };

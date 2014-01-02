@@ -17,24 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewUtils__
-#define __TrenchBroom__ViewUtils__
+#ifndef __TrenchBroom__FloatVerticesIssueGenerator__
+#define __TrenchBroom__FloatVerticesIssueGenerator__
 
-#include <iostream>
+#include "Model/IssueGenerator.h"
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
-    
-    namespace View {
-        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
-        void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
+    namespace Model {
+        class Issue;
+        
+        class FloatVerticesIssueGenerator : public IssueGenerator {
+        public:
+            IssueType type() const;
+            const String& description() const;
+
+            Issue* generate(Brush* brush) const;
+        };
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewUtils__) */
+#endif /* defined(__TrenchBroom__FloatVerticesIssueGenerator__) */

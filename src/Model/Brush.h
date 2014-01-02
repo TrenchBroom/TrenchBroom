@@ -91,6 +91,8 @@ namespace TrenchBroom {
             bool clip(const BBox3& worldBounds, BrushFace* face);
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
+            void snapPlanePointsToInteger(const BBox3& worldBounds);
+            void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;

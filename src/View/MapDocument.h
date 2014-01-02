@@ -76,13 +76,19 @@ namespace TrenchBroom {
             Notifier0 documentWasClearedNotifier;
             Notifier0 documentWasNewedNotifier;
             Notifier0 documentWasLoadedNotifier;
+            Notifier0 documentWasSavedNotifier;
             
             Notifier1<Model::Object*> objectWasAddedNotifier;
             Notifier1<Model::Object*> objectWillBeRemovedNotifier;
+            Notifier1<Model::Object*> objectWasRemovedNotifier;
             Notifier1<Model::Object*> objectWillChangeNotifier;
             Notifier1<Model::Object*> objectDidChangeNotifier;
+            
+            Notifier3<Model::Entity*, const Model::EntityProperty&, const Model::EntityProperty&> entityPropertyDidChangeNotifier;
+            
             Notifier1<Model::BrushFace*> faceWillChangeNotifier;
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
+            
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
@@ -185,8 +191,15 @@ namespace TrenchBroom {
             
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
+            void objectWasRemoved(Model::Object* object);
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void updateLinkSourcesInIssueManager(Model::Entity* entity);
+            
+            void entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after);
+            
+            void faceDidChange(Model::BrushFace* face);
+            
             void modsDidChange();
             void entityDefinitionsDidChange();
             void textureCollectionsDidChange();

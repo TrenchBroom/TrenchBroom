@@ -51,6 +51,28 @@ namespace TrenchBroom {
         name(i_name),
         description(i_description) {}
 
+        GameConfig::FlagsConfig::FlagsConfig() {}
+
+        GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
+        flags(i_flags) {}
+
+        String GameConfig::FlagsConfig::flagName(const size_t index) const {
+            assert(index < flags.size());
+            return flags[index].name;
+        }
+        
+        StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
+            if (mask == 0)
+                return EmptyStringList;
+            
+            StringList names;
+            for (size_t i = 0; i < flags.size(); ++i) {
+                if (mask & (1 << i))
+                    names.push_back(flags[i].name);
+            }
+            return names;
+        }
+        
         GameConfig::FaceAttribsConfig::FaceAttribsConfig() {}
 
         GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :

@@ -134,6 +134,9 @@ namespace TrenchBroom {
             const EntityList& linkTargets() const;
             const EntityList& killSources() const;
             const EntityList& killTargets() const;
+
+            PropertyKeyList findMissingLinkTargets() const;
+            PropertyKeyList findMissingKillTargets() const;
         private:
             void addPropertyToIndex(const EntityProperty& property);
             void removePropertyFromIndex(const EntityProperty& property);
@@ -157,6 +160,8 @@ namespace TrenchBroom {
             void removeAllLinkTargets();
             void removeAllKillSources();
             void removeAllKillTargets();
+            
+            void findMissingTargets(const PropertyKey& prefix, PropertyKeyList& result) const;
             
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             void setOrigin(const Vec3& origin);

@@ -25,6 +25,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Issue.h"
 #include "Model/Map.h"
 #include "Model/Object.h"
 
@@ -139,6 +140,7 @@ namespace TrenchBroom {
                 lineCount += writeBrush(**it, lineNumber + lineCount, stream);
             
             lineCount += writeEntityFooter(stream);
+            entity.setFilePosition(lineNumber, lineCount);
             return lineCount;
         }
 
@@ -160,6 +162,7 @@ namespace TrenchBroom {
         size_t MapWriter::writeEntityHeader(Model::Entity& entity, FILE* stream) {
             size_t lineCount = 0;
             std::fprintf(stream, "{\n"); ++lineCount;
+            lineCount += writeExtraProperties(entity, stream);
             
             const Model::EntityProperty::List& properties = entity.properties();
             Model::EntityProperty::List::const_iterator it, end;
@@ -175,6 +178,14 @@ namespace TrenchBroom {
 
         size_t MapWriter::writeEntityFooter(FILE* stream) {
             std::fprintf(stream, "}\n");
+            return 1;
+        }
+
+        size_t MapWriter::writeExtraProperties(const Model::Object& object, FILE* stream) {
+            const Model::IssueType hiddenIssues = object.hiddenIssues();
+            if (hiddenIssues == 0)
+                return 0;
+            std::fprintf(stream, "/// hideIssues %lu\n", hiddenIssues);
             return 1;
         }
 
@@ -197,6 +208,7 @@ namespace TrenchBroom {
         
         void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
             stream << "{\n";
+            writeExtraProperties(entity, stream);
             
             const Model::EntityProperty::List& properties = entity.properties();
             Model::EntityProperty::List::const_iterator it, end;
@@ -210,6 +222,12 @@ namespace TrenchBroom {
 
         void MapWriter::writeEntityFooter(std::ostream& stream) {
             stream << "}\n";
+        }
+
+        void MapWriter::writeExtraProperties(const Model::Object& object, std::ostream& stream) {
+            const Model::IssueType hiddenIssues = object.hiddenIssues();
+            if (hiddenIssues != 0)
+                stream << "/// hideIssues " << hiddenIssues << "\n";
         }
     }
 }

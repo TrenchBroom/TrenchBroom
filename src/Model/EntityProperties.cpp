@@ -98,6 +98,8 @@ namespace TrenchBroom {
             return true;
         }
 
+        EntityProperty::EntityProperty() {}
+        
         EntityProperty::EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value) :
         key(i_key),
         value(i_value) {}

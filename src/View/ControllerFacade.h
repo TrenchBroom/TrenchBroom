@@ -107,6 +107,8 @@ namespace TrenchBroom {
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+            bool snapPlanePoints(Model::Brush& brush);
+            bool findPlanePoints(Model::Brush& brush);
 
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);
@@ -116,6 +118,7 @@ namespace TrenchBroom {
             bool setFaceYScale(const Model::BrushFaceList& faces, float yScale, bool add);
             bool setSurfaceFlag(const Model::BrushFaceList& faces, size_t index, bool set);
             bool setContentFlag(const Model::BrushFaceList& faces, size_t index, bool set);
+            bool setContentFlags(const Model::BrushFaceList& faces, int flags);
             bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
         private:

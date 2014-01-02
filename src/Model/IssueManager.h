@@ -32,33 +32,50 @@ namespace TrenchBroom {
         class IssueGenerator;
         
         class IssueManager {
-        private:
-            typedef std::map<Object*, Issue*> IssueMap;
+        public:
             typedef std::vector<IssueGenerator*> GeneratorList;
+        private:
+            struct IssuePair {
+                Issue* first;
+                Issue* last;
+                
+                IssuePair();
+                IssuePair(Issue* i_first, Issue* i_last);
+                
+                void preprend(Issue* issue);
+                void append(Issue* issue);
+            };
+            
+            typedef std::map<Object*, IssuePair> IssueMap;
             
             GeneratorList m_generators;
             Issue* m_issueList;
             IssueMap m_issueMap;
+            int m_defaultHiddenGenerators;
         public:
             Notifier1<Issue*> issueWasAddedNotifier;
             Notifier1<Issue*> issueWillBeRemovedNotifier;
+            Notifier1<Issue*> issueIgnoreChangedNotifier;
             Notifier0 issuesClearedNotifier;
         public:
             IssueManager();
             ~IssueManager();
             
-            void registerGenerator(IssueGenerator* generator);
+            void registerGenerator(IssueGenerator* generator, bool showByDefault);
+            const GeneratorList& registeredGenerators() const;
+            int defaultHiddenGenerators() const;
             
             size_t issueCount() const;
             Issue* issues() const;
             
-            void addObject(Object* object);
-            void updateObject(Object* object);
-            void removeObject(Object* object);
+            void objectAdded(Object* object);
+            void objectChanged(Object* object);
+            void objectRemoved(Object* object);
+            void setIssueHidden(Issue* issue, bool hidden);
             
             void clearIssues();
-        private:
             void clearGenerators();
+        private:
             
             Issue* findIssues(Object* object);
         };

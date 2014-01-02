@@ -60,6 +60,7 @@ namespace TrenchBroom {
             PropertyKey key;
             PropertyValue value;
             
+            EntityProperty();
             EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value);
             bool operator<(const EntityProperty& rhs) const;
         };

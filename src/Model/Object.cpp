@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return m_type;
         }
 
+        size_t Object::filePosition() const {
+            return m_lineNumber;
+        }
+
         void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
@@ -92,6 +96,26 @@ namespace TrenchBroom {
         
         void Object::decChildSelectionCount() {
             --m_childSelectionCount;
+        }
+
+        IssueType Object::hiddenIssues() const {
+            return m_hiddenIssues;
+        }
+        
+        void Object::setHiddenIssues(IssueType hiddenIssues) {
+            m_hiddenIssues = hiddenIssues;
+        }
+        
+        bool Object::isIssueHidden(const Issue* issue) const {
+            assert(issue != NULL);
+            return issue->hasType(m_hiddenIssues);
+        }
+        
+        void Object::setIssueHidden(const IssueType type, const bool hidden) {
+            if (hidden)
+                m_hiddenIssues |= type;
+            else
+                m_hiddenIssues &= ~type;
         }
 
         Object* Object::clone(const BBox3& worldBounds) const {
@@ -147,6 +171,7 @@ namespace TrenchBroom {
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
-        m_childSelectionCount(0) {}
+        m_childSelectionCount(0),
+        m_hiddenIssues(0) {}
     }
 }

@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
+#include "Model/Issue.h"
 #include "Model/ModelTypes.h"
 #include "Model/Pickable.h"
 
@@ -52,14 +53,16 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             size_t m_childSelectionCount;
+            IssueType m_hiddenIssues;
         public:
             virtual ~Object();
             
             static BBox3 bounds(const ObjectList& objects);
             
             Type type() const;
-            void setFilePosition(const size_t lineNumber, const size_t lineCount);
-            bool containsLine(const size_t line) const;
+            size_t filePosition() const;
+            void setFilePosition(size_t lineNumber, size_t lineCount);
+            bool containsLine(size_t line) const;
             bool selected() const;
             virtual void select();
             virtual void deselect();
@@ -68,8 +71,13 @@ namespace TrenchBroom {
             void incChildSelectionCount();
             void decChildSelectionCount();
             
+            IssueType hiddenIssues() const;
+            void setHiddenIssues(IssueType hiddenIssues);
+            bool isIssueHidden(const Issue* issue) const;
+            void setIssueHidden(IssueType type, bool hidden);
+            
             Object* clone(const BBox3& worldBounds) const;
-            void transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             
             bool contains(const Object& object) const;
             bool contains(const Entity& entity) const;

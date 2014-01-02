@@ -417,10 +417,10 @@ namespace TrenchBroom {
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GamePtr game = document->game();
-            const Model::GameConfig::FlagConfigList& surfaceFlags = game->surfaceFlags();
-            const Model::GameConfig::FlagConfigList& contentFlags = game->contentFlags();
+            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
             
-            return !surfaceFlags.empty() && !contentFlags.empty();
+            return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
         }
         
         void FaceAttribsEditor::showSurfaceAttribEditors() {
@@ -455,15 +455,15 @@ namespace TrenchBroom {
         void FaceAttribsEditor::getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GamePtr game = document->game();
-            const Model::GameConfig::FlagConfigList& surfaceFlags = game->surfaceFlags();
-            getFlags(surfaceFlags, names, descriptions);
+            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            getFlags(surfaceFlags.flags, names, descriptions);
         }
         
         void FaceAttribsEditor::getContentFlags(wxArrayString& names, wxArrayString& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GamePtr game = document->game();
-            const Model::GameConfig::FlagConfigList& contentFlags = game->contentFlags();
-            getFlags(contentFlags, names, descriptions);
+            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
+            getFlags(contentFlags.flags, names, descriptions);
         }
     }
 }

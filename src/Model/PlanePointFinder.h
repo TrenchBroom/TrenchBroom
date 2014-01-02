@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2013 Kristian Duske
+ Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,24 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewUtils__
-#define __TrenchBroom__ViewUtils__
+#ifndef TrenchBroom_PlanePointFinder_h
+#define TrenchBroom_PlanePointFinder_h
 
-#include <iostream>
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
-    
-    namespace View {
-        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
-        void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
+    namespace Model {
+        class PlanePointFinder {
+        public:
+            static void findPoints(const Plane3& plane, BrushFace::Points& points, size_t numPoints);
+        };
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewUtils__) */
+#endif

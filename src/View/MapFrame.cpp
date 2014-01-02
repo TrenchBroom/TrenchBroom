@@ -515,7 +515,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Enable(m_document->hasSelectedObjects());
+                    event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
                     event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
@@ -633,15 +633,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
             
-            wxSplitterWindow* consoleSplitter = new wxSplitterWindow(inspectorSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
+            wxSplitterWindow* consoleSplitter = new wxSplitterWindow(inspectorSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
             consoleSplitter->SetSashGravity(1.0f);
             consoleSplitter->SetMinimumPaneSize(0);
             
-            m_infoPanel = new InfoPanel(consoleSplitter, m_document);
+            m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
 
             wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 #ifdef _WIN32
@@ -659,7 +659,7 @@ namespace TrenchBroom {
             containerSizer->Add(m_mapView, 1, wxEXPAND);
             container->SetSizer(containerSizer);
             
-            consoleSplitter->SplitHorizontally(container, m_infoPanel, -100);
+            consoleSplitter->SplitHorizontally(container, m_infoPanel, -150);
             m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources());
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
             

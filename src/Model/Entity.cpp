@@ -241,6 +241,18 @@ namespace TrenchBroom {
             return m_killTargets;
         }
 
+        PropertyKeyList Entity::findMissingLinkTargets() const {
+            PropertyKeyList result;
+            findMissingTargets(PropertyKeys::Target, result);
+            return result;
+        }
+        
+        PropertyKeyList Entity::findMissingKillTargets() const {
+            PropertyKeyList result;
+            findMissingTargets(PropertyKeys::Killtarget, result);
+            return result;
+        }
+
         void Entity::addPropertyToIndex(const EntityProperty& property) {
             if (m_map != NULL)
                 m_map->addEntityPropertyToIndex(this, property);
@@ -429,6 +441,20 @@ namespace TrenchBroom {
             m_killTargets.clear();
         }
         
+        void Entity::findMissingTargets(const PropertyKey& prefix, PropertyKeyList& result) const {
+            if (m_map != NULL) {
+                const EntityProperty::List properties = m_properties.numberedProperties(prefix);
+                EntityProperty::List::const_iterator pIt, pEnd;
+                for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
+                    const EntityProperty& property = *pIt;
+                    const String& targetname = property.value;
+                    const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
+                    if (linkTargets.empty())
+                        result.push_back(property.key);
+                }
+            }
+        }
+
         bool Entity::doContains(const Object& object) const {
             return object.containedBy(*this);
         }
