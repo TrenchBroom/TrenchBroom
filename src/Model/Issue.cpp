@@ -67,14 +67,6 @@ namespace TrenchBroom {
             doSetIgnore(m_type, ignore);
         }
 
-        size_t Issue::subIssueCount() const {
-            return 0;
-        }
-        
-        Issue* Issue::subIssues() const {
-            return NULL;
-        }
-        
         Issue* Issue::previous() const {
             return m_previous;
         }
@@ -83,60 +75,56 @@ namespace TrenchBroom {
             return m_next;
         }
 
-        Issue* Issue::parent() const {
-            return m_parent;
-        }
-
         void Issue::insertAfter(Issue* previous) {
             if (previous != NULL) {
+                Issue* next = previous->m_next;
+                
+                Issue* lastSuccessor = this;
+                while (lastSuccessor->next() != NULL)
+                    lastSuccessor = lastSuccessor->next();
+                
                 m_previous = previous;
-                m_next = previous->m_next;
                 m_previous->m_next = this;
-                if (m_next != NULL)
-                    m_next->m_previous = this;
+                
+                lastSuccessor->m_next = next;
+                if (next != NULL)
+                    next->m_previous = lastSuccessor;
             }
         }
         
         void Issue::insertBefore(Issue* next) {
             if (next != NULL) {
-                m_previous = next->m_previous;
-                m_next = next;
-                if (m_previous != NULL)
-                    m_previous->m_next = this;
-                m_next->m_previous = this;
+                Issue* previous = next->m_previous;
+                
+                Issue* lastSuccessor = this;
+                while (lastSuccessor->next() != NULL)
+                    lastSuccessor = lastSuccessor->next();
+                
+                if (previous != NULL)
+                    previous->m_next = this;
+                m_previous = previous;
+                
+                next->m_previous = lastSuccessor;
+                lastSuccessor->m_next = next;
             }
         }
         
-        void Issue::replaceWith(Issue* issue) {
+        void Issue::remove(Issue* last) {
+            if (last == NULL)
+                last = this;
+            
             if (m_previous != NULL)
-                m_previous->m_next = issue;
-            if (m_next != NULL)
-                m_next->m_previous = issue;
-            issue->m_previous = m_previous;
-            issue->m_next = m_next;
+                m_previous->m_next = last->m_next;
+            if (last->m_next != NULL)
+                last->m_next->m_previous = m_previous;
             m_previous = NULL;
-            m_next = NULL;
-        }
-
-        void Issue::remove() {
-            if (m_previous != NULL)
-                m_previous->m_next = m_next;
-            if (m_next != NULL)
-                m_next->m_previous = m_previous;
-            m_previous = NULL;
-            m_next = NULL;
-        }
-
-        Issue* Issue::mergeWith(Issue* issue) {
-            IssueGroup* group = new IssueGroup(this);
-            return group->mergeWith(issue);
+            last->m_next = NULL;
         }
 
         Issue::Issue(const IssueType type) :
         m_type(type),
         m_previous(NULL),
-        m_next(NULL),
-        m_parent(NULL) {}
+        m_next(NULL) {}
         
         void Issue::addQuickFix(const QuickFix& quickFix) {
             m_quickFixes.push_back(quickFix);
@@ -144,103 +132,6 @@ namespace TrenchBroom {
 
         void Issue::addQuickFixes(const QuickFix::List& quickFixes) {
             VectorUtils::append(m_quickFixes, quickFixes);
-        }
-
-        const IssueType IssueGroup::Type = Issue::freeType();
-        
-        IssueGroup::IssueGroup(Issue* first) :
-        Issue(Type),
-        m_first(first),
-        m_last(first),
-        m_count(1) {
-            assert(m_first != NULL);
-            m_first->replaceWith(this);
-            m_first->m_parent = this;
-            addQuickFixes(m_first->quickFixes());
-        }
-        
-        IssueGroup::~IssueGroup() {
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                Issue* next = issue->next();
-                delete issue;
-                issue = next;
-            }
-            m_first = NULL;
-            m_last = NULL;
-        }
-
-        String IssueGroup::description() const {
-            StringStream str;
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                str << issue->description();
-                issue = issue->next();
-                if (issue != NULL)
-                    str << ", ";
-            }
-            return str.str();
-        }
-
-        void IssueGroup::select(View::ControllerSPtr controller) {
-            m_first->select(controller);
-        }
-
-        void IssueGroup::applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                issue->applyQuickFix(fixType, controller);
-                issue = issue->next();
-            }
-        }
-
-        size_t IssueGroup::subIssueCount() const {
-            return m_count;
-        }
-        
-        Issue* IssueGroup::subIssues() const {
-            return m_first;
-        }
-
-        Issue* IssueGroup::mergeWith(Issue* issue) {
-            if (issue->subIssueCount() == 0) {
-                issue->insertAfter(m_last);
-                m_last = issue;
-                m_last->m_parent = this;
-                addQuickFixes(m_last->quickFixes());
-                ++m_count;
-            } else {
-                Issue* subIssue = issue->subIssues();
-                while (subIssue != NULL) {
-                    subIssue->insertAfter(m_last);
-                    m_last = subIssue;
-                    m_last->m_parent = this;
-                    addQuickFixes(m_last->quickFixes());
-                    ++m_count;
-                    subIssue = subIssue->next();
-                }
-                delete issue;
-            }
-            
-            return this;
-        }
-
-        bool IssueGroup::doGetIgnore(IssueType type) const {
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                if (!issue->ignore())
-                    return false;
-                issue = issue->next();
-            }
-            return true;
-        }
-
-        void IssueGroup::doSetIgnore(IssueType type, const bool ignore) {
-            Issue* issue = m_first;
-            while (issue != NULL) {
-                issue->setIgnore(ignore);
-                issue = issue->next();
-            }
         }
     }
 }

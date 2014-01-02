@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return m_type;
         }
 
+        size_t Object::filePosition() const {
+            return m_lineNumber;
+        }
+
         void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;

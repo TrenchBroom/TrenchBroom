@@ -45,6 +45,10 @@ namespace TrenchBroom {
                 addQuickFix(QuickFix(FindIntegerPointsFix, Type, "Find integer plane points"));
             }
             
+            size_t filePosition() const {
+                return m_brush->filePosition();
+            }
+
             String description() const {
                 return "Brush has floating point plane points";
             }

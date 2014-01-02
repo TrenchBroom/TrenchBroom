@@ -140,6 +140,7 @@ namespace TrenchBroom {
                 lineCount += writeBrush(**it, lineNumber + lineCount, stream);
             
             lineCount += writeEntityFooter(stream);
+            entity.setFilePosition(lineNumber, lineCount);
             return lineCount;
         }
 

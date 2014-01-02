@@ -59,7 +59,6 @@ namespace TrenchBroom {
             IssueType m_type;
             Issue* m_previous;
             Issue* m_next;
-            Issue* m_parent;
             QuickFix::List m_quickFixes;
         public:
             friend class IssueGroup;
@@ -71,15 +70,14 @@ namespace TrenchBroom {
 
             bool hasType(IssueType mask) const;
             
+            virtual size_t filePosition() const = 0;
             virtual String description() const = 0;
             virtual void select(View::ControllerSPtr controller) = 0;
             const QuickFix::List& quickFixes() const;
             virtual void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller) = 0;
+
             bool ignore() const;
             void setIgnore(bool ignore);
-            
-            virtual size_t subIssueCount() const;
-            virtual Issue* subIssues() const;
             
             Issue* previous() const;
             Issue* next() const;
@@ -87,10 +85,7 @@ namespace TrenchBroom {
 
             void insertAfter(Issue* previous);
             void insertBefore(Issue* next);
-            void replaceWith(Issue* issue);
-            void remove();
-            
-            virtual Issue* mergeWith(Issue* issue);
+            void remove(Issue* last = NULL);
         protected:
             Issue(IssueType type);
             void addQuickFix(const QuickFix& quickFix);
@@ -98,30 +93,6 @@ namespace TrenchBroom {
             virtual bool doGetIgnore(IssueType type) const = 0;
             virtual void doSetIgnore(IssueType type, bool ignore) = 0;
         };
-
-        class IssueGroup : public Issue {
-        private:
-            static const IssueType Type;
-            Issue* m_first;
-            Issue* m_last;
-            size_t m_count;
-        public:
-            IssueGroup(Issue* first);
-            ~IssueGroup();
-            
-            String description() const;
-            void select(View::ControllerSPtr controller);
-            void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller);
-
-            size_t subIssueCount() const;
-            Issue* subIssues() const;
-            
-            Issue* mergeWith(Issue* issue);
-        private:
-            bool doGetIgnore(IssueType type) const;
-            void doSetIgnore(IssueType type, bool ignore);
-        };
-        
     }
 }
 

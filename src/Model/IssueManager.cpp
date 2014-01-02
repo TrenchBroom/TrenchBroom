@@ -27,6 +27,27 @@
 
 namespace TrenchBroom {
     namespace Model {
+        IssueManager::IssuePair::IssuePair() :
+        first(NULL),
+        last(NULL) {}
+        
+        IssueManager::IssuePair::IssuePair(Issue* i_first, Issue* i_last) :
+        first(i_first),
+        last(i_last) {
+            assert(first != NULL);
+            assert(last != NULL);
+        }
+        
+        void IssueManager::IssuePair::preprend(Issue* issue) {
+            issue->insertBefore(first);
+            first = issue;
+        }
+        
+        void IssueManager::IssuePair::append(Issue* issue) {
+            issue->insertAfter(last);
+            last = issue;
+        }
+
         IssueManager::IssueManager() :
         m_issueList(NULL) {}
 
@@ -49,14 +70,23 @@ namespace TrenchBroom {
         }
 
         void IssueManager::objectAdded(Object* object) {
-            Issue* issue = findIssues(object);
-            if (issue != NULL) {
-                assert(m_issueMap.count(object) == 0);
-                m_issueMap.insert(std::make_pair(object, issue));
+            Issue* first = findIssues(object);
+            if (first != NULL) {
+                Issue* last = first;
+                while (last->next() != NULL)
+                    last = last->next();
                 
-                issue->insertBefore(m_issueList);
-                m_issueList = issue;
-                issueWasAddedNotifier(issue);
+                assert(m_issueMap.count(object) == 0);
+                m_issueMap.insert(std::make_pair(object, IssuePair(first, last)));
+                
+                first->insertBefore(m_issueList);
+                m_issueList = first;
+
+                while (first != last) {
+                    issueWasAddedNotifier(first);
+                    first = first->next();
+                }
+                issueWasAddedNotifier(last);
             }
         }
         
@@ -68,12 +98,18 @@ namespace TrenchBroom {
         void IssueManager::objectRemoved(Object* object) {
             IssueMap::iterator it = m_issueMap.find(object);
             if (it != m_issueMap.end()) {
-                Issue* issue = it->second;
-                if (m_issueList == issue)
-                    m_issueList = issue->next();
-                issueWillBeRemovedNotifier(issue);
-                issue->remove();
-                delete issue;
+                Issue* first = it->second.first;
+                Issue* last = it->second.last;
+                
+                if (m_issueList == first)
+                    m_issueList = last->next();
+
+                first->remove(last);
+                while (first != NULL) {
+                    issueWillBeRemovedNotifier(first);
+                    delete first;
+                    first = first->next();
+                }
                 m_issueMap.erase(it);
             }
         }
@@ -109,10 +145,10 @@ namespace TrenchBroom {
                 Issue* newIssue = generator->generate(object);
                 if (newIssue != NULL) {
                     if (issue != NULL)
-                        issue = issue->mergeWith(newIssue);
+                        newIssue->insertAfter(issue);
                     else
                         issue = newIssue;
-                }
+               }
             }
             return issue;
         }

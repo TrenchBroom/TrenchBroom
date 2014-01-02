@@ -43,6 +43,10 @@ namespace TrenchBroom {
                 addQuickFix(QuickFix(SnapVerticesToIntegerFix, Type, "Snap vertices to integer"));
             }
             
+            size_t filePosition() const {
+                return m_brush->filePosition();
+            }
+
             String description() const {
                 return "Brush has non-integer vertices";
             }

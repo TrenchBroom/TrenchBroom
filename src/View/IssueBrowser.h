@@ -34,25 +34,37 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class IssueBrowserDataModel;
+        
         class IssueBrowser : public wxPanel {
         private:
             static const int SelectObjectsCommandId = 1;
-            static const int IgnoreIssuesCommandId = 2;
-            static const int FixObjectsBaseId = 3;
+            static const int ShowIssuesCommandId = 2;
+            static const int HideIssuesCommandId = 3;
+            static const int FixObjectsBaseId = 4;
 
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
+            IssueBrowserDataModel* m_model;
             wxDataViewCtrl* m_tree;
         public:
             IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            ~IssueBrowser();
 
             void OnTreeViewContextMenu(wxDataViewEvent& event);
             void OnSelectIssues(wxCommandEvent& event);
-            void OnIgnoreIssues(wxCommandEvent& event);
+            void OnShowIssues(wxCommandEvent& event);
+            void OnHideIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);
             void OnTreeViewSize(wxSizeEvent& event);
         private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasSaved();
+            
             void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
+            void setIssueVisibility(bool show);
         };
     }
 }

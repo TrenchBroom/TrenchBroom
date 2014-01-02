@@ -26,6 +26,7 @@
 
 #include <wx/dataview.h>
 #include <wx/menu.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/variant.h>
 
@@ -36,9 +37,11 @@ namespace TrenchBroom {
         class IssueBrowserDataModel : public wxDataViewModel {
         private:
             Model::IssueManager& m_issueManager;
+            bool m_showHidden;
         public:
             IssueBrowserDataModel(Model::IssueManager& issueManager) :
-            m_issueManager(issueManager) {
+            m_issueManager(issueManager),
+            m_showHidden(false) {
                 bindObservers();
             }
             
@@ -47,41 +50,27 @@ namespace TrenchBroom {
             }
             
             unsigned int GetColumnCount() const {
-                return 1;
+                return 2;
             }
             
             wxString GetColumnType(const unsigned int col) const {
-                assert(col == 0);
-                return _("string");
+                assert(col < GetColumnCount());
+                return "string";
             }
             
             bool IsContainer(const wxDataViewItem& item) const {
                 if (!item.IsOk())
                     return true;
-                
-                const void* data = item.GetID();
-                assert(data != NULL);
-                const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
-                return issue->subIssueCount() > 0;
+                return false;
             }
             
             unsigned int GetChildren(const wxDataViewItem& item, wxDataViewItemArray& children) const {
                 if (!item.IsOk()) {
                     Model::Issue* issue = m_issueManager.issues();
                     while (issue != NULL) {
-                        if (!issue->ignore())
+                        if (m_showHidden || !issue->ignore())
                             children.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
                         issue = issue->next();
-                    }
-                } else {
-                    const void* data = item.GetID();
-                    assert(data != NULL);
-                    const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
-                    Model::Issue* subIssue = issue->subIssues();
-                    while (subIssue != NULL) {
-                        if (!subIssue->ignore())
-                            children.Add(wxDataViewItem(reinterpret_cast<void*>(subIssue)));
-                        subIssue = subIssue->next();
                     }
                 }
                 
@@ -89,32 +78,53 @@ namespace TrenchBroom {
             }
             
             wxDataViewItem GetParent(const wxDataViewItem& item) const {
-                if (!item.IsOk())
-                    return wxDataViewItem(NULL);
-                
-                const void* data = item.GetID();
-                assert(data != NULL);
-                
-                const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
-                Model::Issue* parent = issue->parent();
-                return wxDataViewItem(reinterpret_cast<void*>(parent));
+                return wxDataViewItem(NULL);
             }
             
             void GetValue(wxVariant& result, const wxDataViewItem& item, const unsigned int col) const {
-                assert(col == 0);
-                if (!item.IsOk()) {
-                    result = wxVariant("Issues");
+                assert(col < GetColumnCount());
+                assert(item.IsOk());
+
+                const void* data = item.GetID();
+                assert(data != NULL);
+                const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
+                
+                if (col == 0) {
+                    if (issue->filePosition() == 0) {
+                        result = wxVariant("");
+                    } else {
+                        result = wxVariant(wxString() << issue->filePosition());
+                    }
                 } else {
-                    const void* data = item.GetID();
-                    assert(data != NULL);
-                    const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(data);
                     result = wxVariant(wxString(issue->description()));
                 }
             }
             
             bool SetValue(const wxVariant& value, const wxDataViewItem& item, const unsigned int col) {
-                assert(col == 0);
+                assert(col < GetColumnCount());
                 return false;
+            }
+            
+            void setShowHidden(const bool showHidden) {
+                if (showHidden == m_showHidden)
+                    return;
+                m_showHidden = showHidden;
+                Cleared();
+                
+                Model::Issue* issue = m_issueManager.issues();
+                while (issue != NULL) {
+                    addIssue(issue);
+                    issue = issue->next();
+                }
+            }
+            
+            void refreshLineNumbers() {
+                Model::Issue* issue = m_issueManager.issues();
+                while (issue != NULL) {
+                    if (m_showHidden || !issue->ignore())
+                        ValueChanged(wxDataViewItem(reinterpret_cast<void*>(issue)), 0);
+                    issue = issue->next();
+                }
             }
         private:
             void bindObservers() {
@@ -154,22 +164,9 @@ namespace TrenchBroom {
             }
 
             void addIssue(Model::Issue* issue) {
-                if (!issue->ignore()) {
+                if (m_showHidden || !issue->ignore()) {
                     const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
                     assert(success);
-                    if (issue->subIssueCount() > 0) {
-                        Model::Issue* subIssue = issue->subIssues();
-                        assert(subIssue != NULL);
-                        while (subIssue != NULL) {
-                            if (!subIssue->ignore()) {
-                                const bool success =
-                                ItemAdded(wxDataViewItem(reinterpret_cast<void*>(issue)),
-                                          wxDataViewItem(reinterpret_cast<void*>(subIssue)));
-                                assert(success);
-                            }
-                            subIssue = subIssue->next();
-                        }
-                    }
                 }
             }
             
@@ -183,10 +180,13 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
-        m_tree(NULL) {
+        m_model(NULL),
+        m_tree(NULL){
+            m_model = new IssueBrowserDataModel(lock(document)->issueManager());
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
-            m_tree->AssociateModel(new IssueBrowserDataModel(lock(document)->issueManager()));
-            m_tree->AppendTextColumn("Description", 0)->SetWidth(200);
+            m_tree->AssociateModel(m_model);
+            m_tree->AppendTextColumn("Line", 0)->SetWidth(50);
+            m_tree->AppendTextColumn("Description", 1)->SetWidth(200);
             m_tree->Expand(wxDataViewItem(NULL));
             
             m_tree->Bind(wxEVT_SIZE, &IssueBrowser::OnTreeViewSize, this);
@@ -195,6 +195,12 @@ namespace TrenchBroom {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tree, 1, wxEXPAND);
             SetSizerAndFit(sizer);
+            
+            bindObservers();
+        }
+        
+        IssueBrowser::~IssueBrowser() {
+            unbindObservers();
         }
 
         Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections) {
@@ -234,16 +240,15 @@ namespace TrenchBroom {
                 quickFixMenu->Append(FixObjectsBaseId + i, quickFix.description());
             }
             
-            wxString ignoreStr;
-            ignoreStr << "Ignore " << (selections.size() == 1 ? "this issue" : "these issues");
-            
             wxMenu popupMenu;
             popupMenu.Append(SelectObjectsCommandId, "Select");
-            popupMenu.Append(IgnoreIssuesCommandId, ignoreStr);
+            popupMenu.Append(ShowIssuesCommandId, "Show");
+            popupMenu.Append(HideIssuesCommandId, "Hide");
             popupMenu.AppendSubMenu(quickFixMenu, "Fix");
             
             popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssues, this, SelectObjectsCommandId);
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnIgnoreIssues, this, IgnoreIssuesCommandId);
+            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnShowIssues, this, ShowIssuesCommandId);
+            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnHideIssues, this, HideIssuesCommandId);
             quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
             
             PopupMenu(&popupMenu);
@@ -260,22 +265,12 @@ namespace TrenchBroom {
             controller->closeGroup();
         }
         
-        void IssueBrowser::OnIgnoreIssues(wxCommandEvent& event) {
-            wxDataViewItemArray selections;
-            m_tree->GetSelections(selections);
-
-            MapDocumentSPtr document = lock(m_document);
-            Model::IssueManager& issueManager = document->issueManager();
-            
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const wxDataViewItem& item = selections[i];
-                void* data = item.GetID();
-                assert(data != NULL);
-                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                issueManager.setIgnoreIssue(issue, true);
-            }
-            
-            document->incModificationCount();
+        void IssueBrowser::OnShowIssues(wxCommandEvent& event) {
+            setIssueVisibility(true);
+        }
+        
+        void IssueBrowser::OnHideIssues(wxCommandEvent& event) {
+            setIssueVisibility(false);
         }
 
         void IssueBrowser::OnApplyQuickFix(wxCommandEvent& event) {
@@ -304,11 +299,15 @@ namespace TrenchBroom {
             }
             
             controller->closeGroup();
+            
+            m_tree->UnselectAll();
+            m_tree->SetSelections(selections);
         }
         
         void IssueBrowser::OnTreeViewSize(wxSizeEvent& event) {
-            const int newWidth = std::max(20, m_tree->GetClientSize().x - 20);
-            m_tree->GetColumn(0)->SetWidth(newWidth);
+            const int scrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+            const int newWidth = std::max(0, m_tree->GetClientSize().x - m_tree->GetColumn(0)->GetWidth() - scrollbarWidth);
+            m_tree->GetColumn(1)->SetWidth(newWidth);
             event.Skip();
         }
 
@@ -322,6 +321,41 @@ namespace TrenchBroom {
                 Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
                 issue->select(controller);
             }
+        }
+
+        void IssueBrowser::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
+        }
+        
+        void IssueBrowser::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
+            }
+        }
+        
+        void IssueBrowser::documentWasSaved() {
+            m_model->refreshLineNumbers();
+        }
+
+        void IssueBrowser::setIssueVisibility(const bool show) {
+            wxDataViewItemArray selections;
+            m_tree->GetSelections(selections);
+            
+            MapDocumentSPtr document = lock(m_document);
+            Model::IssueManager& issueManager = document->issueManager();
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const wxDataViewItem& item = selections[i];
+                void* data = item.GetID();
+                assert(data != NULL);
+                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
+                issueManager.setIgnoreIssue(issue, !show);
+            }
+            
+            document->incModificationCount();
+            m_tree->UnselectAll();
         }
     }
 }

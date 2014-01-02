@@ -939,6 +939,7 @@ namespace TrenchBroom {
             m_game->writeMap(*m_map, path);
             clearModificationCount();
             setDocumentPath(path);
+            documentWasSavedNotifier();
         }
         
         void MapDocument::setDocumentPath(const IO::Path& path) {

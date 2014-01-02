@@ -33,7 +33,18 @@ namespace TrenchBroom {
         
         class IssueManager {
         private:
-            typedef std::map<Object*, Issue*> IssueMap;
+            struct IssuePair {
+                Issue* first;
+                Issue* last;
+                
+                IssuePair();
+                IssuePair(Issue* i_first, Issue* i_last);
+                
+                void preprend(Issue* issue);
+                void append(Issue* issue);
+            };
+            
+            typedef std::map<Object*, IssuePair> IssueMap;
             typedef std::vector<IssueGenerator*> GeneratorList;
             
             GeneratorList m_generators;

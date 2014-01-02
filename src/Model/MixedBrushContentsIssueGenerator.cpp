@@ -58,6 +58,10 @@ namespace TrenchBroom {
                 addQuickFix(QuickFix(faces.size(), Type, "Reset brush content flags"));
             }
             
+            size_t filePosition() const {
+                return m_brush->filePosition();
+            }
+
             String description() const {
                 return "Brush has mixed content flags";
             }

@@ -47,6 +47,10 @@ namespace TrenchBroom {
                 addQuickFix(QuickFix(DeleteTargetFix, Type, "Delete '" + m_key + "' property"));
             }
             
+            size_t filePosition() const {
+                return m_entity->filePosition();
+            }
+
             String description() const {
                 return m_entity->classname() + " entity has missing target for key '" + m_key + "'";
             }
@@ -90,10 +94,11 @@ namespace TrenchBroom {
             Model::PropertyKeyList::const_iterator it, end;
             for (it = keys.begin(), end = keys.end(); it != end; ++it) {
                 const Model::PropertyKey& key = *it;
+                Issue* newIssue = new EntityLinkIssue(entity, key);
                 if (issue == NULL)
-                    issue = new EntityLinkIssue(entity, key);
+                    issue = newIssue;
                 else
-                    issue = issue->mergeWith(new EntityLinkIssue(entity, key));
+                    newIssue->insertAfter(issue);
             }
         }
     }

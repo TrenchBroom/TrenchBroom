@@ -76,6 +76,7 @@ namespace TrenchBroom {
             Notifier0 documentWasClearedNotifier;
             Notifier0 documentWasNewedNotifier;
             Notifier0 documentWasLoadedNotifier;
+            Notifier0 documentWasSavedNotifier;
             
             Notifier1<Model::Object*> objectWasAddedNotifier;
             Notifier1<Model::Object*> objectWillBeRemovedNotifier;
