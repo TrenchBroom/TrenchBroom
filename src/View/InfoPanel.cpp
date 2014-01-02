@@ -73,7 +73,6 @@ namespace TrenchBroom {
             buttonSizer->Add(m_extraBook, 1, wxEXPAND);
             
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
-            notebookSizer->AddSpacer(1);
             notebookSizer->Add(buttonSizer, 0, wxEXPAND);
             notebookSizer->AddSpacer(3);
             notebookSizer->Add(m_mainBook, 1, wxEXPAND);

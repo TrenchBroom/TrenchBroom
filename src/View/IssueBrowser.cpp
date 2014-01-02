@@ -26,7 +26,9 @@
 #include "View/FlagChangedCommand.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/MapDocument.h"
+#include "View/ViewConstants.h"
 
+#include <wx/checkbox.h>
 #include <wx/dataview.h>
 #include <wx/menu.h>
 #include <wx/settings.h>
@@ -202,6 +204,7 @@ namespace TrenchBroom {
         m_controller(controller),
         m_model(NULL),
         m_tree(NULL),
+        m_showHiddenIssuesCheckBox(NULL),
         m_filterEditor(NULL) {
             m_model = new IssueBrowserDataModel(lock(document)->issueManager());
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
@@ -218,6 +221,9 @@ namespace TrenchBroom {
             SetSizerAndFit(sizer);
 
             wxPanel* extraPanel = new wxPanel(extraBook);
+            m_showHiddenIssuesCheckBox = new wxCheckBox(extraPanel, wxID_ANY, "Show hidden issues");
+            m_showHiddenIssuesCheckBox->Bind(wxEVT_CHECKBOX, &IssueBrowser::OnShowHiddenIssuesChanged, this);
+            
             m_filterEditor = new FlagsPopupEditor(extraPanel, 1, "Filter", false);
             m_filterEditor->Bind(EVT_FLAG_CHANGED_EVENT,
                                 EVT_FLAG_CHANGED_HANDLER(IssueBrowser::OnFilterChanged),
@@ -225,6 +231,8 @@ namespace TrenchBroom {
             
             wxBoxSizer* extraPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             extraPanelSizer->AddStretchSpacer();
+            extraPanelSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
+            extraPanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             extraPanelSizer->Add(m_filterEditor, 0, wxALIGN_RIGHT);
             extraPanel->SetSizer(extraPanelSizer);
             extraBook->AddPage(extraPanel, "");
@@ -254,6 +262,10 @@ namespace TrenchBroom {
             return result;
         }
         
+        void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
+            m_model->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
+        }
+
         void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
             m_model->setHiddenGenerators(~command.flagSetValue());
         }

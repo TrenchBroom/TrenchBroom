@@ -24,6 +24,7 @@
 
 #include <wx/panel.h>
 
+class wxCheckBox;
 class wxCommandEvent;
 class wxDataViewCtrl;
 class wxDataViewEvent;
@@ -54,11 +55,13 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
             IssueBrowserDataModel* m_model;
             wxDataViewCtrl* m_tree;
+            wxCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
             IssueBrowser(wxWindow* parent, wxSimplebook* extraBook, MapDocumentWPtr document, ControllerWPtr controller);
             ~IssueBrowser();
 
+            void OnShowHiddenIssuesChanged(wxCommandEvent& event);
             void OnFilterChanged(FlagChangedCommand& command);
             void OnTreeViewContextMenu(wxDataViewEvent& event);
             void OnSelectIssues(wxCommandEvent& event);
