@@ -35,7 +35,14 @@ namespace TrenchBroom {
         }
         
         void FlagsEditor::setFlags(const wxArrayString& labels, const wxArrayString& tooltips) {
-            const size_t count = labels.size();
+            wxArrayInt values(labels.size());
+            for (size_t i = 0; i < labels.size(); ++i)
+                values[i] = (1 << i);
+            setFlags(values, labels, tooltips);
+        }
+
+        void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
+            const size_t count = values.size();
             setCheckBoxCount(count);
             
             const size_t numRows = count / m_numCols;
@@ -47,8 +54,9 @@ namespace TrenchBroom {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;
                     if (index < count) {
-                        m_checkBoxes[index]->SetLabel(labels[index]);
-                        m_checkBoxes[index]->SetToolTip(index < tooltips.size() ? tooltips[index] : _(""));
+                        m_checkBoxes[index]->SetLabel(index < labels.size() ? labels[index] : wxString() << (1 << index));
+                        m_checkBoxes[index]->SetToolTip(index < tooltips.size() ? tooltips[index] : "");
+                        m_values[index] = values[index];
                         sizer->Add(m_checkBoxes[index]);
                     }
                 }
@@ -60,8 +68,9 @@ namespace TrenchBroom {
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 wxCheckBox* checkBox = m_checkBoxes[i];
-                const bool isMixed = (mixed & (1 << i)) != 0;
-                const bool isChecked = (on & (1 << i)) != 0;
+                const int value = m_values[i];
+                const bool isMixed = (mixed & value) != 0;
+                const bool isChecked = (on & value) != 0;
                 if (isMixed)
                     checkBox->Set3StateValue(wxCHK_UNDETERMINED);
                 else if (isChecked)
@@ -89,7 +98,7 @@ namespace TrenchBroom {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 if (isFlagSet(i))
-                    value |= (1 << i);
+                    value |= m_values[i];
             }
             return value;
         }
@@ -98,7 +107,7 @@ namespace TrenchBroom {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 if (isFlagMixed(i))
-                    value |= (1 << i);
+                    value |= m_values[i];
             }
             return value;
         }
@@ -132,6 +141,7 @@ namespace TrenchBroom {
             }
             while (count < m_checkBoxes.size())
                 delete m_checkBoxes.back(), m_checkBoxes.pop_back();
+            m_values.resize(count);
         }
 
         size_t FlagsEditor::getIndexFromEvent(const wxCommandEvent& event) const {

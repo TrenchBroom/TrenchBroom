@@ -29,6 +29,9 @@ namespace TrenchBroom {
         
         class EntityLinkIssueGenerator : public IssueGenerator {
         public:
+            IssueType type() const;
+            const String& description() const;
+
             Issue* generate(Entity* entity) const;
         private:
             void processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const;

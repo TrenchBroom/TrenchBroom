@@ -32,9 +32,9 @@
 namespace TrenchBroom {
     namespace Model {
         class MixedBrushContentsIssue : public Issue {
-        private:
+        public:
             static const IssueType Type;
-            
+        private:
             Brush* m_brush;
         public:
             MixedBrushContentsIssue(Brush* brush, const GameConfig::FlagsConfig& flagsConfig) :
@@ -80,17 +80,26 @@ namespace TrenchBroom {
                 }
             }
         private:
-            bool doGetIgnore(IssueType type) const {
-                return m_brush->ignoredIssues() & type;
+            bool doIsHidden(const IssueType type) const {
+                return m_brush->isIssueHidden(this);
             }
-
-            void doSetIgnore(IssueType type, const bool ignore) {
-                m_brush->setIgnoreIssue(type, ignore);
+            
+            void doSetHidden(const IssueType type, const bool hidden) {
+                m_brush->setIssueHidden(type, hidden);
             }
         };
         
         const IssueType MixedBrushContentsIssue::Type = Issue::freeType();
         
+        IssueType MixedBrushContentsIssueGenerator::type() const {
+            return MixedBrushContentsIssue::Type;
+        }
+        
+        const String& MixedBrushContentsIssueGenerator::description() const {
+            static const String description("Mixed brush content flags");
+            return description;
+        }
+
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator(const GameConfig::FlagsConfig& flagsConfig) :
         m_flagsConfig(flagsConfig) {}
 

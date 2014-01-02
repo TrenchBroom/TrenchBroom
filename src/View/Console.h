@@ -25,11 +25,13 @@
 
 #include <wx/textctrl.h>
 
+class wxSimplebook;
+
 namespace TrenchBroom {
     namespace View {
         class Console : public wxTextCtrl, public Logger {
         public:
-            Console(wxWindow* parent);
+            Console(wxWindow* parent, wxSimplebook* extraBook);
             void log(const LogLevel level, const String& message);
         private:
             void logToDebugOut(const LogLevel level, const String& message);

@@ -33,9 +33,10 @@
 namespace TrenchBroom {
     namespace Model {
         class EntityLinkIssue : public Issue {
+        public:
+            static const IssueType Type;
         private:
             static const QuickFixType DeleteTargetFix = 0;
-            static const IssueType Type;
             
             Entity* m_entity;
             PropertyKey m_key;
@@ -67,17 +68,26 @@ namespace TrenchBroom {
                 controller->removeEntityProperty(EntityList(1, m_entity), m_key);
             }
         private:
-            bool doGetIgnore(IssueType type) const {
-                return m_entity->ignoredIssues() & type;
+            bool doIsHidden(const IssueType type) const {
+                return m_entity->isIssueHidden(this);
             }
 
-            void doSetIgnore(IssueType type, const bool ignore) {
-                m_entity->setIgnoreIssue(type, ignore);
+            void doSetHidden(const IssueType type, const bool hidden) {
+                m_entity->setIssueHidden(type, hidden);
             }
         };
         
         const IssueType EntityLinkIssue::Type = Issue::freeType();
         
+        IssueType EntityLinkIssueGenerator::type() const {
+            return EntityLinkIssue::Type;
+        }
+        
+        const String& EntityLinkIssueGenerator::description() const {
+            static const String description("Missing entity link target");
+            return description;
+        }
+
         Issue* EntityLinkIssueGenerator::generate(Entity* entity) const {
             assert(entity != NULL);
             const Model::PropertyKeyList missingLinkTargets = entity->findMissingLinkTargets();

@@ -788,10 +788,10 @@ namespace TrenchBroom {
         
         void MapDocument::registerIssueGenerators() {
             m_issueManager.clearGenerators();
-            m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator());
-            m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator());
-            m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()));
-            m_issueManager.registerGenerator(new Model::EntityLinkIssueGenerator());
+            m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator(), false);
+            m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()), true);
+            m_issueManager.registerGenerator(new Model::EntityLinkIssueGenerator(), true);
         }
 
         void MapDocument::addEntity(Model::Entity* entity) {

@@ -31,9 +31,10 @@
 namespace TrenchBroom {
     namespace Model {
         class FloatVerticesIssue : public Issue {
+        public:
+            static const IssueType Type;
         private:
             static const QuickFixType SnapVerticesToIntegerFix = 0;
-            static const IssueType Type;
             
             Brush* m_brush;
         public:
@@ -58,17 +59,27 @@ namespace TrenchBroom {
             void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
             }
         private:
-            bool doGetIgnore(IssueType type) const {
-                return m_brush->ignoredIssues() & type;
+            
+            bool doIsHidden(const IssueType type) const {
+                return m_brush->isIssueHidden(this);
             }
-
-            void doSetIgnore(IssueType type, const bool ignore) {
-                m_brush->setIgnoreIssue(type, ignore);
+            
+            void doSetHidden(const IssueType type, const bool hidden) {
+                m_brush->setIssueHidden(type, hidden);
             }
         };
         
         const IssueType FloatVerticesIssue::Type = Issue::freeType();
         
+        IssueType FloatVerticesIssueGenerator::type() const {
+            return FloatVerticesIssue::Type;
+        }
+        
+        const String& FloatVerticesIssueGenerator::description() const {
+            static const String description("Non-integer vertices");
+            return description;
+        }
+
         Issue* FloatVerticesIssueGenerator::generate(Brush* brush) const {
             assert(brush != NULL);
             const BrushVertexList& vertices = brush->vertices();

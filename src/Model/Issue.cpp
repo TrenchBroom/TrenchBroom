@@ -59,12 +59,12 @@ namespace TrenchBroom {
             return m_quickFixes;
         }
 
-        bool Issue::ignore() const {
-            return doGetIgnore(m_type);
+        bool Issue::isHidden() const {
+            return doIsHidden(m_type);
         }
 
-        void Issue::setIgnore(const bool ignore) {
-            doSetIgnore(m_type, ignore);
+        void Issue::setHidden(const bool hidden) {
+            doSetHidden(m_type, hidden);
         }
 
         Issue* Issue::previous() const {

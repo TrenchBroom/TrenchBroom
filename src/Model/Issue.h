@@ -76,8 +76,8 @@ namespace TrenchBroom {
             const QuickFix::List& quickFixes() const;
             virtual void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller) = 0;
 
-            bool ignore() const;
-            void setIgnore(bool ignore);
+            bool isHidden() const;
+            void setHidden(bool hidden);
             
             Issue* previous() const;
             Issue* next() const;
@@ -90,8 +90,8 @@ namespace TrenchBroom {
             Issue(IssueType type);
             void addQuickFix(const QuickFix& quickFix);
             void addQuickFixes(const QuickFix::List& quickFixes);
-            virtual bool doGetIgnore(IssueType type) const = 0;
-            virtual void doSetIgnore(IssueType type, bool ignore) = 0;
+            virtual bool doIsHidden(IssueType type) const = 0;
+            virtual void doSetHidden(IssueType type, bool hidden) = 0;
         };
     }
 }

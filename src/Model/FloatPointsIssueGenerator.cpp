@@ -31,10 +31,11 @@
 namespace TrenchBroom {
     namespace Model {
         class FloatPointsIssue : public Issue {
+        public:
+            static const IssueType Type;
         private:
             static const QuickFixType SnapPointsToIntegerFix = 0;
             static const QuickFixType FindIntegerPointsFix = 1;
-            static const IssueType Type;
             
             Brush* m_brush;
         public:
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             }
 
             String description() const {
-                return "Brush has floating point plane points";
+                return "Brush has non-integer plane points";
             }
             
             void select(View::ControllerSPtr controller) {
@@ -78,17 +79,26 @@ namespace TrenchBroom {
                 controller->findPlanePoints(*m_brush);
             }
 
-            bool doGetIgnore(IssueType type) const {
-                return m_brush->ignoredIssues() & type;
+            bool doIsHidden(const IssueType type) const {
+                return m_brush->isIssueHidden(this);
             }
             
-            void doSetIgnore(IssueType type, const bool ignore) {
-                m_brush->setIgnoreIssue(type, ignore);
+            void doSetHidden(const IssueType type, const bool hidden) {
+                m_brush->setIssueHidden(type, hidden);
             }
         };
         
         const IssueType FloatPointsIssue::Type = Issue::freeType();
         
+        IssueType FloatPointsIssueGenerator::type() const {
+            return FloatPointsIssue::Type;
+        }
+        
+        const String& FloatPointsIssueGenerator::description() const {
+            static const String description("Non-integer plane points");
+            return description;
+        }
+
         Issue* FloatPointsIssueGenerator::generate(Brush* brush) const {
             assert(brush != NULL);
             const BrushFaceList& faces = brush->faces();

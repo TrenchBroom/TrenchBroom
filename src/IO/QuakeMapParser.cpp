@@ -507,12 +507,12 @@ namespace TrenchBroom {
 
         void QuakeMapParser::setExtraObjectProperties(Model::Object* object, const ExtraProperties properties) const {
             ExtraProperties::const_iterator it;
-            it = properties.find("ignoreIssues");
+            it = properties.find("hideIssues");
             if (it != properties.end()) {
                 const ExtraProperty& property = it->second;
                 property.assertType(ExtraProperty::TInteger);
                 const Model::IssueType mask = property.intValue<Model::IssueType>();
-                object->setIgnoredIssues(mask);
+                object->setHiddenIssues(mask);
             }
         }
 

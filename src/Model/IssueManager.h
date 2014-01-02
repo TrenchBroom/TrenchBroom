@@ -32,6 +32,8 @@ namespace TrenchBroom {
         class IssueGenerator;
         
         class IssueManager {
+        public:
+            typedef std::vector<IssueGenerator*> GeneratorList;
         private:
             struct IssuePair {
                 Issue* first;
@@ -45,11 +47,11 @@ namespace TrenchBroom {
             };
             
             typedef std::map<Object*, IssuePair> IssueMap;
-            typedef std::vector<IssueGenerator*> GeneratorList;
             
             GeneratorList m_generators;
             Issue* m_issueList;
             IssueMap m_issueMap;
+            int m_defaultHiddenGenerators;
         public:
             Notifier1<Issue*> issueWasAddedNotifier;
             Notifier1<Issue*> issueWillBeRemovedNotifier;
@@ -59,7 +61,9 @@ namespace TrenchBroom {
             IssueManager();
             ~IssueManager();
             
-            void registerGenerator(IssueGenerator* generator);
+            void registerGenerator(IssueGenerator* generator, bool showByDefault);
+            const GeneratorList& registeredGenerators() const;
+            int defaultHiddenGenerators() const;
             
             size_t issueCount() const;
             Issue* issues() const;
@@ -67,7 +71,7 @@ namespace TrenchBroom {
             void objectAdded(Object* object);
             void objectChanged(Object* object);
             void objectRemoved(Object* object);
-            void setIgnoreIssue(Issue* issue, bool ignore);
+            void setIssueHidden(Issue* issue, bool hidden);
             
             void clearIssues();
             void clearGenerators();

@@ -182,10 +182,10 @@ namespace TrenchBroom {
         }
 
         size_t MapWriter::writeExtraProperties(const Model::Object& object, FILE* stream) {
-            const Model::IssueType ignoredIssues = object.ignoredIssues();
-            if (ignoredIssues == 0)
+            const Model::IssueType hiddenIssues = object.hiddenIssues();
+            if (hiddenIssues == 0)
                 return 0;
-            std::fprintf(stream, "/// ignoreIssues %lu\n", ignoredIssues);
+            std::fprintf(stream, "/// hideIssues %lu\n", hiddenIssues);
             return 1;
         }
 
@@ -225,9 +225,9 @@ namespace TrenchBroom {
         }
 
         void MapWriter::writeExtraProperties(const Model::Object& object, std::ostream& stream) {
-            const Model::IssueType ignoredIssues = object.ignoredIssues();
-            if (ignoredIssues != 0)
-                stream << "/// ignoreIssues " << ignoredIssues << "\n";
+            const Model::IssueType hiddenIssues = object.hiddenIssues();
+            if (hiddenIssues != 0)
+                stream << "/// hideIssues " << hiddenIssues << "\n";
         }
     }
 }

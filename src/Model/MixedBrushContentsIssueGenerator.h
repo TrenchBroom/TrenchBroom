@@ -34,6 +34,9 @@ namespace TrenchBroom {
         public:
             MixedBrushContentsIssueGenerator(const GameConfig::FlagsConfig& flagsConfig);
             
+            IssueType type() const;
+            const String& description() const;
+
             Issue* generate(Brush* brush) const;
         };
     }

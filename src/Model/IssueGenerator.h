@@ -20,19 +20,22 @@
 #ifndef __TrenchBroom__IssueGenerator__
 #define __TrenchBroom__IssueGenerator__
 
+#include "Model/Issue.h"
+
 namespace TrenchBroom {
     namespace Model {
         class Brush;
         class Entity;
-        class Issue;
         class Object;
         
         class IssueGenerator {
         public:
             virtual ~IssueGenerator();
             
+            virtual IssueType type() const = 0;
+            virtual const String& description() const = 0;
+
             Issue* generate(Object* object) const;
-            
             virtual Issue* generate(Entity* entity) const;
             virtual Issue* generate(Brush* brush) const;
         };

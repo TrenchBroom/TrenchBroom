@@ -20,13 +20,17 @@
 #include "IssueBrowser.h"
 
 #include "Model/Issue.h"
+#include "Model/IssueGenerator.h"
 #include "Model/IssueManager.h"
 #include "View/ControllerFacade.h"
+#include "View/FlagChangedCommand.h"
+#include "View/FlagsPopupEditor.h"
 #include "View/MapDocument.h"
 
 #include <wx/dataview.h>
 #include <wx/menu.h>
 #include <wx/settings.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/variant.h>
 
@@ -37,11 +41,12 @@ namespace TrenchBroom {
         class IssueBrowserDataModel : public wxDataViewModel {
         private:
             Model::IssueManager& m_issueManager;
-            bool m_showHidden;
+            bool m_showHiddenIssues;
+            Model::IssueType m_hiddenGenerators;
         public:
             IssueBrowserDataModel(Model::IssueManager& issueManager) :
             m_issueManager(issueManager),
-            m_showHidden(false) {
+            m_showHiddenIssues(false) {
                 bindObservers();
             }
             
@@ -68,7 +73,7 @@ namespace TrenchBroom {
                 if (!item.IsOk()) {
                     Model::Issue* issue = m_issueManager.issues();
                     while (issue != NULL) {
-                        if (m_showHidden || !issue->ignore())
+                        if (showIssue(issue))
                             children.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
                         issue = issue->next();
                     }
@@ -105,23 +110,24 @@ namespace TrenchBroom {
                 return false;
             }
             
-            void setShowHidden(const bool showHidden) {
-                if (showHidden == m_showHidden)
+            void setShowHiddenIssues(const bool showHiddenIssues) {
+                if (showHiddenIssues == m_showHiddenIssues)
                     return;
-                m_showHidden = showHidden;
-                Cleared();
-                
-                Model::Issue* issue = m_issueManager.issues();
-                while (issue != NULL) {
-                    addIssue(issue);
-                    issue = issue->next();
-                }
+                m_showHiddenIssues = showHiddenIssues;
+                reload();
+            }
+            
+            void setHiddenGenerators(const Model::IssueType hiddenGenerators) {
+                if (hiddenGenerators == m_hiddenGenerators)
+                    return;
+                m_hiddenGenerators = hiddenGenerators;
+                reload();
             }
             
             void refreshLineNumbers() {
                 Model::Issue* issue = m_issueManager.issues();
                 while (issue != NULL) {
-                    if (m_showHidden || !issue->ignore())
+                    if (showIssue(issue))
                         ValueChanged(wxDataViewItem(reinterpret_cast<void*>(issue)), 0);
                     issue = issue->next();
                 }
@@ -153,7 +159,7 @@ namespace TrenchBroom {
             
             void issueIgnoreChanged(Model::Issue* issue) {
                 assert(issue != NULL);
-                if (issue->ignore())
+                if (issue->isHidden())
                     removeIssue(issue);
                 else
                     addIssue(issue);
@@ -162,9 +168,19 @@ namespace TrenchBroom {
             void issuesCleared() {
                 Cleared();
             }
+            
+            void reload() {
+                Cleared();
+                
+                Model::Issue* issue = m_issueManager.issues();
+                while (issue != NULL) {
+                    addIssue(issue);
+                    issue = issue->next();
+                }
+            }
 
             void addIssue(Model::Issue* issue) {
-                if (m_showHidden || !issue->ignore()) {
+                if (showIssue(issue)) {
                     const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
                     assert(success);
                 }
@@ -174,14 +190,19 @@ namespace TrenchBroom {
                 const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
                 assert(success);
             }
+
+            bool showIssue(Model::Issue* issue) const {
+                return !issue->hasType(m_hiddenGenerators) && (m_showHiddenIssues || !issue->isHidden());
+            }
         };
         
-        IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
+        IssueBrowser::IssueBrowser(wxWindow* parent, wxSimplebook* extraBook, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
         m_model(NULL),
-        m_tree(NULL){
+        m_tree(NULL),
+        m_filterEditor(NULL) {
             m_model = new IssueBrowserDataModel(lock(document)->issueManager());
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
             m_tree->AssociateModel(m_model);
@@ -195,6 +216,18 @@ namespace TrenchBroom {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tree, 1, wxEXPAND);
             SetSizerAndFit(sizer);
+
+            wxPanel* extraPanel = new wxPanel(extraBook);
+            m_filterEditor = new FlagsPopupEditor(extraPanel, 1, "Filter", false);
+            m_filterEditor->Bind(EVT_FLAG_CHANGED_EVENT,
+                                EVT_FLAG_CHANGED_HANDLER(IssueBrowser::OnFilterChanged),
+                                this);
+            
+            wxBoxSizer* extraPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            extraPanelSizer->AddStretchSpacer();
+            extraPanelSizer->Add(m_filterEditor, 0, wxALIGN_RIGHT);
+            extraPanel->SetSizer(extraPanelSizer);
+            extraBook->AddPage(extraPanel, "");
             
             bindObservers();
         }
@@ -221,6 +254,10 @@ namespace TrenchBroom {
             return result;
         }
         
+        void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
+            m_model->setHiddenGenerators(~command.flagSetValue());
+        }
+
         void IssueBrowser::OnTreeViewContextMenu(wxDataViewEvent& event) {
             const wxDataViewItem& item = event.GetItem();
             if (!item.IsOk())
@@ -326,17 +363,48 @@ namespace TrenchBroom {
         void IssueBrowser::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
+            document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
         }
         
         void IssueBrowser::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
+                document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
             }
         }
         
+        void IssueBrowser::documentWasNewedOrLoaded() {
+            updateFilterFlags();
+        }
+
         void IssueBrowser::documentWasSaved() {
             m_model->refreshLineNumbers();
+        }
+
+        void IssueBrowser::updateFilterFlags() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::IssueManager& issueManager = document->issueManager();
+            
+            wxArrayInt flags;
+            wxArrayString labels;
+            
+            const Model::IssueManager::GeneratorList& generators = issueManager.registeredGenerators();
+            Model::IssueManager::GeneratorList::const_iterator it, end;
+            for (it = generators.begin(), end = generators.end(); it != end; ++it) {
+                const Model::IssueGenerator* generator = *it;
+                const Model::IssueType flag = generator->type();
+                const String& description = generator->description();
+                
+                flags.push_back(flag);
+                labels.push_back(description);
+            }
+            
+            m_filterEditor->setFlags(flags, labels);
+            m_model->setHiddenGenerators(issueManager.defaultHiddenGenerators());
+            m_filterEditor->setFlagValue(~issueManager.defaultHiddenGenerators());
         }
 
         void IssueBrowser::setIssueVisibility(const bool show) {
@@ -351,7 +419,7 @@ namespace TrenchBroom {
                 void* data = item.GetID();
                 assert(data != NULL);
                 Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                issueManager.setIgnoreIssue(issue, !show);
+                issueManager.setIssueHidden(issue, !show);
             }
             
             document->incModificationCount();
