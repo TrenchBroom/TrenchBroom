@@ -25,6 +25,8 @@
 #include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
+#include "Model/QuickFix.h"
+#include "Model/SharedQuickFixes.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
 
@@ -32,48 +34,25 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityLinkIssue : public Issue {
+        class EntityLinkIssue : public EntityIssue {
         public:
             static const IssueType Type;
         private:
-            static const QuickFixType DeleteTargetFix = 0;
-            
-            Entity* m_entity;
             PropertyKey m_key;
         public:
             EntityLinkIssue(Entity* entity, const PropertyKey& key) :
-            Issue(Type),
-            m_entity(entity),
+            EntityIssue(Type, entity),
             m_key(key) {
-                addQuickFix(QuickFix(DeleteTargetFix, Type, "Delete '" + m_key + "' property"));
+                addSharedQuickFix(DeleteEntityPropertyQuickFix::instance());
             }
             
-            size_t filePosition() const {
-                return m_entity->filePosition();
-            }
-
             String description() const {
-                return m_entity->classname() + " entity has missing target for key '" + m_key + "'";
+                return entity()->classname() + " entity has missing target for key '" + m_key + "'";
             }
             
-            void select(View::ControllerSPtr controller) {
-                const BrushList& brushes = m_entity->brushes();
-                if (brushes.empty())
-                    controller->selectObject(*m_entity);
-                else
-                    controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
-            }
-            
-            void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
-                controller->removeEntityProperty(EntityList(1, m_entity), m_key);
-            }
-        private:
-            bool doIsHidden(const IssueType type) const {
-                return m_entity->isIssueHidden(this);
-            }
-
-            void doSetHidden(const IssueType type, const bool hidden) {
-                m_entity->setIssueHidden(type, hidden);
+            void applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller) {
+                if (quickFix->type() == DeleteEntityPropertyQuickFix::Type)
+                    static_cast<const DeleteEntityPropertyQuickFix*>(quickFix)->apply(entity(), m_key, controller);
             }
         };
         

@@ -23,6 +23,8 @@
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
+#include "Model/QuickFix.h"
+#include "Model/SharedQuickFixes.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
 
@@ -30,61 +32,25 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class FloatPointsIssue : public Issue {
+        class FloatPointsIssue : public BrushIssue {
         public:
             static const IssueType Type;
-        private:
-            static const QuickFixType SnapPointsToIntegerFix = 0;
-            static const QuickFixType FindIntegerPointsFix = 1;
-            
-            Brush* m_brush;
         public:
             FloatPointsIssue(Brush* brush) :
-            Issue(Type),
-            m_brush(brush) {
-                addQuickFix(QuickFix(SnapPointsToIntegerFix, Type, "Snap plane points to integer"));
-                addQuickFix(QuickFix(FindIntegerPointsFix, Type, "Find integer plane points"));
+            BrushIssue(Type, brush) {
+                addSharedQuickFix(SnapPlanePointsToIntegerQuickFix::instance());
+                addSharedQuickFix(FindIntegerPlanePointsQuickFix::instance());
             }
             
-            size_t filePosition() const {
-                return m_brush->filePosition();
-            }
-
             String description() const {
                 return "Brush has non-integer plane points";
             }
             
-            void select(View::ControllerSPtr controller) {
-                controller->selectObject(*m_brush);
-            }
-            
-            void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
-                switch (fixType) {
-                    case SnapPointsToIntegerFix:
-                        snapPointsToInteger(controller);
-                        break;
-                    case FindIntegerPointsFix:
-                        findIntegerPoints(controller);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        private:
-            void snapPointsToInteger(View::ControllerSPtr controller) {
-                controller->snapPlanePoints(*m_brush);
-            }
-            
-            void findIntegerPoints(View::ControllerSPtr controller) {
-                controller->findPlanePoints(*m_brush);
-            }
-
-            bool doIsHidden(const IssueType type) const {
-                return m_brush->isIssueHidden(this);
-            }
-            
-            void doSetHidden(const IssueType type, const bool hidden) {
-                m_brush->setIssueHidden(type, hidden);
+            void applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller) {
+                if (quickFix->type() == SnapPlanePointsToIntegerQuickFix::Type)
+                    static_cast<const SnapPlanePointsToIntegerQuickFix*>(quickFix)->apply(brush(), controller);
+                else if (quickFix->type() == FindIntegerPlanePointsQuickFix::Type)
+                    static_cast<const FindIntegerPlanePointsQuickFix*>(quickFix)->apply(brush(), controller);
             }
         };
         

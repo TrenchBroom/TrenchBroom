@@ -89,6 +89,8 @@ namespace TrenchBroom {
             bool removeObjects(const Model::ObjectParentList& objects);
             bool removeObject(Model::Object& object);
             Model::ObjectList duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds);
+
+            bool moveBrushesToWorldspawn(const Model::BrushList& brushes);
             bool reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             
             bool renameEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, bool force = false);

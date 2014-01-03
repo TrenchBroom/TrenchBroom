@@ -174,11 +174,15 @@ namespace TrenchBroom {
             void reload() {
                 Cleared();
                 
+                wxDataViewItemArray items;
                 Model::Issue* issue = m_issueManager.issues();
                 while (issue != NULL) {
-                    addIssue(issue);
+                    if (showIssue(issue))
+                        items.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
                     issue = issue->next();
                 }
+                
+                ItemsAdded(wxDataViewItem(NULL), items);
             }
 
             void addIssue(Model::Issue* issue) {
@@ -209,7 +213,7 @@ namespace TrenchBroom {
             m_model = new IssueBrowserDataModel(lock(document)->issueManager());
             m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
             m_tree->AssociateModel(m_model);
-            m_tree->AppendTextColumn("Line", 0)->SetWidth(50);
+            m_tree->AppendTextColumn("Line", 0)->SetWidth(80);
             m_tree->AppendTextColumn("Description", 1)->SetWidth(200);
             m_tree->Expand(wxDataViewItem(NULL));
             
@@ -246,18 +250,14 @@ namespace TrenchBroom {
 
         Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections) {
             assert(!selections.empty());
-            Model::QuickFix::List result = reinterpret_cast<Model::Issue*>(selections[0].GetID())->quickFixes();
+            const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(selections[0].GetID());
+            const Model::IssueType type = issue->type();
+            Model::QuickFix::List result = issue->quickFixes();
+            
             for (size_t i = 1; i < selections.size(); ++i) {
-                const Model::QuickFix::List quickFixes = reinterpret_cast<Model::Issue*>(selections[0].GetID())->quickFixes();
-                
-                Model::QuickFix::List::iterator it = result.begin();
-                while (it != result.end()) {
-                    Model::QuickFix& quickFix = *it;
-                    if (!VectorUtils::contains(quickFixes, quickFix))
-                        it = result.erase(it);
-                    else
-                        ++it;
-                }
+                issue = reinterpret_cast<const Model::Issue*>(selections[i].GetID());
+                if (issue->type() != type)
+                    return Model::QuickFix::List(0);
             }
             return result;
         }
@@ -281,24 +281,24 @@ namespace TrenchBroom {
             m_tree->GetSelections(selections);
             assert(!selections.empty());
 
-            const Model::QuickFix::List quickFixes = collectQuickFixes(selections);
-
-            wxMenu* quickFixMenu = new wxMenu();
-            for (size_t i = 0; i < quickFixes.size(); ++i) {
-                const Model::QuickFix& quickFix = quickFixes[i];
-                quickFixMenu->Append(FixObjectsBaseId + i, quickFix.description());
-            }
-            
             wxMenu popupMenu;
             popupMenu.Append(SelectObjectsCommandId, "Select");
             popupMenu.Append(ShowIssuesCommandId, "Show");
             popupMenu.Append(HideIssuesCommandId, "Hide");
-            popupMenu.AppendSubMenu(quickFixMenu, "Fix");
-            
             popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssues, this, SelectObjectsCommandId);
             popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnShowIssues, this, ShowIssuesCommandId);
             popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnHideIssues, this, HideIssuesCommandId);
-            quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
+
+            const Model::QuickFix::List quickFixes = collectQuickFixes(selections);
+            if (!quickFixes.empty()) {
+                wxMenu* quickFixMenu = new wxMenu();
+                for (size_t i = 0; i < quickFixes.size(); ++i) {
+                    const Model::QuickFix* quickFix = quickFixes[i];
+                    quickFixMenu->Append(FixObjectsBaseId + i, quickFix->description());
+                }
+                popupMenu.AppendSubMenu(quickFixMenu, "Fix");
+                quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
+            }
             
             PopupMenu(&popupMenu);
         }
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             Model::QuickFix::List quickFixes = collectQuickFixes(selections);
             const size_t index = static_cast<size_t>(event.GetId()) - FixObjectsBaseId;
             assert(index < quickFixes.size());
-            Model::QuickFix& quickFix = quickFixes[index];
+            const Model::QuickFix* quickFix = quickFixes[index];
             
             View::ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("");
@@ -342,9 +342,7 @@ namespace TrenchBroom {
                 void* data = item.GetID();
                 assert(data != NULL);
                 Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                
-                issue->select(controller);
-                quickFix.apply(*issue, controller);
+                issue->applyQuickFix(quickFix, controller);
             }
             
             controller->closeGroup();

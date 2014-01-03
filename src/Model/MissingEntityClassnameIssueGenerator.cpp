@@ -17,10 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatVerticesIssueGenerator.h"
+#include "MissingEntityClassnameIssueGenerator.h"
 
+#include "StringUtils.h"
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
+#include "Model/Entity.h"
+#include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
 #include "Model/QuickFix.h"
@@ -32,46 +34,40 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class FloatVerticesIssue : public BrushIssue {
+        class MissingEntityClassnameIssue : public EntityIssue {
         public:
             static const IssueType Type;
         public:
-            FloatVerticesIssue(Brush* brush) :
-            BrushIssue(Type, brush) {
-                addSharedQuickFix(SnapVerticesToIntegerQuickFix::instance());
+            MissingEntityClassnameIssue(Entity* entity) :
+            EntityIssue(Type, entity) {
+                addSharedQuickFix(DeleteObjectQuickFix::instance());
             }
             
             String description() const {
-                return "Brush has non-integer vertices";
+                return "Entity has no classname property";
             }
-            
+
             void applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller) {
-                if (quickFix->type() == FindIntegerPlanePointsQuickFix::Type)
-                    static_cast<const SnapVerticesToIntegerQuickFix*>(quickFix)->apply(brush(), controller);
+                if (quickFix->type() == DeleteObjectQuickFix::Type)
+                    static_cast<const DeleteObjectQuickFix*>(quickFix)->apply(entity(), controller);
             }
         };
         
-        const IssueType FloatVerticesIssue::Type = Issue::freeType();
+        const IssueType MissingEntityClassnameIssue::Type = Issue::freeType();
         
-        IssueType FloatVerticesIssueGenerator::type() const {
-            return FloatVerticesIssue::Type;
+        IssueType MissingEntityClassnameIssueGenerator::type() const {
+            return MissingEntityClassnameIssue::Type;
         }
         
-        const String& FloatVerticesIssueGenerator::description() const {
-            static const String description("Non-integer vertices");
+        const String& MissingEntityClassnameIssueGenerator::description() const {
+            static const String description("Missing entity classname");
             return description;
         }
-
-        Issue* FloatVerticesIssueGenerator::generate(Brush* brush) const {
-            assert(brush != NULL);
-            const BrushVertexList& vertices = brush->vertices();
-            BrushVertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                const BrushVertex* vertex = *it;
-                    if (!vertex->position().isInteger())
-                        return new FloatVerticesIssue(brush);
-            }
-            
+        
+        Issue* MissingEntityClassnameIssueGenerator::generate(Entity* entity) const {
+            assert(entity != NULL);
+            if (entity->classname(EmptyString).empty())
+                return new MissingEntityClassnameIssue(entity);
             return NULL;
         }
     }

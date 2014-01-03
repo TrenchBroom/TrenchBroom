@@ -34,6 +34,7 @@
 #include "Controller/TextureCollectionCommand.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/ModelUtils.h"
+#include "View/MapDocument.h"
 #include "View/ViewTypes.h"
 #include "TrenchBroomApp.h"
 
@@ -259,6 +260,10 @@ namespace TrenchBroom {
             if (!addObjects(duplicates))
                 VectorUtils::clearAndDelete(result);
             return result;
+        }
+
+        bool ControllerFacade::moveBrushesToWorldspawn(const Model::BrushList& brushes) {
+            return reparentBrushes(brushes, lock(m_document)->worldspawn());
         }
 
         bool ControllerFacade::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {

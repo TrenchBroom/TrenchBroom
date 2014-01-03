@@ -28,6 +28,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "Model/BrushFace.h"
+#include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
 #include "Model/EntityLinkIssueGenerator.h"
@@ -38,8 +39,11 @@
 #include "Model/Map.h"
 #include "Model/MapFacesIterator.h"
 #include "Model/MapObjectsIterator.h"
+#include "Model/MissingEntityClassnameIssueGenerator.h"
+#include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
+#include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/SelectionResult.h"
 #include "View/MapFrame.h"
 #include "View/ViewUtils.h"
@@ -750,14 +754,17 @@ namespace TrenchBroom {
             updateEntityModels(m_map->entities());
             loadBuiltinTextures();
             updateTextures();
+            reloadIssues();
         }
 
         void MapDocument::entityDefinitionsDidChange() {
             loadAndUpdateEntityDefinitions();
+            reloadIssues();
         }
 
         void MapDocument::textureCollectionsDidChange() {
             updateTextures();
+            reloadIssues();
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {
@@ -770,6 +777,7 @@ namespace TrenchBroom {
                 updateEntityModels(m_map->entities());
                 loadBuiltinTextures();
                 updateTextures();
+                reloadIssues();
             }
         }
 
@@ -792,6 +800,18 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator(), false);
             m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()), true);
             m_issueManager.registerGenerator(new Model::EntityLinkIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::MissingEntityClassnameIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::MissingEntityDefinitionIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::EmptyBrushEntityIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::PointEntityWithBrushesIssueGenerator(), true);
+        }
+
+        void MapDocument::reloadIssues() {
+            m_issueManager.clearIssues();
+            Model::each(Model::MapObjectsIterator::begin(*m_map),
+                        Model::MapObjectsIterator::end(*m_map),
+                        AddObjectToIssueManager(m_issueManager),
+                        Model::MatchAll());
         }
 
         void MapDocument::addEntity(Model::Entity* entity) {

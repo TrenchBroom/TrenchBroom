@@ -49,6 +49,7 @@ namespace TrenchBroom {
             typedef std::map<Object*, IssuePair> IssueMap;
             
             GeneratorList m_generators;
+            
             Issue* m_issueList;
             IssueMap m_issueMap;
             int m_defaultHiddenGenerators;
@@ -76,7 +77,6 @@ namespace TrenchBroom {
             void clearIssues();
             void clearGenerators();
         private:
-            
             Issue* findIssues(Object* object);
         };
     }

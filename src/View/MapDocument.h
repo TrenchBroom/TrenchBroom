@@ -188,6 +188,7 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void registerIssueGenerators();
+            void reloadIssues();
             
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);

@@ -20,35 +20,27 @@
 #include "Issue.h"
 
 #include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Object.h"
+#include "View/ControllerFacade.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        QuickFix::QuickFix(const QuickFixType fixType, const IssueType issueType, const String& description) :
-        m_fixType(fixType),
-        m_issueType(issueType),
-        m_description(description) {}
-        
-        bool QuickFix::operator==(const QuickFix& rhs) const {
-            return m_fixType == rhs.m_fixType && m_issueType == rhs.m_issueType;
+        Issue::~Issue() {
+            VectorUtils::clearAndDelete(m_deletableFixes);
         }
-
-        const String& QuickFix::description() const {
-            return m_description;
-        }
-        
-        void QuickFix::apply(Issue& issue, View::ControllerSPtr controller) {
-            assert(issue.m_type == m_issueType);
-            issue.applyQuickFix(m_fixType, controller);
-        }
-
-        Issue::~Issue() {}
         
         IssueType Issue::freeType() {
             static size_t index = 0;
             assert(index < sizeof(IssueType) * 8);
             return 1 << index++;
+        }
+
+        IssueType Issue::type() const {
+            return m_type;
         }
 
         bool Issue::hasType(IssueType mask) const {
@@ -58,6 +50,8 @@ namespace TrenchBroom {
         const QuickFix::List& Issue::quickFixes() const {
             return m_quickFixes;
         }
+
+        void Issue::applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller) {}
 
         bool Issue::isHidden() const {
             return doIsHidden(m_type);
@@ -126,12 +120,69 @@ namespace TrenchBroom {
         m_previous(NULL),
         m_next(NULL) {}
         
-        void Issue::addQuickFix(const QuickFix& quickFix) {
-            m_quickFixes.push_back(quickFix);
+        void Issue::addSharedQuickFix(const QuickFix& quickFix) {
+            m_quickFixes.push_back(&quickFix);
         }
 
-        void Issue::addQuickFixes(const QuickFix::List& quickFixes) {
-            VectorUtils::append(m_quickFixes, quickFixes);
+        void Issue::addDeletableQuickFix(const QuickFix* quickFix) {
+            m_quickFixes.push_back(quickFix);
+            m_deletableFixes.push_back(quickFix);
+        }
+
+        size_t EntityIssue::filePosition() const {
+            return entity()->filePosition();
+        }
+        
+        void EntityIssue::select(View::ControllerSPtr controller) {
+            const BrushList& brushes = entity()->brushes();
+            if (brushes.empty())
+                controller->selectObject(*entity());
+            else
+                controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
+        }
+        
+        EntityIssue::EntityIssue(const IssueType type, Entity* entity) :
+        Issue(type),
+        m_entity(entity) {
+            assert(m_entity != NULL);
+        }
+        
+        Entity* EntityIssue::entity() const {
+            return m_entity;
+        }
+
+        bool EntityIssue::doIsHidden(const IssueType type) const {
+            return entity()->isIssueHidden(this);
+        }
+        
+        void EntityIssue::doSetHidden(const IssueType type, const bool hidden) {
+            entity()->setIssueHidden(type, hidden);
+        }
+        
+        size_t BrushIssue::filePosition() const {
+            return brush()->filePosition();
+        }
+        
+        void BrushIssue::select(View::ControllerSPtr controller) {
+            controller->selectObject(*brush());
+        }
+        
+        BrushIssue::BrushIssue(const IssueType type, Brush* brush) :
+        Issue(type),
+        m_brush(brush) {
+            assert(brush != NULL);
+        }
+        
+        Brush* BrushIssue::brush() const {
+            return m_brush;
+        }
+        
+        bool BrushIssue::doIsHidden(const IssueType type) const {
+            return brush()->isIssueHidden(this);
+        }
+        
+        void BrushIssue::doSetHidden(const IssueType type, const bool hidden) {
+            brush()->setIssueHidden(type, hidden);
         }
     }
 }

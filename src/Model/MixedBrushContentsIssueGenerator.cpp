@@ -23,6 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/Object.h"
+#include "Model/QuickFix.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
 
@@ -31,61 +32,54 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MixedBrushContentsIssue : public Issue {
+        class MixedBrushContentsQuickFix : public QuickFix {
+        public:
+            static const QuickFixType Type;
+        private:
+            int m_contentFlags;
+        public:
+            MixedBrushContentsQuickFix(const int contentFlags, const String& description) :
+            QuickFix(Type, description),
+            m_contentFlags(contentFlags) {}
+
+            void apply(Brush* brush, View::ControllerSPtr controller) const {
+                controller->setContentFlags(brush->faces(), m_contentFlags);
+            }
+        };
+        
+        const QuickFixType MixedBrushContentsQuickFix::Type = QuickFix::freeType();
+        
+        class MixedBrushContentsIssue : public BrushIssue {
         public:
             static const IssueType Type;
-        private:
-            Brush* m_brush;
         public:
             MixedBrushContentsIssue(Brush* brush, const GameConfig::FlagsConfig& flagsConfig) :
-            Issue(Type),
-            m_brush(brush) {
+            BrushIssue(Type, brush) {
                 typedef std::set<int> SeenFlags;
                 SeenFlags seen;
                 seen.insert(0);
                 
-                const BrushFaceList& faces = m_brush->faces();
+                const BrushFaceList& faces = BrushIssue::brush()->faces();
                 for (size_t i = 0; i < faces.size(); ++i) {
                     const int surfaceContents = faces[i]->surfaceContents();
                     if (seen.count(surfaceContents) == 0) {
                         const StringList flagNames = flagsConfig.flagNames(surfaceContents);
-                        const String str = "Set brush content flags to " + StringUtils::join(flagNames, ", ");
-                        addQuickFix(QuickFix(i, Type, str));
+                        const String description = "Set brush content flags to " + StringUtils::join(flagNames, ", ");
+                        addDeletableQuickFix(new MixedBrushContentsQuickFix(surfaceContents, description));
                         seen.insert(surfaceContents);
                     }
                 }
 
-                addQuickFix(QuickFix(faces.size(), Type, "Reset brush content flags"));
-            }
-            
-            size_t filePosition() const {
-                return m_brush->filePosition();
+                addDeletableQuickFix(new MixedBrushContentsQuickFix(0, "Reset brush content flags"));
             }
 
             String description() const {
                 return "Brush has mixed content flags";
             }
             
-            void select(View::ControllerSPtr controller) {
-                controller->selectObject(*m_brush);
-            }
-            
-            void applyQuickFix(const QuickFixType fixType, View::ControllerSPtr controller) {
-                const BrushFaceList& faces = m_brush->faces();
-                if (fixType == faces.size()) {
-                    controller->setContentFlags(faces, 0);
-                } else {
-                    const BrushFace* faceTemplate = faces[fixType];
-                    controller->setContentFlags(faces, faceTemplate->surfaceContents());
-                }
-            }
-        private:
-            bool doIsHidden(const IssueType type) const {
-                return m_brush->isIssueHidden(this);
-            }
-            
-            void doSetHidden(const IssueType type, const bool hidden) {
-                m_brush->setIssueHidden(type, hidden);
+            void applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller) {
+                if (quickFix->type() == MixedBrushContentsQuickFix::Type)
+                    static_cast<const MixedBrushContentsQuickFix*>(quickFix)->apply(brush(), controller);
             }
         };
         

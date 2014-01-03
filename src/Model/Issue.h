@@ -22,6 +22,8 @@
 
 #include "StringUtils.h"
 
+#include "Model/QuickFix.h"
+
 /*
  As an exception, this module is allowed to access modules from the View namespace.
  */
@@ -35,24 +37,7 @@ namespace TrenchBroom {
         class Issue;
         class IssueGroup;
         
-        typedef size_t QuickFixType;
         typedef size_t IssueType;
-        
-        class QuickFix {
-        public:
-            typedef std::vector<QuickFix> List;
-        private:
-            QuickFixType m_fixType;
-            IssueType m_issueType;
-            String m_description;
-        public:
-            QuickFix(QuickFixType fixType, IssueType issueType, const String& description);
-            
-            bool operator==(const QuickFix& rhs) const;
-            
-            const String& description() const;
-            void apply(Issue& issue, View::ControllerSPtr controller);
-        };
         
         class Issue {
         private:
@@ -60,6 +45,7 @@ namespace TrenchBroom {
             Issue* m_previous;
             Issue* m_next;
             QuickFix::List m_quickFixes;
+            QuickFix::List m_deletableFixes;
         public:
             friend class IssueGroup;
             friend class QuickFix;
@@ -68,13 +54,14 @@ namespace TrenchBroom {
             
             static IssueType freeType();
 
+            IssueType type() const;
             bool hasType(IssueType mask) const;
             
             virtual size_t filePosition() const = 0;
             virtual String description() const = 0;
             virtual void select(View::ControllerSPtr controller) = 0;
             const QuickFix::List& quickFixes() const;
-            virtual void applyQuickFix(QuickFixType fixType, View::ControllerSPtr controller) = 0;
+            virtual void applyQuickFix(const QuickFix* quickFix, View::ControllerSPtr controller);
 
             bool isHidden() const;
             void setHidden(bool hidden);
@@ -88,10 +75,40 @@ namespace TrenchBroom {
             void remove(Issue* last = NULL);
         protected:
             Issue(IssueType type);
-            void addQuickFix(const QuickFix& quickFix);
-            void addQuickFixes(const QuickFix::List& quickFixes);
+            void addSharedQuickFix(const QuickFix& quickFix);
+            void addDeletableQuickFix(const QuickFix* quickFix);
             virtual bool doIsHidden(IssueType type) const = 0;
             virtual void doSetHidden(IssueType type, bool hidden) = 0;
+        };
+
+        class Entity;
+        class EntityIssue : public Issue {
+        private:
+            Entity* m_entity;
+        public:
+            size_t filePosition() const;
+            void select(View::ControllerSPtr controller);
+        protected:
+            EntityIssue(IssueType type, Entity* entity);
+            Entity* entity() const;
+        private:
+            bool doIsHidden(IssueType type) const;
+            void doSetHidden(IssueType type, bool hidden);
+        };
+
+        class Brush;
+        class BrushIssue : public Issue {
+        private:
+            Brush* m_brush;
+        public:
+            size_t filePosition() const;
+            void select(View::ControllerSPtr controller);
+        protected:
+            BrushIssue(IssueType type, Brush* brush);
+            Brush* brush() const;
+        private:
+            bool doIsHidden(IssueType type) const;
+            void doSetHidden(IssueType type, bool hidden);
         };
     }
 }
