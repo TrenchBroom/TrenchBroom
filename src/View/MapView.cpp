@@ -193,7 +193,7 @@ namespace TrenchBroom {
 
         void MapView::OnKey(wxKeyEvent& event) {
             if (updateModifierKeys()) {
-                m_movementRestriction.setVerticalRestriction(m_inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+                m_movementRestriction.setVerticalRestriction(m_inputState.modifierKeysDown(ModifierKeys::MKAlt));
                 updatePickResults(event.GetX(), event.GetY());
                 m_toolChain->modifierKeyChange(m_inputState);
             }
@@ -213,7 +213,8 @@ namespace TrenchBroom {
             
             updateModifierKeys();
             if (event.ButtonDown()) {
-                CaptureMouse();
+                if (!HasCapture())
+                    CaptureMouse();
                 m_clickPos = event.GetPosition();
                 m_inputState.mouseDown(button);
                 m_toolChain->mouseDown(m_inputState);
@@ -223,13 +224,13 @@ namespace TrenchBroom {
                     m_dragReceiver = NULL;
 
                     m_inputState.mouseUp(button);
-                    if (GetCapture() == this)
+                    if (HasCapture())
                         ReleaseMouse();
                 } else if (!m_cancelNextDrag) {
                     const bool handled = m_toolChain->mouseUp(m_inputState);
 
                     m_inputState.mouseUp(button);
-                    if (GetCapture() == this)
+                    if (HasCapture())
                         ReleaseMouse();
 
                     if (button == MouseButtons::MBRight && !handled)

@@ -71,6 +71,23 @@ namespace TrenchBroom {
             void addBrush(Model::Brush* brush);
             void removeBrush(Model::Brush* brush);
             void setBrushes(const Model::BrushList& brushes);
+            
+            template <typename I>
+            void addBrushes(I cur, I end) {
+                while (cur != end) {
+                    addBrush(*cur);
+                    ++cur;
+                }
+            }
+            
+            template <typename I>
+            void removeBrushes(I cur, I end) {
+                while (cur != end) {
+                    removeBrush(*cur);
+                    ++cur;
+                }
+            }
+            
             void invalidate();
             void clear();
             

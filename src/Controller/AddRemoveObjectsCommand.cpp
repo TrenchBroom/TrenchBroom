@@ -26,6 +26,8 @@
 #include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType AddRemoveObjectsCommand::Type = Command::freeType();
@@ -57,7 +59,51 @@ namespace TrenchBroom {
             if (action == AAdd)
                 m_objectsToAdd = objects;
             else
-                m_objectsToRemove = objects;
+                m_objectsToRemove = addEmptyBrushEntities(objects);
+        }
+        
+        Model::ObjectParentList AddRemoveObjectsCommand::addEmptyBrushEntities(const Model::ObjectParentList& objects) const {
+
+            /*
+             This method makes sure that brush entities which will have all their brushes removed get removed themselves instead of remaining in the map, but empty.
+             */
+            
+            // First we build a map of each parent object to its children.
+            Model::ObjectParentList result;
+            Model::ObjectChildrenMap map;
+            Model::ObjectParentList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* parent = it->parent;
+                Model::Object* object = it->object;
+                map[parent].push_back(object);
+            }
+            
+            // now we iterate the map, checking for every non-null parent whether all its children are removed
+            // if that is the case, we add that parent to the list of objects to be removed instead of all its children, which then get removed automatically
+            Model::ObjectChildrenMap::const_iterator mIt, mEnd;
+            for (mIt = map.begin(), mEnd = map.end(); mIt != mEnd; ++mIt) {
+                Model::Object* parent = mIt->first;
+                const Model::ObjectList& children = mIt->second;
+                
+                if (parent != NULL) {
+                    if (parent->type() == Model::Object::OTEntity) {
+                        Model::Entity* entity = static_cast<Model::Entity*>(parent);
+                        if (entity->brushes().size() == children.size()) {
+                            result.push_back(Model::ObjectParentPair(parent, NULL));
+                        } else {
+                            Model::ObjectList::const_iterator cIt, cEnd;
+                            for (cIt = children.begin(), cEnd = children.end(); cIt != cEnd; ++cIt) {
+                                Model::Object* child = *cIt;
+                                result.push_back(Model::ObjectParentPair(child, parent));
+                            }
+                        }
+                    }
+                } else {
+                    result.push_back(Model::ObjectParentPair(parent, NULL));
+                }
+            }
+
+            return result;
         }
 
         String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectParentList& objects) {

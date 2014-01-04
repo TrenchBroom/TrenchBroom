@@ -59,10 +59,12 @@ namespace TrenchBroom {
             Object* object;
             Object* parent;
             
-            ObjectParentPair(Object* i_object, Object* i_parent = NULL);
+            ObjectParentPair(Object* i_object, Object* i_parent);
+            ObjectParentPair(Object* i_object);
         };
         
         typedef std::vector<ObjectParentPair> ObjectParentList;
+        typedef std::map<Object*, ObjectList> ObjectChildrenMap;
         
         class Brush;
         typedef std::vector<Brush*> BrushList;

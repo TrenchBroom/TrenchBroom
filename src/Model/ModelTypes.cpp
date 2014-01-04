@@ -19,10 +19,23 @@
 
 #include "ModelTypes.h"
 
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Object.h"
+
 namespace TrenchBroom {
     namespace Model {
         ObjectParentPair::ObjectParentPair(Object* i_object, Object* i_parent) :
         object(i_object),
         parent(i_parent) {}
+
+        ObjectParentPair::ObjectParentPair(Object* i_object) :
+        object(i_object),
+        parent(NULL) {
+            if (object->type() == Object::OTBrush) {
+                Model::Brush* brush = static_cast<Model::Brush*>(object);
+                parent = brush->parent();
+            }
+        }
     }
 }

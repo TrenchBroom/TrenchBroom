@@ -190,8 +190,12 @@ namespace TrenchBroom {
         
         void MapRenderer::objectWasAdded(Model::Object* object) {
             if (object->type() == Model::Object::OTEntity) {
-                m_unselectedEntityRenderer.addEntity(static_cast<Model::Entity*>(object));
+                Model::Entity* entity = static_cast<Model::Entity*>(object);
+                m_unselectedEntityRenderer.addEntity(entity);
                 m_entityLinkRenderer.invalidate();
+                
+                const Model::BrushList& brushes = entity->brushes();
+                m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
             } else if (object->type() == Model::Object::OTBrush) {
                 m_unselectedBrushRenderer.addBrush(static_cast<Model::Brush*>(object));
             }
@@ -199,8 +203,12 @@ namespace TrenchBroom {
         
         void MapRenderer::objectWillBeRemoved(Model::Object* object) {
             if (object->type() == Model::Object::OTEntity) {
-                m_unselectedEntityRenderer.removeEntity(static_cast<Model::Entity*>(object));
+                Model::Entity* entity = static_cast<Model::Entity*>(object);
+                m_unselectedEntityRenderer.removeEntity(entity);
                 m_entityLinkRenderer.invalidate();
+                
+                const Model::BrushList& brushes = entity->brushes();
+                m_unselectedBrushRenderer.removeBrushes(brushes.begin(), brushes.end());
             } else if (object->type() == Model::Object::OTBrush) {
                 m_unselectedBrushRenderer.removeBrush(static_cast<Model::Brush*>(object));
             }

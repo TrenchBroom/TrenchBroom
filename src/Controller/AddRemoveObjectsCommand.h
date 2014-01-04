@@ -53,6 +53,7 @@ namespace TrenchBroom {
             const Model::ObjectList& removedObjects() const;
         private:
             AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects);
+            Model::ObjectParentList addEmptyBrushEntities(const Model::ObjectParentList& objects) const;
             static String makeName(const Action action, const Model::ObjectParentList& objects);
 
             bool doPerformDo();
