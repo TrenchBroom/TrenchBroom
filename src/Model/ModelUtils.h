@@ -97,6 +97,7 @@ namespace TrenchBroom {
         public:
             NotifyParent(Notifier1<Object*>& notifier);
             void operator()(const ObjectParentPair& pair);
+            void operator()(Object* object);
         };
 
         template <typename Iter, class Operator, class Filter>

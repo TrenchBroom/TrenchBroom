@@ -230,5 +230,13 @@ namespace TrenchBroom {
             if (pair.parent != NULL && m_notified.insert(pair.parent).second)
                 m_notifier(pair.parent);
         }
+
+        void NotifyParent::operator()(Object* object) {
+            if (object->type() == Object::OTBrush) {
+                Model::Object* parent = static_cast<Brush*>(object)->parent();
+                if (parent != NULL && m_notified.insert(parent).second)
+                    m_notifier(parent);
+            }
+        }
     }
 }
