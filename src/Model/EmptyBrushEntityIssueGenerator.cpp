@@ -67,9 +67,11 @@ namespace TrenchBroom {
         
         Issue* EmptyBrushEntityIssueGenerator::generate(Entity* entity) const {
             assert(entity != NULL);
-            const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::BrushEntity && entity->brushes().empty())
-                return new EmptyBrushEntityIssue(entity);
+            if (!entity->worldspawn()) {
+                const Assets::EntityDefinition* definition = entity->definition();
+                if (definition != NULL && definition->type() == Assets::EntityDefinition::BrushEntity && entity->brushes().empty())
+                    return new EmptyBrushEntityIssue(entity);
+            }
             return NULL;
         }
     }
