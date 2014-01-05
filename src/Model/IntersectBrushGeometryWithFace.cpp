@@ -67,12 +67,11 @@ namespace TrenchBroom {
         }
         
         bool IntersectBrushGeometryWithFace::isFaceIdenticalWithAnySide(BrushGeometry& geometry) {
-            const BrushFaceGeometryList& sides = geometry.sides();
             BrushFaceGeometryList::const_iterator it, end;
-            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
-                BrushFaceGeometry& side = **it;
-                if (side.face() != NULL) {
-                    if (m_face->arePointsOnPlane(side.face()->boundary()))
+            for (it = geometry.sides.begin(), end = geometry.sides.end(); it != end; ++it) {
+                BrushFaceGeometry* side = *it;
+                if (side->face != NULL) {
+                    if (m_face->arePointsOnPlane(side->face->boundary()))
                         return true;
                 }
             }
@@ -86,13 +85,12 @@ namespace TrenchBroom {
             size_t keep = 0;
             size_t undecided = 0;
             
-            const BrushVertexList& vertices = geometry.vertices();
             BrushVertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+            for (it = geometry.vertices.begin(), end = geometry.vertices.end(); it != end; ++it) {
                 BrushVertex* vertex = *it;
                 vertex->updateMark(boundary);
                 
-                switch (vertex->mark()) {
+                switch (vertex->mark) {
                     case BrushVertex::Drop:
                         drop++;
                         m_droppedVertices.push_back(vertex);
@@ -108,10 +106,10 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(drop + keep + undecided == vertices.size());
-            if (drop + undecided == vertices.size())
+            assert(drop + keep + undecided == geometry.vertices.size());
+            if (drop + undecided == geometry.vertices.size())
                 return BrushGeometry::BrushIsNull;
-            if (keep + undecided == vertices.size())
+            if (keep + undecided == geometry.vertices.size())
                 return BrushGeometry::FaceIsRedundant;
             return BrushGeometry::BrushIsSplit;
         }
@@ -119,13 +117,12 @@ namespace TrenchBroom {
         void IntersectBrushGeometryWithFace::processEdges(BrushGeometry& geometry) {
             const Plane3& boundary = m_face->boundary();
             
-            const BrushEdgeList& edges = geometry.edges();
             BrushEdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = geometry.edges.begin(), end = geometry.edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
                 edge->updateMark();
                 
-                switch (edge->mark()) {
+                switch (edge->mark) {
                     case BrushEdge::Drop: {
                         m_droppedEdges.push_back(edge);
                         break;
@@ -154,21 +151,20 @@ namespace TrenchBroom {
         }
 
         void IntersectBrushGeometryWithFace::processSides(BrushGeometry& geometry) {
-            const BrushFaceGeometryList& sides = geometry.sides();
             BrushFaceGeometryList::const_iterator it, end;
-            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+            for (it = geometry.sides.begin(), end = geometry.sides.end(); it != end; ++it) {
                 BrushFaceGeometry* side = *it;
                 switch (side->mark()) {
                     case BrushFaceGeometry::Drop: {
                         m_droppedSides.push_back(side);
-                        if (side->face() != NULL)
-                            removeFace(side->face());
+                        if (side->face != NULL)
+                            removeFace(side->face);
                         break;
                     }
                     case BrushFaceGeometry::Keep: {
                         BrushEdge* undecidedEdge = side->findUndecidedEdge();
                         if (undecidedEdge != NULL) {
-                            if (undecidedEdge->right() == side)
+                            if (undecidedEdge->right == side)
                                 undecidedEdge->flip();
                             undecidedEdge->setRightNull();
                             m_newSideEdges.push_back(undecidedEdge);
@@ -199,7 +195,7 @@ namespace TrenchBroom {
                 if (std::distance(it1, end) > 2) {
                     for (it2 = it1 + 2; it2 < end; ++it2) {
                         const BrushEdge* candidate = *it2;
-                        if (edge->end() == candidate->start())
+                        if (edge->end == candidate->start)
                             std::iter_swap(it1 + 1, it2);
                     }
                 }
@@ -209,7 +205,7 @@ namespace TrenchBroom {
 
             assert(newSide->isClosed());
             
-            newSide->setFace(m_face);
+            newSide->face = m_face;
             m_face->setSide(newSide);
             addFace(m_face);
             m_remainingSides.push_back(newSide);
@@ -230,8 +226,7 @@ namespace TrenchBroom {
                 BrushFaceGeometryList::const_iterator sIt, sEnd;
                 for (sIt = m_remainingSides.begin(), sEnd = m_remainingSides.end(); sIt != sEnd; ++sIt) {
                     BrushFaceGeometry* side = *sIt;
-                    const BrushEdgeList& sideEdges = side->edges();
-                    if (std::find(sideEdges.begin(), sideEdges.end(), edge) != sideEdges.end())
+                    if (std::find(side->edges.begin(), side->edges.end(), edge) != side->edges.end())
                         return false;
                 }
             }

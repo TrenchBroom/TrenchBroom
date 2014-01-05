@@ -319,10 +319,10 @@ namespace TrenchBroom {
             Model::BrushEdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::BrushEdge& edge = **it;
-                if (point.equals(edge.start()->position())) {
-                    return getNormals(brush.incidentFaces(*edge.start()));
-                } else if (point.equals(edge.end()->position())) {
-                    return getNormals(brush.incidentFaces(*edge.end()));
+                if (point.equals(edge.start->position)) {
+                    return getNormals(brush.incidentFaces(*edge.start));
+                } else if (point.equals(edge.end->position)) {
+                    return getNormals(brush.incidentFaces(*edge.end));
                 } else if (edge.contains(point)) {
                     Vec3::List normals(2);
                     normals[0] = edge.leftFace()->boundary().normal;

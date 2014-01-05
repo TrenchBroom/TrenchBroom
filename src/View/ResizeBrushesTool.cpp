@@ -192,7 +192,7 @@ namespace TrenchBroom {
                 const double rightDot = edge->rightFace()->boundary().normal.dot(m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->start()->position(), edge->end()->position());
+                    const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->start->position, edge->end->position);
                     if (!Math::isnan(result.distance) && result.distance < m_closestDistance) {
                         m_closestDistance = result.distance;
                         m_hitDistance = result.rayDistance;
@@ -274,8 +274,8 @@ namespace TrenchBroom {
             m_vertices(vertices) {}
             
             void operator()(const Model::BrushEdge* edge) {
-                m_vertices.push_back(Vertex(edge->start()->position()));
-                m_vertices.push_back(Vertex(edge->end()->position()));
+                m_vertices.push_back(Vertex(edge->start->position));
+                m_vertices.push_back(Vertex(edge->end->position));
             }
         };
         

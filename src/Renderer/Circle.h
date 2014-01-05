@@ -37,6 +37,7 @@ namespace TrenchBroom {
             Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
             Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, float startAngle, float angleLength);
             
+            bool prepared() const;
             void prepare(Vbo& vbo);
             void render();
         private:

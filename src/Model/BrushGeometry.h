@@ -37,48 +37,74 @@ namespace TrenchBroom {
                 FaceIsRedundant
             } AddFaceResultCode;
 
-            template <typename T>
             struct Result {
-                T resultCode;
                 BrushFaceList addedFaces;
                 BrushFaceList droppedFaces;
-                
-                Result(const T i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList) :
-                resultCode(i_resultCode),
-                addedFaces(i_addedFaces),
-                droppedFaces(i_droppedFaces) {}
-                
-                void append(const Result<T>& other) {
-                    addedFaces = VectorUtils::difference(addedFaces, other.droppedFaces);
-                    VectorUtils::append(addedFaces, other.addedFaces);
-                    
-                    droppedFaces = VectorUtils::difference(droppedFaces, other.addedFaces);
-                    VectorUtils::append(droppedFaces, other.droppedFaces);
-                }
+                void append(const Result& other);
+            protected:
+                Result(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces);
             };
             
-            typedef Result<AddFaceResultCode> AddFaceResult;
-        private:
-            BrushVertexList m_vertices;
-            BrushEdgeList m_edges;
-            BrushFaceGeometryList m_sides;
-            BBox3 m_bounds;
+            struct AddFaceResult : public Result {
+                AddFaceResultCode resultCode;
+                AddFaceResult(AddFaceResultCode i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+            };
+            
+            struct MoveVerticesResult : public Result {
+                Vec3::List newVertexPositions;
+                MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+            };
+            
+            struct MoveEdgesResult : public Result {
+                Edge3::List newEdgePositions;
+                MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+            };
+            
+            struct MoveFacesResult : public Result {
+                Polygon3::List newFacePositions;
+                MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+            };
+            
+            struct SplitResult : public Result {
+                Vec3 newVertexPosition;
+                SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+            };
         public:
+            BrushVertexList vertices;
+            BrushEdgeList edges;
+            BrushFaceGeometryList sides;
+            BBox3 bounds;
+        public:
+            BrushGeometry(const BrushGeometry& original);
             BrushGeometry(const BBox3& worldBounds);
             ~BrushGeometry();
             
-            const BBox3& bounds() const;
-            const BrushVertexList& vertices() const;
-            const BrushEdgeList& edges() const;
-            const BrushFaceGeometryList& sides() const;
-            BrushFaceGeometryList incidentSides(const BrushVertex& vertex) const;
-
+            BrushFaceGeometryList incidentSides(const BrushVertex* vertex) const;
             AddFaceResult addFaces(const BrushFaceList& faces);
+            
+            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            MoveVerticesResult moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            
+            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            MoveEdgesResult moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            
+            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            MoveEdgesResult moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            
+            bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            SplitResult splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            
+            bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            SplitResult splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            
             void restoreFaceGeometries();
+            void updateBounds();
+
+            bool sanityCheck() const;
         private:
+            void copy(const BrushGeometry& original);
             AddFaceResult addFace(BrushFace* face);
             void initializeWithBounds(const BBox3& bounds);
-            void updateBounds();
         };
     }
 }

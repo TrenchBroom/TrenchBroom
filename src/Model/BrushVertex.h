@@ -38,14 +38,12 @@ namespace TrenchBroom {
                 Undecided,
                 New
             } Mark;
-        private:
-            Vec3 m_position;
-            Mark m_mark;
+
+            Vec3 position;
+            Mark mark;
         public:
             BrushVertex(const Vec3& position);
             
-            const Vec3& position() const;
-            Mark mark() const;
             void updateMark(const Plane3& plane);
             BrushFaceGeometryList incidentSides(const BrushEdgeList& edges) const;
         };

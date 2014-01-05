@@ -185,14 +185,24 @@ namespace Math {
         return std::min(v1, v2);
     }
 
-    template <typename T>
-    T succ(T index, T count, T offset = 1) {
+    template <typename T, typename O>
+    T succ(const T index, const T count, const O offset) {
         return (index + offset) % count;
     }
     
     template <typename T>
-    T pred(T index, T count, T offset = 1) {
+    T succ(const T index, const T count) {
+        return succ(index, count, 1);
+    }
+    
+    template <typename T, typename O>
+    T pred(const T index, const T count, const O offset) {
         return ((index + count) - (offset % count)) % count;
+    }
+    
+    template <typename T>
+    T pred(const T index, const T count) {
+        return pred(index, count, 1);
     }
     
     namespace Axis {

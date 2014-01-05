@@ -36,6 +36,10 @@ namespace TrenchBroom {
             m_array = VertexArray::swap(GL_TRIANGLES, vertices);
         }
         
+        bool Sphere::prepared() const {
+            return m_array.prepared();
+        }
+
         void Sphere::prepare(Vbo& vbo) {
             m_array.prepare(vbo);
         }

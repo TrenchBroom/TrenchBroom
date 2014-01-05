@@ -132,6 +132,7 @@ namespace TrenchBroom {
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
             const Plane3& boundary() const;
+            Vec3 center() const;
 
             const BrushFaceAttribs& attribs() const;
             void setAttribs(const BrushFaceAttribs& attribs);
@@ -161,14 +162,17 @@ namespace TrenchBroom {
             void transform(const Mat4x4& transform, const bool lockTexture);
             void invert();
 
+            void updatePointsFromVertices();
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
             
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;
             
-            void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            BrushFaceGeometry* side() const;
             void setSide(BrushFaceGeometry* side);
+            
+            void setFilePosition(const size_t lineNumber, const size_t lineCount);
             
             bool selected() const;
             void select();

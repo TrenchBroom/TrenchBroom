@@ -52,7 +52,8 @@ namespace TrenchBroom {
             m_distance(distance),
             m_hitPoint(hitPoint),
             m_holder(Holder<T>::newHolder(target)) {}
-
+            
+            bool isMatch() const;
             HitType type() const;
             bool hasType(const HitType typeMask) const;
             FloatType distance() const;

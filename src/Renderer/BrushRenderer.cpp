@@ -46,8 +46,8 @@ namespace TrenchBroom {
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     if (filter(edge)) {
-                        vertices.push_back(VertexSpecs::P3::Vertex(edge->start()->position()));
-                        vertices.push_back(VertexSpecs::P3::Vertex(edge->end()->position()));
+                        vertices.push_back(VertexSpecs::P3::Vertex(edge->start->position));
+                        vertices.push_back(VertexSpecs::P3::Vertex(edge->end->position));
                     }
                 }
             }

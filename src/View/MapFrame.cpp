@@ -393,6 +393,11 @@ namespace TrenchBroom {
             m_mapView->deleteLastClipPoint();
         }
 
+        void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
+            m_mapView->toggleVertexTool();
+            updateMenuBar(m_mapView->HasFocus());
+        }
+        
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -513,6 +518,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditDeleteLastClipPoint:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
+                    break;
+                case CommandIds::Menu::EditToggleVertexTool:
+                    event.Enable(m_document->hasSelectedObjects() || m_mapView->vertexToolActive());
+                    event.Check(m_mapView->vertexToolActive());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
                     event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
@@ -695,6 +704,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteLastClipPoint, this, CommandIds::Menu::EditDeleteLastClipPoint);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);

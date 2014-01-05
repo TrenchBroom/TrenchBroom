@@ -75,6 +75,10 @@ namespace TrenchBroom {
             init3D(radius, segments, filled, axis, startAngle, angleLength);
         }
 
+        bool Circle::prepared() const {
+            return m_array.prepared();
+        }
+
         void Circle::prepare(Vbo& vbo) {
             m_array.prepare(vbo);
         }

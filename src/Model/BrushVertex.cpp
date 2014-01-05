@@ -28,29 +28,21 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushVertex::BrushVertex(const Vec3& position) :
-        m_position(position),
-        m_mark(New) {}
-
-        const Vec3& BrushVertex::position() const {
-            return m_position;
-        }
-        
-        BrushVertex::Mark BrushVertex::mark() const {
-            return m_mark;
-        }
+        BrushVertex::BrushVertex(const Vec3& i_position) :
+        position(i_position),
+        mark(New) {}
 
         void BrushVertex::updateMark(const Plane3& plane) {
-            const Math::PointStatus::Type status = plane.pointStatus(m_position);
+            const Math::PointStatus::Type status = plane.pointStatus(position);
             switch (status) {
                 case Math::PointStatus::PSAbove:
-                    m_mark = Drop;
+                    mark = Drop;
                     break;
                 case Math::PointStatus::PSBelow:
-                    m_mark = Keep;
+                    mark = Keep;
                     break;
                 default:
-                    m_mark = Undecided;
+                    mark = Undecided;
                     break;
             }
         }
@@ -62,21 +54,21 @@ namespace TrenchBroom {
             BrushEdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd && edge == NULL; ++eIt) {
                 BrushEdge* candidate = *eIt;
-                if (candidate->start() == this || candidate->end() == this)
+                if (candidate->start == this || candidate->end == this)
                     edge = candidate;
             }
             
             assert(edge != NULL);
             
             // iterate over the incident sides in clockwise order
-            BrushFaceGeometry* side = edge->start() == this ? edge->right() : edge->left();
+            BrushFaceGeometry* side = edge->start == this ? edge->right : edge->left;
             do {
                 result.push_back(side);
-                const size_t index = VectorUtils::indexOf(side->edges(), edge);
+                const size_t index = VectorUtils::indexOf(side->edges, edge);
                 
-                const BrushEdgeList& sideEdges = side->edges();
+                const BrushEdgeList& sideEdges = side->edges;
                 edge = sideEdges[Math::pred(index, sideEdges.size())];
-                side = edge->start() == this ? edge->right() : edge->left();
+                side = edge->start == this ? edge->right : edge->left;
             } while (side != result.front());
             
             return result;
@@ -87,7 +79,7 @@ namespace TrenchBroom {
             const BrushVertexList::iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
-                if (vertex.position() == position)
+                if (vertex.position == position)
                     return it;
                 ++it;
             }
@@ -99,7 +91,7 @@ namespace TrenchBroom {
             const BrushVertexList::const_iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
-                if (vertex.position() == position)
+                if (vertex.position == position)
                     return it;
                 ++it;
             }
@@ -110,7 +102,7 @@ namespace TrenchBroom {
             size_t above = 0;
             size_t below = 0;
             for (size_t i = 0; i < vertices.size(); ++i) {
-                const Math::PointStatus::Type status = plane.pointStatus(vertices[i]->position());
+                const Math::PointStatus::Type status = plane.pointStatus(vertices[i]->position);
                 if (status == Math::PointStatus::PSAbove)
                     ++above;
                 else if (status == Math::PointStatus::PSBelow)

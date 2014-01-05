@@ -191,6 +191,15 @@ namespace TrenchBroom {
             return m_boundary;
         }
         
+        Vec3 BrushFace::center() const {
+            assert(m_side != NULL);
+            assert(!m_side->vertices.empty());
+            Vec3 center = m_side->vertices[0]->position;
+            for (size_t i = 1; i < m_side->vertices.size(); ++i)
+                center += m_side->vertices[i]->position;
+            return center / static_cast<FloatType>(m_side->vertices.size());
+        }
+
         const BrushFaceAttribs& BrushFace::attribs() const {
             return m_attribs;
         }
@@ -346,6 +355,42 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        void BrushFace::updatePointsFromVertices() {
+            Vec3 v1, v2;
+            
+            assert(m_side != NULL);
+            const size_t vertexCount = m_side->vertices.size();
+            assert(vertexCount >= 3);
+            
+            // Find a triple of consecutive vertices s.t. the (normalized) vectors from the mid vertex to the other two
+            // have the smallest dot value of all such triples. This is to have better precision when computing the
+            // boundary plane normal from these vectors.
+            FloatType bestDot = 1.0;
+            size_t best = vertexCount;
+            for (size_t i = 0; i < vertexCount && bestDot > 0; ++i) {
+                m_points[2] = m_side->vertices[Math::pred(i, vertexCount)]->position;
+                m_points[0] = m_side->vertices[i]->position;
+                m_points[1] = m_side->vertices[Math::succ(i, vertexCount)]->position;
+                
+                v1 = (m_points[2] - m_points[0]).normalized();
+                v2 = (m_points[1] - m_points[0]).normalized();
+                const FloatType dot = std::abs(v1.dot(v2));
+                if (dot < bestDot) {
+                    bestDot = dot;
+                    best = i;
+                }
+            }
+            
+            m_points[2] = m_side->vertices[Math::pred(best, vertexCount)]->position;
+            m_points[0] = m_side->vertices[best]->position;
+            m_points[1] = m_side->vertices[Math::succ(best, vertexCount)]->position;
+            correctPoints();
+            
+            if (!setPlanePoints(m_boundary, m_points[0], m_points[1], m_points[2])) {
+                throw GeometryException("Invalid face points " + m_points[0].asString() + " " + m_points[1].asString() + " " + m_points[2].asString());
+            }
+        }
+
         void BrushFace::snapPlanePointsToInteger() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].round();
@@ -359,24 +404,28 @@ namespace TrenchBroom {
 
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
-            return m_side->edges();
+            return m_side->edges;
         }
 
         const BrushVertexList& BrushFace::vertices() const {
             assert(m_side != NULL);
-            return m_side->vertices();
+            return m_side->vertices;
         }
 
-        void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
-            m_lineNumber = lineNumber;
-            m_lineCount = lineCount;
+        BrushFaceGeometry* BrushFace::side() const {
+            return m_side;
         }
-        
+
         void BrushFace::setSide(BrushFaceGeometry* side) {
             if (m_side == side)
                 return;
             m_side = side;
             invalidateVertexCache();
+        }
+        
+        void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+            m_lineNumber = lineNumber;
+            m_lineCount = lineCount;
         }
         
         bool BrushFace::selected() const {
@@ -424,14 +473,13 @@ namespace TrenchBroom {
             const Vec3 hit = ray.pointAtDistance(dist);
             const Vec3 projectedHit = swizzle(hit, axis);
             
-            const BrushVertexList& vertices = m_side->vertices();
-            const BrushVertex* vertex = vertices.back();
-            Vec3 v0 = swizzle(vertex->position(), axis) - projectedHit;
+            const BrushVertex* vertex = m_side->vertices.back();
+            Vec3 v0 = swizzle(vertex->position, axis) - projectedHit;
             
             int c = 0;
-            for (size_t i = 0; i < vertices.size(); i++) {
-                vertex = vertices[i];
-                const Vec3 v1 = swizzle(vertex->position(), axis) - projectedHit;
+            for (size_t i = 0; i < m_side->vertices.size(); i++) {
+                vertex = m_side->vertices[i];
+                const Vec3 v1 = swizzle(vertex->position, axis) - projectedHit;
                 
                 if ((Math::zero(v0.x()) && Math::zero(v0.y())) ||
                     (Math::zero(v1.x()) && Math::zero(v1.y()))) {
@@ -509,25 +557,25 @@ namespace TrenchBroom {
             const size_t textureWidth = texture != NULL ? texture->width() : 1;
             const size_t textureHeight = texture != NULL ? texture->height() : 1;
             
-            const BrushVertexList& vertices = m_side->vertices();
+            const BrushVertexList& vertices = m_side->vertices;
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
             
             for (size_t i = 1; i < vertices.size() - 1; i++) {
-                m_cachedVertices.push_back(Vertex(vertices[0]->position(),
+                m_cachedVertices.push_back(Vertex(vertices[0]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[0]->position(),
+                                                  textureCoordinates(vertices[0]->position,
                                                                      xOffset, yOffset,
                                                                      xScale, yScale,
                                                                      textureWidth, textureHeight)));
-                m_cachedVertices.push_back(Vertex(vertices[i]->position(),
+                m_cachedVertices.push_back(Vertex(vertices[i]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[i]->position(),
+                                                  textureCoordinates(vertices[i]->position,
                                                                      xOffset, yOffset,
                                                                      xScale, yScale,
                                                                      textureWidth, textureHeight)));
-                m_cachedVertices.push_back(Vertex(vertices[i+1]->position(),
+                m_cachedVertices.push_back(Vertex(vertices[i+1]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[i+1]->position(),
+                                                  textureCoordinates(vertices[i+1]->position,
                                                                      xOffset, yOffset,
                                                                      xScale, yScale,
                                                                      textureWidth, textureHeight)));
