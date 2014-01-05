@@ -25,38 +25,67 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/IntersectBrushGeometryWithFace.h"
+#include "Model/MoveBrushVerticesAlgorithm.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace Model {
+        void BrushGeometry::Result::append(const Result& other) {
+            addedFaces = VectorUtils::difference(addedFaces, other.droppedFaces);
+            VectorUtils::append(addedFaces, other.addedFaces);
+            
+            droppedFaces = VectorUtils::difference(droppedFaces, other.addedFaces);
+            VectorUtils::append(droppedFaces, other.droppedFaces);
+        }
+        
+        BrushGeometry::Result::Result(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        addedFaces(i_addedFaces),
+        droppedFaces(i_droppedFaces) {}
+
+        BrushGeometry::AddFaceResult::AddFaceResult(const AddFaceResultCode i_resultCode, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        Result(i_addedFaces, i_droppedFaces),
+        resultCode(i_resultCode) {}
+        
+        BrushGeometry::MoveVerticesResult::MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        Result(i_addedFaces, i_droppedFaces) {
+            using std::swap;
+            swap(newVertexPositions, i_newVertexPositions);
+        }
+
+        BrushGeometry::MoveEdgesResult::MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        Result(i_addedFaces, i_droppedFaces) {
+            using std::swap;
+            swap(newEdgePositions, i_newEdgePositions);
+        }
+
+        BrushGeometry::MoveFacesResult::MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        Result(i_addedFaces, i_droppedFaces) {
+            using std::swap;
+            swap(newFacePositions, i_newFacePositions);
+        }
+
+        BrushGeometry::SplitResult::SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        Result(i_addedFaces, i_droppedFaces),
+        newVertexPosition(i_newVertexPosition) {}
+
+        BrushGeometry::BrushGeometry(const BrushGeometry& original) {
+            copy(original);
+        }
+
         BrushGeometry::BrushGeometry(const BBox3& worldBounds) :
-        m_bounds(worldBounds) {
+        bounds(worldBounds) {
             initializeWithBounds(worldBounds);
         }
 
         BrushGeometry::~BrushGeometry() {
-            VectorUtils::clearAndDelete(m_sides);
-            VectorUtils::clearAndDelete(m_edges);
-            VectorUtils::clearAndDelete(m_vertices);
+            VectorUtils::clearAndDelete(sides);
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
         }
 
-        const BBox3& BrushGeometry::bounds() const {
-            return m_bounds;
-        }
-
-        const BrushVertexList& BrushGeometry::vertices() const {
-            return m_vertices;
-        }
-        
-        const BrushEdgeList& BrushGeometry::edges() const {
-            return m_edges;
-        }
-        
-        const BrushFaceGeometryList& BrushGeometry::sides() const {
-            return m_sides;
-        }
-        
-        BrushFaceGeometryList BrushGeometry::incidentSides(const BrushVertex& vertex) const {
-            return vertex.incidentSides(m_edges);
+        BrushFaceGeometryList BrushGeometry::incidentSides(const BrushVertex* vertex) const {
+            return vertex->incidentSides(edges);
         }
 
         BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
@@ -75,13 +104,186 @@ namespace TrenchBroom {
             return totalResult;
         }
         
+        bool BrushGeometry::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
+            MoveBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, delta);
+            return algorithm.canExecute();
+        }
+        
+        BrushGeometry::MoveVerticesResult BrushGeometry::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
+            MoveBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, delta);
+            return algorithm.execute();
+        }
+
         void BrushGeometry::restoreFaceGeometries() {
             BrushFaceGeometryList::iterator it, end;
-            for (it = m_sides.begin(), end = m_sides.end(); it != end; ++it) {
+            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
                 BrushFaceGeometry* side = *it;
-                if (side->face() != NULL)
-                    side->face()->setSide(side);
+                if (side->face != NULL)
+                    side->face->setSide(side);
             }
+        }
+
+        void BrushGeometry::updateBounds() {
+            assert(vertices.size() > 0);
+            bounds = BBox3(vertices[0]->position, vertices[0]->position);
+            for (size_t i = 1; i < vertices.size(); ++i)
+                bounds.mergeWith(vertices[i]->position);
+        }
+
+        bool BrushGeometry::sanityCheck() const {
+            // check Euler characteristic http://en.wikipedia.org/wiki/Euler_characteristic
+            size_t sideCount = 0;
+            for (size_t i = 0; i < sides.size(); ++i)
+                if (sides[i]->face != NULL)
+                    ++sideCount;
+            if (vertices.size() - edges.size() + sideCount != 2) {
+                fprintf(stdout, "failed Euler check\n");
+                return false;
+            }
+            
+			std::vector<size_t> vVisits;
+			vVisits.resize(vertices.size());
+            for (size_t i = 0; i < vertices.size(); ++i)
+                vVisits[i] = 0;
+            
+			std::vector<size_t> eVisits;
+			eVisits.resize(edges.size());
+            for (size_t i = 0; i < edges.size(); ++i)
+                eVisits[i] = 0;
+            
+            for (size_t i = 0; i < sides.size(); ++i) {
+                const BrushFaceGeometry* side = sides[i];
+                
+                if (side->edges.size() != side->vertices.size()) {
+                    fprintf(stdout, "side with index %lu has differing vertex and edge counts\n", i);
+                    return false;
+                }
+                
+                size_t index = 0;
+                for (size_t j = 0; j < side->edges.size(); ++j) {
+                    BrushEdge* edge = side->edges[j];
+                    if (edge->left != side && edge->right != side) {
+                        fprintf(stdout, "edge with index %lu of side with index %lu does not actually belong to it\n", j, i);
+                        return false;
+                    }
+                    
+                    index = VectorUtils::indexOf(edges, edge);
+                    if (index == edges.size()) {
+                        fprintf(stdout, "edge with index %lu of side with index %lu is missing from vertex data\n", j, i);
+                        return false;
+                    }
+                    eVisits[index]++;
+                    
+                    BrushVertex* vertex = edge->startVertex(side);
+                    if (side->vertices[j] != vertex) {
+                        fprintf(stdout, "start vertex of edge with index %lu of side with index %lu is not at position %lu in the side's vertex list\n", j, i, j);
+                        return false;
+                    }
+                    
+                    index = VectorUtils::indexOf(vertices, vertex);
+                    if (index == vertices.size()) {
+                        fprintf(stdout, "start vertex of edge with index %lu of side with index %lu is missing from vertex data\n", j, i);
+                        return false;
+                    }
+                    vVisits[index]++;
+                }
+            }
+            
+            for (size_t i = 0; i < vertices.size(); ++i) {
+                if (vVisits[i] == 0) {
+                    fprintf(stdout, "vertex with index %lu does not belong to any side\n", i);
+                    return false;
+                }
+                
+                for (size_t j = i + 1; j < vertices.size(); ++j)
+                    if (vertices[i]->position.equals(vertices[j]->position)) {
+                        fprintf(stdout, "vertex with index %lu is identical to vertex with index %lu\n", i, j);
+                        return false;
+                    }
+            }
+            
+            for (size_t i = 0; i < edges.size(); ++i) {
+                if (eVisits[i] != 2) {
+                    fprintf(stdout, "edge with index %lu was visited %lu times, should have been 2\n", i, eVisits[i]);
+                    return false;
+                }
+                
+                if (edges[i]->start->position.equals(edges[i]->end->position)) {
+                    fprintf(stdout, "edge with index %lu has identical vertices", i);
+                    return false;
+                }
+                
+                if (edges[i]->left == edges[i]->right) {
+                    fprintf(stdout, "edge with index %lu has identical sides", i);
+                    return false;
+                }
+                
+                BrushEdge* edge1 = edges[i];
+                for (size_t j = i + 1; j < edges.size(); ++j) {
+                    BrushEdge* edge2 = edges[j];
+                    if (edge1->hasPositions(edge2->start->position, edge2->end->position)) {
+                        fprintf(stdout, "edge with index %lu is identical to edge with index %lu\n", i, j);
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        void BrushGeometry::copy(const BrushGeometry& original) {
+            typedef std::map<BrushVertex*, BrushVertex*> VertexMap;
+            typedef std::map<BrushEdge*, BrushEdge*> EdgeMap;
+            
+            VertexMap vertexMap;
+            EdgeMap edgeMap;
+            
+            VectorUtils::clearAndDelete(vertices);
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(sides);
+            
+            vertices.reserve(original.vertices.size());
+            edges.reserve(original.edges.size());
+            sides.reserve(original.sides.size());
+            
+            for (size_t i = 0; i < original.vertices.size(); ++i) {
+                BrushVertex* originalVertex = original.vertices[i];
+                BrushVertex* copyVertex = new BrushVertex(*originalVertex);
+                vertexMap[originalVertex] = copyVertex;
+                vertices.push_back(copyVertex);
+            }
+            
+            for (size_t i = 0; i < original.edges.size(); ++i) {
+                BrushEdge* originalEdge = original.edges[i];
+                BrushEdge* copyEdge = new BrushEdge(*originalEdge);
+                copyEdge->start = vertexMap[originalEdge->start];
+                copyEdge->end = vertexMap[originalEdge->end];
+                edgeMap[originalEdge] = copyEdge;
+                edges.push_back(copyEdge);
+            }
+            
+            for (size_t i = 0; i < original.sides.size(); ++i) {
+                BrushFaceGeometry* originalSide = original.sides[i];
+                BrushFaceGeometry* copySide = new BrushFaceGeometry(*originalSide);
+                copySide->vertices.clear();
+                copySide->edges.clear();
+                
+                for (size_t j = 0; j < originalSide->edges.size(); ++j) {
+                    BrushEdge* originalEdge = originalSide->edges[j];
+                    BrushEdge* copyEdge = edgeMap[originalEdge];
+                    
+                    if (originalEdge->left == originalSide)
+                        copyEdge->left = copySide;
+                    else
+                        copyEdge->right = copySide;
+                    copySide->edges.push_back(copyEdge);
+                    copySide->vertices.push_back(copyEdge->startVertex(copySide));
+                }
+                
+                sides.push_back(copySide);
+            }
+            
+            bounds = original.bounds;
         }
 
         BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace* face) {
@@ -93,9 +295,9 @@ namespace TrenchBroom {
                 case FaceIsRedundant:
                     break;
                 case BrushIsSplit:
-                    m_vertices = algorithm.vertices();
-                    m_edges = algorithm.edges();
-                    m_sides = algorithm.sides();
+                    vertices = algorithm.vertices();
+                    edges = algorithm.edges();
+                    sides = algorithm.sides();
                     break;
             }
             
@@ -162,51 +364,44 @@ namespace TrenchBroom {
             right->addBackwardEdge(v110v111);
             right->addForwardEdge(v110v100);
 
-            m_vertices.push_back(v000);
-            m_vertices.push_back(v001);
-            m_vertices.push_back(v010);
-            m_vertices.push_back(v011);
-            m_vertices.push_back(v100);
-            m_vertices.push_back(v101);
-            m_vertices.push_back(v110);
-            m_vertices.push_back(v111);
+            vertices.push_back(v000);
+            vertices.push_back(v001);
+            vertices.push_back(v010);
+            vertices.push_back(v011);
+            vertices.push_back(v100);
+            vertices.push_back(v101);
+            vertices.push_back(v110);
+            vertices.push_back(v111);
             
-            m_edges.push_back(v000v001);
-            m_edges.push_back(v001v101);
-            m_edges.push_back(v101v100);
-            m_edges.push_back(v100v000);
-            m_edges.push_back(v010v110);
-            m_edges.push_back(v110v111);
-            m_edges.push_back(v111v011);
-            m_edges.push_back(v011v010);
-            m_edges.push_back(v000v010);
-            m_edges.push_back(v011v001);
-            m_edges.push_back(v101v111);
-            m_edges.push_back(v110v100);
+            edges.push_back(v000v001);
+            edges.push_back(v001v101);
+            edges.push_back(v101v100);
+            edges.push_back(v100v000);
+            edges.push_back(v010v110);
+            edges.push_back(v110v111);
+            edges.push_back(v111v011);
+            edges.push_back(v011v010);
+            edges.push_back(v000v010);
+            edges.push_back(v011v001);
+            edges.push_back(v101v111);
+            edges.push_back(v110v100);
             
-            m_sides.push_back(top);
-            m_sides.push_back(bottom);
-            m_sides.push_back(front);
-            m_sides.push_back(back);
-            m_sides.push_back(left);
-            m_sides.push_back(right);
+            sides.push_back(top);
+            sides.push_back(bottom);
+            sides.push_back(front);
+            sides.push_back(back);
+            sides.push_back(left);
+            sides.push_back(right);
             
-            assert(m_vertices.size() == 8);
-            assert(m_edges.size() == 12);
-            assert(m_sides.size() == 6);
+            assert(vertices.size() == 8);
+            assert(edges.size() == 12);
+            assert(sides.size() == 6);
             assert(top->isClosed());
             assert(bottom->isClosed());
             assert(front->isClosed());
             assert(back->isClosed());
             assert(left->isClosed());
             assert(right->isClosed());
-        }
-
-        void BrushGeometry::updateBounds() {
-            assert(m_vertices.size() > 0);
-            m_bounds = BBox3(m_vertices[0]->position(), m_vertices[0]->position());
-            for (size_t i = 1; i < m_vertices.size(); ++i)
-                m_bounds.mergeWith(m_vertices[i]->position());
         }
     }
 }

@@ -35,5 +35,7 @@
 #include "Quat.h"
 #include "Vec.h"
 #include "CoordinatePlane.h"
+#include "Edge.h"
+#include "Polygon.h"
 
 #endif

@@ -40,19 +40,14 @@ namespace TrenchBroom {
                 Drop,
                 Split
             } Mark;
-        private:
-            BrushVertexList m_vertices;
-            BrushEdgeList m_edges;
-            BrushFace* m_face;
+
+            BrushVertexList vertices;
+            BrushEdgeList edges;
+            BrushFace* face;
         public:
             BrushFaceGeometry();
             ~BrushFaceGeometry();
 
-            BrushFace* face() const;
-            void setFace(BrushFace* face);
-            const BrushVertexList& vertices() const;
-            const BrushEdgeList& edges() const;
-            
             Mark mark() const;
             BrushEdge* splitUsingEdgeMarks();
             BrushEdge* findUndecidedEdge() const;
@@ -61,12 +56,21 @@ namespace TrenchBroom {
             void addForwardEdges(const BrushEdgeList& edges);
             void addBackwardEdge(BrushEdge* edge);
             void addBackwardEdges(const BrushEdgeList& edges);
+            void addEdge(BrushEdge* edge, bool forward);
             
             bool containsDroppedEdge() const;
             bool isClosed() const;
             bool hasVertexPositions(const Vec3::List& positions) const;
+            size_t isColinearTriangle() const;
+            
+            void chop(size_t vertexIndex, BrushFaceGeometry*& newSide, BrushEdge*& newEdge);
+            void shift(size_t offset);
+            void replaceEdgesWithEdge(size_t index1, size_t index2, BrushEdge* edge);
+            
+            Polygon3 faceInfo() const;
         private:
             void replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
             void updateVerticesFromEdges();
         };
         

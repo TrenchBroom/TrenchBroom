@@ -25,8 +25,7 @@
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
-#include "Renderer/Circle.h"
-#include "Renderer/Sphere.h"
+#include "Renderer/PointHandleRenderer.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -42,9 +41,10 @@ namespace TrenchBroom {
         class ClipperRenderer {
         private:
             const View::Clipper& m_clipper;
+            Vbo m_vbo;
             BrushRenderer m_frontRenderer;
             BrushRenderer m_backRenderer;
-            Vbo m_vbo;
+            PointHandleRenderer m_handleRenderer;
         public:
             ClipperRenderer(const View::Clipper& clipper);
             
@@ -55,13 +55,10 @@ namespace TrenchBroom {
             
             void setBrushes(const Model::BrushList& frontBrushes, const Model::BrushList& backBrushes);
         private:
-            void renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle);
-            void renderPointHandle(const Vec3& position, ActiveShader& shader, Sphere& pointHandle, const Color& color, const Color& occludedColor);
             void renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray);
-            Sphere makePointHandle();
-            Circle makePointHandleHighlight();
-            VertexArray makeLineArray(const Vec3::List& positions);
-            VertexArray makeTriangleArray(const Vec3::List& positions);
+
+            VertexArray makeLineArray(const Vec3f::List& positions);
+            VertexArray makeTriangleArray(const Vec3f::List& positions);
             void setupBrushRenderer(BrushRenderer& renderer, const bool keep);
         };
     }

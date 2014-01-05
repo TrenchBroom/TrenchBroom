@@ -63,6 +63,7 @@ namespace TrenchBroom {
         class ResizeBrushesTool;
         class RotateObjectsTool;
         class SelectionTool;
+        class VertexTool;
         
         class MapView : public wxGLCanvas {
         private:
@@ -87,6 +88,7 @@ namespace TrenchBroom {
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
             MoveObjectsTool* m_moveObjectsTool;
+            VertexTool* m_vertexTool;
             ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
@@ -112,8 +114,13 @@ namespace TrenchBroom {
             void performClip();
             bool canDeleteLastClipPoint() const;
             void deleteLastClipPoint();
+            
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
+            
+            void toggleVertexTool();
+            bool vertexToolActive() const;
+            
             void toggleMovementRestriction();
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;

@@ -104,7 +104,7 @@ namespace TrenchBroom {
         
         BBox3 Brush::bounds() const {
             assert(m_geometry != NULL);
-            return m_geometry->bounds();
+            return m_geometry->bounds;
         }
 
         void Brush::pick(const Ray3& ray, PickResult& result) {
@@ -129,34 +129,33 @@ namespace TrenchBroom {
         }
 
         const BrushEdgeList& Brush::edges() const {
-            return m_geometry->edges();
+            return m_geometry->edges;
         }
 
         const BrushVertexList& Brush::vertices() const {
-            return m_geometry->vertices();
+            return m_geometry->vertices;
         }
 
         BrushFaceList Brush::incidentFaces(const BrushVertex& vertex) const {
-            const BrushFaceGeometryList sides = m_geometry->incidentSides(vertex);
+            const BrushFaceGeometryList sides = m_geometry->incidentSides(&vertex);
             BrushFaceList result;
             result.reserve(sides.size());
             
             BrushFaceGeometryList::const_iterator it, end;
             for (it = sides.begin(), end = sides.end(); it != end; ++it) {
                 const BrushFaceGeometry& side = **it;
-                result.push_back(side.face());
+                result.push_back(side.face);
             }
             
             return result;
         }
 
         void Brush::addEdges(Vertex::List& vertices) const {
-            const BrushEdgeList edges = m_geometry->edges();
             BrushEdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = m_geometry->edges.begin(), end = m_geometry->edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
-                vertices.push_back(Vertex(edge->start()->position()));
-                vertices.push_back(Vertex(edge->end()->position()));
+                vertices.push_back(Vertex(edge->start->position));
+                vertices.push_back(Vertex(edge->end->position));
             }
         }
         
@@ -189,7 +188,7 @@ namespace TrenchBroom {
             
             BrushGeometry testGeometry(worldBounds);
             const BrushGeometry::AddFaceResult result = testGeometry.addFaces(testFaces);
-            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds());
+            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds);
             
             m_geometry->restoreFaceGeometries();
             delete testFace;
@@ -244,7 +243,7 @@ namespace TrenchBroom {
             
             const BrushVertexList& theirVertices = brush.vertices();
             for (size_t i = 0; i < theirVertices.size(); ++i)
-                if (!containsPoint(theirVertices[i]->position()))
+                if (!containsPoint(theirVertices[i]->position))
                     return false;
             return true;
         }
@@ -299,7 +298,7 @@ namespace TrenchBroom {
             for (myEdgeIt = myEdges.begin(), myEdgeEnd = myEdges.end(); myEdgeIt != myEdgeEnd; ++myEdgeIt) {
                 const BrushEdge* myEdge = *myEdgeIt;
                 const Vec3 myEdgeVec = myEdge->vector();
-                const Vec3& origin = myEdge->start()->position();
+                const Vec3& origin = myEdge->start->position;
                 
                 for (theirEdgeIt = theirEdges.begin(), theirEdgeEnd = theirEdges.end(); theirEdgeIt != theirEdgeEnd; ++theirEdgeIt) {
                     const BrushEdge* theirEdge = *theirEdgeIt;

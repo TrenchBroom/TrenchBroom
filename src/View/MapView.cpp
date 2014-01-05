@@ -40,11 +40,12 @@
 #include "View/ClipTool.h"
 #include "View/CommandIds.h"
 #include "View/CreateBrushTool.h"
+#include "View/MapDocument.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
-#include "View/MapDocument.h"
+#include "View/VertexTool.h"
 
 #include <wx/dcclient.h>
 #include <wx/menu.h>
@@ -69,6 +70,7 @@ namespace TrenchBroom {
         m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_moveObjectsTool(NULL),
+        m_vertexTool(NULL),
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
@@ -157,6 +159,15 @@ namespace TrenchBroom {
         bool MapView::rotateObjectsToolActive() const {
             return m_modalReceiver == m_rotateObjectsTool;
         }
+
+        void MapView::toggleVertexTool() {
+            toggleTool(m_vertexTool);
+        }
+        
+        bool MapView::vertexToolActive() const {
+            return m_modalReceiver == m_vertexTool;
+        }
+        
 
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
@@ -663,7 +674,8 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
             m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
             m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller);
-            m_rotateObjectsTool = new RotateObjectsTool(m_createBrushTool, m_document, m_controller, m_movementRestriction, font);
+            m_vertexTool = new VertexTool(m_createBrushTool, m_document, m_controller, m_movementRestriction);
+            m_rotateObjectsTool = new RotateObjectsTool(m_vertexTool, m_document, m_controller, m_movementRestriction, font);
             m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
@@ -685,6 +697,8 @@ namespace TrenchBroom {
             m_rotateObjectsTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
+            delete m_vertexTool;
+            m_vertexTool = NULL;
         }
 
         void MapView::toggleTool(BaseTool* tool) {

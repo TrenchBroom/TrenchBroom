@@ -49,9 +49,10 @@ namespace TrenchBroom {
         
         ClipperRenderer::ClipperRenderer(const View::Clipper& clipper) :
         m_clipper(clipper),
+        m_vbo(0xFFF),
         m_frontRenderer(BrushFilter()),
         m_backRenderer(BrushFilter()),
-        m_vbo(0xFFF) {
+        m_handleRenderer(m_vbo) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             m_frontRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
@@ -63,53 +64,33 @@ namespace TrenchBroom {
             m_backRenderer.setEdgeColor(prefs.get(Preferences::ClipEdgeColor));
             m_backRenderer.setTintColor(prefs.get(Preferences::ClipFaceColor));
             m_backRenderer.setOccludedEdgeColor(prefs.get(Preferences::ClipOccludedEdgeColor));
+            
+            m_handleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
         }
         
         void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {
-            const Vec3::List positions = m_clipper.clipPointPositions();
+            const Vec3f::List positions = VectorUtils::cast<Vec3f>(m_clipper.clipPointPositions());
             if (positions.empty())
                 return;
             
-            Sphere pointHandle = makePointHandle();
             VertexArray lineArray = makeLineArray(positions);
             VertexArray triangleArray = makeTriangleArray(positions);
             
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            pointHandle.prepare(m_vbo);
             lineArray.prepare(m_vbo);
             triangleArray.prepare(m_vbo);
             setVboState.active();
             
-            renderPointHandles(renderContext, positions, pointHandle);
+            m_handleRenderer.renderMultipleHandles(renderContext, positions);
             renderPlaneIndicators(renderContext, lineArray, triangleArray);
         }
         
         void ClipperRenderer::renderHighlight(RenderContext& renderContext, const size_t index) {
             assert(index < m_clipper.numPoints());
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaling = prefs.get(Preferences::HandleScalingFactor);
-            const Vec3 position = m_clipper.clipPointPositions()[index];
-
-            const Camera& camera = renderContext.camera();
-            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
-            const float factor = camera.distanceTo(position) * scaling;
-            const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
-            MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-            shader.set("Color", prefs.get(Preferences::SelectedHandleColor));
-
-            Circle highlight = makePointHandleHighlight();
-            SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            highlight.prepare(m_vbo);
-            setVboState.active();
-
-            glDisable(GL_DEPTH_TEST);
-            highlight.render();
-            glEnable(GL_DEPTH_TEST);
+            const Vec3f position(m_clipper.clipPointPositions()[index]);
+            m_handleRenderer.renderHandleHighlight(renderContext, position);
         }
 
         void ClipperRenderer::renderBrushes(RenderContext& renderContext) {
@@ -121,22 +102,7 @@ namespace TrenchBroom {
         }
         
         void ClipperRenderer::renderCurrentPoint(RenderContext& renderContext, const Vec3& position) {
-            Sphere pointHandle = makePointHandle();
-            
-            SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            pointHandle.prepare(m_vbo);
-            setVboState.active();
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
-            sphereShader.set("CameraPosition", renderContext.camera().position());
-            sphereShader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
-            sphereShader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
-
-            renderPointHandle(position, sphereShader, pointHandle,
-                              prefs.get(Preferences::HandleColor),
-                              prefs.get(Preferences::OccludedHandleColor));
+            m_handleRenderer.renderSingleHandle(renderContext, Vec3f(position));
         }
 
         void ClipperRenderer::setBrushes(const Model::BrushList& frontBrushes, const Model::BrushList& backBrushes) {
@@ -144,31 +110,6 @@ namespace TrenchBroom {
             m_backRenderer.setBrushes(backBrushes);
         }
 
-        void ClipperRenderer::renderPointHandles(RenderContext& renderContext, const Vec3::List& positions, Sphere& pointHandle) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            ActiveShader sphereShader(renderContext.shaderManager(), Shaders::PointHandleShader);
-            
-            sphereShader.set("CameraPosition", renderContext.camera().position());
-            sphereShader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
-            sphereShader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
-            
-            for (size_t i = 0; i < positions.size(); ++i) {
-                renderPointHandle(positions[i], sphereShader, pointHandle,
-                                  prefs.get(Preferences::HandleColor),
-                                  prefs.get(Preferences::OccludedHandleColor));
-            }
-        }
-        
-        void ClipperRenderer::renderPointHandle(const Vec3& position, ActiveShader& shader, Sphere& pointHandle, const Color& color, const Color& occludedColor) {
-            shader.set("Position", Vec4f(Vec3f(position), 1.0f));
-            glDisable(GL_DEPTH_TEST);
-            shader.set("Color", color);
-            pointHandle.render();
-            glEnable(GL_DEPTH_TEST);
-            shader.set("Color", occludedColor);
-            pointHandle.render();
-        }
-        
         void ClipperRenderer::renderPlaneIndicators(RenderContext& renderContext, VertexArray& lineArray, VertexArray& triangleArray) {
             PreferenceManager& prefs = PreferenceManager::instance();
             ActiveShader planeShader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
@@ -186,17 +127,7 @@ namespace TrenchBroom {
             lineArray.render();
         }
 
-        Sphere ClipperRenderer::makePointHandle() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return Sphere(prefs.get(Preferences::HandleRadius), 1);
-        }
-        
-        Circle ClipperRenderer::makePointHandleHighlight() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return Circle(2.0f * prefs.get(Preferences::HandleRadius), 16, false);
-        }
-        
-        VertexArray ClipperRenderer::makeLineArray(const Vec3::List& positions) {
+        VertexArray ClipperRenderer::makeLineArray(const Vec3f::List& positions) {
             if (positions.size() <= 1)
                 return VertexArray();
             
@@ -205,11 +136,11 @@ namespace TrenchBroom {
             vertices.reserve(positions.size());
             
             for (size_t i = 0; i < positions.size(); ++i)
-                vertices.push_back(Vertex(Vec3f(positions[i])));
+                vertices.push_back(Vertex(positions[i]));
             return VertexArray::swap(GL_LINE_LOOP, vertices);
         }
         
-        VertexArray ClipperRenderer::makeTriangleArray(const Vec3::List& positions) {
+        VertexArray ClipperRenderer::makeTriangleArray(const Vec3f::List& positions) {
             if (positions.size() <= 2)
                 return VertexArray();
             
@@ -218,7 +149,7 @@ namespace TrenchBroom {
             vertices.reserve(positions.size());
             
             for (size_t i = 0; i < positions.size(); ++i)
-                vertices.push_back(Vertex(Vec3f(positions[i])));
+                vertices.push_back(Vertex(positions[i]));
             return VertexArray::swap(GL_TRIANGLE_FAN, vertices);
         }
 

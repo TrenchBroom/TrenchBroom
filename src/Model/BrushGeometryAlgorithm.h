@@ -30,15 +30,17 @@ namespace TrenchBroom {
         template <typename R>
         class BrushGeometryAlgorithm {
         private:
+            BrushGeometry& m_geometry;
+        protected:
             BrushFaceList m_addedFaces;
             BrushFaceList m_removedFaces;
-            BrushGeometry& m_geometry;
         public:
-            BrushGeometryAlgorithm(BrushGeometry& geometry) :
-            m_geometry(geometry) {}
-            
             virtual ~BrushGeometryAlgorithm() {}
 
+            bool canExecute() {
+                return doCanExecute(m_geometry);
+            }
+            
             R execute() {
                 return doExecute(m_geometry);
             }
@@ -51,6 +53,9 @@ namespace TrenchBroom {
                 return m_removedFaces;
             }
         protected:
+            BrushGeometryAlgorithm(BrushGeometry& geometry) :
+            m_geometry(geometry) {}
+
             void addFace(BrushFace* face) {
                 BrushFaceList::iterator it = VectorUtils::find(m_removedFaces, face);
                 if (it != m_removedFaces.end())
@@ -67,6 +72,7 @@ namespace TrenchBroom {
                 }
             }
         private:
+            virtual bool doCanExecute(BrushGeometry& geometry) { return true; }
             virtual R doExecute(BrushGeometry& geometry) = 0;
         };
     }

@@ -22,36 +22,22 @@
 #include "Exceptions.h"
 #include "MathUtils.h"
 #include "Model/BrushEdge.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
         BrushFaceGeometry::BrushFaceGeometry() :
-        m_face(NULL) {
-            m_vertices.reserve(8);
-            m_edges.reserve(8);
+        face(NULL) {
+            vertices.reserve(8);
+            edges.reserve(8);
         }
 
         BrushFaceGeometry::~BrushFaceGeometry() {
-            m_face = NULL;
-        }
-
-        BrushFace* BrushFaceGeometry::face() const {
-            return m_face;
-        }
-        
-        void BrushFaceGeometry::setFace(BrushFace* face) {
-            m_face = face;
-        }
-        
-        const BrushVertexList& BrushFaceGeometry::vertices() const {
-            return m_vertices;
-        }
-        
-        const BrushEdgeList& BrushFaceGeometry::edges() const {
-            return m_edges;
+            face = NULL;
         }
 
         BrushFaceGeometry::Mark BrushFaceGeometry::mark() const {
@@ -61,9 +47,9 @@ namespace TrenchBroom {
             size_t undecided = 0;
             
             BrushEdgeList::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const BrushEdge& edge = **it;
-                const BrushEdge::Mark edgeMark = edge.mark();
+                const BrushEdge::Mark edgeMark = edge.mark;
                 if (edgeMark == BrushEdge::Drop)
                     drop++;
                 else if (edgeMark == BrushEdge::Keep)
@@ -74,57 +60,57 @@ namespace TrenchBroom {
                     undecided++;
             }
             
-            assert(drop + keep + split + undecided == m_edges.size());
-            assert(undecided < m_edges.size());
-            if (keep + undecided == m_edges.size())
+            assert(drop + keep + split + undecided == edges.size());
+            assert(undecided < edges.size());
+            if (keep + undecided == edges.size())
                 return Keep;
-            if (drop + undecided == m_edges.size())
+            if (drop + undecided == edges.size())
                 return Drop;
             return Split;
         }
 
         BrushEdge* BrushFaceGeometry::splitUsingEdgeMarks() {
             assert(mark() == Split);
-            assert(!m_edges.empty());
+            assert(!edges.empty());
 
-            BrushEdgeList::iterator splitIt1 = m_edges.end();
-            BrushEdgeList::iterator splitIt2 = m_edges.end();
+            BrushEdgeList::iterator splitIt1 = edges.end();
+            BrushEdgeList::iterator splitIt2 = edges.end();
             BrushVertex* newEdgeStart = NULL;
             BrushVertex* newEdgeEnd = NULL;
             
-            BrushEdge* lastEdge = m_edges.back();
-            BrushEdge::Mark lastMark = lastEdge->mark();
+            BrushEdge* lastEdge = edges.back();
+            BrushEdge::Mark lastMark = lastEdge->mark;
             BrushEdgeList::iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge* currentEdge = *it;
-                const BrushEdge::Mark currentMark = currentEdge->mark();
+                const BrushEdge::Mark currentMark = currentEdge->mark;
                 if (currentMark == BrushEdge::Keep && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
-                    newEdgeStart = currentEdge->start(this);
+                    newEdgeStart = currentEdge->startVertex(this);
                     assert(newEdgeStart != NULL);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Drop) {
                     splitIt2 = it;
-                    newEdgeStart = currentEdge->start(this);
+                    newEdgeStart = currentEdge->startVertex(this);
                     assert(newEdgeStart != NULL);
                 } else if (currentMark == BrushEdge::Drop && lastMark == BrushEdge::Keep) {
                     splitIt1 = it;
-                    newEdgeEnd = currentEdge->start(this);
+                    newEdgeEnd = currentEdge->startVertex(this);
                     assert(newEdgeEnd != NULL);
                 } else if (currentMark == BrushEdge::Drop &&  lastMark == BrushEdge::Split) {
                     splitIt1 = it;
-                    newEdgeEnd = lastEdge->end(this);
+                    newEdgeEnd = lastEdge->endVertex(this);
                     assert(newEdgeEnd != NULL);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Split) {
-                    if (currentEdge->start(this)->mark() == BrushVertex::New) {
+                    if (currentEdge->startVertex(this)->mark == BrushVertex::New) {
                         splitIt1 = splitIt2 = it;
-                        newEdgeStart = currentEdge->start(this);
-                        newEdgeEnd = lastEdge->end(this);
+                        newEdgeStart = currentEdge->startVertex(this);
+                        newEdgeEnd = lastEdge->endVertex(this);
                     } else {
-                        assert(currentEdge->start(this)->mark() == BrushVertex::Keep);
-                        splitIt1 = it < m_edges.end() - 1 ? it + 1 : m_edges.begin();
-                        splitIt2 = it > m_edges.begin() ? it - 1 : m_edges.end() - 1;
-                        newEdgeStart = lastEdge->start(this);
-                        newEdgeEnd = currentEdge->end(this);
+                        assert(currentEdge->startVertex(this)->mark == BrushVertex::Keep);
+                        splitIt1 = it < edges.end() - 1 ? it + 1 : edges.begin();
+                        splitIt2 = it > edges.begin() ? it - 1 : edges.end() - 1;
+                        newEdgeStart = lastEdge->startVertex(this);
+                        newEdgeEnd = currentEdge->endVertex(this);
                     }
                     
                     assert(newEdgeStart != NULL);
@@ -139,7 +125,7 @@ namespace TrenchBroom {
                 lastMark = currentMark;
             }
 
-            if (splitIt1 == m_edges.end() || splitIt2 == m_edges.end()) {
+            if (splitIt1 == edges.end() || splitIt2 == edges.end()) {
                 GeometryException e;
                 e << "Invalid brush detected during side split";
                 throw e;
@@ -154,9 +140,9 @@ namespace TrenchBroom {
 
         BrushEdge* BrushFaceGeometry::findUndecidedEdge() const {
             BrushEdgeList::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge* edge = *it;
-                if (edge->mark() == BrushEdge::Undecided)
+                if (edge->mark == BrushEdge::Undecided)
                     return edge;
             }
             return NULL;
@@ -165,24 +151,24 @@ namespace TrenchBroom {
         void BrushFaceGeometry::addForwardEdge(BrushEdge* edge) {
             assert(edge != NULL);
             
-            if (edge->m_right != NULL) {
+            if (edge->right != NULL) {
                 GeometryException e;
                 e << "Edge already has an incident side on its right";
                 throw e;
             }
             
-            if (!m_edges.empty()) {
-                const BrushEdge* previous = m_edges.back();
-                if (previous->end(this) != edge->start()) {
+            if (!edges.empty()) {
+                const BrushEdge* previous = edges.back();
+                if (previous->endVertex(this) != edge->start) {
                     GeometryException e;
                     e << "Cannot add non-consecutive edge";
                     throw e;
                 }
             }
             
-            edge->m_right = this;
-            m_edges.push_back(edge);
-            m_vertices.push_back(edge->start());
+            edge->right = this;
+            edges.push_back(edge);
+            vertices.push_back(edge->start);
         }
         
         void BrushFaceGeometry::addForwardEdges(const BrushEdgeList& edges) {
@@ -196,24 +182,24 @@ namespace TrenchBroom {
         void BrushFaceGeometry::addBackwardEdge(BrushEdge* edge) {
             assert(edge != NULL);
             
-            if (edge->m_left != NULL) {
+            if (edge->left != NULL) {
                 GeometryException e;
                 e << "Edge already has an incident side on its left";
                 throw e;
             }
 
-            if (!m_edges.empty()) {
-                const BrushEdge* previous = m_edges.back();
-                if (previous->end(this) != edge->end()) {
+            if (!edges.empty()) {
+                const BrushEdge* previous = edges.back();
+                if (previous->endVertex(this) != edge->end) {
                     GeometryException e;
                     e << "Cannot add non-consecutive edge";
                     throw e;
                 }
             }
             
-            edge->m_left = this;
-            m_edges.push_back(edge);
-            m_vertices.push_back(edge->end());
+            edge->left = this;
+            edges.push_back(edge);
+            vertices.push_back(edge->end);
         }
 
         void BrushFaceGeometry::addBackwardEdges(const BrushEdgeList& edges) {
@@ -224,25 +210,32 @@ namespace TrenchBroom {
             }
         }
 
+        void BrushFaceGeometry::addEdge(BrushEdge* edge, const bool forward) {
+            if (forward)
+                addForwardEdge(edge);
+            else
+                addBackwardEdge(edge);
+        }
+
         bool BrushFaceGeometry::containsDroppedEdge() const {
             BrushEdgeList::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
-                if (edge->mark() == BrushEdge::Drop)
+                if (edge->mark == BrushEdge::Drop)
                     return true;
             }
             return false;
         }
 
         bool BrushFaceGeometry::isClosed() const {
-            if (m_edges.size() < 3)
+            if (edges.size() < 3)
                 return false;
             
             BrushEdgeList::const_iterator it, end;
-            const BrushEdge* previous = m_edges.back();
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            const BrushEdge* previous = edges.back();
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const BrushEdge* edge = *it;
-                if (previous->end(this) != edge->start(this))
+                if (previous->endVertex(this) != edge->startVertex(this))
                     return false;
                 previous = edge;
             }
@@ -251,15 +244,15 @@ namespace TrenchBroom {
         }
 
         bool BrushFaceGeometry::hasVertexPositions(const Vec3::List& positions) const {
-            if (positions.size() != m_vertices.size())
+            if (positions.size() != vertices.size())
                 return false;
             
-            const size_t size = m_vertices.size();
+            const size_t size = vertices.size();
             for (size_t i = 0; i < size; i++) {
                 bool equal = true;
                 for (size_t j = 0; j < size && equal; j++) {
                     const size_t index = (j + i) % size;
-                    if (m_vertices[j]->position() != positions[index])
+                    if (vertices[j]->position != positions[index])
                         equal = false;
                 }
                 if (equal)
@@ -269,34 +262,144 @@ namespace TrenchBroom {
             return false;
         }
 
+        size_t BrushFaceGeometry::isColinearTriangle() const {
+            assert(edges.size() >= 3);
+            if (edges.size() > 3)
+                return edges.size();
+            
+            Vec3 edgeVector1 = edges[0]->vector();
+            Vec3 edgeVector2 = edges[1]->vector();
+            
+            if (edgeVector1.parallelTo(edgeVector2)) {
+                const Vec3 edgeVector3 = edges[2]->vector();
+                assert(edgeVector1.parallelTo(edgeVector3));
+                assert(edgeVector2.parallelTo(edgeVector3));
+                
+                const FloatType length1 = edgeVector1.squaredLength();
+                const FloatType length2 = edgeVector2.squaredLength();
+                const FloatType length3 = edgeVector3.squaredLength();
+                
+                // we'll return the index of the longest of the three edges
+                if (length1 > length2) {
+                    if (length1 > length3)
+                        return 0;
+                    else
+                        return 2;
+                } else {
+                    if (length2 > length3)
+                        return 1;
+                    else
+                        return 2;
+                }
+            } else {
+                const Vec3 edgeVector3 = edges[2]->vector();
+                assert(!edgeVector1.parallelTo(edgeVector3));
+                assert(!edgeVector2.parallelTo(edgeVector3));
+                
+                return edges.size();
+            }
+        }
+
+        void BrushFaceGeometry::chop(const size_t vertexIndex, BrushFaceGeometry*& newSide, BrushEdge*& newEdge) {
+            const size_t vertexCount = vertices.size();
+            const size_t edgeCount = edges.size();
+            assert(vertexCount == edgeCount);
+            assert(vertexCount > 3);
+            assert(vertexIndex < vertexCount);
+            
+            BrushVertex* prevVertex = vertices[Math::pred(vertexIndex, vertexCount)];
+            BrushVertex* nextVertex = vertices[Math::succ(vertexIndex, vertexCount)];
+            
+            BrushEdge* prevEdge = edges[Math::pred(vertexIndex, edgeCount)];
+            BrushEdge* nextEdge = edges[vertexIndex];
+            newEdge = new BrushEdge(prevVertex, nextVertex, this, NULL);
+
+            newSide = new BrushFaceGeometry();
+            newSide->addEdge(prevEdge, prevEdge->left == this);
+            newSide->addEdge(nextEdge, nextEdge->left == this);
+            newSide->addForwardEdge(newEdge);
+
+            BrushFace* newFace = face->clone();
+            newSide->face = newFace;
+            newFace->setSide(newSide);
+            
+            BrushEdgeList::iterator start = edges.begin();
+            BrushEdgeList::iterator end = edges.begin();
+            std::advance(start, Math::pred(vertexIndex, edgeCount, 2));
+            std::advance(end, Math::succ(vertexIndex, edgeCount));
+            replaceEdgesWithBackwardEdge(start, end, newEdge);
+        }
+
+        void BrushFaceGeometry::shift(const size_t offset) {
+            const size_t count = edges.size();
+            if (offset % count == 0)
+                return;
+            
+            BrushEdgeList newEdges(edges.size());;
+            BrushVertexList newVertices(vertices.size());;
+            
+            for (size_t i = 0; i < count; ++i) {
+                const size_t index = Math::succ(i, count, offset);
+                newEdges[i] = edges[index];
+                newVertices[i] = vertices[index];
+            }
+            
+            using std::swap;
+            swap(edges, newEdges);
+            swap(vertices, newVertices);
+        }
+
+        void BrushFaceGeometry::replaceEdgesWithEdge(const size_t index1, const size_t index2, BrushEdge* edge) {
+            assert(index1 < edges.size());
+            assert(index2 < edges.size());
+            assert(edge != NULL);
+            
+            BrushEdgeList::iterator it1 = edges.begin();
+            BrushEdgeList::iterator it2 = edges.begin();
+            std::advance(it1, index1);
+            std::advance(it2, index2);
+            replaceEdgesWithEdge(it1, it2, edge);
+        }
+
+        Polygon3 BrushFaceGeometry::faceInfo() const {
+            Vec3::List positions(vertices.size());
+            for (size_t i = 0; i < vertices.size(); ++i)
+                positions[i] = vertices[i]->position;
+            return Polygon3(positions);
+        }
+
         void BrushFaceGeometry::replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
+            edge->left = this;
+            replaceEdgesWithEdge(it1, it2, edge);
+        }
+
+        void BrushFaceGeometry::replaceEdgesWithEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
             if (it1 == it2) {
-                m_edges.insert(it1, edge);
+                edges.insert(it1, edge);
             } else if (it1 < it2) {
                 BrushEdgeList newEdges;
-                newEdges.insert(newEdges.end(), m_edges.begin(), it1);
+                newEdges.insert(newEdges.end(), edges.begin(), it1);
                 newEdges.push_back(edge);
-                newEdges.insert(newEdges.end(), it2, m_edges.end());
-                m_edges = newEdges;
+                newEdges.insert(newEdges.end(), it2, edges.end());
+                edges = newEdges;
             } else {
                 BrushEdgeList newEdges;
                 newEdges.insert(newEdges.end(), it2, it1);
                 newEdges.push_back(edge);
-                m_edges = newEdges;
+                edges = newEdges;
             }
-            assert(m_edges.size() >= 3);
-            edge->m_left = this;
+            assert(edges.size() >= 3);
             updateVerticesFromEdges();
         }
 
         void BrushFaceGeometry::updateVerticesFromEdges() {
-            m_vertices.clear();
+            vertices.clear();
             BrushEdgeList::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 BrushEdge& edge = **it;
-                BrushVertex* vertex = edge.start(this);
+                BrushVertex* vertex = edge.startVertex(this);
                 assert(vertex != NULL);
-                m_vertices.push_back(vertex);
+                vertices.push_back(vertex);
             }
         }
 

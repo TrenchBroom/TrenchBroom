@@ -298,8 +298,8 @@ namespace TrenchBroom {
                 bool endFound = false;
                 for (size_t j = 0; j < faceVertices.size(); j++) {
                     const Model::BrushVertex* vertex = faceVertices[j];
-                    startFound |= (vertex->position() == edge->start()->position());
-                    endFound |= (vertex->position() == edge->end()->position());
+                    startFound |= (vertex->position == edge->start->position);
+                    endFound |= (vertex->position == edge->end->position);
                     if (startFound && endFound)
                         break;
                 }
@@ -314,10 +314,10 @@ namespace TrenchBroom {
                 if (c == 1) {
                     Ray3 ray;
                     if (originAtStart) {
-                        ray.origin = edge->start()->position();
+                        ray.origin = edge->start->position;
                         ray.direction = edge->vector().normalized();
                     } else {
-                        ray.origin = edge->end()->position();
+                        ray.origin = edge->end->position;
                         ray.direction = -edge->vector().normalized();
                     }
                     

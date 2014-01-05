@@ -17,26 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Sphere__
-#define __TrenchBroom__Sphere__
+#ifndef TrenchBroom_Edge_h
+#define TrenchBroom_Edge_h
 
-#include "Renderer/VertexArray.h"
+#include "Vec.h"
 
-namespace TrenchBroom {
-    namespace Renderer {
-        class Vbo;
-        
-        class Sphere {
-        private:
-            VertexArray m_array;
-        public:
-            Sphere(float radius, size_t iterations);
+#include <vector>
 
-            bool prepared() const;
-            void prepare(Vbo& vbo);
-            void render();
-        };
+template <typename T, size_t S>
+struct Edge {
+    typedef std::vector<Edge<T,S> > List;
+    
+    Vec<T,S> start;
+    Vec<T,S> end;
+    
+    Edge(const Vec<T,S>& i_start, const Vec<T,S>& i_end) :
+    start(i_start),
+    end(i_end) {}
+    
+    bool operator==(const Edge<T,S>& other) const {
+        return ((start == other.start && end == other.end) ||
+                (end == other.start && start == other.end));
     }
-}
+    
+    Vec<T,S> center() const {
+        return (start + end) / static_cast<T>(2.0);
+    }
+};
 
-#endif /* defined(__TrenchBroom__Sphere__) */
+#endif

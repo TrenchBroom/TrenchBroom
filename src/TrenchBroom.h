@@ -34,5 +34,7 @@ typedef Mat<FloatType, 2, 2> Mat2x2;
 typedef Line<FloatType, 3> Line3;
 typedef Ray<FloatType, 3> Ray3;
 typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
+typedef Edge<FloatType, 3> Edge3;
+typedef Polygon<FloatType, 3> Polygon3;
 
 #endif

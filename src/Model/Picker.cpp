@@ -32,7 +32,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        const Hit Hit::NoHit = Hit(NoType, 0.0f, Vec3f::Null, false);
+        const Hit Hit::NoHit = Hit(NoType, 0.0, Vec3::Null, false);
+
+        bool Hit::isMatch() const {
+            return m_type != NoType;
+        }
 
         Hit::HitType Hit::type() const {
             return m_type;

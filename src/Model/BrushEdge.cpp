@@ -24,80 +24,53 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushEdge::BrushEdge(BrushVertex* start, BrushVertex* end) :
-        m_start(start),
-        m_end(end),
-        m_left(NULL),
-        m_right(NULL),
-        m_mark(New) {
+        BrushEdge::BrushEdge(BrushVertex* i_start, BrushVertex* i_end) :
+        start(i_start),
+        end(i_end),
+        left(NULL),
+        right(NULL),
+        mark(New) {
             assert(start != end);
         }
         
+        BrushEdge::BrushEdge(BrushVertex* i_start, BrushVertex* i_end, BrushFaceGeometry* i_left, BrushFaceGeometry* i_right) :
+        start(i_start),
+        end(i_end),
+        left(i_left),
+        right(i_right),
+        mark(New) {
+            assert(start != end);
+        }
+
         BrushEdge::~BrushEdge() {
-            m_start = NULL;
-            m_end = NULL;
-            m_left = NULL;
-            m_right = NULL;
-        }
-        
-        const BrushVertex* BrushEdge::start() const {
-            return m_start;
-        }
-        
-        BrushVertex* BrushEdge::start() {
-            return m_start;
-        }
-        
-        const BrushVertex* BrushEdge::end() const {
-            return m_end;
-        }
-        
-        BrushVertex* BrushEdge::end() {
-            return m_end;
-        }
-        
-        const BrushFaceGeometry* BrushEdge::left() const {
-            return m_left;
-        }
-        
-        BrushFaceGeometry* BrushEdge::left() {
-            return m_left;
-        }
-        
-        const BrushFaceGeometry* BrushEdge::right() const {
-            return m_right;
-        }
-        
-        BrushFaceGeometry* BrushEdge::right() {
-            return m_right;
-        }
-        
-        BrushEdge::Mark BrushEdge::mark() const {
-            return m_mark;
+            start = NULL;
+            end = NULL;
+            left = NULL;
+            right = NULL;
         }
         
         const BrushFace* BrushEdge::leftFace() const {
-            if (m_left == NULL)
+            if (left == NULL)
                 return NULL;
-            return m_left->face();
+            return left->face;
         }
 
         BrushFace* BrushEdge::leftFace() {
-            if (m_left == NULL)
+            if (left == NULL)
                 return NULL;
-            return m_left->face();
+            return left->face;
         }
         
         const BrushFace* BrushEdge::rightFace() const {
-            if (m_right == NULL)
+            if (right == NULL)
                 return NULL;
-            return m_right->face();
+            return right->face;
         }
         
         BrushFace* BrushEdge::rightFace() {
-            if (m_right == NULL)
+            if (right == NULL)
                 return NULL;
-            return m_right->face();
+            return right->face;
         }
         
         void BrushEdge::updateMark() {
@@ -105,8 +78,8 @@ namespace TrenchBroom {
             size_t keep = 0;
             size_t undecided = 0;
             
-            const BrushVertex::Mark startMark = m_start->mark();
-            const BrushVertex::Mark endMark = m_end->mark();
+            const BrushVertex::Mark startMark = start->mark;
+            const BrushVertex::Mark endMark = end->mark;
             
             if (startMark == BrushVertex::Drop)
                 drop++;
@@ -123,27 +96,27 @@ namespace TrenchBroom {
             assert(drop + keep + undecided == 2);
             
             if (drop == 1 && keep == 1)
-                m_mark = BrushEdge::Split;
+                mark = BrushEdge::Split;
             else if (drop > 0)
-                m_mark = BrushEdge::Drop;
+                mark = BrushEdge::Drop;
             else if (keep > 0)
-                m_mark = BrushEdge::Keep;
+                mark = BrushEdge::Keep;
             else
-                m_mark = BrushEdge::Undecided;
+                mark = BrushEdge::Undecided;
         }
         
         BrushVertex* BrushEdge::split(const Plane3& plane) {
-            assert(mark() == BrushEdge::Split);
+            assert(mark == BrushEdge::Split);
             
             // Do exactly what QBSP is doing:
-            const FloatType startDist = plane.pointDistance(m_start->position());
-            const FloatType endDist = plane.pointDistance(m_end->position());
+            const FloatType startDist = plane.pointDistance(start->position);
+            const FloatType endDist = plane.pointDistance(end->position);
             
             assert(startDist != endDist);
             const FloatType dot = startDist / (startDist - endDist);
 
-            const Vec3& startPos = m_start->position();
-            const Vec3& endPos = m_end->position();
+            const Vec3& startPos = start->position;
+            const Vec3& endPos = end->position;
             Vec3 position;
             for (size_t i = 0; i < 3; ++i) {
                 if (plane.normal[i] == 1.0)
@@ -158,86 +131,104 @@ namespace TrenchBroom {
             position.correct();
             
             BrushVertex* newVertex = new BrushVertex(position);
-            if (m_start->mark() == BrushVertex::Drop)
-                m_start = newVertex;
+            if (start->mark == BrushVertex::Drop)
+                start = newVertex;
             else
-                m_end = newVertex;
+                end = newVertex;
             return newVertex;
         }
 
         void BrushEdge::flip() {
             using std::swap;
-            swap(m_left, m_right);
-            swap(m_start, m_end);
+            swap(left, right);
+            swap(start, end);
         }
 
         void BrushEdge::setLeftNull() {
-            m_left = NULL;
+            left = NULL;
         }
         
         void BrushEdge::setRightNull() {
-            m_right = NULL;
+            right = NULL;
         }
 
-        const BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) const {
-            if (side == m_right)
-                return m_start;
-            if (side == m_left)
-                return m_end;
+        const BrushVertex* BrushEdge::startVertex(const BrushFaceGeometry* side) const {
+            if (side == right)
+                return start;
+            if (side == left)
+                return end;
             return NULL;
         }
         
-        BrushVertex* BrushEdge::start(const BrushFaceGeometry* side) {
-            if (side == m_right)
-                return m_start;
-            if (side == m_left)
-                return m_end;
+        BrushVertex* BrushEdge::startVertex(const BrushFaceGeometry* side) {
+            if (side == right)
+                return start;
+            if (side == left)
+                return end;
             return NULL;
         }
         
-        const BrushVertex* BrushEdge::end(const BrushFaceGeometry* side) const {
-            if (side == m_right)
-                return m_end;
-            if (side == m_left)
-                return m_start;
+        const BrushVertex* BrushEdge::endVertex(const BrushFaceGeometry* side) const {
+            if (side == right)
+                return end;
+            if (side == left)
+                return start;
             return NULL;
         }
         
-        BrushVertex* BrushEdge::end(const BrushFaceGeometry* side) {
-            if (side == m_right)
-                return m_end;
-            if (side == m_left)
-                return m_start;
+        BrushVertex* BrushEdge::endVertex(const BrushFaceGeometry* side) {
+            if (side == right)
+                return end;
+            if (side == left)
+                return start;
             return NULL;
         }
 
         bool BrushEdge::hasPositions(const Vec3& position1, const Vec3& position2) const {
-            if (m_start == NULL || m_end == NULL)
+            if (start == NULL || end == NULL)
                 return false;
-            return (m_start->position() == position1 && m_end->position() == position2) || (m_start->position() == position2 && m_end->position() == position1);
+            return ((start->position == position1 && end->position == position2) ||
+                    (start->position == position2 && end->position == position1));
                     
+        }
+
+        bool BrushEdge::isIncidentWith(const BrushEdge* edge) const {
+            return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
+        }
+
+        bool BrushEdge::connects(const BrushVertex* vertex1, BrushVertex* vertex2) const {
+            return ((vertex1 == start && vertex2 == end) ||
+                    (vertex2 == start && vertex1 == end));
         }
 
         bool BrushEdge::contains(const Vec3& point, const FloatType maxDistance) const {
             const Vec3 edgeVec = vector();
             const Vec3 edgeDir = edgeVec.normalized();
-            const FloatType dot = (point - m_start->position()).dot(edgeDir);
+            const FloatType dot = (point - start->position).dot(edgeDir);
             
             // determine the closest point on the edge
             Vec3 closestPoint;
             if (dot < 0.0)
-                closestPoint = m_start->position();
+                closestPoint = start->position;
             else if ((dot * dot) > edgeVec.squaredLength())
-                closestPoint = m_end->position();
+                closestPoint = end->position;
             else
-                closestPoint = m_start->position() + edgeDir * dot;
+                closestPoint = start->position + edgeDir * dot;
             
             const FloatType distance2 = (point - closestPoint).squaredLength();
             return distance2 <= (maxDistance * maxDistance);
         }
 
         Vec3 BrushEdge::vector() const {
-            return m_end - m_start;
+            return end - start;
+        }
+
+        Vec3 BrushEdge::center() const {
+            return (start->position + end->position) / 2.0;
+        }
+
+        Edge3 BrushEdge::edgeInfo() const {
+            return Edge3(start->position, end->position);
         }
 
         BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2) {

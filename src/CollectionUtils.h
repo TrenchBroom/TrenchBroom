@@ -84,74 +84,22 @@ namespace ListUtils {
 
 namespace VectorUtils {
     template <typename T>
-    void shiftLeft(std::vector<T>& vec, const size_t offset) {
-        if (vec.empty() || offset == 0)
-            return;
-
-        // (offset > 0) is used to silence a compiler warning
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
-        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-        if (modOffset == 0)
-            return;
-            
-        std::rotate(vec.begin(), vec.begin() + modOffset, vec.end());
-    }
-    
-    template <typename T>
-    void shiftRight(std::vector<T>& vec, const size_t offset) {
-        if (vec.empty() || offset == 0)
-            return;
-        
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
-        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-		shiftLeft(vec, static_cast<size_t>(vec.size()) - modOffset);
-    }
-    
-    template <typename T>
-    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
-        std::for_each(first, last, Utils::Deleter<T>());
-        vec.erase(first, last);
-    }
-    
-    template <typename T>
-    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
-        eraseAndDelete(vec, first, vec.end());
-    }
-    
-    template <typename T>
-    void clearAndDelete(std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
-        vec.clear();
-    }
-    
-    template <typename T>
-    void deleteAll(const std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
-    }
-    
-    template <typename T>
-    void remove(std::vector<T>& vec, const T& item) {
-        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
-    }
-    
-    template <typename T>
-    void remove(std::vector<T*>& vec, const T* item) {
-        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
-    }
-
-    template <typename T>
-    void removeAndDelete(std::vector<T*>& vec, const T* item) {
-        remove(vec, item);
-        delete item;
-    }
-    
-    template <typename T>
     typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item);
     }
     
     template <typename T>
     typename std::vector<T>::iterator find(std::vector<T>& vec, const T& item) {
+        return std::find(vec.begin(), vec.end(), item);
+    }
+    
+    template <typename T>
+    typename std::vector<T*>::const_iterator find(const std::vector<T*>& vec, const T* item) {
+        return std::find(vec.begin(), vec.end(), item);
+    }
+    
+    template <typename T>
+    typename std::vector<T*>::iterator find(std::vector<T*>& vec, const T* item) {
         return std::find(vec.begin(), vec.end(), item);
     }
     
@@ -209,6 +157,78 @@ namespace VectorUtils {
             if (vec[i] == item)
                 return i;
         return vec.size();
+    }
+    
+    template <typename T>
+    void shiftLeft(std::vector<T>& vec, const size_t offset) {
+        if (vec.empty() || offset == 0)
+            return;
+
+        // (offset > 0) is used to silence a compiler warning
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
+        if (modOffset == 0)
+            return;
+            
+        std::rotate(vec.begin(), vec.begin() + modOffset, vec.end());
+    }
+    
+    template <typename T>
+    void shiftRight(std::vector<T>& vec, const size_t offset) {
+        if (vec.empty() || offset == 0)
+            return;
+        
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
+		shiftLeft(vec, static_cast<size_t>(vec.size()) - modOffset);
+    }
+    
+    template <typename T>
+    bool eraseAndDelete(std::vector<T*>& vec, const T* item) {
+        typename std::vector<T*>::iterator it = find(vec, item);
+        if (it == vec.end())
+            return false;
+        delete *it;
+        vec.erase(it);
+        return true;
+    }
+    
+    template <typename T>
+    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
+        std::for_each(first, last, Utils::Deleter<T>());
+        vec.erase(first, last);
+    }
+    
+    template <typename T>
+    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
+        eraseAndDelete(vec, first, vec.end());
+    }
+    
+    template <typename T>
+    void clearAndDelete(std::vector<T*>& vec) {
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
+        vec.clear();
+    }
+    
+    template <typename T>
+    void deleteAll(const std::vector<T*>& vec) {
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
+    }
+    
+    template <typename T>
+    void remove(std::vector<T>& vec, const T& item) {
+        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+    }
+    
+    template <typename T>
+    void remove(std::vector<T*>& vec, const T* item) {
+        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+    }
+
+    template <typename T>
+    void removeAndDelete(std::vector<T*>& vec, const T* item) {
+        remove(vec, item);
+        delete item;
     }
     
     template <typename T1, typename T2, typename R>

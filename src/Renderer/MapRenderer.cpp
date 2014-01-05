@@ -59,8 +59,8 @@ namespace TrenchBroom {
             }
             
             bool operator()(const Model::BrushEdge* edge) const {
-                const Model::BrushFace* left = edge->left()->face();
-                const Model::BrushFace* right = edge->right()->face();
+                const Model::BrushFace* left = edge->left->face;
+                const Model::BrushFace* right = edge->right->face;
                 const Model::Brush* brush = left->parent();
                 return (!brush->selected() ||
                         (!left->selected() && !right->selected()));
@@ -82,8 +82,8 @@ namespace TrenchBroom {
             }
             
             bool operator()(const Model::BrushEdge* edge) const {
-                const Model::BrushFace* left = edge->left()->face();
-                const Model::BrushFace* right = edge->right()->face();
+                const Model::BrushFace* left = edge->left->face;
+                const Model::BrushFace* right = edge->right->face;
                 const Model::Brush* brush = left->parent();
                 return (brush->selected() ||
                         left->selected() || right->selected());

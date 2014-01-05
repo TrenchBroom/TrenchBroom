@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushVertex;
         class BrushFaceGeometry;
-        
+
         class BrushEdge : public Allocator<BrushEdge> {
         public:
             enum Mark {
@@ -42,31 +42,21 @@ namespace TrenchBroom {
                 Undecided,
                 New
             };
-        private:
-            BrushVertex* m_start;
-            BrushVertex* m_end;
-            BrushFaceGeometry* m_left;
-            BrushFaceGeometry* m_right;
-            Mark m_mark;
-            
-            friend class BrushFaceGeometry;
+
+            BrushVertex* start;
+            BrushVertex* end;
+            BrushFaceGeometry* left;
+            BrushFaceGeometry* right;
+            Mark mark;
         public:
             BrushEdge(BrushVertex* start, BrushVertex* end);
+            BrushEdge(BrushVertex* start, BrushVertex* end, BrushFaceGeometry* left, BrushFaceGeometry* right);
             ~BrushEdge();
             
-            const BrushVertex* start() const;
-            BrushVertex* start();
-            const BrushVertex* end() const;
-            BrushVertex* end();
-            const BrushFaceGeometry* left() const;
-            BrushFaceGeometry* left();
-            const BrushFaceGeometry* right() const;
-            BrushFaceGeometry* right();
             const BrushFace* leftFace() const;
             BrushFace* leftFace();
             const BrushFace* rightFace() const;
             BrushFace* rightFace();
-            Mark mark() const;
             
             void updateMark();
             BrushVertex* split(const Plane3& plane);
@@ -75,14 +65,20 @@ namespace TrenchBroom {
             void setLeftNull();
             void setRightNull();
             
-            const BrushVertex* start(const BrushFaceGeometry* side) const;
-            BrushVertex* start(const BrushFaceGeometry* side);
-            const BrushVertex* end(const BrushFaceGeometry* side) const;
-            BrushVertex* end(const BrushFaceGeometry* side);
+            const BrushVertex* startVertex(const BrushFaceGeometry* side) const;
+            BrushVertex* startVertex(const BrushFaceGeometry* side);
+            const BrushVertex* endVertex(const BrushFaceGeometry* side) const;
+            BrushVertex* endVertex(const BrushFaceGeometry* side);
             
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
+            bool isIncidentWith(const BrushEdge* edge) const;
+            bool connects(const BrushVertex* vertex1, BrushVertex* vertex2) const;
             bool contains(const Vec3& point, const FloatType maxDistance = Math::Constants<FloatType>::AlmostZero) const;
+
             Vec3 vector() const;
+            Vec3 center() const;
+            
+            Edge3 edgeInfo() const;
         };
 
         BrushEdgeList::iterator findBrushEdge(BrushEdgeList& edges, const Vec3& position1, const Vec3& position2);
