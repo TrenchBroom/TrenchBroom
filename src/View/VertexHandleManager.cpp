@@ -44,10 +44,7 @@ namespace TrenchBroom {
         m_selectedEdgeCount(0),
         m_totalFaceCount(0),
         m_selectedFaceCount(0),
-        m_selectedHandleRenderer(m_vbo),
-        m_unselectedVertexHandleRenderer(m_vbo),
-        m_unselectedEdgeHandleRenderer(m_vbo),
-        m_unselectedFaceHandleRenderer(m_vbo) {}
+        m_handleRenderer(m_vbo) {}
         
         const Model::VertexToBrushesMap& VertexHandleManager::unselectedVertexHandles() const {
             return m_unselectedVertexHandles;
@@ -440,36 +437,38 @@ namespace TrenchBroom {
                 validateRenderState(splitMode);
             
             PreferenceManager& prefs = PreferenceManager::instance();
+            m_handleRenderer.setColor(prefs.get(Preferences::HandleColor));
+            m_handleRenderer.setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
+            m_handleRenderer.setRenderOccluded(true);
 
-            m_unselectedVertexHandleRenderer.setColor(prefs.get(Preferences::HandleColor));
-            m_unselectedVertexHandleRenderer.setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-            m_unselectedVertexHandleRenderer.setRenderOccluded(true);
-            m_unselectedVertexHandleRenderer.renderStoredHandles(renderContext);
+            if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode)
+                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedVertexHandlePositions);
             
-            m_unselectedEdgeHandleRenderer.setColor(prefs.get(Preferences::HandleColor));
-            m_unselectedEdgeHandleRenderer.setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-            m_unselectedEdgeHandleRenderer.setRenderOccluded(true);
-            m_unselectedEdgeHandleRenderer.renderStoredHandles(renderContext);
+            if ((m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty()) || splitMode)
+                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedEdgeHandlePositions);
             
-            m_unselectedFaceHandleRenderer.setColor(prefs.get(Preferences::HandleColor));
-            m_unselectedFaceHandleRenderer.setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-            m_unselectedFaceHandleRenderer.setRenderOccluded(true);
-            m_unselectedFaceHandleRenderer.renderStoredHandles(renderContext);
+            if ((m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty()) || splitMode)
+                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedFaceHandlePositions);
             
             if (!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) {
-                m_selectedEdgeRenderer.setUseColor(true);
+                m_edgeRenderer.setUseColor(true);
                 glDisable(GL_DEPTH_TEST);
-                m_selectedEdgeRenderer.setColor(prefs.get(Preferences::OccludedSelectedHandleColor));
-                m_selectedEdgeRenderer.render(renderContext);
+                m_edgeRenderer.setColor(prefs.get(Preferences::OccludedSelectedHandleColor));
+                m_edgeRenderer.render(renderContext);
                 glEnable(GL_DEPTH_TEST);
-                m_selectedEdgeRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
-                m_selectedEdgeRenderer.render(renderContext);
+                m_edgeRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
+                m_edgeRenderer.render(renderContext);
             }
             
-            m_selectedHandleRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
-            m_selectedHandleRenderer.setOccludedColor(prefs.get(Preferences::OccludedSelectedHandleColor));
-            m_selectedHandleRenderer.setRenderOccluded(true);
-            m_selectedHandleRenderer.renderStoredHandles(renderContext);
+            m_handleRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
+            m_handleRenderer.setOccludedColor(prefs.get(Preferences::OccludedSelectedHandleColor));
+            m_handleRenderer.renderMultipleHandles(renderContext, m_selectedHandlePositions);
+        }
+
+        void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, const Vec3& position) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_handleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
+            m_handleRenderer.renderHandleHighlight(renderContext, Vec3f(position));
         }
 
         Model::Hit VertexHandleManager::pickHandle(const Ray3& ray, const Vec3& position, const Model::Hit::HitType type) const {
@@ -481,8 +480,8 @@ namespace TrenchBroom {
             
             const FloatType distance = ray.intersectWithSphere(position, 2.0 * handleRadius, scalingFactor, maxDistance);
             if (!Math::isnan(distance)) {
-                Vec3 hitPoint = ray.pointAtDistance(distance);
-                return Model::Hit(type, distance, hitPoint, position);
+                const Vec3 hitPoint = ray.pointAtDistance(distance);
+                return Model::Hit::hit<Vec3>(type, distance, hitPoint, position);
             }
             
             return Model::Hit::NoHit;
@@ -497,37 +496,41 @@ namespace TrenchBroom {
 
             typedef Renderer::VertexSpecs::P3::Vertex EdgeVertex;
             EdgeVertex::List edgeVertices;
-            Vec3f::List selectedHandlePositions;
+
+            m_unselectedVertexHandlePositions.clear();
+            m_unselectedEdgeHandlePositions.clear();
+            m_unselectedFaceHandlePositions.clear();
+            m_selectedHandlePositions.clear();
             
-            
-            if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
-                Vec3f::List positions;
-                positions.resize(m_unselectedVertexHandles.size());
-                for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3& position = vIt->first;
-                    positions.push_back(Vec3f(position));
-                }
-                m_unselectedVertexHandleRenderer.setPositions(positions);
+            m_unselectedVertexHandlePositions.reserve(m_unselectedVertexHandles.size());
+            m_unselectedEdgeHandlePositions.reserve(m_unselectedEdgeHandles.size());
+            m_unselectedFaceHandlePositions.reserve(m_unselectedFaceHandles.size());
+            m_selectedHandlePositions.reserve(m_selectedVertexHandles.size() + m_selectedEdgeHandles.size() + m_selectedFaceHandles.size());
+
+            for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                const Vec3& position = vIt->first;
+                m_unselectedVertexHandlePositions.push_back(Vec3f(position));
+            }
+
+            for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                const Vec3& position = eIt->first;
+                m_unselectedEdgeHandlePositions.push_back(Vec3f(position));
+            }
+
+            for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                const Vec3& position = fIt->first;
+                m_unselectedFaceHandlePositions.push_back(Vec3f(position));
             }
 
             for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                 const Vec3& position = vIt->first;
-                selectedHandlePositions.push_back(Vec3f(position));
+                m_selectedHandlePositions.push_back(Vec3f(position));
             }
             
-            if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
-                Vec3f::List positions;
-                positions.resize(m_unselectedEdgeHandles.size());
-                for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
-                    const Vec3& position = eIt->first;
-                    positions.push_back(Vec3f(position));
-                }
-                m_unselectedEdgeHandleRenderer.setPositions(positions);
-            }
             
             for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                 const Vec3& position = eIt->first;
-                selectedHandlePositions.push_back(Vec3f(position));
+                m_selectedHandlePositions.push_back(Vec3f(position));
                 
                 const Model::BrushEdgeList& edges = eIt->second;
                 Model::BrushEdgeList::const_iterator edgeIt, edgeEnd;
@@ -538,19 +541,9 @@ namespace TrenchBroom {
                 }
             }
             
-            if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
-                Vec3f::List positions;
-                positions.resize(m_unselectedFaceHandles.size());
-                for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
-                    const Vec3& position = fIt->first;
-                    positions.push_back(Vec3f(position));
-                }
-                m_unselectedFaceHandleRenderer.setPositions(positions);
-            }
-            
             for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
                 const Vec3f& position = fIt->first;
-                selectedHandlePositions.push_back(Vec3f(position));
+                m_selectedHandlePositions.push_back(Vec3f(position));
                 
                 const Model::BrushFaceList& faces = fIt->second;
                 Model::BrushFaceList::const_iterator faceIt, faceEnd;
@@ -566,10 +559,8 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            m_selectedHandleRenderer.setPositions(selectedHandlePositions);
-            m_selectedEdgeRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, edgeVertices));
-            
+
+            m_edgeRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, edgeVertices));
             m_renderStateValid = true;
         }
     }

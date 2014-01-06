@@ -47,11 +47,16 @@ namespace TrenchBroom {
             BaseHolder::Ptr m_holder;
         public:
             template <typename T>
-            Hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target) :
+            Hit(HitType type, FloatType distance, const Vec3& hitPoint, T target) :
             m_type(type),
             m_distance(distance),
             m_hitPoint(hitPoint),
             m_holder(Holder<T>::newHolder(target)) {}
+
+            template <typename T>
+            static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target) {
+                return Hit(type, distance, hitPoint, target);
+            }
             
             bool isMatch() const;
             HitType type() const;
@@ -76,7 +81,7 @@ namespace TrenchBroom {
             struct FirstHit {
                 bool matches;
                 Hit hit;
-                FirstHit(const bool i_matches, const Hit& i_hit);
+                FirstHit(bool i_matches, const Hit& i_hit);
             };
         private:
             Hit::List m_hits;
@@ -85,7 +90,7 @@ namespace TrenchBroom {
                 bool operator() (const Hit& left, const Hit& right) const;
             };
         public:
-            FirstHit firstHit(const HitFilter& filter, const bool ignoreOccluders) const;
+            FirstHit firstHit(const HitFilter& filter, bool ignoreOccluders) const;
             Hit::List hits(const HitFilter& filter) const;
             Hit::List allHits() const;
             

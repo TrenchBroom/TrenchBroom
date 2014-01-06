@@ -58,6 +58,10 @@ namespace TrenchBroom {
             m_occludedColor = occludedColor;
         }
         
+        void PointHandleRenderer::setHighlightColor(const Color& highlightColor) {
+            m_highlightColor = highlightColor;
+        }
+
         void PointHandleRenderer::setRenderOccluded(const bool renderOccluded) {
             m_renderOccluded = renderOccluded;
         }

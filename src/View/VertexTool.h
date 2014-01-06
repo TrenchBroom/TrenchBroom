@@ -49,6 +49,7 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             size_t m_changeCount;
+            Vec3 m_dragHandlePosition;
         public:
             VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction);
         private:
@@ -72,6 +73,14 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             void selectionDidChange(const Model::SelectionResult& selection);
+
+            bool dismissClick(const InputState& inputState) const;
+            void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            void edgeHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            void faceHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            
+            Model::Hit firstHit(const Model::PickResult& pickResult) const;
+            Model::Hit::List firstHits(const Model::PickResult& pickResult) const;
         };
     }
 }

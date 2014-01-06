@@ -73,6 +73,7 @@ namespace TrenchBroom {
 
         PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const bool ignoreOccluders);
         PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const ModelFilter& modelFilter, const bool ignoreOccluders);
+        Hit::List hits(const PickResult& pickResult, Hit::HitType type);
     }
 }
 

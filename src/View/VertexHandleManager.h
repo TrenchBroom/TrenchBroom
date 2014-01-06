@@ -65,11 +65,13 @@ namespace TrenchBroom {
             size_t m_totalFaceCount;
             size_t m_selectedFaceCount;
             
-            Renderer::PointHandleRenderer m_selectedHandleRenderer;
-            Renderer::PointHandleRenderer m_unselectedVertexHandleRenderer;
-            Renderer::PointHandleRenderer m_unselectedEdgeHandleRenderer;
-            Renderer::PointHandleRenderer m_unselectedFaceHandleRenderer;
-            Renderer::EdgeRenderer m_selectedEdgeRenderer;
+            Vec3f::List m_unselectedVertexHandlePositions;
+            Vec3f::List m_unselectedEdgeHandlePositions;
+            Vec3f::List m_unselectedFaceHandlePositions;
+            Vec3f::List m_selectedHandlePositions;
+            
+            Renderer::PointHandleRenderer m_handleRenderer;
+            Renderer::EdgeRenderer m_edgeRenderer;
             
             bool m_renderStateValid;
         public:
@@ -122,6 +124,7 @@ namespace TrenchBroom {
             
             void pick(const Ray3& ray, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, bool splitMode);
+            void renderHighlight(Renderer::RenderContext& renderContext, const Vec3& position);
         private:
             template <typename Element>
             inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& map) {
