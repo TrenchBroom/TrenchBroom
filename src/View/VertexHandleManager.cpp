@@ -277,8 +277,8 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::selectVertexHandles(const Vec3::Set& positions) {
-            Vec3::Set::const_iterator it, end;
+        void VertexHandleManager::selectVertexHandles(const Vec3::List& positions) {
+            Vec3::List::const_iterator it, end;
             for (it = positions.begin(), end = positions.end(); it != end; ++it)
                 selectVertexHandle(*it);
         }

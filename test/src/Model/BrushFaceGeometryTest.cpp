@@ -51,7 +51,7 @@ namespace TrenchBroom {
             BrushEdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                 BrushEdge& edge = **eIt;
-                if (edge.mark() == BrushEdge::Split)
+                if (edge.mark == BrushEdge::Split)
                     newVertices.push_back(edge.split(plane));
             }
             return newVertices;
@@ -143,10 +143,10 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(4u, face->vertices().size());
-            ASSERT_EQ(4u, face->edges().size());
+            ASSERT_VEC_EQ(Vec3(5.0,  0.0, 0.0), newEdge->start->position);
+            ASSERT_VEC_EQ(Vec3(5.0, 10.0, 0.0), newEdge->end->position);
+            ASSERT_EQ(4u, face->vertices.size());
+            ASSERT_EQ(4u, face->edges.size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);
@@ -201,10 +201,10 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(4u, face->vertices().size());
-            ASSERT_EQ(4u, face->edges().size());
+            ASSERT_VEC_EQ(Vec3( 5.0,  0.0, 0.0), newEdge->start->position);
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end->position);
+            ASSERT_EQ(4u, face->vertices.size());
+            ASSERT_EQ(4u, face->edges.size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);
@@ -259,10 +259,10 @@ namespace TrenchBroom {
             BrushEdge* newEdge = face->splitUsingEdgeMarks();
             
             ASSERT_TRUE(newEdge != NULL);
-            ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->start()->position());
-            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end()->position());
-            ASSERT_EQ(3u, face->vertices().size());
-            ASSERT_EQ(3u, face->edges().size());
+            ASSERT_VEC_EQ(Vec3( 0.0,  0.0, 0.0), newEdge->start->position);
+            ASSERT_VEC_EQ(Vec3(10.0, 10.0, 0.0), newEdge->end->position);
+            ASSERT_EQ(3u, face->vertices.size());
+            ASSERT_EQ(3u, face->edges.size());
             
             BrushFaceGeometryList faces;
             faces.push_back(face);
@@ -343,22 +343,22 @@ namespace TrenchBroom {
             face.addForwardEdge(e2);
             face.addForwardEdge(e3);
             
-            const BrushEdgeList& edges = face.edges();
+            const BrushEdgeList& edges = face.edges;
             ASSERT_EQ(e1, edges[0]);
             ASSERT_EQ(e2, edges[1]);
             ASSERT_EQ(e3, edges[2]);
             
-            const BrushVertexList& vertices = face.vertices();
+            const BrushVertexList& vertices = face.vertices;
             ASSERT_EQ(v1, vertices[0]);
             ASSERT_EQ(v2, vertices[1]);
             ASSERT_EQ(v3, vertices[2]);
             
-            ASSERT_EQ(NULL, e1->left());
-            ASSERT_EQ(NULL, e2->left());
-            ASSERT_EQ(NULL, e3->left());
-            ASSERT_EQ(&face, e1->right());
-            ASSERT_EQ(&face, e2->right());
-            ASSERT_EQ(&face, e3->right());
+            ASSERT_EQ(NULL, e1->left);
+            ASSERT_EQ(NULL, e2->left);
+            ASSERT_EQ(NULL, e3->left);
+            ASSERT_EQ(&face, e1->right);
+            ASSERT_EQ(&face, e2->right);
+            ASSERT_EQ(&face, e3->right);
             
             delete e1;
             delete e2;
@@ -386,22 +386,22 @@ namespace TrenchBroom {
             face.addBackwardEdge(e2);
             face.addBackwardEdge(e3);
             
-            const BrushEdgeList& edges = face.edges();
+            const BrushEdgeList& edges = face.edges;
             ASSERT_EQ(e1, edges[0]);
             ASSERT_EQ(e2, edges[1]);
             ASSERT_EQ(e3, edges[2]);
             
-            const BrushVertexList& vertices = face.vertices();
+            const BrushVertexList& vertices = face.vertices;
             ASSERT_EQ(v1, vertices[0]);
             ASSERT_EQ(v2, vertices[1]);
             ASSERT_EQ(v3, vertices[2]);
             
-            ASSERT_EQ(NULL, e1->right());
-            ASSERT_EQ(NULL, e2->right());
-            ASSERT_EQ(NULL, e3->right());
-            ASSERT_EQ(&face, e1->left());
-            ASSERT_EQ(&face, e2->left());
-            ASSERT_EQ(&face, e3->left());
+            ASSERT_EQ(NULL, e1->right);
+            ASSERT_EQ(NULL, e2->right);
+            ASSERT_EQ(NULL, e3->right);
+            ASSERT_EQ(&face, e1->left);
+            ASSERT_EQ(&face, e2->left);
+            ASSERT_EQ(&face, e3->left);
             
             delete e1;
             delete e2;

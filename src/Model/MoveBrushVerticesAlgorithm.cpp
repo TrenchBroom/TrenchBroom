@@ -63,7 +63,7 @@ namespace TrenchBroom {
             return canMove;
         }
         
-        BrushGeometry::MoveVerticesResult MoveBrushVerticesAlgorithm::doExecute(BrushGeometry& geometry) {
+        MoveVerticesResult MoveBrushVerticesAlgorithm::doExecute(BrushGeometry& geometry) {
             assert(canExecute());
             
             BrushVertexList movedVertices;
@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 newVertexPositions.push_back(movedVertices[i]->position);
             
             updateNewAndDroppedFaces();
-            return BrushGeometry::MoveVerticesResult(newVertexPositions, m_addedFaces, m_removedFaces);
+            return MoveVerticesResult(newVertexPositions, m_addedFaces, m_removedFaces);
         }
     }
 }

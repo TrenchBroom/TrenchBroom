@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void BrushGeometry::Result::append(const Result& other) {
+        void BrushAlgorithmResult::append(const BrushAlgorithmResult& other) {
             addedFaces = VectorUtils::difference(addedFaces, other.droppedFaces);
             VectorUtils::append(addedFaces, other.addedFaces);
             
@@ -39,34 +39,34 @@ namespace TrenchBroom {
             VectorUtils::append(droppedFaces, other.droppedFaces);
         }
         
-        BrushGeometry::Result::Result(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult::BrushAlgorithmResult(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
         addedFaces(i_addedFaces),
         droppedFaces(i_droppedFaces) {}
 
-        BrushGeometry::AddFaceResult::AddFaceResult(const AddFaceResultCode i_resultCode, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
-        Result(i_addedFaces, i_droppedFaces),
+        AddFaceResult::AddFaceResult(const Code i_resultCode, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
         resultCode(i_resultCode) {}
         
-        BrushGeometry::MoveVerticesResult::MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
-        Result(i_addedFaces, i_droppedFaces) {
+        MoveVerticesResult::MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;
             swap(newVertexPositions, i_newVertexPositions);
         }
 
-        BrushGeometry::MoveEdgesResult::MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
-        Result(i_addedFaces, i_droppedFaces) {
+        MoveEdgesResult::MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;
             swap(newEdgePositions, i_newEdgePositions);
         }
 
-        BrushGeometry::MoveFacesResult::MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
-        Result(i_addedFaces, i_droppedFaces) {
+        MoveFacesResult::MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;
             swap(newFacePositions, i_newFacePositions);
         }
 
-        BrushGeometry::SplitResult::SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
-        Result(i_addedFaces, i_droppedFaces),
+        SplitResult::SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
         newVertexPosition(i_newVertexPosition) {}
 
         BrushGeometry::BrushGeometry(const BrushGeometry& original) {
@@ -88,15 +88,15 @@ namespace TrenchBroom {
             return vertex->incidentSides(edges);
         }
 
-        BrushGeometry::AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
-            AddFaceResult totalResult(BrushIsSplit);
+        AddFaceResult BrushGeometry::addFaces(const BrushFaceList& faces) {
+            AddFaceResult totalResult(AddFaceResult::BrushIsSplit);
             
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
                 const AddFaceResult result = addFace(face);
-                if (result.resultCode == BrushIsNull)
-                    return AddFaceResult(BrushIsNull);
+                if (result.resultCode == AddFaceResult::BrushIsNull)
+                    return AddFaceResult(AddFaceResult::BrushIsNull);
                 totalResult.append(result);
             }
             
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             return algorithm.canExecute();
         }
         
-        BrushGeometry::MoveVerticesResult BrushGeometry::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
+        MoveVerticesResult BrushGeometry::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             MoveBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, delta);
             return algorithm.execute();
         }
@@ -286,15 +286,15 @@ namespace TrenchBroom {
             bounds = original.bounds;
         }
 
-        BrushGeometry::AddFaceResult BrushGeometry::addFace(BrushFace* face) {
+        AddFaceResult BrushGeometry::addFace(BrushFace* face) {
             IntersectBrushGeometryWithFace algorithm(*this, face);
-            const AddFaceResultCode resultCode = algorithm.execute();
+            const AddFaceResult::Code resultCode = algorithm.execute();
             switch (resultCode) {
-                case BrushIsNull:
+                case AddFaceResult::BrushIsNull:
                     break;
-                case FaceIsRedundant:
+                case AddFaceResult::FaceIsRedundant:
                     break;
-                case BrushIsSplit:
+                case AddFaceResult::BrushIsSplit:
                     vertices = algorithm.vertices();
                     edges = algorithm.edges();
                     sides = algorithm.sides();

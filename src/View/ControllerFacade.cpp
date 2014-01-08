@@ -24,6 +24,7 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"
 #include "Controller/FixPlanePointsCommand.h"
+#include "Controller/MoveVerticesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
@@ -42,6 +43,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        ControllerFacade::MoveVerticesResult::MoveVerticesResult(bool i_success, bool i_hasRemainingVertices) :
+        success(i_success),
+        hasRemainingVertices(i_hasRemainingVertices) {
+            assert(success || !hasRemainingVertices);
+        }
+        
         ControllerFacade::ControllerFacade(MapDocumentWPtr document) :
         m_document(document) {
             m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
@@ -385,6 +392,15 @@ namespace TrenchBroom {
             
             Command::Ptr command = FixPlanePointsCommand::findPlanePoints(m_document, Model::BrushList(1, &brush));
             return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        ControllerFacade::MoveVerticesResult ControllerFacade::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
+            using namespace Controller;
+            
+            MoveVerticesCommand::Ptr command = MoveVerticesCommand::moveVertices(m_document, vertices, delta);
+            const bool success = m_commandProcessor.submitAndStoreCommand(command);
+            const bool hasRemainingVertices = !command->newVertexPositions().empty();
+            return MoveVerticesResult(success, hasRemainingVertices);
         }
 
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {

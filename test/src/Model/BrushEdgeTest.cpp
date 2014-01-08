@@ -34,8 +34,8 @@ namespace TrenchBroom {
             BrushVertex* end = new BrushVertex(Vec3::Null);
             BrushEdge edge(start, end);
             
-            ASSERT_EQ(start, edge.start());
-            ASSERT_EQ(end, edge.end());
+            ASSERT_EQ(start, edge.start);
+            ASSERT_EQ(end, edge.end);
             
             delete start;
             delete end;
@@ -49,27 +49,27 @@ namespace TrenchBroom {
             start->updateMark(Plane3(2.0, Vec3::PosZ));
             end->updateMark(Plane3(2.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Keep, edge.mark());
+            ASSERT_EQ(BrushEdge::Keep, edge.mark);
             
             start->updateMark(Plane3(1.0, Vec3::PosZ));
             end->updateMark(Plane3(1.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Keep, edge.mark());
+            ASSERT_EQ(BrushEdge::Keep, edge.mark);
 
             start->updateMark(Plane3(0.0, Vec3::PosZ));
             end->updateMark(Plane3(0.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Split, edge.mark());
+            ASSERT_EQ(BrushEdge::Split, edge.mark);
             
             start->updateMark(Plane3(-1.0, Vec3::PosZ));
             end->updateMark(Plane3(-1.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Drop, edge.mark());
+            ASSERT_EQ(BrushEdge::Drop, edge.mark);
 
             start->updateMark(Plane3(-2.0, Vec3::PosZ));
             end->updateMark(Plane3(-2.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Drop, edge.mark());
+            ASSERT_EQ(BrushEdge::Drop, edge.mark);
 
             delete start;
             delete end;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             
             BrushVertex* newVertex = edge.split(plane);
             ASSERT_TRUE(newVertex != NULL);
-            ASSERT_VEC_EQ(Vec3(3.0, 2.0, 8.0), newVertex->position());
+            ASSERT_VEC_EQ(Vec3(3.0, 2.0, 8.0), newVertex->position);
             
             delete start;
             delete end;
@@ -107,15 +107,15 @@ namespace TrenchBroom {
             right->addForwardEdge(edge);
             left->addBackwardEdge(edge);
             
-            ASSERT_EQ(NULL, edge->start(NULL));
-            ASSERT_EQ(NULL, edge->start(neither));
-            ASSERT_EQ(start, edge->start(right));
-            ASSERT_EQ(end, edge->start(left));
+            ASSERT_EQ(NULL, edge->startVertex(NULL));
+            ASSERT_EQ(NULL, edge->startVertex(neither));
+            ASSERT_EQ(start, edge->startVertex(right));
+            ASSERT_EQ(end, edge->startVertex(left));
             
-            ASSERT_EQ(NULL, edge->end(NULL));
-            ASSERT_EQ(NULL, edge->end(neither));
-            ASSERT_EQ(end, edge->end(right));
-            ASSERT_EQ(start, edge->end(left));
+            ASSERT_EQ(NULL, edge->endVertex(NULL));
+            ASSERT_EQ(NULL, edge->endVertex(neither));
+            ASSERT_EQ(end, edge->endVertex(right));
+            ASSERT_EQ(start, edge->endVertex(left));
             
             delete left;
             delete right;
@@ -139,10 +139,10 @@ namespace TrenchBroom {
             list.push_back(e2);
             
             BrushEdgeList::iterator notFound   = findBrushEdge(list, Vec3(3.0, 2.0, 1.0), Vec3::Null);
-            BrushEdgeList::iterator e1Forward  = findBrushEdge(list, e1->start()->position(), e1->end()->position());
-            BrushEdgeList::iterator e1Backward = findBrushEdge(list, e1->end()->position(), e1->start()->position());
-            BrushEdgeList::iterator e2Forward  = findBrushEdge(list, e2->start()->position(), e2->end()->position());
-            BrushEdgeList::iterator e2Backward = findBrushEdge(list, e2->end()->position(), e2->start()->position());
+            BrushEdgeList::iterator e1Forward  = findBrushEdge(list, e1->start->position, e1->end->position);
+            BrushEdgeList::iterator e1Backward = findBrushEdge(list, e1->end->position, e1->start->position);
+            BrushEdgeList::iterator e2Forward  = findBrushEdge(list, e2->start->position, e2->end->position);
+            BrushEdgeList::iterator e2Backward = findBrushEdge(list, e2->end->position, e2->start->position);
             
             ASSERT_EQ(list.end(), notFound);
             ASSERT_EQ(e1, *e1Forward);

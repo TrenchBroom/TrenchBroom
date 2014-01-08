@@ -52,6 +52,7 @@ namespace TrenchBroom {
             Vec3 m_dragHandlePosition;
         public:
             VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction);
+            MoveResult moveVertices(const Vec3& delta);
         private:
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
@@ -73,6 +74,8 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             void selectionDidChange(const Model::SelectionResult& selection);
+            void commandDone(Controller::Command::Ptr command);
+            void commandUndone(Controller::Command::Ptr command);
 
             bool dismissClick(const InputState& inputState) const;
             void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);

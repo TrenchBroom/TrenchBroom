@@ -415,8 +415,9 @@ public:
         return true;
     }
     
-            bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::ColinearEpsilon) const {
-        return std::abs(dot(other) - other.length()) <= epsilon;
+    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+        const T d = normalized().dot(other.normalized());
+        return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
     }
     
     int weight() const {

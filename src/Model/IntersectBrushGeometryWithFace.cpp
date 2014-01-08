@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Model {
         IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace* face) :
-        BrushGeometryAlgorithm(geometry),
+        BrushAlgorithm(geometry),
         m_face(face) {
             assert(m_face != NULL);
             m_remainingVertices.reserve(24);
@@ -50,12 +50,12 @@ namespace TrenchBroom {
             return m_remainingSides;
         }
 
-        BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {
+        AddFaceResult::Code IntersectBrushGeometryWithFace::doExecute(BrushGeometry& geometry) {
             if (isFaceIdenticalWithAnySide(geometry))
-                return BrushGeometry::FaceIsRedundant;
+                return AddFaceResult::FaceIsRedundant;
             
-            const BrushGeometry::AddFaceResultCode processVerticesResult = processVertices(geometry);
-            if (processVerticesResult != BrushGeometry::BrushIsSplit)
+            const AddFaceResult::Code processVerticesResult = processVertices(geometry);
+            if (processVerticesResult != AddFaceResult::BrushIsSplit)
                 return processVerticesResult;
             processEdges(geometry);
             processSides(geometry);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             createNewSide();
             cleanup();
             
-            return BrushGeometry::BrushIsSplit;
+            return AddFaceResult::BrushIsSplit;
         }
         
         bool IntersectBrushGeometryWithFace::isFaceIdenticalWithAnySide(BrushGeometry& geometry) {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        BrushGeometry::AddFaceResultCode IntersectBrushGeometryWithFace::processVertices(BrushGeometry& geometry) {
+        AddFaceResult::Code IntersectBrushGeometryWithFace::processVertices(BrushGeometry& geometry) {
             const Plane3& boundary = m_face->boundary();
 
             size_t drop = 0;
@@ -108,10 +108,10 @@ namespace TrenchBroom {
             
             assert(drop + keep + undecided == geometry.vertices.size());
             if (drop + undecided == geometry.vertices.size())
-                return BrushGeometry::BrushIsNull;
+                return AddFaceResult::BrushIsNull;
             if (keep + undecided == geometry.vertices.size())
-                return BrushGeometry::FaceIsRedundant;
-            return BrushGeometry::BrushIsSplit;
+                return AddFaceResult::FaceIsRedundant;
+            return AddFaceResult::BrushIsSplit;
         }
 
         void IntersectBrushGeometryWithFace::processEdges(BrushGeometry& geometry) {

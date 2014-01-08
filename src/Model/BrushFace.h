@@ -180,6 +180,8 @@ namespace TrenchBroom {
 
             void addToMesh(Mesh& mesh) const;
             FloatType intersectWithRay(const Ray3& ray) const;
+            
+            void invalidate();
         private:
             virtual BrushFace* doClone() const = 0;
             

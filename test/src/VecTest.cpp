@@ -250,9 +250,12 @@ TEST(VecTest, vec3fSetSingleValue) {
 
 TEST(VecTest, vec3fParallelTo) {
     ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::PosX));
-    ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::NegX));
+    ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::NegX));
     ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::PosY));
     ASSERT_TRUE(Vec3f::PosZ.parallelTo(Vec3f(0.1f, -0.02f, 100.0f)));
+    ASSERT_TRUE(Vec3d(-1.0, 0.0, 0.0).parallelTo(Vec3d(3.0, 0.0, 0.0)));
+    ASSERT_TRUE(Vec3d(-1.0, 2.0, 42.0).parallelTo(-3.2253 * Vec3d(-1.0, 2.0, 42.0)));
+    ASSERT_FALSE(Vec3d(-1.0, 2.0, 21.0).parallelTo(Vec3d(-1.0, 5.0, 21.0)));
 }
 
 TEST(VecTest, vec3fMajorComponent) {

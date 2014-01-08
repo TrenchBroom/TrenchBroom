@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushGeometryAlgorithm_h
-#define TrenchBroom_BrushGeometryAlgorithm_h
+#ifndef TrenchBroom_BrushAlgorithm_h
+#define TrenchBroom_BrushAlgorithm_h
 
 #include "CollectionUtils.h"
 #include "Model/ModelTypes.h"
@@ -28,14 +28,14 @@ namespace TrenchBroom {
         class BrushGeometry;
         
         template <typename R>
-        class BrushGeometryAlgorithm {
+        class BrushAlgorithm {
         private:
             BrushGeometry& m_geometry;
         protected:
             BrushFaceList m_addedFaces;
             BrushFaceList m_removedFaces;
         public:
-            virtual ~BrushGeometryAlgorithm() {}
+            virtual ~BrushAlgorithm() {}
 
             bool canExecute() {
                 return doCanExecute(m_geometry);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 return m_removedFaces;
             }
         protected:
-            BrushGeometryAlgorithm(BrushGeometry& geometry) :
+            BrushAlgorithm(BrushGeometry& geometry) :
             m_geometry(geometry) {}
 
             void addFace(BrushFace* face) {

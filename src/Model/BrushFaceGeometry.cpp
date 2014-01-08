@@ -151,19 +151,10 @@ namespace TrenchBroom {
         void BrushFaceGeometry::addForwardEdge(BrushEdge* edge) {
             assert(edge != NULL);
             
-            if (edge->right != NULL) {
-                GeometryException e;
-                e << "Edge already has an incident side on its right";
-                throw e;
-            }
-            
             if (!edges.empty()) {
                 const BrushEdge* previous = edges.back();
-                if (previous->endVertex(this) != edge->start) {
-                    GeometryException e;
-                    e << "Cannot add non-consecutive edge";
-                    throw e;
-                }
+                if (previous->endVertex(this) != edge->start)
+                    throw GeometryException("Cannot add non-consecutive edge");
             }
             
             edge->right = this;
@@ -182,19 +173,10 @@ namespace TrenchBroom {
         void BrushFaceGeometry::addBackwardEdge(BrushEdge* edge) {
             assert(edge != NULL);
             
-            if (edge->left != NULL) {
-                GeometryException e;
-                e << "Edge already has an incident side on its left";
-                throw e;
-            }
-
             if (!edges.empty()) {
                 const BrushEdge* previous = edges.back();
-                if (previous->endVertex(this) != edge->end) {
-                    GeometryException e;
-                    e << "Cannot add non-consecutive edge";
-                    throw e;
-                }
+                if (previous->endVertex(this) != edge->end)
+                    throw GeometryException("Cannot add non-consecutive edge");
             }
             
             edge->left = this;
@@ -270,10 +252,10 @@ namespace TrenchBroom {
             Vec3 edgeVector1 = edges[0]->vector();
             Vec3 edgeVector2 = edges[1]->vector();
             
-            if (edgeVector1.parallelTo(edgeVector2)) {
+            if (edgeVector1.parallelTo(edgeVector2, Math::Constants<FloatType>::ColinearEpsilon)) {
                 const Vec3 edgeVector3 = edges[2]->vector();
-                assert(edgeVector1.parallelTo(edgeVector3));
-                assert(edgeVector2.parallelTo(edgeVector3));
+                assert(edgeVector1.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
+                assert(edgeVector2.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
                 
                 const FloatType length1 = edgeVector1.squaredLength();
                 const FloatType length2 = edgeVector2.squaredLength();
@@ -293,8 +275,8 @@ namespace TrenchBroom {
                 }
             } else {
                 const Vec3 edgeVector3 = edges[2]->vector();
-                assert(!edgeVector1.parallelTo(edgeVector3));
-                assert(!edgeVector2.parallelTo(edgeVector3));
+                assert(!edgeVector1.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
+                assert(!edgeVector2.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
                 
                 return edges.size();
             }
@@ -312,11 +294,11 @@ namespace TrenchBroom {
             
             BrushEdge* prevEdge = edges[Math::pred(vertexIndex, edgeCount)];
             BrushEdge* nextEdge = edges[vertexIndex];
-            newEdge = new BrushEdge(prevVertex, nextVertex, this, NULL);
+            newEdge = new BrushEdge(nextVertex, prevVertex, this, NULL);
 
             newSide = new BrushFaceGeometry();
-            newSide->addEdge(prevEdge, prevEdge->left == this);
-            newSide->addEdge(nextEdge, nextEdge->left == this);
+            newSide->addEdge(prevEdge, prevEdge->right == this);
+            newSide->addEdge(nextEdge, nextEdge->right == this);
             newSide->addForwardEdge(newEdge);
 
             BrushFace* newFace = face->clone();
@@ -325,7 +307,7 @@ namespace TrenchBroom {
             
             BrushEdgeList::iterator start = edges.begin();
             BrushEdgeList::iterator end = edges.begin();
-            std::advance(start, Math::pred(vertexIndex, edgeCount, 2));
+            std::advance(start, Math::pred(vertexIndex, edgeCount));
             std::advance(end, Math::succ(vertexIndex, edgeCount));
             replaceEdgesWithBackwardEdge(start, end, newEdge);
         }
@@ -374,6 +356,7 @@ namespace TrenchBroom {
         }
 
         void BrushFaceGeometry::replaceEdgesWithEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge) {
+            using std::swap;
             if (it1 == it2) {
                 edges.insert(it1, edge);
             } else if (it1 < it2) {
@@ -381,12 +364,12 @@ namespace TrenchBroom {
                 newEdges.insert(newEdges.end(), edges.begin(), it1);
                 newEdges.push_back(edge);
                 newEdges.insert(newEdges.end(), it2, edges.end());
-                edges = newEdges;
+                swap(edges, newEdges);
             } else {
                 BrushEdgeList newEdges;
                 newEdges.insert(newEdges.end(), it2, it1);
                 newEdges.push_back(edge);
-                edges = newEdges;
+                swap(edges, newEdges);
             }
             assert(edges.size() >= 3);
             updateVerticesFromEdges();

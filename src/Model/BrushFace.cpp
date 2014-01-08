@@ -210,8 +210,7 @@ namespace TrenchBroom {
             m_attribs = attribs;
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
-            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
-            invalidateVertexCache();
+            invalidate();
         }
 
         const String& BrushFace::textureName() const {
@@ -342,8 +341,7 @@ namespace TrenchBroom {
             if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
                 swap(m_points[1], m_points[2]);
             correctPoints();
-            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
-            invalidateVertexCache();
+            invalidate();
         }
 
         void BrushFace::invert() {
@@ -351,8 +349,7 @@ namespace TrenchBroom {
 
             m_boundary.flip();
             swap(m_points[1], m_points[2]);
-            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
-            invalidateVertexCache();
+            invalidate();
         }
 
         void BrushFace::updatePointsFromVertices() {
@@ -381,25 +378,23 @@ namespace TrenchBroom {
                 }
             }
             
-            m_points[2] = m_side->vertices[Math::pred(best, vertexCount)]->position;
-            m_points[0] = m_side->vertices[best]->position;
-            m_points[1] = m_side->vertices[Math::succ(best, vertexCount)]->position;
-            correctPoints();
-            
-            if (!setPlanePoints(m_boundary, m_points[0], m_points[1], m_points[2])) {
-                throw GeometryException("Invalid face points " + m_points[0].asString() + " " + m_points[1].asString() + " " + m_points[2].asString());
-            }
+            setPoints(m_side->vertices[best]->position,
+                      m_side->vertices[Math::succ(best, vertexCount)]->position,
+                      m_side->vertices[Math::pred(best, vertexCount)]->position);
+            invalidate();
         }
 
         void BrushFace::snapPlanePointsToInteger() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].round();
             setPoints(m_points[0], m_points[1], m_points[2]);
+            invalidate();
         }
         
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
             setPoints(m_points[0], m_points[1], m_points[2]);
+            invalidate();
         }
 
         const BrushEdgeList& BrushFace::edges() const {
@@ -458,6 +453,11 @@ namespace TrenchBroom {
             mesh.endTriangleSet();
         }
         
+        void BrushFace::invalidate() {
+            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            invalidateVertexCache();
+        }
+
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
             assert(m_side != NULL);
             
@@ -529,7 +529,7 @@ namespace TrenchBroom {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;
-            invalidateVertexCache();
+            correctPoints();
             
             if (!setPlanePoints(m_boundary, m_points)) {
                 GeometryException e;

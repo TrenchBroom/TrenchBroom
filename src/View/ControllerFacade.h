@@ -45,6 +45,12 @@ namespace TrenchBroom {
     
     namespace View {
         class ControllerFacade {
+        public:
+            struct MoveVerticesResult {
+                bool success;
+                bool hasRemainingVertices;
+                MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
+            };
         private:
             MapDocumentWPtr m_document;
             Controller::CommandProcessor m_commandProcessor;
@@ -109,9 +115,12 @@ namespace TrenchBroom {
             bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
             bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+
             bool snapPlanePoints(Model::Brush& brush);
             bool findPlanePoints(Model::Brush& brush);
 
+            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);
             bool setFaceYOffset(const Model::BrushFaceList& faces, float yOffset, bool add);

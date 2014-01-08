@@ -32,12 +32,6 @@
 #include <map>
 
 namespace TrenchBroom {
-    namespace Model {
-        typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
-        typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;
-        typedef std::map<Vec3, BrushFaceList, Vec3::LexicographicOrder> VertexToFacesMap;
-    }
-    
     namespace Renderer {
         class RenderContext;
     }
@@ -107,7 +101,7 @@ namespace TrenchBroom {
             
             void selectVertexHandle(const Vec3& position);
             void deselectVertexHandle(const Vec3& position);
-            void selectVertexHandles(const Vec3::Set& positions);
+            void selectVertexHandles(const Vec3::List& positions);
             void deselectAllVertexHandles();
             
             void selectEdgeHandle(const Vec3& position);

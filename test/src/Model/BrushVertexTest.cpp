@@ -30,17 +30,17 @@ namespace TrenchBroom {
         TEST(BrushVertexTest, constructWithPosition) {
             Vec3 position(1.0f, 2.0f, 3.0f);
             BrushVertex vertex(position);
-            ASSERT_EQ(position, vertex.position());
+            ASSERT_EQ(position, vertex.position);
         }
         
         TEST(BrushVertexTest, getMark) {
             BrushVertex v(Vec3::Null);
             v.updateMark(Plane3(-1.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Drop, v.mark());
+            ASSERT_EQ(BrushVertex::Drop, v.mark);
             v.updateMark(Plane3( 0.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Undecided, v.mark());
+            ASSERT_EQ(BrushVertex::Undecided, v.mark);
             v.updateMark(Plane3( 1.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Keep, v.mark());
+            ASSERT_EQ(BrushVertex::Keep, v.mark);
         }
         
         TEST(BrushVertexTest, findBrushVertex) {
@@ -54,9 +54,9 @@ namespace TrenchBroom {
             list.push_back(v3);
             
             BrushVertexList::iterator notFound = findBrushVertex(list, Vec3(-1.0, 1.0, -1.0));
-            BrushVertexList::iterator  v1Found = findBrushVertex(list, v1->position());
-            BrushVertexList::iterator  v2Found = findBrushVertex(list, v2->position());
-            BrushVertexList::iterator  v3Found = findBrushVertex(list, v3->position());
+            BrushVertexList::iterator  v1Found = findBrushVertex(list, v1->position);
+            BrushVertexList::iterator  v2Found = findBrushVertex(list, v2->position);
+            BrushVertexList::iterator  v3Found = findBrushVertex(list, v3->position);
             
             ASSERT_EQ(list.end(), notFound);
             ASSERT_EQ(v1, *v1Found);

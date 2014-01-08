@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__MoveBrushVertexAlgorithm__
 #define __TrenchBroom__MoveBrushVertexAlgorithm__
 
-#include "Model/BrushGeometryAlgorithm.h"
+#include "Model/BrushAlgorithm.h"
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename R>
-        class MoveBrushVertexAlgorithm : public BrushGeometryAlgorithm<R> {
+        class MoveBrushVertexAlgorithm : public BrushAlgorithm<R> {
         private:
             class FaceManager {
             private:
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             };
         protected:
             MoveBrushVertexAlgorithm(BrushGeometry& geometry) :
-            BrushGeometryAlgorithm<R>(geometry) {}
+            BrushAlgorithm<R>(geometry) {}
 
             MoveVertexResult moveVertex(BrushGeometry& geometry, BrushVertex* vertex, const bool allowMerge, const Vec3& start, const Vec3& end) {
                 assert(vertex != NULL);
@@ -361,8 +361,8 @@ namespace TrenchBroom {
             }
             
             void updateNewAndDroppedFaces() {
-                m_faceManager.getFaces(BrushGeometryAlgorithm<R>::m_addedFaces,
-                                       BrushGeometryAlgorithm<R>::m_removedFaces);
+                m_faceManager.getFaces(BrushAlgorithm<R>::m_addedFaces,
+                                       BrushAlgorithm<R>::m_removedFaces);
             }
         private:
             MoveVertexResult cancel(BrushGeometry& geometry, BrushVertex* vertex) {
@@ -496,7 +496,7 @@ namespace TrenchBroom {
                         BrushEdge* candidate = geometry.edges[j];
                         if (edge->isIncidentWith(candidate)) {
                             const Vec3 candidateVector = candidate->vector();
-                            if (edgeVector.parallelTo(candidateVector, 0.01)) {
+                            if (edgeVector.parallelTo(candidateVector, Math::Constants<FloatType>::ColinearEpsilon)) {
                                 if (edge->end == candidate->end)
                                     candidate->flip();
                                 if (edge->end == candidate->start &&

@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushGeometryAlgorithm.h"
+#include "Model/BrushAlgorithm.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class BrushEdge;
         class BrushVertex;
 
-        class IntersectBrushGeometryWithFace : public BrushGeometryAlgorithm<BrushGeometry::AddFaceResultCode> {
+        class IntersectBrushGeometryWithFace : public BrushAlgorithm<AddFaceResult::Code> {
         private:
             BrushFace* m_face;
             BrushVertexList m_remainingVertices;
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             const BrushEdgeList& edges() const;
             const BrushFaceGeometryList& sides() const;
         private:
-            BrushGeometry::AddFaceResultCode doExecute(BrushGeometry& geometry);
+            AddFaceResult::Code doExecute(BrushGeometry& geometry);
             bool isFaceIdenticalWithAnySide(BrushGeometry& geometry);
-            BrushGeometry::AddFaceResultCode processVertices(BrushGeometry& geometry);
+            AddFaceResult::Code processVertices(BrushGeometry& geometry);
             void processEdges(BrushGeometry& geometry);
             void processSides(BrushGeometry& geometry);
             void createNewSide();

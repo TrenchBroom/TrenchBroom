@@ -36,6 +36,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushGeometry;
+        struct BrushAlgorithmResult;
         class Entity;
         class Brush;
 
@@ -91,6 +92,10 @@ namespace TrenchBroom {
             bool clip(const BBox3& worldBounds, BrushFace* face);
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace& face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace& face, const Vec3& delta, const bool lockTexture);
+            
+            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            
             void snapPlanePointsToInteger(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
@@ -112,11 +117,12 @@ namespace TrenchBroom {
             friend class BrushSnapshot;
             void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);
             
-            void rebuildGeometry(const BBox3& worldBounds, const BrushFaceList faces);
+            void processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result);
+            void rebuildGeometry(const BBox3& worldBounds);
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
             void detachFaces(const BrushFaceList& faces);
-
+            
             Brush(const Brush& other);
             Brush& operator=(const Brush& other);
         };

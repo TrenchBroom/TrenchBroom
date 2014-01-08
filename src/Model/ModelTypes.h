@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_ModelTypes_h
 #define TrenchBroom_ModelTypes_h
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
+#include "Model/BrushGeometryTypes.h"
 #include <map>
 #include <set>
 #include <vector>
@@ -87,6 +90,10 @@ namespace TrenchBroom {
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;
+
+        typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
+        typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;
+        typedef std::map<Vec3, BrushFaceList, Vec3::LexicographicOrder> VertexToFacesMap;
     }
 }
 

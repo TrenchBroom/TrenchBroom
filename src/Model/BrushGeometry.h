@@ -29,46 +29,46 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushGeometry {
-        public:
+        struct BrushAlgorithmResult {
+            BrushFaceList addedFaces;
+            BrushFaceList droppedFaces;
+            void append(const BrushAlgorithmResult& other);
+        protected:
+            BrushAlgorithmResult(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces);
+        };
+        
+        struct AddFaceResult : public BrushAlgorithmResult {
             typedef enum {
                 BrushIsSplit,
                 BrushIsNull,
                 FaceIsRedundant
-            } AddFaceResultCode;
+            } Code;
 
-            struct Result {
-                BrushFaceList addedFaces;
-                BrushFaceList droppedFaces;
-                void append(const Result& other);
-            protected:
-                Result(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces);
-            };
-            
-            struct AddFaceResult : public Result {
-                AddFaceResultCode resultCode;
-                AddFaceResult(AddFaceResultCode i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            };
-            
-            struct MoveVerticesResult : public Result {
-                Vec3::List newVertexPositions;
-                MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            };
-            
-            struct MoveEdgesResult : public Result {
-                Edge3::List newEdgePositions;
-                MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            };
-            
-            struct MoveFacesResult : public Result {
-                Polygon3::List newFacePositions;
-                MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            };
-            
-            struct SplitResult : public Result {
-                Vec3 newVertexPosition;
-                SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            };
+            Code resultCode;
+            AddFaceResult(Code i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
+        
+        struct MoveVerticesResult : public BrushAlgorithmResult {
+            Vec3::List newVertexPositions;
+            MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
+        
+        struct MoveEdgesResult : public BrushAlgorithmResult {
+            Edge3::List newEdgePositions;
+            MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
+        
+        struct MoveFacesResult : public BrushAlgorithmResult {
+            Polygon3::List newFacePositions;
+            MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
+        
+        struct SplitResult : public BrushAlgorithmResult {
+            Vec3 newVertexPosition;
+            SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
+
+        class BrushGeometry {
         public:
             BrushVertexList vertices;
             BrushEdgeList edges;

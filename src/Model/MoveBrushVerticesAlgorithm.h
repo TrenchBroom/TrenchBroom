@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MoveBrushVerticesAlgorithm : public MoveBrushVertexAlgorithm<BrushGeometry::MoveVerticesResult> {
+        class MoveBrushVerticesAlgorithm : public MoveBrushVertexAlgorithm<MoveVerticesResult> {
         private:
             const BBox3& m_worldBounds;
             const Vec3::List& m_vertexPositions;
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             MoveBrushVerticesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
         private:
             bool doCanExecute(BrushGeometry& geometry);
-            BrushGeometry::MoveVerticesResult doExecute(BrushGeometry& geometry);
+            MoveVerticesResult doExecute(BrushGeometry& geometry);
         };
     }
 }
