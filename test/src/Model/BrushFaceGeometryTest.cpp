@@ -502,6 +502,103 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(vertices);
         }
         
+        TEST(BrushFaceGeometryTest, isColinearTriangle) {
+            const Vec3 p1(0.0, 0.0, 0.0);
+            const Vec3 p2(0.0, 5.0, 0.0);
+            const Vec3 p3(5.0, 5.0, 0.0);
+            const Vec3 p4(5.0, 0.0, 0.0);
+            
+            BrushVertex* v1 = new BrushVertex(p1);
+            BrushVertex* v2 = new BrushVertex(p2);
+            BrushVertex* v3 = new BrushVertex(p3);
+            BrushVertex* v4 = new BrushVertex(p4);
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdgeList edges;
+            edges.push_back(new BrushEdge(v1, v2));
+            edges.push_back(new BrushEdge(v2, v3));
+            edges.push_back(new BrushEdge(v3, v4));
+            edges.push_back(new BrushEdge(v4, v1));
+            
+            BrushEdge* edge = new BrushEdge(v3, v1);
+            
+            BrushFaceGeometry polygon;
+            polygon.addForwardEdges(edges);
+            ASSERT_EQ(4u, polygon.isColinearTriangle());
+            
+            BrushFaceGeometry triangle;
+            triangle.addForwardEdge(edges[0]);
+            triangle.addForwardEdge(edges[1]);
+            triangle.addForwardEdge(edge);
+            ASSERT_EQ(3u, triangle.isColinearTriangle());
+            
+            v1->position = Vec3(-10.0, 5.0, 0.0);
+            ASSERT_EQ(2u, triangle.isColinearTriangle());
+            
+            VectorUtils::clearAndDelete(edges);
+            VectorUtils::clearAndDelete(vertices);
+            delete edge;
+        }
+        
+        TEST(BrushFaceGeometryTest, chop) {
+            const Vec3 p1(0.0, 0.0, 0.0);
+            const Vec3 p2(0.0, 5.0, 0.0);
+            const Vec3 p3(5.0, 5.0, 0.0);
+            const Vec3 p4(5.0, 0.0, 0.0);
+            
+            BrushVertex* v1 = new BrushVertex(p1);
+            BrushVertex* v2 = new BrushVertex(p2);
+            BrushVertex* v3 = new BrushVertex(p3);
+            BrushVertex* v4 = new BrushVertex(p4);
+            
+            BrushVertexList vertices;
+            vertices.push_back(v1);
+            vertices.push_back(v2);
+            vertices.push_back(v3);
+            vertices.push_back(v4);
+            
+            BrushEdgeList edges;
+            edges.push_back(new BrushEdge(v1, v2));
+            edges.push_back(new BrushEdge(v2, v3));
+            edges.push_back(new BrushEdge(v3, v4));
+            edges.push_back(new BrushEdge(v4, v1));
+            
+            BrushFaceGeometry quad;
+            quad.addForwardEdges(edges);
+            
+            BrushFaceGeometry* newSide = NULL;
+            BrushEdge* newEdge = NULL;
+            quad.chop(0, newSide, newEdge);
+            
+            ASSERT_TRUE(newSide != NULL);
+            ASSERT_TRUE(newEdge != NULL);
+            
+            ASSERT_EQ(3u, newSide->vertices.size());
+            ASSERT_EQ(3u, newSide->edges.size());
+            
+            ASSERT_EQ(v4, newSide->vertices[0]);
+            ASSERT_EQ(v1, newSide->vertices[1]);
+            ASSERT_EQ(v2, newSide->vertices[2]);
+            ASSERT_EQ(edges[3], newSide->edges[0]);
+            ASSERT_EQ(edges[0], newSide->edges[1]);
+            ASSERT_EQ(newEdge, newSide->edges[2]);
+            
+            ASSERT_EQ(v2, quad.vertices[0]);
+            ASSERT_EQ(v3, quad.vertices[1]);
+            ASSERT_EQ(v4, quad.vertices[2]);
+            ASSERT_EQ(edges[1], quad.edges[0]);
+            ASSERT_EQ(edges[2], quad.edges[1]);
+            ASSERT_EQ(newEdge, quad.edges[2]);
+            
+            delete newSide;
+            delete newEdge;
+        }
+        
         TEST(BrushFaceGeometryTest, findBrushFaceGeometry) {
             const Vec3 p1(1.0, 2.0, 3.0);
             const Vec3 p2(2.0, 3.0, 4.0);

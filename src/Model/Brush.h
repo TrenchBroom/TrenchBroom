@@ -123,6 +123,8 @@ namespace TrenchBroom {
             void addFace(BrushFace* face);
             void detachFaces(const BrushFaceList& faces);
             
+            bool checkFaceGeometryLinks() const;
+            
             Brush(const Brush& other);
             Brush& operator=(const Brush& other);
         };

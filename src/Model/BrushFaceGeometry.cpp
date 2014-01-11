@@ -252,10 +252,10 @@ namespace TrenchBroom {
             Vec3 edgeVector1 = edges[0]->vector();
             Vec3 edgeVector2 = edges[1]->vector();
             
-            if (edgeVector1.parallelTo(edgeVector2, Math::Constants<FloatType>::ColinearEpsilon)) {
+            if (edgeVector1.parallelTo(edgeVector2)) {
                 const Vec3 edgeVector3 = edges[2]->vector();
-                assert(edgeVector1.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
-                assert(edgeVector2.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
+                assert(edgeVector1.parallelTo(edgeVector3));
+                assert(edgeVector2.parallelTo(edgeVector3));
                 
                 const FloatType length1 = edgeVector1.squaredLength();
                 const FloatType length2 = edgeVector2.squaredLength();
@@ -275,8 +275,8 @@ namespace TrenchBroom {
                 }
             } else {
                 const Vec3 edgeVector3 = edges[2]->vector();
-                assert(!edgeVector1.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
-                assert(!edgeVector2.parallelTo(edgeVector3, Math::Constants<FloatType>::ColinearEpsilon));
+                assert(!edgeVector1.parallelTo(edgeVector3));
+                assert(!edgeVector2.parallelTo(edgeVector3));
                 
                 return edges.size();
             }
@@ -301,9 +301,11 @@ namespace TrenchBroom {
             newSide->addEdge(nextEdge, nextEdge->right == this);
             newSide->addForwardEdge(newEdge);
 
-            BrushFace* newFace = face->clone();
-            newSide->face = newFace;
-            newFace->setSide(newSide);
+            if (face != NULL) {
+                BrushFace* newFace = face->clone();
+                newSide->face = newFace;
+                newFace->setSide(newSide);
+            }
             
             BrushEdgeList::iterator start = edges.begin();
             BrushEdgeList::iterator end = edges.begin();

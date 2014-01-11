@@ -50,6 +50,7 @@ namespace TrenchBroom {
         
         struct MoveVerticesResult : public BrushAlgorithmResult {
             Vec3::List newVertexPositions;
+            MoveVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
             MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
         };
         

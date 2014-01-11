@@ -34,6 +34,9 @@ namespace TrenchBroom {
         m_delta(delta) {}
 
         bool MoveBrushVerticesAlgorithm::doCanExecute(BrushGeometry& geometry) {
+            if (m_delta.null())
+                return true;
+            
             BrushGeometry testGeometry(geometry);
             testGeometry.restoreFaceGeometries();
             
@@ -64,7 +67,8 @@ namespace TrenchBroom {
         }
         
         MoveVerticesResult MoveBrushVerticesAlgorithm::doExecute(BrushGeometry& geometry) {
-            assert(canExecute());
+            if (m_delta.null())
+                return MoveVerticesResult(m_vertexPositions, m_addedFaces, m_removedFaces);
             
             BrushVertexList movedVertices;
             Vec3::List sortedVertexPositions = m_vertexPositions;

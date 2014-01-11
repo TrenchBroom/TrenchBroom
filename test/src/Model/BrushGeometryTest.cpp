@@ -30,6 +30,37 @@
 
 namespace TrenchBroom {
     namespace Model {
+        BrushFaceList createBoxFaces(const BBox3& bounds) {
+            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, bounds.max.z()),
+                                                Vec3(0.0, 1.0, bounds.max.z()),
+                                                Vec3(1.0, 0.0, bounds.max.z()));
+            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, bounds.min.z()),
+                                                   Vec3(1.0, 0.0, bounds.min.z()),
+                                                   Vec3(0.0, 1.0, bounds.min.z()));
+            BrushFace* front = new QuakeBrushFace(Vec3(0.0, bounds.min.y(),  0.0),
+                                                  Vec3(1.0, bounds.min.y(),  0.0),
+                                                  Vec3(0.0, bounds.min.y(), -1.0));
+            BrushFace* back = new QuakeBrushFace(Vec3( 0.0, bounds.max.y(),  0.0),
+                                                 Vec3(-1.0, bounds.max.y(),  0.0),
+                                                 Vec3( 0.0, bounds.max.y(), -1.0));
+            BrushFace* left = new QuakeBrushFace(Vec3(bounds.min.x(),  0.0,  0.0),
+                                                 Vec3(bounds.min.x(), -1.0,  0.0),
+                                                 Vec3(bounds.min.x(),  0.0, -1.0));
+            BrushFace* right = new QuakeBrushFace(Vec3(bounds.max.x(), 0.0,  0.0),
+                                                  Vec3(bounds.max.x(), 1.0,  0.0),
+                                                  Vec3(bounds.max.x(), 0.0, -1.0));
+
+            BrushFaceList faces;
+            faces.push_back(top);
+            faces.push_back(bottom);
+            faces.push_back(front);
+            faces.push_back(back);
+            faces.push_back(left);
+            faces.push_back(right);
+            
+            return faces;
+        }
+        
         TEST(BrushGeometryTest, constructWithEmptyFaceList) {
             const FloatType s = 8192.0;
             const Vec3 worldSize2(s, s, s);
@@ -121,33 +152,7 @@ namespace TrenchBroom {
         
         TEST(BrushGeometryTest, buildCuboid) {
             const BBox3 cuboid(Vec3(-2.0, -3.0, -3.0), Vec3(6.0, 8.0, 12.0));
-            
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, cuboid.max.z()),
-                                                Vec3(0.0, 1.0, cuboid.max.z()),
-                                                Vec3(1.0, 0.0, cuboid.max.z()));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, cuboid.min.z()),
-                                                   Vec3(1.0, 0.0, cuboid.min.z()),
-                                                   Vec3(0.0, 1.0, cuboid.min.z()));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, cuboid.min.y(),  0.0),
-                                                  Vec3(1.0, cuboid.min.y(),  0.0),
-                                                  Vec3(0.0, cuboid.min.y(), -1.0));
-            BrushFace* back = new QuakeBrushFace(Vec3( 0.0, cuboid.max.y(),  0.0),
-                                                 Vec3(-1.0, cuboid.max.y(),  0.0),
-                                                 Vec3( 0.0, cuboid.max.y(), -1.0));
-            BrushFace* left = new QuakeBrushFace(Vec3(cuboid.min.x(),  0.0,  0.0),
-                                                 Vec3(cuboid.min.x(), -1.0,  0.0),
-                                                 Vec3(cuboid.min.x(),  0.0, -1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(cuboid.max.x(), 0.0,  0.0),
-                                                  Vec3(cuboid.max.x(), 1.0,  0.0),
-                                                  Vec3(cuboid.max.x(), 0.0, -1.0));
-            
-            BrushFaceList faces;
-            faces.push_back(top);
-            faces.push_back(bottom);
-            faces.push_back(front);
-            faces.push_back(back);
-            faces.push_back(left);
-            faces.push_back(right);
+            BrushFaceList faces = createBoxFaces(cuboid);
             
             const BBox3 worldBounds(-8192.0, 8192.0);
             BrushGeometry geometry(worldBounds);
@@ -240,6 +245,34 @@ namespace TrenchBroom {
             ASSERT_NE(sides.end(), findBrushFaceGeometry(sides, rightVertices));
             
             VectorUtils::clearAndDelete(faces);
+        }
+        
+        TEST(BrushGeometryTest, canMoveSingleVertex) {
+            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(6.0, 8.0, 12.0));
+            BrushFaceList faces = createBoxFaces(cuboid);
+            
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            
+            ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, cuboid.max), Vec3::Null));
+            ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, cuboid.max), Vec3(1.0, 0.0, 0.0)));
+        }
+        
+        TEST(BrushGeometryTest, moveAndDestroySingleVertex) {
+            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(6.0, 8.0, 12.0));
+            BrushFaceList faces = createBoxFaces(cuboid);
+            
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            
+            const Vec3 vertex(cuboid.max - Vec3(0.0, cuboid.max.y(), 0.0));
+            const Vec3 delta(-cuboid.max.x(), 0.0, -cuboid.max.z());
+            ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, vertex), delta));
+            
+            const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
+            ASSERT_TRUE(result.newVertexPositions.empty());
         }
     }
 }

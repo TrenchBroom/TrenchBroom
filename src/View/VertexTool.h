@@ -65,6 +65,8 @@ namespace TrenchBroom {
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
+            void bindObservers();
+            void unbindObservers();
             
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
@@ -74,6 +76,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             void selectionDidChange(const Model::SelectionResult& selection);
+            void commandDoOrUndo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
 

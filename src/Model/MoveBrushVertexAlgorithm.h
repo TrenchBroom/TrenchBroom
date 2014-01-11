@@ -136,7 +136,7 @@ namespace TrenchBroom {
         protected:
             MoveBrushVertexAlgorithm(BrushGeometry& geometry) :
             BrushAlgorithm<R>(geometry) {}
-
+            
             MoveVertexResult moveVertex(BrushGeometry& geometry, BrushVertex* vertex, const bool allowMerge, const Vec3& start, const Vec3& end) {
                 assert(vertex != NULL);
                 assert(start != end);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                     const Vec3 lastPosition = vertex->position;
                     BrushFaceGeometryList affectedSides = geometry.incidentSides(vertex);
                     
-                    // Turn all sides incident to the moving vertex into triangles.
+                    // Chop all sides incident to the moving vertex into triangles.
                     for (size_t i = 0; i < affectedSides.size(); ++i) {
                         BrushFaceGeometry* side = affectedSides[i];
                         if (side->vertices.size() > 3) {
@@ -186,11 +186,11 @@ namespace TrenchBroom {
                          First, we consider the plane made up by the points p1, p2 and p3 of side and next. If the movement
                          of the vertex were to go through this plane, the brush would become convex, which we must prevent.
                          
-                          v----p1
-                          |\ s |
-                          | \  |
-                          |  \ |
-                          | n \|
+                         v----p1
+                         |\ s |
+                         | \  |
+                         |  \ |
+                         | n \|
                          p3----p2
                          
                          */
@@ -212,7 +212,7 @@ namespace TrenchBroom {
                             // gracefully stop the operation and return.
                             return cancel(geometry, vertex);
                         }
-
+                        
                         startDot = start.dot(plane.normal) - plane.distance;
                         endDot = end.dot(plane.normal) - plane.distance;
                         
@@ -271,43 +271,41 @@ namespace TrenchBroom {
                     vertex->position = start + lastFrac * (end - start);
                     
                     // Now we check whether the vertex landed on another vertex. If so, we cancel the operation unless
-                    // that vertex is adjacent to the moved vertex and mergeWithAdjacentVertex is true.
+                    // that vertex is adjacent to the moved vertex and allowMerge is true.
                     for (size_t i = 0; i < geometry.vertices.size(); ++i) {
                         BrushVertex* candidate = geometry.vertices[i];
-                        if (vertex != candidate) {
-                            if (vertex->position.equals(candidate->position)) {
-                                BrushEdge* connectingEdge = NULL;
+                        if (vertex != candidate && vertex->position.equals(candidate->position)) {
+                            BrushEdge* connectingEdge = NULL;
+                            for (size_t j = 0; j < geometry.edges.size(); ++j) {
+                                BrushEdge* edge = geometry.edges[j];
+                                if (edge->connects(vertex, candidate))
+                                    connectingEdge = edge;
+                            }
+                            
+                            if (connectingEdge != NULL && allowMerge) {
+                                // The vertex was dragged onto an adjacent vertex and we are allowed to merge them.
                                 for (size_t j = 0; j < geometry.edges.size(); ++j) {
                                     BrushEdge* edge = geometry.edges[j];
-                                    if (edge->connects(vertex, candidate))
-                                        connectingEdge = edge;
+                                    if (edge != connectingEdge && (edge->start == candidate || edge->end == candidate)) {
+                                        if (edge->start == candidate)
+                                            edge->start = vertex;
+                                        else
+                                            edge->end = vertex;
+                                        
+                                        std::replace(edge->left->vertices.begin(), edge->left->vertices.end(), candidate, vertex);
+                                        std::replace(edge->right->vertices.begin(), edge->right->vertices.end(), candidate, vertex);
+                                    }
                                 }
                                 
-                                if (connectingEdge != NULL && allowMerge) {
-                                    // The vertex was dragged onto an adjacent vertex and we are allowed to merge them.
-                                    for (size_t j = 0; j < geometry.edges.size(); ++j) {
-                                        BrushEdge* edge = geometry.edges[j];
-                                        if (edge != connectingEdge && (edge->start == candidate || edge->end == candidate)) {
-                                            if (edge->start == candidate)
-                                                edge->start = vertex;
-                                            else
-                                                edge->end = vertex;
-                                            
-                                            std::replace(edge->left->vertices.begin(), edge->left->vertices.end(), candidate, vertex);
-                                            std::replace(edge->right->vertices.begin(), edge->right->vertices.end(), candidate, vertex);
-                                        }
-                                    }
-                                    
-                                    deleteDegenerateTriangle(geometry, connectingEdge->left, connectingEdge);
-                                    deleteDegenerateTriangle(geometry, connectingEdge->right, connectingEdge);
-                                    VectorUtils::eraseAndDelete(geometry.edges, connectingEdge);
-                                    VectorUtils::eraseAndDelete(geometry.vertices, candidate);
-                                } else {
-                                    // The vertex was either dragged onto a non-adjacent vertex or we weren't allowed to
-                                    // merge it with an adjacent vertex, so undo the operation and return.
-                                    vertex->position = lastPosition;
-                                    return cancel(geometry, vertex);
-                                }
+                                deleteDegenerateTriangle(geometry, connectingEdge->left, connectingEdge);
+                                deleteDegenerateTriangle(geometry, connectingEdge->right, connectingEdge);
+                                VectorUtils::eraseAndDelete(geometry.edges, connectingEdge);
+                                VectorUtils::eraseAndDelete(geometry.vertices, candidate);
+                            } else {
+                                // The vertex was either dragged onto a non-adjacent vertex or we weren't allowed to
+                                // merge it with an adjacent vertex, so undo the operation and return.
+                                vertex->position = lastPosition;
+                                return cancel(geometry, vertex);
                             }
                         }
                     }
@@ -326,7 +324,7 @@ namespace TrenchBroom {
                     // deleteCollinearTriangles(affectedSides, newFaces, droppedFaces);
                     
                     assert(geometry.sanityCheck());
-
+                    
                     cleanup(geometry);
                     geometry.updateBounds();
                     
@@ -342,7 +340,7 @@ namespace TrenchBroom {
             void updateFacePoints(BrushGeometry& geometry) {
                 // This method must ONLY be called at the end of a vertex operation, just before
                 // the geometry is rebuilt anyway
-
+                
                 // TODO: Originally, this method attempted to find optimal integer plane points. For now, I have have
                 // opted to only update the face points according to the vertex positions, leaving the rest to the user
                 // because the issue browser should indicate if the plane points have become fractional.
@@ -379,6 +377,8 @@ namespace TrenchBroom {
                 BrushFaceGeometry* newSide = NULL;
                 BrushEdge* newEdge = NULL;
                 side->chop(vertexIndex, newSide, newEdge);
+                assert(newSide != NULL);
+                assert(newEdge != NULL);
                 
                 geometry.edges.push_back(newEdge);
                 geometry.sides.push_back(newSide);
@@ -418,7 +418,7 @@ namespace TrenchBroom {
                 BrushVertex* vertex = NULL;
                 BrushEdge* edge = side->edges[edgeIndex];
                 BrushFaceGeometry* neighbour = edge->left != side ? edge->left : edge->right;
-
+                
                 size_t sideEdgeIndex = edgeIndex;
                 size_t neighbourEdgeIndex = VectorUtils::indexOf(neighbour->edges, edge);
                 assert(neighbourEdgeIndex < neighbour->edges.size());
@@ -437,7 +437,7 @@ namespace TrenchBroom {
                     neighbourEdgeIndex = Math::succ(neighbourEdgeIndex, neighbour->edges.size());
                     ++count;
                 } while (side->edges[sideEdgeIndex] == neighbour->edges[neighbourEdgeIndex]);
-
+                
                 // now sideEdgeIndex points to the first edge (in CW order) of side that should not be deleted
                 // now neighbourEdgeIndex points to the last edge (in CW order) of neighbour that should not be deleted
                 // and count is the number of shared edges between side and neighbour
@@ -487,7 +487,7 @@ namespace TrenchBroom {
                 assert(side->vertices.size() == totalVertexCount);
                 assert(side->edges.size() == totalVertexCount);
             }
-
+            
             void mergeEdges(BrushGeometry& geometry) {
                 for (size_t i = 0; i < geometry.edges.size(); i++) {
                     BrushEdge* edge = geometry.edges[i];
@@ -513,9 +513,7 @@ namespace TrenchBroom {
                                     
                                     assert(leftSide != rightSide);
                                     
-                                    BrushEdge* newEdge = new BrushEdge(edge->start, candidate->end);
-                                    newEdge->left = leftSide;
-                                    newEdge->right = rightSide;
+                                    BrushEdge* newEdge = new BrushEdge(edge->start, candidate->end, leftSide, rightSide);
                                     geometry.edges.push_back(newEdge);
                                     
                                     const size_t leftIndex = VectorUtils::indexOf(leftSide->edges, candidate);
@@ -523,10 +521,10 @@ namespace TrenchBroom {
                                     const size_t leftCount = leftSide->edges.size();
                                     const size_t rightCount = rightSide->edges.size();
                                     
-                                    leftSide->replaceEdgesWithEdge(Math::pred(leftIndex, leftCount),
+                                    leftSide->replaceEdgesWithEdge(leftIndex,
                                                                    Math::succ(leftIndex, leftCount, 2),
                                                                    newEdge);
-                                    rightSide->replaceEdgesWithEdge(Math::pred(rightIndex, rightCount, 2),
+                                    rightSide->replaceEdgesWithEdge(Math::pred(rightIndex, rightCount),
                                                                     Math::succ(rightIndex, rightCount),
                                                                     newEdge);
                                     
@@ -563,11 +561,11 @@ namespace TrenchBroom {
                                     const size_t leftCount = leftSide->edges.size();
                                     const size_t rightCount = rightSide->edges.size();
                                     
-                                    leftSide->replaceEdgesWithEdge(Math::pred(leftIndex, leftCount, 2),
+                                    leftSide->replaceEdgesWithEdge(Math::pred(leftIndex, leftCount),
                                                                    Math::succ(leftIndex, leftCount),
                                                                    newEdge);
                                     rightSide->replaceEdgesWithEdge(Math::pred(rightIndex, rightCount),
-                                                                    Math::succ(rightIndex, rightCount, 2),
+                                                                    Math::succ(rightIndex, rightCount),
                                                                     newEdge);
                                     
                                     VectorUtils::eraseAndDelete(geometry.vertices, candidate->end);

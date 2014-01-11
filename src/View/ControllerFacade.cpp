@@ -51,12 +51,16 @@ namespace TrenchBroom {
         
         ControllerFacade::ControllerFacade(MapDocumentWPtr document) :
         m_document(document) {
+            m_commandProcessor.commandDoNotifier.addObserver(this, &ControllerFacade::commandDo);
             m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
+            m_commandProcessor.commandUndoNotifier.addObserver(this, &ControllerFacade::commandUndo);
             m_commandProcessor.commandUndoneNotifier.addObserver(this, &ControllerFacade::commandUndone);
         }
         
         ControllerFacade::~ControllerFacade() {
+            m_commandProcessor.commandDoNotifier.removeObserver(this, &ControllerFacade::commandDo);
             m_commandProcessor.commandDoneNotifier.removeObserver(this, &ControllerFacade::commandDone);
+            m_commandProcessor.commandUndoNotifier.removeObserver(this, &ControllerFacade::commandUndo);
             m_commandProcessor.commandUndoneNotifier.removeObserver(this, &ControllerFacade::commandUndone);
         }
 
@@ -515,10 +519,18 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        void ControllerFacade::commandDo(Controller::Command::Ptr command) {
+            commandDoNotifier(command);
+        }
+        
         void ControllerFacade::commandDone(Controller::Command::Ptr command) {
             commandDoneNotifier(command);
         }
         
+        void ControllerFacade::commandUndo(Controller::Command::Ptr command) {
+            commandUndoNotifier(command);
+        }
+
         void ControllerFacade::commandUndone(Controller::Command::Ptr command) {
             commandUndoneNotifier(command);
         }

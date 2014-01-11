@@ -25,6 +25,11 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/BrushFace.h"
 
+#include <cstdlib>
+#include <ctime>
+#include <functional>
+#include <limits>
+
 namespace TrenchBroom {
     namespace Model {
         TEST(PlanePointFinderTest, parallelPlane) {
@@ -161,6 +166,62 @@ namespace TrenchBroom {
             ASSERT_TRUE(setPlanePoints(test, points[0], points[1], points[2]));
             ASSERT_TRUE(test.normal.dot(plane.normal) > 0.99);
             ASSERT_TRUE(Math::lte(std::abs(plane.distance - test.distance), 1.0));
+        }
+        
+        TEST(PlanePointFinderTest, testRandomPlanes) {
+            static const size_t NumPlanes = 10000;
+            BrushFace::Points points;
+            Plane3 plane, test;
+            
+            FloatType minNormalError = std::numeric_limits<FloatType>::max();
+            FloatType maxNormalError = std::numeric_limits<FloatType>::min();
+            FloatType avgNormalError = 0.0;
+            
+            FloatType minDistanceError = std::numeric_limits<FloatType>::max();
+            FloatType maxDistanceError = std::numeric_limits<FloatType>::min();
+            FloatType avgDistanceError = 0.0;
+
+            std::srand(static_cast<unsigned int>(std::time(NULL)));
+            for (size_t i = 0; i < NumPlanes; ++i) {
+                const FloatType x = std::rand() % 4096;
+                const FloatType y = std::rand() % 4096;
+                const FloatType z = std::rand() % 4096;
+                const FloatType d = std::rand() % 2096;
+                
+                plane = Plane3(d, Vec3(x, y, z).normalized());
+                PlanePointFinder::findPoints(plane, points, 0);
+                ASSERT_TRUE(setPlanePoints(test, points[0], points[1], points[2]));
+                
+                const FloatType dot = test.normal.dot(plane.normal);
+                const FloatType normalError = std::acos(dot > 1.0 ? 2.0 - dot : dot);
+                const FloatType distanceError = std::abs(plane.distance - test.distance);
+                
+                minNormalError = std::min(minNormalError, normalError);
+                maxNormalError = std::max(maxNormalError, normalError);
+                avgNormalError += normalError;
+                
+                minDistanceError = std::min(minDistanceError, distanceError);
+                maxDistanceError = std::max(maxDistanceError, distanceError);
+                avgDistanceError += distanceError;
+                
+                ASSERT_TRUE(normalError < Math::radians(1.0));
+                ASSERT_TRUE(Math::lte(distanceError, 2.0));
+            }
+            
+            avgNormalError /= static_cast<FloatType>(NumPlanes);
+            avgDistanceError /= static_cast<FloatType>(NumPlanes);
+            
+            std::cout.setf( std::ios::fixed, std:: ios::floatfield );
+            
+            std::cout
+            << "Normal error min: " << Math::degrees(minNormalError)
+            << " max: " << Math::degrees(maxNormalError)
+            << " avg: " << Math::degrees(avgNormalError) << std::endl;
+            
+            std::cout
+            << "Distance error min: " << minDistanceError
+            << " max: " << maxDistanceError
+            << " avg: " << avgDistanceError << std::endl;
         }
     }
 }

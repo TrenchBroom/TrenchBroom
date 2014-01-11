@@ -47,6 +47,10 @@ namespace TrenchBroom {
         BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
         resultCode(i_resultCode) {}
         
+        MoveVerticesResult::MoveVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
+        newVertexPositions(i_newVertexPositions) {}
+        
         MoveVerticesResult::MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
         BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;

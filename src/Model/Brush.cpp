@@ -396,6 +396,7 @@ namespace TrenchBroom {
             const AddFaceResult result = m_geometry->addFaces(m_faces);
             m_faces.clear();
             processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {
@@ -417,6 +418,28 @@ namespace TrenchBroom {
                 BrushFace* face = *it;
                 face->setParent(NULL);
             }
+        }
+
+        bool Brush::checkFaceGeometryLinks() const {
+            BrushFaceList::const_iterator fIt, fEnd;
+            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+                const BrushFace* face = *fIt;
+                if (face->side() == NULL)
+                    return false;
+                if (!VectorUtils::contains(m_geometry->sides, face->side()))
+                    return false;
+            }
+            
+            BrushFaceGeometryList::const_iterator sIt, sEnd;
+            for (sIt = m_geometry->sides.begin(), sEnd = m_geometry->sides.end(); sIt != sEnd; ++sIt) {
+                const BrushFaceGeometry* side = *sIt;
+                if (side->face == NULL)
+                    return false;
+                if (!VectorUtils::contains(m_faces, side->face))
+                    return false;
+            }
+            
+            return true;
         }
     }
 }

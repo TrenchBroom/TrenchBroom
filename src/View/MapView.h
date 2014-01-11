@@ -96,7 +96,7 @@ namespace TrenchBroom {
             BaseTool* m_dragReceiver;
             BaseTool* m_modalReceiver;
             
-            bool m_cancelNextDrag;
+            bool m_ignoreNextDrag;
             bool m_ignoreNextClick;
             wxDateTime m_lastFrameActivation;
         public:

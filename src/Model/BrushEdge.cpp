@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         Vec3 BrushEdge::vector() const {
-            return end - start;
+            return end->position - start->position;
         }
 
         Vec3 BrushEdge::center() const {

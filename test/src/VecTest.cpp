@@ -256,6 +256,10 @@ TEST(VecTest, vec3fParallelTo) {
     ASSERT_TRUE(Vec3d(-1.0, 0.0, 0.0).parallelTo(Vec3d(3.0, 0.0, 0.0)));
     ASSERT_TRUE(Vec3d(-1.0, 2.0, 42.0).parallelTo(-3.2253 * Vec3d(-1.0, 2.0, 42.0)));
     ASSERT_FALSE(Vec3d(-1.0, 2.0, 21.0).parallelTo(Vec3d(-1.0, 5.0, 21.0)));
+    ASSERT_FALSE(Vec3d(0.0, 256.0, 0.0).parallelTo(Vec3d(0.0, 256.0, 32.0)));
+    
+    // precision problems
+    // ASSERT_FALSE(Vec3d(0.0, -288.0, 32.0).parallelTo(Vec3d(0.0, 448.0, -32.0)));
 }
 
 TEST(VecTest, vec3fMajorComponent) {

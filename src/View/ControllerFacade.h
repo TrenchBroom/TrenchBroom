@@ -58,7 +58,9 @@ namespace TrenchBroom {
             ControllerFacade(MapDocumentWPtr document);
             ~ControllerFacade();
             
+            Notifier1<Controller::Command::Ptr> commandDoNotifier;
             Notifier1<Controller::Command::Ptr> commandDoneNotifier;
+            Notifier1<Controller::Command::Ptr> commandUndoNotifier;
             Notifier1<Controller::Command::Ptr> commandUndoneNotifier;
             
             bool hasLastCommand() const;
@@ -133,7 +135,9 @@ namespace TrenchBroom {
             bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
         private:
+            void commandDo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
+            void commandUndo(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
         };
     }

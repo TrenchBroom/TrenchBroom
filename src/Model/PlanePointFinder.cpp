@@ -178,7 +178,7 @@ namespace TrenchBroom {
             const FloatType pointDistance = std::max(64.0, waveLength);
             
             FloatType multiplier = 10.0;
-            GridSearchCursor cursor(plane, frequency);
+            GridSearchCursor cursor(swizzledPlane, frequency);
             if (numPoints == 0)
                 points[0] = cursor.findMinimum(swizzledPlane.anchor());
             else if (!points[0].isInteger())
@@ -196,6 +196,7 @@ namespace TrenchBroom {
                 v1.normalize();
                 v2.normalize();
                 cos = v1.dot(v2);
+                multiplier *= 1.5f;
                 ++count;
             } while (Math::isnan(cos) || std::abs(cos) > 0.9);
             

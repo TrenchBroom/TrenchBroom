@@ -77,7 +77,7 @@ namespace TrenchBroom {
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
-        m_cancelNextDrag(false),
+        m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
         m_lastFrameActivation(wxDateTime::Now()) {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
@@ -237,7 +237,7 @@ namespace TrenchBroom {
                     m_inputState.mouseUp(button);
                     if (HasCapture())
                         ReleaseMouse();
-                } else if (!m_cancelNextDrag) {
+                } else if (!m_ignoreNextDrag) {
                     const bool handled = m_toolChain->mouseUp(m_inputState);
 
                     m_inputState.mouseUp(button);
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             }
 
             updatePickResults(event.GetX(), event.GetY());
-            m_cancelNextDrag = false;
+            m_ignoreNextDrag = false;
             
             Refresh();
             event.Skip();
@@ -261,14 +261,18 @@ namespace TrenchBroom {
             updatePickResults(event.GetX(), event.GetY());
             if (m_dragReceiver != NULL) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
-                m_dragReceiver->mouseDrag(m_inputState);
-            } else if (!m_cancelNextDrag) {
+                if (!m_dragReceiver->mouseDrag(m_inputState)) {
+                    m_dragReceiver->endMouseDrag(m_inputState);
+                    m_dragReceiver = NULL;
+                    m_ignoreNextDrag = true;
+                }
+            } else if (!m_ignoreNextDrag) {
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
                     (std::abs(event.GetX() - m_clickPos.x) > 1 ||
                      std::abs(event.GetY() - m_clickPos.y) > 1)) {
                         m_dragReceiver = m_toolChain->startMouseDrag(m_inputState);
                         if (m_dragReceiver == NULL)
-                            m_cancelNextDrag = true;
+                            m_ignoreNextDrag = true;
                     }
                 if (m_dragReceiver != NULL) {
                     m_inputState.mouseMove(event.GetX(), event.GetY());
