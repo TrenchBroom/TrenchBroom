@@ -32,6 +32,10 @@ namespace TrenchBroom {
         class SelectionResult;
     }
     
+    namespace Renderer {
+        class TextureFont;
+    }
+    
     namespace View {
         class InputState;
         class MovementRestriction;
@@ -49,9 +53,10 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             size_t m_changeCount;
+            bool m_ignoreObjectChangeNotifications;
             Vec3 m_dragHandlePosition;
         public:
-            VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction);
+            VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             MoveResult moveVertices(const Vec3& delta);
         private:
             bool doHandleMove(const InputState& inputState) const;
@@ -77,6 +82,8 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             void selectionDidChange(const Model::SelectionResult& selection);
+            void objectWillChange(Model::Object* object);
+            void objectDidChange(Model::Object* object);
             void commandDoOrUndo(Controller::Command::Ptr command);
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);

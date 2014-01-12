@@ -206,7 +206,9 @@ namespace TrenchBroom {
         
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             assert(m_geometry != NULL);
-            return m_geometry->canMoveVertices(worldBounds, vertexPositions, delta);
+            const bool result = m_geometry->canMoveVertices(worldBounds, vertexPositions, delta);
+            assert(checkFaceGeometryLinks());
+            return result;
         }
         
         Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
@@ -215,6 +217,8 @@ namespace TrenchBroom {
             
             const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
             return result.newVertexPositions;
         }
 
@@ -396,7 +400,6 @@ namespace TrenchBroom {
             const AddFaceResult result = m_geometry->addFaces(m_faces);
             m_faces.clear();
             processBrushAlgorithmResult(worldBounds, result);
-            assert(checkFaceGeometryLinks());
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {

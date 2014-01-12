@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/BrushRenderer.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
@@ -34,6 +35,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class BrushRenderer;
         class RenderContext;
+        class TextureFont;
     }
     
     namespace View {
@@ -41,9 +43,10 @@ namespace TrenchBroom {
         private:
             Vec3 m_initialPoint;
             Renderer::BrushRenderer m_brushRenderer;
+            Renderer::BoundsGuideRenderer m_guideRenderer;
             Model::Brush* m_brush;
         public:
-            CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
+            CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font);
         private:
             void doModifierKeyChange(const InputState& inputState);
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
@@ -57,6 +60,7 @@ namespace TrenchBroom {
             BBox3 computeBounds(const Vec3& point1, const Vec3& point2) const;
             Model::Brush* createBrush(const BBox3& bounds) const;
             void updateBrushRenderer();
+            void updateGuideRenderer(const BBox3& bounds);
             void addBrushToMap(Model::Brush* brush);
         };
     }

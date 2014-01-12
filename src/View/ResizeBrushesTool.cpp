@@ -36,6 +36,7 @@
 #include "Model/ModelUtils.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
@@ -151,6 +152,11 @@ namespace TrenchBroom {
             m_dragFaces.clear();
         }
         
+        void ResizeBrushesTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            if (dragging())
+                renderContext.setForceShowSelectionGuide();
+        }
+
         void ResizeBrushesTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!applies(inputState) || m_dragFaces.empty())
                 return;

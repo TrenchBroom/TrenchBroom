@@ -226,6 +226,13 @@ public:
         return true;
     }
     
+    bool operator< (const Vec<T,S>& right) const {
+        for (size_t i = 0; i < S; ++i)
+            if (v[i] >= right[i])
+                return false;
+        return true;
+    }
+    
     bool operator!= (const Vec<T,S>& right) const {
         return !(*this == right);
     }

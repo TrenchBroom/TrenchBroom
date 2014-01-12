@@ -247,6 +247,10 @@ namespace TrenchBroom {
 
                     if (button == MouseButtons::MBRight && !handled)
                         showPopupMenu();
+                } else {
+                    m_inputState.mouseUp(button);
+                    if (HasCapture())
+                        ReleaseMouse();
                 }
             }
 
@@ -682,8 +686,8 @@ namespace TrenchBroom {
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
             m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
-            m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller);
-            m_vertexTool = new VertexTool(m_createBrushTool, m_document, m_controller, m_movementRestriction);
+            m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller, font);
+            m_vertexTool = new VertexTool(m_createBrushTool, m_document, m_controller, m_movementRestriction, font);
             m_rotateObjectsTool = new RotateObjectsTool(m_vertexTool, m_document, m_controller, m_movementRestriction, font);
             m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);

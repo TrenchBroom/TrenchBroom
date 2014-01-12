@@ -36,7 +36,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType VertexHandleManager::EdgeHandleHit = Model::Hit::freeHitType();
         const Model::Hit::HitType VertexHandleManager::FaceHandleHit = Model::Hit::freeHitType();
         
-        VertexHandleManager::VertexHandleManager() :
+        VertexHandleManager::VertexHandleManager(Renderer::TextureFont& font) :
         m_vbo(0xFF),
         m_totalVertexCount(0),
         m_selectedVertexCount(0),
@@ -44,7 +44,12 @@ namespace TrenchBroom {
         m_selectedEdgeCount(0),
         m_totalFaceCount(0),
         m_selectedFaceCount(0),
-        m_handleRenderer(m_vbo) {}
+        m_handleRenderer(m_vbo),
+        m_textRenderer(font),
+        m_textColorProvider(Preferences::InfoOverlayTextColor, Preferences::InfoOverlayBackgroundColor),
+        m_renderStateValid(false) {
+            m_textRenderer.setFadeDistance(1000.0f);
+        }
         
         const Model::VertexToBrushesMap& VertexHandleManager::unselectedVertexHandles() const {
             return m_unselectedVertexHandles;
@@ -469,6 +474,13 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             m_handleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
             m_handleRenderer.renderHandleHighlight(renderContext, Vec3f(position));
+
+            Renderer::TextAnchor::Ptr anchor(new Renderer::SimpleTextAnchor(position, Renderer::Alignment::Bottom, Vec2f(0.0f, 16.0f)));
+            m_textRenderer.renderOnce(position, position.asString(), anchor);
+            
+            glDisable(GL_DEPTH_TEST);
+            m_textRenderer.render(renderContext, m_textFilter, m_textColorProvider, Renderer::Shaders::ColoredTextShader, Renderer::Shaders::TextBackgroundShader);
+            glEnable(GL_DEPTH_TEST);
         }
 
         Model::Hit VertexHandleManager::pickHandle(const Ray3& ray, const Vec3& position, const Model::Hit::HitType type) const {

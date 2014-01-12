@@ -27,6 +27,7 @@
 #include "Model/Picker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
+#include "Renderer/TextRenderer.h"
 #include "Renderer/Vbo.h"
 
 #include <map>
@@ -66,10 +67,13 @@ namespace TrenchBroom {
             
             Renderer::PointHandleRenderer m_handleRenderer;
             Renderer::EdgeRenderer m_edgeRenderer;
+            Renderer::TextRenderer<Vec3> m_textRenderer;
+            Renderer::TextRenderer<Vec3>::SimpleTextRendererFilter m_textFilter;
+            Renderer::TextRenderer<Vec3>::PrefTextColorProvider m_textColorProvider;
             
             bool m_renderStateValid;
         public:
-            VertexHandleManager();
+            VertexHandleManager(Renderer::TextureFont& font);
             
             const Model::VertexToBrushesMap& unselectedVertexHandles() const;
             const Model::VertexToBrushesMap& selectedVertexHandles() const;

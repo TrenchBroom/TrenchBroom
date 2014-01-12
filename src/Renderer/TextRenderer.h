@@ -20,7 +20,10 @@
 #ifndef TrenchBroom_TextRenderer_h
 #define TrenchBroom_TextRenderer_h
 
+#include "Color.h"
 #include "VecMath.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
@@ -55,8 +58,8 @@ namespace TrenchBroom {
         private:
             virtual Vec3f basePosition() const = 0;
             virtual Alignment::Type alignment() const = 0;
-            virtual Vec2f extraOffsets() const;
-            Vec2f alignmentFactors() const;
+            virtual Vec2f extraOffsets(const Alignment::Type a) const;
+            Vec2f alignmentFactors(const Alignment::Type a) const;
         };
         
         class SimpleTextAnchor : public TextAnchor {
@@ -67,7 +70,7 @@ namespace TrenchBroom {
         protected:
             Vec3f basePosition() const;
             Alignment::Type alignment() const;
-            Vec2f extraOffsets() const;
+            Vec2f extraOffsets(const Alignment::Type a) const;
         public:
             SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
         };
@@ -101,6 +104,26 @@ namespace TrenchBroom {
                 virtual ~TextColorProvider() {}
                 virtual Color textColor(RenderContext& context, const Key& key) const = 0;
                 virtual Color backgroundColor(RenderContext& context, const Key& key) const = 0;
+            };
+            
+            class PrefTextColorProvider : public TextColorProvider {
+            private:
+                Preference<Color>& m_textColorPref;
+                Preference<Color>& m_backgroundColorPref;
+            public:
+                PrefTextColorProvider(Preference<Color>& textColorPref, Preference<Color>& backgroundColorPref) :
+                m_textColorPref(textColorPref),
+                m_backgroundColorPref(backgroundColorPref) {}
+            public:
+                Color textColor(RenderContext& context, const Key& key) const {
+                    PreferenceManager& prefs = PreferenceManager::instance();
+                    return prefs.get(m_textColorPref);
+                }
+                
+                Color backgroundColor(RenderContext& context, const Key& key) const {
+                    PreferenceManager& prefs = PreferenceManager::instance();
+                    return prefs.get(m_backgroundColorPref);
+                }
             };
             
         protected:
@@ -139,7 +162,7 @@ namespace TrenchBroom {
             
             typedef std::map<Key, TextEntry, Comparator> TextMap;
             typedef std::pair<Key, TextEntry> TextMapItem;
-            typedef std::vector<typename TextMap::iterator> EntryList;
+            typedef std::vector<typename TextMap::const_iterator> EntryList;
             
             TextureFont& m_font;
             float m_fadeDistance;
@@ -147,6 +170,7 @@ namespace TrenchBroom {
             float m_vInset;
             
             TextMap m_entries;
+            TextMap m_renderOnce;
             Vbo m_vbo;
         public:
             TextRenderer(TextureFont& font) :
@@ -160,10 +184,16 @@ namespace TrenchBroom {
                 clear();
             }
             
+            void renderOnce(Key key, const String& string, TextAnchor::Ptr anchor) {
+                const Vec2f::List vertices = m_font.quads(string, true);
+                const Vec2f size = m_font.measure(string);
+                addString(key, vertices, size, anchor, m_renderOnce);
+            }
+            
             void addString(Key key, const String& string, TextAnchor::Ptr anchor) {
                 const Vec2f::List vertices = m_font.quads(string, true);
                 const Vec2f size = m_font.measure(string);
-                addString(key, vertices, size, anchor);
+                addString(key, vertices, size, anchor, m_entries);
             }
             
             void removeString(Key key)  {
@@ -206,6 +236,7 @@ namespace TrenchBroom {
             
             void clear()  {
                 m_entries.clear();
+                clearRenderOnce();
             }
             
             void setFadeDistance(float fadeDistance)  {
@@ -213,7 +244,7 @@ namespace TrenchBroom {
             }
             
             void render(RenderContext& context, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                if (m_entries.empty())
+                if (m_entries.empty() && m_renderOnce.empty())
                     return;
                 
                 EntryList entries = visibleEntries(context, filter);
@@ -287,19 +318,27 @@ namespace TrenchBroom {
                 m_font.deactivate();
                 
                 glDepthMask(GL_TRUE);
+                
+                clearRenderOnce();
             }
         private:
-            void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor) {
+            void addString(Key key, const Vec2f::List& vertices, const Vec2f& size, TextAnchor::Ptr anchor, TextMap& entries) {
                 removeString(key);
-                m_entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
+                entries.insert(TextMapItem(key, TextEntry(vertices, size, anchor)));
             }
             
-            EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) {
-                float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+            EntryList visibleEntries(RenderContext& context, const TextRendererFilter& filter) const {
                 EntryList result;
-                
-                typename TextMap::iterator it, end;
-                for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+                visibleEntries(context, filter, m_entries, result);
+                visibleEntries(context, filter, m_renderOnce, result);
+                return result;
+            }
+            
+            void visibleEntries(RenderContext& context, const TextRendererFilter& filter, const TextMap& entries, EntryList& result) const {
+                const float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+
+                typename TextMap::const_iterator it, end;
+                for (it = entries.begin(), end = entries.end(); it != end; ++it) {
                     Key key = it->first;
                     if (filter.stringVisible(context, key)) {
                         const TextEntry& entry = it->second;
@@ -311,8 +350,10 @@ namespace TrenchBroom {
                             result.push_back(it);
                     }
                 }
-                
-                return result;
+            }
+            
+            void clearRenderOnce() {
+                m_renderOnce.clear();
             }
         };
     }

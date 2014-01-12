@@ -276,15 +276,15 @@ namespace TrenchBroom {
         }
         
         TEST(BrushGeometryTest, moveAndDestroySingleVertex2) {
-            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(6.0, 8.0, 12.0));
+            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(128.0, 128.0, 32.0));
             BrushFaceList faces = createBoxFaces(cuboid);
             
             const BBox3 worldBounds(-8192.0, 8192.0);
             BrushGeometry geometry(worldBounds);
             geometry.addFaces(faces);
             
-            const Vec3 vertex(cuboid.max - Vec3(0.0, cuboid.max.y(), 0.0));
-            const Vec3 delta(-cuboid.max.x(), 0.0, -cuboid.max.z());
+            const Vec3 vertex(cuboid.max);
+            const Vec3 delta(-64.0, -64.0, 0.0);
             ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, vertex), delta));
             
             const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);

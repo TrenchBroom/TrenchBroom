@@ -42,7 +42,7 @@ namespace TrenchBroom {
             private:
                 Vec3f basePosition() const;
                 Alignment::Type alignment() const;
-                Vec2f extraOffsets() const;
+                Vec2f extraOffsets(const Alignment::Type a) const;
             };
             
             class BoundsInfoMinMaxTextAnchor : public TextAnchor {
@@ -60,18 +60,13 @@ namespace TrenchBroom {
             private:
                 Vec3f basePosition() const;
                 Alignment::Type alignment() const;
-                Vec2f extraOffsets() const;
-            };
-            
-            class BoundsColorProvider : public TextRenderer<size_t>::TextColorProvider {
-                Color textColor(RenderContext& context, const size_t& key) const;
-                Color backgroundColor(RenderContext& context, const size_t& key) const;
+                Vec2f extraOffsets(const Alignment::Type a) const;
             };
             
             BBox3 m_bounds;
             TextRenderer<size_t> m_textRenderer;
             TextRenderer<size_t>::SimpleTextRendererFilter m_textFilter;
-            BoundsColorProvider m_colorProvider;
+            TextRenderer<size_t>::PrefTextColorProvider m_textColorProvider;
             bool m_valid;
         public:
             BoundsInfoRenderer(TextureFont& font);

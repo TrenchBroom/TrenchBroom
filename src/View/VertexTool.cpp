@@ -19,6 +19,7 @@
 
 #include "VertexTool.h"
 
+#include "SetBool.h"
 #include "Controller/MoveVerticesCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
@@ -38,13 +39,17 @@ namespace TrenchBroom {
     namespace View {
         const FloatType VertexTool::MaxVertexDistance = 0.25;
         
-        VertexTool::VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
+        VertexTool::VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         MoveTool(next, document, controller, movementRestriction),
+        m_handleManager(font),
         m_mode(VMMove),
-        m_changeCount(0) {}
+        m_changeCount(0),
+        m_ignoreObjectChangeNotifications(false) {}
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
             using namespace Controller;
+            
+            const SetBool ignoreObjectChangeNotifications(m_ignoreObjectChangeNotifications);
             
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert(m_handleManager.selectedVertexCount() > 0 ^
@@ -166,6 +171,8 @@ namespace TrenchBroom {
         
         void VertexTool::bindObservers() {
             document()->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
+            document()->objectWillChangeNotifier.addObserver(this, &VertexTool::objectWillChange);
+            document()->objectDidChangeNotifier.addObserver(this, &VertexTool::objectDidChange);
             controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
             controller()->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
             controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDone);
@@ -174,6 +181,8 @@ namespace TrenchBroom {
         
         void VertexTool::unbindObservers() {
             document()->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
+            document()->objectWillChangeNotifier.removeObserver(this, &VertexTool::objectWillChange);
+            document()->objectDidChangeNotifier.removeObserver(this, &VertexTool::objectDidChange);
             controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
             controller()->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
             controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDone);
@@ -254,6 +263,24 @@ namespace TrenchBroom {
                 if (object->type() == Model::Object::OTBrush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     m_handleManager.removeBrush(brush);
+                }
+            }
+        }
+
+        void VertexTool::objectWillChange(Model::Object* object) {
+            if (!m_ignoreObjectChangeNotifications) {
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.removeBrush(brush);
+                }
+            }
+        }
+
+        void VertexTool::objectDidChange(Model::Object* object) {
+            if (!m_ignoreObjectChangeNotifications) {
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.addBrush(brush);
                 }
             }
         }

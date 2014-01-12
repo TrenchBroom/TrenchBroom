@@ -42,9 +42,10 @@ namespace TrenchBroom {
             bool operator()(const Model::BrushEdge* edge) const { return true; }
         };
         
-        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
+        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font) :
         Tool(next, document, controller),
         m_brushRenderer(RendererFilter()),
+        m_guideRenderer(font),
         m_brush(NULL) {}
 
         void CreateBrushTool::doModifierKeyChange(const InputState& inputState) {
@@ -72,6 +73,7 @@ namespace TrenchBroom {
             const BBox3 bounds = computeBounds(m_initialPoint, m_initialPoint);
             m_brush = createBrush(bounds);
             updateBrushRenderer();
+            updateGuideRenderer(bounds);
 
             return true;
         }
@@ -99,7 +101,8 @@ namespace TrenchBroom {
             const BBox3 bounds = computeBounds(m_initialPoint, curPoint);
             m_brush = createBrush(bounds);
             updateBrushRenderer();
-            
+            updateGuideRenderer(bounds);
+
             return true;
         }
         
@@ -118,16 +121,21 @@ namespace TrenchBroom {
         }
 
         void CreateBrushTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            m_brushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
-            m_brushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
-            m_brushRenderer.setTintFaces(true);
-            m_brushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
-            m_brushRenderer.setRenderOccludedEdges(true);
-            m_brushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
-            
-            m_brushRenderer.render(renderContext);
+            if (dragging()) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                
+                m_brushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+                m_brushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
+                m_brushRenderer.setTintFaces(true);
+                m_brushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
+                m_brushRenderer.setRenderOccludedEdges(true);
+                m_brushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
+                
+                m_brushRenderer.render(renderContext);
+                
+                m_guideRenderer.setColor(prefs.get(Preferences::HandleColor));
+                m_guideRenderer.render(renderContext, document());
+            }
         }
 
         BBox3 CreateBrushTool::computeBounds(const Vec3& point1, const Vec3& point2) const {
@@ -159,6 +167,10 @@ namespace TrenchBroom {
             if (m_brush != NULL)
                 brushes.push_back(m_brush);
             m_brushRenderer.setBrushes(brushes);
+        }
+
+        void CreateBrushTool::updateGuideRenderer(const BBox3& bounds) {
+            m_guideRenderer.setBounds(bounds);
         }
 
         void CreateBrushTool::addBrushToMap(Model::Brush* brush) {

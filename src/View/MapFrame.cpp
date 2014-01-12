@@ -795,7 +795,8 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocument() {
             try {
-                if (IO::Disk::fileExists(IO::Disk::fixPath(m_document->path()))) {
+                const IO::Path& path = m_document->path();
+                if (path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
                     m_document->saveDocument();
                     updateTitle();
                     logger()->info("Saved " + m_document->path().asString());

@@ -116,8 +116,17 @@ namespace TrenchBroom {
             return Alignment::Bottom;
         }
         
-        Vec2f BoundsInfoRenderer::BoundsInfoSizeTextAnchor::extraOffsets() const {
-            return Vec2f::Null;
+        Vec2f BoundsInfoRenderer::BoundsInfoSizeTextAnchor::extraOffsets(const Alignment::Type a) const {
+            Vec2f result;
+            if (a & Alignment::Top)
+                result[1] -= 8.0f;
+            if (a & Alignment::Bottom)
+                result[1] += 8.0f;
+            if (a & Alignment::Left)
+                result[0] += 8.0f;
+            if (a & Alignment::Right)
+                result[0] -= 8.0f;
+            return result;
         }
 
         BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::BoundsInfoMinMaxTextAnchor(const BBox3& bounds, const EMinMax minMax, const Renderer::Camera& camera) :
@@ -143,39 +152,37 @@ namespace TrenchBroom {
             return Alignment::Bottom | Alignment::Right;
         }
         
-        Vec2f BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::extraOffsets() const {
-            return Vec2f::Null;
-        }
-
-        Color BoundsInfoRenderer::BoundsColorProvider::textColor(RenderContext& context, const size_t& key) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::InfoOverlayTextColor);
-            
-        }
-        
-        Color BoundsInfoRenderer::BoundsColorProvider::backgroundColor(RenderContext& context, const size_t& key) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::InfoOverlayBackgroundColor);
+        Vec2f BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::extraOffsets(const Alignment::Type a) const {
+            Vec2f result;
+            if (a & Alignment::Top)
+                result[1] -= 8.0f;
+            if (a & Alignment::Bottom)
+                result[1] += 8.0f;
+            if (a & Alignment::Left)
+                result[0] += 8.0f;
+            if (a & Alignment::Right)
+                result[0] -= 8.0f;
+            return result;
         }
 
         BoundsInfoRenderer::BoundsInfoRenderer(TextureFont& font) :
         m_bounds(0.0, 0.0),
         m_textRenderer(font),
+        m_textColorProvider(Preferences::InfoOverlayTextColor, Preferences::InfoOverlayBackgroundColor),
         m_valid(false) {
             m_textRenderer.setFadeDistance(2000.0f);
         }
         
         void BoundsInfoRenderer::setBounds(const BBox3& bounds) {
             m_bounds = bounds;
+            m_valid = false;
         }
         
         void BoundsInfoRenderer::render(RenderContext& renderContext) {
             if (!m_valid)
                 validate(renderContext);
 
-            glDisable(GL_DEPTH_TEST);
-            m_textRenderer.render(renderContext, m_textFilter, m_colorProvider, Shaders::TextShader, Shaders::TextBackgroundShader);
-            glEnable(GL_DEPTH_TEST);
+            m_textRenderer.render(renderContext, m_textFilter, m_textColorProvider, Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
         }
 
         void BoundsInfoRenderer::validate(RenderContext& renderContext) {
@@ -197,7 +204,7 @@ namespace TrenchBroom {
             m_textRenderer.addString(3, buffer.str(), minAnchor);
             buffer.str("");
             
-            buffer << "Max: " << m_bounds.min.asString();
+            buffer << "Max: " << m_bounds.max.asString();
             TextAnchor::Ptr maxAnchor(new BoundsInfoMinMaxTextAnchor(m_bounds, BoundsInfoMinMaxTextAnchor::BoxMax, renderContext.camera()));
             m_textRenderer.addString(4, buffer.str(), maxAnchor);
             

@@ -564,8 +564,8 @@ namespace TrenchBroom {
                                     leftSide->replaceEdgesWithEdge(Math::pred(leftIndex, leftCount),
                                                                    Math::succ(leftIndex, leftCount),
                                                                    newEdge);
-                                    rightSide->replaceEdgesWithEdge(Math::pred(rightIndex, rightCount),
-                                                                    Math::succ(rightIndex, rightCount),
+                                    rightSide->replaceEdgesWithEdge(rightIndex,
+                                                                    Math::succ(rightIndex, rightCount, 2),
                                                                     newEdge);
                                     
                                     VectorUtils::eraseAndDelete(geometry.vertices, candidate->end);
