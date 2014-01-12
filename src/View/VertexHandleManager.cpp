@@ -447,16 +447,16 @@ namespace TrenchBroom {
             m_handleRenderer.setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
             m_handleRenderer.setRenderOccluded(true);
 
-            if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode)
+            if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
                 m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedVertexHandlePositions);
             
-            if ((m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty()) || splitMode)
+            if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
                 m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedEdgeHandlePositions);
             
-            if ((m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty()) || splitMode)
+            if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode)
                 m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedFaceHandlePositions);
             
-            if (!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) {
+            if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode) {
                 Renderer::glSetEdgeOffset(0.025f);
                 m_edgeRenderer.setUseColor(true);
                 glDisable(GL_DEPTH_TEST);

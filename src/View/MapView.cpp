@@ -261,6 +261,21 @@ namespace TrenchBroom {
             event.Skip();
         }
         
+        void MapView::OnMouseDoubleClick(wxMouseEvent& event) {
+            const MouseButtonState button = mouseButton(event);
+            updateModifierKeys();
+
+            m_clickPos = event.GetPosition();
+            m_inputState.mouseDown(button);
+            m_toolChain->mouseDoubleClick(m_inputState);
+            m_inputState.mouseUp(button);
+            
+            updatePickResults(event.GetX(), event.GetY());
+
+            Refresh();
+            event.Skip();
+        }
+
         void MapView::OnMouseMotion(wxMouseEvent& event) {
             updateModifierKeys();
             updatePickResults(event.GetX(), event.GetY());
@@ -770,13 +785,16 @@ namespace TrenchBroom {
         }
 
         MouseButtonState MapView::mouseButton(wxMouseEvent& event) {
-            if (event.LeftDown() || event.LeftUp())
-                return MouseButtons::MBLeft;
-            if (event.MiddleDown() || event.MiddleUp())
-                return MouseButtons::MBMiddle;
-            if (event.RightDown() || event.RightUp())
-                return MouseButtons::MBRight;
-            return MouseButtons::MBNone;
+            switch (event.GetButton()) {
+                case wxMOUSE_BTN_LEFT:
+                    return MouseButtons::MBLeft;
+                case wxMOUSE_BTN_MIDDLE:
+                    return MouseButtons::MBMiddle;
+                case wxMOUSE_BTN_RIGHT:
+                    return MouseButtons::MBRight;
+                default:
+                    return MouseButtons::MBNone;
+            }
         }
 
         void MapView::showPopupMenu() {
@@ -824,19 +842,19 @@ namespace TrenchBroom {
             Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
             Bind(wxEVT_LEFT_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_LEFT_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_RIGHT_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_RIGHT_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_RIGHT_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_MIDDLE_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_MIDDLE_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_MIDDLE_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_AUX1_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_AUX1_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX1_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX1_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_AUX2_DOWN, &MapView::OnMouseButton, this);
             Bind(wxEVT_AUX2_UP, &MapView::OnMouseButton, this);
-            Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseButton, this);
+            Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
             Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);

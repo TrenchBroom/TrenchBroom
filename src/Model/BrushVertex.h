@@ -48,6 +48,7 @@ namespace TrenchBroom {
             BrushFaceGeometryList incidentSides(const BrushEdgeList& edges) const;
         };
         
+        Vec3 centerOfVertices(const BrushVertexList& vertices);
         BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position);
         BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position);
         Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices);

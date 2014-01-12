@@ -28,6 +28,8 @@
 #include "Model/MoveBrushEdgesAlgorithm.h"
 #include "Model/MoveBrushFacesAlgorithm.h"
 #include "Model/MoveBrushVerticesAlgorithm.h"
+#include "Model/SplitBrushEdgeAlgorithm.h"
+#include "Model/SplitBrushFaceAlgorithm.h"
 
 #include <map>
 
@@ -145,6 +147,26 @@ namespace TrenchBroom {
         
         MoveFacesResult BrushGeometry::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
             MoveBrushFacesAlgorithm algorithm(*this, worldBounds, facePositions, delta);
+            return algorithm.execute();
+        }
+
+        bool BrushGeometry::canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            SplitBrushEdgeAlgorithm algorithm(*this, worldBounds, edgePosition, delta);
+            return algorithm.canExecute();
+        }
+        
+        SplitResult BrushGeometry::splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            SplitBrushEdgeAlgorithm algorithm(*this, worldBounds, edgePosition, delta);
+            return algorithm.execute();
+        }
+
+        bool BrushGeometry::canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            SplitBrushFaceAlgorithm algorithm(*this, worldBounds, facePosition, delta);
+            return algorithm.canExecute();
+        }
+        
+        SplitResult BrushGeometry::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            SplitBrushFaceAlgorithm algorithm(*this, worldBounds, facePosition, delta);
             return algorithm.execute();
         }
 

@@ -102,6 +102,12 @@ namespace TrenchBroom {
             bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
 
+            bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            Vec3 splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            
+            bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+
             void snapPlanePointsToInteger(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:

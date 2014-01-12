@@ -24,6 +24,8 @@
 #include "Controller/MoveBrushEdgesCommand.h"
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
+#include "Controller/SplitBrushEdgesCommand.h"
+#include "Controller/SplitBrushFacesCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
@@ -68,7 +70,9 @@ namespace TrenchBroom {
                         m_handleManager.selectedFaceCount() == 1));
                 
                 if (m_handleManager.selectedEdgeCount() > 0) {
+                    return doSplitEdges(delta);
                 } else if (m_handleManager.selectedFaceCount() > 0) {
+                    return doSplitFaces(delta);
                 }
             }
             return Continue;
@@ -102,6 +106,24 @@ namespace TrenchBroom {
             return Deny;
         }
         
+        MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
+            if (controller()->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
+                m_mode = VMMove;
+                m_dragHandlePosition += delta;
+                return Continue;
+            }
+            return Deny;
+        }
+        
+        MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
+            if (controller()->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
+                m_mode = VMMove;
+                m_dragHandlePosition += delta;
+                return Continue;
+            }
+            return Deny;
+        }
+
         bool VertexTool::doHandleMove(const InputState& inputState) const {
             if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                   (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -264,95 +286,30 @@ namespace TrenchBroom {
             return true;
         }
 
-        void VertexTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            renderContext.setForceHideSelectionGuide();
-        }
+        bool VertexTool::doMouseDoubleClick(const InputState& inputState) {
+            if (dismissClick(inputState))
+                return false;
 
-        void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            m_handleManager.render(renderContext, m_mode == VMSplit);
-
-            if (dragging()) {
-                m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
+            const Model::Hit::List hits = firstHits(inputState.pickResult());
+            if (hits.empty())
+                return false;
+            
+            const Model::Hit& firstHit = hits.front();
+            if (firstHit.type() == VertexHandleManager::VertexHandleHit) {
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectVertexHandle(firstHit.target<Vec3>());
+                m_mode = VMSnap;
+            } else if (firstHit.type() == VertexHandleManager::EdgeHandleHit) {
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectEdgeHandle(firstHit.target<Vec3>());
+                m_mode = VMSplit;
             } else {
-                const Model::Hit hit = firstHit(inputState.pickResult());
-                if (hit.isMatch())
-                    m_handleManager.renderHighlight(renderContext, hit.target<Vec3>());
-            }
-        }
-
-        void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
-            Model::ObjectSet::const_iterator it, end;
-
-            const Model::ObjectSet& selectedObjects = selection.selectedObjects();
-            for (it = selectedObjects.begin(), end = selectedObjects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::OTBrush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.addBrush(brush);
-                }
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectFaceHandle(firstHit.target<Vec3>());
+                m_mode = VMSplit;
             }
             
-            const Model::ObjectSet& deselectedObjects = selection.deselectedObjects();
-            for (it = deselectedObjects.begin(), end = deselectedObjects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::OTBrush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.removeBrush(brush);
-                }
-            }
-        }
-
-        void VertexTool::objectWillChange(Model::Object* object) {
-            if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::OTBrush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.removeBrush(brush);
-                }
-            }
-        }
-
-        void VertexTool::objectDidChange(Model::Object* object) {
-            if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::OTBrush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.addBrush(brush);
-                }
-            }
-        }
-
-        void VertexTool::commandDoOrUndo(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
-                handleCommand->removeBrushes(m_handleManager);
-                m_ignoreObjectChangeNotifications = true;
-            }
-        }
-
-        void VertexTool::commandDoneOrUndoFailed(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
-                handleCommand->addBrushes(m_handleManager);
-                handleCommand->selectNewHandlePositions(m_handleManager);
-                m_ignoreObjectChangeNotifications = false;
-            }
-        }
-        
-        void VertexTool::commandDoFailedOrUndone(Controller::Command::Ptr command) {
-            using namespace Controller;
-            if (command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
-                handleCommand->addBrushes(m_handleManager);
-                handleCommand->selectOldHandlePositions(m_handleManager);
-                m_ignoreObjectChangeNotifications = false;
-            }
+            return true;
         }
 
         bool VertexTool::dismissClick(const InputState& inputState) const {
@@ -363,7 +320,7 @@ namespace TrenchBroom {
                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) ||
                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)));
         }
-
+        
         void VertexTool::vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits) {
             m_handleManager.deselectAllEdgeHandles();
             m_handleManager.deselectAllFaceHandles();
@@ -459,7 +416,104 @@ namespace TrenchBroom {
                 }
             }
         }
+
+        void VertexTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            renderContext.setForceHideSelectionGuide();
+        }
+
+        void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            m_handleManager.render(renderContext, m_mode == VMSplit);
+
+            if (dragging()) {
+                m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
+            } else {
+                const Model::Hit hit = firstHit(inputState.pickResult());
+                if (hit.isMatch())
+                    m_handleManager.renderHighlight(renderContext, hit.target<Vec3>());
+            }
+        }
+
+        void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
+            Model::ObjectSet::const_iterator it, end;
+
+            const Model::ObjectSet& selectedObjects = selection.selectedObjects();
+            for (it = selectedObjects.begin(), end = selectedObjects.end(); it != end; ++it) {
+                Model::Object* object = *it;
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.addBrush(brush);
+                }
+            }
+            
+            const Model::ObjectSet& deselectedObjects = selection.deselectedObjects();
+            for (it = deselectedObjects.begin(), end = deselectedObjects.end(); it != end; ++it) {
+                Model::Object* object = *it;
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.removeBrush(brush);
+                }
+            }
+        }
+
+        void VertexTool::objectWillChange(Model::Object* object) {
+            if (!m_ignoreObjectChangeNotifications) {
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.removeBrush(brush);
+                }
+            }
+        }
+
+        void VertexTool::objectDidChange(Model::Object* object) {
+            if (!m_ignoreObjectChangeNotifications) {
+                if (object->type() == Model::Object::OTBrush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    m_handleManager.addBrush(brush);
+                }
+            }
+        }
+
+        void VertexTool::commandDoOrUndo(Controller::Command::Ptr command) {
+            using namespace Controller;
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == SplitBrushEdgesCommand::Type ||
+                command->type() == SplitBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->removeBrushes(m_handleManager);
+                m_ignoreObjectChangeNotifications = true;
+            }
+        }
+
+        void VertexTool::commandDoneOrUndoFailed(Controller::Command::Ptr command) {
+            using namespace Controller;
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == SplitBrushEdgesCommand::Type ||
+                command->type() == SplitBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->addBrushes(m_handleManager);
+                handleCommand->selectNewHandlePositions(m_handleManager);
+                m_ignoreObjectChangeNotifications = false;
+            }
+        }
         
+        void VertexTool::commandDoFailedOrUndone(Controller::Command::Ptr command) {
+            using namespace Controller;
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == SplitBrushEdgesCommand::Type ||
+                command->type() == SplitBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->addBrushes(m_handleManager);
+                handleCommand->selectOldHandlePositions(m_handleManager);
+                m_ignoreObjectChangeNotifications = false;
+            }
+        }
+
         Model::Hit VertexTool::firstHit(const Model::PickResult& pickResult) const {
             const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
             return Model::firstHit(pickResult, any, true).hit;

@@ -62,6 +62,8 @@ namespace TrenchBroom {
             MoveResult doMoveVertices(const Vec3& delta);
             MoveResult doMoveEdges(const Vec3& delta);
             MoveResult doMoveFaces(const Vec3& delta);
+            MoveResult doSplitEdges(const Vec3& delta);
+            MoveResult doSplitFaces(const Vec3& delta);
 
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
@@ -81,6 +83,12 @@ namespace TrenchBroom {
 
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
+            bool doMouseDoubleClick(const InputState& inputState);
+
+            bool dismissClick(const InputState& inputState) const;
+            void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            void edgeHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            void faceHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
@@ -92,10 +100,6 @@ namespace TrenchBroom {
             void commandDoneOrUndoFailed(Controller::Command::Ptr command);
             void commandDoFailedOrUndone(Controller::Command::Ptr command);
 
-            bool dismissClick(const InputState& inputState) const;
-            void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
-            void edgeHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
-            void faceHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
             
             Model::Hit firstHit(const Model::PickResult& pickResult) const;
             Model::Hit::List firstHits(const Model::PickResult& pickResult) const;

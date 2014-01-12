@@ -129,6 +129,7 @@ namespace TrenchBroom {
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);
+            void OnMouseDoubleClick(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);

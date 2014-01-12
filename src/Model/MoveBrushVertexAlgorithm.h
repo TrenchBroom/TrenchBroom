@@ -106,17 +106,20 @@ namespace TrenchBroom {
                     droppedFaces.clear();
                     
                     CopyMap::const_iterator it, end;
-                    for (it = m_newFaces.begin(), end = m_newFaces.end(); it != end; ++it)
-                        newFaces.insert(newFaces.end(), it->second.begin(), it->second.end());
+                    for (it = m_newFaces.begin(), end = m_newFaces.end(); it != end; ++it) {
+                        const BrushFaceSet& actualNewFaces = it->second;
+                        assert(!actualNewFaces.empty());
+                        newFaces.insert(newFaces.end(), actualNewFaces.begin(), actualNewFaces.end());
+                    }
                     droppedFaces.insert(droppedFaces.end(), m_droppedFaces.begin(), m_droppedFaces.end());
                     
                     m_newFaces.clear();
                     m_droppedFaces.clear();
                 }
             };
-            
-            FaceManager m_faceManager;
         protected:
+            FaceManager m_faceManager;
+
             struct MoveVertexResult {
                 typedef enum {
                     VertexMoved,

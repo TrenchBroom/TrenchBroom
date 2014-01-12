@@ -34,6 +34,8 @@
 #include "Controller/SelectionCommand.h"
 #include "Controller/SetEntityDefinitionFileCommand.h"
 #include "Controller/SetModsCommand.h"
+#include "Controller/SplitBrushEdgesCommand.h"
+#include "Controller/SplitBrushFacesCommand.h"
 #include "Controller/TextureCollectionCommand.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/ModelUtils.h"
@@ -416,6 +418,20 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+            using namespace Controller;
+            
+            Command::Ptr command = SplitBrushEdgesCommand::moveEdges(m_document, edges, delta);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+            using namespace Controller;
+            
+            Command::Ptr command = SplitBrushFacesCommand::moveFaces(m_document, faces, delta);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {
             using namespace Controller;
             

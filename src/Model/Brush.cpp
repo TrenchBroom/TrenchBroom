@@ -258,6 +258,42 @@ namespace TrenchBroom {
             return result.newFacePositions;
         }
 
+        bool Brush::canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canSplitEdge(worldBounds, edgePosition, delta);
+            assert(checkFaceGeometryLinks());
+            return result;
+        }
+        
+        Vec3 Brush::splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canSplitEdge(worldBounds, edgePosition, delta));
+            
+            const SplitResult result = m_geometry->splitEdge(worldBounds, edgePosition, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
+            return result.newVertexPosition;
+        }
+        
+        bool Brush::canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canSplitFace(worldBounds, facePosition, delta);
+            assert(checkFaceGeometryLinks());
+            return result;
+        }
+        
+        Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canSplitFace(worldBounds, facePosition, delta));
+            
+            const SplitResult result = m_geometry->splitFace(worldBounds, facePosition, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
+            return result.newVertexPosition;
+        }
+
         void Brush::snapPlanePointsToInteger(const BBox3& worldBounds) {
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
