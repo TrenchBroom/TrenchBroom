@@ -61,6 +61,7 @@ namespace TrenchBroom {
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
             
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             bool renderHandle(const InputState& inputState) const;
             RotateObjectsHandle::HitArea highlightHandleArea(const InputState& inputState) const;

@@ -50,13 +50,13 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<TextAnchor> Ptr;
         public:
             virtual ~TextAnchor() {}
-            const Vec3f offset(const Camera& camera, const Vec2f& size) const;
-            const Vec3f position() const;
+            Vec3f offset(const Camera& camera, const Vec2f& size) const;
+            Vec3f position() const;
         private:
-            virtual const Vec3f basePosition() const = 0;
-            virtual const Alignment::Type alignment() const = 0;
-            virtual const Vec2f extraOffsets() const;
-            const Vec2f alignmentFactors() const;
+            virtual Vec3f basePosition() const = 0;
+            virtual Alignment::Type alignment() const = 0;
+            virtual Vec2f extraOffsets() const;
+            Vec2f alignmentFactors() const;
         };
         
         class SimpleTextAnchor : public TextAnchor {
@@ -65,9 +65,9 @@ namespace TrenchBroom {
             Alignment::Type m_alignment;
             Vec2f m_extraOffsets;
         protected:
-            const Vec3f basePosition() const;
-            const Alignment::Type alignment() const;
-            const Vec2f extraOffsets() const;
+            Vec3f basePosition() const;
+            Alignment::Type alignment() const;
+            Vec2f extraOffsets() const;
         public:
             SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
         };

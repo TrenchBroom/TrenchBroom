@@ -488,6 +488,10 @@ namespace TrenchBroom {
             return m_selection.hasSelection();
         }
         
+        BBox3 MapDocument::selectionBounds() const {
+            return m_selection.bounds();
+        }
+
         const Model::ObjectList& MapDocument::selectedObjects() const {
             return m_selection.selectedObjects();
         }

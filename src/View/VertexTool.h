@@ -73,6 +73,7 @@ namespace TrenchBroom {
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
 
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
             void selectionDidChange(const Model::SelectionResult& selection);

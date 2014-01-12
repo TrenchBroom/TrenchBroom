@@ -28,7 +28,8 @@ namespace TrenchBroom {
         m_shaderManager(shaderManager),
         m_gridVisible(gridVisible),
         m_gridSize(gridSize),
-        m_hideSelection(false) {}
+        m_hideSelection(false),
+        m_showSelectionGuide(Hide) {}
         
         const Camera& RenderContext::camera() const {
             return m_camera;
@@ -56,6 +57,47 @@ namespace TrenchBroom {
         
         void RenderContext::setHideSelection() {
             m_hideSelection = true;
+        }
+
+        
+        bool RenderContext::showSelectionGuide() const {
+            return m_showSelectionGuide == Show || m_showSelectionGuide == ForceShow;
+        }
+        
+        void RenderContext::setShowSelectionGuide() {
+            setShowSelectionGuide(Show);
+        }
+        
+        void RenderContext::setHideSelectionGuide() {
+            setShowSelectionGuide(Hide);
+        }
+        
+        void RenderContext::setForceShowSelectionGuide() {
+            setShowSelectionGuide(ForceShow);
+        }
+
+        void RenderContext::setForceHideSelectionGuide() {
+            setShowSelectionGuide(ForceHide);
+        }
+        
+        void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {
+            switch (showSelectionGuide) {
+                case Show:
+                    if (m_showSelectionGuide == Hide)
+                        m_showSelectionGuide = Show;
+                    break;
+                case Hide:
+                    if (m_showSelectionGuide == Show)
+                        m_showSelectionGuide = Hide;
+                    break;
+                case ForceShow:
+                    m_showSelectionGuide = ForceShow;
+                    break;
+                case ForceHide:
+                    if (m_showSelectionGuide != ForceShow)
+                        m_showSelectionGuide = ForceHide;
+                    break;
+            }
         }
     }
 }

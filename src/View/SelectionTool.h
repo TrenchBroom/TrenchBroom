@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SelectionTool : public Tool<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy> {
+        class SelectionTool : public Tool<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
         public:
             SelectionTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
         private:
@@ -35,6 +35,8 @@ namespace TrenchBroom {
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
+
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
         };
     }
 }

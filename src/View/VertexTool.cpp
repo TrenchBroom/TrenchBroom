@@ -26,6 +26,7 @@
 #include "Model/Picker.h"
 #include "Model/Object.h"
 #include "Model/SelectionResult.h"
+#include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
@@ -217,6 +218,10 @@ namespace TrenchBroom {
             m_handleManager.deselectAllHandles();
             m_mode = VMMove;
             return true;
+        }
+
+        void VertexTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            renderContext.setForceHideSelectionGuide();
         }
 
         void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {

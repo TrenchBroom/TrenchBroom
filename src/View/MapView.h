@@ -27,6 +27,7 @@
 #include "Assets/AssetTypes.h"
 #include "Controller/Command.h"
 #include "Renderer/GL.h"
+#include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
@@ -80,6 +81,7 @@ namespace TrenchBroom {
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
+            Renderer::BoundsGuideRenderer m_selectionGuide;
             
             InputState m_inputState;
             MovementRestriction m_movementRestriction;
@@ -185,6 +187,7 @@ namespace TrenchBroom {
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);
+            void renderSelectionGuide(Renderer::RenderContext& context);
             void renderTools(Renderer::RenderContext& context);
             void renderCompass(Renderer::RenderContext& context);
             void renderFocusRect(Renderer::RenderContext& context);
@@ -194,6 +197,7 @@ namespace TrenchBroom {
             static const Renderer::RenderResources::GLAttribs& attribs();
             static int depthBits();
             static bool multisample();
+            static Renderer::TextureFont& defaultFont(Renderer::RenderResources& renderResources);
         };
     }
 }

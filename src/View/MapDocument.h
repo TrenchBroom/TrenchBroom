@@ -150,6 +150,7 @@ namespace TrenchBroom {
             bool hasSelectedBrushes() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
+            BBox3 selectionBounds() const;
             
             const Model::ObjectList& selectedObjects() const;
             const Model::EntityList& selectedEntities() const;

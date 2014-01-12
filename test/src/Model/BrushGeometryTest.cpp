@@ -274,5 +274,21 @@ namespace TrenchBroom {
             const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
             ASSERT_TRUE(result.newVertexPositions.empty());
         }
+        
+        TEST(BrushGeometryTest, moveAndDestroySingleVertex2) {
+            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(6.0, 8.0, 12.0));
+            BrushFaceList faces = createBoxFaces(cuboid);
+            
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            
+            const Vec3 vertex(cuboid.max - Vec3(0.0, cuboid.max.y(), 0.0));
+            const Vec3 delta(-cuboid.max.x(), 0.0, -cuboid.max.z());
+            ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, vertex), delta));
+            
+            const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
+            ASSERT_TRUE(result.newVertexPositions.empty());
+        }
     }
 }

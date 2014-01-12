@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__Selection__
 #define __TrenchBroom__Selection__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -62,6 +64,7 @@ namespace TrenchBroom {
             BrushFaceList unselectedFaces(Map& map) const;
 
             BrushFace* lastSelectedFace() const;
+            BBox3 bounds() const;
             
             SelectionResult selectObjects(const ObjectList& objects);
             SelectionResult deselectObjects(const ObjectList& objects);

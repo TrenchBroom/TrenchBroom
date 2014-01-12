@@ -65,6 +65,7 @@ namespace TrenchBroom {
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_document, m_renderResources.fontManager()),
         m_compass(),
+        m_selectionGuide(defaultFont(m_renderResources)),
         m_inputState(m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
@@ -355,6 +356,7 @@ namespace TrenchBroom {
                     setRenderOptions(context);
                     clearBackground(context);
                     renderMap(context);
+                    renderSelectionGuide(context);
                     renderTools(context);
                     renderCoordinateSystem(context);
                     renderCompass(context);
@@ -632,6 +634,9 @@ namespace TrenchBroom {
         }
         
         void MapView::objectDidChange(Model::Object* object) {
+            View::MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedObjects())
+                m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
             Refresh();
         }
         
@@ -640,6 +645,9 @@ namespace TrenchBroom {
         }
         
         void MapView::selectionDidChange(const Model::SelectionResult& result) {
+            View::MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedObjects())
+                m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
             Refresh();
         }
 
@@ -669,10 +677,7 @@ namespace TrenchBroom {
         }
 
         void MapView::createTools() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const String& fontName = prefs.get(Preferences::RendererFontName);
-            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
-            Renderer::TextureFont& font = m_renderResources.fontManager().font(Renderer::FontDescriptor(fontName, fontSize));
+            Renderer::TextureFont& font = defaultFont(m_renderResources);
 
             m_selectionTool = new SelectionTool(NULL, m_document, m_controller);
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
@@ -899,6 +904,18 @@ namespace TrenchBroom {
             m_renderer.render(context);
         }
         
+        void MapView::renderSelectionGuide(Renderer::RenderContext& context) {
+            if (context.showSelectionGuide() && !expired(m_document)) {
+                View::MapDocumentSPtr document = lock(m_document);
+                if (document->hasSelectedObjects()) {
+                    PreferenceManager& prefs = PreferenceManager::instance();
+                    const Color& color = prefs.get(Preferences::HandleColor);
+                    m_selectionGuide.setColor(color);
+                    m_selectionGuide.render(context, document);
+                }
+            }
+        }
+
         void MapView::renderTools(Renderer::RenderContext& context) {
             if (m_modalReceiver != NULL)
                 m_modalReceiver->renderOnly(m_inputState, context);
@@ -1085,6 +1102,13 @@ namespace TrenchBroom {
         
         bool MapView::multisample() {
             return attribs()[4] != 0;
+        }
+
+        Renderer::TextureFont& MapView::defaultFont(Renderer::RenderResources& renderResources) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const String& fontName = prefs.get(Preferences::RendererFontName);
+            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
+            return renderResources.fontManager().font(Renderer::FontDescriptor(fontName, fontSize));
         }
     }
 }

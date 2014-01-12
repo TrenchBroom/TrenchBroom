@@ -258,6 +258,11 @@ namespace TrenchBroom {
             return m_lastSelectedFace;
         }
         
+        BBox3 Selection::bounds() const {
+            assert(hasSelectedObjects());
+            return Object::bounds(m_selectedObjects);
+        }
+
         SelectionResult Selection::selectObjects(const ObjectList& objects) {
             SelectionResult result;
             if (!objects.empty()) {

@@ -29,6 +29,13 @@ namespace TrenchBroom {
         
         class RenderContext {
         private:
+            typedef enum {
+                Show,
+                Hide,
+                ForceShow,
+                ForceHide
+            } ShowSelectionGuide;
+            
             const Camera& m_camera;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
@@ -36,6 +43,7 @@ namespace TrenchBroom {
             bool m_gridVisible;
             size_t m_gridSize;
             bool m_hideSelection;
+            ShowSelectionGuide m_showSelectionGuide;
         public:
             RenderContext(const Camera& camera, ShaderManager& shaderManager, const bool gridVisible, const size_t gridSize);
             
@@ -47,6 +55,14 @@ namespace TrenchBroom {
             
             bool hideSelection() const;
             void setHideSelection();
+            
+            bool showSelectionGuide() const;
+            void setShowSelectionGuide();
+            void setHideSelectionGuide();
+            void setForceShowSelectionGuide();
+            void setForceHideSelectionGuide();
+        private:
+            void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
         };
     }
 }

@@ -26,6 +26,7 @@
 #include "Model/ModelFilter.h"
 #include "Model/Object.h"
 #include "Model/Picker.h"
+#include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -95,6 +96,12 @@ namespace TrenchBroom {
         }
         
         void SelectionTool::doCancelMouseDrag(const InputState& inputState) {
+        }
+
+        void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            if (first.matches)
+                renderContext.setShowSelectionGuide();
         }
     }
 }

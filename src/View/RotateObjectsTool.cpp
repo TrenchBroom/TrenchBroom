@@ -122,6 +122,12 @@ namespace TrenchBroom {
             m_helper = NULL;
         }
         
+        void RotateObjectsTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
+            if (dragging() || first.matches)
+                renderContext.setForceShowSelectionGuide();
+        }
+
         void RotateObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             updateHandleAxes(inputState);
             
