@@ -56,12 +56,13 @@ namespace TrenchBroom {
             Controller::CommandProcessor m_commandProcessor;
         public:
             ControllerFacade(MapDocumentWPtr document);
-            ~ControllerFacade();
             
-            Notifier1<Controller::Command::Ptr> commandDoNotifier;
-            Notifier1<Controller::Command::Ptr> commandDoneNotifier;
-            Notifier1<Controller::Command::Ptr> commandUndoNotifier;
-            Notifier1<Controller::Command::Ptr> commandUndoneNotifier;
+            Notifier1<Controller::Command::Ptr>& commandDoNotifier;
+            Notifier1<Controller::Command::Ptr>& commandDoneNotifier;
+            Notifier1<Controller::Command::Ptr>& commandDoFailedNotifier;
+            Notifier1<Controller::Command::Ptr>& commandUndoNotifier;
+            Notifier1<Controller::Command::Ptr>& commandUndoneNotifier;
+            Notifier1<Controller::Command::Ptr>& commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
@@ -122,6 +123,8 @@ namespace TrenchBroom {
             bool findPlanePoints(Model::Brush& brush);
 
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            bool moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);
@@ -134,11 +137,6 @@ namespace TrenchBroom {
             bool setContentFlags(const Model::BrushFaceList& faces, int flags);
             bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
-        private:
-            void commandDo(Controller::Command::Ptr command);
-            void commandDone(Controller::Command::Ptr command);
-            void commandUndo(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
         };
     }
 }

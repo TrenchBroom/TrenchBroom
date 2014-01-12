@@ -59,6 +59,10 @@ namespace TrenchBroom {
             VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             MoveResult moveVertices(const Vec3& delta);
         private:
+            MoveResult doMoveVertices(const Vec3& delta);
+            MoveResult doMoveEdges(const Vec3& delta);
+            MoveResult doMoveFaces(const Vec3& delta);
+
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
             String doGetActionName(const InputState& inputState) const;
@@ -85,8 +89,8 @@ namespace TrenchBroom {
             void objectWillChange(Model::Object* object);
             void objectDidChange(Model::Object* object);
             void commandDoOrUndo(Controller::Command::Ptr command);
-            void commandDone(Controller::Command::Ptr command);
-            void commandUndone(Controller::Command::Ptr command);
+            void commandDoneOrUndoFailed(Controller::Command::Ptr command);
+            void commandDoFailedOrUndone(Controller::Command::Ptr command);
 
             bool dismissClick(const InputState& inputState) const;
             void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);

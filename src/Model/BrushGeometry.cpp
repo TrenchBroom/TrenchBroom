@@ -25,6 +25,8 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/IntersectBrushGeometryWithFace.h"
+#include "Model/MoveBrushEdgesAlgorithm.h"
+#include "Model/MoveBrushFacesAlgorithm.h"
 #include "Model/MoveBrushVerticesAlgorithm.h"
 
 #include <map>
@@ -57,12 +59,20 @@ namespace TrenchBroom {
             swap(newVertexPositions, i_newVertexPositions);
         }
 
+        MoveEdgesResult::MoveEdgesResult(const Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
+        newEdgePositions(i_newEdgePositions) {}
+
         MoveEdgesResult::MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
         BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;
             swap(newEdgePositions, i_newEdgePositions);
         }
 
+        MoveFacesResult::MoveFacesResult(const Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
+        newFacePositions(i_newFacePositions) {}
+        
         MoveFacesResult::MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
         BrushAlgorithmResult(i_addedFaces, i_droppedFaces) {
             using std::swap;
@@ -115,6 +125,26 @@ namespace TrenchBroom {
         
         MoveVerticesResult BrushGeometry::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             MoveBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, delta);
+            return algorithm.execute();
+        }
+
+        bool BrushGeometry::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            MoveBrushEdgesAlgorithm algorithm(*this, worldBounds, edgePositions, delta);
+            return algorithm.canExecute();
+        }
+        
+        MoveEdgesResult BrushGeometry::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            MoveBrushEdgesAlgorithm algorithm(*this, worldBounds, edgePositions, delta);
+            return algorithm.execute();
+        }
+
+        bool BrushGeometry::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            MoveBrushFacesAlgorithm algorithm(*this, worldBounds, facePositions, delta);
+            return algorithm.canExecute();
+        }
+        
+        MoveFacesResult BrushGeometry::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            MoveBrushFacesAlgorithm algorithm(*this, worldBounds, facePositions, delta);
             return algorithm.execute();
         }
 

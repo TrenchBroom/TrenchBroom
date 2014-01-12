@@ -222,6 +222,42 @@ namespace TrenchBroom {
             return result.newVertexPositions;
         }
 
+        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canMoveEdges(worldBounds, edgePositions, delta);
+            assert(checkFaceGeometryLinks());
+            return result;
+        }
+        
+        Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canMoveEdges(worldBounds, edgePositions, delta));
+            
+            const MoveEdgesResult result = m_geometry->moveEdges(worldBounds, edgePositions, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
+            return result.newEdgePositions;
+        }
+
+        bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canMoveFaces(worldBounds, facePositions, delta);
+            assert(checkFaceGeometryLinks());
+            return result;
+        }
+        
+        Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canMoveFaces(worldBounds, facePositions, delta));
+            
+            const MoveFacesResult result = m_geometry->moveFaces(worldBounds, facePositions, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
+            return result.newFacePositions;
+        }
+
         void Brush::snapPlanePointsToInteger(const BBox3& worldBounds) {
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {

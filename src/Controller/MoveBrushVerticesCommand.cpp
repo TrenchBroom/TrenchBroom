@@ -17,43 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveVerticesCommand.h"
+#include "MoveBrushVerticesCommand.h"
 
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "View/MapDocument.h"
+#include "View/VertexHandleManager.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
-        const Command::CommandType MoveVerticesCommand::Type = Command::freeType();
+        const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveVerticesCommand::Ptr MoveVerticesCommand::moveVertices(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
-            return Ptr(new MoveVerticesCommand(document, vertices, delta));
-        }
-
-        const Model::BrushList& MoveVerticesCommand::brushes() const {
-            return m_brushes;
-        }
-        
-        const Vec3::List& MoveVerticesCommand::oldVertexPositions() const {
-            return m_oldVertexPositions;
-        }
-        
-        const Vec3::List& MoveVerticesCommand::newVertexPositions() const {
-            return m_newVertexPositions;
+        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::moveVertices(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
+            return Ptr(new MoveBrushVerticesCommand(document, vertices, delta));
         }
 
-        MoveVerticesCommand::MoveVerticesCommand(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta) :
-        Command(Type, makeName(vertices), true, true),
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta) :
+        BrushVertexHandleCommand(Type, makeName(vertices), true, true),
         m_document(document),
         m_delta(delta) {
             assert(!delta.null());
             extractVertices(vertices);
         }
 
-        bool MoveVerticesCommand::doPerformDo() {
+        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
+            return !m_newVertexPositions.empty();
+        }
+
+        bool MoveBrushVerticesCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
             if (!canPerformDo(document))
                 return false;
@@ -75,7 +68,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveVerticesCommand::canPerformDo(View::MapDocumentSPtr document) const {
+        bool MoveBrushVerticesCommand::canPerformDo(View::MapDocumentSPtr document) const {
             const BBox3& worldBounds = document->worldBounds();
             BrushVerticesMap::const_iterator it, end;
             for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
@@ -87,7 +80,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveVerticesCommand::doPerformUndo() {
+        bool MoveBrushVerticesCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
 
@@ -98,11 +91,27 @@ namespace TrenchBroom {
             return true;
         }
         
-        String MoveVerticesCommand::makeName(const Model::VertexToBrushesMap& vertices) {
+        void MoveBrushVerticesCommand::doRemoveBrushes(View::VertexHandleManager& manager) const {
+            manager.removeBrushes(m_brushes);
+        }
+        
+        void MoveBrushVerticesCommand::doAddBrushes(View::VertexHandleManager& manager) const {
+            manager.addBrushes(m_brushes);
+        }
+        
+        void MoveBrushVerticesCommand::doSelectNewHandlePositions(View::VertexHandleManager& manager) const {
+            manager.selectVertexHandles(m_newVertexPositions);
+        }
+        
+        void MoveBrushVerticesCommand::doSelectOldHandlePositions(View::VertexHandleManager& manager) const {
+            manager.selectVertexHandles(m_oldVertexPositions);
+        }
+
+        String MoveBrushVerticesCommand::makeName(const Model::VertexToBrushesMap& vertices) {
             return String("Move ") + (vertices.size() == 1 ? "Vertex" : "Vertices");
         }
         
-        void MoveVerticesCommand::extractVertices(const Model::VertexToBrushesMap& vertices) {
+        void MoveBrushVerticesCommand::extractVertices(const Model::VertexToBrushesMap& vertices) {
             typedef std::pair<BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {

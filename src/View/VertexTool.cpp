@@ -20,7 +20,10 @@
 #include "VertexTool.h"
 
 #include "SetBool.h"
-#include "Controller/MoveVerticesCommand.h"
+#include "Controller/BrushVertexHandleCommand.h"
+#include "Controller/MoveBrushEdgesCommand.h"
+#include "Controller/MoveBrushFacesCommand.h"
+#include "Controller/MoveBrushVerticesCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
@@ -47,30 +50,58 @@ namespace TrenchBroom {
         m_ignoreObjectChangeNotifications(false) {}
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            using namespace Controller;
-            
-            const SetBool ignoreObjectChangeNotifications(m_ignoreObjectChangeNotifications);
             
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert(m_handleManager.selectedVertexCount() > 0 ^
                        m_handleManager.selectedEdgeCount() > 0 ^
                        m_handleManager.selectedFaceCount() > 0);
                 
-                if (m_handleManager.selectedVertexCount() > 0) {
-                    const ControllerFacade::MoveVerticesResult result = controller()->moveVertices(m_handleManager.selectedVertexHandles(), delta);
-                    if (result.success) {
-                        if (!result.hasRemainingVertices)
-                            return Conclude;
-                        m_dragHandlePosition += delta;
-                        return Continue;
-                    } else {
-                        return Deny;
-                    }
+                if (m_handleManager.selectedVertexCount() > 0)
+                    return doMoveVertices(delta);
+                else if (m_handleManager.selectedEdgeCount() > 0)
+                    return doMoveEdges(delta);
+                else if (m_handleManager.selectedFaceCount() > 0)
+                    return doMoveFaces(delta);
+            } else {
+                assert(m_handleManager.selectedVertexCount() == 0 &&
+                       (m_handleManager.selectedEdgeCount() == 1 ^
+                        m_handleManager.selectedFaceCount() == 1));
+                
+                if (m_handleManager.selectedEdgeCount() > 0) {
+                } else if (m_handleManager.selectedFaceCount() > 0) {
                 }
             }
             return Continue;
         }
 
+        MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
+            using namespace Controller;
+            const ControllerFacade::MoveVerticesResult result = controller()->moveVertices(m_handleManager.selectedVertexHandles(), delta);
+            if (result.success) {
+                if (!result.hasRemainingVertices)
+                    return Conclude;
+                m_dragHandlePosition += delta;
+                return Continue;
+            }
+            return Deny;
+        }
+        
+        MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
+            if (controller()->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
+                m_dragHandlePosition += delta;
+                return Continue;
+            }
+            return Deny;
+        }
+        
+        MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
+            if (controller()->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
+                m_dragHandlePosition += delta;
+                return Continue;
+            }
+            return Deny;
+        }
+        
         bool VertexTool::doHandleMove(const InputState& inputState) const {
             if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                   (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -174,9 +205,11 @@ namespace TrenchBroom {
             document()->objectWillChangeNotifier.addObserver(this, &VertexTool::objectWillChange);
             document()->objectDidChangeNotifier.addObserver(this, &VertexTool::objectDidChange);
             controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
+            controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            controller()->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
             controller()->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDone);
-            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandUndone);
+            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
+            controller()->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
         }
         
         void VertexTool::unbindObservers() {
@@ -184,9 +217,11 @@ namespace TrenchBroom {
             document()->objectWillChangeNotifier.removeObserver(this, &VertexTool::objectWillChange);
             document()->objectDidChangeNotifier.removeObserver(this, &VertexTool::objectDidChange);
             controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
+            controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            controller()->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
             controller()->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDone);
-            controller()->commandUndoneNotifier.removeObserver(this, &VertexTool::commandUndone);
+            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
+            controller()->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
         }
 
         void VertexTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
@@ -287,34 +322,36 @@ namespace TrenchBroom {
 
         void VertexTool::commandDoOrUndo(Controller::Command::Ptr command) {
             using namespace Controller;
-            if (command->type() == MoveVerticesCommand::Type) {
-                MoveVerticesCommand::Ptr moveVerticesCommand = Command::cast<MoveVerticesCommand>(command);
-                const Model::BrushList& brushes = moveVerticesCommand->brushes();
-                m_handleManager.removeBrushes(brushes);
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->removeBrushes(m_handleManager);
+                m_ignoreObjectChangeNotifications = true;
             }
         }
 
-        void VertexTool::commandDone(Controller::Command::Ptr command) {
+        void VertexTool::commandDoneOrUndoFailed(Controller::Command::Ptr command) {
             using namespace Controller;
-            if (command->type() == MoveVerticesCommand::Type) {
-                MoveVerticesCommand::Ptr moveVerticesCommand = Command::cast<MoveVerticesCommand>(command);
-                const Model::BrushList& brushes = moveVerticesCommand->brushes();
-                const Vec3::List& positions = moveVerticesCommand->newVertexPositions();
-                
-                m_handleManager.addBrushes(brushes);
-                m_handleManager.selectVertexHandles(positions);
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->addBrushes(m_handleManager);
+                handleCommand->selectNewHandlePositions(m_handleManager);
+                m_ignoreObjectChangeNotifications = false;
             }
         }
         
-        void VertexTool::commandUndone(Controller::Command::Ptr command) {
+        void VertexTool::commandDoFailedOrUndone(Controller::Command::Ptr command) {
             using namespace Controller;
-            if (command->type() == MoveVerticesCommand::Type) {
-                MoveVerticesCommand::Ptr moveVerticesCommand = Command::cast<MoveVerticesCommand>(command);
-                const Model::BrushList& brushes = moveVerticesCommand->brushes();
-                const Vec3::List& positions = moveVerticesCommand->oldVertexPositions();
-                
-                m_handleManager.addBrushes(brushes);
-                m_handleManager.selectVertexHandles(positions);
+            if (command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
+                BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
+                handleCommand->addBrushes(m_handleManager);
+                handleCommand->selectOldHandlePositions(m_handleManager);
+                m_ignoreObjectChangeNotifications = false;
             }
         }
 

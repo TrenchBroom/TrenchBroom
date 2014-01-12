@@ -17,22 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveVerticesCommand__
-#define __TrenchBroom__MoveVerticesCommand__
+#ifndef __TrenchBroom__MoveBrushVerticesCommand__
+#define __TrenchBroom__MoveBrushVerticesCommand__
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Controller/Command.h"
+#include "Controller/BrushVertexHandleCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class MoveVerticesCommand : public Command {
+        class MoveBrushVerticesCommand : public BrushVertexHandleCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<MoveVerticesCommand> Ptr;
+            typedef std::tr1::shared_ptr<MoveBrushVerticesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
 
@@ -47,16 +48,18 @@ namespace TrenchBroom {
             Model::Snapshot m_snapshot;
         public:
             static Ptr moveVertices(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta);
-            
-            const Model::BrushList& brushes() const;
-            const Vec3::List& oldVertexPositions() const;
-            const Vec3::List& newVertexPositions() const;
+            bool hasRemainingVertices() const;
         private:
-            MoveVerticesCommand(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            MoveBrushVerticesCommand(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const Vec3& delta);
             
             bool doPerformDo();
             bool canPerformDo(View::MapDocumentSPtr document) const;
             bool doPerformUndo();
+
+            void doRemoveBrushes(View::VertexHandleManager& manager) const;
+            void doAddBrushes(View::VertexHandleManager& manager) const;
+            void doSelectNewHandlePositions(View::VertexHandleManager& manager) const;
+            void doSelectOldHandlePositions(View::VertexHandleManager& manager) const;
 
             static String makeName(const Model::VertexToBrushesMap& vertices);
             void extractVertices(const Model::VertexToBrushesMap& vertices);
@@ -64,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveVerticesCommand__) */
+#endif /* defined(__TrenchBroom__MoveBrushVerticesCommand__) */

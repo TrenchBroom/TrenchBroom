@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveBrushVerticesAlgorithm.h"
+#include "MoveBrushEdgesAlgorithm.h"
 
 #include "CollectionUtils.h"
 #include "Model/BrushGeometry.h"
@@ -27,20 +27,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MoveBrushVerticesAlgorithm::MoveBrushVerticesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) :
+        MoveBrushEdgesAlgorithm::MoveBrushEdgesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Edge3::List& edges, const Vec3& delta) :
         MoveBrushVertexAlgorithm(geometry),
         m_worldBounds(worldBounds),
-        m_vertexPositions(vertexPositions),
+        m_edges(edges),
         m_delta(delta) {}
-
-        bool MoveBrushVerticesAlgorithm::doCanExecute(BrushGeometry& geometry) {
+        
+        bool MoveBrushEdgesAlgorithm::doCanExecute(BrushGeometry& geometry) {
             if (m_delta.null())
                 return true;
             
             BrushGeometry testGeometry(geometry);
             testGeometry.restoreFaceGeometries();
             
-            Vec3::List sortedVertexPositions = m_vertexPositions;
+            Vec3::List sortedVertexPositions = Edge3::asVertexList(m_edges);
             std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3::InverseDotOrder(m_delta));
             
             bool canMove = true;
@@ -48,7 +48,11 @@ namespace TrenchBroom {
             for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
                 const Vec3& vertexPosition = *vertexIt;
                 BrushVertexList::iterator vertexIt = findBrushVertex(testGeometry.vertices, vertexPosition);
-                assert(vertexIt != testGeometry.vertices.end());
+                if (vertexIt == testGeometry.vertices.end()) {
+                    canMove = false;
+                    break;
+                }
+                
                 BrushVertex* vertex = *vertexIt;
                 assert(vertex != NULL);
                 
@@ -56,7 +60,14 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(testGeometry, vertex, true, start, end);
-                canMove = result.type != MoveVertexResult::VertexUnchanged;
+                canMove = result.type == MoveVertexResult::VertexMoved;
+            }
+            
+            // try to find all edges by their positions after applying the delta
+            Edge3::List::const_iterator it, end;
+            for (it = m_edges.begin(), end = m_edges.end(); canMove && it != end; ++it) {
+                const Edge3& edge = *it;
+                canMove = findBrushEdge(testGeometry.edges, edge.start + m_delta, edge.end + m_delta) != testGeometry.edges.end();
             }
             
             canMove &= testGeometry.sides.size() >= 3;
@@ -66,12 +77,11 @@ namespace TrenchBroom {
             return canMove;
         }
         
-        MoveVerticesResult MoveBrushVerticesAlgorithm::doExecute(BrushGeometry& geometry) {
+        MoveEdgesResult MoveBrushEdgesAlgorithm::doExecute(BrushGeometry& geometry) {
             if (m_delta.null())
-                return MoveVerticesResult(m_vertexPositions);
+                return MoveEdgesResult(m_edges);
             
-            BrushVertexList movedVertices;
-            Vec3::List sortedVertexPositions = m_vertexPositions;
+            Vec3::List sortedVertexPositions = Edge3::asVertexList(m_edges);
             std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3::InverseDotOrder(m_delta));
             
             Vec3::List::const_iterator vertexIt, vertexEnd;
@@ -86,17 +96,19 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
-                if (result.type == MoveVertexResult::VertexMoved)
-                    movedVertices.push_back(result.vertex);
+                assert(result.type == MoveVertexResult::VertexMoved);
                 updateFacePoints(geometry);
             }
-            
-            Vec3::List newVertexPositions(movedVertices.size());
-            for (size_t i = 0; i < movedVertices.size(); ++i)
-                newVertexPositions[i] = movedVertices[i]->position;
+
+            Edge3::List newEdges(m_edges.size());
+            for (size_t i = 0; i < m_edges.size(); ++i) {
+                newEdges[i] = Edge3(m_edges[i].start + m_delta,
+                                    m_edges[i].end + m_delta);
+                assert(findBrushEdge(geometry.edges, newEdges[i].start, newEdges[i].end) != geometry.edges.end());
+            }
             
             updateNewAndDroppedFaces();
-            return MoveVerticesResult(newVertexPositions, m_addedFaces, m_removedFaces);
+            return MoveEdgesResult(newEdges, m_addedFaces, m_removedFaces);
         }
     }
 }

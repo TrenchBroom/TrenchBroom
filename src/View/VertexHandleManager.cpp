@@ -25,6 +25,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
 #include "Model/Picker.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
@@ -456,13 +457,15 @@ namespace TrenchBroom {
                 m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedFaceHandlePositions);
             
             if (!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) {
+                Renderer::glSetEdgeOffset(0.025f);
                 m_edgeRenderer.setUseColor(true);
                 glDisable(GL_DEPTH_TEST);
-                m_edgeRenderer.setColor(prefs.get(Preferences::OccludedSelectedHandleColor));
+                m_edgeRenderer.setColor(prefs.get(Preferences::OccludedHandleColor));
                 m_edgeRenderer.render(renderContext);
                 glEnable(GL_DEPTH_TEST);
-                m_edgeRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
+                m_edgeRenderer.setColor(prefs.get(Preferences::HandleColor));
                 m_edgeRenderer.render(renderContext);
+                Renderer::glResetEdgeOffset();
             }
             
             m_handleRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));

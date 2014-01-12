@@ -56,11 +56,13 @@ namespace TrenchBroom {
         
         struct MoveEdgesResult : public BrushAlgorithmResult {
             Edge3::List newEdgePositions;
+            MoveEdgesResult(const Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
             MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
         };
         
         struct MoveFacesResult : public BrushAlgorithmResult {
             Polygon3::List newFacePositions;
+            MoveFacesResult(const Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
             MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
         };
         
@@ -90,7 +92,7 @@ namespace TrenchBroom {
             MoveEdgesResult moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
             
             bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
-            MoveEdgesResult moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            MoveFacesResult moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             
             bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             SplitResult splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);

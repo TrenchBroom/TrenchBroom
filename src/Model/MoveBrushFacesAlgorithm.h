@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveBrushVerticesAlgorithm__
-#define __TrenchBroom__MoveBrushVerticesAlgorithm__
+#ifndef __TrenchBroom__MoveBrushFacesAlgorithm__
+#define __TrenchBroom__MoveBrushFacesAlgorithm__
 
 #include "Model/MoveBrushVertexAlgorithm.h"
 
@@ -28,18 +28,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MoveBrushVerticesAlgorithm : public MoveBrushVertexAlgorithm<MoveVerticesResult> {
+        class MoveBrushFacesAlgorithm : public MoveBrushVertexAlgorithm<MoveFacesResult> {
         private:
             const BBox3& m_worldBounds;
-            const Vec3::List& m_vertexPositions;
+            const Polygon3::List& m_faces;
             const Vec3& m_delta;
         public:
-            MoveBrushVerticesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            MoveBrushFacesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Polygon3::List& faces, const Vec3& delta);
         private:
             bool doCanExecute(BrushGeometry& geometry);
-            MoveVerticesResult doExecute(BrushGeometry& geometry);
+            MoveFacesResult doExecute(BrushGeometry& geometry);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveBrushVerticesAlgorithm__) */
+#endif /* defined(__TrenchBroom__MoveBrushFacesAlgorithm__) */

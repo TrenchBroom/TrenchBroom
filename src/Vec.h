@@ -584,8 +584,34 @@ typedef Vec<double,3> Vec3d;
 typedef Vec<double,4> Vec4d;
             
 template <typename T, size_t S>
+typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {
+    typename Vec<T,S>::List result(left.size());
+    for (size_t i = 0; i < left.size(); ++i)
+        result[i] = left[i] + right;
+    return result;
+}
+
+template <typename T, size_t S>
+typename Vec<T,S>::List operator+(const Vec<T,S>& left, const typename Vec<T,S>::List& right) {
+    return right + left;
+}
+
+template <typename T, size_t S>
 Vec<T,S> operator*(const T left, const Vec<T,S>& right) {
     return Vec<T,S>(right) * left;
+}
+
+template <typename T, size_t S>
+typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& left, const T right) {
+    typename Vec<T,S>::List result(left.size());
+    for (size_t i = 0; i < left.size(); ++i)
+        result[i] = left[i] * right;
+    return result;
+}
+
+template <typename T, size_t S>
+typename Vec<T,S>::List operator*(const T left, const typename Vec<T,S>::List& right) {
+    return right * left;
 }
 
 template <typename T>

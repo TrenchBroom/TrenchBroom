@@ -49,7 +49,7 @@ namespace TrenchBroom {
         public:
             static CommandType freeType();
             
-            Command(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument);
+            Command(CommandType type, const String& name, bool undoable, bool modifiesDocument);
 
             CommandType type() const;
             CommandState state() const;

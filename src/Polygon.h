@@ -64,6 +64,13 @@ struct Polygon {
             center += vertices[i];
         return center / static_cast<T>(vertices.size());
     }
+    
+    static typename Vec<T,S>::List asVertexList(const Polygon<T,S>::List& polygons) {
+        typename Vec<T,S>::List result;
+        for (size_t i = 0; i < polygons.size(); ++i)
+            result.insert(result.end(), polygons[i].vertices.begin(), polygons[i].vertices.end());
+        return result;
+    }
 };
 
 #endif

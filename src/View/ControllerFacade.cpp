@@ -24,7 +24,9 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"
 #include "Controller/FixPlanePointsCommand.h"
-#include "Controller/MoveVerticesCommand.h"
+#include "Controller/MoveBrushEdgesCommand.h"
+#include "Controller/MoveBrushFacesCommand.h"
+#include "Controller/MoveBrushVerticesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
@@ -50,20 +52,14 @@ namespace TrenchBroom {
         }
         
         ControllerFacade::ControllerFacade(MapDocumentWPtr document) :
-        m_document(document) {
-            m_commandProcessor.commandDoNotifier.addObserver(this, &ControllerFacade::commandDo);
-            m_commandProcessor.commandDoneNotifier.addObserver(this, &ControllerFacade::commandDone);
-            m_commandProcessor.commandUndoNotifier.addObserver(this, &ControllerFacade::commandUndo);
-            m_commandProcessor.commandUndoneNotifier.addObserver(this, &ControllerFacade::commandUndone);
-        }
+        m_document(document),
+        commandDoNotifier(m_commandProcessor.commandDoNotifier),
+        commandDoneNotifier(m_commandProcessor.commandDoneNotifier),
+        commandDoFailedNotifier(m_commandProcessor.commandDoFailedNotifier),
+        commandUndoNotifier(m_commandProcessor.commandUndoNotifier),
+        commandUndoneNotifier(m_commandProcessor.commandUndoneNotifier),
+        commandUndoFailedNotifier(m_commandProcessor.commandUndoFailedNotifier) {}
         
-        ControllerFacade::~ControllerFacade() {
-            m_commandProcessor.commandDoNotifier.removeObserver(this, &ControllerFacade::commandDo);
-            m_commandProcessor.commandDoneNotifier.removeObserver(this, &ControllerFacade::commandDone);
-            m_commandProcessor.commandUndoNotifier.removeObserver(this, &ControllerFacade::commandUndo);
-            m_commandProcessor.commandUndoneNotifier.removeObserver(this, &ControllerFacade::commandUndone);
-        }
-
         bool ControllerFacade::hasLastCommand() const {
             return m_commandProcessor.hasLastCommand();
         }
@@ -401,12 +397,25 @@ namespace TrenchBroom {
         ControllerFacade::MoveVerticesResult ControllerFacade::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
             using namespace Controller;
             
-            MoveVerticesCommand::Ptr command = MoveVerticesCommand::moveVertices(m_document, vertices, delta);
+            MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::moveVertices(m_document, vertices, delta);
             const bool success = m_commandProcessor.submitAndStoreCommand(command);
-            const bool hasRemainingVertices = !command->newVertexPositions().empty();
-            return MoveVerticesResult(success, hasRemainingVertices);
+            return MoveVerticesResult(success, command->hasRemainingVertices());
         }
 
+        bool ControllerFacade::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+            using namespace Controller;
+            
+            Command::Ptr command = MoveBrushEdgesCommand::moveEdges(m_document, edges, delta);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+            using namespace Controller;
+            
+            Command::Ptr command = MoveBrushFacesCommand::moveFaces(m_document, faces, delta);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {
             using namespace Controller;
             
@@ -517,22 +526,6 @@ namespace TrenchBroom {
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
             command->setAll(source);
             return m_commandProcessor.submitAndStoreCommand(command);
-        }
-
-        void ControllerFacade::commandDo(Controller::Command::Ptr command) {
-            commandDoNotifier(command);
-        }
-        
-        void ControllerFacade::commandDone(Controller::Command::Ptr command) {
-            commandDoneNotifier(command);
-        }
-        
-        void ControllerFacade::commandUndo(Controller::Command::Ptr command) {
-            commandUndoNotifier(command);
-        }
-
-        void ControllerFacade::commandUndone(Controller::Command::Ptr command) {
-            commandUndoneNotifier(command);
         }
     }
 }
