@@ -29,6 +29,7 @@
 #include "Controller/MoveBrushVerticesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
+#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/SelectionCommand.h"
@@ -430,6 +431,13 @@ namespace TrenchBroom {
             
             Command::Ptr command = SplitBrushFacesCommand::moveFaces(m_document, faces, delta);
             return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::rebuildBrushGeometry(const Model::BrushList& brushes) {
+            using namespace Controller;
+            
+            Command::Ptr command = RebuildBrushGeometryCommand::rebuildBrushGeometry(m_document, brushes);
+            return m_commandProcessor.submitCommand(command);
         }
 
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {

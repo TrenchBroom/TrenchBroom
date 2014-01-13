@@ -210,6 +210,8 @@ namespace TrenchBroom {
 
         void CommandProcessor::createAndStoreCommandGroup() {
             if (!m_groupedCommands.empty()) {
+                if (m_groupName.empty())
+                    m_groupName = m_groupedCommands.front()->name();
                 Command::Ptr group = Command::Ptr(new CommandGroup(m_groupName, m_groupUndoable, m_groupedCommands,
                                                                    commandDoNotifier,
                                                                    commandDoneNotifier,

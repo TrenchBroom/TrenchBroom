@@ -72,8 +72,8 @@ namespace TrenchBroom {
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             
-            void beginUndoableGroup(const String& name);
-            void beginOneShotGroup(const String& name);
+            void beginUndoableGroup(const String& name = "");
+            void beginOneShotGroup(const String& name = "");
             void closeGroup();
             void rollbackGroup();
             
@@ -127,6 +127,7 @@ namespace TrenchBroom {
             bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            bool rebuildBrushGeometry(const Model::BrushList& brushes);
             
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);

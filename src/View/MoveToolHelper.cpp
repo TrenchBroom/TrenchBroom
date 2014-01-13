@@ -103,9 +103,6 @@ namespace TrenchBroom {
         }
         
         void MoveHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) {
-            if (!dragging && !m_delegate.handleMove(inputState))
-                return;
-            
             const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
             const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
             

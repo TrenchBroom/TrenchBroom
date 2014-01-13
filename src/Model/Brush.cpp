@@ -312,6 +312,14 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
+        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+            delete m_geometry;
+            m_geometry = new BrushGeometry(worldBounds);
+            const AddFaceResult result = m_geometry->addFaces(m_faces);
+            m_faces.clear();
+            processBrushAlgorithmResult(worldBounds, result);
+        }
+        
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds);
@@ -464,14 +472,6 @@ namespace TrenchBroom {
             }
             
             addFaces(result.addedFaces);
-        }
-
-        void Brush::rebuildGeometry(const BBox3& worldBounds) {
-            delete m_geometry;
-            m_geometry = new BrushGeometry(worldBounds);
-            const AddFaceResult result = m_geometry->addFaces(m_faces);
-            m_faces.clear();
-            processBrushAlgorithmResult(worldBounds, result);
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {

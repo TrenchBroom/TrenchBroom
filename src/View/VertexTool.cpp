@@ -24,6 +24,7 @@
 #include "Controller/MoveBrushEdgesCommand.h"
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
+#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/SplitBrushEdgesCommand.h"
 #include "Controller/SplitBrushFacesCommand.h"
 #include "Model/Brush.h"
@@ -169,6 +170,7 @@ namespace TrenchBroom {
             const Model::Hit hit = firstHit(inputState.pickResult());
             assert(hit.isMatch());
             m_dragHandlePosition = hit.target<Vec3>();
+            controller()->beginUndoableGroup();
             return true;
         }
         
@@ -192,6 +194,8 @@ namespace TrenchBroom {
         }
         
         void VertexTool::doEndMove(const InputState& inputState) {
+            controller()->rebuildBrushGeometry(document()->selectedBrushes());
+            controller()->closeGroup();
             m_mode = VMMove;
         }
         
@@ -426,10 +430,15 @@ namespace TrenchBroom {
 
             if (dragging()) {
                 m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
+                renderMoveIndicator(inputState, renderContext);
             } else {
                 const Model::Hit hit = firstHit(inputState.pickResult());
-                if (hit.isMatch())
-                    m_handleManager.renderHighlight(renderContext, hit.target<Vec3>());
+                if (hit.isMatch()) {
+                    const Vec3 position = hit.target<Vec3>();
+                    m_handleManager.renderHighlight(renderContext, position);
+                    if (m_handleManager.isHandleSelected(position))
+                        renderMoveIndicator(inputState, renderContext);
+                }
             }
         }
 
@@ -479,7 +488,8 @@ namespace TrenchBroom {
                 command->type() == MoveBrushEdgesCommand::Type ||
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
-                command->type() == SplitBrushFacesCommand::Type) {
+                command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->removeBrushes(m_handleManager);
                 m_ignoreObjectChangeNotifications = true;
@@ -492,7 +502,8 @@ namespace TrenchBroom {
                 command->type() == MoveBrushEdgesCommand::Type ||
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
-                command->type() == SplitBrushFacesCommand::Type) {
+                command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);
                 handleCommand->selectNewHandlePositions(m_handleManager);
@@ -506,7 +517,8 @@ namespace TrenchBroom {
                 command->type() == MoveBrushEdgesCommand::Type ||
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
-                command->type() == SplitBrushFacesCommand::Type) {
+                command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);
                 handleCommand->selectOldHandlePositions(m_handleManager);

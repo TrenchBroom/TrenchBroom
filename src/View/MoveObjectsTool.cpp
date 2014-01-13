@@ -96,7 +96,8 @@ namespace TrenchBroom {
         }
         
         void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            renderMoveIndicator(inputState, renderContext);
+            if (dragging() || handleMove(inputState))
+                renderMoveIndicator(inputState, renderContext);
         }
 
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {

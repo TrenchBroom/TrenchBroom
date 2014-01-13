@@ -76,6 +76,12 @@ namespace TrenchBroom {
             return m_selectedFaceHandles;
         }
         
+        bool VertexHandleManager::isHandleSelected(const Vec3& position) const {
+            return (isVertexHandleSelected(position) ||
+                    isEdgeHandleSelected(position) ||
+                    isFaceHandleSelected(position));
+        }
+
         bool VertexHandleManager::isVertexHandleSelected(const Vec3& position) const {
             return m_selectedVertexHandles.find(position) != m_selectedVertexHandles.end();
         }

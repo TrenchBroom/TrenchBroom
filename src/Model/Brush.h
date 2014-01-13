@@ -110,6 +110,7 @@ namespace TrenchBroom {
 
             void snapPlanePointsToInteger(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
+            void rebuildGeometry(const BBox3& worldBounds);
         private:
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
@@ -130,7 +131,6 @@ namespace TrenchBroom {
             void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);
             
             void processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result);
-            void rebuildGeometry(const BBox3& worldBounds);
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
             void detachFaces(const BrushFaceList& faces);

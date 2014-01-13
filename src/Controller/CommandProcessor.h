@@ -77,8 +77,8 @@ namespace TrenchBroom {
             const String& lastCommandName() const;
             const String& nextCommandName() const;
             
-            void beginUndoableGroup(const String& name);
-            void beginOneShotGroup(const String& name);
+            void beginUndoableGroup(const String& name = "");
+            void beginOneShotGroup(const String& name = "");
             void closeGroup();
             void undoGroup();
             

@@ -82,6 +82,7 @@ namespace TrenchBroom {
             const Model::VertexToFacesMap& unselectedFaceHandles() const;
             const Model::VertexToFacesMap& selectedFaceHandles() const;
             
+            bool isHandleSelected(const Vec3& position) const;
             bool isVertexHandleSelected(const Vec3& position) const;
             bool isEdgeHandleSelected(const Vec3& position) const;
             bool isFaceHandleSelected(const Vec3& position) const;
@@ -93,6 +94,7 @@ namespace TrenchBroom {
             size_t selectedFaceCount() const;
             size_t totalSelectedFaceCount() const;
             
+            const Model::BrushList& brushes() const;
             const Model::BrushList& brushes(const Vec3& handlePosition) const;
             const Model::BrushEdgeList& edges(const Vec3& handlePosition) const;
             const Model::BrushFaceList& faces(const Vec3& handlePosition) const;
