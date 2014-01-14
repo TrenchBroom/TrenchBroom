@@ -24,19 +24,19 @@ namespace TrenchBroom {
         BrushVertexHandleCommand::BrushVertexHandleCommand(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument) :
         Command(type, name, undoable, modifiesDocument) {}
 
-        void BrushVertexHandleCommand::removeBrushes(View::VertexHandleManager& manager) const {
+        void BrushVertexHandleCommand::removeBrushes(View::VertexHandleManager& manager) {
             doRemoveBrushes(manager);
         }
         
-        void BrushVertexHandleCommand::addBrushes(View::VertexHandleManager& manager) const {
+        void BrushVertexHandleCommand::addBrushes(View::VertexHandleManager& manager) {
             doAddBrushes(manager);
         }
         
-        void BrushVertexHandleCommand::selectNewHandlePositions(View::VertexHandleManager& manager) const {
+        void BrushVertexHandleCommand::selectNewHandlePositions(View::VertexHandleManager& manager) {
             doSelectNewHandlePositions(manager);
         }
         
-        void BrushVertexHandleCommand::selectOldHandlePositions(View::VertexHandleManager& manager) const {
+        void BrushVertexHandleCommand::selectOldHandlePositions(View::VertexHandleManager& manager) {
             doSelectOldHandlePositions(manager);
         }
     }

@@ -35,15 +35,15 @@ namespace TrenchBroom {
         public:
             BrushVertexHandleCommand(CommandType type, const String& name, bool undoable, bool modifiesDocument);
 
-            void removeBrushes(View::VertexHandleManager& manager) const;
-            void addBrushes(View::VertexHandleManager& manager) const;
-            void selectNewHandlePositions(View::VertexHandleManager& manager) const;
-            void selectOldHandlePositions(View::VertexHandleManager& manager) const;
+            void removeBrushes(View::VertexHandleManager& manager);
+            void addBrushes(View::VertexHandleManager& manager);
+            void selectNewHandlePositions(View::VertexHandleManager& manager);
+            void selectOldHandlePositions(View::VertexHandleManager& manager);
         private:
-            virtual void doRemoveBrushes(View::VertexHandleManager& manager) const = 0;
-            virtual void doAddBrushes(View::VertexHandleManager& manager) const = 0;
-            virtual void doSelectNewHandlePositions(View::VertexHandleManager& manager) const = 0;
-            virtual void doSelectOldHandlePositions(View::VertexHandleManager& manager) const = 0;
+            virtual void doRemoveBrushes(View::VertexHandleManager& manager) = 0;
+            virtual void doAddBrushes(View::VertexHandleManager& manager) = 0;
+            virtual void doSelectNewHandlePositions(View::VertexHandleManager& manager) = 0;
+            virtual void doSelectOldHandlePositions(View::VertexHandleManager& manager) = 0;
         };
     }
 }

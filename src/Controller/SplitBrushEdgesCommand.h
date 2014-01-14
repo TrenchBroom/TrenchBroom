@@ -55,10 +55,10 @@ namespace TrenchBroom {
             bool canPerformDo(View::MapDocumentSPtr document) const;
             bool doPerformUndo();
             
-            void doRemoveBrushes(View::VertexHandleManager& manager) const;
-            void doAddBrushes(View::VertexHandleManager& manager) const;
-            void doSelectNewHandlePositions(View::VertexHandleManager& manager) const;
-            void doSelectOldHandlePositions(View::VertexHandleManager& manager) const;
+            void doRemoveBrushes(View::VertexHandleManager& manager);
+            void doAddBrushes(View::VertexHandleManager& manager);
+            void doSelectNewHandlePositions(View::VertexHandleManager& manager);
+            void doSelectOldHandlePositions(View::VertexHandleManager& manager);
             
             static String makeName(const Model::VertexToEdgesMap& edges);
             void extractEdges(const Model::VertexToEdgesMap& edges);

@@ -97,19 +97,19 @@ namespace TrenchBroom {
             return true;
         }
         
-        void SplitBrushEdgesCommand::doRemoveBrushes(View::VertexHandleManager& manager) const {
+        void SplitBrushEdgesCommand::doRemoveBrushes(View::VertexHandleManager& manager) {
             manager.removeBrushes(m_brushes);
         }
         
-        void SplitBrushEdgesCommand::doAddBrushes(View::VertexHandleManager& manager) const {
+        void SplitBrushEdgesCommand::doAddBrushes(View::VertexHandleManager& manager) {
             manager.addBrushes(m_brushes);
         }
         
-        void SplitBrushEdgesCommand::doSelectNewHandlePositions(View::VertexHandleManager& manager) const {
+        void SplitBrushEdgesCommand::doSelectNewHandlePositions(View::VertexHandleManager& manager) {
             manager.selectVertexHandles(m_newVertexPositions);
         }
         
-        void SplitBrushEdgesCommand::doSelectOldHandlePositions(View::VertexHandleManager& manager) const {
+        void SplitBrushEdgesCommand::doSelectOldHandlePositions(View::VertexHandleManager& manager) {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
         
