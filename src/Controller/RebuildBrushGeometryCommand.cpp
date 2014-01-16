@@ -176,7 +176,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        void RebuildBrushGeometryCommand::doSelectOldHandlePositions(View::VertexHandleManager& manager) {
-        }
+        void RebuildBrushGeometryCommand::doSelectOldHandlePositions(View::VertexHandleManager& manager) {}
     }
 }

@@ -79,7 +79,7 @@ namespace TrenchBroom {
             SetSizer(notebookSizer);
         }
 
-        Logger* InfoPanel::logger() {
+        Console* InfoPanel::console() {
             return m_console;
         }
 

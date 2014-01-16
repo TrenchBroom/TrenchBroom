@@ -17,30 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Console__
-#define __TrenchBroom__Console__
+#include "ImagePanel.h"
 
-#include "StringUtils.h"
-#include "Notifier.h"
-#include "Logger.h"
-
-#include <wx/textctrl.h>
-
-class wxSimplebook;
+#include <wx/dcclient.h>
 
 namespace TrenchBroom {
     namespace View {
-        class Console : public wxTextCtrl, public Logger {
-        public:
-            Notifier2<LogLevel, const String&> logNotifier;
-        public:
-            Console(wxWindow* parent, wxSimplebook* extraBook);
-        private:
-            void doLog(LogLevel level, const String& message);
-            void logToDebugOut(LogLevel level, const String& message);
-            void logToConsole(LogLevel level, const String& message);
-        };
+        ImagePanel::ImagePanel(wxWindow* parent) :
+        wxPanel(parent) {
+            Bind(wxEVT_PAINT, &ImagePanel::OnPaint, this);
+        }
+        
+        void ImagePanel::SetImage(const wxBitmap& bitmap) {
+            m_bitmap = wxBitmap(bitmap);
+            SetMinClientSize(m_bitmap.GetSize());
+            Refresh();
+        }
+        
+        void ImagePanel::OnPaint(wxPaintEvent& event) {
+            wxClientDC dc(this);
+            dc.DrawBitmap(m_bitmap, 0, 0);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__Console__) */

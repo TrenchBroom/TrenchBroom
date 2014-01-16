@@ -695,11 +695,14 @@ namespace TrenchBroom {
         }
 
         void MapDocument::objectWillChange(Model::Object* object) {
-            m_picker.removeObject(object);
+            if (object->type() != Model::Object::OTEntity && !static_cast<Model::Entity*>(object)->worldspawn())
+                m_picker.removeObject(object);
         }
         
         void MapDocument::objectDidChange(Model::Object* object) {
-            m_picker.addObject(object);
+            if (object->type() != Model::Object::OTEntity && !static_cast<Model::Entity*>(object)->worldspawn())
+                m_picker.addObject(object);
+
             if (object->type() == Model::Object::OTEntity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);

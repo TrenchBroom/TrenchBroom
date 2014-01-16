@@ -71,4 +71,8 @@ namespace TrenchBroom {
         va_end(arguments);
         error(message);
     }
+
+    void Logger::log(const LogLevel level, const String& message) {
+        doLog(level, message);
+    }
 }

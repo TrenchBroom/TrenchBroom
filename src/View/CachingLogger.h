@@ -45,7 +45,8 @@ namespace TrenchBroom {
             CachingLogger();
             
             void setParentLogger(Logger* logger);
-            void log(const LogLevel level, const String& message);
+        private:
+            void doLog(LogLevel level, const String& message);
         };
     }
 }

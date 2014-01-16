@@ -32,9 +32,10 @@ namespace TrenchBroom {
             extraBook->AddPage(new wxPanel(extraBook), "");
         }
 
-        void Console::log(const LogLevel level, const String& message) {
+        void Console::doLog(const LogLevel level, const String& message) {
             logToDebugOut(level, message);
             logToConsole(level, message);
+            logNotifier(level, message);
         }
 
         void Console::logToDebugOut(const LogLevel level, const String& message) {

@@ -48,6 +48,7 @@ namespace TrenchBroom {
         class KeyboardShortcut;
         class MapView;
         class NavBar;
+        class StatusBar;
         
         class MapFrame : public wxFrame {
         public:
@@ -63,6 +64,7 @@ namespace TrenchBroom {
             NavBar* m_navBar;
             MapView* m_mapView;
             Inspector* m_inspector;
+            StatusBar* m_statusBar;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);

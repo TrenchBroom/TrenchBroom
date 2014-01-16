@@ -25,14 +25,14 @@
 namespace TrenchBroom {
     class Logger {
     public:
-        virtual ~Logger();
-        
         typedef enum {
             LLDebug,
             LLInfo,
             LLWarn,
             LLError
         } LogLevel;
+    public:
+        virtual ~Logger();
         
         void debug(const String& message);
         void debug(const char* format, ...);
@@ -43,7 +43,9 @@ namespace TrenchBroom {
         void error(const String& message);
         void error(const char* format, ...);
         
-        virtual void log(const LogLevel level, const String& message) = 0;
+        void log(LogLevel level, const String& message);
+    private:
+        virtual void doLog(LogLevel level, const String& message) = 0;
     };
 }
 

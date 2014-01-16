@@ -39,6 +39,7 @@
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/NavBar.h"
+#include "View/StatusBar.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -116,7 +117,7 @@ namespace TrenchBroom {
         }
 
         Logger* MapFrame::logger() const {
-            return m_infoPanel->logger();
+            return m_infoPanel->console();
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
@@ -671,9 +672,12 @@ namespace TrenchBroom {
             consoleSplitter->SplitHorizontally(container, m_infoPanel, -150);
             m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources());
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
+
+            m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
+            outerSizer->Add(m_statusBar, 0, wxEXPAND);
             SetSizer(outerSizer);
         }
         

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             wxButton* m_issueBrowserButton;
         public:
             InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
-            Logger* logger();
+            Console* console();
             
             void OnConsoleButtonPressed(wxCommandEvent& event);
             void OnIssueBrowserButtonPressed(wxCommandEvent& event);

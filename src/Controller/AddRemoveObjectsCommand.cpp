@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 if (parent != NULL) {
                     if (parent->type() == Model::Object::OTEntity) {
                         Model::Entity* entity = static_cast<Model::Entity*>(parent);
-                        if (entity->brushes().size() == children.size()) {
+                        if (entity->brushes().size() == children.size() && !entity->worldspawn()) {
                             result.push_back(Model::ObjectParentPair(parent, NULL));
                         } else {
                             Model::ObjectList::const_iterator cIt, cEnd;
@@ -99,7 +99,11 @@ namespace TrenchBroom {
                         }
                     }
                 } else {
-                    result.push_back(Model::ObjectParentPair(parent, NULL));
+                    Model::ObjectList::const_iterator cIt, cEnd;
+                    for (cIt = children.begin(), cEnd = children.end(); cIt != cEnd; ++cIt) {
+                        Model::Object* child = *cIt;
+                        result.push_back(Model::ObjectParentPair(child, parent));
+                    }
                 }
             }
 
