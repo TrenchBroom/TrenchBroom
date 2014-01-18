@@ -182,8 +182,8 @@ namespace TrenchBroom {
             const wxMouseState mouseState = wxGetMouseState();
             const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const Ray3 pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
-                Model::PickResult pickResult = document->pick(pickRay);
+                const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
+                Model::PickResult pickResult = document->pick(Ray3(pickRay));
                 pickResult.sortHits();
                 
                 const Model::PickResult::FirstHit first = Model::firstHit(pickResult, Model::Brush::BrushHit, document->filter(), true);
@@ -194,12 +194,12 @@ namespace TrenchBroom {
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
                     const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay.direction));
-                    return snappedCenter - snappedDefaultPoint;
+                    return snappedDefaultPoint - snappedCenter;
                 }
             } else {
                 const Vec3 snappedCenter = grid.snap(bounds.center());
                 const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
-                return snappedCenter - snappedDefaultPoint;
+                return snappedDefaultPoint - snappedCenter;
             }
         }
 

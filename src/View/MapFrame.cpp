@@ -874,9 +874,14 @@ namespace TrenchBroom {
                         else
                             VectorUtils::append(selectableObjects, brushes);
                     } else {
-                        for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt)
-                            pastedObjects.push_back(Model::ObjectParentPair(*bIt, worldspawn));
+                        for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                            Model::Brush* brush = *bIt;
+                            entity->removeBrush(brush);
+                            pastedObjects.push_back(Model::ObjectParentPair(brush, worldspawn));
+                            selectableObjects.push_back(brush);
+                        }
                         VectorUtils::append(selectableObjects, brushes);
+                        delete entity;
                     }
                 } else {
                     pastedObjects.push_back(Model::ObjectParentPair(object, worldspawn));
