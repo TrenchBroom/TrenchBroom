@@ -558,14 +558,11 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition.name();
             
-            Model::ObjectList objects(1);
-            objects[0] = entity;
-            
             controller->beginUndoableGroup(name.str());
             controller->deselectAll();
-            controller->addObjects(objects);
-            controller->selectObjects(objects);
-            controller->moveObjects(objects, delta, false);
+            controller->addEntity(entity);
+            controller->selectObject(entity);
+            controller->moveObjects(Model::ObjectList(1, entity), delta, false);
             controller->closeGroup();
         }
         
@@ -594,7 +591,7 @@ namespace TrenchBroom {
             
             controller->beginUndoableGroup(name.str());
             controller->deselectAll();
-            controller->addObject(*entity);
+            controller->addEntity(entity);
             controller->reparentBrushes(brushes, entity);
             controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
             controller->closeGroup();

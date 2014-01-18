@@ -136,7 +136,7 @@ namespace TrenchBroom {
         void EntityIssue::select(View::ControllerSPtr controller) {
             const BrushList& brushes = entity()->brushes();
             if (brushes.empty())
-                controller->selectObject(*entity());
+                controller->selectObject(entity());
             else
                 controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
         }
@@ -164,7 +164,7 @@ namespace TrenchBroom {
         }
         
         void BrushIssue::select(View::ControllerSPtr controller) {
-            controller->selectObject(*brush());
+            controller->selectObject(brush());
         }
         
         BrushIssue::BrushIssue(const IssueType type, Brush* brush) :

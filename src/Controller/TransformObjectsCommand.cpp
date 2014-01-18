@@ -49,16 +49,20 @@ namespace TrenchBroom {
             m_snapshot = Model::Snapshot(m_objects);
 
             View::MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+
             Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
-            
 
             document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
-            Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, document->worldBounds()), Model::MatchAll());
+            Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, worldBounds), Model::MatchAll());
+            
+            assert(Model::each(m_objects.begin(), m_objects.end(), Model::CheckBounds(worldBounds)));
+            
             document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
-
             Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
+            
             return true;
         }
         

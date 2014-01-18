@@ -76,7 +76,7 @@ public:
     }
     
     BBox(const Vec<T,S>& center, const T size) {
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             min[i] = center[i] - size;
             max[i] = center[i] + size;
         }
@@ -108,7 +108,7 @@ public:
     
     const Vec<T,S> vertex(MinMax c[S]) const {
         Vec<T,S> result;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             result[i] = c[i] == Min ? min[i] : max[i];
         return result;
     }
@@ -119,7 +119,7 @@ public:
     }
     
     BBox<T,S>& mergeWith(const BBox<T,S>& right) {
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             min[i] = std::min(min[i], right.min[i]);
             max[i] = std::max(max[i], right.max[i]);
         }
@@ -132,7 +132,7 @@ public:
     
     
     BBox<T,S>& mergeWith(const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             min[i] = std::min(min[i], right[i]);
             max[i] = std::max(max[i], right[i]);
         }
@@ -142,6 +142,19 @@ public:
     const BBox<T,S> mergedWith(const Vec<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
+    
+    const BBox<T,S>& intersectWith(const BBox<T,S>& right) {
+        for (size_t i = 0; i < S; ++i) {
+            min[i] = std::max(min[i], right.min[i]);
+            max[i] = std::min(max[i], right.max[i]);
+        }
+        return *this;
+    }
+    
+    const BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
+        return BBox<T,S>(*this).insersectWith(right);
+    }
+    
     
     BBox<T,S>& translateToOrigin() {
         const Vec<T,S> c = center();
@@ -156,7 +169,7 @@ public:
     
     BBox<T,S>& repair() {
         using std::swap;
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (min[i] > max[i])
                 swap(min[i], max[i]);
         return *this;
@@ -167,7 +180,7 @@ public:
     }
 
     bool contains(const Vec<T,S>& point) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (point[i] < min[i] || point[i] > max[i])
                 return false;
         return true;
@@ -175,7 +188,7 @@ public:
     
     const RelativePosition relativePosition(const Vec<T,S>& point) const {
         typename RelativePosition::Range p[S];
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             if (point[i] < min[i])
                 p[i] = RelativePosition::Less;
             else if (point[i] > max[i])
@@ -188,14 +201,14 @@ public:
     }
 
     bool contains(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (bounds.min[i] < min[i] || bounds.max[i] > max[i])
                 return false;
         return true;
     }
     
     bool intersects(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; i++)
+        for (size_t i = 0; i < S; ++i)
             if (bounds.max[i] < min[i] || bounds.min[i] > max[i])
                 return false;
         return true;
@@ -237,7 +250,7 @@ public:
     }
     
     BBox<T,S>& expand(const T f) {
-        for (size_t i = 0; i < S; i++) {
+        for (size_t i = 0; i < S; ++i) {
             min[i] -= f;
             max[i] += f;
         }

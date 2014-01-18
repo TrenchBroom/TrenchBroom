@@ -313,7 +313,7 @@ namespace TrenchBroom {
             
             m_controller->beginUndoableGroup("Select touching objects");
             m_controller->deselectAll();
-            m_controller->removeObject(*selectionBrush);
+            m_controller->removeObject(selectionBrush);
             m_controller->selectObjects(selectObjects);
             m_controller->closeGroup();
         }
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             
             m_controller->beginUndoableGroup("Select contained objects");
             m_controller->deselectAll();
-            m_controller->removeObject(*selectionBrush);
+            m_controller->removeObject(selectionBrush);
             m_controller->selectObjects(selectObjects);
             m_controller->closeGroup();
         }
@@ -839,39 +839,50 @@ namespace TrenchBroom {
         void MapFrame::pasteObjects(const Model::ObjectList& objects, const Vec3& delta) {
             assert(!objects.empty());
             
-            const Model::ObjectList pastedObjects = collectPastedObjects(objects);
-            const String groupName = String("Paste ") + String(objects.size() == 1 ? "object" : "objects");
+            Model::ObjectParentList pastedObjects;
+            Model::ObjectList selectableObjects;
+            collectPastedObjects(objects, pastedObjects, selectableObjects);
+            
+            const String groupName = String("Paste ") + String(objects.size() == 1 ? "Object" : "Objects");
             m_controller->beginUndoableGroup(groupName);
             m_controller->deselectAll();
-            m_controller->addObjects(objects);
-            m_controller->selectObjects(pastedObjects);
+            m_controller->addObjects(pastedObjects);
+            m_controller->selectObjects(selectableObjects);
             if (!delta.null())
-                m_controller->moveObjects(pastedObjects, delta, m_document->textureLock());
+                m_controller->moveObjects(selectableObjects, delta, m_document->textureLock());
             m_controller->closeGroup();
             
             StringStream logMsg;
-            logMsg << "Pasted " << objects.size() << (objects.size() == 1 ? " object" : " objects") << " from clipboard";
+            logMsg << "Pasted " << pastedObjects.size() << (pastedObjects.size() == 1 ? " object" : " objects") << " from clipboard";
             logger()->info(logMsg.str());
         }
         
-        Model::ObjectList MapFrame::collectPastedObjects(const Model::ObjectList& objects) {
-            Model::ObjectList result;
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
+        void MapFrame::collectPastedObjects(const Model::ObjectList& objects, Model::ObjectParentList& pastedObjects, Model::ObjectList& selectableObjects) {
+            Model::Entity* worldspawn = m_document->worldspawn();
+            Model::ObjectList::const_iterator oIt, oEnd;
+            Model::BrushList::const_iterator bIt, bEnd;
+            
+            for (oIt = objects.begin(), oEnd = objects.end(); oIt != oEnd; ++oIt) {
+                Model::Object* object = *oIt;
                 if (object->type() == Model::Object::OTEntity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
                     const Model::BrushList& brushes = entity->brushes();
-                    if (brushes.empty()) {
-                        result.push_back(object);
+                    if (!entity->worldspawn()) {
+                        pastedObjects.push_back(Model::ObjectParentPair(entity));
+                        if (brushes.empty())
+                            selectableObjects.push_back(entity);
+                        else
+                            VectorUtils::append(selectableObjects, brushes);
                     } else {
-                        result.insert(result.end(), brushes.begin(), brushes.end());
+                        for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt)
+                            pastedObjects.push_back(Model::ObjectParentPair(*bIt, worldspawn));
+                        VectorUtils::append(selectableObjects, brushes);
                     }
                 } else {
-                    result.push_back(object);
+                    pastedObjects.push_back(Model::ObjectParentPair(object, worldspawn));
+                    selectableObjects.push_back(object);
                 }
             }
-            return result;
         }
     }
 }

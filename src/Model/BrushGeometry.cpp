@@ -91,7 +91,7 @@ namespace TrenchBroom {
 
         BrushGeometry::BrushGeometry(const BBox3& worldBounds) :
         bounds(worldBounds) {
-            initializeWithBounds(worldBounds);
+            initializeWithBounds(worldBounds.expanded(1.0));
         }
 
         BrushGeometry::~BrushGeometry() {
@@ -184,6 +184,13 @@ namespace TrenchBroom {
             bounds = BBox3(vertices[0]->position, vertices[0]->position);
             for (size_t i = 1; i < vertices.size(); ++i)
                 bounds.mergeWith(vertices[i]->position);
+        }
+
+        bool BrushGeometry::isClosed() const {
+            for (size_t i = 0; i < sides.size(); ++i)
+                if (sides[i]->face == NULL)
+                    return false;
+            return true;
         }
 
         bool BrushGeometry::sanityCheck() const {

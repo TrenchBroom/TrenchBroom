@@ -158,6 +158,36 @@ namespace TrenchBroom {
             return result;
         }
 
+        ObjectParentList makeObjectParentList(const EntityList& list) {
+            ObjectParentList result;
+            result.reserve(list.size());
+            
+            EntityList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it)
+                result.push_back(ObjectParentPair(*it));
+            return result;
+        }
+        
+        ObjectParentList makeObjectParentList(const BrushList& list) {
+            ObjectParentList result;
+            result.reserve(list.size());
+            
+            BrushList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it)
+                result.push_back(ObjectParentPair(*it));
+            return result;
+        }
+
+        ObjectParentList makeObjectParentList(const BrushList& list, Entity* parent) {
+            ObjectParentList result;
+            result.reserve(list.size());
+            
+            BrushList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it)
+                result.push_back(ObjectParentPair(*it, parent));
+            return result;
+        }
+
         ObjectList makeObjectList(const ObjectParentList& list) {
             ObjectList result;
             result.reserve(list.size());
@@ -221,6 +251,13 @@ namespace TrenchBroom {
         
         void Transform::operator()(Model::BrushFace* face) const {
             face->transform(m_transformation, m_lockTextures);
+        }
+
+        CheckBounds::CheckBounds(const BBox3& bounds) :
+        m_bounds(bounds) {}
+        
+        bool CheckBounds::operator()(const Model::Pickable* object) const {
+            return m_bounds.contains(object->bounds());
         }
 
         NotifyParent::NotifyParent(Notifier1<Object*>& notifier) :

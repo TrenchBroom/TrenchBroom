@@ -236,8 +236,11 @@ namespace TrenchBroom {
         void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
             View::MapDocumentSPtr document = lock(m_document);
 
-            m_unselectedBrushRenderer.setBrushes(document->unselectedBrushes());
-            m_selectedBrushRenderer.setBrushes(document->allSelectedBrushes());
+            const Model::BrushList unselectedBrushes = document->unselectedBrushes();
+            const Model::BrushList& selectedBrushes = document->allSelectedBrushes();
+            
+            m_unselectedBrushRenderer.setBrushes(unselectedBrushes);
+            m_selectedBrushRenderer.setBrushes(selectedBrushes);
             
             m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                       Model::entityIterator(result.selectedObjects().end()));

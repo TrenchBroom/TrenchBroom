@@ -73,8 +73,13 @@ namespace TrenchBroom {
         }
         
         MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
+            const BBox3& worldBounds = document()->worldBounds();
+            const BBox3 bounds = Model::Object::bounds(document()->selectedObjects());
+            if (!worldBounds.contains(bounds.translated(delta)))
+                return Deny;
+            
             if (m_duplicateObjects) {
-                const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), document()->worldBounds());
+                const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), worldBounds);
                 if (duplicates.empty())
                     return Conclude;
                 

@@ -142,7 +142,17 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
         
-        BrushFace::~BrushFace() {}
+        BrushFace::~BrushFace() {
+            for (size_t i = 0; i < 3; ++i)
+                m_points[i] = Vec3::Null;
+            m_parent = NULL;
+            m_lineNumber = 0;
+            m_lineCount = 0;
+            m_selected = false;
+            m_side = NULL;
+            m_cachedVertices.clear();
+            m_vertexCacheValid = false;
+        }
         
         BrushFace* BrushFace::clone() const {
             BrushFace* result = doClone();

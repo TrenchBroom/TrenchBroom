@@ -345,6 +345,7 @@ namespace TrenchBroom {
             m_selectedFaces.clear();
             m_selectedEntities.clear();
             m_selectedBrushes.clear();
+            m_selectedBrushFaces.clear();
             m_partiallySelectedEntities.clear(),
             m_partiallySelectedBrushes.clear();
             return result;
@@ -355,6 +356,7 @@ namespace TrenchBroom {
             m_selectedFaces.clear();
             m_selectedEntities.clear();
             m_selectedBrushes.clear();
+            m_selectedBrushFaces.clear();
             m_partiallySelectedEntities.clear(),
             m_partiallySelectedBrushes.clear();
             m_lastSelectedFace = NULL;

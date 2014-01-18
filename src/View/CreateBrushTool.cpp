@@ -71,6 +71,9 @@ namespace TrenchBroom {
             m_initialPoint = initialPoint;
             
             const BBox3 bounds = computeBounds(m_initialPoint, m_initialPoint);
+            if (!checkBounds(bounds))
+                return false;
+
             m_brush = createBrush(bounds);
             updateBrushRenderer();
             updateGuideRenderer(bounds);
@@ -99,6 +102,9 @@ namespace TrenchBroom {
             delete m_brush;
             
             const BBox3 bounds = computeBounds(m_initialPoint, curPoint);
+            if (!checkBounds(bounds))
+                return false;
+            
             m_brush = createBrush(bounds);
             updateBrushRenderer();
             updateGuideRenderer(bounds);
@@ -152,7 +158,12 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; i++)
                 if (bounds.max[i] <= bounds.min[i])
                     bounds.max[i] = bounds.min[i] + grid.actualSize();
-            return bounds;
+            return bounds.intersectWith(document()->worldBounds());
+        }
+
+        bool CreateBrushTool::checkBounds(const BBox3& bounds) const {
+            const Vec3 size = bounds.size();
+            return size.x() > 0.0 && size.y() > 0.0 && size.z() > 0.0;
         }
 
         Model::Brush* CreateBrushTool::createBrush(const BBox3& bounds) const {
@@ -174,11 +185,10 @@ namespace TrenchBroom {
         }
 
         void CreateBrushTool::addBrushToMap(Model::Brush* brush) {
-            Model::ObjectList objects(1, brush);
             controller()->beginUndoableGroup("Create Brush");
             controller()->deselectAll();
-            controller()->addObjects(objects);
-            controller()->selectObjects(objects);
+            controller()->addBrush(brush);
+            controller()->selectObject(brush);
             controller()->closeGroup();
         }
     }

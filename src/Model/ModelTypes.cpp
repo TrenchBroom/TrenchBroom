@@ -35,6 +35,7 @@ namespace TrenchBroom {
             if (object->type() == Object::OTBrush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 parent = brush->parent();
+                assert(parent != NULL);
             }
         }
     }

@@ -58,6 +58,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
 
             BBox3 computeBounds(const Vec3& point1, const Vec3& point2) const;
+            bool checkBounds(const BBox3& bounds) const;
             Model::Brush* createBrush(const BBox3& bounds) const;
             void updateBrushRenderer();
             void updateGuideRenderer(const BBox3& bounds);

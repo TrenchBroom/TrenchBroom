@@ -57,6 +57,7 @@ namespace TrenchBroom {
         public:
             virtual ~Object();
             
+            virtual BBox3 bounds() const = 0;
             static BBox3 bounds(const ObjectList& objects);
             
             Type type() const;

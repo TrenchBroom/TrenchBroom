@@ -21,6 +21,8 @@
 #include "Model/Entity.h"
 #include "Model/Brush.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         ObjectVisitor::~ObjectVisitor() {}
@@ -45,9 +47,9 @@ namespace TrenchBroom {
             ObjectList::const_iterator it = objects.begin();
             const ObjectList::const_iterator end = objects.end();
 
-            BBox3 bounds = static_cast<const Pickable*>(*it)->bounds();
+            BBox3 bounds = (*it)->bounds();
             while (++it != end)
-                bounds.mergeWith(static_cast<const Pickable*>(*it)->bounds());
+                bounds.mergeWith((*it)->bounds());
             return bounds;
         }
 

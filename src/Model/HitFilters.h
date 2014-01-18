@@ -43,7 +43,7 @@ namespace TrenchBroom {
         private:
             Hit::HitType m_typeMask;
         public:
-            TypedHitFilter(const Hit::HitType typeMask);
+            TypedHitFilter(Hit::HitType typeMask);
             bool matches(const Hit& hit) const;
         };
         
@@ -71,8 +71,8 @@ namespace TrenchBroom {
             return chainHitFilters(f1, chainHitFilters(f2, f3));
         }
 
-        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const bool ignoreOccluders);
-        PickResult::FirstHit firstHit(const PickResult& pickResult, const Hit::HitType type, const ModelFilter& modelFilter, const bool ignoreOccluders);
+        PickResult::FirstHit firstHit(const PickResult& pickResult, Hit::HitType type, bool ignoreOccluders);
+        PickResult::FirstHit firstHit(const PickResult& pickResult, Hit::HitType type, const ModelFilter& modelFilter, bool ignoreOccluders);
         Hit::List hits(const PickResult& pickResult, Hit::HitType type);
     }
 }

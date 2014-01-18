@@ -34,14 +34,14 @@ namespace TrenchBroom {
 
         void DeleteObjectQuickFix::apply(Entity* entity, View::ControllerSPtr controller) const {
             assert(entity != NULL);
-            controller->deselectObject(*entity);
-            controller->removeObject(*entity);
+            controller->deselectObject(entity);
+            controller->removeObject(entity);
         }
         
         void DeleteObjectQuickFix::apply(Brush* brush, View::ControllerSPtr controller) const {
             assert(brush != NULL);
-            controller->deselectObject(*brush);
-            controller->removeObject(*brush);
+            controller->deselectObject(brush);
+            controller->removeObject(brush);
         }
         
         DeleteObjectQuickFix::DeleteObjectQuickFix() :

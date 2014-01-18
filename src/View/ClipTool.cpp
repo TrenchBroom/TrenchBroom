@@ -60,6 +60,8 @@ namespace TrenchBroom {
             
             controller()->beginUndoableGroup(objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
             controller()->deselectAll();
+            controller()->removeObjects(objects);
+
             if (!m_frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
                 const Model::ObjectParentList frontBrushes = Model::makeObjectParentList(m_frontBrushes);
                 controller()->addObjects(frontBrushes);
@@ -76,7 +78,6 @@ namespace TrenchBroom {
             } else {
                 clearAndDelete(m_backBrushes);
             }
-            controller()->removeObjects(objects);
             controller()->closeGroup();
             
             m_clipper.reset();

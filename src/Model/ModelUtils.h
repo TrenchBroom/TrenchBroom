@@ -51,6 +51,9 @@ namespace TrenchBroom {
         BrushList mergeEntityBrushesMap(const EntityBrushesMap& map);
         ObjectParentList makeObjectParentList(const EntityBrushesMap& map);
         ObjectParentList makeObjectParentList(const ObjectList& list);
+        ObjectParentList makeObjectParentList(const EntityList& list);
+        ObjectParentList makeObjectParentList(const BrushList& list);
+        ObjectParentList makeObjectParentList(const BrushList& list, Entity* parent);
         ObjectList makeObjectList(const ObjectParentList& list);
         
         struct MatchAll {
@@ -85,9 +88,17 @@ namespace TrenchBroom {
             const bool m_lockTextures;
             const BBox3& m_worldBounds;
         public:
-            Transform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            Transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             void operator()(Model::Object* object) const;
             void operator()(Model::BrushFace* face) const;
+        };
+        
+        struct CheckBounds {
+        private:
+            const BBox3& m_bounds;
+        public:
+            CheckBounds(const BBox3& bounds);
+            bool operator()(const Model::Pickable* object) const;
         };
         
         struct NotifyParent {
@@ -116,6 +127,16 @@ namespace TrenchBroom {
                     op(*cur);
                 ++cur;
             }
+        }
+        
+        template <typename Iter, class Filter>
+        bool each(Iter cur, Iter end, const Filter& filter) {
+            while (cur != end) {
+                if (!filter(*cur))
+                    return false;
+                ++cur;
+            }
+            return true;
         }
         
         template <typename Iter, class Filter>

@@ -186,7 +186,7 @@ namespace TrenchBroom {
             
             BrushGeometry testGeometry(worldBounds);
             const AddFaceResult result = testGeometry.addFaces(testFaces);
-            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds);
+            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds) && testGeometry.isClosed();
             
             m_geometry->restoreFaceGeometries();
             delete testFace;

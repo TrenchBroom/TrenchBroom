@@ -628,7 +628,6 @@ namespace TrenchBroom {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);
-                addToPicker(object);
                 
                 Model::each(entity->brushes().begin(),
                             entity->brushes().end(),
@@ -695,13 +694,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::objectWillChange(Model::Object* object) {
-            if (object->type() != Model::Object::OTEntity && !static_cast<Model::Entity*>(object)->worldspawn())
-                m_picker.removeObject(object);
+            m_picker.removeObject(object);
         }
         
         void MapDocument::objectDidChange(Model::Object* object) {
-            if (object->type() != Model::Object::OTEntity && !static_cast<Model::Entity*>(object)->worldspawn())
-                m_picker.addObject(object);
+            m_picker.addObject(object);
 
             if (object->type() == Model::Object::OTEntity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);

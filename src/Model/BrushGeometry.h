@@ -103,6 +103,7 @@ namespace TrenchBroom {
             void restoreFaceGeometries();
             void updateBounds();
 
+            bool isClosed() const;
             bool sanityCheck() const;
         private:
             void copy(const BrushGeometry& original);
