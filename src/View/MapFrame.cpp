@@ -429,6 +429,14 @@ namespace TrenchBroom {
             moveVertices(MDDown);
         }
 
+        void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
+            assert(m_mapView->canSnapVertices());
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            m_mapView->snapVertices(grid.actualSize());
+            document->info("Snapped brush vertices to grid size %u", grid.actualSize());
+        }
+
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -562,6 +570,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditMoveVerticesUp:
                 case CommandIds::Menu::EditMoveVerticesDown:
                     event.Enable(m_mapView->vertexToolActive() && m_mapView->hasSelectedVertices());
+                    break;
+                case CommandIds::Menu::EditSnapVertices:
+                    event.Enable(m_mapView->canSnapVertices());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
                     event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
@@ -755,6 +766,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesRight, this, CommandIds::Menu::EditMoveVerticesRight);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesUp, this, CommandIds::Menu::EditMoveVerticesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesDown, this, CommandIds::Menu::EditMoveVerticesDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             

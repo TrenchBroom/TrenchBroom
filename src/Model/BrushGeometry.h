@@ -70,6 +70,11 @@ namespace TrenchBroom {
             Vec3 newVertexPosition;
             SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
         };
+        
+        struct SnapVerticesResult : public BrushAlgorithmResult {
+            Vec3::List newVertexPositions;
+            SnapVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
+        };
 
         class BrushGeometry {
         public:
@@ -99,6 +104,8 @@ namespace TrenchBroom {
             
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             SplitResult splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            
+            SnapVerticesResult snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
             
             void restoreFaceGeometries();
             void updateBounds();

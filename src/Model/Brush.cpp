@@ -294,6 +294,16 @@ namespace TrenchBroom {
             return result.newVertexPosition;
         }
 
+        Vec3::List Brush::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+            assert(m_geometry != NULL);
+            
+            const SnapVerticesResult result = m_geometry->snapVertices(worldBounds, vertexPositions, snapTo);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkFaceGeometryLinks());
+            
+            return result.newVertexPositions;
+        }
+
         void Brush::snapPlanePointsToInteger(const BBox3& worldBounds) {
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {

@@ -124,6 +124,8 @@ namespace TrenchBroom {
             bool vertexToolActive() const;
             bool hasSelectedVertices() const;
             void moveVertices(const Vec3& delta);
+            bool canSnapVertices() const;
+            void snapVertices(size_t snapTo);
             
             void toggleMovementRestriction();
             Vec3 moveDirection(MoveDirection direction) const;

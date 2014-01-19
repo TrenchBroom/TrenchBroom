@@ -25,6 +25,7 @@
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
+#include "Controller/SnapBrushVerticesCommand.h"
 #include "Controller/SplitBrushEdgesCommand.h"
 #include "Controller/SplitBrushFacesCommand.h"
 #include "Model/Brush.h"
@@ -58,6 +59,32 @@ namespace TrenchBroom {
                     m_handleManager.selectedFaceCount() > 0);
         }
 
+        void VertexTool::moveVerticesAndRebuildBrushGeometry(const Vec3& delta) {
+            controller()->beginUndoableGroup();
+            moveVertices(delta);
+            controller()->rebuildBrushGeometry(document()->selectedBrushes());
+            controller()->closeGroup();
+            m_mode = VMMove;
+        }
+
+        bool VertexTool::canSnapVertices() const {
+            return (m_mode == VMMove &&
+                    (m_handleManager.selectedVertexCount() > 0 ||
+                     m_handleManager.selectedEdgeCount() == 0 ||
+                     m_handleManager.selectedFaceCount() == 0));
+        }
+        
+        void VertexTool::snapVertices(const size_t snapTo) {
+            assert(canSnapVertices());
+            controller()->beginUndoableGroup();
+            if (m_handleManager.selectedVertexCount() > 0)
+                controller()->snapVertices(m_handleManager.selectedVertexHandles(), snapTo);
+            else
+                controller()->snapVertices(document()->selectedBrushes(), snapTo);
+            controller()->rebuildBrushGeometry(document()->selectedBrushes());
+            controller()->closeGroup();
+        }
+
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert(m_handleManager.selectedVertexCount() > 0 ^
@@ -83,7 +110,7 @@ namespace TrenchBroom {
             }
             return Continue;
         }
-
+        
         MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
             using namespace Controller;
             const ControllerFacade::MoveVerticesResult result = controller()->moveVertices(m_handleManager.selectedVertexHandles(), delta);
@@ -494,6 +521,7 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == SnapBrushVerticesCommand::Type ||
                 command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->removeBrushes(m_handleManager);
@@ -508,6 +536,7 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == SnapBrushVerticesCommand::Type ||
                 command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);
@@ -523,6 +552,7 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
+                command->type() == SnapBrushVerticesCommand::Type ||
                 command->type() == RebuildBrushGeometryCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);

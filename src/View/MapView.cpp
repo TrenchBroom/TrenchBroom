@@ -175,7 +175,16 @@ namespace TrenchBroom {
 
         void MapView::moveVertices(const Vec3& delta) {
             assert(vertexToolActive());
-            m_vertexTool->moveVertices(delta);
+            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+        }
+
+        bool MapView::canSnapVertices() const {
+            return vertexToolActive() && m_vertexTool->canSnapVertices();
+        }
+        
+        void MapView::snapVertices(const size_t snapTo) {
+            assert(vertexToolActive());
+            m_vertexTool->snapVertices(snapTo);
         }
 
         void MapView::toggleMovementRestriction() {

@@ -452,7 +452,7 @@ namespace TrenchBroom {
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
             objectActionMenu.addSeparator();
-            MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices"));
+            MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices to Grid"));
             objectActionMenu.addSeparator();
 #ifdef __linux__ // tab is not allowed as a menu accelerator on GTK
             MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, 'X', KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));

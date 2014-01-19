@@ -28,6 +28,7 @@
 #include "Model/MoveBrushEdgesAlgorithm.h"
 #include "Model/MoveBrushFacesAlgorithm.h"
 #include "Model/MoveBrushVerticesAlgorithm.h"
+#include "Model/SnapBrushVerticesAlgorithm.h"
 #include "Model/SplitBrushEdgeAlgorithm.h"
 #include "Model/SplitBrushFaceAlgorithm.h"
 
@@ -84,6 +85,10 @@ namespace TrenchBroom {
         SplitResult::SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
         BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
         newVertexPosition(i_newVertexPosition) {}
+
+        SnapVerticesResult::SnapVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces) :
+        BrushAlgorithmResult(i_addedFaces, i_droppedFaces),
+        newVertexPositions(i_newVertexPositions) {}
 
         BrushGeometry::BrushGeometry(const BrushGeometry& original) {
             copy(original);
@@ -167,6 +172,11 @@ namespace TrenchBroom {
         
         SplitResult BrushGeometry::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
             SplitBrushFaceAlgorithm algorithm(*this, worldBounds, facePosition, delta);
+            return algorithm.execute();
+        }
+
+        SnapVerticesResult BrushGeometry::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+            SnapBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, snapTo);
             return algorithm.execute();
         }
 

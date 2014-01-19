@@ -59,8 +59,11 @@ namespace TrenchBroom {
             VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             
             bool hasSelectedHandles() const;
-            MoveResult moveVertices(const Vec3& delta);
+            void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);
+            bool canSnapVertices() const;
+            void snapVertices(size_t snapTo);
         private:
+            MoveResult moveVertices(const Vec3& delta);
             MoveResult doMoveVertices(const Vec3& delta);
             MoveResult doMoveEdges(const Vec3& delta);
             MoveResult doMoveFaces(const Vec3& delta);

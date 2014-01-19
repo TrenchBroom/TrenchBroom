@@ -108,6 +108,8 @@ namespace TrenchBroom {
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
 
+            Vec3::List snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
+            
             void snapPlanePointsToInteger(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
             void rebuildGeometry(const BBox3& worldBounds);

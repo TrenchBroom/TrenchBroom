@@ -129,6 +129,8 @@ namespace TrenchBroom {
             bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);
+            bool snapVertices(const Model::BrushList& brushes, size_t snapTo);
             bool rebuildBrushGeometry(const Model::BrushList& brushes);
             
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
