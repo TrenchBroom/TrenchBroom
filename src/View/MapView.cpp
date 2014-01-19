@@ -169,10 +169,35 @@ namespace TrenchBroom {
             return m_modalReceiver == m_vertexTool;
         }
         
+        bool MapView::hasSelectedVertices() const {
+            return vertexToolActive() && m_vertexTool->hasSelectedHandles();
+        }
+
+        void MapView::moveVertices(const Vec3& delta) {
+            assert(vertexToolActive());
+            m_vertexTool->moveVertices(delta);
+        }
 
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();
+        }
+
+        Vec3 MapView::moveDirection(const MoveDirection direction) const {
+            switch (direction) {
+                case MDForward:
+                    return m_camera.direction().firstAxis();
+                case MDBackward:
+                    return -m_camera.direction().firstAxis();
+                case MDLeft:
+                    return -m_camera.right().firstAxis();
+                case MDRight:
+                    return m_camera.right().firstAxis();
+                case MDUp:
+                    return m_camera.up().firstAxis();
+                case MDDown:
+                    return -m_camera.up().firstAxis();
+            }
         }
 
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {

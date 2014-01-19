@@ -75,14 +75,15 @@ namespace TrenchBroom {
             ASSERT_EQ(12u, edges.size());
             ASSERT_EQ(6u, sides.size());
             
-            const Vec3 v000(-s, -s, -s);
-            const Vec3 v001(-s, -s,  s);
-            const Vec3 v010(-s,  s, -s);
-            const Vec3 v011(-s,  s,  s);
-            const Vec3 v100( s, -s, -s);
-            const Vec3 v101( s, -s,  s);
-            const Vec3 v110( s,  s, -s);
-            const Vec3 v111( s,  s,  s);
+            // the actual brush geometry is 1 unit larger than the world bounds
+            const Vec3 v000(-s - 1.0, -s - 1.0, -s - 1.0);
+            const Vec3 v001(-s - 1.0, -s - 1.0,  s + 1.0);
+            const Vec3 v010(-s - 1.0,  s + 1.0, -s - 1.0);
+            const Vec3 v011(-s - 1.0,  s + 1.0,  s + 1.0);
+            const Vec3 v100( s + 1.0, -s - 1.0, -s - 1.0);
+            const Vec3 v101( s + 1.0, -s - 1.0,  s + 1.0);
+            const Vec3 v110( s + 1.0,  s + 1.0, -s - 1.0);
+            const Vec3 v111( s + 1.0,  s + 1.0,  s + 1.0);
             
             Vec3::List topVertices;
             topVertices.push_back(v001);
@@ -289,6 +290,22 @@ namespace TrenchBroom {
             
             const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
             ASSERT_TRUE(result.newVertexPositions.empty());
+        }
+        
+        TEST(BrushGeometryTest, moveAndDestroySingleVertex3) {
+            const BBox3 cuboid(Vec3(0.0, 0.0, 0.0), Vec3(128.0, 128.0, 32.0));
+            BrushFaceList faces = createBoxFaces(cuboid);
+            
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            
+            const Vec3 vertex(cuboid.max);
+            const Vec3 delta(0.0, 0.0, -32.0);
+            ASSERT_TRUE(geometry.canMoveVertices(worldBounds, Vec3::List(1, vertex), delta));
+            
+            const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
+            ASSERT_EQ(1u, result.newVertexPositions.size());
         }
     }
 }

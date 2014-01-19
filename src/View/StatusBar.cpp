@@ -40,11 +40,6 @@ namespace TrenchBroom {
         m_textureLock(true),
         m_issueCount(0) {
             wxStaticLine* line = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-         
-            m_positionIconPanel = new ImagePanel(this);
-            m_positionIconPanel->SetImage(IO::loadImageResource(IO::Path("images/Position.png")));
-            m_positionText = new wxStaticText(this, wxID_ANY, "");
-            m_positionText->SetMinSize(wxSize(100, wxDefaultSize.y));
             
             m_gridIconPanel = new ImagePanel(this);
             m_gridIconPanel->SetImage(IO::loadImageResource(IO::Path("images/Grid.png")));
@@ -67,12 +62,6 @@ namespace TrenchBroom {
             
             wxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->AddSpacer(1);
-            innerSizer->Add(m_positionIconPanel);
-            innerSizer->Add(m_positionText);
-            innerSizer->AddSpacer(1);
-            innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
-            innerSizer->AddSpacer(1);
-            
             innerSizer->Add(m_gridIconPanel);
             innerSizer->AddSpacer(1);
             innerSizer->Add(m_gridSizeText);

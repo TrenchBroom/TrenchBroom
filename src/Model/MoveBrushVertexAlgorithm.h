@@ -600,9 +600,8 @@ namespace TrenchBroom {
                     keepEdge->right = neighbour;
                 
                 const size_t deleteIndex = VectorUtils::indexOf(neighbour->edges, dropEdge);
-                const size_t prevIndex = Math::pred(deleteIndex, neighbour->edges.size());
                 const size_t nextIndex = Math::succ(deleteIndex, neighbour->edges.size());
-                neighbour->replaceEdgesWithEdge(prevIndex, nextIndex, keepEdge);
+                neighbour->replaceEdgesWithEdge(deleteIndex, nextIndex, keepEdge);
                 
                 m_faceManager.dropFace(side);
                 VectorUtils::eraseAndDelete(geometry.sides, side);

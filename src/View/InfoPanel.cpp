@@ -65,16 +65,16 @@ namespace TrenchBroom {
             m_mainBook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &InfoPanel::OnNotebookPageChanged, this);
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->AddSpacer(8);
+            buttonSizer->AddSpacer(6);
             buttonSizer->Add(m_consoleButton, 0, wxALIGN_CENTER_VERTICAL);
-            buttonSizer->AddSpacer(8);
+            buttonSizer->AddSpacer(6);
             buttonSizer->Add(m_issueBrowserButton, 0, wxALIGN_CENTER_VERTICAL);
-            buttonSizer->AddSpacer(8);
+            buttonSizer->AddSpacer(6);
             buttonSizer->Add(m_extraBook, 1, wxEXPAND);
             
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(buttonSizer, 0, wxEXPAND);
-            notebookSizer->AddSpacer(3);
+            notebookSizer->AddSpacer(1);
             notebookSizer->Add(m_mainBook, 1, wxEXPAND);
             SetSizer(notebookSizer);
         }

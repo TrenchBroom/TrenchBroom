@@ -104,7 +104,15 @@ namespace TrenchBroom {
             void OnEditDeleteLastClipPoint(wxCommandEvent& event);
             
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
+
             void OnEditToggleVertexTool(wxCommandEvent& event);
+            void OnEditMoveVerticesForward(wxCommandEvent& event);
+            void OnEditMoveVerticesBackward(wxCommandEvent& event);
+            void OnEditMoveVerticesLeft(wxCommandEvent& event);
+            void OnEditMoveVerticesRight(wxCommandEvent& event);
+            void OnEditMoveVerticesUp(wxCommandEvent& event);
+            void OnEditMoveVerticesDown(wxCommandEvent& event);
+            
             void OnEditToggleMovementRestriction(wxCommandEvent& event);
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
@@ -141,8 +149,11 @@ namespace TrenchBroom {
             
             bool saveDocument();
             bool saveDocumentAs();
+            
             void pasteObjects(const Model::ObjectList& objects, const Vec3& delta);
             void collectPastedObjects(const Model::ObjectList& objects, Model::ObjectParentList& pastedObjects, Model::ObjectList& selectableObjects);
+            
+            void moveVertices(MoveDirection direction);
         };
     }
 }

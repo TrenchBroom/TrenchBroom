@@ -59,18 +59,18 @@ namespace TrenchBroom {
                 
                 size_t numPoints() const;
                 size_t indexOfPoint(const Vec3& position) const;
-                const ClipHandlePoint& operator[](const size_t index) const;
+                const ClipHandlePoint& operator[](size_t index) const;
 
                 bool canAddPoint(const Vec3& position) const;
                 void addPoint(const Vec3& position, const Vec3::List& normals);
                 
-                bool canUpdatePoint(const size_t index, const Vec3& position);
-                void updatePoint(const size_t index, const Vec3& position, const Vec3::List& normals);
+                bool canUpdatePoint(size_t index, const Vec3& position);
+                void updatePoint(size_t index, const Vec3& position, const Vec3::List& normals);
                 
                 void deleteLastPoint();
                 void deleteAllPoints();
             private:
-                bool identicalWithAnyPoint(const Vec3& position, const size_t disregardIndex) const;
+                bool identicalWithAnyPoint(const Vec3& position, size_t disregardIndex) const;
                 bool linearlyDependent(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
             };
             
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 ClipPoints(const ClipHandlePoints& handlePoints, const Vec3& viewDirection);
 
                 bool valid() const;
-                const Vec3& operator[](const size_t index) const;
+                const Vec3& operator[](size_t index) const;
                 const Vec3* points() const;
                 
                 void invertPlaneNormal();
@@ -107,8 +107,8 @@ namespace TrenchBroom {
             bool canAddClipPoint(const Vec3& position) const;
             void addClipPoint(const Vec3& position, const Model::BrushFace& face);
 
-            bool canUpdateClipPoint(const size_t index, const Vec3& position);
-            void updateClipPoint(const size_t index, const Vec3& position, const Model::BrushFace& face);
+            bool canUpdateClipPoint(size_t index, const Vec3& position);
+            void updateClipPoint(size_t index, const Vec3& position, const Model::BrushFace& face);
 
             void deleteLastClipPoint();
             void reset();

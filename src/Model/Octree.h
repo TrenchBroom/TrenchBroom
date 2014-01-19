@@ -183,10 +183,8 @@ namespace TrenchBroom {
             void removeObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
-                if (!m_root->removeObject(bounds, object)) {
-                    if (!m_root->removeObject(bounds, object))
+                if (!m_root->removeObject(bounds, object))
                     throw OctreeException("Cannot find object in octree");
-                }
             }
             
             bool containsObject(const BBox<F,3>& bounds, T object) const {

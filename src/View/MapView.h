@@ -122,8 +122,11 @@ namespace TrenchBroom {
             
             void toggleVertexTool();
             bool vertexToolActive() const;
+            bool hasSelectedVertices() const;
+            void moveVertices(const Vec3& delta);
             
             void toggleMovementRestriction();
+            Vec3 moveDirection(MoveDirection direction) const;
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             

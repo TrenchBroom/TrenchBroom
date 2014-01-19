@@ -399,6 +399,36 @@ namespace TrenchBroom {
             updateMenuBar(m_mapView->HasFocus());
         }
         
+        void MapFrame::OnEditMoveVerticesForward(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDForward);
+        }
+        
+        void MapFrame::OnEditMoveVerticesBackward(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDBackward);
+        }
+        
+        void MapFrame::OnEditMoveVerticesLeft(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDLeft);
+        }
+        
+        void MapFrame::OnEditMoveVerticesRight(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDRight);
+        }
+        
+        void MapFrame::OnEditMoveVerticesUp(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDUp);
+        }
+        
+        void MapFrame::OnEditMoveVerticesDown(wxCommandEvent& event) {
+            assert(m_mapView->vertexToolActive());
+            moveVertices(MDDown);
+        }
+
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -509,6 +539,7 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditActions:
                     event.Enable(m_mapView->clipToolActive() ||
+                                 m_mapView->hasSelectedVertices() ||
                                  m_document->hasSelectedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
@@ -523,6 +554,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Enable(m_document->hasSelectedObjects() || m_mapView->vertexToolActive());
                     event.Check(m_mapView->vertexToolActive());
+                    break;
+                case CommandIds::Menu::EditMoveVerticesForward:
+                case CommandIds::Menu::EditMoveVerticesBackward:
+                case CommandIds::Menu::EditMoveVerticesLeft:
+                case CommandIds::Menu::EditMoveVerticesRight:
+                case CommandIds::Menu::EditMoveVerticesUp:
+                case CommandIds::Menu::EditMoveVerticesDown:
+                    event.Enable(m_mapView->vertexToolActive() && m_mapView->hasSelectedVertices());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
                     event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
@@ -708,7 +747,15 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteLastClipPoint, this, CommandIds::Menu::EditDeleteLastClipPoint);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesForward, this, CommandIds::Menu::EditMoveVerticesForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesBackward, this, CommandIds::Menu::EditMoveVerticesBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesLeft, this, CommandIds::Menu::EditMoveVerticesLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesRight, this, CommandIds::Menu::EditMoveVerticesRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesUp, this, CommandIds::Menu::EditMoveVerticesUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesDown, this, CommandIds::Menu::EditMoveVerticesDown);
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
@@ -749,6 +796,8 @@ namespace TrenchBroom {
             const Menu* select(const MultiMenu& multiMenu) const {
                 if (m_mapView->clipToolActive())
                     return multiMenu.menuById(CommandIds::Menu::EditClipActions);
+                else if (m_mapView->vertexToolActive())
+                    return multiMenu.menuById(CommandIds::Menu::EditVertexActions);
                 if (m_document->hasSelectedObjects())
                     return multiMenu.menuById(CommandIds::Menu::EditObjectActions);
                 
@@ -888,6 +937,12 @@ namespace TrenchBroom {
                     selectableObjects.push_back(object);
                 }
             }
+        }
+
+        void MapFrame::moveVertices(const MoveDirection direction) {
+            const Grid& grid = lock(m_document)->grid();
+            const Vec3 delta = m_mapView->moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_mapView->moveVertices(delta);
         }
     }
 }

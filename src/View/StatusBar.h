@@ -40,9 +40,6 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             
-            ImagePanel* m_positionIconPanel;
-            wxStaticText* m_positionText;
-            
             size_t m_gridSize;
             ImagePanel* m_gridIconPanel;
             wxStaticText* m_gridSizeText;

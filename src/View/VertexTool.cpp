@@ -52,8 +52,13 @@ namespace TrenchBroom {
         m_changeCount(0),
         m_ignoreObjectChangeNotifications(false) {}
 
+        bool VertexTool::hasSelectedHandles() const {
+            return (m_handleManager.selectedVertexCount() > 0 ||
+                    m_handleManager.selectedEdgeCount() > 0 ||
+                    m_handleManager.selectedFaceCount() > 0);
+        }
+
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            
             if (m_mode == VMMove || m_mode == VMSnap) {
                 assert(m_handleManager.selectedVertexCount() > 0 ^
                        m_handleManager.selectedEdgeCount() > 0 ^

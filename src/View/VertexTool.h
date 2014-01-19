@@ -57,6 +57,8 @@ namespace TrenchBroom {
             Vec3 m_dragHandlePosition;
         public:
             VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
+            
+            bool hasSelectedHandles() const;
             MoveResult moveVertices(const Vec3& delta);
         private:
             MoveResult doMoveVertices(const Vec3& delta);
