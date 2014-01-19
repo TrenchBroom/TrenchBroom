@@ -30,11 +30,10 @@ namespace TrenchBroom {
     namespace Model {
         class SnapBrushVerticesAlgorithm : public MoveBrushVertexAlgorithm<SnapVerticesResult> {
         private:
-            const BBox3& m_worldBounds;
             Vec3::Set m_vertexPositions;
             size_t m_snapTo;
         public:
-            SnapBrushVerticesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
+            SnapBrushVerticesAlgorithm(BrushGeometry& geometry, const Vec3::List& vertexPositions, size_t snapTo);
         private:
             bool doCanExecute(BrushGeometry& geometry);
             SnapVerticesResult doExecute(BrushGeometry& geometry);

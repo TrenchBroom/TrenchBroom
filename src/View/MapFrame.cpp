@@ -376,6 +376,158 @@ namespace TrenchBroom {
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
             m_controller->deselectAll();
         }
+        
+        void MapFrame::OnEditMoveObjectsForward(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DForward);
+        }
+        
+        void MapFrame::OnEditMoveObjectsBackward(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DBackward);
+        }
+        
+        void MapFrame::OnEditMoveObjectsLeft(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DLeft);
+        }
+        
+        void MapFrame::OnEditMoveObjectsRight(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DRight);
+        }
+        
+        void MapFrame::OnEditMoveObjectsUp(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DUp);
+        }
+        
+        void MapFrame::OnEditMoveObjectsDown(wxCommandEvent& event) {
+            m_mapView->moveObjects(Math::DDown);
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DForward);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsBackward(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DBackward);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsLeft(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DLeft);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsRight(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DRight);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsUp(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DUp);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditDuplicateObjectsDown(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->beginUndoableGroup("Duplicate Objects");
+            duplicateObjects();
+            m_mapView->moveObjects(Math::DDown);
+            controller->closeGroup();
+        }
+        
+        void MapFrame::OnEditRollObjectsCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RARoll, true);
+        }
+        
+        void MapFrame::OnEditRollObjectsCCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RARoll, false);
+        }
+        
+        void MapFrame::OnEditPitchObjectsCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RAPitch, true);
+        }
+        
+        void MapFrame::OnEditPitchObjectsCCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RAPitch, false);
+        }
+        
+        void MapFrame::OnEditYawObjectsCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RAYaw, true);
+        }
+        
+        void MapFrame::OnEditYawObjectsCCW(wxCommandEvent& event) {
+            m_mapView->rotateObjects(RAYaw, false);
+        }
+        
+        void MapFrame::OnEditFlipObjectsH(wxCommandEvent& event) {
+            m_mapView->flipObjects(Math::DLeft);
+        }
+        
+        void MapFrame::OnEditFlipObjectsV(wxCommandEvent& event) {
+            m_mapView->flipObjects(Math::DUp);
+        }
+        
+        void MapFrame::OnEditMoveTexturesUp(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DUp, true);
+        }
+        
+        void MapFrame::OnEditMoveTexturesDown(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DDown, true);
+        }
+        
+        void MapFrame::OnEditMoveTexturesLeft(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DLeft, true);
+        }
+        
+        void MapFrame::OnEditMoveTexturesRight(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DRight, true);
+        }
+        
+        void MapFrame::OnEditRotateTexturesCW(wxCommandEvent& event) {
+            rotateTextures(true, true);
+        }
+        
+        void MapFrame::OnEditRotateTexturesCCW(wxCommandEvent& event) {
+            rotateTextures(false, true);
+        }
+        
+        void MapFrame::OnEditMoveTexturesUpFine(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DUp, false);
+        }
+        
+        void MapFrame::OnEditMoveTexturesDownFine(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DDown, false);
+        }
+        
+        void MapFrame::OnEditMoveTexturesLeftFine(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DLeft, false);
+        }
+        
+        void MapFrame::OnEditMoveTexturesRightFine(wxCommandEvent& event) {
+            m_mapView->moveTextures(Math::DRight, false);
+        }
+        
+        void MapFrame::OnEditRotateTexturesCWFine(wxCommandEvent& event) {
+            rotateTextures(true, false);
+        }
+        
+        void MapFrame::OnEditRotateTexturesCCWFine(wxCommandEvent& event) {
+            rotateTextures(false, false);
+        }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
@@ -401,32 +553,32 @@ namespace TrenchBroom {
         
         void MapFrame::OnEditMoveVerticesForward(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDForward);
+            m_mapView->moveVertices(Math::DForward);
         }
         
         void MapFrame::OnEditMoveVerticesBackward(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDBackward);
+            m_mapView->moveVertices(Math::DBackward);
         }
         
         void MapFrame::OnEditMoveVerticesLeft(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDLeft);
+            m_mapView->moveVertices(Math::DLeft);
         }
         
         void MapFrame::OnEditMoveVerticesRight(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDRight);
+            m_mapView->moveVertices(Math::DRight);
         }
         
         void MapFrame::OnEditMoveVerticesUp(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDUp);
+            m_mapView->moveVertices(Math::DUp);
         }
         
         void MapFrame::OnEditMoveVerticesDown(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            moveVertices(MDDown);
+            m_mapView->moveVertices(Math::DDown);
         }
 
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
@@ -478,6 +630,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            ControllerSPtr controller = lock(m_controller);
+            
             switch (event.GetId()) {
                 case wxID_OPEN:
                 case wxID_SAVE:
@@ -486,18 +641,18 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case wxID_UNDO:
-                    if (m_controller->hasLastCommand()) {
+                    if (controller->hasLastCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::undoShortcut().menuText(m_controller->lastCommandName()));
+                        event.SetText(Menu::undoShortcut().menuText(controller->lastCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(Menu::undoShortcut().menuText());
                     }
                     break;
                 case wxID_REDO:
-                    if (m_controller->hasNextCommand()) {
+                    if (controller->hasNextCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::redoShortcut().menuText(m_controller->nextCommandName()));
+                        event.SetText(Menu::redoShortcut().menuText(controller->nextCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(Menu::redoShortcut().menuText());
@@ -506,8 +661,8 @@ namespace TrenchBroom {
                 case wxID_CUT:
                 case wxID_COPY:
                     event.Enable(!m_mapView->anyToolActive() &&
-                                 (m_document->hasSelectedObjects() ||
-                                  m_document->selectedFaces().size() == 1));
+                                 (document->hasSelectedObjects() ||
+                                  document->selectedFaces().size() == 1));
                     break;
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
@@ -517,7 +672,7 @@ namespace TrenchBroom {
                     break;
                 }
                 case wxID_DELETE:
-                    event.Enable(m_document->hasSelectedObjects() &&
+                    event.Enable(document->hasSelectedObjects() &&
                                  !m_mapView->anyToolActive());
                     break;
                 case CommandIds::Menu::EditSelectAll:
@@ -525,30 +680,67 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditSelectSiblings:
                     event.Enable(!m_mapView->anyToolActive()&&
-                                 !m_document->hasSelectedEntities() &&
-                                 m_document->hasSelectedBrushes());
+                                 !document->hasSelectedEntities() &&
+                                 document->hasSelectedBrushes());
                     break;
                 case CommandIds::Menu::EditSelectTouching:
                 case CommandIds::Menu::EditSelectContained:
                     event.Enable(!m_mapView->anyToolActive() &&
-                                 !m_document->hasSelectedEntities() &&
-                                 m_document->selectedBrushes().size() == 1);
+                                 !document->hasSelectedEntities() &&
+                                 document->selectedBrushes().size() == 1);
                     break;
                 case CommandIds::Menu::EditSelectByFilePosition:
                     event.Enable(!m_mapView->anyToolActive());
                     break;
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(!m_mapView->anyToolActive() &&
-                                 m_document->hasSelection());
-                    break;
-                case CommandIds::Menu::EditToggleClipTool:
-                    event.Enable(m_document->hasSelectedBrushes());
-                    event.Check(m_mapView->clipToolActive());
+                                 document->hasSelection());
                     break;
                 case CommandIds::Menu::EditActions:
                     event.Enable(m_mapView->clipToolActive() ||
                                  m_mapView->hasSelectedVertices() ||
-                                 m_document->hasSelectedObjects());
+                                 document->hasSelectedObjects() ||
+                                 document->hasSelectedFaces());
+                    break;
+                case CommandIds::Menu::EditMoveTexturesUp:
+                case CommandIds::Menu::EditMoveTexturesUpFine:
+                case CommandIds::Menu::EditMoveTexturesDown:
+                case CommandIds::Menu::EditMoveTexturesDownFine:
+                case CommandIds::Menu::EditMoveTexturesLeft:
+                case CommandIds::Menu::EditMoveTexturesLeftFine:
+                case CommandIds::Menu::EditMoveTexturesRight:
+                case CommandIds::Menu::EditMoveTexturesRightFine:
+                case CommandIds::Menu::EditRotateTexturesCW:
+                case CommandIds::Menu::EditRotateTexturesCWFine:
+                case CommandIds::Menu::EditRotateTexturesCCW:
+                case CommandIds::Menu::EditRotateTexturesCCWFine:
+                    event.Enable(document->hasSelectedFaces());
+                    break;
+                case CommandIds::Menu::EditMoveObjectsForward:
+                case CommandIds::Menu::EditMoveObjectsBackward:
+                case CommandIds::Menu::EditMoveObjectsLeft:
+                case CommandIds::Menu::EditMoveObjectsRight:
+                case CommandIds::Menu::EditMoveObjectsUp:
+                case CommandIds::Menu::EditMoveObjectsDown:
+                case CommandIds::Menu::EditDuplicateObjectsForward:
+                case CommandIds::Menu::EditDuplicateObjectsBackward:
+                case CommandIds::Menu::EditDuplicateObjectsLeft:
+                case CommandIds::Menu::EditDuplicateObjectsRight:
+                case CommandIds::Menu::EditDuplicateObjectsUp:
+                case CommandIds::Menu::EditDuplicateObjectsDown:
+                case CommandIds::Menu::EditRollObjectsCW:
+                case CommandIds::Menu::EditRollObjectsCCW:
+                case CommandIds::Menu::EditPitchObjectsCW:
+                case CommandIds::Menu::EditPitchObjectsCCW:
+                case CommandIds::Menu::EditYawObjectsCW:
+                case CommandIds::Menu::EditYawObjectsCCW:
+                case CommandIds::Menu::EditFlipObjectsHorizontally:
+                case CommandIds::Menu::EditFlipObjectsVertically:
+                    event.Enable(document->hasSelectedObjects());
+                    break;
+                case CommandIds::Menu::EditToggleClipTool:
+                    event.Enable(document->hasSelectedBrushes());
+                    event.Check(m_mapView->clipToolActive());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canToggleClipSide());
@@ -560,7 +752,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
-                    event.Enable(m_document->hasSelectedObjects() || m_mapView->vertexToolActive());
+                    event.Enable(document->hasSelectedObjects() || m_mapView->vertexToolActive());
                     event.Check(m_mapView->vertexToolActive());
                     break;
                 case CommandIds::Menu::EditMoveVerticesForward:
@@ -575,7 +767,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->canSnapVertices());
                     break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Enable(m_document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
+                    event.Enable(document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
                     event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
@@ -583,57 +775,57 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
-                    event.Check(m_document->textureLock());
+                    event.Check(document->textureLock());
                     break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().visible());
+                    event.Check(document->grid().visible());
                     break;
                 case CommandIds::Menu::ViewToggleSnapToGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().snap());
+                    event.Check(document->grid().snap());
                     break;
                 case CommandIds::Menu::ViewIncGridSize:
-                    event.Enable(m_document->grid().size() < Grid::MaxSize);
+                    event.Enable(document->grid().size() < Grid::MaxSize);
                     break;
                 case CommandIds::Menu::ViewDecGridSize:
-                    event.Enable(m_document->grid().size() > 0);
+                    event.Enable(document->grid().size() > 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 0);
+                    event.Check(document->grid().size() == 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize2:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 1);
+                    event.Check(document->grid().size() == 1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize4:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 2);
+                    event.Check(document->grid().size() == 2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize8:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 3);
+                    event.Check(document->grid().size() == 3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize16:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 4);
+                    event.Check(document->grid().size() == 4);
                     break;
                 case CommandIds::Menu::ViewSetGridSize32:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 5);
+                    event.Check(document->grid().size() == 5);
                     break;
                 case CommandIds::Menu::ViewSetGridSize64:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 6);
+                    event.Check(document->grid().size() == 6);
                     break;
                 case CommandIds::Menu::ViewSetGridSize128:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 7);
+                    event.Check(document->grid().size() == 7);
                     break;
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 8);
+                    event.Check(document->grid().size() == 8);
                     break;
                 default:
                     event.Enable(false);
@@ -752,6 +944,44 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
             
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUp, this, CommandIds::Menu::EditMoveTexturesUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUpFine, this, CommandIds::Menu::EditMoveTexturesUpFine);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesDown, this, CommandIds::Menu::EditMoveTexturesDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesDownFine, this, CommandIds::Menu::EditMoveTexturesDownFine);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesLeft, this, CommandIds::Menu::EditMoveTexturesLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesLeftFine, this, CommandIds::Menu::EditMoveTexturesLeftFine);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRight, this, CommandIds::Menu::EditMoveTexturesRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRightFine, this, CommandIds::Menu::EditMoveTexturesRightFine);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCW, this, CommandIds::Menu::EditRotateTexturesCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCWFine, this, CommandIds::Menu::EditRotateTexturesCWFine);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCW, this, CommandIds::Menu::EditRotateTexturesCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCWFine, this, CommandIds::Menu::EditRotateTexturesCCWFine);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsForward, this, CommandIds::Menu::EditMoveObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsBackward, this, CommandIds::Menu::EditMoveObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsLeft, this, CommandIds::Menu::EditMoveObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsRight, this, CommandIds::Menu::EditMoveObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsUp, this, CommandIds::Menu::EditMoveObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsDown, this, CommandIds::Menu::EditMoveObjectsDown);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsForward, this, CommandIds::Menu::EditDuplicateObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsBackward, this, CommandIds::Menu::EditDuplicateObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsLeft, this, CommandIds::Menu::EditDuplicateObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsRight, this, CommandIds::Menu::EditDuplicateObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsUp, this, CommandIds::Menu::EditDuplicateObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsDown, this, CommandIds::Menu::EditDuplicateObjectsDown);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCW, this, CommandIds::Menu::EditRollObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCCW, this, CommandIds::Menu::EditRollObjectsCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCW, this, CommandIds::Menu::EditPitchObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCCW, this, CommandIds::Menu::EditPitchObjectsCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditYawObjectsCW, this, CommandIds::Menu::EditYawObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditYawObjectsCCW, this, CommandIds::Menu::EditYawObjectsCCW);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsH, this, CommandIds::Menu::EditFlipObjectsHorizontally);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsV, this, CommandIds::Menu::EditFlipObjectsVertically);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
@@ -812,6 +1042,8 @@ namespace TrenchBroom {
                     return multiMenu.menuById(CommandIds::Menu::EditVertexActions);
                 if (m_document->hasSelectedObjects())
                     return multiMenu.menuById(CommandIds::Menu::EditObjectActions);
+                if (m_document->hasSelectedFaces())
+                    return multiMenu.menuById(CommandIds::Menu::EditFaceActions);
                 
                 return NULL;
             }
@@ -951,10 +1183,28 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::moveVertices(const MoveDirection direction) {
-            const Grid& grid = lock(m_document)->grid();
-            const Vec3 delta = m_mapView->moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            m_mapView->moveVertices(delta);
+        void MapFrame::duplicateObjects() {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            ControllerSPtr controller = lock(m_controller);
+            const Model::ObjectList duplicates = controller->duplicateObjects(objects, document->worldBounds());
+            controller->deselectAllAndSelectObjects(duplicates);
+        }
+
+        void MapFrame::rotateTextures(const bool clockwise, const bool snapAngle) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushFaceList& faces = document->selectedFaces();
+            if (faces.empty())
+                return;
+            
+            const Grid& grid = document->grid();
+            const float angle = snapAngle ? Math::degrees(grid.angle()) : 1.0f;
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->rotateTextures(faces, clockwise ? angle : -angle);
         }
     }
 }

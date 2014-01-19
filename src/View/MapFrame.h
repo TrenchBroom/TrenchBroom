@@ -98,6 +98,44 @@ namespace TrenchBroom {
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             
+            void OnEditMoveObjectsForward(wxCommandEvent& event);
+            void OnEditMoveObjectsBackward(wxCommandEvent& event);
+            void OnEditMoveObjectsLeft(wxCommandEvent& event);
+            void OnEditMoveObjectsRight(wxCommandEvent& event);
+            void OnEditMoveObjectsUp(wxCommandEvent& event);
+            void OnEditMoveObjectsDown(wxCommandEvent& event);
+            
+            void OnEditDuplicateObjectsForward(wxCommandEvent& event);
+            void OnEditDuplicateObjectsBackward(wxCommandEvent& event);
+            void OnEditDuplicateObjectsLeft(wxCommandEvent& event);
+            void OnEditDuplicateObjectsRight(wxCommandEvent& event);
+            void OnEditDuplicateObjectsUp(wxCommandEvent& event);
+            void OnEditDuplicateObjectsDown(wxCommandEvent& event);
+            
+            void OnEditRollObjectsCW(wxCommandEvent& event);
+            void OnEditRollObjectsCCW(wxCommandEvent& event);
+            void OnEditPitchObjectsCW(wxCommandEvent& event);
+            void OnEditPitchObjectsCCW(wxCommandEvent& event);
+            void OnEditYawObjectsCW(wxCommandEvent& event);
+            void OnEditYawObjectsCCW(wxCommandEvent& event);
+            
+            void OnEditFlipObjectsH(wxCommandEvent& event);
+            void OnEditFlipObjectsV(wxCommandEvent& event);
+            
+            void OnEditMoveTexturesUp(wxCommandEvent& event);
+            void OnEditMoveTexturesDown(wxCommandEvent& event);
+            void OnEditMoveTexturesLeft(wxCommandEvent& event);
+            void OnEditMoveTexturesRight(wxCommandEvent& event);
+            void OnEditRotateTexturesCW(wxCommandEvent& event);
+            void OnEditRotateTexturesCCW(wxCommandEvent& event);
+            
+            void OnEditMoveTexturesUpFine(wxCommandEvent& event);
+            void OnEditMoveTexturesDownFine(wxCommandEvent& event);
+            void OnEditMoveTexturesLeftFine(wxCommandEvent& event);
+            void OnEditMoveTexturesRightFine(wxCommandEvent& event);
+            void OnEditRotateTexturesCWFine(wxCommandEvent& event);
+            void OnEditRotateTexturesCCWFine(wxCommandEvent& event);
+
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleClipSide(wxCommandEvent& event);
             void OnEditPerformClip(wxCommandEvent& event);
@@ -154,7 +192,8 @@ namespace TrenchBroom {
             void pasteObjects(const Model::ObjectList& objects, const Vec3& delta);
             void collectPastedObjects(const Model::ObjectList& objects, Model::ObjectParentList& pastedObjects, Model::ObjectList& selectableObjects);
             
-            void moveVertices(MoveDirection direction);
+            void duplicateObjects();
+            void rotateTextures(bool clockwise, bool snapAngle);
         };
     }
 }

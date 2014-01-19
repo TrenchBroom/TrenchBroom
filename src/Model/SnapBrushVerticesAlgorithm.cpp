@@ -26,9 +26,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        SnapBrushVerticesAlgorithm::SnapBrushVerticesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) :
+        SnapBrushVerticesAlgorithm::SnapBrushVerticesAlgorithm(BrushGeometry& geometry, const Vec3::List& vertexPositions, const size_t snapTo) :
         MoveBrushVertexAlgorithm(geometry),
-        m_worldBounds(worldBounds),
         m_snapTo(snapTo) {
             m_vertexPositions.insert(vertexPositions.begin(), vertexPositions.end());
             assert(!m_vertexPositions.empty());

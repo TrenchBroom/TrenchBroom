@@ -175,8 +175,8 @@ namespace TrenchBroom {
             return algorithm.execute();
         }
 
-        SnapVerticesResult BrushGeometry::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
-            SnapBrushVerticesAlgorithm algorithm(*this, worldBounds, vertexPositions, snapTo);
+        SnapVerticesResult BrushGeometry::snapVertices(const Vec3::List& vertexPositions, const size_t snapTo) {
+            SnapBrushVerticesAlgorithm algorithm(*this, vertexPositions, snapTo);
             return algorithm.execute();
         }
 

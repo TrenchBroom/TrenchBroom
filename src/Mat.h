@@ -581,6 +581,20 @@ const Mat<T,S,S> scalingMatrix(const T f) {
     return scaling;
 }
 
+template <typename T, size_t S>
+const Mat<T,S,S>& mirrorMatrix(const Math::Axis::Type axis) {
+    switch (axis) {
+        case Math::Axis::AX:
+            return Mat<T,S,S>::MirX;
+        case Math::Axis::AY:
+            return Mat<T,S,S>::MirY;
+        case Math::Axis::AZ:
+            return Mat<T,S,S>::MirZ;
+        default:
+            return Mat<T,S,S>::Identity;
+    }
+}
+
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
 

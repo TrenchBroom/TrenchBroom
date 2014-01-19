@@ -27,11 +27,13 @@
 #include "Controller/MoveBrushEdgesCommand.h"
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
+#include "Controller/MoveTexturesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
 #include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
+#include "Controller/RotateTexturesCommand.h"
 #include "Controller/SelectionCommand.h"
 #include "Controller/SetEntityDefinitionFileCommand.h"
 #include "Controller/SetModsCommand.h"
@@ -365,6 +367,13 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::flipObjects(const Model::ObjectList& objects, const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
+            using namespace Controller;
+            const Mat4x4 transformation = translationMatrix(center) * mirrorMatrix<FloatType, 4>(axis) * translationMatrix(-center);
+            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Flip", objects);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures) {
             using namespace Controller;
             
@@ -552,6 +561,20 @@ namespace TrenchBroom {
             
             FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
             command->setAll(source);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::moveTextures(const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
+            using namespace Controller;
+            
+            Command::Ptr command = MoveTexturesCommand::moveTextures(m_document, faces, up, right, direction, distance);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::rotateTextures(const Model::BrushFaceList& faces, const float angle) {
+            using namespace Controller;
+            
+            Command::Ptr command = RotateTexturesCommand::rotateTextures(m_document, faces, angle);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
     }

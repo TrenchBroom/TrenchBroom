@@ -117,9 +117,10 @@ namespace TrenchBroom {
             bool moveTextureCollectionUp(const String& name);
             bool moveTextureCollectionDown(const String& name);
             
-            bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures);
-            bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures);
-            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, const bool lockTextures);
+            bool moveObjects(const Model::ObjectList& objects, const Vec3& delta, bool lockTextures);
+            bool rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, bool lockTextures);
+            bool flipObjects(const Model::ObjectList& objects, const Vec3& center, Math::Axis::Type axis, bool lockTextures);
+            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta, bool lockTextures);
 
             bool snapPlanePoints(Model::Brush& brush);
             bool findPlanePoints(Model::Brush& brush);
@@ -144,6 +145,9 @@ namespace TrenchBroom {
             bool setContentFlags(const Model::BrushFaceList& faces, int flags);
             bool setSurfaceValue(const Model::BrushFaceList& faces, float value, bool add);
             bool setFaceAttributes(const Model::BrushFaceList& faces, const Model::BrushFace& source);
+            
+            bool moveTextures(const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, Math::Direction direction, float distance);
+            bool rotateTextures(const Model::BrushFaceList& faces, float angle);
         };
     }
 }

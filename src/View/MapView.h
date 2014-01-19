@@ -123,12 +123,16 @@ namespace TrenchBroom {
             void toggleVertexTool();
             bool vertexToolActive() const;
             bool hasSelectedVertices() const;
-            void moveVertices(const Vec3& delta);
             bool canSnapVertices() const;
             void snapVertices(size_t snapTo);
             
             void toggleMovementRestriction();
-            Vec3 moveDirection(MoveDirection direction) const;
+            
+            void moveObjects(Math::Direction direction);
+            void rotateObjects(RotationAxis axis, bool clockwise);
+            void flipObjects(Math::Direction direction);
+            void moveTextures(Math::Direction direction, bool snapToGrid);
+            void moveVertices(Math::Direction direction);
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
@@ -160,6 +164,8 @@ namespace TrenchBroom {
             void createPointEntity(const Assets::PointEntityDefinition& definition);
             void createBrushEntity(const Assets::BrushEntityDefinition& definition);
             
+            Vec3 moveDirection(Math::Direction direction) const;
+
             void bindObservers();
             void unbindObservers();
             

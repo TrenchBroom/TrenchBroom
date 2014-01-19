@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
         
         Clipper::ClipPoints::ClipPoints(const ClipHandlePoints& handlePoints, const Vec3& viewDirection) :
-        m_valid(handlePoints.numPoints() > 0) {
+        m_valid(false) {
             const size_t numPoints = handlePoints.numPoints();
             if (numPoints == 1) {
                 const ClipHandlePoint& point = handlePoints[0];
@@ -142,6 +142,7 @@ namespace TrenchBroom {
                     m_points[0] = point.position.rounded();
                     m_points[1] = point.position.rounded() + 128.0 * Vec3::PosZ;
                     m_points[2] = point.position.rounded() + 128.0 * dir;
+                    m_valid = true;
                 }
             } else if (numPoints == 2) {
                 const ClipHandlePoint& point0 = handlePoints[0];
@@ -154,9 +155,11 @@ namespace TrenchBroom {
                 m_points[0] = point0.position.rounded();
                 m_points[1] = point0.position.rounded() + 128.0 * normal.firstAxis();
                 m_points[2] = point1.position.rounded();
+                m_valid = true;
             } else if (numPoints == 3) {
                 for (size_t i = 0; i < 3; ++i)
                     m_points[i] = handlePoints[i].position.rounded();
+                m_valid = true;
             }
         }
 
@@ -354,17 +357,17 @@ namespace TrenchBroom {
         }
         
         void Clipper::setClipPlaneNormal() {
-            assert(m_clipPoints.valid());
-            
-            // make sure the plane's normal points towards the camera or to its left if the camera position is on the plane
-            Plane3 plane;
-            setPlanePoints(plane, m_clipPoints[0], m_clipPoints[1], m_clipPoints[2]);
-            if (plane.pointStatus(m_camera.position()) == Math::PointStatus::PSInside) {
-                if (plane.normal.dot(m_camera.right()) < 0.0)
-                    m_clipPoints.invertPlaneNormal();
-            } else {
-                if (plane.normal.dot(m_camera.direction()) > 0.0)
-                    m_clipPoints.invertPlaneNormal();
+            if (m_clipPoints.valid()) {
+                // make sure the plane's normal points towards the camera or to its left if the camera position is on the plane
+                Plane3 plane;
+                setPlanePoints(plane, m_clipPoints[0], m_clipPoints[1], m_clipPoints[2]);
+                if (plane.pointStatus(m_camera.position()) == Math::PointStatus::PSInside) {
+                    if (plane.normal.dot(m_camera.right()) < 0.0)
+                        m_clipPoints.invertPlaneNormal();
+                } else {
+                    if (plane.normal.dot(m_camera.direction()) > 0.0)
+                        m_clipPoints.invertPlaneNormal();
+                }
             }
         }
 

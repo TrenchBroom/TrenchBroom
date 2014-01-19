@@ -173,11 +173,6 @@ namespace TrenchBroom {
             return vertexToolActive() && m_vertexTool->hasSelectedHandles();
         }
 
-        void MapView::moveVertices(const Vec3& delta) {
-            assert(vertexToolActive());
-            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
-        }
-
         bool MapView::canSnapVertices() const {
             return vertexToolActive() && m_vertexTool->canSnapVertices();
         }
@@ -192,23 +187,81 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        Vec3 MapView::moveDirection(const MoveDirection direction) const {
-            switch (direction) {
-                case MDForward:
-                    return m_camera.direction().firstAxis();
-                case MDBackward:
-                    return -m_camera.direction().firstAxis();
-                case MDLeft:
-                    return -m_camera.right().firstAxis();
-                case MDRight:
-                    return m_camera.right().firstAxis();
-                case MDUp:
-                    return m_camera.up().firstAxis();
-                case MDDown:
-                    return -m_camera.up().firstAxis();
-            }
+        void MapView::moveObjects(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            ControllerSPtr controller = lock(m_controller);
+            const Grid& grid = document->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            
+            controller->moveObjects(objects, delta, document->textureLock());
         }
-
+        
+        void MapView::rotateObjects(const RotationAxis axisSpec, const bool clockwise) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            Vec3 axis;
+            switch (axisSpec) {
+                case RARoll:
+                    axis = moveDirection(Math::DForward);
+                    break;
+                case RAPitch:
+                    axis = moveDirection(Math::DRight);
+                    break;
+                case RAYaw:
+                    axis = Vec3::PosZ;
+                    break;
+            }
+            
+            if (!clockwise)
+                axis *= -1.0;
+            
+            ControllerSPtr controller = lock(m_controller);
+            const Grid& grid = document->grid();
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            controller->rotateObjects(objects, center, axis, Math::Constants<FloatType>::PiOverTwo, document->textureLock());
+        }
+        
+        void MapView::flipObjects(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            const Grid& grid = document->grid();
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->flipObjects(objects, center, axis, document->textureLock());
+        }
+        
+        void MapView::moveTextures(const Math::Direction direction, const bool snapToGrid) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushFaceList& faces = document->allSelectedFaces();
+            if (faces.empty())
+                return;
+            
+            const Grid& grid = document->grid();
+            const float distance = snapToGrid ? static_cast<float>(grid.actualSize()) : 1.0f;
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
+        }
+        
+        void MapView::moveVertices(const Math::Direction direction) {
+            assert(vertexToolActive());
+            const Grid& grid = lock(m_document)->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+        }
+        
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
             
@@ -598,6 +651,29 @@ namespace TrenchBroom {
             controller->selectObject(entity);
             controller->moveObjects(Model::ObjectList(1, entity), delta, false);
             controller->closeGroup();
+        }
+        
+        Vec3 MapView::moveDirection(const Math::Direction direction) const {
+            switch (direction) {
+                case Math::DForward: {
+                    const Vec3 dir = m_camera.direction().firstAxis();
+                    if (dir.z() < 0.0)
+                        return m_camera.up().firstAxis();
+                    else if (dir.z() > 0.0)
+                        return -m_camera.up().firstAxis();
+                    return dir;
+                }
+                case Math::DBackward:
+                    return -moveDirection(Math::DForward);
+                case Math::DLeft:
+                    return -m_camera.right().firstAxis();
+                case Math::DRight:
+                    return m_camera.right().firstAxis();
+                case Math::DUp:
+                    return Vec3::PosZ;
+                case Math::DDown:
+                    return Vec3::NegZ;
+            }
         }
         
         void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {

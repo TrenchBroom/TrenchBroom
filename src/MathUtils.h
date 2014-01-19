@@ -205,6 +205,15 @@ namespace Math {
         return pred(index, count, 1);
     }
     
+    typedef enum {
+        DForward,
+        DBackward,
+        DLeft,
+        DRight,
+        DUp,
+        DDown
+    } Direction;
+
     namespace Axis {
         typedef size_t Type;
         static const Type AX = 0;

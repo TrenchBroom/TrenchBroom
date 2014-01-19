@@ -70,7 +70,7 @@ namespace TrenchBroom {
             Vec3 moveDelta(const Vec3& delta) const;
             Vec3 moveDelta(const Model::BrushFace& face, const Vec3& delta) const;
             Vec3 combineDeltas(const Vec3& delta1, const Vec3& delta2) const;
-            Vec3 referencePoint(const BBox3& bounds);
+            Vec3 referencePoint(const BBox3& bounds) const;
         };
     }
 }

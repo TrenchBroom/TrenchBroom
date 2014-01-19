@@ -339,6 +339,17 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
+        void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
+            const Vec2f offset = textureOffsetsForMove(m_boundary.normal, up, right, direction, distance);
+            setXOffset(xOffset() + offset.x());
+            setYOffset(yOffset() + offset.y());
+        }
+
+        void BrushFace::rotateTexture(const float angle) {
+            const float actualAngle = rotationAngle(m_boundary.normal, angle);
+            setRotation(rotation() + actualAngle);
+        }
+
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 

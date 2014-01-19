@@ -45,13 +45,21 @@ namespace TrenchBroom {
             return m_yAxis;
         }
         
-        void ParaxialTexCoordSystem::update(const Vec3& normal, const float rotation) {
-            size_t planeNormIndex, faceNormIndex;
-            axesAndIndices(normal, m_xAxis, m_yAxis, planeNormIndex, faceNormIndex);
-            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), planeNormIndex);
+        Vec3 ParaxialTexCoordSystem::projectedXAxis(const Vec3& normal) const {
+            return projectAxis(normal, xAxis());
+        }
+        
+        Vec3 ParaxialTexCoordSystem::projectedYAxis(const Vec3& normal) const {
+            return projectAxis(normal, yAxis());
         }
 
-        void ParaxialTexCoordSystem::axesAndIndices(const Vec3& normal, Vec3& xAxis, Vec3& yAxis, size_t& planeNormIndex, size_t& faceNormIndex) {
+        void ParaxialTexCoordSystem::update(const Vec3& normal, const float rotation) {
+            const size_t index = planeNormalIndex(normal);
+            axes(index, m_xAxis, m_yAxis);
+            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), (index / 2) * 6);
+        }
+
+        size_t ParaxialTexCoordSystem::planeNormalIndex(const Vec3& normal) {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
@@ -61,18 +69,53 @@ namespace TrenchBroom {
                     bestIndex = i;
                 }
             }
-            
-            xAxis = BaseAxes[bestIndex * 3 + 1];
-            yAxis = BaseAxes[bestIndex * 3 + 2];
-            planeNormIndex = (bestIndex / 2) * 6;
-            faceNormIndex = bestIndex * 3;
+            return bestIndex;
+//            return (bestIndex / 2) * 6;
+        }
+
+        void ParaxialTexCoordSystem::axes(const size_t index, Vec3& xAxis, Vec3& yAxis) {
+            xAxis = BaseAxes[index * 3 + 1];
+            yAxis = BaseAxes[index * 3 + 2];
         }
         
+        bool ParaxialTexCoordSystem::invertRotation(const Vec3& normal) {
+            const size_t index = planeNormalIndex(normal);
+            switch (index) {
+                case 0:
+                    return true;
+                case 1:
+                    return false;
+                case 2:
+                    return true;
+                case 3:
+                    return false;
+                case 4: // Y axis rotation is the other way around (see next method, too)
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
         void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) {
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             const Quat3 rot(BaseAxes[planeNormIndex], planeNormIndex == 12 ? -angle : angle);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;
+        }
+
+        Vec3 ParaxialTexCoordSystem::projectAxis(const Vec3& normal, const Vec3& axis) const {
+            const Plane3 plane(0.0, normal);
+            const size_t index = planeNormalIndex(normal);
+            switch (index) {
+                case 0:
+                case 1: // z != 0
+                    return Vec3(axis.x(), axis.y(), plane.zAt(Vec2(axis.x(), axis.y())));
+                case 2:
+                case 3: // x != 0
+                    return Vec3(plane.xAt(Vec2(axis.y(), axis.z())), axis.y(), axis.z());
+                default: // y != 0
+                    return Vec3(axis.x(), plane.yAt(Vec2(axis.x(), axis.z())), axis.z());
+            }
         }
     }
 }

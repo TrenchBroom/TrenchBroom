@@ -33,17 +33,12 @@ namespace TrenchBroom {
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            size_t planeNormIndex, faceNormIndex;
-            ParaxialTexCoordSystem::axesAndIndices(normal, m_initialXAxis, m_initialYAxis, planeNormIndex, faceNormIndex);
+            
+            const size_t index = ParaxialTexCoordSystem::planeNormalIndex(normal);
+            ParaxialTexCoordSystem::axes(index, m_initialXAxis, m_initialYAxis);
+
             m_xAxis = m_initialXAxis;
             m_yAxis = m_initialYAxis;
-        }
-
-        void ParallelTexCoordSystem::update(const Vec3& normal, const float rotation) {
-            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
-            const Quat3 rot(normal, angle);
-            m_xAxis = rot * m_initialXAxis;
-            m_yAxis = rot * m_initialYAxis;
         }
         
         const Vec3& ParallelTexCoordSystem::xAxis() const {
@@ -52,6 +47,27 @@ namespace TrenchBroom {
         
         const Vec3& ParallelTexCoordSystem::yAxis() const {
             return m_yAxis;
+        }
+
+        Vec3 ParallelTexCoordSystem::projectedXAxis(const Vec3& normal) const {
+            const Plane3 plane(0.0, normal);
+            return plane.project(m_xAxis);
+        }
+        
+        Vec3 ParallelTexCoordSystem::projectedYAxis(const Vec3& normal) const {
+            const Plane3 plane(0.0, normal);
+            return plane.project(m_yAxis);
+        }
+        
+        void ParallelTexCoordSystem::update(const Vec3& normal, const float rotation) {
+            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
+            const Quat3 rot(normal, angle);
+            m_xAxis = rot * m_initialXAxis;
+            m_yAxis = rot * m_initialYAxis;
+        }
+
+        bool ParallelTexCoordSystem::invertRotation(const Vec3& normal) {
+            return false;
         }
     }
 }

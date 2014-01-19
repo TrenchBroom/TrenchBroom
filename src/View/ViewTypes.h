@@ -33,13 +33,10 @@ namespace TrenchBroom {
         typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;
         
         typedef enum {
-            MDForward,
-            MDBackward,
-            MDLeft,
-            MDRight,
-            MDUp,
-            MDDown
-        } MoveDirection;
+            RARoll,
+            RAPitch,
+            RAYaw
+        } RotationAxis;
     }
 }
 

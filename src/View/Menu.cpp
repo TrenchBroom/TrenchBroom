@@ -405,15 +405,15 @@ namespace TrenchBroom {
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left"));
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRight, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right"));
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 15"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCCW, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 15"));
 #endif
             faceActionMenu.addSeparator();
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesUp, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesDown, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesUpFine, WXK_CONTROL, WXK_UP, KeyboardShortcut::SCTextures, "Move Up by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesDownFine, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::SCTextures, "Move Down by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeftFine, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::SCTextures, "Move Left by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRightFine, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
+            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCCWFine, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
             faceActionMenu.addSeparator();
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
             
@@ -485,12 +485,6 @@ namespace TrenchBroom {
             
             editMenu->addSeparator();
             editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::SCAny, "Texture Lock"));
-#ifdef __linux__ // escape key is not allowed as a menu accelerator on GTK
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditNavigateUp, KeyboardShortcut::SCAny, "Navigate Up"));
-#else
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditNavigateUp, WXK_ESCAPE, KeyboardShortcut::SCAny, "Navigate Up"));
-#endif
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditShowMapProperties, KeyboardShortcut::SCAny, "Map Properties"));
             
             Menu* viewMenu = new Menu("View");
             menus[ViewMenu] = Menu::Ptr(viewMenu);

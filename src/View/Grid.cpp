@@ -373,7 +373,7 @@ namespace TrenchBroom {
             return delta2;
         }
         
-        Vec3 Grid::referencePoint(const BBox3& bounds) {
+        Vec3 Grid::referencePoint(const BBox3& bounds) const {
             return snap(bounds.center());
         }
     }

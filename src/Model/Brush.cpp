@@ -297,7 +297,7 @@ namespace TrenchBroom {
         Vec3::List Brush::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
             assert(m_geometry != NULL);
             
-            const SnapVerticesResult result = m_geometry->snapVertices(worldBounds, vertexPositions, snapTo);
+            const SnapVerticesResult result = m_geometry->snapVertices(vertexPositions, snapTo);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
             
