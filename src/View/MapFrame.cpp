@@ -168,6 +168,14 @@ namespace TrenchBroom {
             saveDocumentAs();
         }
 
+        void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
+            lock(m_document)->loadPointFile();
+        }
+        
+        void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
+            lock(m_document)->unloadPointFile();
+        }
+
         void MapFrame::OnFileClose(wxCommandEvent& event) {
             Close();
         }
@@ -640,6 +648,12 @@ namespace TrenchBroom {
                 case wxID_CLOSE:
                     event.Enable(true);
                     break;
+                case CommandIds::Menu::FileLoadPointFile:
+                    event.Enable(document->canLoadPointFile());
+                    break;
+                case CommandIds::Menu::FileUnloadPointFile:
+                    event.Enable(document->isPointFileLoaded());
+                    break;
                 case wxID_UNDO:
                     if (controller->hasLastCommand()) {
                         event.Enable(true);
@@ -928,6 +942,8 @@ namespace TrenchBroom {
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSave, this, wxID_SAVE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRedo, this, wxID_REDO);

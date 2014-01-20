@@ -286,6 +286,10 @@ namespace TrenchBroom {
             return m_issueManager;
         }
 
+        const Model::PointFile& MapDocument::pointFile() const {
+            return m_pointFile;
+        }
+
         View::Grid& MapDocument::grid() {
             return m_grid;
         }
@@ -369,6 +373,29 @@ namespace TrenchBroom {
             doSaveDocument(path);
         }
         
+        bool MapDocument::canLoadPointFile() const {
+            if (m_path.isEmpty())
+                return false;
+            const IO::Path pointFilePath = Model::PointFile::pointFilePath(m_path);
+            return IO::Disk::fileExists(pointFilePath);
+        }
+        
+        void MapDocument::loadPointFile() {
+            assert(canLoadPointFile());
+            m_pointFile = Model::PointFile(m_path);
+            pointFileWasLoadedNotifier();
+        }
+        
+        bool MapDocument::isPointFileLoaded() const {
+            return !m_pointFile.empty();
+        }
+        
+        void MapDocument::unloadPointFile() {
+            assert(isPointFileLoaded());
+            m_pointFile = Model::PointFile();
+            pointFileWasUnloadedNotifier();
+        }
+
         Model::EntityList MapDocument::parseEntities(const String& str) const {
             return m_game->parseEntities(m_worldBounds, str);
         }
@@ -840,6 +867,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clearMap() {
+            if (isPointFileLoaded())
+                unloadPointFile();
+
             m_selection.clear();
             m_picker = Model::Picker(m_worldBounds);
             m_issueManager.clearIssues();

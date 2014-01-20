@@ -81,6 +81,8 @@ namespace TrenchBroom {
             
             void OnFileSave(wxCommandEvent& event);
             void OnFileSaveAs(wxCommandEvent& event);
+            void OnFileLoadPointFile(wxCommandEvent& event);
+            void OnFileUnloadPointFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
             
             void OnEditUndo(wxCommandEvent& event);

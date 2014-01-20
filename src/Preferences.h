@@ -34,6 +34,7 @@ namespace TrenchBroom {
         extern Preference<Color> XAxisColor;
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;
+        extern Preference<Color> PointFileColor;
         
         extern Preference<Color> CompassBackgroundColor;
         extern Preference<Color> CompassBackgroundOutlineColor;

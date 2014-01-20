@@ -35,6 +35,7 @@
 #include "Model/ModelFilter.h"
 #include "Model/ModelTypes.h"
 #include "Model/Picker.h"
+#include "Model/PointFile.h"
 #include "Model/Selection.h"
 #include "View/CachingLogger.h"
 #include "View/Grid.h"
@@ -68,6 +69,7 @@ namespace TrenchBroom {
             Model::ModelFilter m_filter;
             Model::Selection m_selection;
             Model::IssueManager m_issueManager;
+            Model::PointFile m_pointFile;
             View::Grid m_grid;
             
             bool m_textureLock;
@@ -78,6 +80,9 @@ namespace TrenchBroom {
             Notifier0 documentWasLoadedNotifier;
             Notifier0 documentWasSavedNotifier;
             
+            Notifier0 pointFileWasLoadedNotifier;
+            Notifier0 pointFileWasUnloadedNotifier;
+
             Notifier1<Model::Object*> objectWasAddedNotifier;
             Notifier1<Model::Object*> objectWillBeRemovedNotifier;
             Notifier1<Model::Object*> objectWasRemovedNotifier;
@@ -110,6 +115,7 @@ namespace TrenchBroom {
             Assets::EntityModelManager& entityModelManager();
             Assets::TextureManager& textureManager();
             Model::IssueManager& issueManager();
+            const Model::PointFile& pointFile() const;
             View::Grid& grid();
             
             bool isGamePathPreference(const IO::Path& path) const;
@@ -123,6 +129,11 @@ namespace TrenchBroom {
             void openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
+            
+            bool canLoadPointFile() const;
+            void loadPointFile();
+            bool isPointFileLoaded() const;
+            void unloadPointFile();
             
             Model::EntityList parseEntities(const String& str) const;
             Model::BrushList parseBrushes(const String& str) const;

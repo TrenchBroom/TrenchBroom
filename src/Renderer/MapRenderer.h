@@ -51,6 +51,7 @@ namespace TrenchBroom {
             EntityRenderer m_unselectedEntityRenderer;
             EntityRenderer m_selectedEntityRenderer;
             EntityLinkRenderer m_entityLinkRenderer;
+            EdgeRenderer m_pointFileRenderer;
         public:
             MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager);
             ~MapRenderer();
@@ -61,12 +62,15 @@ namespace TrenchBroom {
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);
             void renderEntityLinks(RenderContext& context);
+            void renderPointFile(RenderContext& context);
             
             void bindObservers();
             void unbindObservers();
             
             void documentWasCleared();
             void documentWasNewedOrLoaded();
+            void pointFileWasLoadedOrUnloaded();
+            
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
             void objectDidChange(Model::Object* object);

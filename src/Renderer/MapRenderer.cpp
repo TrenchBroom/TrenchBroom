@@ -32,6 +32,7 @@
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
 #include "Model/Object.h"
+#include "Model/PointFile.h"
 #include "Model/SelectionResult.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
@@ -110,6 +111,7 @@ namespace TrenchBroom {
             renderGeometry(context);
             renderEntities(context);
             renderEntityLinks(context);
+            renderPointFile(context);
         }
 
         void MapRenderer::setupGL(RenderContext& context) {
@@ -148,6 +150,8 @@ namespace TrenchBroom {
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            document->pointFileWasLoadedNotifier.addObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
+            document->pointFileWasUnloadedNotifier.addObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
             document->objectWasAddedNotifier.addObserver(this, &MapRenderer::objectWasAdded);
             document->objectWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectWillBeRemoved);
             document->objectDidChangeNotifier.addObserver(this, &MapRenderer::objectDidChange);
@@ -166,6 +170,8 @@ namespace TrenchBroom {
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+                document->pointFileWasLoadedNotifier.removeObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
+                document->pointFileWasUnloadedNotifier.removeObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
                 document->objectWasAddedNotifier.removeObserver(this, &MapRenderer::objectWasAdded);
                 document->objectWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectWillBeRemoved);
                 document->objectDidChangeNotifier.removeObserver(this, &MapRenderer::objectDidChange);
@@ -188,6 +194,17 @@ namespace TrenchBroom {
             loadMap(*document->map());
         }
         
+        void MapRenderer::pointFileWasLoadedOrUnloaded() {
+            const Vec3f::List& points = lock(m_document)->pointFile().points();
+            if (points.empty()) {
+                m_pointFileRenderer = EdgeRenderer();
+            } else {
+                typedef VertexSpecs::P3::Vertex Vertex;
+                Vertex::List vertices = Vertex::fromLists(points, points.size());
+                m_pointFileRenderer = EdgeRenderer(VertexArray::swap(GL_LINE_STRIP, vertices));
+            }
+        }
+
         void MapRenderer::objectWasAdded(Model::Object* object) {
             if (object->type() == Model::Object::OTEntity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
@@ -330,12 +347,23 @@ namespace TrenchBroom {
                 m_entityLinkRenderer.render(context);
         }
 
+        void MapRenderer::renderPointFile(RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_pointFileRenderer.setColor(prefs.get(Preferences::PointFileColor));
+            m_pointFileRenderer.setUseColor(true);
+            
+            glDisable(GL_DEPTH_TEST);
+            m_pointFileRenderer.render(context);
+            glEnable(GL_DEPTH_TEST);
+        }
+
         void MapRenderer::clearState() {
             m_unselectedBrushRenderer.clear();
             m_selectedBrushRenderer.clear();
             m_unselectedEntityRenderer.clear();
             m_selectedEntityRenderer.clear();
             m_entityLinkRenderer.invalidate();
+            m_pointFileRenderer = EdgeRenderer();
         }
 
         void MapRenderer::loadMap(Model::Map& map) {
