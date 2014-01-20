@@ -637,6 +637,28 @@ namespace TrenchBroom {
             m_mapView->Refresh();
         }
 
+        void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
+            assert(m_document->isPointFileLoaded());
+        
+            Model::PointFile& pointFile = m_document->pointFile();
+            assert(pointFile.hasNextPoint());
+            
+            const Vec3f position = pointFile.nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile.currentDirection();
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+        }
+        
+        void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
+            assert(m_document->isPointFileLoaded());
+            
+            Model::PointFile& pointFile = m_document->pointFile();
+            assert(pointFile.hasPreviousPoint());
+            
+            const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile.currentDirection();
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
@@ -841,6 +863,12 @@ namespace TrenchBroom {
                     event.Enable(true);
                     event.Check(document->grid().size() == 8);
                     break;
+                case CommandIds::Menu::ViewMoveCameraToNextPoint:
+                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasNextPoint());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
+                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasPreviousPoint());
+                    break;
                 default:
                     event.Enable(false);
                     break;
@@ -1023,6 +1051,9 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);

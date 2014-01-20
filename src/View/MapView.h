@@ -33,6 +33,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
+#include "View/Animation.h"
 #include "View/InputState.h"
 #include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
@@ -41,6 +42,7 @@
 #include <wx/datetime.h>
 #include <wx/event.h>
 #include <wx/glcanvas.h>
+#include <wx/longlong.h>
 
 namespace TrenchBroom {
     class Logger;
@@ -83,6 +85,8 @@ namespace TrenchBroom {
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
             
+            View::AnimationManager m_animationManager;
+            
             InputState m_inputState;
             MovementRestriction m_movementRestriction;
             wxPoint m_clickPos;
@@ -106,6 +110,8 @@ namespace TrenchBroom {
             ~MapView();
             
             Renderer::RenderResources& renderResources();
+            
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, wxLongLong duration);
             
             bool anyToolActive() const;
             void toggleClipTool();

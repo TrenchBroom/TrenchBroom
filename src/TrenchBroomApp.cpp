@@ -25,6 +25,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/CommandIds.h"
+#include "View/ExecutableEvent.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapView.h"
@@ -188,6 +189,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
 
+            Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
+
 #ifndef __APPLE__
             if (wxApp::argc > 1) {
                 const wxString filename = wxApp::argv[1];
@@ -242,6 +245,10 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
             openPreferences();
+        }
+
+        void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
+            event.execute();
         }
 
         int TrenchBroomApp::FilterEvent(wxEvent& event) {

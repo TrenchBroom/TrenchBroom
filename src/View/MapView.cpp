@@ -36,6 +36,7 @@
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "View/CameraAnimation.h"
 #include "View/CameraTool.h"
 #include "View/ClipTool.h"
 #include "View/CommandIds.h"
@@ -106,6 +107,11 @@ namespace TrenchBroom {
         
         Renderer::RenderResources& MapView::renderResources() {
             return m_renderResources;
+        }
+
+        void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            CameraAnimation* animation = new CameraAnimation(*this, m_camera, position, direction, up, duration);
+            m_animationManager.runAnimation(animation, true);
         }
 
         bool MapView::anyToolActive() const {

@@ -31,6 +31,8 @@ namespace TrenchBroom {
     class Logger;
     
     namespace View {
+        class ExecutableEvent;
+        
         class TrenchBroomApp : public wxApp {
         private:
             FrameManager* m_frameManager;
@@ -63,6 +65,7 @@ namespace TrenchBroom {
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
+            void OnExecutableEvent(ExecutableEvent& event);
             
             int FilterEvent(wxEvent& event);
 

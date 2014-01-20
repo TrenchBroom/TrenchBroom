@@ -164,6 +164,9 @@ namespace TrenchBroom {
             void OnViewDecGridSize(wxCommandEvent& event);
             void OnViewSetGridSize(wxCommandEvent& event);
             
+            void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
+            void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
             
             void OnRebuildMenuBar(wxEvent& event);

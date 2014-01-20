@@ -349,12 +349,14 @@ namespace TrenchBroom {
 
         void MapRenderer::renderPointFile(RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            m_pointFileRenderer.setColor(prefs.get(Preferences::PointFileColor));
             m_pointFileRenderer.setUseColor(true);
             
             glDisable(GL_DEPTH_TEST);
+            m_pointFileRenderer.setColor(Color(prefs.get(Preferences::PointFileColor), 0.35f));
             m_pointFileRenderer.render(context);
             glEnable(GL_DEPTH_TEST);
+            m_pointFileRenderer.setColor(prefs.get(Preferences::PointFileColor));
+            m_pointFileRenderer.render(context);
         }
 
         void MapRenderer::clearState() {

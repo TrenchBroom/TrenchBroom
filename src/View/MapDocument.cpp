@@ -286,7 +286,7 @@ namespace TrenchBroom {
             return m_issueManager;
         }
 
-        const Model::PointFile& MapDocument::pointFile() const {
+        Model::PointFile& MapDocument::pointFile() {
             return m_pointFile;
         }
 
@@ -383,6 +383,7 @@ namespace TrenchBroom {
         void MapDocument::loadPointFile() {
             assert(canLoadPointFile());
             m_pointFile = Model::PointFile(m_path);
+            info("Loaded point file");
             pointFileWasLoadedNotifier();
         }
         
@@ -393,6 +394,7 @@ namespace TrenchBroom {
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
             m_pointFile = Model::PointFile();
+            info("Unloaded point file");
             pointFileWasUnloadedNotifier();
         }
 
