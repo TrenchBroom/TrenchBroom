@@ -109,9 +109,9 @@ namespace TrenchBroom {
                 const int HelpShowHelp                       = Lowest +  83;
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
-                const int ViewSwitchToEntityTab              = Lowest +  86;
-                const int ViewSwitchToFaceTab                = Lowest +  87;
-                const int ViewSwitchToViewTab                = Lowest +  88;
+                const int ViewSwitchToMapInspector           = Lowest +  86;
+                const int ViewSwitchToEntityInspector        = Lowest +  87;
+                const int ViewSwitchToFaceInspector          = Lowest +  88;
                 const int EditDuplicateObjectsForward        = Lowest +  89;
                 const int EditDuplicateObjectsRight          = Lowest +  90;
                 const int EditDuplicateObjectsBackward       = Lowest +  91;

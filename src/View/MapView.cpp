@@ -37,6 +37,7 @@
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool.h"
 #include "View/ClipTool.h"
@@ -68,6 +69,7 @@ namespace TrenchBroom {
         m_renderer(m_document, m_renderResources.fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(m_renderResources)),
+        m_animationManager(new AnimationManager()),
         m_inputState(m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
@@ -99,6 +101,9 @@ namespace TrenchBroom {
         }
         
         MapView::~MapView() {
+            m_animationManager->Delete();
+            m_animationManager = NULL;
+            
             unbindObservers();
             deleteTools();
             delete m_glContext;
@@ -122,7 +127,7 @@ namespace TrenchBroom {
 
         void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
             CameraAnimation* animation = new CameraAnimation(*this, m_camera, position, direction, up, duration);
-            m_animationManager.runAnimation(animation, true);
+            m_animationManager->runAnimation(animation, true);
         }
 
         bool MapView::anyToolActive() const {

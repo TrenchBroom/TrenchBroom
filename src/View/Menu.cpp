@@ -511,9 +511,9 @@ namespace TrenchBroom {
             cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
             
             viewMenu->addSeparator();
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToEntityTab, '1', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
+            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToMapInspector, WXK_CONTROL, '1', KeyboardShortcut::SCAny, "Switch to Map Inspector"));
+            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToEntityInspector, WXK_CONTROL, '2', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
+            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToFaceInspector, WXK_CONTROL, '3', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
             return menus;
         }
     }

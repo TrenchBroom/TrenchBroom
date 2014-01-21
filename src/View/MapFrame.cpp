@@ -663,6 +663,18 @@ namespace TrenchBroom {
             m_mapView->centerCameraOnSelection();
         }
 
+        void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(MapInspectorPage);
+        }
+        
+        void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(EntityInspectorPage);
+        }
+        
+        void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(FaceInspectorPage);
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
@@ -876,6 +888,11 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(document->hasSelectedObjects());
                     break;
+                case CommandIds::Menu::ViewSwitchToMapInspector:
+                case CommandIds::Menu::ViewSwitchToEntityInspector:
+                case CommandIds::Menu::ViewSwitchToFaceInspector:
+                    event.Enable(true);
+                    break;
                 default:
                     event.Enable(false);
                     break;
@@ -1062,6 +1079,10 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
             
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);

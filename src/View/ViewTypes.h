@@ -37,6 +37,12 @@ namespace TrenchBroom {
             RAPitch,
             RAYaw
         } RotationAxis;
+
+        typedef enum {
+            MapInspectorPage = 0,
+            EntityInspectorPage = 1,
+            FaceInspectorPage = 2
+        } InspectorPage;
     }
 }
 

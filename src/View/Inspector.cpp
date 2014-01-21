@@ -46,5 +46,9 @@ namespace TrenchBroom {
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
         }
+
+        void Inspector::switchToPage(const InspectorPage page) {
+            m_notebook->SetSelection(static_cast<size_t>(page));
+        }
     }
 }

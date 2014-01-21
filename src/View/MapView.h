@@ -33,7 +33,6 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
-#include "View/Animation.h"
 #include "View/InputState.h"
 #include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
@@ -58,6 +57,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class AnimationManager;
         class BaseTool;
         class CameraTool;
         class ClipTool;
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
             
-            View::AnimationManager m_animationManager;
+            AnimationManager* m_animationManager;
             
             InputState m_inputState;
             MovementRestriction m_movementRestriction;

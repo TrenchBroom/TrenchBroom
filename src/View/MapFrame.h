@@ -168,6 +168,10 @@ namespace TrenchBroom {
             void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
             void OnViewCenterCameraOnSelection(wxCommandEvent& event);
             
+            void OnViewSwitchToMapInspector(wxCommandEvent& event);
+            void OnViewSwitchToEntityInspector(wxCommandEvent& event);
+            void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
             
             void OnRebuildMenuBar(wxEvent& event);

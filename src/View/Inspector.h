@@ -47,6 +47,7 @@ namespace TrenchBroom {
             ViewInspector* m_viewInspector;
         public:
             Inspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            void switchToPage(InspectorPage page);
         };
     }
 }
