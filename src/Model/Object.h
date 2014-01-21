@@ -58,7 +58,21 @@ namespace TrenchBroom {
             virtual ~Object();
             
             virtual BBox3 bounds() const = 0;
-            static BBox3 bounds(const ObjectList& objects);
+            
+            template <class T>
+            static BBox3 bounds(const std::vector<T*>& objects) {
+                if (objects.empty())
+                    return BBox3();
+                
+                typedef std::vector<T*> List;
+                typename List::const_iterator it = objects.begin();
+                const typename List::const_iterator end = objects.end();
+                
+                BBox3 bounds = (*it)->bounds();
+                while (++it != end)
+                    bounds.mergeWith((*it)->bounds());
+                return bounds;
+            }
             
             Type type() const;
             size_t filePosition() const;

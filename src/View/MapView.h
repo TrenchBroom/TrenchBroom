@@ -111,6 +111,7 @@ namespace TrenchBroom {
             
             Renderer::RenderResources& renderResources();
             
+            void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, wxLongLong duration);
             
             bool anyToolActive() const;
@@ -171,7 +172,8 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition& definition);
             
             Vec3 moveDirection(Math::Direction direction) const;
-
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
+            
             void bindObservers();
             void unbindObservers();
             

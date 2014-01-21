@@ -40,19 +40,6 @@ namespace TrenchBroom {
 
         Object::~Object() {}
 
-        BBox3 Object::bounds(const ObjectList& objects) {
-            if (objects.empty())
-                return BBox3();
-            
-            ObjectList::const_iterator it = objects.begin();
-            const ObjectList::const_iterator end = objects.end();
-
-            BBox3 bounds = (*it)->bounds();
-            while (++it != end)
-                bounds.mergeWith((*it)->bounds());
-            return bounds;
-        }
-
         Object::Type Object::type() const {
             return m_type;
         }

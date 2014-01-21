@@ -659,6 +659,10 @@ namespace TrenchBroom {
             m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
         }
 
+        void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
+            m_mapView->centerCameraOnSelection();
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
@@ -869,6 +873,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
                     event.Enable(document->isPointFileLoaded() && document->pointFile().hasPreviousPoint());
                     break;
+                case CommandIds::Menu::ViewCenterCameraOnSelection:
+                    event.Enable(document->hasSelectedObjects());
+                    break;
                 default:
                     event.Enable(false);
                     break;
@@ -1054,6 +1061,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
             
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);

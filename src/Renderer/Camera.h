@@ -65,6 +65,7 @@ namespace TrenchBroom {
             const Mat4x4f& viewMatrix() const;
             const Mat4x4f orthogonalBillboardMatrix() const;
             const Mat4x4f verticalBillboardMatrix() const;
+            void frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const;
             
             Ray3f viewRay() const;
             Ray3f pickRay(const int x, const int y) const;

@@ -135,6 +135,28 @@ namespace TrenchBroom {
                            0.0f,          0.0f,       0.0f,       1.0f);
         }
 
+        void Camera::frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const {
+            const float vFrustum = std::tan(Math::radians(m_fov) / 2.0f) * 0.75f * m_nearPlane;
+            const float hFrustum = vFrustum * static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height);
+            const Vec3f center = m_position + m_direction * m_nearPlane;
+            
+            Vec3f d = center + m_up * vFrustum - m_position;
+            d.normalize();
+            top = Plane3f(m_position, crossed(m_right, d));
+            
+            d = center + m_right * hFrustum - m_position;
+            d.normalize();
+            right = Plane3f(m_position, crossed(d, m_up));
+            
+            d = center - m_up * vFrustum - m_position;
+            d.normalize();
+            bottom = Plane3f(m_position, crossed(d, m_right));
+            
+            d = center - m_right * hFrustum - m_position;
+            d.normalize();
+            left = Plane3f(m_position, crossed(m_up, d));
+        }
+
         Ray3f Camera::viewRay() const {
             return Ray3f(m_position, m_direction);
         }

@@ -25,6 +25,7 @@
 #include "Notifier.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
+#include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
@@ -107,6 +108,16 @@ namespace TrenchBroom {
         
         Renderer::RenderResources& MapView::renderResources() {
             return m_renderResources;
+        }
+
+        void MapView::centerCameraOnSelection() {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::EntityList& entities = document->selectedEntities();
+            const Model::BrushList& brushes = document->selectedBrushes();
+            assert(!entities.empty() || !brushes.empty());
+            
+            const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
+            animateCamera(newPosition, m_camera.direction(), m_camera.up(), 150);
         }
 
         void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
@@ -680,6 +691,87 @@ namespace TrenchBroom {
                 case Math::DDown:
                     return Vec3::NegZ;
             }
+        }
+        
+        Vec3f MapView::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            
+            float minDist = std::numeric_limits<float>::max();
+            Vec3 center;
+            size_t count = 0;
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity* entity = *entityIt;
+                if (entity->brushes().empty()) {
+                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    for (size_t i = 0; i < vertices.size(); ++i) {
+                        const Vec3f vertex(vertices[i]);
+                        const Vec3f toPosition = vertex - m_camera.position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                        center += vertices[i];
+                        ++count;
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush* brush = *brushIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera.position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                    center += vertex->position;
+                    ++count;
+                }
+            }
+
+            center /= static_cast<FloatType>(count);
+            
+            // act as if the camera were there already:
+            const Vec3f oldPosition = m_camera.position();
+            m_camera.moveTo(Vec3f(center));
+            
+            float offset = std::numeric_limits<float>::max();
+            
+            Plane3f frustumPlanes[4];
+            m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity* entity = *entityIt;
+                if (entity->brushes().empty()) {
+                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    for (size_t i = 0; i < vertices.size(); ++i) {
+                        const Vec3f vertex(vertices[i]);
+                        
+                        for (size_t j = 0; j < 4; ++j) {
+                            const Plane3f& plane = frustumPlanes[j];
+                            const float dist = (vertex - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                            offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                        }
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush* brush = *brushIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    
+                    for (size_t j = 0; j < 4; ++j) {
+                        const Plane3f& plane = frustumPlanes[j];
+                        const float dist = (Vec3f(vertex->position) - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                        offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                    }
+                }
+            }
+            
+            // jump back
+            m_camera.moveTo(oldPosition);
+            
+            return center + m_camera.direction() * offset;
         }
         
         void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {

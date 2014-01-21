@@ -166,6 +166,7 @@ namespace TrenchBroom {
             
             void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
             void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
+            void OnViewCenterCameraOnSelection(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
             
