@@ -414,8 +414,6 @@ namespace TrenchBroom {
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRightFine, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCTextures, "Move Right by 1"));
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCTextures, "Rotate Clockwise by 1"));
             faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCCWFine, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCTextures, "Rotate Counter-clockwise by 1"));
-            faceActionMenu.addSeparator();
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCTextures, "Print Line Numbers"));
             
             Menu& objectActionMenu = actionMenu.addMenu("Objects", CommandIds::Menu::EditObjectActions);
 #ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
@@ -440,7 +438,6 @@ namespace TrenchBroom {
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::SCObjects, "Duplicate & Move Right"));
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsUp, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::SCObjects, "Duplicate & Move Up"));
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsDown, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::SCObjects, "Duplicate & Move Down"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjects, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Duplicate"));
             objectActionMenu.addSeparator();
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRollObjectsCW, WXK_ALT, WXK_UP, KeyboardShortcut::SCObjects, "Rotate Clockwise by 90"));
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRollObjectsCCW, WXK_ALT, WXK_DOWN, KeyboardShortcut::SCObjects, "Rotate Counter-clockwise by 90"));
@@ -452,15 +449,11 @@ namespace TrenchBroom {
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::SCObjects, "Flip Horizontally"));
             objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::SCObjects, "Flip Vertically"));
             objectActionMenu.addSeparator();
-            MenuItem::Ptr snapVerticesItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Snap Vertices to Grid"));
-            objectActionMenu.addSeparator();
 #ifdef __linux__ // tab is not allowed as a menu accelerator on GTK
             MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, 'X', KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
 #else
             MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, WXK_TAB, KeyboardShortcut::SCObjects | KeyboardShortcut::SCVertexTool, "Toggle Movement Axis"));
 #endif
-            objectActionMenu.addSeparator();
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPrintFilePositions, KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures, "Print Line Numbers"));
             
             Menu& vertexActionMenu = actionMenu.addMenu("Vertices", CommandIds::Menu::EditVertexActions);
             vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::SCVertexTool, "Move Forward"));
@@ -470,7 +463,7 @@ namespace TrenchBroom {
             vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::SCVertexTool, "Move Up"));
             vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::SCVertexTool, "Move Down"));
             vertexActionMenu.addSeparator();
-            vertexActionMenu.addItem(snapVerticesItem);
+            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::KeyboardShortcut::SCVertexTool, "Snap Vertices to Grid"));
             vertexActionMenu.addSeparator();
             vertexActionMenu.addItem(toggleAxisItem);
             
