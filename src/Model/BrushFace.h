@@ -193,8 +193,8 @@ namespace TrenchBroom {
             void validateVertexCache() const;
             void invalidateVertexCache();
 
-            virtual Vec2f textureOffsetsForMove(const Vec3& normal, const Vec3& up, const Vec3& right, Math::Direction direction, float distance) const = 0;
-            virtual float rotationAngle(const Vec3& normal, float angle) const = 0;
+            virtual Vec2f textureOffsetsForMove(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) const = 0;
+            virtual float rotationAngle(const Vec3& normal, const float angle) const = 0;
             
             virtual void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
             virtual Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const = 0;

@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         bool Issue::hasType(IssueType mask) const {
-            return m_type & mask;
+            return (m_type & mask) != 0;
         }
 
         const QuickFix::List& Issue::quickFixes() const {

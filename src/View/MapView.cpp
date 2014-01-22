@@ -695,6 +695,9 @@ namespace TrenchBroom {
                     return Vec3::PosZ;
                 case Math::DDown:
                     return Vec3::NegZ;
+                default:
+                    assert(false);
+                    return Vec3::Null;
             }
         }
         

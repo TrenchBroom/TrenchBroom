@@ -25,6 +25,7 @@
 #include "View/Console.h"
 #include "View/ViewTypes.h"
 
+#include <wx/bitmap.h>
 #include <wx/panel.h>
 
 class wxIdleEvent;

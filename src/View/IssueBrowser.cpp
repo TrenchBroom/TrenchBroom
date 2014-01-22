@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 return 2;
             }
             
-            wxString GetColumnType(const unsigned int col) const {
+            wxString GetColumnType(unsigned int col) const {
                 assert(col < GetColumnCount());
                 return "string";
             }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 return wxDataViewItem(NULL);
             }
             
-            void GetValue(wxVariant& result, const wxDataViewItem& item, const unsigned int col) const {
+            void GetValue(wxVariant& result, const wxDataViewItem& item, unsigned int col) const {
                 assert(col < GetColumnCount());
                 assert(item.IsOk());
 
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 }
             }
             
-            bool SetValue(const wxVariant& value, const wxDataViewItem& item, const unsigned int col) {
+            bool SetValue(const wxVariant& value, const wxDataViewItem& item, unsigned int col) {
                 assert(col < GetColumnCount());
                 return false;
             }

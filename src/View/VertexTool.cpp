@@ -87,9 +87,9 @@ namespace TrenchBroom {
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
             if (m_mode == VMMove || m_mode == VMSnap) {
-                assert(m_handleManager.selectedVertexCount() > 0 ^
-                       m_handleManager.selectedEdgeCount() > 0 ^
-                       m_handleManager.selectedFaceCount() > 0);
+                assert((m_handleManager.selectedVertexCount() > 0) ^
+                       (m_handleManager.selectedEdgeCount() > 0) ^
+                       (m_handleManager.selectedFaceCount() > 0));
                 
                 if (m_handleManager.selectedVertexCount() > 0)
                     return doMoveVertices(delta);
@@ -98,9 +98,9 @@ namespace TrenchBroom {
                 else if (m_handleManager.selectedFaceCount() > 0)
                     return doMoveFaces(delta);
             } else {
-                assert(m_handleManager.selectedVertexCount() == 0 &&
-                       (m_handleManager.selectedEdgeCount() == 1 ^
-                        m_handleManager.selectedFaceCount() == 1));
+                assert((m_handleManager.selectedVertexCount() == 0) &&
+                       ((m_handleManager.selectedEdgeCount() == 1) ^
+                        (m_handleManager.selectedFaceCount() == 1)));
                 
                 if (m_handleManager.selectedEdgeCount() > 0) {
                     return doSplitEdges(delta);

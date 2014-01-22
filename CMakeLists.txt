@@ -49,7 +49,7 @@ IF(MSVC)
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3 /MP")
 ELSE()
 	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wno-format -std=c++0x")
 
 	# Xcode requires these flags to allow debugging
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -fno-inline")

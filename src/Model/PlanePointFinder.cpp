@@ -201,7 +201,7 @@ namespace TrenchBroom {
             } while (Math::isnan(cos) || std::abs(cos) > 0.9);
             
             cross(v1, v2);
-            if (v1.z() > 0.0 != (swizzledPlane.normal.z() > 0.0))
+            if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0))
                 swap(points[0], points[2]);
             
             for (size_t i = 0; i < 3; ++i)

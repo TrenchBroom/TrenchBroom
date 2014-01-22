@@ -377,7 +377,7 @@ namespace TrenchBroom {
             if (m_path.isEmpty())
                 return false;
             const IO::Path pointFilePath = Model::PointFile::pointFilePath(m_path);
-            return IO::Disk::fileExists(pointFilePath);
+            return pointFilePath.isAbsolute() && IO::Disk::fileExists(pointFilePath);
         }
         
         void MapDocument::loadPointFile() {

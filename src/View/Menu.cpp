@@ -347,7 +347,7 @@ namespace TrenchBroom {
             fileMenu->addActionItem(KeyboardShortcut(wxID_SAVE, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save"));
             fileMenu->addActionItem(KeyboardShortcut(wxID_SAVEAS, WXK_SHIFT, WXK_CONTROL, 'S', KeyboardShortcut::SCAny, "Save as..."));
             fileMenu->addSeparator();
-            fileMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::FileLoadPointFile, KeyboardShortcut::SCAny, "Load Point File..."));
+            fileMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::FileLoadPointFile, KeyboardShortcut::SCAny, "Load Point File"));
             fileMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::FileUnloadPointFile, KeyboardShortcut::SCAny, "Unload Point File"));
             fileMenu->addSeparator();
             fileMenu->addActionItem(KeyboardShortcut(wxID_CLOSE, WXK_CONTROL, 'W', KeyboardShortcut::SCAny, "Close"));
@@ -463,7 +463,7 @@ namespace TrenchBroom {
             vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::SCVertexTool, "Move Up"));
             vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::SCVertexTool, "Move Down"));
             vertexActionMenu.addSeparator();
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::KeyboardShortcut::SCVertexTool, "Snap Vertices to Grid"));
+            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::SCVertexTool, "Snap Vertices to Grid"));
             vertexActionMenu.addSeparator();
             vertexActionMenu.addItem(toggleAxisItem);
             
