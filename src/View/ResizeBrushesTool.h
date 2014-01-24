@@ -32,7 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class ResizeBrushesTool : public Tool<NoActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, RenderPolicy> {
+        class ResizeBrushesTool : public Tool<NoActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
             Model::BrushFaceList m_dragFaces;
             Vec3 m_totalDelta;

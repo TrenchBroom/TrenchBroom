@@ -39,7 +39,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateBrushTool : public Tool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy> {
+        class CreateBrushTool : public Tool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
             Vec3 m_initialPoint;
             Renderer::BrushRenderer m_brushRenderer;

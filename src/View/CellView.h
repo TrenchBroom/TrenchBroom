@@ -207,18 +207,19 @@ namespace TrenchBroom {
                 const typename Layout::Group::Row::Cell* cell = NULL;
                 if (event.LeftIsDown() && dndEnabled()) {
                     if (m_layout.cellAt(x, y, &cell)) {
+                        /*
                         wxImage* feedbackImage = dndImage(*cell);
-                        wxDataObject* dropData = dndData(*cell);
-
                         int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
                         int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
+                         */
 
-                        DropSource dropSource(this, feedbackImage, wxPoint(xOffset, yOffset));
-                        dropSource.SetData(*dropData);
-                        dropSource.DoDragDrop();
-
-                        delete feedbackImage;
-                        delete dropData;
+                        wxDataObject* dropData = dndData(*cell);
+                        if (dropData != NULL) {
+                            DropSource dropSource(*dropData, this);
+                            dropSource.DoDragDrop();
+                            
+                            delete dropData;
+                        }
                     }
                 } else {
                     if (m_layout.cellAt(x, y, &cell))

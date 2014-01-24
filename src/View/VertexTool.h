@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class InputState;
         class MovementRestriction;
         
-        class VertexTool : public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, RenderPolicy> {
+        class VertexTool : public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
         private:
             static const FloatType MaxVertexDistance;
             

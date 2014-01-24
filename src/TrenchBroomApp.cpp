@@ -96,11 +96,11 @@ namespace TrenchBroom {
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
-            if (game == NULL)
-                return false;
+            assert(game != NULL);
 
             MapFrame* frame = m_frameManager->newFrame();
-            return frame != NULL && frame->newDocument(game);
+            frame->newDocument(game);
+            return true;
         }
 
         bool TrenchBroomApp::openDocument(const String& pathStr) {
@@ -117,20 +117,20 @@ namespace TrenchBroom {
                     game = gameFactory.createGame(gameName);
                 }
 
-                if (game == NULL)
-                    return false;
+                assert(game != NULL);
 
                 MapFrame* frame = m_frameManager->newFrame();
-                return frame != NULL && frame->openDocument(game, path);
+                frame->openDocument(game, path);
+                return true;
             } catch (const Exception& e) {
                 wxLogError(e.what());
                 if (frame != NULL)
                     frame->Close();
-                return false;
+                throw;
             } catch (...) {
                 if (frame != NULL)
                     frame->Close();
-                return false;
+                throw;
             }
         }
 
@@ -237,7 +237,10 @@ namespace TrenchBroom {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
             assert(object != NULL);
             const wxString data = object->GetString();
-            if (!openDocument(data.ToStdString())) {
+            
+            try {
+                openDocument(data.ToStdString());
+            } catch (...) {
                 m_recentDocuments->removePath(IO::Path(data.ToStdString()));
                 ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
             }

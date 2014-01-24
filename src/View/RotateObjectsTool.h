@@ -35,7 +35,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class RotateObjectsTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate {
+        class RotateObjectsTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate {
         private:
             static const Model::Hit::HitType HandleHit;
 

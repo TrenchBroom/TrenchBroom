@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class InputState;
         class MovementRestriction;
         
-        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, RenderPolicy> {
+        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoDropPolicy, RenderPolicy> {
         private:
             bool m_duplicateObjects;
         public:

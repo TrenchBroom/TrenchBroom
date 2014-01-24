@@ -1,4 +1,4 @@
-    /*
+/*
  Copyright (C) 2010-2014 Kristian Duske
  
  This file is part of TrenchBroom.
@@ -19,54 +19,15 @@
 
 #include "GenericDropSource.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
-        GenericDropSource::GenericDropSource(wxWindow* window, const wxImage* image, const wxPoint& imageOffset) :
-        wxDropSource(window),
-        m_window(window),
-        m_dragImage(NULL),
-        m_feedbackImage(wxBitmap(64, 64)),
-        m_imageOffset(imageOffset),
-        m_showFeedback(true) {
-            if (image != NULL)
-                m_feedbackImage = wxBitmap(*image);
+        GenericDropSource::GenericDropSource(wxDataObject& data, wxWindow* window) :
+        wxDropSource(data, window, wxCursor(wxCURSOR_HAND), wxCursor(wxCURSOR_HAND), wxCursor(wxCURSOR_NO_ENTRY)) {
             CurrentDropSource = this;
         }
         
         GenericDropSource::~GenericDropSource() {
-            if (m_dragImage != NULL) {
-                m_dragImage->EndDrag();
-                delete m_dragImage;
-                m_dragImage = NULL;
-            }
             CurrentDropSource = NULL;
-        }
-        
-        bool GenericDropSource::GiveFeedback(wxDragResult effect) {
-            if (!m_showFeedback) {
-                if (m_dragImage != NULL)
-                    m_dragImage->Hide();
-                return false;
-            }
-            
-            if (m_dragImage == NULL) {
-                m_dragImage = new wxDragImage(m_feedbackImage);
-                m_dragImage->BeginDrag(m_imageOffset, m_window, true, NULL);
-            }
-            
-            m_dragImage->Show();
-
-            wxMouseState mouseState = ::wxGetMouseState();
-            wxPoint position = m_window->ScreenToClient(mouseState.GetPosition());
-            m_dragImage->Move(position);
-            
-            return true;
-        }
-        
-        void GenericDropSource::setShowFeedback(bool showFeedback) {
-            m_showFeedback = showFeedback;
         }
 
         GenericDropSource* CurrentDropSource = NULL;

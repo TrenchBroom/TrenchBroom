@@ -35,6 +35,9 @@ Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
 Color::Color(const int r, const int g, const int b, const int a) :
 Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
 
+Color::Color(const int r, const int g, const int b, const float a) :
+Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a) {}
+
 Color::Color(const std::string& str) :
 Vec<float, 4>(str) {}
 

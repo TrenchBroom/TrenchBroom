@@ -149,6 +149,14 @@ namespace TrenchBroom {
             }
         }
         
+        bool EntityBrowserView::dndEnabled() {
+            return true;
+        }
+        
+        wxDataObject* EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
+            return new wxTextDataObject("entity:" + cell.item().entityDefinition->name());
+        }
+
         void EntityBrowserView::addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {

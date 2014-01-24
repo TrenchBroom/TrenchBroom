@@ -48,7 +48,7 @@ namespace TrenchBroom {
         
         class NoActivationPolicy {
         public:
-            virtual ~NoActivationPolicy();
+            ~NoActivationPolicy();
             
             bool activatable() const;
             bool initiallyActive() const;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         
         class NoPickingPolicy {
         public:
-            virtual ~NoPickingPolicy();
+            ~NoPickingPolicy();
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
         
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         
         class NoMousePolicy {
         public:
-            virtual ~NoMousePolicy();
+            ~NoMousePolicy();
             
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
@@ -102,7 +102,7 @@ namespace TrenchBroom {
         
         class NoMouseDragPolicy {
         public:
-            virtual ~NoMouseDragPolicy();
+            ~NoMouseDragPolicy();
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -141,6 +141,24 @@ namespace TrenchBroom {
             virtual void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) = 0;
         };
         
+        class DropPolicy {
+        public:
+            virtual ~DropPolicy();
+            virtual bool doDragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual bool doDragMove(const InputState& inputState) = 0;
+            virtual void doDragLeave(const InputState& inputState) = 0;
+            virtual bool doDragDrop(const InputState& inputState) = 0;
+        };
+        
+        class NoDropPolicy {
+        public:
+            ~NoDropPolicy();
+            bool doDragEnter(const InputState& inputState, const String& payload);
+            bool doDragMove(const InputState& inputState);
+            void doDragLeave(const InputState& inputState);
+            bool doDragDrop(const InputState& inputState);
+        };
+
         class RenderPolicy {
         public:
             virtual ~RenderPolicy();
@@ -178,13 +196,18 @@ namespace TrenchBroom {
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
             
+            virtual BaseTool* dragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual bool dragMove(const InputState& inputState) = 0;
+            virtual void dragLeave(const InputState& inputState) = 0;
+            virtual bool dragDrop(const InputState& inputState) = 0;
+            
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
             virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
             virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
         };
         
-        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType>
-        class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
+        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class DropPolicyType, class RenderPolicyType>
+        class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected DropPolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             BaseTool* m_next;
             MapDocumentWPtr m_document;
@@ -305,6 +328,29 @@ namespace TrenchBroom {
                 }
             }
             
+            BaseTool* dragEnter(const InputState& inputState, const String& payload) {
+                if (active() && static_cast<DropPolicyType&>(*this).doDragEnter(inputState, payload))
+                    return this;
+                if (m_next != NULL)
+                    return m_next->dragEnter(inputState, payload);
+                return NULL;
+            }
+            
+            bool dragMove(const InputState& inputState) {
+                assert(active());
+                return static_cast<DropPolicyType&>(*this).doDragMove(inputState);
+            }
+            
+            void dragLeave(const InputState& inputState) {
+                assert(active());
+                static_cast<DropPolicyType&>(*this).doDragLeave(inputState);
+            }
+            
+            bool dragDrop(const InputState& inputState) {
+                assert(active());
+                return static_cast<DropPolicyType&>(*this).doDragDrop(inputState);
+            }
+
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
                 if (active())
                     static_cast<const RenderPolicyType&>(*this).doSetRenderOptions(inputState, renderContext);

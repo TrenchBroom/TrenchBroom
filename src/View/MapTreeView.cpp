@@ -176,7 +176,6 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                 document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
                 document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                document->objectWillChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectWillChange);
                 document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
             }
 
@@ -188,7 +187,6 @@ namespace TrenchBroom {
                     document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                     document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
                     document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                    document->objectWillChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillChange);
                     document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
                 }
             }
@@ -254,12 +252,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void objectWillChange(Model::Object* object) {
-                objectWillBeRemoved(object);
-            }
-            
             void objectDidChange(Model::Object* object) {
-                objectWasAdded(object);
+                ItemChanged(wxDataViewItem(reinterpret_cast<void*>(object)));
             }
         };
 

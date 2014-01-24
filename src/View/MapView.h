@@ -101,6 +101,7 @@ namespace TrenchBroom {
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;
             BaseTool* m_modalReceiver;
+            BaseTool* m_dropReceiver;
             
             bool m_ignoreNextDrag;
             bool m_ignoreNextClick;
@@ -115,6 +116,7 @@ namespace TrenchBroom {
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, wxLongLong duration);
             
             bool anyToolActive() const;
+            void deactivateAllTools();
             void toggleClipTool();
             bool clipToolActive() const;
             bool canToggleClipSide() const;
@@ -142,6 +144,11 @@ namespace TrenchBroom {
             void moveVertices(Math::Direction direction);
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+            
+            bool dragEnter(const String& text, wxCoord x, wxCoord y);
+            bool dragMove(const String& text, wxCoord x, wxCoord y);
+            void dragLeave();
+            bool dragDrop(const String& text, wxCoord x, wxCoord y);
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);

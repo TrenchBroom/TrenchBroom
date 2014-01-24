@@ -88,11 +88,14 @@ namespace TrenchBroom {
         private:
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
+
+            bool dndEnabled();
+            wxDataObject* dndData(const Layout::Group::Row::Cell& cell);
+
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
             void doClear();
             void doRender(Layout& layout, const float y, const float height);
-
 
             void renderBounds(Layout& layout, const float y, const float height);
             void renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation);
@@ -100,7 +103,6 @@ namespace TrenchBroom {
             void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);
             void renderStrings(Layout& layout, const float y, const float height);
             StringMap collectStringVertices(Layout& layout, const float y, const float height);
-            
             
             Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
         };

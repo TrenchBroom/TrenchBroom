@@ -44,6 +44,7 @@
 #include "View/CommandIds.h"
 #include "View/CreateBrushTool.h"
 #include "View/MapDocument.h"
+#include "View/MapViewDropTarget.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
@@ -82,6 +83,7 @@ namespace TrenchBroom {
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
+        m_dropReceiver(NULL),
         m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
         m_lastFrameActivation(wxDateTime::Now()) {
@@ -98,6 +100,8 @@ namespace TrenchBroom {
             createTools();
             bindEvents();
             bindObservers();
+            
+            SetDropTarget(new MapViewDropTarget(this));
         }
         
         MapView::~MapView() {
@@ -134,6 +138,10 @@ namespace TrenchBroom {
             return m_modalReceiver != NULL;
         }
         
+        void MapView::deactivateAllTools() {
+            toggleTool(NULL);
+        }
+
         void MapView::toggleClipTool() {
             toggleTool(m_clipTool);
         }
@@ -310,6 +318,27 @@ namespace TrenchBroom {
                 const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
                 return snappedDefaultPoint - snappedCenter;
             }
+        }
+
+        bool MapView::dragEnter(const String& text, wxCoord x, wxCoord y) {
+            assert(m_dropReceiver == NULL);
+            
+            deactivateAllTools();
+            m_inputState.mouseMove(x, y);
+            updatePickResults(x, y);
+            
+            return true;
+        }
+        
+        bool MapView::dragMove(const String& text, wxCoord x, wxCoord y) {
+            return true;
+        }
+        
+        void MapView::dragLeave() {
+        }
+        
+        bool MapView::dragDrop(const String& text, wxCoord x, wxCoord y) {
+            return true;
         }
 
         void MapView::OnKey(wxKeyEvent& event) {
@@ -943,18 +972,25 @@ namespace TrenchBroom {
         }
 
         void MapView::toggleTool(BaseTool* tool) {
-            if (m_modalReceiver == tool) {
-                assert(m_modalReceiver->active());
-                m_modalReceiver->deactivate(m_inputState);
-                m_modalReceiver = NULL;
-            } else {
+            if (tool == NULL) {
                 if (m_modalReceiver != NULL) {
-                    assert(m_modalReceiver->active());
                     m_modalReceiver->deactivate(m_inputState);
                     m_modalReceiver = NULL;
                 }
-                if (tool->activate(m_inputState))
-                    m_modalReceiver = tool;
+            } else {
+                if (m_modalReceiver == tool) {
+                    assert(m_modalReceiver->active());
+                    m_modalReceiver->deactivate(m_inputState);
+                    m_modalReceiver = NULL;
+                } else {
+                    if (m_modalReceiver != NULL) {
+                        assert(m_modalReceiver->active());
+                        m_modalReceiver->deactivate(m_inputState);
+                        m_modalReceiver = NULL;
+                    }
+                    if (tool->activate(m_inputState))
+                        m_modalReceiver = tool;
+                }
             }
             Refresh();
         }

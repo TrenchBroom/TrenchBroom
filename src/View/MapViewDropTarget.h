@@ -17,23 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GenericDropSource__
-#define __TrenchBroom__GenericDropSource__
+#ifndef __TrenchBroom__MapViewDropTarget__
+#define __TrenchBroom__MapViewDropTarget__
+
+#include "StringUtils.h"
 
 #include <wx/dnd.h>
 
-class wxWindow;
-
 namespace TrenchBroom {
     namespace View {
-        class GenericDropSource : public wxDropSource {
+        class MapView;
+        
+        class MapViewDropTarget : public wxTextDropTarget {
+        private:
+            MapView* m_view;
         public:
-            GenericDropSource(wxDataObject& data, wxWindow* window);
-            ~GenericDropSource();
+            MapViewDropTarget(MapView* view);
+            
+            wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
+            wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+            void OnLeave();
+            bool OnDropText(wxCoord x, wxCoord y, const wxString& data);
+        private:
+            String getDragText() const;
         };
-
-        extern GenericDropSource* CurrentDropSource;
     }
 }
 
-#endif /* defined(__TrenchBroom__GenericDropSource__) */
+#endif /* defined(__TrenchBroom__MapViewDropTarget__) */

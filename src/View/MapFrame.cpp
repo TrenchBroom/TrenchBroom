@@ -732,7 +732,6 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditSelectSiblings:
                     event.Enable(!m_mapView->anyToolActive()&&
-                                 !document->hasSelectedEntities() &&
                                  document->hasSelectedBrushes());
                     break;
                 case CommandIds::Menu::EditSelectTouching:

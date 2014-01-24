@@ -98,6 +98,14 @@ namespace TrenchBroom {
             m_refPoint = m_lastPoint;
         }
         
+        DropPolicy::~DropPolicy() {}
+
+        NoDropPolicy::~NoDropPolicy() {}
+        bool NoDropPolicy::doDragEnter(const InputState& inputState, const String& payload) { return false; }
+        bool NoDropPolicy::doDragMove(const InputState& inputState) { assert(false); return false; }
+        void NoDropPolicy::doDragLeave(const InputState& inputState) { assert(false); }
+        bool NoDropPolicy::doDragDrop(const InputState& inputState) { assert(false); return false; }
+
         RenderPolicy::~RenderPolicy() {}
         void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {}

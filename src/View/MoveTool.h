@@ -37,10 +37,10 @@ namespace TrenchBroom {
     namespace View {
         class ControllerFacade;
 
-        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class RenderPolicyType>
-        class MoveTool : public Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType>, public MoveDelegate {
+        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class DropPolicyType, class RenderPolicyType>
+        class MoveTool : public Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType>, public MoveDelegate {
         private:
-            typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, RenderPolicyType> Super;
+            typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType> Super;
             MoveHelper m_helper;
         public:
             MoveTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
