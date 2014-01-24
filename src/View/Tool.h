@@ -166,12 +166,7 @@ namespace TrenchBroom {
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
         
-        class NoRenderPolicy {
-        public:
-            virtual ~NoRenderPolicy();
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-        };
+        typedef RenderPolicy NoRenderPolicy;
         
         class BaseTool {
         public:

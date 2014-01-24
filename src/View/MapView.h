@@ -62,6 +62,7 @@ namespace TrenchBroom {
         class CameraTool;
         class ClipTool;
         class CreateBrushTool;
+        class CreateEntityTool;
         class MoveObjectsTool;
         class ResizeBrushesTool;
         class RotateObjectsTool;
@@ -93,6 +94,7 @@ namespace TrenchBroom {
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
+            CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
             VertexTool* m_vertexTool;
             ResizeBrushesTool* m_resizeBrushesTool;
@@ -145,10 +147,10 @@ namespace TrenchBroom {
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
-            bool dragEnter(const String& text, wxCoord x, wxCoord y);
-            bool dragMove(const String& text, wxCoord x, wxCoord y);
+            bool dragEnter(wxCoord x, wxCoord y, const String& text);
+            bool dragMove(wxCoord x, wxCoord y, const String& text);
             void dragLeave();
-            bool dragDrop(const String& text, wxCoord x, wxCoord y);
+            bool dragDrop(wxCoord x, wxCoord y, const String& text);
             
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);

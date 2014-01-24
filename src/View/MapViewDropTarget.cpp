@@ -30,14 +30,14 @@ namespace TrenchBroom {
         m_view(view) {}
         
         wxDragResult MapViewDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_view->dragEnter(getDragText(), x, y))
+            if (m_view->dragEnter(x, y, getDragText()))
                 return wxTextDropTarget::OnEnter(x, y, wxDragCopy);
             else
                 return wxTextDropTarget::OnEnter(x, y, wxDragNone);
         }
         
         wxDragResult MapViewDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_view->dragMove(getDragText(), x, y))
+            if (m_view->dragMove(x, y, getDragText()))
                 return wxTextDropTarget::OnDragOver(x, y, wxDragCopy);
             else
                 return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
         
         bool MapViewDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
-            return m_view->dragDrop(getDragText(), x, y);
+            return m_view->dragDrop(x, y, getDragText());
         }
 
         String MapViewDropTarget::getDragText() const {

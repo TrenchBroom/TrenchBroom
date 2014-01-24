@@ -43,6 +43,7 @@
 #include "View/ClipTool.h"
 #include "View/CommandIds.h"
 #include "View/CreateBrushTool.h"
+#include "View/CreateEntityTool.h"
 #include "View/MapDocument.h"
 #include "View/MapViewDropTarget.h"
 #include "View/MoveObjectsTool.h"
@@ -75,6 +76,7 @@ namespace TrenchBroom {
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
+        m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_vertexTool(NULL),
         m_resizeBrushesTool(NULL),
@@ -307,7 +309,7 @@ namespace TrenchBroom {
                 if (first.matches) {
                     const Model::BrushFace* face = Model::hitAsFace(first.hit);
                     const Vec3 snappedHitPoint = grid.snap(first.hit.hitPoint());
-                    return grid.moveDeltaForBounds(*face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
                     const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay.direction));
@@ -320,25 +322,51 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapView::dragEnter(const String& text, wxCoord x, wxCoord y) {
+        bool MapView::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_dropReceiver == NULL);
             
             deactivateAllTools();
             m_inputState.mouseMove(x, y);
             updatePickResults(x, y);
+            m_createEntityTool->activate(m_inputState);
+            m_dropReceiver = m_toolChain->dragEnter(m_inputState, text);
+            Refresh();
+            
+            return m_dropReceiver != NULL;
+        }
+        
+        bool MapView::dragMove(const wxCoord x, const wxCoord y, const String& text) {
+            if (m_dropReceiver == NULL)
+                return false;
+            
+            m_inputState.mouseMove(x, y);
+            updatePickResults(x, y);
+            m_dropReceiver->dragMove(m_inputState);
+            Refresh();
             
             return true;
         }
         
-        bool MapView::dragMove(const String& text, wxCoord x, wxCoord y) {
-            return true;
-        }
-        
         void MapView::dragLeave() {
+            if (m_dropReceiver == NULL)
+                return;
+
+            m_dropReceiver->dragLeave(m_inputState);
+            m_createEntityTool->deactivate(m_inputState);
+            m_dropReceiver = NULL;
+            Refresh();
         }
         
-        bool MapView::dragDrop(const String& text, wxCoord x, wxCoord y) {
-            return true;
+        bool MapView::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
+            if (m_dropReceiver == NULL)
+                return false;
+            
+            const bool success = m_dropReceiver->dragDrop(m_inputState);
+            m_dropReceiver->deactivate(m_inputState);
+            m_dropReceiver = NULL;
+            Refresh();
+            
+            return success;
         }
 
         void MapView::OnKey(wxKeyEvent& event) {
@@ -687,7 +715,7 @@ namespace TrenchBroom {
             
             const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
             if (first.matches) {
-                delta = grid.moveDeltaForBounds(*Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
+                delta = grid.moveDeltaForBounds(Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
             } else {
                 const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay().direction));
                 delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());
@@ -944,7 +972,8 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_selectionTool, m_document, m_controller);
             m_moveObjectsTool = new MoveObjectsTool(m_resizeBrushesTool, m_document, m_controller, m_movementRestriction);
             m_createBrushTool = new CreateBrushTool(m_moveObjectsTool, m_document, m_controller, font);
-            m_vertexTool = new VertexTool(m_createBrushTool, m_document, m_controller, m_movementRestriction, font);
+            m_createEntityTool = new CreateEntityTool(m_createBrushTool, m_document, m_controller, m_renderResources.fontManager());
+            m_vertexTool = new VertexTool(m_createEntityTool, m_document, m_controller, m_movementRestriction, font);
             m_rotateObjectsTool = new RotateObjectsTool(m_vertexTool, m_document, m_controller, m_movementRestriction, font);
             m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
             m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
@@ -959,6 +988,8 @@ namespace TrenchBroom {
             m_clipTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
+            delete m_createEntityTool;
+            m_createEntityTool = NULL;
             delete m_moveObjectsTool;
             m_moveObjectsTool = NULL;
             delete m_resizeBrushesTool;
