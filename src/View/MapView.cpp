@@ -749,19 +749,23 @@ namespace TrenchBroom {
         Vec3 MapView::moveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::DForward: {
-                    const Vec3 dir = m_camera.direction().firstAxis();
+                    Vec3 dir = m_camera.direction().firstAxis();
                     if (dir.z() < 0.0)
-                        return m_camera.up().firstAxis();
+                        dir = m_camera.up().firstAxis();
                     else if (dir.z() > 0.0)
-                        return -m_camera.up().firstAxis();
+                        dir = -m_camera.up().firstAxis();
                     return dir;
                 }
                 case Math::DBackward:
                     return -moveDirection(Math::DForward);
                 case Math::DLeft:
-                    return -m_camera.right().firstAxis();
-                case Math::DRight:
-                    return m_camera.right().firstAxis();
+                    return -moveDirection(Math::DRight);
+                case Math::DRight: {
+                    Vec3 dir = m_camera.right().firstAxis();
+                    if (dir == moveDirection(Math::DForward))
+                        dir = crossed(dir, Vec3::PosZ);
+                    return dir;
+                }
                 case Math::DUp:
                     return Vec3::PosZ;
                 case Math::DDown:
