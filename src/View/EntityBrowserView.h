@@ -90,7 +90,7 @@ namespace TrenchBroom {
             void doReloadLayout(Layout& layout);
 
             bool dndEnabled();
-            wxDataObject* dndData(const Layout::Group::Row::Cell& cell);
+            wxString dndData(const Layout::Group::Row::Cell& cell);
 
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             

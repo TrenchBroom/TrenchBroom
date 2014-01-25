@@ -21,15 +21,19 @@
 
 namespace TrenchBroom {
     namespace View {
+        GenericDropSource* GenericDropSource::m_currentDropSource = NULL;
+        
         GenericDropSource::GenericDropSource(wxDataObject& data, wxWindow* window) :
-        wxDropSource(data, window, wxCursor(wxCURSOR_HAND), wxCursor(wxCURSOR_HAND), wxCursor(wxCURSOR_NO_ENTRY)) {
-            CurrentDropSource = this;
+        wxDropSource(data, window) {
+            m_currentDropSource = this;
         }
         
         GenericDropSource::~GenericDropSource() {
-            CurrentDropSource = NULL;
+            m_currentDropSource = NULL;
         }
 
-        GenericDropSource* CurrentDropSource = NULL;
+        GenericDropSource* GenericDropSource::getCurrentDropSource() {
+            return m_currentDropSource;
+        }
     }
 }

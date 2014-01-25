@@ -285,7 +285,7 @@ namespace TrenchBroom {
 
         void MapTreeView::OnTreeViewSize(wxSizeEvent& event) {
             const int scrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-            const int newWidth = std::max(0, m_tree->GetClientSize().x - scrollbarWidth);
+            const int newWidth = std::max(1, m_tree->GetClientSize().x - scrollbarWidth);
             m_tree->GetColumn(0)->SetWidth(newWidth);
             event.Skip();
         }

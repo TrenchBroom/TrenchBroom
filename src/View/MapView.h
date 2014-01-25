@@ -104,6 +104,7 @@ namespace TrenchBroom {
             BaseTool* m_dragReceiver;
             BaseTool* m_modalReceiver;
             BaseTool* m_dropReceiver;
+            BaseTool* m_savedDropReceiver;
             
             bool m_ignoreNextDrag;
             bool m_ignoreNextClick;

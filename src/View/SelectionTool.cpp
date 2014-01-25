@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches)
+            if (first.matches && hitAsObject(first.hit)->selected())
                 renderContext.setShowSelectionGuide();
         }
     }

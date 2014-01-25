@@ -213,13 +213,9 @@ namespace TrenchBroom {
                         int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                          */
 
-                        wxDataObject* dropData = dndData(*cell);
-                        if (dropData != NULL) {
-                            DropSource dropSource(*dropData, this);
-                            dropSource.DoDragDrop();
-                            
-                            delete dropData;
-                        }
+                        wxTextDataObject dropData(dndData(*cell));
+                        DropSource dropSource(dropData, this);
+                        dropSource.DoDragDrop();
                     }
                 } else {
                     if (m_layout.cellAt(x, y, &cell))
@@ -257,8 +253,8 @@ namespace TrenchBroom {
             virtual void doRender(Layout& layout, const float y, const float height) = 0;
             virtual void doLeftClick(Layout& layout, const float x, const float y) {}
             virtual bool dndEnabled() { return false; }
-            virtual wxImage* dndImage(const typename Layout::Group::Row::Cell& cell) { return NULL; }
-            virtual wxDataObject* dndData(const typename Layout::Group::Row::Cell& cell) { return NULL; }
+            virtual wxImage dndImage(const typename Layout::Group::Row::Cell& cell) { assert(false); return wxImage(); }
+            virtual wxString dndData(const typename Layout::Group::Row::Cell& cell) { assert(false); return ""; }
             virtual wxString tooltip(const typename Layout::Group::Row::Cell& cell) { return ""; }
         };
     }

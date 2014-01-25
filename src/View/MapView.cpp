@@ -86,6 +86,7 @@ namespace TrenchBroom {
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
         m_dropReceiver(NULL),
+        m_savedDropReceiver(NULL),
         m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
         m_lastFrameActivation(wxDateTime::Now()) {
@@ -351,6 +352,11 @@ namespace TrenchBroom {
             if (m_dropReceiver == NULL)
                 return;
 
+            // This is a workaround for a bug in wxWidgets 3.0.0 on GTK2, where a drag leave event
+            // is sent right before the drop event. So we save the drag receiver in an instance variable
+            // and if dragDrop() is called, it can use that variable to find out who the drop receiver is.
+            m_savedDropReceiver = m_dropReceiver;
+
             m_dropReceiver->dragLeave(m_inputState);
             m_createEntityTool->deactivate(m_inputState);
             m_dropReceiver = NULL;
@@ -358,12 +364,20 @@ namespace TrenchBroom {
         }
         
         bool MapView::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
-            if (m_dropReceiver == NULL)
+            if (m_dropReceiver == NULL && m_savedDropReceiver == NULL)
                 return false;
             
+            if (m_dropReceiver == NULL) {
+                m_dropReceiver = m_savedDropReceiver;
+                m_dropReceiver->activate(m_inputState); // GTK2 fix: has been deactivated by dragLeave()
+                m_dropReceiver->dragEnter(m_inputState, text);
+            }
+
+            updatePickResults(x, y);
             const bool success = m_dropReceiver->dragDrop(m_inputState);
             m_dropReceiver->deactivate(m_inputState);
             m_dropReceiver = NULL;
+            m_savedDropReceiver = NULL;
             Refresh();
             
             return success;

@@ -27,12 +27,14 @@ class wxWindow;
 namespace TrenchBroom {
     namespace View {
         class GenericDropSource : public wxDropSource {
+        private:
+            static GenericDropSource* m_currentDropSource;
         public:
             GenericDropSource(wxDataObject& data, wxWindow* window);
             ~GenericDropSource();
+            
+            static GenericDropSource* getCurrentDropSource();
         };
-
-        extern GenericDropSource* CurrentDropSource;
     }
 }
 

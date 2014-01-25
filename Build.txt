@@ -54,7 +54,7 @@ wxWidgets
 - Run sudo make install
 - Change into wxwidgets/build-debug
 - Run 
-  ../configure --enable-debug --disable-shared --with-opengl --with-gtk=2
+  ../configure --enable-debug --with-opengl --with-gtk=2
 - Run make
 - Run sudo make install
 

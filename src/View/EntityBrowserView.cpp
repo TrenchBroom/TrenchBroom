@@ -153,8 +153,10 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxDataObject* EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
-            return new wxTextDataObject("entity:" + cell.item().entityDefinition->name());
+        wxString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
+            static const String prefix("entity:");
+            const String name = cell.item().entityDefinition->name();
+            return wxString(prefix + name);
         }
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {

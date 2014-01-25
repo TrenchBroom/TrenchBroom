@@ -6,23 +6,30 @@ ELSE()
 ENDIF()
 
 # wxWidgets configuration
-IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-	SET(wxWidgets_USE_DEBUG)
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	SET(wxWidgets_USE_DEBUG ON)
+ 	SET(wxWidgets_USE_STATIC OFF)
+ELSE()
+	IF (WIN32)
+		SET(wxWidgets_USE_STATIC OFF)
+	ELSE()
+		SET(wxWidgets_USE_STATIC ON)
+	ENDIF()
 ENDIF()
 
-IF(NOT CMAKE_BUILD_TYPE MATCHES "Debug" AND NOT WINDOWS)
-	SET(wxWidgets_USE_STATIC)
-ENDIF()
-
-IF(wxWidgets_USE_STATIC)
-	MESSAGE(STATUS "Using static wxWidgets library")
-ENDIF()
-
-SET(wxWidgets_USE_UNICODE)
-SET(wxWidgets_USE_UNIVERSAL)
-SET(wxWidgets_USE_LIBS)
+SET(wxWidgets_USE_UNICODE ON)
+SET(wxWidgets_USE_UNIVERSAL ON)
+SET(wxWidgets_USE_LIBS ON)
 FIND_PACKAGE(wxWidgets REQUIRED gl core base adv)
 INCLUDE("${wxWidgets_USE_FILE}")
 
 # Remove QuickTime framework on OS X; it's not needed and produces a linker warning
 STRING(REPLACE "-framework QuickTime;" "" wxWidgets_LIBRARIES "${wxWidgets_LIBRARIES}")
+
+IF(wxWidgets_USE_STATIC)
+	MESSAGE(STATUS "Using static wxWidgets library")
+ENDIF()
+
+IF(wxWidgets_USE_DEBUG)
+	MESSAGE(STATUS "Using debug version of wxWidgets")
+ENDIF()

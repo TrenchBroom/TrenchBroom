@@ -95,8 +95,10 @@ namespace TrenchBroom {
             assert(m_entity != NULL);
             
             m_renderer.removeEntity(m_entity);
+            m_entity->setModel(NULL);
+            m_entity->setDefinition(NULL);
 
-            controller()->beginUndoableGroup();
+            controller()->beginUndoableGroup("Create " + m_entity->classname());
             controller()->deselectAll();
             controller()->addEntity(m_entity);
             controller()->selectObject(m_entity);

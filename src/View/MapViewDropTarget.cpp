@@ -18,7 +18,7 @@
  */
 
 #include "MapViewDropTarget.h"
-#include "View/GenericDropSource.h"
+#include "View/DragAndDrop.h"
 #include "View/MapView.h"
 
 #include <cassert>
@@ -32,29 +32,28 @@ namespace TrenchBroom {
         wxDragResult MapViewDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
             if (m_view->dragEnter(x, y, getDragText()))
                 return wxTextDropTarget::OnEnter(x, y, wxDragCopy);
-            else
-                return wxTextDropTarget::OnEnter(x, y, wxDragNone);
+            return wxTextDropTarget::OnEnter(x, y, wxDragNone);
         }
         
         wxDragResult MapViewDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
             if (m_view->dragMove(x, y, getDragText()))
                 return wxTextDropTarget::OnDragOver(x, y, wxDragCopy);
-            else
-                return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
+            return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
         }
         
         void MapViewDropTarget::OnLeave() {
-            wxTextDropTarget::OnLeave();
             m_view->dragLeave();
+            wxTextDropTarget::OnLeave();
         }
         
         bool MapViewDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
-            return m_view->dragDrop(x, y, getDragText());
+            return m_view->dragDrop(x, y, data.ToStdString());
         }
 
         String MapViewDropTarget::getDragText() const {
-            assert(CurrentDropSource != NULL);
-            const wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
+            wxDropSource* currentDropSource = DropSource::getCurrentDropSource();
+            assert(currentDropSource != NULL);
+            const wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(currentDropSource->GetDataObject());
             return dataObject->GetText().ToStdString();
         }
     }
