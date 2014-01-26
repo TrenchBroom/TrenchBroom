@@ -12,19 +12,35 @@ You'll need Visual Studio (only tested with 2010).
     - wxMSW-<version>_vc100_ReleasePDB.7z
     
   - Unpack all files into c:\wxWidgets-<version> so that "include" and "lib" directories are at the same level after unpacking.
-  - In this directory, rename lib/vc100 to lib/vc_dll
+  - In this directory, copy lib/vc100_dll to lib/vc_dll
+  - The directory layout should look like this:
+    wxWidgets-3.0.0
+      \include
+        \msvc
+          \wx
+        \wx
+          <wxwidgets header files>
+      \lib
+        \vc_dll
+          <wxwidgets libraries>
+        \vc100_dll
+          <same as vc_dll>
+
   - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
-  - If you want to run the binaries without using the installer, add %WXWIN% to your path. 
+  - If you want to run the binaries without using the installer, add %WXWIN% to your path. The relevant parts of my PATH variable look something like this:
+  C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc100_dll;
 - Download and install CMake for Windows (www.cmake.org)
+  - You might have to adapt the FindwxWidgets.cmake script in <cmake-install-dir>\share\cmake-2.8\Modules:
+    - Open <path_to_cmake>\share\cmake-2.8\Modules\FindwxWidgets.cmake in notepad.
+    - Find the definition of the variable PATH_SUFFIXES (should be around line 434).
     - Add wxWidgets-3.0.0 to the list of PATH_SUFFIXES.
-    - Adapt the find_library(WX_base${_DBG} NAMES lists for wxWidgets 3.0 by adding a name pattern with version number 30.
+  - Finally, add <path_to_cmake>\bin to your PATH environment variable if the installer hasn't done so already.
 - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
 - Create a new directory, e.g. "build", and change into it.
-  - You might have to adapt the FindwxWidgets.cmake script in <cmake-install-dir>\share\cmake-2.8\Modules:
 - Run the following two commands
   cmake .. -DCMAKE_BUILD_TYPE=Release
   cmake --build . --config Release
-  You can replace "Release" with "Debug" if you want to create a debug build.
+  You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
 
 
 ====== Linux ======
