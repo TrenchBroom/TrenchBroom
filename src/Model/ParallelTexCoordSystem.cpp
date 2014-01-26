@@ -66,6 +66,10 @@ namespace TrenchBroom {
             m_yAxis = rot * m_initialYAxis;
         }
 
+        void ParallelTexCoordSystem::compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
+            // todo
+        }
+
         bool ParallelTexCoordSystem::invertRotation(const Vec3& normal) {
             return false;
         }

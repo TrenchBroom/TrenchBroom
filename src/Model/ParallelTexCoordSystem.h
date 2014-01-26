@@ -25,6 +25,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttribs;
+        
         class ParallelTexCoordSystem {
         private:
             Vec3 m_initialXAxis;
@@ -40,6 +42,8 @@ namespace TrenchBroom {
             Vec3 projectedXAxis(const Vec3& normal) const;
             Vec3 projectedYAxis(const Vec3& normal) const;
             void update(const Vec3& normal, const float rotation);
+
+            void compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs);
 
             static bool invertRotation(const Vec3& normal);
         };

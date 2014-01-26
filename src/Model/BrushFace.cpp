@@ -133,12 +133,12 @@ namespace TrenchBroom {
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
         m_parent(NULL),
-        m_attribs(textureName),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
         m_side(NULL),
-        m_vertexCacheValid(false) {
+        m_vertexCacheValid(false),
+        m_attribs(textureName) {
             setPoints(point0, point1, point2);
         }
         

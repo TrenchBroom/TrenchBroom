@@ -110,7 +110,6 @@ namespace TrenchBroom {
             Brush* m_parent;
             BrushFace::Points m_points;
             Plane3 m_boundary;
-            BrushFaceAttribs m_attribs;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -118,6 +117,8 @@ namespace TrenchBroom {
             BrushFaceGeometry* m_side;
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
+        protected:
+            BrushFaceAttribs m_attribs;
         public:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
             virtual ~BrushFace();
@@ -327,12 +328,13 @@ namespace TrenchBroom {
             Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const {
                 const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
                 const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
-                const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() * safeXScale) + xOffset) / textureWidth);
-                const float y = static_cast<float>((point.dot(m_coordSystem.yAxis() * safeYScale) + yOffset) / textureHeight);
+                const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() / safeXScale) + xOffset) / textureWidth);
+                const float y = static_cast<float>((point.dot(m_coordSystem.yAxis() / safeYScale) + yOffset) / textureHeight);
                 return Vec2f(x, y);
             }
 
             void compensateTransformation(const Mat4x4& transformation) {
+                m_coordSystem.compensateTransformation(boundary().normal, center(), transformation, m_attribs);
             }
         };
     }

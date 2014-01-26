@@ -25,7 +25,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttribs;
         class ParaxialTexCoordSystem {
+        
         private:
             static const Vec3 BaseAxes[];
             
@@ -39,15 +41,19 @@ namespace TrenchBroom {
             Vec3 projectedXAxis(const Vec3& normal) const;
             Vec3 projectedYAxis(const Vec3& normal) const;
             void update(const Vec3& normal, float rotation);
-
+            
             static size_t planeNormalIndex(const Vec3& normal);
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis);
+            static void axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis);
+            
+            void compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs);
             
             static bool invertRotation(const Vec3& normal);
         private:
+            static Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation);
+            static Vec3 projectAxis(const Vec3& normal, const Vec3& axis);
             static void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angle, size_t planeNormIndex);
-            
-            Vec3 projectAxis(const Vec3& normal, const Vec3& axis) const;
+            static Vec3 safeScaleAxis(const Vec3& axis, float factor);
         };
     }
 }
