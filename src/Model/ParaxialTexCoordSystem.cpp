@@ -108,9 +108,9 @@ namespace TrenchBroom {
             const size_t newIndex = planeNormalIndex(newFaceNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
             
-            // project the transformed texture axes onto the new texture plane
-            newXAxis = projectAxis(newFaceNormal, newXAxis);
-            newYAxis = projectAxis(newFaceNormal, newYAxis);
+            // project the transformed texture axes onto the new texture projection plane
+            newXAxis = projectAxis(newProjectionAxis, newXAxis);
+            newYAxis = projectAxis(newProjectionAxis, newYAxis);
             
             // the new scaling factors are the lengths of the transformed texture axes
             float newXScale = newXAxis.length();
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             newRotation = Math::correct(newRotation);
             
             // apply the rotation to the new base axes
-            rotateAxes(newXAxis, newYAxis, rad, newIndex);
+            rotateAxes(newBaseXAxis, newBaseYAxis, rad, newIndex);
             
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
             if (newBaseXAxis.dot(newXAxis) < 0.0)
@@ -151,8 +151,8 @@ namespace TrenchBroom {
             update(newFaceNormal, newRotation);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newCenterTexCoords(newCenter.dot(m_xAxis * attribs.xScale()),
-                                           newCenter.dot(m_yAxis * attribs.yScale()));
+            const Vec2f newCenterTexCoords(newCenter.dot(safeScaleAxis(m_xAxis, newXScale)),
+                                           newCenter.dot(safeScaleAxis(m_yAxis, newYScale)));
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
