@@ -267,9 +267,9 @@ namespace TrenchBroom {
             assert(m_colorHistory == NULL);
             
             m_panel = new wxPanel(parent);
-            wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, _("Color range"));
-            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, _("Float [0,1]"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, _("Byte [0,255]"));
+            wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
+            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
             m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
             

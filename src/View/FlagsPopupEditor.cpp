@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 flagsPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
                 flagsPanel->SetBackgroundColour(*wxWHITE);
                 
-                m_flagsTxt = new wxStaticText(flagsPanel, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
+                m_flagsTxt = new wxStaticText(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
                 
                 wxSizer* flagsPanelSizer = new wxBoxSizer(wxVERTICAL);
                 flagsPanelSizer->AddStretchSpacer();
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             }
             
             m_button = new PopupButton(this, buttonLabel, PopupButton::Right);
-            m_button->SetToolTip(_("Click to edit flags"));
+            m_button->SetToolTip("Click to edit flags");
             
             wxPanel* editorContainer = new wxPanel(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             
             if (!IsEnabled()) {
                 m_flagsTxt->SetForegroundColour(Colors::disabledText());
-                m_flagsTxt->SetLabel(_("n/a"));
+                m_flagsTxt->SetLabel("n/a");
                 m_flagsTxt->UnsetToolTip();
                 return;
             }

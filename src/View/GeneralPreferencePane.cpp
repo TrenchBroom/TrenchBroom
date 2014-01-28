@@ -177,16 +177,16 @@ namespace TrenchBroom {
         }
         
         wxWindow* GeneralPreferencePane::createViewPreferences() {
-            wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, _("View"));
+            wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, "View");
             
-            wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, _("Brightness"));
+            wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
             m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, _("Grid"));
+            wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* textureBrowserFakeLabel = new wxStaticText(viewBox, wxID_ANY, _(""));
-            wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, _("Texture Browser Icon Size"));
+            wxStaticText* textureBrowserFakeLabel = new wxStaticText(viewBox, wxID_ANY, "");
+            wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Browser Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
             
@@ -215,25 +215,25 @@ namespace TrenchBroom {
         }
         
         wxWindow* GeneralPreferencePane::createMousePreferences() {
-            wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, _("Mouse"));
+            wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, "Mouse");
             
-            wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, _("Mouse Look"));
+            wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Look");
             m_lookSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, _(""));
-            m_invertLookHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert X Axis"));
-            m_invertLookVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert Y Axis"));
+            wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            m_invertLookHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert X Axis");
+            m_invertLookVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
             wxSizer* invertLookSizer = new wxBoxSizer(wxHORIZONTAL);
             invertLookSizer->Add(m_invertLookHAxisCheckBox);
             invertLookSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertLookSizer->Add(m_invertLookVAxisCheckBox);
             
-            wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, _("Mouse Pan"));
+            wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Pan");
             m_panSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
             wxStaticText* invertPanFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertPanHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert X Axis"));
-            m_invertPanVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert Y Axis"));
+            m_invertPanHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert X Axis");
+            m_invertPanVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
             wxSizer* invertPanSizer = new wxBoxSizer(wxHORIZONTAL);
             invertPanSizer->Add(m_invertPanHAxisCheckBox);
             invertPanSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
@@ -243,9 +243,9 @@ namespace TrenchBroom {
             m_moveSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             wxStaticText* altMoveOptionsFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
             wxStaticText* moveInCursorDirFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Alt+MMB drag to move camera"));
-            m_invertAltMoveAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Invert Z axis in Alt+MMB drag"));
-            m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, wxID_ANY, _("Move camera towards cursor"));
+            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Alt+MMB drag to move camera");
+            m_invertAltMoveAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Z axis in Alt+MMB drag");
+            m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Move camera towards cursor");
             wxSizer* altMoveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
             altMoveOptionsSizer->Add(m_enableAltMoveCheckBox);
             altMoveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);

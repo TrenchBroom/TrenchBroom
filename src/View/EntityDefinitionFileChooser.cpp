@@ -68,9 +68,9 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
-            const wxString pathWxStr = ::wxFileSelector(_("Load Entity Definition File"),
+            const wxString pathWxStr = ::wxFileSelector("Load Entity Definition File",
                                                         wxEmptyString, wxEmptyString, wxEmptyString,
-                                                        _("Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def"),
+                                                        "Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def",
                                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (pathWxStr.empty())
                 return;
@@ -83,12 +83,12 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, _("Builtin"));
+            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
             m_builtin = new wxListBox(this, wxID_ANY);
             
-            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, _("External"));
-            m_external = new wxStaticText(this, wxID_ANY, _("use builtin"), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            m_chooseExternal = new wxButton(this, wxID_ANY, _("Browse..."));
+            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, "External");
+            m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...");
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
             externalSizer->Add(m_external, 1, wxEXPAND);
@@ -163,7 +163,7 @@ namespace TrenchBroom {
                 const size_t index = VectorUtils::indexOf(paths, spec.path());
                 if (index < paths.size())
                     m_builtin->SetSelection(static_cast<int>(index));
-                m_external->SetLabel(_("use builtin"));
+                m_external->SetLabel("use builtin");
             } else {
                 m_builtin->DeselectAll();
                 m_external->SetLabel(spec.fullPath().asString());

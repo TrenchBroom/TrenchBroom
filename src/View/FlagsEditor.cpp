@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
         void FlagsEditor::setCheckBoxCount(const size_t count) {
             while (count > m_checkBoxes.size()) {
-                wxCheckBox* checkBox = new wxCheckBox(this, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
+                wxCheckBox* checkBox = new wxCheckBox(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
                 checkBox->Bind(wxEVT_COMMAND_CHECKBOX_CLICKED, &FlagsEditor::OnCheckBoxClicked, this);
                 m_checkBoxes.push_back(checkBox);
             }

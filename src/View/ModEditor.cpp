@@ -177,8 +177,8 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, _("Available"));
-            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, _("Enabled"));
+            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, "Available");
+            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, "Enabled");
 #if defined __APPLE__
             availableModListTitle->SetFont(*wxSMALL_FONT);
             enabledModListTitle->SetFont(*wxSMALL_FONT);
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
-            m_filterBox->SetToolTip(_("Filter the list of available mods"));
+            m_filterBox->SetToolTip("Filter the list of available mods");
             
             const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
             const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
@@ -196,13 +196,13 @@ namespace TrenchBroom {
             const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
             
             m_addModsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
-            m_addModsButton->SetToolTip(_("Add the selected available mods to the list of enabled mods"));
+            m_addModsButton->SetToolTip("Add the selected available mods to the list of enabled mods");
             m_removeModsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
-            m_removeModsButton->SetToolTip(_("Remove the selected items from the list of enabled mods"));
+            m_removeModsButton->SetToolTip("Remove the selected items from the list of enabled mods");
             m_moveModUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
-            m_moveModUpButton->SetToolTip(_("Move the selected mod up in the list of enabled mods"));
+            m_moveModUpButton->SetToolTip("Move the selected mod up in the list of enabled mods");
             m_moveModDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
-            m_moveModDownButton->SetToolTip(_("Move the selected mod down in the list of enabled mods"));
+            m_moveModDownButton->SetToolTip("Move the selected mod down in the list of enabled mods");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_addModsButton);

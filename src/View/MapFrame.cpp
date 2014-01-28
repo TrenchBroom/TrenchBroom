@@ -68,7 +68,7 @@ namespace TrenchBroom {
         };
         
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, _("")),
+        wxFrame(NULL, wxID_ANY, ""),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         m_mapView(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(NULL, wxID_ANY, _("")),
+        wxFrame(NULL, wxID_ANY, ""),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -350,7 +350,7 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
-            const wxString string = wxGetTextFromUser(_("Enter a comma- or space separated list of line numbers."), _("Select by Line Numbers"), _(""), this);
+            const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
             if (string.empty())
                 return;
             
@@ -1154,7 +1154,7 @@ namespace TrenchBroom {
         bool MapFrame::confirmOrDiscardChanges() {
             if (!m_document->modified())
                 return true;
-            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", _("TrenchBroom"), wxYES_NO | wxCANCEL, this);
+            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", "TrenchBroom", wxYES_NO | wxCANCEL, this);
             switch (result) {
                 case wxYES:
                     return saveDocument();
@@ -1186,7 +1186,7 @@ namespace TrenchBroom {
         
         bool MapFrame::saveDocumentAs() {
             try {
-                wxFileDialog saveDialog(this, _("Save map file"), "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                wxFileDialog saveDialog(this, "Save map file", "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
                 if (saveDialog.ShowModal() == wxID_CANCEL)
                     return false;
                 

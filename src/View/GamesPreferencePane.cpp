@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
-            const wxString pathStr = ::wxDirSelector(_("Choose game directory"), wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+            const wxString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (!pathStr.empty()) {
                 const IO::Path gamePath(pathStr.ToStdString());
                 const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             wxPanel* container = new wxPanel(this, wxID_ANY);
             container->SetBackgroundColour(::wxSystemSettings::GetColour(wxSYS_COLOUR_BTNHIGHLIGHT));
             
-            wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, _("Select a game from the list: "));
+            wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, "Select a game from the list: ");
             
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList gameList = gameFactory.gameList();
@@ -103,11 +103,11 @@ namespace TrenchBroom {
         }
         
         wxWindow* GamesPreferencePane::createGamePreferences() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, _("Game Preferences"));
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "Game Preferences");
             
-            wxStaticText* gamePathLabel = new wxStaticText(box, wxID_ANY, _("Game Path"));
-            m_gamePathValueLabel = new wxStaticText(box, wxID_ANY, _("Not set"));
-            m_chooseGamePathButton = new wxButton(box, wxID_ANY, _("Choose..."));
+            wxStaticText* gamePathLabel = new wxStaticText(box, wxID_ANY, "Game Path");
+            m_gamePathValueLabel = new wxStaticText(box, wxID_ANY, "Not set");
+            m_chooseGamePathButton = new wxButton(box, wxID_ANY, "Choose...");
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);

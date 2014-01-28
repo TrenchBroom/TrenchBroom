@@ -66,8 +66,8 @@ m_shiftIncrement(0.0),
 m_ctrlIncrement(0.0),
 m_value(0.0),
 m_digits(0),
-m_format(_("%g")) {
-    m_text = new wxTextCtrl(this, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_RIGHT);
+m_format("%g") {
+    m_text = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_RIGHT);
     m_spin = new wxSpinButton(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_VERTICAL);
 
     m_text->SetSizeHints(wxDefaultCoord, wxDefaultCoord);
@@ -134,7 +134,7 @@ void SpinControl::SetDigits(unsigned int digits) {
     if (digits == m_digits)
         return;
     m_digits = digits;
-    m_format.Printf(_("%6.%%0uf"), m_digits);
+    m_format.Printf("%6.%%0uf", m_digits);
     DoSetValue(m_value);
 }
 

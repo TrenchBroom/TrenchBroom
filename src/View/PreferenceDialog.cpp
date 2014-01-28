@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         bool PreferenceDialog::Create() {
-            if (!wxDialog::Create(NULL, wxID_ANY, _("Preferences")))
+            if (!wxDialog::Create(NULL, wxID_ANY, "Preferences"))
                 return false;
             
             createGui();
@@ -122,9 +122,9 @@ namespace TrenchBroom {
             const wxBitmap keyboardImage = IO::loadImageResource(IO::Path("images/KeyboardPreferences.png"));
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->AddCheckTool(PPGames, _("Games"), gamesImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPGeneral, _("General"), generalImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPKeyboard, _("Keyboard"), keyboardImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGames, "Games", gamesImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGeneral, "General", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPKeyboard, "Keyboard", keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
             m_paneContainer = new wxPanel(this);

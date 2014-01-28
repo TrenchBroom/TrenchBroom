@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent) {
-            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, _("Texture Collections"), wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
+            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, "Texture Collections", wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
 
 #if defined _WIN32
             // this is a hack to prevent the pane having the wrong background color on Windows 7

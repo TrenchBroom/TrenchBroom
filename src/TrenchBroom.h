@@ -23,6 +23,7 @@
 #include "VecMath.h"
 
 typedef double FloatType;
+typedef BBox<FloatType, 2> BBox2;
 typedef BBox<FloatType, 3> BBox3;
 typedef Vec<FloatType, 3> Vec3;
 typedef Vec<FloatType, 2> Vec2;

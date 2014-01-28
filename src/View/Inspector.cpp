@@ -37,10 +37,10 @@ namespace TrenchBroom {
             m_faceInspector = new FaceInspector(m_notebook, document, controller, resources);
             m_viewInspector = new ViewInspector(m_notebook);
             
-            m_notebook->AddPage(m_mapInspector, _("Map"));
-            m_notebook->AddPage(m_entityInspector, _("Entity"));
-            m_notebook->AddPage(m_faceInspector, _("Face"));
-            m_notebook->AddPage(m_viewInspector, _("View"));
+            m_notebook->AddPage(m_mapInspector, "Map");
+            m_notebook->AddPage(m_entityInspector, "Entity");
+            m_notebook->AddPage(m_faceInspector, "Face");
+            m_notebook->AddPage(m_viewInspector, "View");
             
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(m_notebook, 1, wxEXPAND);

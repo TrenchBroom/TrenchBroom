@@ -38,7 +38,7 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
 
         WelcomeFrame::WelcomeFrame() :
-        wxFrame(NULL, wxID_ANY, _("Welcome to TrenchBroom"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        wxFrame(NULL, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             createGui();
             bindEvents();
             Centre();
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             wxPanel* container = new wxPanel(this);
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
-            m_recentDocumentListBox->SetToolTip(_("Double click on a map to open it"));
+            m_recentDocumentListBox->SetToolTip("Double click on a map to open it");
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, 0, wxEXPAND);
@@ -111,11 +111,11 @@ namespace TrenchBroom {
             
             const wxBitmap appIconImage = IO::loadImageResource(IO::Path("images/AppIcon.png"));
             wxStaticBitmap* appIcon = new wxStaticBitmap(appPanel, wxID_ANY, appIconImage);
-            wxStaticText* appName = new wxStaticText(appPanel, wxID_ANY, _("TrenchBroom"));
+            wxStaticText* appName = new wxStaticText(appPanel, wxID_ANY, "TrenchBroom");
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
             wxStaticLine* appLine = new wxStaticLine(appPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, _("A Modern Level Editor"));
-            wxString versionStr(_("Version 2.0"));
+            wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, "A Modern Level Editor");
+            wxString versionStr("Version 2.0");
             // versionStr << VERSIONSTR;
             wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);
             version->SetFont(version->GetFont().Smaller());
@@ -129,10 +129,10 @@ namespace TrenchBroom {
             innerSizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
             innerSizer->AddStretchSpacer();
             
-            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, _("Create document..."));
-            m_createNewDocumentButton->SetToolTip(_("Create a new map document"));
-            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, _("Open document..."));
-            m_openOtherDocumentButton->SetToolTip(_("Open an existing map document"));
+            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "Create document...");
+            m_createNewDocumentButton->SetToolTip("Create a new map document");
+            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, "Open document...");
+            m_openOtherDocumentButton->SetToolTip("Open an existing map document");
             
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);

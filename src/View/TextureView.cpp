@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace View {
         TextureView::TextureView(wxWindow* parent, wxWindowID windowId, Renderer::RenderResources& resources) :
-        wxGLCanvas(parent, windowId, &resources.glAttribs().front(), wxDefaultPosition, wxDefaultSize),
+        wxGLCanvas(parent, windowId, &resources.glAttribs().front()),
         m_resources(resources),
         m_glContext(new wxGLContext(this, resources.sharedContext())),
         m_texture(NULL) {

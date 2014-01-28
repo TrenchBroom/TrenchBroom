@@ -32,7 +32,7 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(ChoosePathTypeDialog, wxDialog)
         
         ChoosePathTypeDialog::ChoosePathTypeDialog() :
-        wxDialog(NULL, wxID_ANY, _("Path Type")),
+        wxDialog(NULL, wxID_ANY, "Path Type"),
         m_absPath(""),
         m_docRelativePath(""),
         m_gameRelativePath(""),
@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         
         ChoosePathTypeDialog::ChoosePathTypeDialog(wxWindow* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath) :
-        wxDialog(parent, wxID_ANY, _("Path Type")),
+        wxDialog(parent, wxID_ANY, "Path Type"),
         m_absPath(absPath),
         m_docRelativePath(makeRelativePath(absPath, docPath.deleteLastComponent())),
         m_gameRelativePath(makeRelativePath(absPath, gamePath)),
@@ -51,29 +51,29 @@ namespace TrenchBroom {
         }
         
         bool ChoosePathTypeDialog::Create() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, _(""));
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, _("Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path."));
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "");
+            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
             
-            m_absRadio = new wxRadioButton(box, wxID_ANY, _("Absolute"));
+            m_absRadio = new wxRadioButton(box, wxID_ANY, "Absolute");
             m_absRadio->SetFont(m_absRadio->GetFont().MakeBold());
             m_absRadio->SetValue(true);
             wxStaticText* absolutePathText = new wxStaticText(box, wxID_ANY, m_absPath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_docRelativeRadio = new wxRadioButton(box, wxID_ANY, _("Relative to map file"));
+            m_docRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to map file");
             m_docRelativeRadio->SetFont(m_docRelativeRadio->GetFont().MakeBold());
             if (m_docRelativePath.isEmpty())
                 m_docRelativeRadio->Enable(false);
-            wxStaticText* mapRelativePathText = new wxStaticText(box, wxID_ANY, m_docRelativePath.isEmpty() ? _("Please save this map first.") : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* mapRelativePathText = new wxStaticText(box, wxID_ANY, m_docRelativePath.isEmpty() ? "Please save this map first." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_appRelativeRadio = new wxRadioButton(box, wxID_ANY, _("Relative to application executable"));
+            m_appRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to application executable");
             m_appRelativeRadio->SetFont(m_appRelativeRadio->GetFont().MakeBold());
             wxStaticText* appRelativePathText = new wxStaticText(box, wxID_ANY, m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_gameRelativeRadio = new wxRadioButton(box, wxID_ANY, _("Relative to game directory"));
+            m_gameRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to game directory");
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->Enable(false);
             m_gameRelativeRadio->SetFont(m_gameRelativeRadio->GetFont().MakeBold());
-            wxStaticText* gameRelativePathText = new wxStaticText(box, wxID_ANY, m_gameRelativePath.isEmpty() ? _("Please set the game path first.") : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* gameRelativePathText = new wxStaticText(box, wxID_ANY, m_gameRelativePath.isEmpty() ? "Please set the game path first." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
 #if defined __APPLE__
             absolutePathText->SetFont(*wxSMALL_FONT);

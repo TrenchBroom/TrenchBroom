@@ -1103,11 +1103,11 @@ namespace TrenchBroom {
             
             wxMenu menu;
             menu.SetEventHandler(this);
-            menu.Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, _("Move Brushes to..."));
-            menu.Append(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, _("Move Brushes to World"));
+            menu.Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, "Move Brushes to...");
+            menu.Append(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
             menu.AppendSeparator();
-            menu.AppendSubMenu(makeEntityGroupsMenu(pointGroups, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem), _("Create Point Entity"));
-            menu.AppendSubMenu(makeEntityGroupsMenu(brushGroups, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem), _("Create Brush Entity"));
+            menu.AppendSubMenu(makeEntityGroupsMenu(pointGroups, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem), "Create Point Entity");
+            menu.AppendSubMenu(makeEntityGroupsMenu(brushGroups, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
             
             menu.UpdateUI(this);
             PopupMenu(&menu);

@@ -58,10 +58,10 @@ namespace TrenchBroom {
                 createDirectory(Path("anotherDir"));
                 createDirectory(Path("anotherDir/subDirTest"));
 
-                createFile(Path("test.txt"), _("some content"));
-                createFile(Path("test2.map"), _("//test file\n{}"));
-                createFile(Path("anotherDir/subDirTest/test2.map"), _("//sub dir test file\n{}"));
-                createFile(Path("anotherDir/test3.map"), _("//yet another test file\n{}"));
+                createFile(Path("test.txt"), "some content");
+                createFile(Path("test2.map"), "//test file\n{}");
+                createFile(Path("anotherDir/subDirTest/test2.map"), "//sub dir test file\n{}");
+                createFile(Path("anotherDir/test3.map"), "//yet another test file\n{}");
             }
             
             void createDirectory(const Path& path) {

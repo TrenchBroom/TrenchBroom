@@ -52,7 +52,7 @@ namespace TrenchBroom {
             assert(m_comboBox == NULL);
             
             m_panel = new wxPanel(parent);
-            wxStaticText* infoText = new wxStaticText(m_panel, wxID_ANY, _("Select a choice option:"));
+            wxStaticText* infoText = new wxStaticText(m_panel, wxID_ANY, "Select a choice option:");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif

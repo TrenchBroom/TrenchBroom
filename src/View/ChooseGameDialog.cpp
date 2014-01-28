@@ -33,14 +33,14 @@
 namespace TrenchBroom {
     namespace View {
         String ChooseGameDialog::ShowNewDocument(wxWindow* parent) {
-            ChooseGameDialog dialog(parent, _("Select Game"), _("Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively."));
+            ChooseGameDialog dialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
             if (dialog.ShowModal() == wxID_OK)
                 return dialog.selectedGameName();
             return "";
         }
         
         String ChooseGameDialog::ShowOpenDocument(wxWindow* parent) {
-            ChooseGameDialog dialog(parent, _("Select Game"), _("TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK."));
+            ChooseGameDialog dialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
             if (dialog.ShowModal() == wxID_OK)
                 return dialog.selectedGameName();
             return "";
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
         
         ChooseGameDialog::ChooseGameDialog(wxWindow* parent, const wxString& title, const wxString& infoText) :
-        wxDialog(parent, wxID_ANY, _("Create New Map")) {
+        wxDialog(parent, wxID_ANY, "Create New Map") {
             createGui(title, infoText);
             bindEvents();
             bindObservers();
@@ -107,11 +107,11 @@ namespace TrenchBroom {
             wxStaticText* info = new wxStaticText(infoPanel, wxID_ANY, infoText);
             info->Wrap(250);
             
-            wxStaticText* setupMsg = new wxStaticText(infoPanel, wxID_ANY, _("To set up the game paths, click on the button below to open the preferences dialog."));
+            wxStaticText* setupMsg = new wxStaticText(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
             setupMsg->Wrap(250);
             
-            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, _("Open Preferences..."));
-            m_openPreferencesButton->SetToolTip(_("Open the preferences dialog to edit game paths"));
+            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open Preferences...");
+            m_openPreferencesButton->SetToolTip("Open the preferences dialog to edit game paths");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         
         wxPanel* ChooseGameDialog::createGameList(wxWindow* parent) {
             m_gameListBox = new GameListBox(parent);
-            m_gameListBox->SetToolTip(_("Double click on a game to select it"));
+            m_gameListBox->SetToolTip("Double click on a game to select it");
             return m_gameListBox;
         }
         

@@ -70,7 +70,7 @@ namespace TrenchBroom {
 
             wxString GetColumnType(const unsigned int col) const {
                 assert(col == 0);
-                return _("string");
+                return "string";
             }
 
             bool IsContainer(const wxDataViewItem& item) const {

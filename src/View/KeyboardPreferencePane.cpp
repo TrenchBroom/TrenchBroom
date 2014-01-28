@@ -294,7 +294,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            return _("");
+            return "";
         }
 
         void KeyboardGridTable::SetValue(int row, int col, const wxString& value) {
@@ -354,7 +354,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            return _("");
+            return "";
         }
 
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
@@ -415,8 +415,8 @@ namespace TrenchBroom {
         }
 
         wxStaticBox* KeyboardPreferencePane::createMenuShortcutBox() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, _("Menu Shortcuts"));
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, _("Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut."));
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "Menu Shortcuts");
+            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
@@ -482,7 +482,7 @@ namespace TrenchBroom {
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {
-                wxMessageBox(_("Please fix all conflicting shortcuts (highlighted in red)."), _("Error"), wxOK, this);
+                wxMessageBox("Please fix all conflicting shortcuts (highlighted in red).", "Error", wxOK, this);
                 return false;
             }
             return true;

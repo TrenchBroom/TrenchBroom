@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
-            const wxString pathWxStr = ::wxFileSelector(_("Load Texture Collection"), wxEmptyString, wxEmptyString, wxEmptyString, _(""), wxFD_OPEN);
+            const wxString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
             if (pathWxStr.empty())
                 return;
             
@@ -158,13 +158,13 @@ namespace TrenchBroom {
             const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
             
             m_addTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
-            m_addTextureCollectionsButton->SetToolTip(_("Add texture collections from the file system"));
+            m_addTextureCollectionsButton->SetToolTip("Add texture collections from the file system");
             m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
-            m_removeTextureCollectionsButton->SetToolTip(_("Remove the selected texture collection(s)"));
+            m_removeTextureCollectionsButton->SetToolTip("Remove the selected texture collection(s)");
             m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
-            m_moveTextureCollectionUpButton->SetToolTip(_("Move the selected texture collection up in the list"));
+            m_moveTextureCollectionUpButton->SetToolTip("Move the selected texture collection up in the list");
             m_moveTextureCollectionDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
-            m_moveTextureCollectionDownButton->SetToolTip(_("Move the selected texture collection down in the list"));
+            m_moveTextureCollectionDownButton->SetToolTip("Move the selected texture collection down in the list");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_addTextureCollectionsButton);

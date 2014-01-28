@@ -163,10 +163,10 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            m_addPropertyButton = new wxButton(this, wxID_ANY, _("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_addPropertyButton->SetToolTip(_("Add a new property"));
-            m_removePropertiesButton = new wxButton(this, wxID_ANY, _("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_removePropertiesButton->SetToolTip(_("Remove the selected properties"));
+            m_addPropertyButton = new wxButton(this, wxID_ANY, "+", wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_addPropertyButton->SetToolTip("Add a new property");
+            m_removePropertiesButton = new wxButton(this, wxID_ANY, "-", wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_removePropertiesButton->SetToolTip("Remove the selected properties");
             
             wxSizer* propertyViewButtonsSizer = new wxBoxSizer(wxVERTICAL);
             propertyViewButtonsSizer->Add(m_addPropertyButton, 0, wxEXPAND);
