@@ -116,52 +116,6 @@ namespace TrenchBroom {
             return f - snap(f);
         }
         
-        Vec3 Grid::snap(const Vec3& p) const {
-            if (!snap())
-                return p;
-            return Vec3(snap(p.x()),
-                        snap(p.y()),
-                        snap(p.z()));
-        }
-        
-        Vec3 Grid::snapUp(const Vec3& p, const bool skip) const {
-            if (!snap())
-                return p;
-            return Vec3(snapUp(p.x()),
-                        snapUp(p.y()),
-                        snapUp(p.z()));
-        }
-        
-        Vec3 Grid::snapDown(const Vec3& p, const bool skip) const {
-            if (!snap())
-                return p;
-            return Vec3(snapDown(p.x()),
-                        snapDown(p.y()),
-                        snapDown(p.z()));
-        }
-        
-        Vec3 Grid::snapTowards(const Vec3& p, const Vec3& d, const bool skip) const {
-            if (!snap())
-                return p;
-            Vec3 result;
-            if (    Math::pos(d.x()))    result[0] = snapUp(p.x(), skip);
-            else if(Math::neg(d.x()))    result[0] = snapDown(p.x(), skip);
-            else                                    result[0] = snap(p.x());
-            if (    Math::pos(d.y()))    result[1] = snapUp(p.y(), skip);
-            else if(Math::neg(d.y()))    result[1] = snapDown(p.y(), skip);
-            else                                    result[1] = snap(p.y());
-            if (    Math::pos(d.z()))    result[2] = snapUp(p.z(), skip);
-            else if(Math::neg(d.z()))    result[2] = snapDown(p.z(), skip);
-            else                                    result[2] = snap(p.z());
-            return result;
-        }
-        
-        Vec3 Grid::offset(const Vec3& p) const {
-            if (!snap())
-                return Vec3::Null;
-            return p - snap(p);
-        }
-        
         Vec3 Grid::snap(const Vec3& p, const Plane3& onPlane) const {
             Vec3 result;
             switch(onPlane.normal.firstComponent()) {

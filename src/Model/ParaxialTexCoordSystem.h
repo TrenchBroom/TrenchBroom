@@ -22,11 +22,12 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/TexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttribs;
-        class ParaxialTexCoordSystem {
+        class ParaxialTexCoordSystem : public TexCoordSystem {
         
         private:
             static const Vec3 BaseAxes[];
@@ -36,24 +37,24 @@ namespace TrenchBroom {
         public:
             ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
 
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
-            Vec3 projectedXAxis(const Vec3& normal) const;
-            Vec3 projectedYAxis(const Vec3& normal) const;
-            void update(const Vec3& normal, float rotation);
-            
             static size_t planeNormalIndex(const Vec3& normal);
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis);
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis);
-            
-            void compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs);
-            
-            static bool invertRotation(const Vec3& normal);
         private:
-            static Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation);
-            static Vec3 projectAxis(const Vec3& normal, const Vec3& axis);
-            static void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angle, size_t planeNormIndex);
-            static Vec3 safeScaleAxis(const Vec3& axis, float factor);
+            TexCoordSystem* doClone() const;
+
+            const Vec3& getXAxis() const;
+            const Vec3& getYAxis() const;
+            bool isRotationInverted(const Vec3& normal) const;
+
+            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs, const Assets::Texture* texture) const;
+            void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs);
+            void doUpdate(const Vec3& normal, float rotation);
+            void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
+        private:
+            Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const;
+            void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angle, size_t planeNormIndex) const;
+            Vec3 safeScaleAxis(const Vec3& axis, float factor) const;
         };
     }
 }

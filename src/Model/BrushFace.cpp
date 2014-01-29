@@ -26,6 +26,7 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/PlanePointFinder.h"
+#include "Model/TexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -131,17 +132,18 @@ namespace TrenchBroom {
 
         const String BrushFace::NoTextureName = "__TB_empty";
         
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) :
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
         m_parent(NULL),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
+        m_texCoordSystem(texCoordSystem),
         m_side(NULL),
         m_vertexCacheValid(false),
         m_attribs(textureName) {
+            assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
         }
-        
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = Vec3::Null;
@@ -149,13 +151,15 @@ namespace TrenchBroom {
             m_lineNumber = 0;
             m_lineCount = 0;
             m_selected = false;
+            delete m_texCoordSystem;
+            m_texCoordSystem = NULL;
             m_side = NULL;
             m_cachedVertices.clear();
             m_vertexCacheValid = false;
         }
         
         BrushFace* BrushFace::clone() const {
-            BrushFace* result = doClone();
+            BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
             result->setAttributes(*this);
             result->setFilePosition(m_lineNumber, m_lineCount);
             if (m_selected)
@@ -291,7 +295,7 @@ namespace TrenchBroom {
             if (rotation == m_attribs.rotation())
                 return;
             m_attribs.setRotation(rotation);
-            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            m_texCoordSystem->update(m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
         
@@ -340,21 +344,18 @@ namespace TrenchBroom {
         }
 
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
-            const Vec2f offset = textureOffsetsForMove(m_boundary.normal, up, right, direction, distance);
-            setXOffset(xOffset() + offset.x());
-            setYOffset(yOffset() + offset.y());
+            m_texCoordSystem->moveTexture(m_boundary.normal, up, right, direction, distance, m_attribs);
         }
 
         void BrushFace::rotateTexture(const float angle) {
-            const float actualAngle = rotationAngle(m_boundary.normal, angle);
-            setRotation(rotation() + actualAngle);
+            m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attribs);
         }
 
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
             if (lockTexture)
-                compensateTransformation(transform);
+                m_texCoordSystem->compensate(m_boundary.normal, center(), transform, m_attribs);
             
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
@@ -418,6 +419,14 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        Vec2 BrushFace::convertToTexCoordSystem(const Vec3& point) const {
+            return m_texCoordSystem->convertTo(point);
+        }
+
+        Vec3 BrushFace::convertToWorldCoordSystem(const Vec2& point) const {
+            return m_texCoordSystem->convertFrom(m_boundary, point);
+        }
+
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
             return m_side->edges;
@@ -475,7 +484,7 @@ namespace TrenchBroom {
         }
         
         void BrushFace::invalidate() {
-            updateTextureCoordinateSystem(m_boundary.normal, m_attribs.rotation());
+            m_texCoordSystem->update(m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
 
@@ -571,35 +580,19 @@ namespace TrenchBroom {
             m_cachedVertices.clear();
             
             const Assets::Texture* texture = m_attribs.texture();
-            const float xOffset = m_attribs.xOffset();
-            const float yOffset = m_attribs.yOffset();
-            const float xScale = m_attribs.xScale();
-            const float yScale = m_attribs.yScale();
-            const size_t textureWidth = texture != NULL ? texture->width() : 1;
-            const size_t textureHeight = texture != NULL ? texture->height() : 1;
-            
             const BrushVertexList& vertices = m_side->vertices;
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
             
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[0]->position,
-                                                                     xOffset, yOffset,
-                                                                     xScale, yScale,
-                                                                     textureWidth, textureHeight)));
+                                                  m_texCoordSystem->getTexCoords(vertices[0]->position, m_attribs, texture)));
                 m_cachedVertices.push_back(Vertex(vertices[i]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[i]->position,
-                                                                     xOffset, yOffset,
-                                                                     xScale, yScale,
-                                                                     textureWidth, textureHeight)));
+                                                  m_texCoordSystem->getTexCoords(vertices[i]->position, m_attribs, texture)));
                 m_cachedVertices.push_back(Vertex(vertices[i+1]->position,
                                                   m_boundary.normal,
-                                                  textureCoordinates(vertices[i+1]->position,
-                                                                     xOffset, yOffset,
-                                                                     xScale, yScale,
-                                                                     textureWidth, textureHeight)));
+                                                  m_texCoordSystem->getTexCoords(vertices[i+1]->position, m_attribs, texture)));
             }
             m_vertexCacheValid = true;
         }

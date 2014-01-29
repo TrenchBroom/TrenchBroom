@@ -54,11 +54,57 @@ namespace TrenchBroom {
             FloatType snapUp(const FloatType f, bool skip = false) const;
             FloatType snapDown(const FloatType f, bool skip = false) const;
             FloatType offset(const FloatType f) const;
-            Vec3 snap(const Vec3& p) const;
-            Vec3 snapUp(const Vec3& p, const bool skip = false) const;
-            Vec3 snapDown(const Vec3& p, const bool skip = false) const;
-            Vec3 snapTowards(const Vec3& p, const Vec3& d, const bool skip = false) const;
-            Vec3 offset(const Vec3& p) const;
+            
+            template <typename T, size_t S>
+            Vec<T,S> snap(const Vec<T,S>& p) const {
+                if (!snap())
+                    return p;
+                Vec<T,S> result;
+                for (size_t i = 0; i < S; ++i)
+                    result[i] = snap(p[i]);
+                return result;
+            }
+            
+            template <typename T, size_t S>
+            Vec<T,S> snapUp(const Vec<T,S>& p, const bool skip = false) const {
+                if (!snap())
+                    return p;
+                Vec<T,S> result;
+                for (size_t i = 0; i < S; ++i)
+                    result[i] = snapUp(p[i], skip);
+                return result;
+            }
+            
+            template <typename T, size_t S>
+            Vec<T,S> snapDown(const Vec<T,S>& p, const bool skip = false) const {
+                if (!snap())
+                    return p;
+                Vec<T,S> result;
+                for (size_t i = 0; i < S; ++i)
+                    result[i] = snapDown(p[i], skip);
+                return result;
+            }
+
+            template <typename T, size_t S>
+            Vec<T,S> snapTowards(const Vec<T,S>& p, const Vec<T,S>& d, const bool skip = false) const {
+                if (!snap())
+                    return p;
+                Vec3 result;
+                for (size_t i = 0; i < S; ++i) {
+                    if (    Math::pos(d[i]))    result[i] = snapUp(p[i], skip);
+                    else if(Math::neg(d[i]))    result[i] = snapDown(p[i], skip);
+                    else                        result[i] = snap(p[i]);
+                }
+                return result;
+            }
+            
+            template <typename T, size_t S>
+            Vec<T,S> offset(const Vec<T,S>& p) const {
+                if (!snap())
+                    return Vec<T,S>::Null;
+                return p - snap(p);
+            }
+
             Vec3 snap(const Vec3& p, const Plane3& onPlane) const;
             
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;

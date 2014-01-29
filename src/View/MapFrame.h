@@ -153,9 +153,10 @@ namespace TrenchBroom {
             void OnEditMoveVerticesUp(wxCommandEvent& event);
             void OnEditMoveVerticesDown(wxCommandEvent& event);
             void OnEditSnapVertices(wxCommandEvent& event);
+
+            void OnEditToggleTextureTool(wxCommandEvent& event);
             
             void OnEditToggleMovementRestriction(wxCommandEvent& event);
-
             void OnEditToggleTextureLock(wxCommandEvent& event);
             
             void OnViewToggleShowGrid(wxCommandEvent& event);

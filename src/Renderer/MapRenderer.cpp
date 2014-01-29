@@ -137,7 +137,7 @@ namespace TrenchBroom {
             if (!context.hideSelection()) {
                 m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
                 m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
-                m_selectedBrushRenderer.setTintFaces(true);
+                m_selectedBrushRenderer.setTintFaces(context.tintSelection());
                 m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedBrushRenderer.setRenderOccludedEdges(true);
                 m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
@@ -331,7 +331,7 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
                 m_selectedEntityRenderer.setRenderOccludedBounds(true);
                 m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
-                m_selectedEntityRenderer.setApplyTinting(true);
+                m_selectedEntityRenderer.setApplyTinting(context.tintSelection());
                 m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }

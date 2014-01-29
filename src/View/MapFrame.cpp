@@ -597,6 +597,11 @@ namespace TrenchBroom {
             document->info("Snapped brush vertices to grid size %u", grid.actualSize());
         }
 
+        void MapFrame::OnEditToggleTextureTool(wxCommandEvent& event) {
+            m_mapView->toggleTextureTool();
+            updateMenuBar(m_mapView->HasFocus());
+        }
+
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
             updateMenuBar(m_mapView->HasFocus());
@@ -820,6 +825,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
                     event.Enable(document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
                     event.Check(m_mapView->rotateObjectsToolActive());
+                    break;
+                case CommandIds::Menu::EditToggleTextureTool:
+                    event.Enable(document->hasSelectedBrushes() || document->hasSelectedFaces() || m_mapView->textureToolActive());
+                    event.Check(m_mapView->textureToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
                     event.Enable(true);
@@ -1065,8 +1074,9 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesDown, this, CommandIds::Menu::EditMoveVerticesDown);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
             
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureTool, this, CommandIds::Menu::EditToggleTextureTool);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
-            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);

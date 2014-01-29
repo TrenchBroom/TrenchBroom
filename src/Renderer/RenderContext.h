@@ -43,6 +43,7 @@ namespace TrenchBroom {
             bool m_gridVisible;
             size_t m_gridSize;
             bool m_hideSelection;
+            bool m_tintSelection;
             ShowSelectionGuide m_showSelectionGuide;
         public:
             RenderContext(const Camera& camera, ShaderManager& shaderManager, const bool gridVisible, const size_t gridSize);
@@ -52,6 +53,9 @@ namespace TrenchBroom {
             ShaderManager& shaderManager();
             bool gridVisible() const;
             size_t gridSize() const;
+            
+            bool tintSelection() const;
+            void clearTintSelection();
             
             bool hideSelection() const;
             void setHideSelection();

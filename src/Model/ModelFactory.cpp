@@ -53,11 +53,11 @@ namespace TrenchBroom {
         }
 
         BrushFace* ModelFactory::createValveFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
-            return new ConfigurableBrushFace<ParallelTexCoordSystem>(point0, point1, point2, textureName);
+            return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
         }
         
         BrushFace* ModelFactory::createDefaultFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
-            return new ConfigurableBrushFace<ParaxialTexCoordSystem>(point0, point1, point2, textureName);
+            return new BrushFace(point0, point1, point2, textureName, new ParaxialTexCoordSystem(point0, point1, point2));
         }
     }
 }

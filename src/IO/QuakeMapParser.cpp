@@ -24,7 +24,6 @@
 #include "SetBool.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceTypes.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/Map.h"
@@ -446,9 +445,11 @@ namespace TrenchBroom {
             
             Model::BrushFace* face = NULL;
             if (m_format == Model::MapFormat::Valve)
-                face = new Model::ValveBrushFace(p1, p2, p3, texAxisX, texAxisY, normal, rotation, textureName);
+                face = new Model::BrushFace(p1, p2, p3, textureName,
+                                            new Model::ParallelTexCoordSystem(texAxisX, texAxisY, normal, rotation));
             else
-                face = new Model::QuakeBrushFace(p1, p2, p3, textureName);
+                face = new Model::BrushFace(p1, p2, p3, textureName,
+                                                 new Model::ParaxialTexCoordSystem(p1, p2, p3));
 
             if (m_format == Model::MapFormat::Quake2) {
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());

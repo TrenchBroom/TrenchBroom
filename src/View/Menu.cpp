@@ -388,6 +388,7 @@ namespace TrenchBroom {
             toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleClipTool, 'C', KeyboardShortcut::SCAny, "Clip Tool"));
             toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleVertexTool, 'V', KeyboardShortcut::SCAny, "Vertex Tool"));
             toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::SCAny, "Rotate Tool"));
+            toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureTool, 'T', KeyboardShortcut::SCAny, "Texture Tool"));
             
             MultiMenu& actionMenu = editMenu->addMultiMenu("Actions", CommandIds::Menu::EditActions);
             

@@ -22,30 +22,31 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/TexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttribs;
         
-        class ParallelTexCoordSystem {
+        class ParallelTexCoordSystem : public TexCoordSystem {
         private:
             Vec3 m_initialXAxis;
             Vec3 m_initialYAxis;
             Vec3 m_xAxis;
             Vec3 m_yAxis;
         public:
-            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation);
+            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, float rotation);
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
-
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
-            Vec3 projectedXAxis(const Vec3& normal) const;
-            Vec3 projectedYAxis(const Vec3& normal) const;
-            void update(const Vec3& normal, const float rotation);
-
-            void compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs);
-
-            static bool invertRotation(const Vec3& normal);
+        private:
+            TexCoordSystem* doClone() const;
+            
+            const Vec3& getXAxis() const;
+            const Vec3& getYAxis() const;
+            bool isRotationInverted(const Vec3& normal) const;
+            
+            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs, const Assets::Texture* texture) const;
+            void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs);
+            void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
         };
     }
 }

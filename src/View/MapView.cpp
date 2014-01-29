@@ -50,6 +50,7 @@
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
+#include "View/TextureTool.h"
 #include "View/VertexTool.h"
 
 #include <wx/dcclient.h>
@@ -82,6 +83,7 @@ namespace TrenchBroom {
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
+        m_textureTool(NULL),
         m_toolChain(NULL),
         m_dragReceiver(NULL),
         m_modalReceiver(NULL),
@@ -213,6 +215,14 @@ namespace TrenchBroom {
         void MapView::snapVertices(const size_t snapTo) {
             assert(vertexToolActive());
             m_vertexTool->snapVertices(snapTo);
+        }
+
+        void MapView::toggleTextureTool() {
+            toggleTool(m_textureTool);
+        }
+        
+        bool MapView::textureToolActive() const {
+            return m_modalReceiver == m_textureTool;
         }
 
         void MapView::toggleMovementRestriction() {
@@ -994,7 +1004,8 @@ namespace TrenchBroom {
             m_vertexTool = new VertexTool(m_createEntityTool, m_document, m_controller, m_movementRestriction, font);
             m_rotateObjectsTool = new RotateObjectsTool(m_vertexTool, m_document, m_controller, m_movementRestriction, font);
             m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
-            m_cameraTool = new CameraTool(m_clipTool, m_document, m_controller, m_camera);
+            m_textureTool = new TextureTool(m_clipTool, m_document, m_controller);
+            m_cameraTool = new CameraTool(m_textureTool, m_document, m_controller, m_camera);
             m_toolChain = m_cameraTool;
         }
         
@@ -1016,6 +1027,8 @@ namespace TrenchBroom {
             m_rotateObjectsTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
+            delete m_textureTool;
+            m_textureTool = NULL;
             delete m_vertexTool;
             m_vertexTool = NULL;
         }

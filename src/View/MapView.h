@@ -67,6 +67,7 @@ namespace TrenchBroom {
         class ResizeBrushesTool;
         class RotateObjectsTool;
         class SelectionTool;
+        class TextureTool;
         class VertexTool;
         
         class MapView : public wxGLCanvas {
@@ -100,6 +101,7 @@ namespace TrenchBroom {
             ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
+            TextureTool* m_textureTool;
             BaseTool* m_toolChain;
             BaseTool* m_dragReceiver;
             BaseTool* m_modalReceiver;
@@ -137,6 +139,9 @@ namespace TrenchBroom {
             bool hasSelectedVertices() const;
             bool canSnapVertices() const;
             void snapVertices(size_t snapTo);
+            
+            void toggleTextureTool();
+            bool textureToolActive() const;
             
             void toggleMovementRestriction();
             

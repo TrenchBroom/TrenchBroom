@@ -38,6 +38,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         class BrushFaceGeometry;
+        class TexCoordSystem;
         
         class BrushFaceAttribs {
         private:
@@ -114,13 +115,15 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
+            TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_side;
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
         protected:
             BrushFaceAttribs m_attribs;
         public:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName);
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem);
+
             virtual ~BrushFace();
             
             BrushFace* clone() const;
@@ -170,6 +173,9 @@ namespace TrenchBroom {
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
             
+            Vec2 convertToTexCoordSystem(const Vec3& point) const;
+            Vec3 convertToWorldCoordSystem(const Vec2& point) const;
+            
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;
             
@@ -187,155 +193,13 @@ namespace TrenchBroom {
             
             void invalidate();
         private:
-            virtual BrushFace* doClone() const = 0;
-            
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
             void validateVertexCache() const;
             void invalidateVertexCache();
-
-            virtual Vec2f textureOffsetsForMove(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) const = 0;
-            virtual float rotationAngle(const Vec3& normal, const float angle) const = 0;
-            
-            virtual void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) = 0;
-            virtual Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const = 0;
-            virtual void compensateTransformation(const Mat4x4& transformation) = 0;
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
-        };
-        
-        template <class TexCoordSystem>
-        class ConfigurableBrushFace : public BrushFace, public Allocator<ConfigurableBrushFace<TexCoordSystem> > {
-        private:
-            TexCoordSystem m_coordSystem;
-        public:
-            ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = NoTextureName) :
-            BrushFace(point0, point1, point2, textureName),
-            m_coordSystem(point0, point1, point2) {}
-
-            ConfigurableBrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const Vec3& textureXAxis, const Vec3& textureYAxis, const Vec3& normal, const float rotation, const String& textureName = NoTextureName) :
-            BrushFace(point0, point1, point2, textureName),
-            m_coordSystem(textureXAxis, textureYAxis, normal, rotation) {}
-        private:
-            BrushFace* doClone() const {
-                ConfigurableBrushFace<TexCoordSystem>* result = new ConfigurableBrushFace<TexCoordSystem>(points()[0], points()[1], points()[2], textureName());
-                result->m_coordSystem = m_coordSystem;
-                return result;
-            }
-            
-            Vec2f textureOffsetsForMove(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) const {
-                assert(direction != Math::DForward && direction != Math::DBackward);
-
-                const Vec3 texX = m_coordSystem.projectedXAxis(normal).normalize();
-                const Vec3 texY = m_coordSystem.projectedYAxis(normal).normalize();
-                
-                Vec3 vAxis, hAxis;
-                size_t xIndex = 0;
-                size_t yIndex = 0;
-                
-                // we prefer to use the texture axis which is closer to the XY plane for horizontal movement
-                if (Math::lt(std::abs(texX.z()), std::abs(texY.z()))) {
-                    hAxis = texX;
-                    vAxis = texY;
-                    xIndex = 0;
-                    yIndex = 1;
-                } else if (Math::lt(std::abs(texY.z()), std::abs(texX.z()))) {
-                    hAxis = texY;
-                    vAxis = texX;
-                    xIndex = 1;
-                    yIndex = 0;
-                } else {
-                    // both texture axes have the same absolute angle towards the XY plane, prefer the one that is closer
-                    // to the right view axis for horizontal movement
-                    
-                    if (Math::gt(std::abs(right.dot(texX)), std::abs(right.dot(texY)))) {
-                        // the right view axis is closer to the X texture axis
-                        hAxis = texX;
-                        vAxis = texY;
-                        xIndex = 0;
-                        yIndex = 1;
-                    } else if (Math::gt(std::abs(right.dot(texY)), std::abs(right.dot(texX)))) {
-                        // the right view axis is closer to the Y texture axis
-                        hAxis = texY;
-                        vAxis = texX;
-                        xIndex = 1;
-                        yIndex = 0;
-                    } else {
-                        // the right axis is as close to the X texture axis as to the Y texture axis
-                        // test the up axis
-                        if (Math::gt(std::abs(up.dot(texY)), std::abs(up.dot(texX)))) {
-                            // the up view axis is closer to the Y texture axis
-                            hAxis = texX;
-                            vAxis = texY;
-                            xIndex = 0;
-                            yIndex = 1;
-                        } else if (Math::gt(std::abs(up.dot(texX)), std::abs(up.dot(texY)))) {
-                            // the up view axis is closer to the X texture axis
-                            hAxis = texY;
-                            vAxis = texX;
-                            xIndex = 1;
-                            yIndex = 0;
-                        } else {
-                            // this is just bad, better to do nothing
-                            return Vec2f::Null;
-                        }
-                    }
-                }
-                
-                Vec2f offset;
-                switch (direction) {
-                    case Math::DUp:
-                        if (up.dot(vAxis) >= 0.0)
-                            offset[yIndex] -= distance;
-                        else
-                            offset[yIndex] += distance;
-                        break;
-                    case Math::DRight:
-                        if (right.dot(hAxis) >= 0.0)
-                            offset[xIndex] -= distance;
-                        else
-                            offset[xIndex] += distance;
-                        break;
-                    case Math::DDown:
-                        if (up.dot(vAxis) >= 0.0)
-                            offset[yIndex] += distance;
-                        else
-                            offset[yIndex] -= distance;
-                        break;
-                    case Math::DLeft:
-                        if (right.dot(hAxis) >= 0.0f)
-                            offset[xIndex] += distance;
-                        else
-                            offset[xIndex] -= distance;
-                        break;
-                    default:
-                        return Vec2f::Null;
-                }
-                return offset;
-            }
-            
-            float rotationAngle(const Vec3& normal, const float angle) const {
-                if (TexCoordSystem::invertRotation(normal))
-                    return -angle;
-                return angle;
-            }
-
-            void updateTextureCoordinateSystem(const Vec3& normal, const float rotation) {
-                m_coordSystem.update(normal, rotation);
-            }
-            
-            Vec2f textureCoordinates(const Vec3& point, const float xOffset, const float yOffset, const float xScale, const float yScale, const size_t textureWidth, const size_t textureHeight) const {
-                const float safeXScale = xScale == 0.0f ? 1.0f : xScale;
-                const float safeYScale = yScale == 0.0f ? 1.0f : yScale;
-                const float x = static_cast<float>((point.dot(m_coordSystem.xAxis() / safeXScale) + xOffset) / textureWidth);
-                const float y = static_cast<float>((point.dot(m_coordSystem.yAxis() / safeYScale) + yOffset) / textureHeight);
-                return Vec2f(x, y);
-            }
-
-            void compensateTransformation(const Mat4x4& transformation) {
-                m_coordSystem.compensateTransformation(boundary().normal, center(), transformation, m_attribs);
-            }
         };
     }
 }

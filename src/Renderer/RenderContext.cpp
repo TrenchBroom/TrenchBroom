@@ -29,6 +29,7 @@ namespace TrenchBroom {
         m_gridVisible(gridVisible),
         m_gridSize(gridSize),
         m_hideSelection(false),
+        m_tintSelection(true),
         m_showSelectionGuide(Hide) {}
         
         const Camera& RenderContext::camera() const {
@@ -49,6 +50,14 @@ namespace TrenchBroom {
         
         size_t RenderContext::gridSize() const {
             return m_gridSize;
+        }
+
+        bool RenderContext::tintSelection() const {
+            return m_tintSelection;
+        }
+        
+        void RenderContext::clearTintSelection() {
+            m_tintSelection = false;
         }
 
         bool RenderContext::hideSelection() const {

@@ -18,7 +18,9 @@
  */
 
 #include "ParallelTexCoordSystem.h"
-#include "ParaxialTexCoordSystem.h"
+#include "Assets/Texture.h"
+#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,37 +43,41 @@ namespace TrenchBroom {
             m_yAxis = m_initialYAxis;
         }
         
-        const Vec3& ParallelTexCoordSystem::xAxis() const {
+        TexCoordSystem* ParallelTexCoordSystem::doClone() const {
+            return new ParallelTexCoordSystem(*this);
+        }
+        
+        const Vec3& ParallelTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
         
-        const Vec3& ParallelTexCoordSystem::yAxis() const {
+        const Vec3& ParallelTexCoordSystem::getYAxis() const {
             return m_yAxis;
         }
-
-        Vec3 ParallelTexCoordSystem::projectedXAxis(const Vec3& normal) const {
-            const Plane3 plane(0.0, normal);
-            return plane.project(m_xAxis);
+        
+        bool ParallelTexCoordSystem::isRotationInverted(const Vec3& normal) const {
+            return false;
         }
         
-        Vec3 ParallelTexCoordSystem::projectedYAxis(const Vec3& normal) const {
-            const Plane3 plane(0.0, normal);
-            return plane.project(m_yAxis);
+        Vec2f ParallelTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs, const Assets::Texture* texture) const {
+            const size_t textureWidth = texture == NULL ? 1 : texture->width();
+            const size_t textureHeight = texture == NULL ? 1 : texture->height();
+            const float safeXScale = attribs.xScale() == 0.0f ? 1.0f : attribs.xScale();
+            const float safeYScale = attribs.yScale() == 0.0f ? 1.0f : attribs.yScale();
+            const float x = static_cast<float>((point.dot(m_xAxis / safeXScale) + attribs.xOffset()) / textureWidth);
+            const float y = static_cast<float>((point.dot(m_yAxis / safeYScale) + attribs.yOffset()) / textureHeight);
+            return Vec2f(x, y);
         }
         
-        void ParallelTexCoordSystem::update(const Vec3& normal, const float rotation) {
-            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
+        void ParallelTexCoordSystem::doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs) {
+            const FloatType angle = static_cast<FloatType>(Math::radians(attribs.rotation()));
             const Quat3 rot(normal, angle);
             m_xAxis = rot * m_initialXAxis;
             m_yAxis = rot * m_initialYAxis;
         }
-
-        void ParallelTexCoordSystem::compensateTransformation(const Vec3& faceNormal, const Vec3& faceCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
+        
+        void ParallelTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
             // todo
-        }
-
-        bool ParallelTexCoordSystem::invertRotation(const Vec3& normal) {
-            return false;
         }
     }
 }
