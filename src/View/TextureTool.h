@@ -31,8 +31,12 @@ namespace TrenchBroom {
         class BrushFace;
     }
     
+    namespace Renderer {
+        class EdgeRenderer;
+    }
+    
     namespace View {
-        class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
+        class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
             Model::BrushFace* m_face;
         public:
@@ -42,12 +46,16 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
+            void doMouseMove(const InputState& inputState);
+
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
 
             bool applies(const InputState& inputState) const;
         };

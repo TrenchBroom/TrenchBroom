@@ -19,11 +19,18 @@
 
 #include "TextureTool.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Brush.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Vertex.h"
+#include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
@@ -42,13 +49,18 @@ namespace TrenchBroom {
         }
         
         bool TextureTool::doActivate(const InputState& inputState) {
+            controller()->deselectAll();
             return true;
         }
         
         bool TextureTool::doDeactivate(const InputState& inputState) {
+            controller()->deselectAll();
             return true;
         }
         
+        void TextureTool::doMouseMove(const InputState& inputState) {
+        }
+
         bool TextureTool::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             assert(m_face == NULL);
             if (!applies(inputState))
@@ -56,7 +68,11 @@ namespace TrenchBroom {
 
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
             assert(first.matches);
+            
             m_face = Model::hitAsFace(first.hit);
+            if (!m_face->selected())
+                controller()->deselectAllAndSelectFace(m_face);
+            
             plane = Plane3(first.hit.hitPoint(), m_face->boundary().normal);
             initialPoint = first.hit.hitPoint();
             return true;
@@ -64,6 +80,7 @@ namespace TrenchBroom {
         
         bool TextureTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             assert(m_face != NULL);
+            assert(m_face->selected());
             
             const Grid& grid = document()->grid();
             const Vec2 last = m_face->convertToTexCoordSystem(refPoint);
@@ -72,11 +89,13 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            const Model::BrushFaceList& faces = document()->allSelectedFaces();
+            const Model::BrushFaceList faces(1, m_face);
             
             controller()->beginUndoableGroup("Move Texture");
-            controller()->setFaceXOffset(faces, -delta.x(), true);
-            controller()->setFaceYOffset(faces, -delta.y(), true);
+            if (delta.x() != 0.0)
+                controller()->setFaceXOffset(faces, -delta.x(), true);
+            if (delta.y() != 0.0)
+                controller()->setFaceYOffset(faces, -delta.y(), true);
             controller()->closeGroup();
             
             const Vec3 newRef = m_face->convertToWorldCoordSystem(last + delta);
@@ -86,14 +105,53 @@ namespace TrenchBroom {
         
         void TextureTool::doEndPlaneDrag(const InputState& inputState) {
             m_face = NULL;
+            controller()->deselectAll();
         }
         
         void TextureTool::doCancelPlaneDrag(const InputState& inputState) {
             m_face = NULL;
+            controller()->deselectAll();
         }
 
         void TextureTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.clearTintSelection();
+        }
+
+        void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            if (dragging())
+                return;
+            
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+            if (!first.matches)
+                return;
+
+            const Model::BrushFace* face = Model::hitAsFace(first.hit);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(face);
+            
+            glDisable(GL_DEPTH_TEST);
+            edgeRenderer.setUseColor(true);
+            edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
+            edgeRenderer.render(renderContext);
+            glEnable(GL_DEPTH_TEST);
+        }
+        
+        Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFace* face) const {
+            assert(face != NULL);
+            
+            const Model::BrushEdgeList& edges = face->edges();
+
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List vertices(2 * edges.size());
+
+            for (size_t i = 0; i < edges.size(); ++i) {
+                const Model::BrushEdge* edge = edges[i];
+                vertices[2 * i + 0] = Vertex(edge->start->position);
+                vertices[2 * i + 1] = Vertex(edge->end->position);
+            }
+            
+            return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
         }
 
         bool TextureTool::applies(const InputState& inputState) const {
@@ -101,11 +159,7 @@ namespace TrenchBroom {
                 return false;
             
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (!first.matches)
-                return false;
-            const Model::BrushFace* face = Model::hitAsFace(first.hit);
-            const Model::Brush* brush = face->parent();
-            return face->selected() || brush->selected();
+            return first.matches;
         }
     }
 }

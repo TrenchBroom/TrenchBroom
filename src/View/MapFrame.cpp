@@ -827,7 +827,7 @@ namespace TrenchBroom {
                     event.Check(m_mapView->rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditToggleTextureTool:
-                    event.Enable(document->hasSelectedBrushes() || document->hasSelectedFaces() || m_mapView->textureToolActive());
+                    event.Enable(true);
                     event.Check(m_mapView->textureToolActive());
                     break;
                 case CommandIds::Menu::EditToggleMovementRestriction:
