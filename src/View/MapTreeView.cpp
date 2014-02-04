@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 return 1;
             }
 
-            wxString GetColumnType(const unsigned int col) const {
+            wxString GetColumnType(unsigned int col) const {
                 assert(col == 0);
                 return "string";
             }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
                 return wxDataViewItem(NULL);
             }
 
-            void GetValue(wxVariant& result, const wxDataViewItem& item, const unsigned int col) const {
+            void GetValue(wxVariant& result, const wxDataViewItem& item, unsigned int col) const {
                 assert(col == 0);
                 if (!item.IsOk()) {
                     result = wxVariant("Map");
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 }
             }
 
-            bool SetValue(const wxVariant& value, const wxDataViewItem& item, const unsigned int col) {
+            bool SetValue(const wxVariant& value, const wxDataViewItem& item, unsigned int col) {
                 assert(col == 0);
                 return false;
             }

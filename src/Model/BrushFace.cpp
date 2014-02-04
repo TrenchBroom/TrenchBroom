@@ -27,6 +27,8 @@
 #include "Model/BrushVertex.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/TexCoordSystem.h"
+#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -144,6 +146,15 @@ namespace TrenchBroom {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
         }
+
+        BrushFace* BrushFace::createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            return new BrushFace(point0, point1, point2, textureName, new ParaxialTexCoordSystem(point0, point1, point2));
+        }
+        
+        BrushFace* BrushFace::createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
+        }
+
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = Vec3::Null;

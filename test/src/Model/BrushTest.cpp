@@ -23,7 +23,6 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceTypes.h"
 #include "Model/Picker.h"
 
 namespace TrenchBroom {
@@ -33,15 +32,15 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             BrushFaceList faces;
-            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                               Vec3(1.0, 0.0, 0.0),
-                                               Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                               Vec3(1.0, 0.0, 0.0),
-                                               Vec3(0.0, 1.0, 0.0)));
-            faces.push_back(new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                               Vec3(1.0, 0.0, 0.0),
-                                               Vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                      Vec3(1.0, 0.0, 0.0),
+                                                      Vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                      Vec3(1.0, 0.0, 0.0),
+                                                      Vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                      Vec3(1.0, 0.0, 0.0),
+                                                      Vec3(0.0, 1.0, 0.0)));
             
             Brush brush(worldBounds, faces);
             const BrushFaceList& brushFaces = brush.faces();
@@ -54,24 +53,24 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
             
             BrushFaceList faces;
             faces.push_back(left);
@@ -93,24 +92,24 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
             
             BrushFaceList faces;
             faces.push_back(left);
@@ -141,24 +140,24 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
             
             BrushFaceList faces;
             faces.push_back(left);
@@ -184,24 +183,24 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
             
             BrushFaceList faces;
             faces.push_back(left);
@@ -270,24 +269,24 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
             
             BrushFaceList faces;
             faces.push_back(left);
@@ -315,28 +314,28 @@ namespace TrenchBroom {
                                     Vec3( 4096.0,  4096.0,  4096.0));
             
             // build a cube with length 16 at the origin
-            BrushFace* left = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                 Vec3(0.0, 1.0, 0.0),
-                                                 Vec3(0.0, 0.0, 1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                  Vec3(16.0, 0.0, 1.0),
-                                                  Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                  Vec3(0.0, 0.0, 1.0),
-                                                  Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = new QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                 Vec3(1.0, 16.0, 0.0),
-                                                 Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                Vec3(0.0, 1.0, 16.0),
-                                                Vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                   Vec3(1.0, 0.0, 0.0),
-                                                   Vec3(0.0, 1.0, 0.0));
-            BrushFace* clip = new QuakeBrushFace(Vec3(8.0, 0.0, 0.0),
-                                                 Vec3(8.0, 0.0, 1.0),
-                                                 Vec3(8.0, 1.0, 0.0));
-
+            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                        Vec3(0.0, 1.0, 0.0),
+                                                        Vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                         Vec3(16.0, 0.0, 1.0),
+                                                         Vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                         Vec3(0.0, 0.0, 1.0),
+                                                         Vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                        Vec3(1.0, 16.0, 0.0),
+                                                        Vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                       Vec3(0.0, 1.0, 16.0),
+                                                       Vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                          Vec3(1.0, 0.0, 0.0),
+                                                          Vec3(0.0, 1.0, 0.0));
+            BrushFace* clip = BrushFace::createParaxial(Vec3(8.0, 0.0, 0.0),
+                                                        Vec3(8.0, 0.0, 1.0),
+                                                        Vec3(8.0, 1.0, 0.0));
+            
             BrushFaceList faces;
             faces.push_back(left);
             faces.push_back(right);
@@ -347,7 +346,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             ASSERT_TRUE(brush.clip(worldBounds, clip));
-
+            
             ASSERT_EQ(6u, brush.faces().size());
             assertHasFace(brush, *left);
             assertHasFace(brush, *clip);

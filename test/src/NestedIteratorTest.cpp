@@ -27,28 +27,27 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFacesIterator.h"
-#include "Model/BrushFaceTypes.h"
 
 namespace TrenchBroom {
     inline Model::Brush* makeBrush() {
-        Model::BrushFace* left = new Model::QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                           Vec3(0.0, 1.0, 0.0),
-                                                           Vec3(0.0, 0.0, 1.0));
-        Model::BrushFace* right = new Model::QuakeBrushFace(Vec3(16.0, 0.0, 0.0),
-                                                            Vec3(16.0, 0.0, 1.0),
-                                                            Vec3(16.0, 1.0, 0.0));
-        Model::BrushFace* front = new Model::QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                            Vec3(0.0, 0.0, 1.0),
-                                                            Vec3(1.0, 0.0, 0.0));
-        Model::BrushFace* back = new Model::QuakeBrushFace(Vec3(0.0, 16.0, 0.0),
-                                                           Vec3(1.0, 16.0, 0.0),
-                                                           Vec3(0.0, 16.0, 1.0));
-        Model::BrushFace* top = new Model::QuakeBrushFace(Vec3(0.0, 0.0, 16.0),
-                                                          Vec3(0.0, 1.0, 16.0),
-                                                          Vec3(1.0, 0.0, 16.0));
-        Model::BrushFace* bottom = new Model::QuakeBrushFace(Vec3(0.0, 0.0, 0.0),
-                                                             Vec3(1.0, 0.0, 0.0),
-                                                             Vec3(0.0, 1.0, 0.0));
+        Model::BrushFace* left = Model::BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                                  Vec3(0.0, 1.0, 0.0),
+                                                                  Vec3(0.0, 0.0, 1.0));
+        Model::BrushFace* right = Model::BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
+                                                                   Vec3(16.0, 0.0, 1.0),
+                                                                   Vec3(16.0, 1.0, 0.0));
+        Model::BrushFace* front = Model::BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                                   Vec3(0.0, 0.0, 1.0),
+                                                                   Vec3(1.0, 0.0, 0.0));
+        Model::BrushFace* back = Model::BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
+                                                                  Vec3(1.0, 16.0, 0.0),
+                                                                  Vec3(0.0, 16.0, 1.0));
+        Model::BrushFace* top = Model::BrushFace::createParaxial(Vec3(0.0, 0.0, 16.0),
+                                                                 Vec3(0.0, 1.0, 16.0),
+                                                                 Vec3(1.0, 0.0, 16.0));
+        Model::BrushFace* bottom = Model::BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
+                                                                    Vec3(1.0, 0.0, 0.0),
+                                                                    Vec3(0.0, 1.0, 0.0));
         
         Model::BrushFaceList faces;
         faces.push_back(left);
@@ -70,7 +69,7 @@ namespace TrenchBroom {
         
         ASSERT_TRUE(begin == end);
     }
-
+    
     TEST(NestedIteratorTest, testBrushEmptyFaceIterator) {
         Model::BrushList brushes;
         
@@ -142,11 +141,11 @@ namespace TrenchBroom {
         ASSERT_TRUE(begin == end);
         VectorUtils::clearAndDelete(brushes);
     }
-
+    
     
     TEST(NestedIteratorTest, testTwoBrushesFacesIteratorWithEmptyBrushes) {
         BBox3 worldBounds(-8192.0, 8192.0);
-
+        
         Model::BrushList brushes;
         brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
         brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));

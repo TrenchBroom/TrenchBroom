@@ -19,33 +19,34 @@
 
 #include <gtest/gtest.h>
 
-#include "Model/BrushFaceTypes.h"
 #include "TrenchBroom.h"
 #include "Exceptions.h"
 #include "VecMath.h"
 #include "TestUtils.h"
+#include "Model/BrushFace.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushFaceTest, constructWithValidPoints) {
-            const Vec3 point0(0.0,  0.0, 4.0);
-            const Vec3 point1(1.f,  0.0, 4.0);
-            const Vec3 point2(0.0, -1.0, 4.0);
+            const Vec3 p0(0.0,  0.0, 4.0);
+            const Vec3 p1(1.f,  0.0, 4.0);
+            const Vec3 p2(0.0, -1.0, 4.0);
             
-            QuakeBrushFace face(point0, point1, point2);
-            ASSERT_VEC_EQ(point0, face.points()[0]);
-            ASSERT_VEC_EQ(point1, face.points()[1]);
-            ASSERT_VEC_EQ(point2, face.points()[2]);
+            BrushFace face(p0, p1, p2, "", new ParaxialTexCoordSystem(p0, p1, p2));
+            ASSERT_VEC_EQ(p0, face.points()[0]);
+            ASSERT_VEC_EQ(p1, face.points()[1]);
+            ASSERT_VEC_EQ(p2, face.points()[2]);
             ASSERT_VEC_EQ(Vec3::PosZ, face.boundary().normal);
             ASSERT_EQ(4.0, face.boundary().distance);
         }
         
         TEST(BrushFaceTest, constructWithColinearPoints) {
-            const Vec3 point0(0.0, 0.0, 4.0);
-            const Vec3 point1(1.f, 0.0, 4.0);
-            const Vec3 point2(2.0, 0.0, 4.0);
+            const Vec3 p0(0.0, 0.0, 4.0);
+            const Vec3 p1(1.f, 0.0, 4.0);
+            const Vec3 p2(2.0, 0.0, 4.0);
             
-            ASSERT_THROW(new QuakeBrushFace(point0, point1, point2), GeometryException);
+            ASSERT_THROW(new BrushFace(p0, p1, p2, "", new ParaxialTexCoordSystem(p0, p1, p2)), GeometryException);
         }
     }
 }

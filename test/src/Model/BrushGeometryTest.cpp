@@ -23,33 +23,33 @@
 #include "VecMath.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceTypes.h"
 #include "Model/BrushVertex.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
         BrushFaceList createBoxFaces(const BBox3& bounds) {
-            BrushFace* top = new QuakeBrushFace(Vec3(0.0, 0.0, bounds.max.z()),
-                                                Vec3(0.0, 1.0, bounds.max.z()),
-                                                Vec3(1.0, 0.0, bounds.max.z()));
-            BrushFace* bottom = new QuakeBrushFace(Vec3(0.0, 0.0, bounds.min.z()),
-                                                   Vec3(1.0, 0.0, bounds.min.z()),
-                                                   Vec3(0.0, 1.0, bounds.min.z()));
-            BrushFace* front = new QuakeBrushFace(Vec3(0.0, bounds.min.y(),  0.0),
-                                                  Vec3(1.0, bounds.min.y(),  0.0),
-                                                  Vec3(0.0, bounds.min.y(), -1.0));
-            BrushFace* back = new QuakeBrushFace(Vec3( 0.0, bounds.max.y(),  0.0),
-                                                 Vec3(-1.0, bounds.max.y(),  0.0),
-                                                 Vec3( 0.0, bounds.max.y(), -1.0));
-            BrushFace* left = new QuakeBrushFace(Vec3(bounds.min.x(),  0.0,  0.0),
-                                                 Vec3(bounds.min.x(), -1.0,  0.0),
-                                                 Vec3(bounds.min.x(),  0.0, -1.0));
-            BrushFace* right = new QuakeBrushFace(Vec3(bounds.max.x(), 0.0,  0.0),
-                                                  Vec3(bounds.max.x(), 1.0,  0.0),
-                                                  Vec3(bounds.max.x(), 0.0, -1.0));
-
+            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, bounds.max.z()),
+                                                       Vec3(0.0, 1.0, bounds.max.z()),
+                                                       Vec3(1.0, 0.0, bounds.max.z()));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, bounds.min.z()),
+                                                          Vec3(1.0, 0.0, bounds.min.z()),
+                                                          Vec3(0.0, 1.0, bounds.min.z()));
+            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, bounds.min.y(),  0.0),
+                                                         Vec3(1.0, bounds.min.y(),  0.0),
+                                                         Vec3(0.0, bounds.min.y(), -1.0));
+            BrushFace* back = BrushFace::createParaxial(Vec3( 0.0, bounds.max.y(),  0.0),
+                                                        Vec3(-1.0, bounds.max.y(),  0.0),
+                                                        Vec3( 0.0, bounds.max.y(), -1.0));
+            BrushFace* left = BrushFace::createParaxial(Vec3(bounds.min.x(),  0.0,  0.0),
+                                                        Vec3(bounds.min.x(), -1.0,  0.0),
+                                                        Vec3(bounds.min.x(),  0.0, -1.0));
+            BrushFace* right = BrushFace::createParaxial(Vec3(bounds.max.x(), 0.0,  0.0),
+                                                         Vec3(bounds.max.x(), 1.0,  0.0),
+                                                         Vec3(bounds.max.x(), 0.0, -1.0));
+            
             BrushFaceList faces;
             faces.push_back(top);
             faces.push_back(bottom);

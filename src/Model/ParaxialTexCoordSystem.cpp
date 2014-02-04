@@ -140,8 +140,8 @@ namespace TrenchBroom {
             newYAxis = project(newProjectionAxis, newYAxis);
             
             // the new scaling factors are the lengths of the transformed texture axes
-            float newXScale = newXAxis.length();
-            float newYScale = newYAxis.length();
+            float newXScale = static_cast<float>(newXAxis.length());
+            float newYScale = static_cast<float>(newYAxis.length());
             
             // normalize the transformed texture axes
             newXAxis /= newXScale;
