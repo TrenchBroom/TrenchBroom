@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 flagsPanel->SetSizer(flagsPanelSizer);
             }
             
-            m_button = new PopupButton(this, buttonLabel, PopupButton::Right);
+            m_button = new PopupButton(this, buttonLabel);
             m_button->SetToolTip("Click to edit flags");
             
             wxPanel* editorContainer = new wxPanel(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);

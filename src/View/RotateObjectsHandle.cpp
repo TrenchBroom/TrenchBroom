@@ -351,7 +351,7 @@ namespace TrenchBroom {
             const Renderer::Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
             const float factor = camera.distanceTo(position) * scaling;
-            const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
+            const Mat4x4f matrix = translationMatrix(Vec3f(position)) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
             Renderer::MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
             
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);

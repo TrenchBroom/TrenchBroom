@@ -42,8 +42,8 @@ namespace TrenchBroom {
             m_components = StringUtils::split(trimmed, Separators);
 #ifdef _WIN32
             m_absolute = (hasDriveSpec(m_components) ||
-                          !trimmed.empty() && trimmed[0] == '/' ||
-                          !trimmed.empty() && trimmed[0] == '\\');
+                          (!trimmed.empty() && trimmed[0] == '/') ||
+                          (!trimmed.empty() && trimmed[0] == '\\'));
 #else
             m_absolute = !trimmed.empty() && trimmed[0] == Separator;
 #endif
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         }
 
         String Path::asString(const char separator) const {
-            if (m_absolute)
+            if (m_absolute) {
 #ifdef _WIN32
                 if (hasDriveSpec(m_components))
                     return StringUtils::join(m_components, separator);
@@ -110,6 +110,7 @@ namespace TrenchBroom {
 #else
                 return separator + StringUtils::join(m_components, separator);
 #endif
+            }
             return StringUtils::join(m_components, separator);
         }
 

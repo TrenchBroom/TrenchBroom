@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 m_threshold = 0.5;
             else
                 m_threshold = 100.0 / duration.ToDouble();
-        };
+        }
         
         double EaseInEaseOutAnimationCurve::doApply(const double progress) const {
             if (progress < m_threshold)

@@ -3,20 +3,46 @@ IF(APPLE)
 
 	FIND_PATH(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
 	SET(FREETYPE_LIBRARY "${LIB_BIN_DIR}/osx/libfreetype.a")
-
+	
 	SET(FREETYPE_LIBRARIES 
-			${FREETYPE_LIBRARY} 
-	  		"${LIB_BIN_DIR}/osx/libbz2.a" 
-	  		"${LIB_BIN_DIR}/osx/libz.a")
-	FIND_PACKAGE_HANDLE_STANDARD_ARGS(FREETYPE  DEFAULT_MSG  FREETYPE_LIBRARY  FREETYPE_INCLUDE_PATH)
-	MARK_AS_ADVANCED(
-		FREETYPE_FOUND 
-		FREETYPE_LIBRARY
-		FREETYPE_LIBRARIES
-		FREETYPE_INCLUDE_PATH)
+		${FREETYPE_LIBRARY} 
+  		"${LIB_BIN_DIR}/osx/libbz2.a" 
+  		"${LIB_BIN_DIR}/osx/libz.a")
 ELSEIF(MSVC)
 	FIND_PATH(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
-	FIND_LIBRARY(FREETYPE_LIBRARIES NAMES freetype6.dll freetype.lib PATHS "${LIB_BIN_DIR}/win32" DOC "Freetype library")
+	SET(FREETYPE_LIBRARY "${LIB_BIN_DIR}/win32/freetype.lib")
+	
+	SET(FREETYPE_LIBRARIES 
+		${FREETYPE_LIBRARY})
+ELSEIF(MINGW)
+	FIND_PATH(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_INCLUDE_DIR}" DOC "Freetype includes")
+	SET(FREETYPE_LIBRARY "${LIB_BIN_DIR}/win32/libfreetype.a")
+	
+	SET(FREETYPE_LIBRARIES 
+		${FREETYPE_LIBRARY} 
+  		"${LIB_BIN_DIR}/win32/libz.a")
 ELSE()
-	INCLUDE(FindFreetype)
+	FIND_PATH( FREETYPE_INCLUDE_PATH ft2build.h
+		/usr/include
+		/usr/local/include
+		/sw/include
+		/opt/local/include
+		DOC "The directory where ft2build.h resides")
+	FIND_LIBRARY( FREETYPE_LIBRARY
+		NAMES FreeType freetype
+		PATHS
+		/usr/lib64
+		/usr/lib
+		/usr/local/lib64
+		/usr/local/lib
+		/sw/lib
+		/opt/local/lib
+		DOC "The FreeType library")
 ENDIF()
+
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(FREETYPE  DEFAULT_MSG  FREETYPE_LIBRARY  FREETYPE_INCLUDE_PATH)
+MARK_AS_ADVANCED(
+	FREETYPE_FOUND 
+	FREETYPE_LIBRARY
+	FREETYPE_LIBRARIES
+	FREETYPE_INCLUDE_PATH)

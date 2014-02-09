@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 
@@ -43,7 +44,8 @@ namespace TrenchBroom {
             }
             
             ~TestEnvironment() {
-                bool success = deleteTestEnvironment();
+                const bool success = deleteTestEnvironment();
+                _unused(success);
                 assert(success);
             }
             
@@ -66,12 +68,14 @@ namespace TrenchBroom {
             
             void createDirectory(const Path& path) {
                 const bool success = ::wxMkdir((m_dir + path).asString());
+                _unused(success);
                 assert(success);
             }
             
             void createFile(const Path& path, const wxString& contents) {
                 wxFile file;
                 bool success = file.Create((m_dir + path).asString());
+                _unused(success);
                 assert(success);
                 success = file.Write(contents);
                 assert(success);

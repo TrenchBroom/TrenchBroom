@@ -205,6 +205,31 @@ namespace Math {
         return pred(index, count, 1);
     }
     
+    template <typename T, bool Abs>
+    struct Cmp {
+        Cmp() {}
+        int operator()(const T lhs, const T rhs) const {
+            const T l = Abs ? std::abs(lhs) : lhs;
+            const T r = Abs ? std::abs(rhs) : rhs;
+            if (Math::lt(l, r))
+                return -1;
+            if (Math::gt(l, r))
+                return 1;
+            return 0;
+        }
+    };
+    
+    template <typename T, bool Abs>
+    struct Less {
+    private:
+        Cmp<T, Abs> m_cmp;
+    public:
+        Less() {}
+        bool operator()(const T lhs, const T rhs) const {
+            return m_cmp(lhs, rhs) < 0;
+        }
+    };
+    
     typedef enum {
         DForward,
         DBackward,

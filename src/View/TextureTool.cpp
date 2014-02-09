@@ -167,5 +167,10 @@ namespace TrenchBroom {
             const Model::Brush* brush = face->parent();
             return face->selected() || brush->selected();
         }
+
+        bool TextureTool::hasAmbiguousNormal(const Model::BrushFace* face) const {
+            const Vec3& normal = face->boundary().normal;
+            return !normal.hasMajorComponent();
+        }
     }
 }

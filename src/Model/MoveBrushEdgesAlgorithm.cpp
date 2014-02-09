@@ -20,6 +20,7 @@
 #include "MoveBrushEdgesAlgorithm.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushVertex.h"
 
@@ -97,6 +98,7 @@ namespace TrenchBroom {
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
                 assert(result.type == MoveVertexResult::VertexMoved);
+                _unused(result);
                 updateFacePoints(geometry);
             }
 

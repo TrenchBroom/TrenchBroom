@@ -22,7 +22,7 @@
 
 #include <cassert>
 
-#if defined _WIN32
+#if defined _MSC_VER
 #include <memory>
 #else
 #include <tr1/memory>

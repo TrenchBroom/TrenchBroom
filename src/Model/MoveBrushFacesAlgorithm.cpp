@@ -20,6 +20,7 @@
 #include "MoveBrushFacesAlgorithm.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushVertex.h"
 
@@ -96,6 +97,7 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
+                _unused(result);
                 assert(result.type == MoveVertexResult::VertexMoved);
                 updateFacePoints(geometry);
             }

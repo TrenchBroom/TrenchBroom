@@ -37,8 +37,8 @@ namespace TrenchBroom {
 
         void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags) {
             for (size_t i = 0; i < numFlags; ++i) {
-                const bool alreadySet = newFlagValue & (1 << i);
-                const bool willBeSet = setFlags & (1 << i);
+                const bool alreadySet = (newFlagValue & (1 << i)) != 0;
+                const bool willBeSet = (setFlags & (1 << i)) != 0;
                 if (alreadySet == willBeSet)
                     continue;
                 

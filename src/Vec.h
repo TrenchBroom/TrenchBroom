@@ -430,7 +430,19 @@ public:
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
-            
+    
+    bool hasMajorComponent(const T epsilon = Math::Constants<T>::AlmostZero) const {
+        if (S == 0)
+            return false;
+        if (S == 1)
+            return true;
+        
+        Vec<T,S> copy(*this);
+        const Math::Less<T, true> less;
+        std::sort(&copy.v[0], &copy.v[S-1]+1, less);
+        return less(copy[0], copy[1]);
+    }
+    
     size_t majorComponent(const size_t k) const {
         assert(k < S);
         

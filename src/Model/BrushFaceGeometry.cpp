@@ -20,6 +20,7 @@
 #include "BrushFaceGeometry.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "MathUtils.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
@@ -277,6 +278,7 @@ namespace TrenchBroom {
                 const Vec3 edgeVector3 = edges[2]->vector();
                 assert(!edgeVector1.parallelTo(edgeVector3));
                 assert(!edgeVector2.parallelTo(edgeVector3));
+                _unused(edgeVector3);
                 
                 return edges.size();
             }

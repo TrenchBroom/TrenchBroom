@@ -54,7 +54,11 @@ namespace TrenchBroom {
         private:
             Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const;
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angle, size_t planeNormIndex) const;
-            Vec3 safeScaleAxis(const Vec3& axis, float factor) const;
+            
+            template <typename T1, typename T2>
+            Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
+                return axis / (factor == static_cast<T1>(0.0) ? static_cast<T1>(1.0) : factor);
+            }
         };
     }
 }

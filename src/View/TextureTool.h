@@ -58,6 +58,8 @@ namespace TrenchBroom {
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
 
             bool applies(const InputState& inputState) const;
+            
+            bool hasAmbiguousNormal(const Model::BrushFace* face) const;
         };
     }
 }

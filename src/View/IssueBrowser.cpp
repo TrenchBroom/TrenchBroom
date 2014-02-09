@@ -19,6 +19,7 @@
 
 #include "IssueBrowser.h"
 
+#include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/IssueManager.h"
@@ -207,12 +208,14 @@ namespace TrenchBroom {
             void addIssue(Model::Issue* issue) {
                 if (showIssue(issue)) {
                     const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    _unused(success);
                     assert(success);
                 }
             }
             
             void removeIssue(Model::Issue* issue) {
                 const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                _unused(success);
                 assert(success);
             }
 

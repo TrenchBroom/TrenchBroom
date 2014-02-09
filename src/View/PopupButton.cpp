@@ -29,9 +29,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        PopupButton::PopupButton(wxWindow* parent, const wxString& caption, const Align popupAlign) :
-        wxPanel(parent),
-        m_popupAlign(popupAlign) {
+        PopupButton::PopupButton(wxWindow* parent, const wxString& caption) :
+        wxPanel(parent) {
             m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             
             wxFrame* frame = findFrame(this);

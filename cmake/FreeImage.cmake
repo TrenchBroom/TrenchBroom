@@ -16,9 +16,12 @@ IF(APPLE)
 		/opt/local/include
 		DOC "The directory where FreeImage.h resides")
   	SET(FREEIMAGE_LIBRARY "${LIB_BIN_DIR}/osx/libfreeimage.a")
-ELSEIF (WIN32)
+ELSEIF(MSVC)
 	FIND_PATH(FREEIMAGE_INCLUDE_PATH FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
 	SET(FREEIMAGE_LIBRARY "${LIB_BIN_DIR}/win32/FreeImage.lib")
+ELSEIF(MINGW)
+	FIND_PATH(FREEIMAGE_INCLUDE_PATH FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
+	SET(FREEIMAGE_LIBRARY "${LIB_BIN_DIR}/win32/libfreeimage.a")
 ELSE()
 	FIND_PATH( FREEIMAGE_INCLUDE_PATH FreeImage.h
 		/usr/include

@@ -11,7 +11,7 @@
       - wxMSW-<version>_vc100_ReleasePDB.7z
       
     - Unpack all files into c:\wxWidgets-<version> so that "include" and "lib" directories are at the same level after unpacking.
-    - In this directory, copy lib/vc100_dll to lib/vc_dll
+    - In this directory, rename lib/vc100_dll to lib/vc_dll
     - The directory layout should look like this:
       wxWidgets-3.0.0
         \include
