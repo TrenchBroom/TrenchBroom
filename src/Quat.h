@@ -56,10 +56,10 @@ public:
         assert(to.isNormalized());
         
         const T cos = from.dot(to);
-        if (Math::eq(cos, 1.0)) {
+        if (Math::eq(std::abs(cos), 1.0)) {
             setRotation(Vec<T,3>::PosZ, 0.0);
         } else {
-            const Vec<T,3> axis = crossed(to, from);
+            const Vec<T,3> axis = crossed(to, from).normalized();
             const T angle = std::acos(cos);
             setRotation(axis, angle);
         }

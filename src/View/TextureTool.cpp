@@ -75,7 +75,7 @@ namespace TrenchBroom {
         
         bool TextureTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             assert(m_face != NULL);
-            assert(m_face->selected());
+            assert(m_face->selected() || m_face->parent()->selected());
             
             const Vec2 last = m_face->convertToTexCoordSystem(refPoint);
             const Vec2 cur = m_face->convertToTexCoordSystem(curPoint);
