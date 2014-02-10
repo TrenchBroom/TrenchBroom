@@ -47,6 +47,24 @@ public:
         setRotation(axis, angle);
     }
     
+    /**
+     * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
+     * expected to be normalized.
+     */
+    Quat(const Vec<T,3>& from, const Vec<T,3>& to) {
+        assert(from.isNormalized());
+        assert(to.isNormalized());
+        
+        const T cos = from.dot(to);
+        if (Math::eq(cos, 1.0)) {
+            setRotation(Vec<T,3>::PosZ, 0.0);
+        } else {
+            const Vec<T,3> axis = crossed(to, from);
+            const T angle = std::acos(cos);
+            setRotation(axis, angle);
+        }
+    }
+    
     template <typename U>
     Quat(const Quat<U>& other) :
     r(static_cast<T>(other.r)),

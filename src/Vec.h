@@ -394,6 +394,10 @@ public:
         return Vec<T,S>(*this).normalize();
     }
     
+    bool isNormalized() const {
+        return equals(normalized());
+    }
+    
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)

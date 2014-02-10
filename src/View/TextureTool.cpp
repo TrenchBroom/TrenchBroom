@@ -77,32 +77,19 @@ namespace TrenchBroom {
             assert(m_face != NULL);
             assert(m_face->selected());
             
-            const Grid& grid = document()->grid();
             const Vec2 last = m_face->convertToTexCoordSystem(refPoint);
             const Vec2 cur = m_face->convertToTexCoordSystem(curPoint);
-            const Vec2 delta = grid.snap(cur - last);
-            if (delta.null())
-                return true;
-            
-            const Model::BrushFaceList& faces = document()->allSelectedFaces();
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                const Vec2 last = face->convertToTexCoordSystem(refPoint);
-                const Vec2 cur = face->convertToTexCoordSystem(curPoint);
-                const Vec2 delta = grid.snap(cur - last);
 
-                const Model::BrushFaceList applyTo(1, face);
-                controller()->beginUndoableGroup("Move Texture");
-                if (delta.x() != 0.0)
-                    controller()->setFaceXOffset(applyTo, -delta.x(), true);
-                if (delta.y() != 0.0)
-                    controller()->setFaceYOffset(applyTo, -delta.y(), true);
-                controller()->closeGroup();
-            }
+            const Grid& grid = document()->grid();
+            const Vec2 offset = grid.snap(cur - last);
             
+            if (offset.null())
+                return true;
+
+            const Vec3 delta = curPoint - refPoint;
+            performMove(delta);
             
-            const Vec3 newRef = m_face->convertToWorldCoordSystem(last + delta);
+            const Vec3 newRef = m_face->convertToWorldCoordSystem(last + offset);
             refPoint = newRef;
             return true;
         }
@@ -115,16 +102,9 @@ namespace TrenchBroom {
             m_face = NULL;
         }
 
-        void TextureTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            renderContext.clearTintSelection();
-        }
-
         void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            if (dragging())
-                return;
-            
             const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (!first.matches)
+            if (!dragging() && !first.matches)
                 return;
 
             const Model::BrushFace* face = Model::hitAsFace(first.hit);
@@ -168,9 +148,110 @@ namespace TrenchBroom {
             return face->selected() || brush->selected();
         }
 
-        bool TextureTool::hasAmbiguousNormal(const Model::BrushFace* face) const {
+        void TextureTool::performMove(const Vec3& delta) {
+            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+            
+            const Vec3 planeNormal = computePlaneNormal(selectedFaces, delta);
+            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, planeNormal);
+            performMove(delta, faces, planeNormal);
+        }
+        
+        Vec3 TextureTool::computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const {
+            assert(m_face != NULL);
+            
+            Model::BrushFaceList ambiguousFaces;
+            Model::BrushFaceList nonAmbiguousFaces;
+            categorizeFaces(faces, ambiguousFaces, nonAmbiguousFaces);
+            
+            if (nonAmbiguousFaces.size() > 1) {
+                const Vec3 v1 = nonAmbiguousFaces[0]->boundary().normal.firstAxis();
+                const Vec3 v2 = nonAmbiguousFaces[1]->boundary().normal.firstAxis();
+                assert(!crossed(v1, v2).null());
+                return crossed(v1, v2).normalized();
+            } else {
+                const Vec3 v1 = m_face->boundary().normal.firstAxis();
+                const Vec3 v2 = delta.firstAxis();
+                assert(!crossed(v1, v2).null());
+                return crossed(v1, v2).normalized();
+            }
+        }
+
+        void TextureTool::categorizeFaces(const Model::BrushFaceList& faces, Model::BrushFaceList& ambiguousFaces, Model::BrushFaceList& nonAmbiguousFaces) const {
+            assert(m_face != NULL);
+            
+            const Vec3 reference = m_face->boundary().normal.firstAxis();
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                if (face != m_face && hasAmbiguousNormal(face, reference))
+                    ambiguousFaces.push_back(face);
+                else
+                    nonAmbiguousFaces.push_back(face);
+            }
+        }
+
+        // The normal of the given face is ambiguous either if neither of its components is absolutely bigger than the
+        // other components or if its first axis is parallel to the given reference vector.
+        bool TextureTool::hasAmbiguousNormal(const Model::BrushFace* face, const Vec3& reference) const {
             const Vec3& normal = face->boundary().normal;
-            return !normal.hasMajorComponent();
+            return !normal.hasMajorComponent() || Math::zero(normal.firstAxis().dot(reference));
+        }
+
+        Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const {
+            Model::BrushFaceList::const_iterator it, end;
+            Model::BrushFaceList result;
+            
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                const Vec3 faceNormal = face->boundary().normal.firstAxis();
+                if (Math::zero(faceNormal.dot(planeNormal)))
+                    result.push_back(face);
+            }
+            
+            return result;
+        }
+
+        void TextureTool::performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal) {
+            const Grid& grid = document()->grid();
+
+            controller()->beginUndoableGroup("Move Texture");
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                const Vec3 actualDelta = rotateDelta(delta, face, planeNormal);
+                const Vec2 offset = grid.snap(m_face->convertToTexCoordSystem(actualDelta));
+                
+                const Model::BrushFaceList applyTo(1, face);
+                if (offset.x() != 0.0)
+                    controller()->setFaceXOffset(applyTo, -offset.x(), true);
+                if (offset.y() != 0.0)
+                    controller()->setFaceYOffset(applyTo, -offset.y(), true);
+            }
+            controller()->closeGroup();
+        }
+
+        Vec3 TextureTool::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3& planeNormal) const {
+            assert(m_face != NULL);
+            
+            const Vec3& reference = m_face->boundary().normal.firstAxis();
+            const Vec3 faceNormal = disambiguateNormal(face, planeNormal);
+            if (reference == faceNormal)
+                return delta;
+
+            const Quat3 rotation(reference, faceNormal);
+            return rotation * delta;
+        }
+
+        Vec3 TextureTool::disambiguateNormal(const Model::BrushFace* face, const Vec3& planeNormal) const {
+            for (size_t i = 0; i < 3; ++i) {
+                const Vec3 axis = face->boundary().normal.majorAxis(i);
+                if (Math::zero(axis.dot(planeNormal)))
+                    return axis;
+            }
+            
+            assert(false);
+            return Vec3::NaN;
         }
     }
 }

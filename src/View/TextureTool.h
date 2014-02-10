@@ -53,13 +53,21 @@ namespace TrenchBroom {
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
 
             bool applies(const InputState& inputState) const;
             
-            bool hasAmbiguousNormal(const Model::BrushFace* face) const;
+            void performMove(const Vec3& delta);
+            
+            Vec3 computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const;
+            void categorizeFaces(const Model::BrushFaceList& faces, Model::BrushFaceList& ambiguousFaces, Model::BrushFaceList& nonAmbiguousFaces) const;
+            bool hasAmbiguousNormal(const Model::BrushFace* face, const Vec3& reference) const;
+            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const;
+            
+            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal);
+            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3& planeNormal) const;
+            Vec3 disambiguateNormal(const Model::BrushFace* face, const Vec3& planeNormal) const;
         };
     }
 }
