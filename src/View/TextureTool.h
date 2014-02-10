@@ -53,6 +53,7 @@ namespace TrenchBroom {
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
             
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
 

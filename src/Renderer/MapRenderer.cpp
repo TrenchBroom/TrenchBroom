@@ -135,11 +135,11 @@ namespace TrenchBroom {
             m_unselectedBrushRenderer.render(context);
             
             if (!context.hideSelection()) {
-                const bool tintSelection = lock(m_document)->selectedFaces().empty();
+                const bool applyTinting = context.tintSelection() && lock(m_document)->selectedFaces().empty();
                 
                 m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
                 m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
-                m_selectedBrushRenderer.setTintFaces(tintSelection);
+                m_selectedBrushRenderer.setTintFaces(applyTinting);
                 m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedBrushRenderer.setRenderOccludedEdges(true);
                 m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
@@ -327,13 +327,14 @@ namespace TrenchBroom {
             m_unselectedEntityRenderer.render(context);
             
             if (!context.hideSelection()) {
+                const bool applyTinting = context.tintSelection();
                 m_selectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::SelectedInfoOverlayTextColor));
                 m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::SelectedInfoOverlayBackgroundColor));
                 m_selectedEntityRenderer.setOverrideBoundsColor(true);
                 m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
                 m_selectedEntityRenderer.setRenderOccludedBounds(true);
                 m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
-                m_selectedEntityRenderer.setApplyTinting(true);
+                m_selectedEntityRenderer.setApplyTinting(applyTinting);
                 m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
                 m_selectedEntityRenderer.render(context);
             }
