@@ -19,6 +19,7 @@
 
 #include "TextureTool.h"
 
+#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -170,13 +171,14 @@ namespace TrenchBroom {
             Model::BrushFaceList nonAmbiguousFaces;
             categorizeFaces(faces, ambiguousFaces, nonAmbiguousFaces);
             
+            const Vec3 v1 = m_face->boundary().normal.firstAxis();
             if (nonAmbiguousFaces.size() > 1) {
-                const Vec3 v1 = nonAmbiguousFaces[0]->boundary().normal.firstAxis();
-                const Vec3 v2 = nonAmbiguousFaces[1]->boundary().normal.firstAxis();
+                assert(VectorUtils::findOther(faces, m_face) != faces.end());
+                const Model::BrushFace* other = *VectorUtils::findOther(faces, m_face);
+                const Vec3 v2 = other->boundary().normal.firstAxis();
                 assert(!crossed(v1, v2).null());
                 return crossed(v1, v2).normalized();
             } else {
-                const Vec3 v1 = m_face->boundary().normal.firstAxis();
                 const Vec3 v2 = delta.firstAxis();
                 assert(!crossed(v1, v2).null());
                 return crossed(v1, v2).normalized();
@@ -202,7 +204,7 @@ namespace TrenchBroom {
         // other components or if its first axis is parallel to the given reference vector.
         bool TextureTool::hasAmbiguousNormal(const Model::BrushFace* face, const Vec3& reference) const {
             const Vec3& normal = face->boundary().normal;
-            return !normal.hasMajorComponent() || Math::zero(normal.firstAxis().dot(reference));
+            return !normal.hasMajorComponent() || Math::eq(std::abs(normal.firstAxis().dot(reference)), 1.0);
         }
 
         Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const {

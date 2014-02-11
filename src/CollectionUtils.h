@@ -103,6 +103,19 @@ namespace VectorUtils {
         return std::find(vec.begin(), vec.end(), item);
     }
     
+    template <typename T>
+    typename std::vector<T*>::const_iterator findOther(const std::vector<T*>& vec, const T* item) {
+        typedef typename std::vector<T*>::const_iterator Iter;
+        Iter cur = vec.begin();
+        Iter end = vec.end();
+        while (cur != end) {
+            if (*cur != item)
+                return cur;
+            ++cur;
+        }
+        return end;
+    }
+    
     template <typename T, class P>
     T* findIf(const std::vector<T*>& vec, const P& predicate) {
         typename std::vector<T*>::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
