@@ -39,6 +39,13 @@ TEST(QuatTest, rotationConstructor) {
     ASSERT_VEC_EQ(axis * std::sin(angle / 2.0f), q.v);
 }
 
+TEST(QuatTest, rotateVecConstructor) {
+    const Vec3d from(0.0, 1.0, 0.0);
+    const Vec3d to(1.0, 0.0, 0.0);
+    const Quatd q(from, to);
+    ASSERT_VEC_EQ(to, q * from);
+}
+
 TEST(QuatTest, negation) {
     const Quatf q(Vec<float,3>::PosX, Math::radians(15.0f));
     const Quatf nq = -q;

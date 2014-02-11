@@ -59,7 +59,7 @@ public:
         if (Math::eq(std::abs(cos), 1.0)) {
             setRotation(Vec<T,3>::PosZ, 0.0);
         } else {
-            const Vec<T,3> axis = crossed(to, from).normalized();
+            const Vec<T,3> axis = crossed(from, to).normalized();
             const T angle = std::acos(cos);
             setRotation(axis, angle);
         }
@@ -112,7 +112,7 @@ public:
     }
     
     Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
-        assert(Math::eq(axis.length(), static_cast<T>(1.0)));
+        assert(axis.isNormalized());
         r = std::cos(angle / static_cast<T>(2.0));
         v = axis * std::sin(angle / static_cast<T>(2.0));
         return *this;

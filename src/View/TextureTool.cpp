@@ -108,13 +108,20 @@ namespace TrenchBroom {
         }
         
         void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (!dragging() && !first.matches)
-                return;
-
-            const Model::BrushFace* face = Model::hitAsFace(first.hit);
-            const Model::Brush* brush = face->parent();
-            if (!dragging() && !(face->selected() || brush->selected()))
+            const Model::BrushFace* face = NULL;
+            if (dragging()) {
+                assert(m_face != NULL);
+                face = m_face;
+            } else {
+                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+                if (first.matches) {
+                    face = Model::hitAsFace(first.hit);
+                    if (!face->selected() && !face->parent()->selected())
+                        face = NULL;
+                }
+            }
+            
+            if (face == NULL)
                 return;
 
             PreferenceManager& prefs = PreferenceManager::instance();

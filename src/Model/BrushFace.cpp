@@ -284,6 +284,7 @@ namespace TrenchBroom {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
             m_attribs.setTexture(texture);
+            invalidateVertexCache();
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
         }
