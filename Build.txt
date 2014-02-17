@@ -47,7 +47,7 @@
       mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=debug clean
       mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=debug
   - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
-  - If you want to run the binaries without using the installer, add %WXWIN% to your path. The relevant parts of my PATH variable look something like this:
+  - If you want to run the binaries without using the installer, add %WXWIN%\lib\gc_dll to your path. The relevant parts of my PATH variable look something like this:
     C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\gcc_dll;
 
 
