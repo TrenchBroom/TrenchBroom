@@ -19,8 +19,9 @@ ENDIF()
 
 SET(wxWidgets_USE_UNICODE ON)
 SET(wxWidgets_USE_UNIVERSAL ON)
-SET(wxWidgets_USE_LIBS ON)
-FIND_PACKAGE(wxWidgets REQUIRED gl core base adv)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+FIND_PACKAGE(wxWidgetsTB REQUIRED gl core base adv)
 INCLUDE("${wxWidgets_USE_FILE}")
 
 # Remove QuickTime framework on OS X; it's not needed and produces a linker warning

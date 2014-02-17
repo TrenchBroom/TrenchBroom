@@ -27,11 +27,6 @@
     - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc_dll to your path. The relevant parts of my PATH variable look something like this:
     C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc_dll;
   - Download and install CMake for Windows (www.cmake.org)
-    - You might have to adapt the FindwxWidgets.cmake script in <cmake-install-dir>\share\cmake-2.8\Modules:
-      - Open <path_to_cmake>\share\cmake-2.8\Modules\FindwxWidgets.cmake in notepad.
-      - Find the definition of the variable PATH_SUFFIXES (should be around line 434).
-      - Add wxWidgets-3.0.0 to the list of PATH_SUFFIXES.
-    - Finally, add <path_to_cmake>\bin to your PATH environment variable if the installer hasn't done so already.
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
   - Run the following two commands
