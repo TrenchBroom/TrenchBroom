@@ -62,8 +62,10 @@ namespace TrenchBroom {
             void performMove(const Vec3& delta);
             
             Vec3 computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const;
-            void categorizeFaces(const Model::BrushFaceList& faces, Model::BrushFaceList& ambiguousFaces, Model::BrushFaceList& nonAmbiguousFaces) const;
-            bool hasAmbiguousNormal(const Model::BrushFace* face, const Vec3& reference) const;
+            void restrictPlaneNormals(const Vec3& normal, bool (&axes)[3]) const;
+            size_t countPossiblePlaneNormals(const Vec3& normal) const;
+            size_t countPossiblePlaneNormals(bool (&axes)[3]) const;
+            Vec3 selectUniquePlaneNormal(bool (&axes)[3]) const;
             Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const;
             
             void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal);

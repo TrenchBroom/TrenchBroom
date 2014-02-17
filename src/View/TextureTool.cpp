@@ -174,44 +174,76 @@ namespace TrenchBroom {
         Vec3 TextureTool::computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const {
             assert(m_face != NULL);
             
-            Model::BrushFaceList ambiguousFaces;
-            Model::BrushFaceList nonAmbiguousFaces;
-            categorizeFaces(faces, ambiguousFaces, nonAmbiguousFaces);
+            bool axes[3] = { true, true, true };
             
-            const Vec3 v1 = m_face->boundary().normal.firstAxis();
-            if (nonAmbiguousFaces.size() > 1) {
-                assert(VectorUtils::findOther(faces, m_face) != faces.end());
-                const Model::BrushFace* other = *VectorUtils::findOther(faces, m_face);
-                const Vec3 v2 = other->boundary().normal.firstAxis();
-                assert(!crossed(v1, v2).null());
-                return crossed(v1, v2).normalized();
-            } else {
-                const Vec3 v2 = delta.firstAxis();
-                assert(!crossed(v1, v2).null());
-                return crossed(v1, v2).normalized();
+            Model::BrushFaceList::const_iterator it = faces.begin();
+            const Model::BrushFaceList::const_iterator end = faces.end();
+            assert(it != end);
+            restrictPlaneNormals((*it)->boundary().normal, axes);
+            while (++it != end) {
+                const Model::BrushFace* face = *it;
+                restrictPlaneNormals(face->boundary().normal, axes);
             }
-        }
-
-        void TextureTool::categorizeFaces(const Model::BrushFaceList& faces, Model::BrushFaceList& ambiguousFaces, Model::BrushFaceList& nonAmbiguousFaces) const {
-            assert(m_face != NULL);
+            
+            const size_t planeNormals = countPossiblePlaneNormals(axes);
+            if (planeNormals == 1)
+                return selectUniquePlaneNormal(axes);
             
             const Vec3 reference = m_face->boundary().normal.firstAxis();
+            const Vec3 deltaRef  = delta.firstAxis();
+            const Vec3 planeNormal = crossed(reference, deltaRef);
             
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                if (face != m_face && hasAmbiguousNormal(face, reference))
-                    ambiguousFaces.push_back(face);
-                else
-                    nonAmbiguousFaces.push_back(face);
+            assert(!planeNormal.null());
+            return planeNormal.normalized();
+        }
+
+        void TextureTool::restrictPlaneNormals(const Vec3& normal, bool (&axes)[3]) const {
+            const size_t count = countPossiblePlaneNormals(normal);
+            assert(count > 0);
+            
+            const size_t first = normal.firstComponent();
+            axes[first] = false;
+
+            if (count == 2) {
+                const size_t second = normal.secondComponent();
+                axes[second] = false;
             }
         }
 
-        // The normal of the given face is ambiguous either if neither of its components is absolutely bigger than the
-        // other components or if its first axis is parallel to the given reference vector.
-        bool TextureTool::hasAmbiguousNormal(const Model::BrushFace* face, const Vec3& reference) const {
-            const Vec3& normal = face->boundary().normal;
-            return !normal.hasMajorComponent() || Math::eq(std::abs(normal.firstAxis().dot(reference)), 1.0);
+        size_t TextureTool::countPossiblePlaneNormals(const Vec3& normal) const {
+            const size_t comp1 = normal.firstComponent();
+            const size_t comp2 = normal.secondComponent();
+            const size_t comp3 = normal.secondComponent();
+            const FloatType val1 = normal[comp1];
+            const FloatType val2 = normal[comp2];
+            const FloatType val3 = normal[comp3];
+            
+            if (Math::gt(std::abs(val1), std::abs(val2)))
+                return 1;
+            if (Math::gt(std::abs(val2), std::abs(val3)))
+                return 2;
+            return 3;
+        }
+
+        size_t TextureTool::countPossiblePlaneNormals(bool (&axes)[3]) const {
+            size_t count = 0;
+            for (size_t i = 0; i < 3; ++i)
+                if (axes[i])
+                    ++count;
+            return count;
+        }
+
+        Vec3 TextureTool::selectUniquePlaneNormal(bool (&axes)[3]) const {
+            Vec3 result;
+            for (size_t i = 0; i < 3; ++i) {
+                if (axes[i]) {
+                    result[i] = 1.0;
+                    break;
+                }
+            }
+            
+            assert(false);
+            return result;
         }
 
         Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const {
@@ -220,9 +252,20 @@ namespace TrenchBroom {
             
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                const Vec3 faceNormal = face->boundary().normal.firstAxis();
-                if (Math::zero(faceNormal.dot(planeNormal)))
+                const Vec3& faceNormal = face->boundary().normal;
+                const size_t count = countPossiblePlaneNormals(faceNormal);
+                assert(count > 0 && count <= 3);
+                
+                if (count == 1) {
+                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)))
+                        result.push_back(face);
+                } else if (count == 2) {
+                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)) &&
+                        Math::zero(faceNormal.secondAxis().dot(planeNormal)) )
+                        result.push_back(face);
+                } else {
                     result.push_back(face);
+                }
             }
             
             return result;

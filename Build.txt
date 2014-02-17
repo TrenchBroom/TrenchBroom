@@ -22,12 +22,10 @@
         \lib
           \vc_dll
             <wxwidgets libraries>
-          \vc100_dll
-            <same as vc_dll>
 
     - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add %WXWIN% to your path. The relevant parts of my PATH variable look something like this:
-    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc100_dll;
+    - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc_dll to your path. The relevant parts of my PATH variable look something like this:
+    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc_dll;
   - Download and install CMake for Windows (www.cmake.org)
     - You might have to adapt the FindwxWidgets.cmake script in <cmake-install-dir>\share\cmake-2.8\Modules:
       - Open <path_to_cmake>\share\cmake-2.8\Modules\FindwxWidgets.cmake in notepad.
