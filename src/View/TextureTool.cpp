@@ -166,39 +166,32 @@ namespace TrenchBroom {
         void TextureTool::performMove(const Vec3& delta) {
             const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
             
-            const Vec3 planeNormal = computePlaneNormal(selectedFaces, delta);
-            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, planeNormal);
-            performMove(delta, faces, planeNormal);
+            const TDragPlane dragPlane = findDragPlane(selectedFaces);
+            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, dragPlane);
+            performMove(delta, faces, dragPlane);
         }
         
-        Vec3 TextureTool::computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const {
-            assert(m_face != NULL);
-            
+        TextureTool::TDragPlane TextureTool::findDragPlane(const Model::BrushFaceList& faces) const {
             bool axes[3] = { true, true, true };
             
             Model::BrushFaceList::const_iterator it = faces.begin();
             const Model::BrushFaceList::const_iterator end = faces.end();
             assert(it != end);
-            restrictPlaneNormals((*it)->boundary().normal, axes);
+            restrictDragPlanes((*it)->boundary().normal, axes);
             while (++it != end) {
                 const Model::BrushFace* face = *it;
-                restrictPlaneNormals(face->boundary().normal, axes);
+                restrictDragPlanes(face->boundary().normal, axes);
             }
             
-            const size_t planeNormals = countPossiblePlaneNormals(axes);
+            const size_t planeNormals = countPossibleDragPlanes(axes);
             if (planeNormals == 1)
-                return selectUniquePlaneNormal(axes);
+                return selectUniqueDragPlane(axes);
             
-            const Vec3 reference = m_face->boundary().normal.firstAxis();
-            const Vec3 deltaRef  = delta.firstAxis();
-            const Vec3 planeNormal = crossed(reference, deltaRef);
-            
-            assert(!planeNormal.null());
-            return planeNormal.normalized();
+            return selectUniqueDragPlane(m_face->boundary().normal);
         }
 
-        void TextureTool::restrictPlaneNormals(const Vec3& normal, bool (&axes)[3]) const {
-            const size_t count = countPossiblePlaneNormals(normal);
+        void TextureTool::restrictDragPlanes(const Vec3& normal, bool (&axes)[3]) const {
+            const size_t count = countPossibleDragPlanes(normal);
             assert(count > 0);
             
             const size_t first = normal.firstComponent();
@@ -210,10 +203,10 @@ namespace TrenchBroom {
             }
         }
 
-        size_t TextureTool::countPossiblePlaneNormals(const Vec3& normal) const {
+        size_t TextureTool::countPossibleDragPlanes(const Vec3& normal) const {
             const size_t comp1 = normal.firstComponent();
             const size_t comp2 = normal.secondComponent();
-            const size_t comp3 = normal.secondComponent();
+            const size_t comp3 = normal.thirdComponent();
             const FloatType val1 = normal[comp1];
             const FloatType val2 = normal[comp2];
             const FloatType val3 = normal[comp3];
@@ -225,7 +218,7 @@ namespace TrenchBroom {
             return 3;
         }
 
-        size_t TextureTool::countPossiblePlaneNormals(bool (&axes)[3]) const {
+        size_t TextureTool::countPossibleDragPlanes(const bool (&axes)[3]) const {
             size_t count = 0;
             for (size_t i = 0; i < 3; ++i)
                 if (axes[i])
@@ -233,52 +226,51 @@ namespace TrenchBroom {
             return count;
         }
 
-        Vec3 TextureTool::selectUniquePlaneNormal(bool (&axes)[3]) const {
-            Vec3 result;
-            for (size_t i = 0; i < 3; ++i) {
-                if (axes[i]) {
-                    result[i] = 1.0;
-                    break;
-                }
+        TextureTool::TDragPlane TextureTool::selectUniqueDragPlane(const Vec3& normal) const {
+            const size_t count = countPossibleDragPlanes(normal);
+            if (count == 1) {
+                return getDragPlane(normal);
+            } else if (count == 2 &&
+                       getDragPlane(normal.firstAxis()) != DPVertical &&
+                       getDragPlane(normal.secondAxis()) != DPVertical) {
+                return DPHorizontal;
             }
-            
-            assert(false);
-            return result;
+            return DPVertical;
         }
 
-        Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const {
+        TextureTool::TDragPlane TextureTool::getDragPlane(const Vec3& vec) const {
+            const Math::Axis::Type first = vec.firstComponent();
+            return first == Math::Axis::AZ ? DPHorizontal : DPVertical;
+        }
+
+        TextureTool::TDragPlane TextureTool::selectUniqueDragPlane(const bool (&axes)[3]) const {
+            assert(axes[0] ^ axes[1] ^ axes[2]);
+            return axes[2] ? DPVertical : DPHorizontal;
+        }
+
+        Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const TDragPlane dragPlane) const {
             Model::BrushFaceList::const_iterator it, end;
             Model::BrushFaceList result;
             
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 const Vec3& faceNormal = face->boundary().normal;
-                const size_t count = countPossiblePlaneNormals(faceNormal);
-                assert(count > 0 && count <= 3);
-                
-                if (count == 1) {
-                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)))
-                        result.push_back(face);
-                } else if (count == 2) {
-                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)) &&
-                        Math::zero(faceNormal.secondAxis().dot(planeNormal)) )
-                        result.push_back(face);
-                } else {
+                const TDragPlane faceDragPlane = selectUniqueDragPlane(faceNormal);
+                if (faceDragPlane == dragPlane)
                     result.push_back(face);
-                }
             }
             
             return result;
         }
 
-        void TextureTool::performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal) {
+        void TextureTool::performMove(const Vec3& delta, const Model::BrushFaceList& faces, const TDragPlane dragPlane) {
             const Grid& grid = document()->grid();
 
             controller()->beginUndoableGroup("Move Texture");
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                const Vec3 actualDelta = rotateDelta(delta, face, planeNormal);
+                const Vec3 actualDelta = rotateDelta(delta, face, dragPlane);
                 const Vec2 offset = grid.snap(face->convertToTexCoordSystem(actualDelta));
                 
                 const Model::BrushFaceList applyTo(1, face);
@@ -290,11 +282,11 @@ namespace TrenchBroom {
             controller()->closeGroup();
         }
 
-        Vec3 TextureTool::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3& planeNormal) const {
+        Vec3 TextureTool::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const TDragPlane dragPlane) const {
             assert(m_face != NULL);
             
             const Vec3& reference = m_face->boundary().normal.firstAxis();
-            const Vec3 faceNormal = disambiguateNormal(face, planeNormal);
+            const Vec3 faceNormal = disambiguateNormal(face, dragPlane);
             if (reference == faceNormal)
                 return delta;
 
@@ -302,15 +294,16 @@ namespace TrenchBroom {
             return rotation * delta;
         }
 
-        Vec3 TextureTool::disambiguateNormal(const Model::BrushFace* face, const Vec3& planeNormal) const {
-            for (size_t i = 0; i < 3; ++i) {
-                const Vec3 axis = face->boundary().normal.majorAxis(i);
-                if (Math::zero(axis.dot(planeNormal)))
-                    return axis;
+        Vec3 TextureTool::disambiguateNormal(const Model::BrushFace* face, const TDragPlane dragPlane) const {
+            const Vec3& faceNormal = face->boundary().normal;
+            if (dragPlane == DPHorizontal) {
+                assert(!Math::zero(faceNormal.z()));
+                return Math::pos(faceNormal.z()) ? Vec3::PosZ : Vec3::NegZ;
             }
             
-            assert(false);
-            return Vec3::NaN;
+            const Vec3 firstAxis = faceNormal.firstAxis();
+            assert(firstAxis.z() == 0.0);
+            return firstAxis;
         }
     }
 }
