@@ -39,11 +39,6 @@ namespace TrenchBroom {
         class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
             Model::BrushFace* m_face;
-            
-            typedef enum {
-                DPHorizontal,
-                DPVertical
-            } TDragPlane;
         public:
             TextureTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
         private:
@@ -66,18 +61,18 @@ namespace TrenchBroom {
             
             void performMove(const Vec3& delta);
             
-            TDragPlane findDragPlane(const Model::BrushFaceList& faces) const;
-            void restrictDragPlanes(const Vec3& normal, bool (&axes)[3]) const;
-            size_t countPossibleDragPlanes(const Vec3& normal) const;
-            size_t countPossibleDragPlanes(const bool (&axes)[3]) const;
-            TDragPlane selectUniqueDragPlane(const Vec3& normal) const;
-            TDragPlane getDragPlane(const Vec3& vec) const;
-            TDragPlane selectUniqueDragPlane(const bool (&axes)[3]) const;
-            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, TDragPlane dragPlane) const;
+            Vec3::List findApplicablePlaneNormals(const Model::BrushFaceList& faces) const;
+            size_t countPossibleAxes(const Vec3& normal) const;
+            void countPossibleAxes(const Vec3& normal, size_t (&counts)[3]) const;
+            size_t countPossibleAxes(const size_t (&counts)[3]) const;
+            Vec3::List selectApplicablePlaneNormals(const size_t (&counts)[3], const Model::BrushFace* face) const;
+            void getPlaneNormals(const size_t (&counts)[3], Vec3::List& normals) const;
+
+            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3::List& normals) const;
             
-            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, TDragPlane dragPlane);
-            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, TDragPlane dragPlane) const;
-            Vec3 disambiguateNormal(const Model::BrushFace* face, TDragPlane dragPlane) const;
+            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3::List& normals);
+            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3::List& normals) const;
+            Vec3 disambiguateNormal(const Model::BrushFace* face, const Vec3::List& normals) const;
         };
     }
 }
