@@ -55,13 +55,13 @@ namespace TrenchBroom {
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
+            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
 
             bool applies(const InputState& inputState) const;
             
             void performMove(const Vec3& delta);
             
-            Vec3::List findApplicablePlaneNormals(const Model::BrushFaceList& faces) const;
+            Vec3::List findApplicablePlaneNormals(const Model::BrushFaceList& faces, const Model::BrushFace* reference) const;
             size_t countPossibleAxes(const Vec3& normal) const;
             void countPossibleAxes(const Vec3& normal, size_t (&counts)[3]) const;
             size_t countPossibleAxes(const size_t (&counts)[3]) const;

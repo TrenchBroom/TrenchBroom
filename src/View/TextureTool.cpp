@@ -105,47 +105,47 @@ namespace TrenchBroom {
 
         void TextureTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.clearTintSelection();
+            renderContext.setForceHideSelectionGuide();
         }
         
         void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            const Model::BrushFace* face = NULL;
-            if (dragging()) {
-                assert(m_face != NULL);
-                face = m_face;
-            } else {
-                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-                if (first.matches) {
-                    face = Model::hitAsFace(first.hit);
-                    if (!face->selected() && !face->parent()->selected())
-                        face = NULL;
-                }
-            }
-            
-            if (face == NULL)
-                return;
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+            if (dragging() || first.matches) {
+                const Model::BrushFace* reference = dragging() ? m_face : Model::hitAsFace(first.hit);
+                assert(reference != NULL);
+                
+                const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+                const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, reference);
+                const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
+                
+                if (faces.empty())
+                    return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(face);
-            
-            glDisable(GL_DEPTH_TEST);
-            edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
-            edgeRenderer.render(renderContext);
-            glEnable(GL_DEPTH_TEST);
+                PreferenceManager& prefs = PreferenceManager::instance();
+                Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(faces);
+                
+                glDisable(GL_DEPTH_TEST);
+                edgeRenderer.setUseColor(true);
+                edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
+                edgeRenderer.render(renderContext);
+                glEnable(GL_DEPTH_TEST);
+            }
         }
         
-        Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFace* face) const {
-            assert(face != NULL);
-            
-            const Model::BrushEdgeList& edges = face->edges();
-
+        Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFaceList& faces) const {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices(2 * edges.size());
+            Vertex::List vertices;
 
-            for (size_t i = 0; i < edges.size(); ++i) {
-                const Model::BrushEdge* edge = edges[i];
-                vertices[2 * i + 0] = Vertex(edge->start->position);
-                vertices[2 * i + 1] = Vertex(edge->end->position);
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                const Model::BrushEdgeList& edges = face->edges();
+                
+                for (size_t i = 0; i < edges.size(); ++i) {
+                    const Model::BrushEdge* edge = edges[i];
+                    vertices.push_back(Vertex(edge->start->position));
+                    vertices.push_back(Vertex(edge->end->position));
+                }
             }
             
             return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
@@ -164,15 +164,16 @@ namespace TrenchBroom {
         }
 
         void TextureTool::performMove(const Vec3& delta) {
-            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+            assert(m_face != NULL);
             
-            const Vec3::List normals = findApplicablePlaneNormals(selectedFaces);
+            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+            const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, m_face);
             const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
             performMove(delta, faces, normals);
         }
         
-        Vec3::List TextureTool::findApplicablePlaneNormals(const Model::BrushFaceList& faces) const {
-            assert(m_face != NULL);
+        Vec3::List TextureTool::findApplicablePlaneNormals(const Model::BrushFaceList& faces, const Model::BrushFace* reference) const {
+            assert(reference != NULL);
             size_t counts[3] = { 0, 0, 0 };
             
             Model::BrushFaceList::const_iterator it, end;
@@ -181,7 +182,7 @@ namespace TrenchBroom {
                 countPossibleAxes(face->boundary().normal, counts);
             }
             
-            return selectApplicablePlaneNormals(counts, m_face);
+            return selectApplicablePlaneNormals(counts, reference);
         }
 
         Vec3::List TextureTool::selectApplicablePlaneNormals(const size_t (&counts)[3], const Model::BrushFace* face) const {
