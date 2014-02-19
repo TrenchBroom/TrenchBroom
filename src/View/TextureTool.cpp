@@ -105,47 +105,47 @@ namespace TrenchBroom {
 
         void TextureTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.clearTintSelection();
+            renderContext.setForceHideSelectionGuide();
         }
         
         void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            const Model::BrushFace* face = NULL;
-            if (dragging()) {
-                assert(m_face != NULL);
-                face = m_face;
-            } else {
-                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-                if (first.matches) {
-                    face = Model::hitAsFace(first.hit);
-                    if (!face->selected() && !face->parent()->selected())
-                        face = NULL;
-                }
-            }
-            
-            if (face == NULL)
-                return;
+            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+            if (dragging() || first.matches) {
+                const Model::BrushFace* reference = dragging() ? m_face : Model::hitAsFace(first.hit);
+                assert(reference != NULL);
+                
+                const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+                const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, reference);
+                const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
+                
+                if (faces.empty())
+                    return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(face);
-            
-            glDisable(GL_DEPTH_TEST);
-            edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
-            edgeRenderer.render(renderContext);
-            glEnable(GL_DEPTH_TEST);
+                PreferenceManager& prefs = PreferenceManager::instance();
+                Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(faces);
+                
+                glDisable(GL_DEPTH_TEST);
+                edgeRenderer.setUseColor(true);
+                edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
+                edgeRenderer.render(renderContext);
+                glEnable(GL_DEPTH_TEST);
+            }
         }
         
-        Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFace* face) const {
-            assert(face != NULL);
-            
-            const Model::BrushEdgeList& edges = face->edges();
-
+        Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFaceList& faces) const {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices(2 * edges.size());
+            Vertex::List vertices;
 
-            for (size_t i = 0; i < edges.size(); ++i) {
-                const Model::BrushEdge* edge = edges[i];
-                vertices[2 * i + 0] = Vertex(edge->start->position);
-                vertices[2 * i + 1] = Vertex(edge->end->position);
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                const Model::BrushEdgeList& edges = face->edges();
+                
+                for (size_t i = 0; i < edges.size(); ++i) {
+                    const Model::BrushEdge* edge = edges[i];
+                    vertices.push_back(Vertex(edge->start->position));
+                    vertices.push_back(Vertex(edge->end->position));
+                }
             }
             
             return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
@@ -164,121 +164,112 @@ namespace TrenchBroom {
         }
 
         void TextureTool::performMove(const Vec3& delta) {
-            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
-            
-            const Vec3 planeNormal = computePlaneNormal(selectedFaces, delta);
-            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, planeNormal);
-            performMove(delta, faces, planeNormal);
-        }
-        
-        Vec3 TextureTool::computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const {
             assert(m_face != NULL);
             
-            bool axes[3] = { true, true, true };
+            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+            const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, m_face);
+            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
+            performMove(delta, faces, normals);
+        }
+        
+        Vec3::List TextureTool::findApplicablePlaneNormals(const Model::BrushFaceList& faces, const Model::BrushFace* reference) const {
+            assert(reference != NULL);
+            size_t counts[3] = { 0, 0, 0 };
             
-            Model::BrushFaceList::const_iterator it = faces.begin();
-            const Model::BrushFaceList::const_iterator end = faces.end();
-            assert(it != end);
-            restrictPlaneNormals((*it)->boundary().normal, axes);
-            while (++it != end) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 const Model::BrushFace* face = *it;
-                restrictPlaneNormals(face->boundary().normal, axes);
+                countPossibleAxes(face->boundary().normal, counts);
             }
             
-            const size_t planeNormals = countPossiblePlaneNormals(axes);
-            if (planeNormals == 1)
-                return selectUniquePlaneNormal(axes);
-            
-            const Vec3 reference = m_face->boundary().normal.firstAxis();
-            const Vec3 deltaRef  = delta.firstAxis();
-            const Vec3 planeNormal = crossed(reference, deltaRef);
-            
-            assert(!planeNormal.null());
-            return planeNormal.normalized();
+            return selectApplicablePlaneNormals(counts, reference);
         }
 
-        void TextureTool::restrictPlaneNormals(const Vec3& normal, bool (&axes)[3]) const {
-            const size_t count = countPossiblePlaneNormals(normal);
-            assert(count > 0);
+        Vec3::List TextureTool::selectApplicablePlaneNormals(const size_t (&counts)[3], const Model::BrushFace* face) const {
+            Vec3::List result;
             
-            const size_t first = normal.firstComponent();
-            axes[first] = false;
-
-            if (count == 2) {
-                const size_t second = normal.secondComponent();
-                axes[second] = false;
+            const size_t count = countPossibleAxes(counts);
+            if (count == 1) {
+                result.push_back(face->boundary().normal.firstAxis());
+            } else if (count == 2) {
+                for (size_t i = 0; i < 3; ++i) {
+                    if (counts[i] > 0) {
+                        Vec3 pos;
+                        pos[i] = 1.0;
+                        result.push_back(pos);
+                        result.push_back(-pos);
+                    }
+                }
+            } else {
+                const Vec3& faceNormal = face->boundary().normal;
+                if (countPossibleAxes(faceNormal) == 1 &&
+                    faceNormal.firstComponent() == Math::Axis::AZ) {
+                    result.push_back(faceNormal.firstAxis());
+                } else {
+                    result.push_back(Vec3::PosX);
+                    result.push_back(Vec3::NegX);
+                    result.push_back(Vec3::PosY);
+                    result.push_back(Vec3::NegY);
+                }
             }
+            
+            assert(!result.empty());
+            return result;
         }
 
-        size_t TextureTool::countPossiblePlaneNormals(const Vec3& normal) const {
+        size_t TextureTool::countPossibleAxes(const Vec3& normal) const {
+            size_t counts[3] = { 0, 0, 0};
+            countPossibleAxes(normal, counts);
+            return countPossibleAxes(counts);
+        }
+
+        void TextureTool::countPossibleAxes(const Vec3& normal, size_t (&counts)[3]) const {
             const size_t comp1 = normal.firstComponent();
             const size_t comp2 = normal.secondComponent();
-            const size_t comp3 = normal.secondComponent();
+            const size_t comp3 = normal.thirdComponent();
             const FloatType val1 = normal[comp1];
             const FloatType val2 = normal[comp2];
             const FloatType val3 = normal[comp3];
             
-            if (Math::gt(std::abs(val1), std::abs(val2)))
-                return 1;
-            if (Math::gt(std::abs(val2), std::abs(val3)))
-                return 2;
-            return 3;
+            ++counts[comp1];
+            if (Math::eq(std::abs(val1), std::abs(val2))) {
+                ++counts[comp2];
+                if (Math::eq(std::abs(val2), std::abs(val3)))
+                    ++counts[comp3];
+            }
         }
 
-        size_t TextureTool::countPossiblePlaneNormals(bool (&axes)[3]) const {
+        size_t TextureTool::countPossibleAxes(const size_t (&counts)[3]) const {
             size_t count = 0;
             for (size_t i = 0; i < 3; ++i)
-                if (axes[i])
+                if (counts[i] > 0)
                     ++count;
             return count;
         }
 
-        Vec3 TextureTool::selectUniquePlaneNormal(bool (&axes)[3]) const {
-            Vec3 result;
-            for (size_t i = 0; i < 3; ++i) {
-                if (axes[i]) {
-                    result[i] = 1.0;
-                    break;
-                }
-            }
-            
-            assert(false);
-            return result;
-        }
-
-        Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const {
+        Model::BrushFaceList TextureTool::selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3::List& normals) const {
             Model::BrushFaceList::const_iterator it, end;
             Model::BrushFaceList result;
             
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 const Vec3& faceNormal = face->boundary().normal;
-                const size_t count = countPossiblePlaneNormals(faceNormal);
-                assert(count > 0 && count <= 3);
-                
-                if (count == 1) {
-                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)))
-                        result.push_back(face);
-                } else if (count == 2) {
-                    if (Math::zero(faceNormal.firstAxis().dot(planeNormal)) &&
-                        Math::zero(faceNormal.secondAxis().dot(planeNormal)) )
-                        result.push_back(face);
-                } else {
+                const Vec3 firstAxis = faceNormal.firstAxis();
+                if (VectorUtils::contains(normals, firstAxis))
                     result.push_back(face);
-                }
             }
             
             return result;
         }
 
-        void TextureTool::performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal) {
+        void TextureTool::performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3::List& normals) {
             const Grid& grid = document()->grid();
 
             controller()->beginUndoableGroup("Move Texture");
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                const Vec3 actualDelta = rotateDelta(delta, face, planeNormal);
+                const Vec3 actualDelta = rotateDelta(delta, face, normals);
                 const Vec2 offset = grid.snap(face->convertToTexCoordSystem(actualDelta));
                 
                 const Model::BrushFaceList applyTo(1, face);
@@ -290,11 +281,11 @@ namespace TrenchBroom {
             controller()->closeGroup();
         }
 
-        Vec3 TextureTool::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3& planeNormal) const {
+        Vec3 TextureTool::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3::List& normals) const {
             assert(m_face != NULL);
             
             const Vec3& reference = m_face->boundary().normal.firstAxis();
-            const Vec3 faceNormal = disambiguateNormal(face, planeNormal);
+            const Vec3 faceNormal = disambiguateNormal(face, normals);
             if (reference == faceNormal)
                 return delta;
 
@@ -302,15 +293,20 @@ namespace TrenchBroom {
             return rotation * delta;
         }
 
-        Vec3 TextureTool::disambiguateNormal(const Model::BrushFace* face, const Vec3& planeNormal) const {
-            for (size_t i = 0; i < 3; ++i) {
-                const Vec3 axis = face->boundary().normal.majorAxis(i);
-                if (Math::zero(axis.dot(planeNormal)))
-                    return axis;
-            }
+        Vec3 TextureTool::disambiguateNormal(const Model::BrushFace* face, const Vec3::List& normals) const {
+            const Vec3& faceNormal = face->boundary().normal;
+
+            const Vec3 firstAxis = faceNormal.firstAxis();
+            if (VectorUtils::contains(normals, firstAxis))
+                return firstAxis;
             
-            assert(false);
-            return Vec3::NaN;
+            const Vec3 secondAxis = faceNormal.secondAxis();
+            if (VectorUtils::contains(normals, secondAxis))
+                return secondAxis;
+            
+            const Vec3 thirdAxis = faceNormal.thirdAxis();
+            assert(VectorUtils::contains(normals, thirdAxis));
+            return thirdAxis;
         }
     }
 }

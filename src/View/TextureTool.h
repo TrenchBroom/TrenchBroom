@@ -55,22 +55,24 @@ namespace TrenchBroom {
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFace* face) const;
+            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
 
             bool applies(const InputState& inputState) const;
             
             void performMove(const Vec3& delta);
             
-            Vec3 computePlaneNormal(const Model::BrushFaceList& faces, const Vec3& delta) const;
-            void restrictPlaneNormals(const Vec3& normal, bool (&axes)[3]) const;
-            size_t countPossiblePlaneNormals(const Vec3& normal) const;
-            size_t countPossiblePlaneNormals(bool (&axes)[3]) const;
-            Vec3 selectUniquePlaneNormal(bool (&axes)[3]) const;
-            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3& planeNormal) const;
+            Vec3::List findApplicablePlaneNormals(const Model::BrushFaceList& faces, const Model::BrushFace* reference) const;
+            size_t countPossibleAxes(const Vec3& normal) const;
+            void countPossibleAxes(const Vec3& normal, size_t (&counts)[3]) const;
+            size_t countPossibleAxes(const size_t (&counts)[3]) const;
+            Vec3::List selectApplicablePlaneNormals(const size_t (&counts)[3], const Model::BrushFace* face) const;
+            void getPlaneNormals(const size_t (&counts)[3], Vec3::List& normals) const;
+
+            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3::List& normals) const;
             
-            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3& planeNormal);
-            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3& planeNormal) const;
-            Vec3 disambiguateNormal(const Model::BrushFace* face, const Vec3& planeNormal) const;
+            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3::List& normals);
+            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3::List& normals) const;
+            Vec3 disambiguateNormal(const Model::BrushFace* face, const Vec3::List& normals) const;
         };
     }
 }
