@@ -22,7 +22,6 @@
 
 #include "Vec.h"
 
-#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
