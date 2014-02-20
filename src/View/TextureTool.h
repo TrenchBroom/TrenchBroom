@@ -55,6 +55,7 @@ namespace TrenchBroom {
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            void highlightApplicableFaces(const Model::BrushFace* reference, Renderer::RenderContext& renderContext);
             Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
 
             bool applies(const InputState& inputState) const;

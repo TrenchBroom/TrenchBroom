@@ -109,33 +109,42 @@ namespace TrenchBroom {
         }
         
         void TextureTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (dragging() || first.matches) {
-                const Model::BrushFace* reference = dragging() ? m_face : Model::hitAsFace(first.hit);
-                assert(reference != NULL);
-                
-                const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
-                const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, reference);
-                const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
-                
-                if (faces.empty())
-                    return;
-
-                PreferenceManager& prefs = PreferenceManager::instance();
-                Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(faces);
-                
-                glDisable(GL_DEPTH_TEST);
-                edgeRenderer.setUseColor(true);
-                edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
-                edgeRenderer.render(renderContext);
-                glEnable(GL_DEPTH_TEST);
+            if (dragging()) {
+                highlightApplicableFaces(m_face, renderContext);
+            } else {
+                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
+                if (first.matches) {
+                    const Model::BrushFace* reference = Model::hitAsFace(first.hit);
+                    if (reference->selected())
+                        highlightApplicableFaces(reference, renderContext);
+                }
             }
         }
         
+        void TextureTool::highlightApplicableFaces(const Model::BrushFace* reference, Renderer::RenderContext& renderContext) {
+            assert(reference != NULL);
+            
+            const Model::BrushFaceList& selectedFaces = document()->allSelectedFaces();
+            const Vec3::List normals = findApplicablePlaneNormals(selectedFaces, reference);
+            const Model::BrushFaceList faces = selectApplicableFaces(selectedFaces, normals);
+            
+            if (faces.empty())
+                return;
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer(faces);
+            
+            glDisable(GL_DEPTH_TEST);
+            edgeRenderer.setUseColor(true);
+            edgeRenderer.setColor(prefs.get(Preferences::ResizeHandleColor));
+            edgeRenderer.render(renderContext);
+            glEnable(GL_DEPTH_TEST);
+        }
+
         Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFaceList& faces) const {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
-
+            
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 const Model::BrushFace* face = *it;
@@ -150,7 +159,7 @@ namespace TrenchBroom {
             
             return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
         }
-
+ 
         bool TextureTool::applies(const InputState& inputState) const {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
