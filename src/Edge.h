@@ -22,6 +22,7 @@
 
 #include "Vec.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
@@ -43,8 +44,17 @@ namespace TrenchBroom {
                     (end == other.start && start == other.end));
         }
         
+        void flip() {
+            using std::swap;
+            swap(start, end);
+        }
+        
         Vec<T,S> center() const {
             return (start + end) / static_cast<T>(2.0);
+        }
+        
+        Vec<T,S> direction() const {
+            return (end - start).normalized();
         }
         
         static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
