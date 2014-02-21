@@ -23,17 +23,26 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
+#include <list>
+#include <map>
+
 namespace TrenchBroom {
     namespace Renderer {
         class OutlineTracer {
         private:
-            Edge3::List m_edges;
+            struct Position {
+                typedef std::list<Position> List;
+
+                FloatType x;
+                size_t count;
+            };
+
+            typedef std::map<Line3, Position::List> EdgeMap;
+            EdgeMap m_edges;
         public:
             void addEdge(const Edge3& edge);
         private:
-            void mergeEdges(Edge3& edge1, Edge3& edge2) const;
-            bool isParallel(const Edge3& edge1, const Edge3& edge2) const;
-            void orderByDot(Edge3& edge1, Edge3& edge2, const Vec3& dir) const;
+            void addEdge(const Edge3& edge, const Line3& line, Position::List& positions);
         };
     }
 }
