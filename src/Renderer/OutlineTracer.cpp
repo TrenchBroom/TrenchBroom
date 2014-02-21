@@ -32,74 +32,76 @@ namespace TrenchBroom {
             if (!isParallel(edge1, edge2))
                 return;
             
-            const Vec3 dir = edge1.direction();
+            const Vec3 dir = (edge1.end - edge1.start).normalized();
             
-            FloatType e1s = edge1.start.dot(dir);
-            FloatType e1e = edge1.end.dot(dir);
-            if (e1s > e1e) {
+            const FloatType s1 = edge1.start.dot(dir);
+            const FloatType e1 = edge1.end.dot(dir);
+            /* should never happen and is checked by assertion!
+            if (s1 > e1) {
                 swap(edge1.start, edge1.end);
-                swap(e1s, e1e);
+                swap(s1, e1);
             }
+             */
             
-            FloatType e2s = edge2.start.dot(dir);
-            FloatType e2e = edge2.end.dot(dir);
-            if (e2s > e2e) {
+            FloatType s2 = edge2.start.dot(dir);
+            FloatType e2 = edge2.end.dot(dir);
+            if (s2 > e2) {
                 swap(edge2.start, edge2.end);
-                swap(e2s, e2e);
+                swap(s2, e2);
             }
             
-            if (e1s > e2s) {
-                swap(edge1, edge2);
-                swap(e1s, e2s);
-                swap(e1e, e2e);
-            }
+            // now the vertices of each edge should be ordered in relation to edge1's direction:
+            assert(s1 < e1 && s2 < e2);
             
-            // now the edges and their vertices are ordered along their direction:
-            assert(e1s < e1e && e2s < e2e && e1s <= e2s);
-            
-            // by this condition, we must "only" treat the following 7 cases and we can quickly
-            // determine the new vertices of the resulting edges (if any)
-            if (e1e < e2s) {
-                // ----
-                //       ----
-                // ----  ----
-                // no overlap - keep both
-            } else if (e1e == e2s) {
-                // ----
-                //     --
-                // ------
-                // touch - extend 1, discard 2
-            } else if (e2s < e1e) {
-                if (e1e < e2e) {
-                    // ----
-                    //   ----
-                    // --  --
-                    // overlap over end, shorten both
-                } else if (e1e == e2e) {
-                    // ----
-                    //   --
+            // now we must handle all 13 different cases of how the edges might be arranged:
+            if (e2 > e1) {
+                if (s2 > e1) {
                     // --
-                    // overlap until end, shorten 1, discard 2
+                    //     --
+                } else if (s2 == e1) {
+                    // --
+                    //   --
+                } else if (s1 < s2) {
+                    // ---
+                    //   --
+                } else if (s2 == s1) {
+                    // --
+                    // ---
                 } else {
-                    assert(e2e < e1e);
+                    assert(s1 < s1);
+                    //  --
+                    // ----
+                }
+            } else if (e2 == e1) {
+                if (s1 < s2) {
+                    // ---
+                    //  --
+                } else if (s1 == s2) {
+                    // ---
+                    // ---
+                } else {
+                    assert(s2 < s1);
+                    //  --
+                    // ---
+                }
+            } else if (e2 == s1) {
+                //   --
+                // --
+            } else if (e2 < s1) {
+                //     --
+                // --
+            } else {
+                assert(s1 < e2 && e2 < e1);
+                if (s1 < s2) {
                     // ----
                     //  --
-                    // -  -
-                    // overlap in middle, shorten both
-                }
-            } else {
-                assert(e1s == e2s);
-                if (e2e < e1e) {
+                } else if (s1 == s2) {
                     // ----
                     // --
-                    //   --
-                    // overlap from start, shorten 1, discard 2
                 } else {
-                    assert(e1e == e2e);
-                    // ----
-                    // ----
-                    //
-                    // both are equal, discard both
+                    assert(s2 < s1);
+                    //  ----
+                    // ---
                 }
             }
         }
