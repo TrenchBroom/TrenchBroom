@@ -35,14 +35,29 @@ namespace TrenchBroom {
 
                 FloatType x;
                 size_t count;
+                
+                Position();
+                Position(FloatType i_x, size_t i_count);
+
+                bool operator== (const Position& other) const;
+                bool operator< (const Position& other) const;
             };
 
             typedef std::map<Line3, Position::List> EdgeMap;
             EdgeMap m_edges;
         public:
+            Edge3::List edges() const;
+            
             void addEdge(const Edge3& edge);
+            void clear();
         private:
             void addEdge(const Edge3& edge, const Line3& line, Position::List& positions);
+            Position::List::iterator findInsertPos(const Position& position, Position::List& positions) const;
+            void setCount(Position::List::iterator insertPos, Position& position, Position::List& positions) const;
+            bool replace(Position::List::iterator it, const Position& position, Position::List& positions) const;
+            void fixCounts(Position::List::iterator it, Position::List::iterator end);
+            void mergeEdges(Position::List::iterator it, Position::List::iterator end, Position::List& positions);
+            void print(const Position::List& positions) const;
         };
     }
 }

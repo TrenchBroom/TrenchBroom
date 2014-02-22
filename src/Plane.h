@@ -70,13 +70,41 @@ public:
         const Vec<T,S> normal = (viewPoint - point).normalize();
         return Plane(normal, position);
     }
-    
-    const Vec<T,S> anchor() const {
-        return normal * distance;
+
+    int compare(const Plane<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
+        if (Math::lt(distance, other.distance, epsilon))
+            return -1;
+        if (Math::gt(distance, other.distance, epsilon))
+            return 1;
+        return normal.compare(other.normal);
     }
     
-    bool operator==(const Plane<T,S>& other) const {
-        return distance == other.distance && normal == other.normal;
+    bool operator== (const Plane<T,S>& other) const {
+        return compare(other) == 0;
+    }
+    
+    bool operator!= (const Plane<T,S>& other) const {
+        return compare(other) != 0;
+    }
+    
+    bool operator< (const Plane<T,S>& other) const {
+        return compare(other) < 0;
+    }
+    
+    bool operator<= (const Plane<T,S>& other) const {
+        return compare(other) <= 0;
+    }
+    
+    bool operator> (const Plane<T,S>& other) const {
+        return compare(other) > 0;
+    }
+    
+    bool operator>= (const Plane<T,S>& other) const {
+        return compare(other) >= 0;
+    }
+
+    const Vec<T,S> anchor() const {
+        return normal * distance;
     }
     
     T intersectWithRay(const Ray<T,S>& ray) const {

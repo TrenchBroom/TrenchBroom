@@ -29,6 +29,7 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilters.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/OutlineTracer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
@@ -115,7 +116,7 @@ namespace TrenchBroom {
                 const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
                 if (first.matches) {
                     const Model::BrushFace* reference = Model::hitAsFace(first.hit);
-                    if (reference->selected())
+                    if (reference->selected() || reference->parent()->selected())
                         highlightApplicableFaces(reference, renderContext);
                 }
             }
@@ -142,9 +143,7 @@ namespace TrenchBroom {
         }
 
         Renderer::EdgeRenderer TextureTool::buildEdgeRenderer(const Model::BrushFaceList& faces) const {
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices;
-            
+            Renderer::OutlineTracer tracer;
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 const Model::BrushFace* face = *it;
@@ -152,9 +151,17 @@ namespace TrenchBroom {
                 
                 for (size_t i = 0; i < edges.size(); ++i) {
                     const Model::BrushEdge* edge = edges[i];
-                    vertices.push_back(Vertex(edge->start->position));
-                    vertices.push_back(Vertex(edge->end->position));
+                    tracer.addEdge(Edge3(edge->start->position, edge->end->position));
                 }
+            }
+            
+            const Edge3::List edges = tracer.edges();
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List vertices(2 * edges.size());
+
+            for (size_t i = 0; i < edges.size(); ++i) {
+                vertices[2 * i + 0] = Vertex(edges[i].start);
+                vertices[2 * i + 1] = Vertex(edges[i].end);
             }
             
             return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));

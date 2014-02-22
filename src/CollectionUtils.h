@@ -631,7 +631,12 @@ namespace MapUtils {
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            return map.insert(insertPos, std::pair<K, V>(key, V(value)));
+            // in C++98, the insert position points to the element that precedes the inserted element!
+            if (insertPos != map.begin())
+                --insertPos;
+            assert(map.count(key) == 0);
+            insertPos = map.insert(insertPos, std::make_pair(key, V(value)));
+            assert(map.count(key) == 1);
         }
         return insertPos;
     }
@@ -648,7 +653,12 @@ namespace MapUtils {
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            map.insert(insertPos, std::pair<K, V>(key, value));
+            // in C++98, the insert position points to the element that precedes the inserted element!
+            if (insertPos != map.begin())
+                --insertPos;
+            assert(map.count(key) == 0);
+            map.insert(insertPos, std::make_pair(key, value));
+            assert(map.count(key) == 1);
             return true;
         } else {
             // the two keys are equal because insertPos either points to the pair with the same key or the one
@@ -665,7 +675,12 @@ namespace MapUtils {
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
             // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            map.insert(insertPos, std::pair<K, V*>(key, value));
+            // in C++98, the insert position points to the element that precedes the inserted element!
+            if (insertPos != map.begin())
+                --insertPos;
+            assert(map.count(key) == 0);
+            map.insert(insertPos, std::make_pair(key, value));
+            assert(map.count(key) == 1);
             return true;
         } else {
             // the two keys are equal because insertPos either points to the pair with the same key or the one

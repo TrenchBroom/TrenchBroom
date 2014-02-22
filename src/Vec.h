@@ -219,24 +219,40 @@ public:
         v[S-1] = static_cast<T>(last);
     }
     
+    int compare(const Vec<T,S>& right, const T epsilon = static_cast<T>(0.0)) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(v[i], right[i], epsilon))
+                return -1;
+            if (Math::gt(v[i], right[i], epsilon))
+                return 1;
+        }
+        return 0;
+    }
+    
     bool operator== (const Vec<T,S>& right) const {
-        for (size_t i = 0; i < S; ++i)
-            if (v[i] != right[i])
-                return false;
-        return true;
+        return compare(right) == 0;
     }
     
     bool operator!= (const Vec<T,S>& right) const {
-        return !(*this == right);
+        return compare(right) != 0;
     }
     
     bool operator< (const Vec<T,S>& right) const {
-        for (size_t i = 0; i < S; ++i)
-            if (v[i] < right[i])
-                return true;
-        return false;
+        return compare(right) < 0;
     }
     
+    bool operator<= (const Vec<T,S>& right) const {
+        return compare(right) <= 0;
+    }
+
+    bool operator> (const Vec<T,S>& right) const {
+        return compare(right) > 0;
+    }
+    
+    bool operator>= (const Vec<T,S>& right) const {
+        return compare(right) >= 0;
+    }
+
     template <size_t O>
     Vec<T,S>& operator= (const Vec<T,O>& right) {
         for (size_t i = 0; i < std::min(S,O); ++i)

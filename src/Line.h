@@ -41,47 +41,78 @@ public:
     point(other.point),
     direction(other.direction) {}
     
-    bool operator==(const Line<T,S>& other) const {
-        assert(isCanonical() && other.isCanonical());
-        const T dot = direction.dot(other.direction);
-        return point == other.point && std::abs(dot) == 1.0;
-    }
-    
-    bool operator<(const Line<T,S>& other) const {
-        assert(isCanonical() && other.isCanonical());
-        if (point < other.point)
-            return true;
-        if (direction < other.direction)
-            return true;
-        return false;
-    }
-    
-    const Vec<T,S> pointAtDistance(const T distance) const {
-        return point + direction * distance;
-    }
-    
     Line<T,S> makeCanonical() const {
         // choose the point such that its support vector is orthogonal to
         // the direction of this line
         const T d = point.dot(direction);
         const Vec<T,S> newPoint(point - d * direction);
-
+        
         // make sure the first nonzero component of the direction is positive
         Vec<T,S> newDirection(direction);
         for (size_t i = 0; i < S; ++i) {
             if (direction[i] != 0.0) {
                 if (direction[i] < 0.0)
-                    direction = -direction;
+                    newDirection = -newDirection;
                 break;
             }
         }
         
-        return Line<T,S>(point - d * direction, direction);
+        return Line<T,S>(newPoint, newDirection);
+    }
+    
+    int compare(const Line<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
+        assert(isCanonical() && other.isCanonical());
+
+        const int pointCmp = point.compare(other.point, epsilon);
+        if (pointCmp < 0)
+            return -1;
+        if (pointCmp > 0)
+            return 1;
+        return direction.compare(other.direction, epsilon);
+    }
+    
+    bool operator== (const Line<T,S>& other) const {
+        return compare(other) == 0;
+    }
+    
+    bool operator!= (const Line<T,S>& other) const {
+        return compare(other) != 0;
+    }
+    
+    bool operator< (const Line<T,S>& other) const {
+        return compare(other) < 0;
+    }
+    
+    bool operator<= (const Line<T,S>& other) const {
+        return compare(other) <= 0;
+    }
+    
+    bool operator> (const Line<T,S>& other) const {
+        return compare(other) > 0;
+    }
+    
+    bool operator>= (const Line<T,S>& other) const {
+        return compare(other) >= 0;
+    }
+    
+    const Vec<T,S> pointAtDistance(const T distance) const {
+        return point + direction * distance;
     }
 private:
     bool isCanonical() const {
         const T d = point.dot(direction);
-        return d == 0.0;
+        if (!Math::zero(d))
+            return false;
+
+        for (size_t i = 0; i < S; ++i) {
+            if (direction[i] != 0.0) {
+                if (direction[i] < 0.0)
+                    return false;
+                break;
+            }
+        }
+        
+        return true;
     }
 };
 
