@@ -48,13 +48,11 @@ namespace TrenchBroom {
         }
         
         void MiniMapZView::setXYPosition(const Vec2f& xyPosition) {
-            const BBox3& worldBounds = document()->worldBounds();
-            const Vec2f maxBounds(static_cast<float>(worldBounds.max.x() - worldBounds.min.x()),
-                                  static_cast<float>(worldBounds.max.y() - worldBounds.min.y()));
-            
-            const float diffX = Math::clamp(maxBounds.x()) * maxBounds.x() + worldBounds.min.x();
-            const float diffY = Math::clamp(maxBounds.y()) * maxBounds.y() + worldBounds.min.y();
-            moveCamera(Vec3f(diffX, diffY, 0.0f));
+            const float diffX = xyPosition.x() - m_camera->position().x();
+            const float diffY = xyPosition.y() - m_camera->position().y();
+            m_camera->moveBy(Vec3f(diffX, diffY, 0.0f));
+            updateBounds();
+            Refresh();
         }
 
         const Renderer::Camera& MiniMapZView::camera() const {

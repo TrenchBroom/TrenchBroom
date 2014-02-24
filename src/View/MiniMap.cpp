@@ -38,6 +38,7 @@ namespace TrenchBroom {
         }
 
         void MiniMap::OnXYMiniMapChanged(wxCommandEvent& event) {
+            m_miniMapZView->setXYPosition(m_visibleBounds.center().xy());
             m_miniMapZView->Refresh();
         }
         
