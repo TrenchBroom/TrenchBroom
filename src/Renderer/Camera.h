@@ -110,14 +110,14 @@ namespace TrenchBroom {
         
         class OrthographicCamera : public Camera {
         private:
-            float m_zoom;
+            Vec2f m_zoom;
         public:
             OrthographicCamera();
             OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
 
-            float zoom() const;
-            void setZoom(float zoom);
-            void zoom(float factor);
+            const Vec2f& zoom() const;
+            void setZoom(const Vec2f& zoom);
+            void zoom(const Vec2f& factors);
         private:
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
             void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;

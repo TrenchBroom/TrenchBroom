@@ -17,59 +17,60 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MiniMapView__
-#define __TrenchBroom__MiniMapView__
+#ifndef __TrenchBroom__MiniMapBaseView__
+#define __TrenchBroom__MiniMapBaseView__
 
-#include "Color.h"
-#include "Renderer/MiniMapRenderer.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/Camera.h"
 #include "View/ViewTypes.h"
 
 #include <wx/glcanvas.h>
 
-class wxPaintEvent;
-class wxSizeEvent;
-class wxWindow;
-
 namespace TrenchBroom {
     namespace Renderer {
-        class OrthographicCamera;
+        class Camera;
+        class MiniMapRenderer;
+        class RenderContext;
         class RenderResources;
     }
     
     namespace View {
-        class MiniMapView : public wxGLCanvas {
+        class MiniMapBaseView : public wxGLCanvas {
         private:
             View::MapDocumentWPtr m_document;
             Renderer::RenderResources& m_renderResources;
             wxGLContext* m_glContext;
-            Renderer::OrthographicCamera* m_camera;
-            Renderer::MiniMapRenderer m_renderer;
+            Renderer::MiniMapRenderer& m_renderer;
             Renderer::Vbo m_auxVbo;
-            Color m_focusColor;
             
             wxPoint m_lastPos;
         public:
-            MiniMapView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
-            ~MiniMapView();
-
-            void setZPosition(float zPosition);
+            virtual ~MiniMapBaseView();
             
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseDoubleClick(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-
+            
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
+        protected:
+            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            
+            View::MapDocumentSPtr document() const;
         private:
             void bindEvents();
             void setupGL(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);
+            
+            virtual const Renderer::Camera& camera() const = 0;
+            virtual void updateViewport(const Renderer::Camera::Viewport& viewport) = 0;
+            virtual void moveCamera(const Vec3f& diff) = 0;
+            virtual void zoomCamera(const Vec3f& factors) = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MiniMapView__) */
+#endif /* defined(__TrenchBroom__MiniMapBaseView__) */

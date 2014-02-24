@@ -17,38 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MiniMap__
-#define __TrenchBroom__MiniMap__
+#ifndef __TrenchBroom__MiniMapXYView__
+#define __TrenchBroom__MiniMapXYView__
 
-#include "Renderer/MiniMapRenderer.h"
+#include "View/MiniMapBaseView.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
-
-class wxSlider;
-class wxWindow;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class MiniMapRenderer;
+        class OrthographicCamera;
         class RenderResources;
     }
-
+    
     namespace View {
-        class MiniMapXYView;
-        class MiniMapZView;
-        
-        class MiniMap : public wxPanel {
+        class MiniMapXYView : public MiniMapBaseView {
         private:
-            Renderer::MiniMapRenderer m_renderer;
-            MiniMapZView* m_miniMapZView;
-            MiniMapXYView* m_miniMapXYView;
+            Renderer::OrthographicCamera* m_camera;
         public:
-            MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            ~MiniMapXYView();
+
+            void setZPosition(float zPosition);
         private:
-            void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
-            void bindEvents();
+            const Renderer::Camera& camera() const;
+            void updateViewport(const Renderer::Camera::Viewport& viewport);
+            void moveCamera(const Vec3f& diff);
+            void zoomCamera(const Vec3f& factors);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MiniMap__) */
+#endif /* defined(__TrenchBroom__MiniMapXYView__) */

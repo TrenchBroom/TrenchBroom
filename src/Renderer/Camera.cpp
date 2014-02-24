@@ -337,43 +337,43 @@ namespace TrenchBroom {
 
         OrthographicCamera::OrthographicCamera() :
         Camera(),
-        m_zoom(1.0f) {}
+        m_zoom(1.0f, 1.0f) {}
         
         OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
         Camera(nearPlane, farPlane, viewport, position, direction, up),
         m_zoom(1.0f) {}
 
-        float OrthographicCamera::zoom() const {
+        const Vec2f& OrthographicCamera::zoom() const {
             return m_zoom;
         }
         
-        void OrthographicCamera::setZoom(float zoom) {
-            assert(zoom > 0.0f);
+        void OrthographicCamera::setZoom(const Vec2f& zoom) {
+            assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
             m_zoom = zoom;
             m_valid = false;
         }
         
-        void OrthographicCamera::zoom(float factor) {
-            assert(factor > 0.0f);
-            m_zoom *= factor;
+        void OrthographicCamera::zoom(const Vec2f& factors) {
+            assert(factors.x() > 0.0f && factors.y() > 0.0f);
+            m_zoom *= factors;
             m_valid = false;
         }
 
         void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            const float l = static_cast<float>(viewport().x) / zoom();
-            const float t = static_cast<float>(viewport().y) / zoom();
-            const float r = l + static_cast<float>(viewport().width) / zoom();
-            const float b = t + static_cast<float>(viewport().height) / zoom();
+            const float l = static_cast<float>(viewport().x) / m_zoom.x();
+            const float t = static_cast<float>(viewport().y) / m_zoom.y();
+            const float r = l + static_cast<float>(viewport().width) / m_zoom.x();
+            const float b = t + static_cast<float>(viewport().height) / m_zoom.y();
             
             projectionMatrix = orthoMatrix(nearPlane(), farPlane(), l, t, r, b);
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
         void OrthographicCamera::computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const {
-            const float l = static_cast<float>(viewport().x) / zoom();
-            const float t = static_cast<float>(viewport().y) / zoom();
-            const float r = l + static_cast<float>(viewport().width) / zoom();
-            const float b = t + static_cast<float>(viewport().height) / zoom();
+            const float l = static_cast<float>(viewport().x) / m_zoom.x();
+            const float t = static_cast<float>(viewport().y) / m_zoom.y();
+            const float r = l + static_cast<float>(viewport().width) / m_zoom.x();
+            const float b = t + static_cast<float>(viewport().height) / m_zoom.y();
 
             const Vec3f center = position() + direction() * nearPlane();
             topPlane    = Plane3f(center + t * up(), up());

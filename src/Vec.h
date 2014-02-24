@@ -276,11 +276,23 @@ public:
         return result;
     }
     
+    Vec<T,S>& operator+= (const Vec<T,S>& right) {
+        for (size_t i = 0; i < S; ++i)
+            v[i] += right[i];
+        return *this;
+    }
+
     const Vec<T,S> operator- (const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] - right[i];
         return result;
+    }
+    
+    Vec<T,S>& operator-= (const Vec<T,S>& right) {
+        for (size_t i = 0; i < S; ++i)
+            v[i] -= right[i];
+        return *this;
     }
     
     const Vec<T,S> operator* (const T right) const {
@@ -290,6 +302,25 @@ public:
         return result;
     }
     
+    Vec<T,S>& operator*= (const T right) {
+        for (size_t i = 0; i < S; ++i)
+            v[i] *= right;
+        return *this;
+    }
+    
+    const Vec<T,S> operator* (const Vec<T,S>& right) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = v[i] * right[i];
+        return result;
+    }
+    
+    Vec<T,S>& operator*= (const Vec<T,S>& right) {
+        for (size_t i = 0; i < S; ++i)
+            v[i] *= right[i];
+        return *this;
+    }
+
     const Vec<T,S> operator/ (const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -297,27 +328,22 @@ public:
         return result;
     }
     
-    Vec<T,S>& operator+= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] += right[i];
-        return *this;
-    }
-    
-    Vec<T,S>& operator-= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] -= right[i];
-        return *this;
-    }
-    
-    Vec<T,S>& operator*= (const T right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] *= right;
-        return *this;
-    }
-    
     Vec<T,S>& operator/= (const T right) {
         for (size_t i = 0; i < S; ++i)
             v[i] /= right;
+        return *this;
+    }
+    
+    const Vec<T,S> operator/ (const Vec<T,S>& right) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = v[i] / right[i];
+        return result;
+    }
+    
+    Vec<T,S>& operator/= (const Vec<T,S>& right) {
+        for (size_t i = 0; i < S; ++i)
+            v[i] /= right[i];
         return *this;
     }
     

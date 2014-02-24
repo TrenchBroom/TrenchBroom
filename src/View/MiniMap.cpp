@@ -20,7 +20,8 @@
 #include "MiniMap.h"
 
 #include "View/ViewConstants.h"
-#include "View/MiniMapView.h"
+#include "View/MiniMapXYView.h"
+#include "View/MiniMapZView.h"
 
 #include <wx/sizer.h>
 #include <wx/slider.h>
@@ -29,37 +30,27 @@ namespace TrenchBroom {
     namespace View {
         MiniMap::MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources) :
         wxPanel(parent),
-        m_zSlider(NULL),
-        m_miniMapView(NULL) {
+        m_renderer(document),
+        m_miniMapZView(NULL),
+        m_miniMapXYView(NULL) {
             createGui(document, renderResources);
             bindEvents();
         }
 
-        void MiniMap::OnZSliderChanged(wxScrollEvent& event) {
-            const float position = static_cast<float>(event.GetPosition());
-            const float max = static_cast<float>(m_zSlider->GetMax());
-            m_miniMapView->setZPosition(position / max);
-        }
-
         void MiniMap::createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources) {
-            m_zSlider = new wxSlider(this, wxID_ANY, 2048, 0, 4096, wxDefaultPosition, wxDefaultSize, wxSL_VERTICAL);
-            m_miniMapView = new MiniMapView(this, document, renderResources);
+            m_miniMapXYView = new MiniMapXYView(this, document, renderResources, m_renderer);
+            m_miniMapZView = new MiniMapZView(this, document, renderResources, m_renderer);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_zSlider, 0, wxEXPAND);
-            sizer->Add(m_miniMapView, 1, wxEXPAND);
+            sizer->Add(m_miniMapZView, 0, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::ControlMargin);
+            sizer->Add(m_miniMapXYView, 1, wxEXPAND);
+            sizer->SetItemMinSize(m_miniMapZView, 32, wxDefaultSize.y);
             
             SetSizer(sizer);
         }
         
         void MiniMap::bindEvents() {
-            m_zSlider->Bind(wxEVT_SCROLL_TOP, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_BOTTOM, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_LINEUP, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_LINEDOWN, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_PAGEUP, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_PAGEDOWN, &MiniMap::OnZSliderChanged, this);
-            m_zSlider->Bind(wxEVT_SCROLL_THUMBTRACK, &MiniMap::OnZSliderChanged, this);
         }
     }
 }
