@@ -20,13 +20,15 @@
  */
 
 uniform vec4 Color;
-uniform vec3 CameraPosition;
+uniform vec3 BoundsMin;
+uniform vec3 BoundsMax;
 
 varying vec4 vertexColor;
 
 void main(void) {
     vertexColor = Color;
-    float zOffset = abs(gl_Vertex.z - CameraPosition.z);
-    vertexColor.a = max(1.0 - (zOffset / 1024.0), 0.05);
+    if (any(lessThan(gl_Vertex.xyz, BoundsMin)) ||
+        any(greaterThan(gl_Vertex.xyz, BoundsMax)))
+        vertexColor.a = 0.05;
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
 }

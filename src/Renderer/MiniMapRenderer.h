@@ -20,6 +20,9 @@
 #ifndef __TrenchBroom__MiniMapRenderer__
 #define __TrenchBroom__MiniMapRenderer__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+
 #include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
@@ -55,10 +58,10 @@ namespace TrenchBroom {
             MiniMapRenderer(View::MapDocumentWPtr document);
             ~MiniMapRenderer();
             
-            void render(RenderContext& context);
+            void render(RenderContext& context, const BBox3f& bounds);
         private:
             void setupGL(RenderContext& context);
-            void renderEdges(RenderContext& context);
+            void renderEdges(RenderContext& context, const BBox3f& bounds);
             
             void validateEdges(RenderContext& context);
             VertexArray buildVertexArray(const Model::BrushList& brushes) const;

@@ -65,5 +65,4 @@ typedef void (wxEvtHandler::*textureSelectedEventFunction)(TrenchBroom::View::Te
         (textureSelectedEventFunction) & func, \
         (wxObject*) NULL ),
 
-
 #endif /* defined(__TrenchBroom__TextureSelectedCommand__) */

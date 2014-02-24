@@ -29,6 +29,8 @@
 
 #include <wx/dcclient.h>
 
+DEFINE_EVENT_TYPE(EVT_MINIMAP_VIEW_CHANGED_EVENT)
+
 namespace TrenchBroom {
     namespace View {
         MiniMapBaseView::~MiniMapBaseView() {
@@ -119,9 +121,10 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
+        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
         wxGLCanvas(parent, wxID_ANY, &renderResources.glAttribs().front()),
         m_document(document),
+        m_bounds(bounds),
         m_renderResources(renderResources),
         m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
@@ -133,6 +136,26 @@ namespace TrenchBroom {
         View::MapDocumentSPtr MiniMapBaseView::document() const {
             assert(!expired(m_document));
             return lock(m_document);
+        }
+
+        void MiniMapBaseView::updateBounds() {
+            doUpdateBounds(m_bounds);
+            fireChangeEvent();
+        }
+
+        void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
+            doUpdateViewport(viewport);
+            updateBounds();
+        }
+        
+        void MiniMapBaseView::moveCamera(const Vec3f& diff) {
+            doMoveCamera(diff);
+            updateBounds();
+        }
+        
+        void MiniMapBaseView::zoomCamera(const Vec3f& factors) {
+            doZoomCamera(factors);
+            updateBounds();
         }
 
         void MiniMapBaseView::bindEvents() {
@@ -164,7 +187,14 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::renderMap(Renderer::RenderContext& context) {
-            m_renderer.render(context);
+            m_renderer.render(context, m_bounds);
+        }
+
+        void MiniMapBaseView::fireChangeEvent() {
+            wxCommandEvent event(EVT_MINIMAP_VIEW_CHANGED_EVENT);
+            event.SetEventObject(this);
+            event.SetId(GetId());
+            ProcessEvent(event);
         }
     }
 }

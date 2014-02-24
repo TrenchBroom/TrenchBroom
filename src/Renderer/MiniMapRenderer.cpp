@@ -55,9 +55,9 @@ namespace TrenchBroom {
             unbindObservers();
         }
         
-        void MiniMapRenderer::render(RenderContext& context) {
+        void MiniMapRenderer::render(RenderContext& context, const BBox3f& bounds) {
             setupGL(context);
-            renderEdges(context);
+            renderEdges(context, bounds);
         }
         
         void MiniMapRenderer::setupGL(RenderContext& context) {
@@ -73,17 +73,16 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MiniMapRenderer::renderEdges(RenderContext& context) {
+        void MiniMapRenderer::renderEdges(RenderContext& context, const BBox3f& bounds) {
             SetVboState setVboState(m_vbo);
             setVboState.active();
             validateEdges(context);
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Camera& camera = context.camera();
-            
             ActiveShader shader(context.shaderManager(), Shaders::MiniMapEdgeShader);
-            shader.set("CameraPosition", camera.position());
+            shader.set("BoundsMin", bounds.min);
+            shader.set("BoundsMax", bounds.max);
             
+            PreferenceManager& prefs = PreferenceManager::instance();
             shader.set("Color", prefs.get(Preferences::EdgeColor));
             m_unselectedEdgeArray.render();
 

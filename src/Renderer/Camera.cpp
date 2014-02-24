@@ -370,16 +370,14 @@ namespace TrenchBroom {
         }
         
         void OrthographicCamera::computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const {
-            const float l = static_cast<float>(viewport().x) / m_zoom.x();
-            const float t = static_cast<float>(viewport().y) / m_zoom.y();
-            const float r = l + static_cast<float>(viewport().width) / m_zoom.x();
-            const float b = t + static_cast<float>(viewport().height) / m_zoom.y();
+            const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
+            const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;
 
-            const Vec3f center = position() + direction() * nearPlane();
-            topPlane    = Plane3f(center + t * up(), up());
-            rightPlane  = Plane3f(center + r * right(), right());
-            bottomPlane = Plane3f(center - b * up(), -up());
-            leftPlane   = Plane3f(center - l * right(), -right());
+            const Vec3f& center = position();
+            topPlane    = Plane3f(center + h2 * up(), up());
+            rightPlane  = Plane3f(center + w2 * right(), right());
+            bottomPlane = Plane3f(center - h2 * up(), -up());
+            leftPlane   = Plane3f(center - w2 * right(), -right());
         }
     }
 }

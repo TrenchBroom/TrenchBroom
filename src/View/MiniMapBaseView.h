@@ -20,10 +20,14 @@
 #ifndef __TrenchBroom__MiniMapBaseView__
 #define __TrenchBroom__MiniMapBaseView__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+
 #include "Renderer/Vbo.h"
 #include "Renderer/Camera.h"
 #include "View/ViewTypes.h"
 
+#include <wx/event.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
@@ -38,6 +42,7 @@ namespace TrenchBroom {
         class MiniMapBaseView : public wxGLCanvas {
         private:
             View::MapDocumentWPtr m_document;
+            BBox3f& m_bounds;
             Renderer::RenderResources& m_renderResources;
             wxGLContext* m_glContext;
             Renderer::MiniMapRenderer& m_renderer;
@@ -56,21 +61,50 @@ namespace TrenchBroom {
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         protected:
-            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
             
             View::MapDocumentSPtr document() const;
+        protected:
+            void updateBounds();
+            void updateViewport(const Renderer::Camera::Viewport& viewport);
+            void moveCamera(const Vec3f& diff);
+            void zoomCamera(const Vec3f& factors);
         private:
             void bindEvents();
             void setupGL(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);
             
+            void fireChangeEvent();
+            
             virtual const Renderer::Camera& camera() const = 0;
-            virtual void updateViewport(const Renderer::Camera::Viewport& viewport) = 0;
-            virtual void moveCamera(const Vec3f& diff) = 0;
-            virtual void zoomCamera(const Vec3f& factors) = 0;
+            virtual void doUpdateBounds(BBox3f& bounds) = 0;
+            virtual void doUpdateViewport(const Renderer::Camera::Viewport& viewport) = 0;
+            virtual void doMoveCamera(const Vec3f& diff) = 0;
+            virtual void doZoomCamera(const Vec3f& factors) = 0;
         };
     }
 }
+
+#define WXDLLIMPEXP_CUSTOM_EVENT
+
+BEGIN_DECLARE_EVENT_TYPES()
+DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_MINIMAP_VIEW_CHANGED_EVENT, 1)
+END_DECLARE_EVENT_TYPES()
+
+typedef void (wxEvtHandler::*miniMapViewChangedEventFunction)(wxCommandEvent&);
+
+#define EVT_MINIMAP_VIEW_CHANGED_HANDLER(func) \
+    (wxObjectEventFunction) \
+    (miniMapViewChangedEventFunction) & func
+
+#define EVT_MINIMAP_VIEW_CHANGED(id,func) \
+    DECLARE_EVENT_TABLE_ENTRY(EVT_MINIMAP_VIEW_CHANGED_EVENT, \
+        id, \
+        wxID_ANY, \
+        (wxObjectEventFunction) \
+        (miniMapViewChangedEventFunction) & func, \
+        (wxObject*) NULL ),
+
 
 #endif /* defined(__TrenchBroom__MiniMapBaseView__) */

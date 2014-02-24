@@ -37,9 +37,17 @@ namespace TrenchBroom {
             bindEvents();
         }
 
+        void MiniMap::OnXYMiniMapChanged(wxCommandEvent& event) {
+            m_miniMapZView->Refresh();
+        }
+        
+        void MiniMap::OnZMiniMapChanged(wxCommandEvent& event) {
+            m_miniMapXYView->Refresh();
+        }
+
         void MiniMap::createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources) {
-            m_miniMapXYView = new MiniMapXYView(this, document, renderResources, m_renderer);
-            m_miniMapZView = new MiniMapZView(this, document, renderResources, m_renderer);
+            m_miniMapXYView = new MiniMapXYView(this, document, m_visibleBounds, renderResources, m_renderer);
+            m_miniMapZView = new MiniMapZView(this, document, m_visibleBounds, renderResources, m_renderer);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_miniMapZView, 0, wxEXPAND);
@@ -51,6 +59,8 @@ namespace TrenchBroom {
         }
         
         void MiniMap::bindEvents() {
+            m_miniMapXYView->Bind(EVT_MINIMAP_VIEW_CHANGED_EVENT, EVT_MINIMAP_VIEW_CHANGED_HANDLER(MiniMap::OnXYMiniMapChanged), this);
+            m_miniMapZView->Bind(EVT_MINIMAP_VIEW_CHANGED_EVENT, EVT_MINIMAP_VIEW_CHANGED_HANDLER(MiniMap::OnZMiniMapChanged), this);
         }
     }
 }

@@ -20,6 +20,9 @@
 #ifndef __TrenchBroom__MiniMap__
 #define __TrenchBroom__MiniMap__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+
 #include "Renderer/MiniMapRenderer.h"
 #include "View/ViewTypes.h"
 
@@ -40,10 +43,14 @@ namespace TrenchBroom {
         class MiniMap : public wxPanel {
         private:
             Renderer::MiniMapRenderer m_renderer;
+            BBox3f m_visibleBounds;
             MiniMapZView* m_miniMapZView;
             MiniMapXYView* m_miniMapXYView;
         public:
             MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            
+            void OnXYMiniMapChanged(wxCommandEvent& event);
+            void OnZMiniMapChanged(wxCommandEvent& event);
         private:
             void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
             void bindEvents();

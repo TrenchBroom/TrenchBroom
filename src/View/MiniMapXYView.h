@@ -20,6 +20,9 @@
 #ifndef __TrenchBroom__MiniMapXYView__
 #define __TrenchBroom__MiniMapXYView__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+
 #include "View/MiniMapBaseView.h"
 #include "View/ViewTypes.h"
 
@@ -36,15 +39,16 @@ namespace TrenchBroom {
         private:
             Renderer::OrthographicCamera* m_camera;
         public:
-            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
             ~MiniMapXYView();
 
             void setZPosition(float zPosition);
         private:
             const Renderer::Camera& camera() const;
-            void updateViewport(const Renderer::Camera::Viewport& viewport);
-            void moveCamera(const Vec3f& diff);
-            void zoomCamera(const Vec3f& factors);
+            void doUpdateBounds(BBox3f& bounds);
+            void doUpdateViewport(const Renderer::Camera::Viewport& viewport);
+            void doMoveCamera(const Vec3f& diff);
+            void doZoomCamera(const Vec3f& factors);
         };
     }
 }
