@@ -17,37 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapInspector__
-#define __TrenchBroom__MapInspector__
+#ifndef __TrenchBroom__MiniMap__
+#define __TrenchBroom__MiniMap__
 
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
-class wxCollapsiblePaneEvent;
+class wxSlider;
 class wxWindow;
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderResources;
     }
-    
-    namespace View {
-        class MapTreeView;
-        class ModEditor;
-        
-        class MapInspector : public wxPanel {
-        public:
-            MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
 
-            void OnPaneChanged(wxCollapsiblePaneEvent& event);
+    namespace View {
+        class MiniMapView;
+        
+        class MiniMap : public wxPanel {
         private:
-            void createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
-            wxWindow* createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources);
-            wxWindow* createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
-            wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            wxSlider* m_zSlider;
+            MiniMapView* m_miniMapView;
+        public:
+            MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            
+            void OnZSliderChanged(wxScrollEvent& event);
+        private:
+            void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            void bindEvents();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapInspector__) */
+#endif /* defined(__TrenchBroom__MiniMap__) */

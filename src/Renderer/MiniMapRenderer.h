@@ -17,74 +17,64 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapRenderer__
-#define __TrenchBroom__MapRenderer__
+#ifndef __TrenchBroom__MiniMapRenderer__
+#define __TrenchBroom__MiniMapRenderer__
 
 #include "Model/ModelTypes.h"
-#include "Renderer/BrushRenderer.h"
-#include "Renderer/EdgeRenderer.h"
-#include "Renderer/EntityRenderer.h"
-#include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
     }
-    
+
     namespace Model {
-        class Filter;
-        class Map;
         class SelectionResult;
     }
     
     namespace Renderer {
-        class FontManager;
         class RenderContext;
         
-        class MapRenderer {
+        class MiniMapRenderer {
         private:
+            struct BuildBrushEdges {
+                VertexSpecs::P3::Vertex::List vertices;
+                void operator()(Model::Brush* brush);
+            };
+
             View::MapDocumentWPtr m_document;
-            FontManager& m_fontManager;
-            BrushRenderer m_unselectedBrushRenderer;
-            BrushRenderer m_selectedBrushRenderer;
-            EntityRenderer m_unselectedEntityRenderer;
-            EntityRenderer m_selectedEntityRenderer;
-            EntityLinkRenderer m_entityLinkRenderer;
-            EdgeRenderer m_pointFileRenderer;
+            Vbo m_vbo;
+            VertexArray m_unselectedEdgeArray;
+            VertexArray m_selectedEdgeArray;
+            bool m_unselectedValid;
+            bool m_selectedValid;
         public:
-            MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager);
-            ~MapRenderer();
+            MiniMapRenderer(View::MapDocumentWPtr document);
+            ~MiniMapRenderer();
             
             void render(RenderContext& context);
         private:
             void setupGL(RenderContext& context);
-            void renderGeometry(RenderContext& context);
-            void renderEntities(RenderContext& context);
-            void renderEntityLinks(RenderContext& context);
-            void renderPointFile(RenderContext& context);
+            void renderEdges(RenderContext& context);
+            
+            void validateEdges(RenderContext& context);
+            VertexArray buildVertexArray(const Model::BrushList& brushes) const;
             
             void bindObservers();
             void unbindObservers();
             
             void documentWasCleared();
             void documentWasNewedOrLoaded();
-            void pointFileWasLoadedOrUnloaded();
             
             void objectWasAdded(Model::Object* object);
             void objectWillBeRemoved(Model::Object* object);
             void objectDidChange(Model::Object* object);
-            void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
-            void modsDidChange();
-            void entityDefinitionsDidChange();
-            void preferenceDidChange(const IO::Path& path);
-            
-            void clearState();
-            void loadMap(Model::Map& map);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapRenderer__) */
+#endif /* defined(__TrenchBroom__MiniMapRenderer__) */

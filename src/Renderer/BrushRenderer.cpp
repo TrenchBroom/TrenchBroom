@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushFacesIterator.h"
@@ -33,34 +34,25 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct BuildBrushEdges {
-            VertexSpecs::P3::Vertex::List vertices;
-            BrushRenderer::Filter& filter;
-            
-            BuildBrushEdges(BrushRenderer::Filter& i_filter) :
-            filter(i_filter) {}
-            
-            void operator()(Model::Brush* brush) {
-                const Model::BrushEdgeList edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (filter(edge)) {
-                        vertices.push_back(VertexSpecs::P3::Vertex(edge->start->position));
-                        vertices.push_back(VertexSpecs::P3::Vertex(edge->end->position));
-                    }
+        BrushRenderer::BuildBrushEdges::BuildBrushEdges(BrushRenderer::Filter& i_filter) :
+        filter(i_filter) {}
+        
+        void BrushRenderer::BuildBrushEdges::operator()(Model::Brush* brush) {
+            const Model::BrushEdgeList edges = brush->edges();
+            Model::BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                const Model::BrushEdge* edge = *it;
+                if (filter(edge)) {
+                    vertices.push_back(VertexSpecs::P3::Vertex(edge->start->position));
+                    vertices.push_back(VertexSpecs::P3::Vertex(edge->end->position));
                 }
             }
-        };
+        }
         
-        struct BuildBrushFaceMesh {
-            Model::BrushFace::Mesh mesh;
-            
-            bool operator()(Model::BrushFace* face) {
-                face->addToMesh(mesh);
-                return true;
-            }
-        };
+        bool BrushRenderer::BuildBrushFaceMesh::operator()(Model::BrushFace* face) {
+            face->addToMesh(mesh);
+            return true;
+        }
         
         BrushRenderer::Filter::~Filter() {}
         

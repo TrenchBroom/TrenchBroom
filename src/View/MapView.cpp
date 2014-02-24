@@ -68,12 +68,13 @@ namespace TrenchBroom {
         m_auxVbo(0xFFF),
         m_document(document),
         m_controller(controller),
+        m_camera(new Renderer::PerspectiveCamera()),
         m_renderResources(attribs(), m_glContext),
         m_renderer(m_document, m_renderResources.fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(m_renderResources)),
         m_animationManager(new AnimationManager()),
-        m_inputState(m_camera),
+        m_inputState(*m_camera),
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
@@ -92,8 +93,8 @@ namespace TrenchBroom {
         m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
         m_lastFrameActivation(wxDateTime::Now()) {
-            m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
-            m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+            m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+            m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
 
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             const float r = static_cast<float>(color.Red()) / 0xFF;
@@ -115,6 +116,8 @@ namespace TrenchBroom {
             
             unbindObservers();
             deleteTools();
+            delete m_camera;
+            m_camera = NULL;
             delete m_glContext;
             m_glContext = NULL;
             m_logger = NULL;
@@ -131,11 +134,11 @@ namespace TrenchBroom {
             assert(!entities.empty() || !brushes.empty());
             
             const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
-            animateCamera(newPosition, m_camera.direction(), m_camera.up(), 150);
+            animateCamera(newPosition, m_camera->direction(), m_camera->up(), 150);
         }
 
         void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            CameraAnimation* animation = new CameraAnimation(*this, m_camera, position, direction, up, duration);
+            CameraAnimation* animation = new CameraAnimation(*this, *m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
         }
 
@@ -226,7 +229,7 @@ namespace TrenchBroom {
         }
 
         void MapView::toggleMovementRestriction() {
-            m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            m_movementRestriction.toggleHorizontalRestriction(*m_camera);
             Refresh();
         }
 
@@ -295,7 +298,7 @@ namespace TrenchBroom {
             const float distance = snapToGrid ? static_cast<float>(grid.actualSize()) : 1.0f;
             
             ControllerSPtr controller = lock(m_controller);
-            controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
+            controller->moveTextures(faces, m_camera->up(), m_camera->right(), direction, distance);
         }
         
         void MapView::moveVertices(const Math::Direction direction) {
@@ -312,7 +315,7 @@ namespace TrenchBroom {
             const wxMouseState mouseState = wxGetMouseState();
             const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
+                const Ray3f pickRay = m_camera->pickRay(clientCoords.x, clientCoords.y);
                 Model::PickResult pickResult = document->pick(Ray3(pickRay));
                 pickResult.sortHits();
                 
@@ -323,12 +326,12 @@ namespace TrenchBroom {
                     return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
-                    const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay.direction));
+                    const Vec3 snappedDefaultPoint = grid.snap(m_camera->defaultPoint(pickRay.direction));
                     return snappedDefaultPoint - snappedCenter;
                 }
             } else {
                 const Vec3 snappedCenter = grid.snap(bounds.center());
-                const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
+                const Vec3 snappedDefaultPoint = grid.snap(m_camera->defaultPoint());
                 return snappedDefaultPoint - snappedCenter;
             }
         }
@@ -560,7 +563,7 @@ namespace TrenchBroom {
                 document->commitPendingRenderStateChanges();
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
                     const View::Grid& grid = document->grid();
-                    Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
+                    Renderer::RenderContext context(*m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                     setupGL(context);
                     setRenderOptions(context);
                     clearBackground(context);
@@ -579,7 +582,7 @@ namespace TrenchBroom {
         void MapView::OnSize(wxSizeEvent& event) {
             const wxSize clientSize = GetClientSize();
             const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
-            m_camera.setViewport(viewport);
+            m_camera->setViewport(viewport);
             event.Skip();
         }
 
@@ -741,7 +744,7 @@ namespace TrenchBroom {
             if (first.matches) {
                 delta = grid.moveDeltaForBounds(Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
             } else {
-                const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay().direction));
+                const Vec3 newPosition(m_camera->defaultPoint(m_inputState.pickRay().direction));
                 delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());
             }
             
@@ -759,11 +762,11 @@ namespace TrenchBroom {
         Vec3 MapView::moveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::DForward: {
-                    Vec3 dir = m_camera.direction().firstAxis();
+                    Vec3 dir = m_camera->direction().firstAxis();
                     if (dir.z() < 0.0)
-                        dir = m_camera.up().firstAxis();
+                        dir = m_camera->up().firstAxis();
                     else if (dir.z() > 0.0)
-                        dir = -m_camera.up().firstAxis();
+                        dir = -m_camera->up().firstAxis();
                     return dir;
                 }
                 case Math::DBackward:
@@ -771,7 +774,7 @@ namespace TrenchBroom {
                 case Math::DLeft:
                     return -moveDirection(Math::DRight);
                 case Math::DRight: {
-                    Vec3 dir = m_camera.right().firstAxis();
+                    Vec3 dir = m_camera->right().firstAxis();
                     if (dir == moveDirection(Math::DForward))
                         dir = crossed(dir, Vec3::PosZ);
                     return dir;
@@ -800,8 +803,8 @@ namespace TrenchBroom {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
                         const Vec3f vertex(vertices[i]);
-                        const Vec3f toPosition = vertex - m_camera.position();
-                        minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                        const Vec3f toPosition = vertex - m_camera->position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
                         center += vertices[i];
                         ++count;
                     }
@@ -813,8 +816,8 @@ namespace TrenchBroom {
                 const Model::BrushVertexList& vertices = brush->vertices();
                 for (size_t i = 0; i < vertices.size(); ++i) {
                     const Model::BrushVertex* vertex = vertices[i];
-                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera.position();
-                    minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera->position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
                     center += vertex->position;
                     ++count;
                 }
@@ -823,13 +826,13 @@ namespace TrenchBroom {
             center /= static_cast<FloatType>(count);
             
             // act as if the camera were there already:
-            const Vec3f oldPosition = m_camera.position();
-            m_camera.moveTo(Vec3f(center));
+            const Vec3f oldPosition = m_camera->position();
+            m_camera->moveTo(Vec3f(center));
             
             float offset = std::numeric_limits<float>::max();
             
             Plane3f frustumPlanes[4];
-            m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
             
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                 const Model::Entity* entity = *entityIt;
@@ -840,8 +843,8 @@ namespace TrenchBroom {
                         
                         for (size_t j = 0; j < 4; ++j) {
                             const Plane3f& plane = frustumPlanes[j];
-                            const float dist = (vertex - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                            offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                            const float dist = (vertex - m_camera->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                            offset = std::min(offset, -dist / m_camera->direction().dot(plane.normal));
                         }
                     }
                 }
@@ -855,16 +858,16 @@ namespace TrenchBroom {
                     
                     for (size_t j = 0; j < 4; ++j) {
                         const Plane3f& plane = frustumPlanes[j];
-                        const float dist = (Vec3f(vertex->position) - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                        offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                        const float dist = (Vec3f(vertex->position) - m_camera->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                        offset = std::min(offset, -dist / m_camera->direction().dot(plane.normal));
                     }
                 }
             }
             
             // jump back
-            m_camera.moveTo(oldPosition);
+            m_camera->moveTo(oldPosition);
             
-            return center + m_camera.direction() * offset;
+            return center + m_camera->direction() * offset;
         }
         
         void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {
@@ -986,7 +989,7 @@ namespace TrenchBroom {
         void MapView::updatePickResults(const int x, const int y) {
             MapDocumentSPtr document = lock(m_document);
 
-            m_inputState.setPickRay(m_camera.pickRay(x, y));
+            m_inputState.setPickRay(m_camera->pickRay(x, y));
             Model::PickResult pickResult = document->pick(m_inputState.pickRay());
             m_toolChain->pick(m_inputState, pickResult);
             pickResult.sortHits();
@@ -1003,9 +1006,9 @@ namespace TrenchBroom {
             m_createEntityTool = new CreateEntityTool(m_createBrushTool, m_document, m_controller, m_renderResources.fontManager());
             m_vertexTool = new VertexTool(m_createEntityTool, m_document, m_controller, m_movementRestriction, font);
             m_rotateObjectsTool = new RotateObjectsTool(m_vertexTool, m_document, m_controller, m_movementRestriction, font);
-            m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, m_camera);
+            m_clipTool = new ClipTool(m_rotateObjectsTool, m_document, m_controller, *m_camera);
             m_textureTool = new TextureTool(m_clipTool, m_document, m_controller);
-            m_cameraTool = new CameraTool(m_textureTool, m_document, m_controller, m_camera);
+            m_cameraTool = new CameraTool(m_textureTool, m_document, m_controller, *m_camera);
             m_toolChain = m_cameraTool;
         }
         
@@ -1168,6 +1171,7 @@ namespace TrenchBroom {
             Bind(wxEVT_AUX2_DCLICK, &MapView::OnMouseDoubleClick, this);
             Bind(wxEVT_MOTION, &MapView::OnMouseMotion, this);
             Bind(wxEVT_MOUSEWHEEL, &MapView::OnMouseWheel, this);
+            Bind(wxEVT_MOUSE_CAPTURE_LOST, &MapView::OnMouseCaptureLost, this);
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             

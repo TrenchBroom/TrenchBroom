@@ -25,7 +25,7 @@ varying float distance;
 varying vec4 color;
 
 void main(void) {
-    gl_Position = ftransform();
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     distance = length(CameraPosition - gl_Vertex.xyz);
     color = gl_Color;
 }

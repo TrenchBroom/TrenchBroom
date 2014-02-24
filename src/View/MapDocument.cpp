@@ -550,10 +550,14 @@ namespace TrenchBroom {
         }
         
         Model::EntityList MapDocument::unselectedEntities() const {
+            if (m_map == NULL)
+                return Model::EmptyEntityList;
             return m_selection.unselectedEntities(*m_map);
         }
         
         Model::BrushList MapDocument::unselectedBrushes() const {
+            if (m_map == NULL)
+                return Model::EmptyBrushList;
             return m_selection.unselectedBrushes(*m_map);
         }
         

@@ -37,6 +37,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"

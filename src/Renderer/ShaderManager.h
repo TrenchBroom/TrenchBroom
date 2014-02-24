@@ -48,6 +48,7 @@ namespace TrenchBroom {
         namespace Shaders {
             extern const ShaderConfig VaryingPCShader;
             extern const ShaderConfig VaryingPUniformCShader;
+            extern const ShaderConfig MiniMapEdgeShader;
             extern const ShaderConfig EntityModelShader;
             extern const ShaderConfig FaceShader;
             extern const ShaderConfig ColoredTextShader;

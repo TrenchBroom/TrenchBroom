@@ -29,41 +29,7 @@ namespace TrenchBroom {
         width(0),
         height(0) {}
         
-        Camera::Viewport::Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height) :
-        x(i_x),
-        y(i_y),
-        width(i_width),
-        height(i_height) {}
-
-        Camera::Camera() :
-        m_fov(90.0f),
-        m_nearPlane(1.0f),
-        m_farPlane(8000.0f),
-        m_viewport(Viewport(0, 0, 1024, 768)),
-        m_position(Vec3f::Null),
-        m_valid(false) {
-            setDirection(Vec3f::PosX, Vec3f::PosZ);
-        }
-
-
-        Camera::Camera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
-        m_fov(fov),
-        m_nearPlane(nearPlane),
-        m_farPlane(farPlane),
-        m_viewport(viewport),
-        m_position(position),
-        m_valid(false) {
-            assert(m_fov > 0.0f);
-            assert(m_nearPlane >= 0.0f);
-            assert(m_farPlane > m_nearPlane);
-            assert(Math::eq(direction.length(), 1.0f));
-            assert(Math::eq(up.length(), 1.0f));
-            setDirection(direction, up);
-        }
-        
-        float Camera::fov() const {
-            return m_fov;
-        }
+        Camera::~Camera() {}
         
         float Camera::nearPlane() const {
             return m_nearPlane;
@@ -136,25 +102,7 @@ namespace TrenchBroom {
         }
 
         void Camera::frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const {
-            const float vFrustum = std::tan(Math::radians(m_fov) / 2.0f) * 0.75f * m_nearPlane;
-            const float hFrustum = vFrustum * static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height);
-            const Vec3f center = m_position + m_direction * m_nearPlane;
-            
-            Vec3f d = center + m_up * vFrustum - m_position;
-            d.normalize();
-            top = Plane3f(m_position, crossed(m_right, d));
-            
-            d = center + m_right * hFrustum - m_position;
-            d.normalize();
-            right = Plane3f(m_position, crossed(d, m_up));
-            
-            d = center - m_up * vFrustum - m_position;
-            d.normalize();
-            bottom = Plane3f(m_position, crossed(d, m_right));
-            
-            d = center - m_right * hFrustum - m_position;
-            d.normalize();
-            left = Plane3f(m_position, crossed(m_up, d));
+            computeFrustumPlanes(top, right, bottom, left);
         }
 
         Ray3f Camera::viewRay() const {
@@ -209,15 +157,8 @@ namespace TrenchBroom {
             
             return m_invertedMatrix * normalized;
         }
-
-        void Camera::setFov(const float fov) {
-            assert(fov > 0.0f);
-            m_fov = fov;
-            m_valid = false;
-        }
         
         void Camera::setNearPlane(const float nearPlane) {
-            assert(nearPlane >= 0.0f);
             assert(nearPlane < m_farPlane);
             m_nearPlane = nearPlane;
             m_valid = false;
@@ -309,15 +250,136 @@ namespace TrenchBroom {
             moveTo(offset + center);
         }
 
+        Camera::Viewport::Viewport(const int i_x, const int i_y, const unsigned int i_width, const unsigned int i_height) :
+        x(i_x),
+        y(i_y),
+        width(i_width),
+        height(i_height) {}
+        
+        Camera::Camera() :
+        m_nearPlane(1.0f),
+        m_farPlane(8000.0f),
+        m_viewport(Viewport(0, 0, 1024, 768)),
+        m_position(Vec3f::Null),
+        m_valid(false) {
+            setDirection(Vec3f::PosX, Vec3f::PosZ);
+        }
+        
+        Camera::Camera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        m_nearPlane(nearPlane),
+        m_farPlane(farPlane),
+        m_viewport(viewport),
+        m_position(position),
+        m_valid(false) {
+            assert(m_nearPlane >= 0.0f);
+            assert(m_farPlane > m_nearPlane);
+            assert(Math::eq(direction.length(), 1.0f));
+            assert(Math::eq(up.length(), 1.0f));
+            setDirection(direction, up);
+        }
+        
         void Camera::validateMatrices() const {
-            m_projectionMatrix = perspectiveMatrix(m_fov, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
-            m_viewMatrix = ::viewMatrix(m_direction, m_up) * translationMatrix(-m_position);
+            doValidateMatrices(m_projectionMatrix, m_viewMatrix);
             m_matrix = m_projectionMatrix * m_viewMatrix;
             
             bool invertible = false;
             m_invertedMatrix = invertedMatrix(m_matrix, invertible);
             assert(invertible);
             m_valid = true;
+        }
+        
+        PerspectiveCamera::PerspectiveCamera() :
+        Camera(),
+        m_fov(90.0) {}
+        
+        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up)
+        : Camera(nearPlane, farPlane, viewport, position, direction, up),
+        m_fov(fov) {
+            assert(m_fov > 0.0);
+        }
+
+        float PerspectiveCamera::fov() const {
+            return m_fov;
+        }
+        
+        void PerspectiveCamera::setFov(const float fov) {
+            assert(fov > 0.0f);
+            m_fov = fov;
+            m_valid = false;
+        }
+
+        void PerspectiveCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
+            projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport().width, viewport().height);
+            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
+        }
+        
+        void PerspectiveCamera::computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
+            const float vFrustum = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
+            const float hFrustum = vFrustum * static_cast<float>(viewport().width) / static_cast<float>(viewport().height);
+            const Vec3f center = position() + direction() * nearPlane();
+            
+            Vec3f d = center + up() * vFrustum - position();
+            d.normalize();
+            topPlane = Plane3f(position(), crossed(right(), d));
+            
+            d = center + right() * hFrustum - position();
+            d.normalize();
+            rightPlane = Plane3f(position(), crossed(d, up()));
+            
+            d = center - up() * vFrustum - position();
+            d.normalize();
+            bottomPlane = Plane3f(position(), crossed(d, right()));
+            
+            d = center - right() * hFrustum - position();
+            d.normalize();
+            leftPlane = Plane3f(position(), crossed(up(), d));
+        }
+
+        OrthographicCamera::OrthographicCamera() :
+        Camera(),
+        m_zoom(1.0f) {}
+        
+        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        Camera(nearPlane, farPlane, viewport, position, direction, up),
+        m_zoom(1.0f) {}
+
+        float OrthographicCamera::zoom() const {
+            return m_zoom;
+        }
+        
+        void OrthographicCamera::setZoom(float zoom) {
+            assert(zoom > 0.0f);
+            m_zoom = zoom;
+            m_valid = false;
+        }
+        
+        void OrthographicCamera::zoom(float factor) {
+            assert(factor > 0.0f);
+            m_zoom *= factor;
+            m_valid = false;
+        }
+
+        void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
+            const float l = static_cast<float>(viewport().x) / zoom();
+            const float t = static_cast<float>(viewport().y) / zoom();
+            const float r = l + static_cast<float>(viewport().width) / zoom();
+            const float b = t + static_cast<float>(viewport().height) / zoom();
+            
+            projectionMatrix = orthoMatrix(nearPlane(), farPlane(), l, t, r, b);
+            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
+        }
+        
+        void OrthographicCamera::computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const {
+            const float l = static_cast<float>(viewport().x) / zoom();
+            const float t = static_cast<float>(viewport().y) / zoom();
+            const float r = l + static_cast<float>(viewport().width) / zoom();
+            const float b = t + static_cast<float>(viewport().height) / zoom();
+
+            const Vec3f center = position() + direction() * nearPlane();
+            topPlane    = Plane3f(center + t * up(), up());
+            rightPlane  = Plane3f(center + r * right(), right());
+            bottomPlane = Plane3f(center - b * up(), -up());
+            leftPlane   = Plane3f(center - l * right(), -right());
         }
     }
 }

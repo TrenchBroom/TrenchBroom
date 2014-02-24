@@ -205,6 +205,21 @@ namespace Math {
         return pred(index, count, 1);
     }
     
+    template <typename T>
+    T min(const T v1, const T v2) {
+        return std::min(v1, v2);
+    }
+    
+    template <typename T>
+    T max(const T v1, const T v2) {
+        return std::max(v1, v2);
+    }
+
+    template <typename T>
+    T clamp(const T v, const T minV = 0.0f, const T maxV = 1.0f) {
+        return max(min(v, maxV), minV);
+    }
+
     template <typename T, bool Abs>
     struct Cmp {
         Cmp() {}

@@ -21,6 +21,7 @@
 
 #include "View/ViewConstants.h"
 #include "View/MapTreeView.h"
+#include "View/MiniMap.h"
 #include "View/ModEditor.h"
 
 #include <wx/collpane.h>
@@ -30,25 +31,33 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
+        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) :
         wxPanel(parent) {
-            createGui(document, controller);
+            createGui(document, controller, resources);
         }
 
         void MapInspector::OnPaneChanged(wxCollapsiblePaneEvent& event) {
             Layout();
         }
 
-        void MapInspector::createGui(MapDocumentWPtr document, ControllerWPtr controller) {
+        void MapInspector::createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) {
+            wxWindow* miniMap = createMiniMap(this, document, resources);
             wxWindow* mapTree = createMapTree(this, document, controller);
             wxWindow* modEditor = createModEditor(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(mapTree, 1, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            sizer->Add(miniMap, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(mapTree, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             sizer->Add(modEditor, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
             
-            SetSizerAndFit(sizer);
+            sizer->SetItemMinSize(miniMap, wxDefaultSize.x, 180);
+            SetSizer(sizer);
+        }
+
+        wxWindow* MapInspector::createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources) {
+            return new MiniMap(parent, document, resources);
         }
 
         wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {

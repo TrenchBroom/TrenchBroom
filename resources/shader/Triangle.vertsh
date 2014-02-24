@@ -28,7 +28,7 @@ varying vec3 modelNormal;
 varying vec3 viewVector;
 
 void main(void) {
-    gl_Position = ftransform();
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     if (UseColor)
         vertexColor = Color;
     else

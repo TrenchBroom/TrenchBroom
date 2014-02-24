@@ -81,7 +81,7 @@ namespace TrenchBroom {
             
             View::MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
-            Renderer::Camera m_camera;
+            Renderer::Camera* m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;

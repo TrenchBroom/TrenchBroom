@@ -22,16 +22,11 @@
 uniform vec4 Color;
 uniform vec3 CameraPosition;
 
-varying vec4 modelCoordinates;
-varying vec3 modelNormal;
-varying vec4 faceColor;
-varying vec3 viewVector;
+varying vec4 vertexColor;
 
 void main(void) {
-	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	modelCoordinates = gl_Vertex;
-	modelNormal = gl_Normal;
-	faceColor = Color;
-	viewVector = CameraPosition - gl_Vertex.xyz;
+    vertexColor = Color;
+    float zOffset = abs(gl_Vertex.z - CameraPosition.z);
+    vertexColor.a = max(1.0 - (zOffset / 1024.0), 0.05);
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
 }

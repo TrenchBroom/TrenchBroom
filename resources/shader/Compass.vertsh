@@ -30,7 +30,7 @@ uniform float MaterialShininess;
 uniform vec4 GlobalAmbient;
 
 void main(void) {
-	gl_Position = ftransform();
+	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     
     vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
     float NdotL = max(dot(normal, LightDirection), 0.0); // cosine of normal and light direction

@@ -44,6 +44,20 @@ namespace TrenchBroom {
                 virtual bool operator()(const Model::BrushEdge* edge) const = 0;
             };
         private:
+            struct BuildBrushEdges {
+                VertexSpecs::P3::Vertex::List vertices;
+                BrushRenderer::Filter& filter;
+                
+                BuildBrushEdges(BrushRenderer::Filter& i_filter);
+                void operator()(Model::Brush* brush);
+            };
+            
+            struct BuildBrushFaceMesh {
+                Model::BrushFace::Mesh mesh;
+                
+                bool operator()(Model::BrushFace* face);
+            };
+        private:
             Filter* m_filter;
             Model::BrushList m_brushes;
             FaceRenderer m_faceRenderer;

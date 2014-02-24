@@ -35,7 +35,6 @@ namespace TrenchBroom {
                 Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height);
             };
         private:
-            float m_fov;
             float m_nearPlane;
             float m_farPlane;
             Viewport m_viewport;
@@ -43,17 +42,16 @@ namespace TrenchBroom {
             Vec3f m_direction;
             Vec3f m_up;
             Vec3f m_right;
-            
+
             mutable Mat4x4f m_projectionMatrix;
             mutable Mat4x4f m_viewMatrix;
             mutable Mat4x4f m_matrix;
             mutable Mat4x4f m_invertedMatrix;
+        protected:
             mutable bool m_valid;
         public:
-            Camera();
-            Camera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
-        
-            float fov() const;
+            virtual ~Camera();
+            
             float nearPlane() const;
             float farPlane() const;
             const Viewport& viewport() const;
@@ -65,31 +63,64 @@ namespace TrenchBroom {
             const Mat4x4f& viewMatrix() const;
             const Mat4x4f orthogonalBillboardMatrix() const;
             const Mat4x4f verticalBillboardMatrix() const;
-            void frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const;
+            void frustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
             
             Ray3f viewRay() const;
-            Ray3f pickRay(const int x, const int y) const;
+            Ray3f pickRay(int x, int y) const;
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
             Vec3f defaultPoint() const;
-            Vec3f defaultPoint(const int x, const int y) const;
+            Vec3f defaultPoint(int x, int y) const;
             Vec3f defaultPoint(const Vec3f& direction) const;
             
             Vec3f project(const Vec3f& point) const;
-            Vec3f unproject(const float x, const float y, const float depth) const;
+            Vec3f unproject(float x, float y, float depth) const;
             
-            void setFov(const float fov);
-            void setNearPlane(const float nearPlane);
-            void setFarPlane(const float farPlane);
+            void setNearPlane(float nearPlane);
+            void setFarPlane(float farPlane);
             void setViewport(const Viewport& viewport);
             void moveTo(const Vec3f& position);
             void moveBy(const Vec3f& delta);
             void lookAt(const Vec3f& point, const Vec3f& up);
             void setDirection(const Vec3f& direction, const Vec3f& up);
-            void rotate(const float yaw, const float pitch);
-            void orbit(const Vec3f& center, const float horizontal, const float vertical);
+            void rotate(float yaw, float pitch);
+            void orbit(const Vec3f& center, float horizontal, float vertical);
+        protected:
+            Camera();
+            Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         private:
             void validateMatrices() const;
+            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
+            virtual void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const = 0;
+        };
+        
+        class PerspectiveCamera : public Camera {
+        private:
+            float m_fov;
+        public:
+            PerspectiveCamera();
+            PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+            
+            float fov() const;
+            void setFov(float fov);
+        private:
+            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
+            void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
+        };
+        
+        class OrthographicCamera : public Camera {
+        private:
+            float m_zoom;
+        public:
+            OrthographicCamera();
+            OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+
+            float zoom() const;
+            void setZoom(float zoom);
+            void zoom(float factor);
+        private:
+            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
+            void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
         };
     }
 }
