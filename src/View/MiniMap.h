@@ -43,7 +43,6 @@ namespace TrenchBroom {
         class MiniMap : public wxPanel {
         private:
             Renderer::MiniMapRenderer m_renderer;
-            BBox3f m_visibleBounds;
             MiniMapZView* m_miniMapZView;
             MiniMapXYView* m_miniMapXYView;
         public:

@@ -75,11 +75,10 @@ namespace TrenchBroom {
             const Vec3 anchor = edge.start;
             const Vec3 direction = (edge.end - edge.start).normalized();
             const Line3 line = Line3(anchor, direction).makeCanonical();
-            const bool isNewLine = m_edges.count(line) == 0;
 
             EdgeMap::iterator it = MapUtils::findOrInsert(m_edges, line);
             assert(m_edges.count(line) > 0);
-            assert(it->second.empty() || !isNewLine);
+            assert(it->second.empty() || m_edges.count(line) != 0);
             addEdge(edge, line, it->second);
             assert(m_edges.count(line) > 0);
         }

@@ -413,6 +413,8 @@ BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Mat<T,4,4>& transformation) {
 }
 
 
+typedef BBox<float,1> BBox1f;
+typedef BBox<double,1> BBox1d;
 typedef BBox<float,2> BBox2f;
 typedef BBox<double,2> BBox2d;
 typedef BBox<float,3> BBox3f;

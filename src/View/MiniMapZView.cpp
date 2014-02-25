@@ -31,15 +31,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        MiniMapZView::MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
-        MiniMapBaseView(parent, document, bounds, renderResources, renderer),
+        MiniMapZView::MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
+        MiniMapBaseView(parent, document, renderResources, renderer),
         m_camera(new Renderer::OrthographicCamera()) {
-            m_camera->setNearPlane(-0xFFFF);
-            m_camera->setFarPlane(0xFFFF);
+            const BBox3& worldBounds = lock(document)->worldBounds();
+            m_camera->setNearPlane(worldBounds.min.y());
+            m_camera->setFarPlane(worldBounds.max.y());
             m_camera->setDirection(Vec3f::PosY, Vec3f::PosZ);
             m_camera->moveTo(Vec3f::Null);
             m_camera->setZoom(Vec2f(0.15f, 0.15f));
-            updateBounds();
         }
 
         MiniMapZView::~MiniMapZView() {
@@ -47,11 +47,18 @@ namespace TrenchBroom {
             m_camera = NULL;
         }
         
-        void MiniMapZView::setXYPosition(const Vec2f& xyPosition) {
-            const float diffX = xyPosition.x() - m_camera->position().x();
-            const float diffY = xyPosition.y() - m_camera->position().y();
-            m_camera->moveBy(Vec3f(diffX, diffY, 0.0f));
-            updateBounds();
+        BBox1f MiniMapZView::zRange() const {
+            const Vec2f& zoom = m_camera->zoom();
+            const float h2 = static_cast<float>(m_camera->viewport().height) / zoom.y() / 2.0f;
+            const float z = m_camera->position().z();
+            return BBox1f(z - h2, z + h2);
+        }
+
+        void MiniMapZView::setXYRange(const BBox2f& xyRange) {
+            m_xyRange = xyRange;
+            const Vec2f xy = m_xyRange.center();
+            const float z = m_camera->position().z();
+            m_camera->moveTo(Vec3f(xy, z));
             Refresh();
         }
 
@@ -59,13 +66,15 @@ namespace TrenchBroom {
             return *m_camera;
         }
         
-        void MiniMapZView::doUpdateBounds(BBox3f& bounds) {
-            const Vec2f& zoom = m_camera->zoom();
-            const float h = static_cast<float>(m_camera->viewport().height) / zoom.y();
-            
-            const Vec3f& center = m_camera->position();
-            bounds.min[2] = center[2];
-            bounds.max[2] = center[2] + h;
+        void MiniMapZView::doComputeBounds(BBox3f& bounds) {
+            const BBox3& worldBounds = document()->worldBounds();
+
+            bounds.min[0] = m_xyRange.min.x();
+            bounds.max[0] = m_xyRange.max.x();
+            bounds.min[1] = m_xyRange.min.y();
+            bounds.max[1] = m_xyRange.max.y();
+            bounds.min[2] = static_cast<float>(worldBounds.min.z());
+            bounds.max[2] = static_cast<float>(worldBounds.max.z());
         }
 
         void MiniMapZView::doUpdateViewport(const Renderer::Camera::Viewport& viewport) {

@@ -118,8 +118,9 @@ namespace TrenchBroom {
                 first->remove(last);
                 while (first != NULL) {
                     issueWillBeRemovedNotifier(first);
-                    delete first;
+                    Issue* tmp = first;
                     first = first->next();
+                    delete tmp;
                 }
                 m_issueMap.erase(it);
             }

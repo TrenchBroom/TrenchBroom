@@ -34,6 +34,7 @@ DEFINE_EVENT_TYPE(EVT_MINIMAP_VIEW_CHANGED_EVENT)
 namespace TrenchBroom {
     namespace View {
         MiniMapBaseView::~MiniMapBaseView() {
+            unbindObservers();
             delete m_glContext;
             m_glContext = NULL;
         }
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             } else {
                 if (HasCapture())
                     ReleaseMouse();
-                SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
+                SetCursor(wxCursor(wxCURSOR_HAND));
             }
         }
         
@@ -72,22 +73,10 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::OnMouseWheel(wxMouseEvent& event) {
-            const wxPoint mousePos = event.GetPosition();
-            const Vec3f before = camera().unproject(static_cast<float>(mousePos.x),
-                                                    static_cast<float>(mousePos.y),
-                                                    0.0f);
-            
             if (event.GetWheelRotation() > 0)
                 zoomCamera(Vec2f(1.1f, 1.1f));
             else
                 zoomCamera(Vec2f(1.0f, 1.0f) / 1.1f);
-            
-            
-            const Vec3f after = camera().unproject(static_cast<float>(mousePos.x),
-                                                   static_cast<float>(mousePos.y),
-                                                   0.0f);
-            
-            moveCamera(before - after);
             Refresh();
         }
         
@@ -121,16 +110,16 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
+        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
         wxGLCanvas(parent, wxID_ANY, &renderResources.glAttribs().front()),
         m_document(document),
-        m_bounds(bounds),
         m_renderResources(renderResources),
         m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
-            SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
+            SetCursor(wxCursor(wxCURSOR_HAND));
             bindEvents();
+            bindObservers();
         }
 
         View::MapDocumentSPtr MiniMapBaseView::document() const {
@@ -138,24 +127,66 @@ namespace TrenchBroom {
             return lock(m_document);
         }
 
-        void MiniMapBaseView::updateBounds() {
-            doUpdateBounds(m_bounds);
-            fireChangeEvent();
-        }
-
         void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
             doUpdateViewport(viewport);
-            updateBounds();
         }
         
         void MiniMapBaseView::moveCamera(const Vec3f& diff) {
             doMoveCamera(diff);
-            updateBounds();
+            fireChangeEvent();
         }
         
         void MiniMapBaseView::zoomCamera(const Vec3f& factors) {
             doZoomCamera(factors);
-            updateBounds();
+            fireChangeEvent();
+        }
+
+        void MiniMapBaseView::bindObservers() {
+            View::MapDocumentSPtr document = lock(m_document);
+            document->documentWasClearedNotifier.addObserver(this, &MiniMapBaseView::documentWasCleared);
+            document->documentWasNewedNotifier.addObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
+            document->objectWasAddedNotifier.addObserver(this, &MiniMapBaseView::objectWasAdded);
+            document->objectWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectWillBeRemoved);
+            document->objectDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
+        }
+        
+        void MiniMapBaseView::unbindObservers() {
+            if (!expired(m_document)) {
+                View::MapDocumentSPtr document = lock(m_document);
+                document->documentWasClearedNotifier.removeObserver(this, &MiniMapBaseView::documentWasCleared);
+                document->documentWasNewedNotifier.removeObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
+                document->objectWasAddedNotifier.removeObserver(this, &MiniMapBaseView::objectWasAdded);
+                document->objectWillBeRemovedNotifier.removeObserver(this, &MiniMapBaseView::objectWillBeRemoved);
+                document->objectDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
+            }
+        }
+        
+        void MiniMapBaseView::documentWasCleared() {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::documentWasNewedOrLoaded() {
+            Refresh();
+        }
+
+        void MiniMapBaseView::objectWasAdded(Model::Object* object) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::objectWillBeRemoved(Model::Object* object) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::objectDidChange(Model::Object* object) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::selectionDidChange(const Model::SelectionResult& result) {
+            Refresh();
         }
 
         void MiniMapBaseView::bindEvents() {
@@ -187,7 +218,9 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::renderMap(Renderer::RenderContext& context) {
-            m_renderer.render(context, m_bounds);
+            BBox3f bounds;
+            doComputeBounds(bounds);
+            m_renderer.render(context, bounds);
         }
 
         void MiniMapBaseView::fireChangeEvent() {

@@ -634,11 +634,13 @@ const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>(std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN());
 
+typedef Vec<float,1> Vec1f;
+typedef Vec<double,1> Vec1d;
 typedef Vec<float,2> Vec2f;
-typedef Vec<float,3> Vec3f;
-typedef Vec<float,4> Vec4f;
 typedef Vec<double,2> Vec2d;
+typedef Vec<float,3> Vec3f;
 typedef Vec<double,3> Vec3d;
+typedef Vec<float,4> Vec4f;
 typedef Vec<double,4> Vec4d;
             
 template <typename T, size_t S>

@@ -38,14 +38,16 @@ namespace TrenchBroom {
         class MiniMapXYView : public MiniMapBaseView {
         private:
             Renderer::OrthographicCamera* m_camera;
+            BBox1f m_zRange;
         public:
-            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
             ~MiniMapXYView();
 
-            void setZPosition(float zPosition);
+            BBox2f xyRange() const;
+            void setZRange(const BBox1f& zRange);
         private:
             const Renderer::Camera& camera() const;
-            void doUpdateBounds(BBox3f& bounds);
+            void doComputeBounds(BBox3f& bounds);
             void doUpdateViewport(const Renderer::Camera::Viewport& viewport);
             void doMoveCamera(const Vec3f& diff);
             void doZoomCamera(const Vec3f& factors);

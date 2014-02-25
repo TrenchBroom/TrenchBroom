@@ -360,12 +360,10 @@ namespace TrenchBroom {
         }
 
         void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            const float l = static_cast<float>(viewport().x) / m_zoom.x();
-            const float t = static_cast<float>(viewport().y) / m_zoom.y();
-            const float r = l + static_cast<float>(viewport().width) / m_zoom.x();
-            const float b = t + static_cast<float>(viewport().height) / m_zoom.y();
+            const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
+            const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;
             
-            projectionMatrix = orthoMatrix(nearPlane(), farPlane(), l, t, r, b);
+            projectionMatrix = orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         

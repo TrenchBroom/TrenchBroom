@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
+#include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Camera.h"
 #include "View/ViewTypes.h"
@@ -38,11 +39,14 @@ namespace TrenchBroom {
         class RenderResources;
     }
     
+    namespace Model {
+        class SelectionResult;
+    }
+
     namespace View {
         class MiniMapBaseView : public wxGLCanvas {
         private:
             View::MapDocumentWPtr m_document;
-            BBox3f& m_bounds;
             Renderer::RenderResources& m_renderResources;
             wxGLContext* m_glContext;
             Renderer::MiniMapRenderer& m_renderer;
@@ -61,15 +65,25 @@ namespace TrenchBroom {
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         protected:
-            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, BBox3f& bounds, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
             
             View::MapDocumentSPtr document() const;
         protected:
-            void updateBounds();
             void updateViewport(const Renderer::Camera::Viewport& viewport);
             void moveCamera(const Vec3f& diff);
             void zoomCamera(const Vec3f& factors);
         private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasCleared();
+            void documentWasNewedOrLoaded();
+
+            void objectWasAdded(Model::Object* object);
+            void objectWillBeRemoved(Model::Object* object);
+            void objectDidChange(Model::Object* object);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void bindEvents();
             void setupGL(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
@@ -78,7 +92,7 @@ namespace TrenchBroom {
             void fireChangeEvent();
             
             virtual const Renderer::Camera& camera() const = 0;
-            virtual void doUpdateBounds(BBox3f& bounds) = 0;
+            virtual void doComputeBounds(BBox3f& bounds) = 0;
             virtual void doUpdateViewport(const Renderer::Camera::Viewport& viewport) = 0;
             virtual void doMoveCamera(const Vec3f& diff) = 0;
             virtual void doZoomCamera(const Vec3f& factors) = 0;

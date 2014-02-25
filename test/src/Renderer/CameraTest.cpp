@@ -37,7 +37,7 @@ namespace TrenchBroom {
             const Vec3f right(Vec3f::NegY);
             const Vec3f newPosition(10.0f, 23.0f, -132.0f);
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             camera.moveTo(newPosition);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             const Vec3f delta(20.0f, -22.0f, 48.0f);
             const Vec3f newPosition = position + delta;
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             camera.moveBy(delta);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             const Vec3f newRight = crossed(newDirection, Vec3f::PosZ).normalized();
             const Vec3f newUp = crossed(newRight, newDirection).normalized();
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             camera.lookAt(focus, Vec3f::PosZ);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             const Vec3f newRight = crossed(newDirection, Vec3f::PosZ).normalized();
             const Vec3f newUp = crossed(newRight, newDirection).normalized();
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             camera.setDirection(newDirection, Vec3f::PosZ);
             
             ASSERT_FLOAT_EQ(fov, camera.fov());
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             const Vec3f direction(Vec3f::PosX);
             const Vec3f up(Vec3f::PosZ);
 
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
 
             const float yaw = Math::radians(15.0f);
             const float pitch = Math::radians(20.0f);
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             const Vec3f direction(Vec3f::PosX);
             const Vec3f up(Vec3f::PosZ);
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             
             const float yaw = Math::radians(15.0f);
             const float pitch = Math::radians(92.0f);
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             const Vec3f direction(Vec3f::PosX);
             const Vec3f up(Vec3f::PosZ);
             
-            Camera camera(fov, near, far, viewport, position, direction, up);
+            PerspectiveCamera camera(fov, near, far, viewport, position, direction, up);
             
             const float yaw = Math::radians(15.0f);
             const float pitch = Math::radians(-107.0f);

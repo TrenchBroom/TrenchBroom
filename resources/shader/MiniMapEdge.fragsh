@@ -19,9 +19,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+uniform vec4 Color;
+
+uniform vec3 BoundsMin;
+uniform vec3 BoundsMax;
+
 varying vec4 vertexWorldPosition;
 
-void main(void) {
-    vertexWorldPosition = gl_Vertex;
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+void main() {
+    gl_FragColor = Color;
+    if (any(lessThan(vertexWorldPosition.xyz, BoundsMin)) ||
+        any(greaterThan(vertexWorldPosition.xyz, BoundsMax)))
+        gl_FragColor.a = 0.05;
 }
