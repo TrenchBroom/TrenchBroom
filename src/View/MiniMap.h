@@ -33,6 +33,7 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderResources;
     }
 
@@ -46,12 +47,12 @@ namespace TrenchBroom {
             MiniMapZView* m_miniMapZView;
             MiniMapXYView* m_miniMapXYView;
         public:
-            MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera);
             
             void OnXYMiniMapChanged(wxCommandEvent& event);
             void OnZMiniMapChanged(wxCommandEvent& event);
         private:
-            void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera);
             void bindEvents();
         };
     }

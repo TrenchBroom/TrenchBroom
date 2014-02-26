@@ -25,6 +25,7 @@
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderResources.h"
+#include "Renderer/Transformation.h"
 #include "View/MapDocument.h"
 
 #include <wx/dcclient.h>
@@ -97,6 +98,7 @@ namespace TrenchBroom {
                     setupGL(context);
                     clearBackground(context);
                     renderMap(context);
+                    renderCamera(context);
                 }
                 SwapBuffers();
             }
@@ -110,10 +112,11 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
+        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
         wxGLCanvas(parent, wxID_ANY, &renderResources.glAttribs().front()),
         m_document(document),
         m_renderResources(renderResources),
+        m_camera(camera),
         m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
@@ -150,6 +153,7 @@ namespace TrenchBroom {
             document->objectWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectWillBeRemoved);
             document->objectDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
+            m_camera.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
         }
         
         void MiniMapBaseView::unbindObservers() {
@@ -163,6 +167,7 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &MiniMapBaseView::cameraDidChange);
         }
         
         void MiniMapBaseView::documentWasCleared() {
@@ -186,6 +191,10 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::selectionDidChange(const Model::SelectionResult& result) {
+            Refresh();
+        }
+
+        void MiniMapBaseView::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }
 
@@ -221,6 +230,17 @@ namespace TrenchBroom {
             BBox3f bounds;
             doComputeBounds(bounds);
             m_renderer.render(context, bounds);
+        }
+
+        void MiniMapBaseView::renderCamera(Renderer::RenderContext& context) {
+            const int viewWidth = context.camera().viewport().width;
+            const int viewHeight = context.camera().viewport().height;
+
+            const Mat4x4f projection = orthoMatrix(-20.0f, 20.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
+            const Mat4x4f view = viewMatrix(context.camera().direction(), context.camera().up());
+            const Renderer::ReplaceTransformation ortho(context.transformation(), projection, view);
+            
+            
         }
 
         void MiniMapBaseView::fireChangeEvent() {

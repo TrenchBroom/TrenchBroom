@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Notifier.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -50,6 +51,8 @@ namespace TrenchBroom {
         protected:
             mutable bool m_valid;
         public:
+            Notifier1<const Camera*> cameraDidChangeNotifier;
+
             virtual ~Camera();
             
             float nearPlane() const;

@@ -29,6 +29,7 @@ class wxNotebook;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderResources;
     }
     
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
             ViewInspector* m_viewInspector;
         public:
-            Inspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            Inspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera);
             void switchToPage(InspectorPage page);
         };
     }

@@ -162,12 +162,14 @@ namespace TrenchBroom {
             assert(nearPlane < m_farPlane);
             m_nearPlane = nearPlane;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void Camera::setFarPlane(const float farPlane) {
             assert(farPlane > m_nearPlane);
             m_farPlane = farPlane;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void Camera::setViewport(const Viewport& viewport) {
@@ -178,11 +180,13 @@ namespace TrenchBroom {
         void Camera::moveTo(const Vec3f& position) {
             m_position = position;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void Camera::moveBy(const Vec3f& delta) {
             m_position += delta;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void Camera::lookAt(const Vec3f& point, const Vec3f& up) {
@@ -194,6 +198,7 @@ namespace TrenchBroom {
             m_right = crossed(m_direction, up).normalized();
             m_up = crossed(m_right, m_direction);
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void Camera::rotate(const float yaw, const float pitch) {
@@ -306,6 +311,7 @@ namespace TrenchBroom {
             assert(fov > 0.0f);
             m_fov = fov;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
 
         void PerspectiveCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
@@ -351,12 +357,14 @@ namespace TrenchBroom {
             assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
             m_zoom = zoom;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
         
         void OrthographicCamera::zoom(const Vec2f& factors) {
             assert(factors.x() > 0.0f && factors.y() > 0.0f);
             m_zoom *= factors;
             m_valid = false;
+            cameraDidChangeNotifier(this);
         }
 
         void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {

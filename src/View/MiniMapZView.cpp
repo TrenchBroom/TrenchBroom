@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MiniMapZView::MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer) :
-        MiniMapBaseView(parent, document, renderResources, renderer),
+        MiniMapZView::MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
+        MiniMapBaseView(parent, document, renderResources, renderer, camera),
         m_camera(new Renderer::OrthographicCamera()) {
             const BBox3& worldBounds = lock(document)->worldBounds();
             m_camera->setNearPlane(worldBounds.min.y());

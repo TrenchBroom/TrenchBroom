@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera* m_camera;
             BBox2f m_xyRange;
         public:
-            MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer);
+            MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera);
             ~MiniMapZView();
             
             BBox1f zRange() const;

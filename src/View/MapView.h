@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Controller/Command.h"
 #include "Renderer/GL.h"
@@ -114,7 +115,8 @@ namespace TrenchBroom {
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller);
             ~MapView();
-            
+
+            Renderer::Camera& camera();
             Renderer::RenderResources& renderResources();
             
             void centerCameraOnSelection();
@@ -201,9 +203,11 @@ namespace TrenchBroom {
             void commandDoneOrUndone(Controller::Command::Ptr command);
             void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
+            void cameraDidChange(const Renderer::Camera* camera);
             
             void updatePickResults(const int x, const int y);
             
+            void resetCamera();
             void createTools();
             void deleteTools();
             void toggleTool(BaseTool* tool);

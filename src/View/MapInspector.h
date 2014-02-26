@@ -29,6 +29,7 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderResources;
     }
     
@@ -38,12 +39,12 @@ namespace TrenchBroom {
         
         class MapInspector : public wxPanel {
         public:
-            MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera);
 
             void OnPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
-            wxWindow* createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources);
+            void createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera);
+            wxWindow* createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources, Renderer::Camera& camera);
             wxWindow* createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };

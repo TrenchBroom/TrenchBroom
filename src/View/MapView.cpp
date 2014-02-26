@@ -93,9 +93,6 @@ namespace TrenchBroom {
         m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
         m_lastFrameActivation(wxDateTime::Now()) {
-            m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
-            m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
-
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             const float r = static_cast<float>(color.Red()) / 0xFF;
             const float g = static_cast<float>(color.Green()) / 0xFF;
@@ -123,6 +120,10 @@ namespace TrenchBroom {
             m_logger = NULL;
         }
         
+        Renderer::Camera& MapView::camera() {
+            return *m_camera;
+        }
+
         Renderer::RenderResources& MapView::renderResources() {
             return m_renderResources;
         }
@@ -942,10 +943,12 @@ namespace TrenchBroom {
         }
 
         void MapView::documentWasNewed() {
+            resetCamera();
             Refresh();
         }
         
         void MapView::documentWasLoaded() {
+            resetCamera();
             Refresh();
         }
         
@@ -985,6 +988,10 @@ namespace TrenchBroom {
         void MapView::preferenceDidChange(const IO::Path& path) {
             Refresh();
         }
+        
+        void MapView::cameraDidChange(const Renderer::Camera* camera) {
+            Refresh();
+        }
 
         void MapView::updatePickResults(const int x, const int y) {
             MapDocumentSPtr document = lock(m_document);
@@ -996,6 +1003,11 @@ namespace TrenchBroom {
             m_inputState.setPickResult(pickResult);
         }
 
+        void MapView::resetCamera() {
+            m_camera->setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+            m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+        }
+        
         void MapView::createTools() {
             Renderer::TextureFont& font = defaultFont(m_renderResources);
 
