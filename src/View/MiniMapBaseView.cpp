@@ -45,11 +45,12 @@ namespace TrenchBroom {
                 if (!HasCapture())
                     CaptureMouse();
                 m_lastPos = event.GetPosition();
-                SetCursor(wxCursor(wxCURSOR_CLOSED_HAND));
+                if (event.RightIsDown())
+                    SetCursor(wxCursor(wxCURSOR_CLOSED_HAND));
             } else {
                 if (HasCapture())
                     ReleaseMouse();
-                SetCursor(wxCursor(wxCURSOR_HAND));
+                SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
             }
         }
         
@@ -57,21 +58,47 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::OnMouseMotion(wxMouseEvent& event) {
-            if (HasCapture() && event.LeftIsDown()) {
-                const wxPoint currentPos = event.GetPosition();
-                
-                const Vec3f lastWorldPos = camera().unproject(static_cast<float>(m_lastPos.x),
-                                                              static_cast<float>(m_lastPos.y),
-                                                              0.0f);
-                const Vec3f currentWorldPos = camera().unproject(static_cast<float>(currentPos.x),
-                                                                 static_cast<float>(currentPos.y),
-                                                                 0.0f);
-                
-                moveCamera(lastWorldPos - currentWorldPos);
+            const wxPoint currentPos = event.GetPosition();
+            if (HasCapture()) {
+                if (event.LeftIsDown())
+                    dragCamera(m_lastPos, currentPos);
+                else if (event.RightIsDown())
+                    panView(m_lastPos, currentPos);
                 m_lastPos = currentPos;
-                Refresh();
+            } else {
+                const Ray3f pickRay = camera().pickRay(currentPos.x, currentPos.y);
+                const float distance = m_camera3D.pickFrustum(pickRay);
+                if (Math::isnan(distance))
+                    SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
+                else
+                    SetCursor(wxCursor(wxCURSOR_HAND));
             }
         }
+        
+        void MiniMapBaseView::dragCamera(const wxPoint& lastPos, const wxPoint& currentPos) {
+            const Vec3f lastWorldPos = camera().unproject(static_cast<float>(lastPos.x),
+                                                          static_cast<float>(lastPos.y),
+                                                          0.0f);
+            const Vec3f currentWorldPos = camera().unproject(static_cast<float>(currentPos.x),
+                                                             static_cast<float>(currentPos.y),
+                                                             0.0f);
+            const Vec3f delta = currentWorldPos - lastWorldPos;
+            m_camera3D.moveBy(delta);
+            Refresh();
+        }
+        
+        void MiniMapBaseView::panView(const wxPoint& lastPos, const wxPoint& currentPos) {
+            const Vec3f lastWorldPos = camera().unproject(static_cast<float>(lastPos.x),
+                                                          static_cast<float>(lastPos.y),
+                                                          0.0f);
+            const Vec3f currentWorldPos = camera().unproject(static_cast<float>(currentPos.x),
+                                                             static_cast<float>(currentPos.y),
+                                                             0.0f);
+            
+            moveCamera(lastWorldPos - currentWorldPos);
+            Refresh();
+        }
+        
         
         void MiniMapBaseView::OnMouseWheel(wxMouseEvent& event) {
             if (event.GetWheelRotation() > 0)
@@ -98,7 +125,6 @@ namespace TrenchBroom {
                     setupGL(context);
                     clearBackground(context);
                     renderMap(context);
-                    renderCamera(context);
                 }
                 SwapBuffers();
             }
@@ -112,24 +138,24 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
+        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D) :
         wxGLCanvas(parent, wxID_ANY, &renderResources.glAttribs().front()),
         m_document(document),
         m_renderResources(renderResources),
-        m_camera(camera),
+        m_camera3D(camera3D),
         m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
-            SetCursor(wxCursor(wxCURSOR_HAND));
+            SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
             bindEvents();
             bindObservers();
         }
-
+        
         View::MapDocumentSPtr MiniMapBaseView::document() const {
             assert(!expired(m_document));
             return lock(m_document);
         }
-
+        
         void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
             doUpdateViewport(viewport);
         }
@@ -143,7 +169,7 @@ namespace TrenchBroom {
             doZoomCamera(factors);
             fireChangeEvent();
         }
-
+        
         void MiniMapBaseView::bindObservers() {
             View::MapDocumentSPtr document = lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &MiniMapBaseView::documentWasCleared);
@@ -153,7 +179,7 @@ namespace TrenchBroom {
             document->objectWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectWillBeRemoved);
             document->objectDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
-            m_camera.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
+            m_camera3D.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
         }
         
         void MiniMapBaseView::unbindObservers() {
@@ -167,7 +193,7 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
-            m_camera.cameraDidChangeNotifier.removeObserver(this, &MiniMapBaseView::cameraDidChange);
+            m_camera3D.cameraDidChangeNotifier.removeObserver(this, &MiniMapBaseView::cameraDidChange);
         }
         
         void MiniMapBaseView::documentWasCleared() {
@@ -177,7 +203,7 @@ namespace TrenchBroom {
         void MiniMapBaseView::documentWasNewedOrLoaded() {
             Refresh();
         }
-
+        
         void MiniMapBaseView::objectWasAdded(Model::Object* object) {
             Refresh();
         }
@@ -193,14 +219,16 @@ namespace TrenchBroom {
         void MiniMapBaseView::selectionDidChange(const Model::SelectionResult& result) {
             Refresh();
         }
-
+        
         void MiniMapBaseView::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }
-
+        
         void MiniMapBaseView::bindEvents() {
             Bind(wxEVT_LEFT_DOWN, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_LEFT_UP, &MiniMapBaseView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_DOWN, &MiniMapBaseView::OnMouseButton, this);
+            Bind(wxEVT_RIGHT_UP, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_MOTION, &MiniMapBaseView::OnMouseMotion, this);
             Bind(wxEVT_MOUSEWHEEL, &MiniMapBaseView::OnMouseWheel, this);
             Bind(wxEVT_MOUSE_CAPTURE_LOST, &MiniMapBaseView::OnMouseCaptureLost, this);
@@ -229,20 +257,9 @@ namespace TrenchBroom {
         void MiniMapBaseView::renderMap(Renderer::RenderContext& context) {
             BBox3f bounds;
             doComputeBounds(bounds);
-            m_renderer.render(context, bounds);
+            m_renderer.render(context, bounds, m_camera3D);
         }
-
-        void MiniMapBaseView::renderCamera(Renderer::RenderContext& context) {
-            const int viewWidth = context.camera().viewport().width;
-            const int viewHeight = context.camera().viewport().height;
-
-            const Mat4x4f projection = orthoMatrix(-20.0f, 20.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
-            const Mat4x4f view = viewMatrix(context.camera().direction(), context.camera().up());
-            const Renderer::ReplaceTransformation ortho(context.transformation(), projection, view);
-            
-            
-        }
-
+        
         void MiniMapBaseView::fireChangeEvent() {
             wxCommandEvent event(EVT_MINIMAP_VIEW_CHANGED_EVENT);
             event.SetEventObject(this);

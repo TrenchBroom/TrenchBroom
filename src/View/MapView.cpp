@@ -918,6 +918,8 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapView::preferenceDidChange);
+            
+            m_camera->cameraDidChangeNotifier.addObserver(this, &MapView::cameraDidChange);
         }
         
         void MapView::unbindObservers() {
@@ -940,6 +942,8 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView::preferenceDidChange);
+
+            m_camera->cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
         }
 
         void MapView::documentWasNewed() {

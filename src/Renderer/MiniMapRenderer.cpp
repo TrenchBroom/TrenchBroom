@@ -55,12 +55,13 @@ namespace TrenchBroom {
             unbindObservers();
         }
         
-        void MiniMapRenderer::render(RenderContext& context, const BBox3f& bounds) {
+        void MiniMapRenderer::render(RenderContext& context, const BBox3f& bounds, const Camera& camera3D) {
             SetVboState setVboState(m_vbo);
             setVboState.active();
 
             setupGL(context);
             renderEdges(context, bounds);
+            renderCamera(context, camera3D);
         }
         
         void MiniMapRenderer::setupGL(RenderContext& context) {
@@ -70,6 +71,8 @@ namespace TrenchBroom {
             glBindTexture(GL_TEXTURE_2D, 0);
             glDisable(GL_TEXTURE_2D);
             glDisable(GL_DEPTH_TEST);
+            glFrontFace(GL_CW);
+            glDisable(GL_CULL_FACE);
             glResetEdgeOffset();
         }
         
@@ -86,6 +89,10 @@ namespace TrenchBroom {
 
             shader.set("Color", prefs.get(Preferences::SelectedEdgeColor));
             m_selectedEdgeArray.render();
+        }
+
+        void MiniMapRenderer::renderCamera(Renderer::RenderContext& context, const Camera& camera3D) {
+            camera3D.renderFrustum(context, m_vbo);
         }
 
         void MiniMapRenderer::validateEdges(RenderContext& context) {

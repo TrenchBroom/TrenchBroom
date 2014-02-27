@@ -227,6 +227,11 @@ public:
     }
 };
 
+template <typename TT>
+const TT intersectRayWithTriangle(const Ray<TT,3>& R, const Vec<TT,3>& V0, const Vec<TT,3>& V1, const Vec<TT,3>& V2) {
+    return intersectRayWithTriangle(R.origin, R.direction, V0, V1, V2);
+}
+
 typedef Ray<float,3> Ray3f;
 typedef Ray<double,3> Ray3d;
 

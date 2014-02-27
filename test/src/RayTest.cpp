@@ -120,3 +120,18 @@ TEST(RayTest, distanceToLine) {
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
     ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
 }
+
+TEST(RayTest, intersectRayWithTriangle) {
+    const Vec3d p0(2.0, 5.0, 2.0);
+    const Vec3d p1(4.0, 7.0, 2.0);
+    const Vec3d p2(3.0, 2.0, 2.0);
+    
+    ASSERT_TRUE(Math::isnan(intersectRayWithTriangle(Ray3d(Vec3d::Null, Vec3d::PosX), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersectRayWithTriangle(Ray3d(Vec3d::Null, Vec3d::PosY), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersectRayWithTriangle(Ray3d(Vec3d::Null, Vec3d::PosZ), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersectRayWithTriangle(Ray3d(Vec3d(0.0, 0.0, 2.0), Vec3d::PosY), p0, p1, p2)));
+    ASSERT_DOUBLE_EQ(2.0, intersectRayWithTriangle(Ray3d(Vec3d(3.0, 5.0, 0.0), Vec3d::PosZ), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersectRayWithTriangle(Ray3d(Vec3d(2.0, 5.0, 0.0), Vec3d::PosZ), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersectRayWithTriangle(Ray3d(Vec3d(4.0, 7.0, 0.0), Vec3d::PosZ), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersectRayWithTriangle(Ray3d(Vec3d(3.0, 2.0, 0.0), Vec3d::PosZ), p0, p1, p2));
+}

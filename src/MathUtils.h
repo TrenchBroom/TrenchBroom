@@ -185,13 +185,13 @@ namespace Math {
         return std::min(v1, v2);
     }
 
-    template <typename T, typename O>
-    T succ(const T index, const T count, const O offset) {
+    template <typename T, typename C, typename O>
+    T succ(const T index, const C count, const O offset) {
         return (index + offset) % count;
     }
     
-    template <typename T>
-    T succ(const T index, const T count) {
+    template <typename T, typename C>
+    T succ(const T index, const C count) {
         return succ(index, count, 1);
     }
     

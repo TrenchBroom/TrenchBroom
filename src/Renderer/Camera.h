@@ -26,6 +26,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderContext;
+        class Vbo;
+        
         class Camera {
         public:
             struct Viewport {
@@ -58,15 +61,15 @@ namespace TrenchBroom {
             float nearPlane() const;
             float farPlane() const;
             const Viewport& viewport() const;
-            const Vec3f& position() const;
             const Vec3f& direction() const;
+            const Vec3f& position() const;
             const Vec3f& up() const;
             const Vec3f& right() const;
             const Mat4x4f& projectionMatrix() const;
             const Mat4x4f& viewMatrix() const;
             const Mat4x4f orthogonalBillboardMatrix() const;
             const Mat4x4f verticalBillboardMatrix() const;
-            void frustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
+            void frustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
             
             Ray3f viewRay() const;
             Ray3f pickRay(int x, int y) const;
@@ -88,13 +91,19 @@ namespace TrenchBroom {
             void setDirection(const Vec3f& direction, const Vec3f& up);
             void rotate(float yaw, float pitch);
             void orbit(const Vec3f& center, float horizontal, float vertical);
+            
+            void renderFrustum(RenderContext& renderContext, Vbo& vbo) const;
+            float pickFrustum(const Ray3f& ray) const;
         protected:
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         private:
             void validateMatrices() const;
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
-            virtual void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const = 0;
+            virtual Ray3f doGetPickRay(int x, int y) const = 0;
+            virtual void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
+            virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const = 0;
+            virtual float doPickFrustum(const Ray3f& ray) const = 0;
         };
         
         class PerspectiveCamera : public Camera {
@@ -107,8 +116,11 @@ namespace TrenchBroom {
             float fov() const;
             void setFov(float fov);
         private:
-            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
-            void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
+            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
+            Ray3f doGetPickRay(int x, int y) const;
+            void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
+            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const;
+            float doPickFrustum(const Ray3f& ray) const;
         };
         
         class OrthographicCamera : public Camera {
@@ -122,8 +134,11 @@ namespace TrenchBroom {
             void setZoom(const Vec2f& zoom);
             void zoom(const Vec2f& factors);
         private:
-            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
-            void computeFrustumPlanes(Plane3f &topPlane, Plane3f &rightPlane, Plane3f &bottomPlane, Plane3f &leftPlane) const;
+            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
+            Ray3f doGetPickRay(int x, int y) const;
+            void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
+            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const;
+            float doPickFrustum(const Ray3f& ray) const;
         };
     }
 }

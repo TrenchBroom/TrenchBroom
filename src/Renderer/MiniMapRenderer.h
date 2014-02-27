@@ -39,6 +39,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class RenderContext;
         
         class MiniMapRenderer {
@@ -58,10 +59,11 @@ namespace TrenchBroom {
             MiniMapRenderer(View::MapDocumentWPtr document);
             ~MiniMapRenderer();
             
-            void render(RenderContext& context, const BBox3f& bounds);
+            void render(RenderContext& context, const BBox3f& bounds, const Camera& camera3D);
         private:
             void setupGL(RenderContext& context);
             void renderEdges(RenderContext& context, const BBox3f& bounds);
+            void renderCamera(RenderContext& context, const Camera& camera3D);
             
             void validateEdges(RenderContext& context);
             VertexArray buildVertexArray(const Model::BrushList& brushes) const;

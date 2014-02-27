@@ -48,7 +48,7 @@ namespace TrenchBroom {
         private:
             View::MapDocumentWPtr m_document;
             Renderer::RenderResources& m_renderResources;
-            Renderer::Camera& m_camera;
+            Renderer::Camera& m_camera3D;
             
             wxGLContext* m_glContext;
             Renderer::MiniMapRenderer& m_renderer;
@@ -61,13 +61,17 @@ namespace TrenchBroom {
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseDoubleClick(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
+        private:
+            void dragCamera(const wxPoint& lastPos, const wxPoint& currentPos);
+            void panView(const wxPoint& lastPos, const wxPoint& currentPos);
+        public:
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         protected:
-            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera);
+            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D);
             
             View::MapDocumentSPtr document() const;
         protected:
@@ -92,7 +96,6 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);
-            void renderCamera(Renderer::RenderContext& context);
             
             void fireChangeEvent();
             
