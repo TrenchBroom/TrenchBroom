@@ -118,7 +118,7 @@ namespace TrenchBroom {
                 Model::BrushFace* face = hitAsFace(first.hit);
                 delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document()->worldBounds(), inputState.pickRay(), first.hit.hitPoint());
             } else {
-                const Vec3 newPosition(inputState.camera().defaultPoint(inputState.pickRay().direction));
+                const Vec3 newPosition(inputState.camera().defaultPoint(inputState.pickRay()));
                 const Vec3 center = m_entity->bounds().center();
                 delta = grid.moveDeltaForPoint(center, document()->worldBounds(), newPosition - center);
             }

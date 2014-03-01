@@ -65,7 +65,7 @@ namespace TrenchBroom {
             if (first.matches)
                 initialPoint = first.hit.hitPoint();
             else
-                initialPoint = inputState.camera().defaultPoint(inputState.pickRay().direction);
+                initialPoint = inputState.camera().defaultPoint(inputState.pickRay());
 
             plane = Plane3(initialPoint, Vec3::PosZ);
             m_initialPoint = initialPoint;

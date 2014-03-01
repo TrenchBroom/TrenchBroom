@@ -32,6 +32,7 @@ namespace TrenchBroom {
         class MiniMapRenderer;
         class OrthographicCamera;
         class RenderResources;
+        class Vbo;
     }
     
     namespace View {
@@ -46,11 +47,16 @@ namespace TrenchBroom {
             BBox2f xyRange() const;
             void setZRange(const BBox1f& zRange);
         private:
-            const Renderer::Camera& camera() const;
+            const Renderer::Camera& doGetViewCamera() const;
             void doComputeBounds(BBox3f& bounds);
             void doUpdateViewport(const Renderer::Camera::Viewport& viewport);
-            void doMoveCamera(const Vec3f& diff);
-            void doZoomCamera(const Vec3f& factors);
+            void doPanView(const Vec3f& diff);
+            void doZoomView(const Vec3f& factors);
+
+            void doShowDrag3DCameraCursor();
+            void doDrag3DCamera(const Vec3f& delta, Renderer::Camera& camera);
+            float doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const;
+            void doRender3DCamera(Renderer::RenderContext& renderContext, Renderer::Vbo& vbo, const Renderer::Camera& camera);
         };
     }
 }

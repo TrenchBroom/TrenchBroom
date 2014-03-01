@@ -59,11 +59,10 @@ namespace TrenchBroom {
             MiniMapRenderer(View::MapDocumentWPtr document);
             ~MiniMapRenderer();
             
-            void render(RenderContext& context, const BBox3f& bounds, const Camera& camera3D);
+            void render(RenderContext& context, const BBox3f& bounds);
         private:
             void setupGL(RenderContext& context);
             void renderEdges(RenderContext& context, const BBox3f& bounds);
-            void renderCamera(RenderContext& context, const Camera& camera3D);
             
             void validateEdges(RenderContext& context);
             VertexArray buildVertexArray(const Model::BrushList& brushes) const;

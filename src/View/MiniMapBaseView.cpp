@@ -42,15 +42,21 @@ namespace TrenchBroom {
         
         void MiniMapBaseView::OnMouseButton(wxMouseEvent& event) {
             if (event.ButtonDown()) {
-                if (!HasCapture())
-                    CaptureMouse();
                 m_lastPos = event.GetPosition();
-                if (event.RightIsDown())
+                if (event.LeftIsDown()) {
+                    if (!HasCapture()) {
+                        CaptureMouse();
+                        doShowDrag3DCameraCursor();
+                    }
+                } else if (event.RightIsDown()) {
+                    if (!HasCapture())
+                        CaptureMouse();
                     SetCursor(wxCursor(wxCURSOR_CLOSED_HAND));
+                }
             } else {
                 if (HasCapture())
                     ReleaseMouse();
-                SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
+                SetCursor(*wxSTANDARD_CURSOR);
             }
         }
         
@@ -61,50 +67,50 @@ namespace TrenchBroom {
             const wxPoint currentPos = event.GetPosition();
             if (HasCapture()) {
                 if (event.LeftIsDown())
-                    dragCamera(m_lastPos, currentPos);
+                    drag3DCamera(m_lastPos, currentPos);
                 else if (event.RightIsDown())
                     panView(m_lastPos, currentPos);
                 m_lastPos = currentPos;
             } else {
-                const Ray3f pickRay = camera().pickRay(currentPos.x, currentPos.y);
-                const float distance = m_camera3D.pickFrustum(pickRay);
+                const Ray3f pickRay = viewCamera().pickRay(currentPos.x, currentPos.y);
+                const float distance = pick3DCamera(pickRay);
                 if (Math::isnan(distance))
-                    SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
+                    SetCursor(*wxSTANDARD_CURSOR);
                 else
-                    SetCursor(wxCursor(wxCURSOR_HAND));
+                    doShowDrag3DCameraCursor();
             }
         }
         
-        void MiniMapBaseView::dragCamera(const wxPoint& lastPos, const wxPoint& currentPos) {
-            const Vec3f lastWorldPos = camera().unproject(static_cast<float>(lastPos.x),
+        void MiniMapBaseView::drag3DCamera(const wxPoint& lastPos, const wxPoint& currentPos) {
+            const Vec3f lastWorldPos = viewCamera().unproject(static_cast<float>(lastPos.x),
                                                           static_cast<float>(lastPos.y),
                                                           0.0f);
-            const Vec3f currentWorldPos = camera().unproject(static_cast<float>(currentPos.x),
+            const Vec3f currentWorldPos = viewCamera().unproject(static_cast<float>(currentPos.x),
                                                              static_cast<float>(currentPos.y),
                                                              0.0f);
             const Vec3f delta = currentWorldPos - lastWorldPos;
-            m_camera3D.moveBy(delta);
+            doDrag3DCamera(delta, m_camera3D);
             Refresh();
         }
         
         void MiniMapBaseView::panView(const wxPoint& lastPos, const wxPoint& currentPos) {
-            const Vec3f lastWorldPos = camera().unproject(static_cast<float>(lastPos.x),
+            const Vec3f lastWorldPos = viewCamera().unproject(static_cast<float>(lastPos.x),
                                                           static_cast<float>(lastPos.y),
                                                           0.0f);
-            const Vec3f currentWorldPos = camera().unproject(static_cast<float>(currentPos.x),
+            const Vec3f currentWorldPos = viewCamera().unproject(static_cast<float>(currentPos.x),
                                                              static_cast<float>(currentPos.y),
                                                              0.0f);
             
-            moveCamera(lastWorldPos - currentWorldPos);
+            panView(lastWorldPos - currentWorldPos);
             Refresh();
         }
         
         
         void MiniMapBaseView::OnMouseWheel(wxMouseEvent& event) {
             if (event.GetWheelRotation() > 0)
-                zoomCamera(Vec2f(1.1f, 1.1f));
+                zoomView(Vec2f(1.1f, 1.1f));
             else
-                zoomCamera(Vec2f(1.0f, 1.0f) / 1.1f);
+                zoomView(Vec2f(1.0f, 1.0f) / 1.1f);
             Refresh();
         }
         
@@ -121,10 +127,11 @@ namespace TrenchBroom {
                 wxPaintDC paintDC(this);
                 
                 { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    Renderer::RenderContext context(camera(), m_renderResources.shaderManager(), false, 16);
+                    Renderer::RenderContext context(viewCamera(), m_renderResources.shaderManager(), false, 16);
                     setupGL(context);
                     clearBackground(context);
                     renderMap(context);
+                    render3DCamera(context);
                 }
                 SwapBuffers();
             }
@@ -146,7 +153,6 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
-            SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
             bindEvents();
             bindObservers();
         }
@@ -156,17 +162,21 @@ namespace TrenchBroom {
             return lock(m_document);
         }
         
+        const Renderer::Camera& MiniMapBaseView::viewCamera() const {
+            return doGetViewCamera();
+        }
+
         void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
             doUpdateViewport(viewport);
         }
         
-        void MiniMapBaseView::moveCamera(const Vec3f& diff) {
-            doMoveCamera(diff);
+        void MiniMapBaseView::panView(const Vec3f& delta) {
+            doPanView(delta);
             fireChangeEvent();
         }
         
-        void MiniMapBaseView::zoomCamera(const Vec3f& factors) {
-            doZoomCamera(factors);
+        void MiniMapBaseView::zoomView(const Vec3f& factors) {
+            doZoomView(factors);
             fireChangeEvent();
         }
         
@@ -257,14 +267,22 @@ namespace TrenchBroom {
         void MiniMapBaseView::renderMap(Renderer::RenderContext& context) {
             BBox3f bounds;
             doComputeBounds(bounds);
-            m_renderer.render(context, bounds, m_camera3D);
+            m_renderer.render(context, bounds);
         }
-        
+
         void MiniMapBaseView::fireChangeEvent() {
             wxCommandEvent event(EVT_MINIMAP_VIEW_CHANGED_EVENT);
             event.SetEventObject(this);
             event.SetId(GetId());
             ProcessEvent(event);
+        }
+        
+        float MiniMapBaseView::pick3DCamera(const Ray3f& pickRay) const {
+            return doPick3DCamera(pickRay, m_camera3D);
+        }
+
+        void MiniMapBaseView::render3DCamera(Renderer::RenderContext& context) {
+            doRender3DCamera(context, m_auxVbo, m_camera3D);
         }
     }
 }

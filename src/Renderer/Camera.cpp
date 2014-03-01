@@ -21,15 +21,6 @@
 
 #include <cassert>
 
-#include "Color.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
-
-#include <limits>
-
 namespace TrenchBroom {
     namespace Renderer {
         Camera::Viewport::Viewport() :
@@ -37,6 +28,8 @@ namespace TrenchBroom {
         y(0),
         width(0),
         height(0) {}
+        
+        const float Camera::DefaultPointDistance = 256.0f;
         
         Camera::~Camera() {}
         
@@ -111,7 +104,7 @@ namespace TrenchBroom {
         }
 
         void Camera::frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const {
-            computeFrustumPlanes(top, right, bottom, left);
+            doComputeFrustumPlanes(top, right, bottom, left);
         }
 
         Ray3f Camera::viewRay() const {
@@ -131,16 +124,16 @@ namespace TrenchBroom {
         }
 
         Vec3f Camera::defaultPoint() const {
-            return defaultPoint(m_direction);
+            return m_position + DefaultPointDistance * direction();
         }
         
         Vec3f Camera::defaultPoint(const int x, const int y) const {
-            const Vec3f point = unproject(static_cast<float>(x), static_cast<float>(y), 0.5f);
-            return defaultPoint((point - m_position).normalized());
+            const Ray3f ray = pickRay(x, y);
+            return defaultPoint(ray);
         }
 
-        Vec3f Camera::defaultPoint(const Vec3f& direction) const {
-            return m_position + 256.0f*direction;
+        Vec3f Camera::defaultPoint(const Ray3f& ray) const {
+            return ray.pointAtDistance(DefaultPointDistance);
         }
 
         Vec3f Camera::project(const Vec3f& point) const {
@@ -263,12 +256,12 @@ namespace TrenchBroom {
             moveTo(offset + center);
         }
 
-        void Camera::renderFrustum(RenderContext& renderContext, Vbo& vbo) const {
-            doRenderFrustum(renderContext, vbo);
+        void Camera::renderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
+            doRenderFrustum(renderContext, vbo, size, color);
         }
 
-        float Camera::pickFrustum(const Ray3f& ray) const {
-            return doPickFrustum(ray);
+        float Camera::pickFrustum(const float size, const Ray3f& ray) const {
+            return doPickFrustum(size, ray);
         }
 
         Camera::Viewport::Viewport(const int i_x, const int i_y, const unsigned int i_width, const unsigned int i_height) :
@@ -307,176 +300,6 @@ namespace TrenchBroom {
             m_invertedMatrix = invertedMatrix(m_matrix, invertible);
             assert(invertible);
             m_valid = true;
-        }
-        
-        PerspectiveCamera::PerspectiveCamera() :
-        Camera(),
-        m_fov(90.0) {}
-        
-        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up)
-        : Camera(nearPlane, farPlane, viewport, position, direction, up),
-        m_fov(fov) {
-            assert(m_fov > 0.0);
-        }
-
-        float PerspectiveCamera::fov() const {
-            return m_fov;
-        }
-        
-        void PerspectiveCamera::setFov(const float fov) {
-            assert(fov > 0.0f);
-            m_fov = fov;
-            m_valid = false;
-            cameraDidChangeNotifier(this);
-        }
-
-        Ray3f PerspectiveCamera::doGetPickRay(int x, int y) const {
-            const Vec3f direction = (unproject(static_cast<float>(x), static_cast<float>(y), 0.5f) - position()).normalized();
-            return Ray3f(position(), direction);
-        }
-
-        void PerspectiveCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport().width, viewport().height);
-            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
-        }
-
-        void PerspectiveCamera::computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
-            const float vFrustum = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
-            const float hFrustum = vFrustum * static_cast<float>(viewport().width) / static_cast<float>(viewport().height);
-            const Vec3f center = position() + direction() * nearPlane();
-            
-            Vec3f d = center + up() * vFrustum - position();
-            topPlane = Plane3f(position(), crossed(right(), d).normalized());
-            
-            d = center + right() * hFrustum - position();
-            rightPlane = Plane3f(position(), crossed(d, up()).normalized());
-            
-            d = center - up() * vFrustum - position();
-            bottomPlane = Plane3f(position(), crossed(d, right()).normalized());
-            
-            d = center - right() * hFrustum - position();
-            leftPlane = Plane3f(position(), crossed(up(), d).normalized());
-        }
-
-        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const {
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List triangleVertices(6);
-            Vertex::List lineVertices(8 * 2);
-            
-            const float vFrustum = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
-            const float hFrustum = vFrustum * static_cast<float>(viewport().width) / static_cast<float>(viewport().height);
-
-            const Vec3f verts[] = {
-                position() + (direction() * nearPlane() + vFrustum * up() - hFrustum * right()) / nearPlane() * 32.0f, // top left
-                position() + (direction() * nearPlane() + vFrustum * up() + hFrustum * right()) / nearPlane() * 32.0f, // top right
-                position() + (direction() * nearPlane() - vFrustum * up() + hFrustum * right()) / nearPlane() * 32.0f, // bottom right
-                position() + (direction() * nearPlane() - vFrustum * up() - hFrustum * right()) / nearPlane() * 32.0f, // bottom left
-            };
-            
-            triangleVertices[0] = Vertex(position(), Color(1.0f, 1.0f, 1.0f, 0.7f));
-            for (size_t i = 0; i < 4; ++i)
-                triangleVertices[i + 1] = Vertex(verts[i], Color(1.0f, 1.0f, 1.0f, 0.2f));
-            triangleVertices[5] = Vertex(verts[0], Color(1.0f, 1.0f, 1.0f, 0.2f));
-            
-            for (size_t i = 0; i < 4; ++i) {
-                lineVertices[2 * i + 0] = Vertex(position(), Color(1.0f, 1.0f, 1.0f, 1.0f));
-                lineVertices[2 * i + 1] = Vertex(verts[i], Color(1.0f, 1.0f, 1.0f, 1.0f));
-            }
-
-            for (size_t i = 0; i < 4; ++i) {
-                lineVertices[8 + 2 * i + 0] = Vertex(verts[i], Color(1.0f, 1.0f, 1.0f, 1.0f));
-                lineVertices[8 + 2 * i + 1] = Vertex(verts[Math::succ(i, 4)], Color(1.0f, 1.0f, 1.0f, 1.0f));
-            }
-            
-            VertexArray triangleArray = VertexArray::ref(GL_TRIANGLE_FAN, triangleVertices);
-            VertexArray lineArray = VertexArray::ref(GL_LINES, lineVertices);
-            
-            SetVboState setVboState(vbo);
-            setVboState.mapped();
-            triangleArray.prepare(vbo);
-            lineArray.prepare(vbo);
-            setVboState.active();
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render();
-            lineArray.render();
-        }
-
-        float PerspectiveCamera::doPickFrustum(const Ray3f& ray) const {
-            const float vFrustum = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
-            const float hFrustum = vFrustum * static_cast<float>(viewport().width) / static_cast<float>(viewport().height);
-            
-            const Vec3f verts[] = {
-                position() + (direction() * nearPlane() + vFrustum * up() - hFrustum * right()) / nearPlane() * 32.0f, // top left
-                position() + (direction() * nearPlane() + vFrustum * up() + hFrustum * right()) / nearPlane() * 32.0f, // top right
-                position() + (direction() * nearPlane() - vFrustum * up() + hFrustum * right()) / nearPlane() * 32.0f, // bottom right
-                position() + (direction() * nearPlane() - vFrustum * up() - hFrustum * right()) / nearPlane() * 32.0f, // bottom left
-            };
-            
-            float distance = Math::nan<float>();
-            for (size_t i = 0; i < 4; ++i)
-                distance = Math::selectMin(distance, intersectRayWithTriangle(ray, position(), verts[i], verts[Math::succ(i, 4)]));
-            return distance;
-        }
-
-        OrthographicCamera::OrthographicCamera() :
-        Camera(),
-        m_zoom(1.0f, 1.0f) {}
-        
-        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
-        Camera(nearPlane, farPlane, viewport, position, direction, up),
-        m_zoom(1.0f) {}
-
-        const Vec2f& OrthographicCamera::zoom() const {
-            return m_zoom;
-        }
-        
-        void OrthographicCamera::setZoom(const Vec2f& zoom) {
-            assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
-            m_zoom = zoom;
-            m_valid = false;
-            cameraDidChangeNotifier(this);
-        }
-        
-        void OrthographicCamera::zoom(const Vec2f& factors) {
-            assert(factors.x() > 0.0f && factors.y() > 0.0f);
-            m_zoom *= factors;
-            m_valid = false;
-            cameraDidChangeNotifier(this);
-        }
-
-        void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
-            const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;
-            
-            projectionMatrix = orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
-        }
-
-        Ray3f OrthographicCamera::doGetPickRay(int x, int y) const {
-            const Vec3f p = unproject(static_cast<float>(x), static_cast<float>(y), 0.5f);
-            const Vec3f v = p - position();
-            const float d = v.dot(direction());
-            const Vec3f o = p - d * direction();
-            return Ray3f(o, direction());
-          }
-        
-        void OrthographicCamera::computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
-            const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
-            const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;
-
-            const Vec3f& center = position();
-            topPlane    = Plane3f(center + h2 * up(), up());
-            rightPlane  = Plane3f(center + w2 * right(), right());
-            bottomPlane = Plane3f(center - h2 * up(), -up());
-            leftPlane   = Plane3f(center - w2 * right(), -right());
-        }
-
-        void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const {
-        }
-
-        float OrthographicCamera::doPickFrustum(const Ray3f& ray) const {
-            return Math::nan<float>();
         }
     }
 }

@@ -40,6 +40,8 @@ namespace TrenchBroom {
         extern Preference<Color> CompassBackgroundOutlineColor;
         extern Preference<Color> CompassAxisOutlineColor;
         
+        extern Preference<Color> CameraFrustumColor;
+        
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
         extern Preference<Color> EdgeColor;

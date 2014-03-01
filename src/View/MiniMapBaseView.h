@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void OnMouseDoubleClick(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
         private:
-            void dragCamera(const wxPoint& lastPos, const wxPoint& currentPos);
+            void drag3DCamera(const wxPoint& lastPos, const wxPoint& currentPos);
             void panView(const wxPoint& lastPos, const wxPoint& currentPos);
         public:
             void OnMouseWheel(wxMouseEvent& event);
@@ -74,10 +74,11 @@ namespace TrenchBroom {
             MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D);
             
             View::MapDocumentSPtr document() const;
-        protected:
+        private:
+            const Renderer::Camera& viewCamera() const;
             void updateViewport(const Renderer::Camera::Viewport& viewport);
-            void moveCamera(const Vec3f& diff);
-            void zoomCamera(const Vec3f& factors);
+            void panView(const Vec3f& delta);
+            void zoomView(const Vec3f& factors);
         private:
             void bindObservers();
             void unbindObservers();
@@ -99,11 +100,19 @@ namespace TrenchBroom {
             
             void fireChangeEvent();
             
-            virtual const Renderer::Camera& camera() const = 0;
+            float pick3DCamera(const Ray3f& pickRay) const;
+            void render3DCamera(Renderer::RenderContext& context);
+
+            virtual const Renderer::Camera& doGetViewCamera() const = 0;
             virtual void doComputeBounds(BBox3f& bounds) = 0;
             virtual void doUpdateViewport(const Renderer::Camera::Viewport& viewport) = 0;
-            virtual void doMoveCamera(const Vec3f& diff) = 0;
-            virtual void doZoomCamera(const Vec3f& factors) = 0;
+            virtual void doPanView(const Vec3f& delta) = 0;
+            virtual void doZoomView(const Vec3f& factors) = 0;
+
+            virtual void doShowDrag3DCameraCursor() = 0;
+            virtual void doDrag3DCamera(const Vec3f& delta, Renderer::Camera& camera) = 0;
+            virtual float doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const = 0;
+            virtual void doRender3DCamera(Renderer::RenderContext& renderContext, Renderer::Vbo& vbo, const Renderer::Camera& camera) = 0;
         };
     }
 }

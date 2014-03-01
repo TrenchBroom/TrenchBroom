@@ -21,7 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Renderer/Camera.h"
+#include "Renderer/OrthographicCamera.h"
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderResources.h"
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        const Renderer::Camera& MiniMapXYView::camera() const {
+        const Renderer::Camera& MiniMapXYView::doGetViewCamera() const {
             return *m_camera;
         }
         
@@ -78,12 +78,31 @@ namespace TrenchBroom {
             m_camera->setViewport(viewport);
         }
         
-        void MiniMapXYView::doMoveCamera(const Vec3f& diff) {
+        void MiniMapXYView::doPanView(const Vec3f& diff) {
             m_camera->moveBy(Vec3f(diff.x(), diff.y(), 0.0f));
         }
         
-        void MiniMapXYView::doZoomCamera(const Vec3f& factors) {
+        void MiniMapXYView::doZoomView(const Vec3f& factors) {
             m_camera->zoom(factors);
+        }
+
+        void MiniMapXYView::doShowDrag3DCameraCursor() {
+            SetCursor(wxCursor(wxCURSOR_SIZING));
+        }
+
+        void MiniMapXYView::doDrag3DCamera(const Vec3f& delta, Renderer::Camera& camera) {
+            camera.moveBy(Vec3f(delta.xy(), 0.0f));
+        }
+
+        float MiniMapXYView::doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const {
+            const float zoom = m_camera->zoom().x();
+            return camera.pickFrustum(16.0f / zoom, pickRay);
+        }
+
+        void MiniMapXYView::doRender3DCamera(Renderer::RenderContext& renderContext, Renderer::Vbo& vbo, const Renderer::Camera& camera) {
+            const float zoom = m_camera->zoom().x();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            camera.renderFrustum(renderContext, vbo, 16.0f / zoom, prefs.get(Preferences::CameraFrustumColor));
         }
     }
 }

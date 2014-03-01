@@ -21,10 +21,14 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Renderer/Camera.h"
+#include "Renderer/OrthographicCamera.h"
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderResources.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "View/MapDocument.h"
 
 #include <wx/dcclient.h>
@@ -56,13 +60,17 @@ namespace TrenchBroom {
 
         void MiniMapZView::setXYRange(const BBox2f& xyRange) {
             m_xyRange = xyRange;
-            const Vec2f xy = m_xyRange.center();
+            const float x = m_xyRange.center().x();
             const float z = m_camera->position().z();
-            m_camera->moveTo(Vec3f(xy, z));
+            const Vec3f& pos = m_camera->position();
+            
+            const float dx = x - pos.x();
+            const float dz = z - pos.z();
+            m_camera->moveBy(Vec3f(dx, 0.0f, dz));
             Refresh();
         }
 
-        const Renderer::Camera& MiniMapZView::camera() const {
+        const Renderer::Camera& MiniMapZView::doGetViewCamera() const {
             return *m_camera;
         }
         
@@ -81,12 +89,57 @@ namespace TrenchBroom {
             m_camera->setViewport(viewport);
         }
         
-        void MiniMapZView::doMoveCamera(const Vec3f& diff) {
+        void MiniMapZView::doPanView(const Vec3f& diff) {
             m_camera->moveBy(Vec3f(0.0f, 0.0f, diff.z()));
         }
         
-        void MiniMapZView::doZoomCamera(const Vec3f& factors) {
+        void MiniMapZView::doZoomView(const Vec3f& factors) {
             m_camera->zoom(factors);
+        }
+
+        void MiniMapZView::doShowDrag3DCameraCursor() {
+            SetCursor(wxCursor(wxCURSOR_SIZENS));
+        }
+
+        void MiniMapZView::doDrag3DCamera(const Vec3f& delta, Renderer::Camera& camera) {
+            camera.moveBy(Vec3f(0.0f, 0.0f, delta.z()));
+        }
+
+        float MiniMapZView::doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const {
+            const float zoom = m_camera->zoom().x();
+            const float w2 = 2.0f / zoom;
+            const Vec3f& cameraPosition = camera.position();
+            if (Math::between(pickRay.origin.z(), cameraPosition.z() - w2, cameraPosition.z() + w2))
+                return 0.0f;
+            return Math::nan<float>();
+        }
+
+        void MiniMapZView::doRender3DCamera(Renderer::RenderContext& renderContext, Renderer::Vbo& vbo, const Renderer::Camera& camera) {
+            const BBox3& worldBounds = document()->worldBounds();
+            const Vec3f& cameraPosition = camera.position();
+            
+            const Vec3f min(worldBounds.min.x(), 0.0f, cameraPosition.z());
+            const Vec3f max(worldBounds.max.x(), 0.0f, cameraPosition.z());
+            
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List vertices(2);
+            vertices[0] = Vertex(min);
+            vertices[1] = Vertex(max);
+            
+            Renderer::VertexArray array = Renderer::VertexArray::ref(GL_LINES, vertices);
+            
+            Renderer::SetVboState setVboState(vbo);
+            setVboState.mapped();
+            array.prepare(vbo);
+            setVboState.active();
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+            shader.set("Color", prefs.get(Preferences::CameraFrustumColor));
+            
+            glLineWidth(2.0f);
+            array.render();
+            glLineWidth(1.0f);
         }
     }
 }

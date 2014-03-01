@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Camera__
 #define __TrenchBroom__Camera__
 
+#include "Color.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Notifier.h"
@@ -39,6 +40,8 @@ namespace TrenchBroom {
                 Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height);
             };
         private:
+            static const float DefaultPointDistance;
+            
             float m_nearPlane;
             float m_farPlane;
             Viewport m_viewport;
@@ -77,7 +80,7 @@ namespace TrenchBroom {
             float squaredDistanceTo(const Vec3f& point) const;
             Vec3f defaultPoint() const;
             Vec3f defaultPoint(int x, int y) const;
-            Vec3f defaultPoint(const Vec3f& direction) const;
+            Vec3f defaultPoint(const Ray3f& ray) const;
             
             Vec3f project(const Vec3f& point) const;
             Vec3f unproject(float x, float y, float depth) const;
@@ -92,53 +95,20 @@ namespace TrenchBroom {
             void rotate(float yaw, float pitch);
             void orbit(const Vec3f& center, float horizontal, float vertical);
             
-            void renderFrustum(RenderContext& renderContext, Vbo& vbo) const;
-            float pickFrustum(const Ray3f& ray) const;
+            void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
+            float pickFrustum(float size, const Ray3f& ray) const;
         protected:
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         private:
             void validateMatrices() const;
+            
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
             virtual Ray3f doGetPickRay(int x, int y) const = 0;
-            virtual void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
-            virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const = 0;
-            virtual float doPickFrustum(const Ray3f& ray) const = 0;
-        };
-        
-        class PerspectiveCamera : public Camera {
-        private:
-            float m_fov;
-        public:
-            PerspectiveCamera();
-            PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+            virtual void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
             
-            float fov() const;
-            void setFov(float fov);
-        private:
-            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
-            Ray3f doGetPickRay(int x, int y) const;
-            void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
-            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const;
-            float doPickFrustum(const Ray3f& ray) const;
-        };
-        
-        class OrthographicCamera : public Camera {
-        private:
-            Vec2f m_zoom;
-        public:
-            OrthographicCamera();
-            OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
-
-            const Vec2f& zoom() const;
-            void setZoom(const Vec2f& zoom);
-            void zoom(const Vec2f& factors);
-        private:
-            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
-            Ray3f doGetPickRay(int x, int y) const;
-            void computeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
-            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo) const;
-            float doPickFrustum(const Ray3f& ray) const;
+            virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
+            virtual float doPickFrustum(float size, const Ray3f& ray) const = 0;
         };
     }
 }

@@ -31,7 +31,7 @@
 #include "Model/HitFilters.h"
 #include "Model/Map.h"
 #include "Model/Object.h"
-#include "Renderer/Camera.h"
+#include "Renderer/PerspectiveCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
@@ -327,7 +327,7 @@ namespace TrenchBroom {
                     return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
-                    const Vec3 snappedDefaultPoint = grid.snap(m_camera->defaultPoint(pickRay.direction));
+                    const Vec3 snappedDefaultPoint = grid.snap(m_camera->defaultPoint(pickRay));
                     return snappedDefaultPoint - snappedCenter;
                 }
             } else {
@@ -745,7 +745,7 @@ namespace TrenchBroom {
             if (first.matches) {
                 delta = grid.moveDeltaForBounds(Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
             } else {
-                const Vec3 newPosition(m_camera->defaultPoint(m_inputState.pickRay().direction));
+                const Vec3 newPosition(m_camera->defaultPoint(m_inputState.pickRay()));
                 delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());
             }
             
