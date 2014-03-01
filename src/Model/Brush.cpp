@@ -164,6 +164,7 @@ namespace TrenchBroom {
             try {
                 addFace(face);
                 rebuildGeometry(worldBounds);
+                notifyParent();
                 return !m_faces.empty();
             } catch (GeometryException&) {
                 return false;
@@ -202,6 +203,7 @@ namespace TrenchBroom {
             
             face.transform(translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds);
+            notifyParent();
         }
         
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
@@ -218,6 +220,7 @@ namespace TrenchBroom {
             const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
+            notifyParent();
             
             return result.newVertexPositions;
         }
@@ -236,7 +239,8 @@ namespace TrenchBroom {
             const MoveEdgesResult result = m_geometry->moveEdges(worldBounds, edgePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
-            
+            notifyParent();
+
             return result.newEdgePositions;
         }
 
@@ -254,7 +258,8 @@ namespace TrenchBroom {
             const MoveFacesResult result = m_geometry->moveFaces(worldBounds, facePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
-            
+            notifyParent();
+
             return result.newFacePositions;
         }
 
@@ -272,7 +277,8 @@ namespace TrenchBroom {
             const SplitResult result = m_geometry->splitEdge(worldBounds, edgePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
-            
+            notifyParent();
+
             return result.newVertexPosition;
         }
         
@@ -290,7 +296,8 @@ namespace TrenchBroom {
             const SplitResult result = m_geometry->splitFace(worldBounds, facePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
-            
+            notifyParent();
+
             return result.newVertexPosition;
         }
 
@@ -300,7 +307,8 @@ namespace TrenchBroom {
             const SnapVerticesResult result = m_geometry->snapVertices(vertexPositions, snapTo);
             processBrushAlgorithmResult(worldBounds, result);
             assert(checkFaceGeometryLinks());
-            
+            notifyParent();
+
             return result.newVertexPositions;
         }
 
@@ -311,6 +319,7 @@ namespace TrenchBroom {
                 brushFace->snapPlanePointsToInteger();
             }
             rebuildGeometry(worldBounds);
+            notifyParent();
         }
         
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
@@ -320,6 +329,7 @@ namespace TrenchBroom {
                 brushFace->findIntegerPlanePoints();
             }
             rebuildGeometry(worldBounds);
+            notifyParent();
         }
 
         void Brush::rebuildGeometry(const BBox3& worldBounds) {
@@ -328,11 +338,13 @@ namespace TrenchBroom {
             const AddFaceResult result = m_geometry->addFaces(m_faces);
             m_faces.clear();
             processBrushAlgorithmResult(worldBounds, result);
+            notifyParent();
         }
         
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds);
+            notifyParent();
         }
 
         bool Brush::doContains(const Object& object) const {
@@ -457,11 +469,17 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Brush::notifyParent() const {
+            if (m_parent != NULL)
+                m_parent->childBrushChanged();
+        }
+        
         void Brush::restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
             detachFaces(m_faces);
             VectorUtils::clearAndDelete(m_faces);
             addFaces(faces);
             rebuildGeometry(worldBounds);
+            notifyParent();
         }
         
         void Brush::processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result) {

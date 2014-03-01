@@ -128,6 +128,8 @@ namespace TrenchBroom {
             Object* doClone(const BBox3& worldBounds) const;
         private:
             bool containsPoint(const Vec3& point) const;
+            
+            void notifyParent() const;
 
             friend class BrushSnapshot;
             void restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces);

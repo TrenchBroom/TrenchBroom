@@ -54,12 +54,16 @@ namespace TrenchBroom {
             static const Hit::HitType EntityHit;
         private:
             static const String DefaultPropertyValue;
+            static const BBox3 DefaultBounds;
             
             Map* m_map;
             Assets::EntityDefinition* m_definition;
             Assets::EntityModel* m_model;
             EntityProperties m_properties;
             BrushList m_brushes;
+            
+            mutable BBox3 m_bounds;
+            mutable bool m_boundsValid;
             
             EntityList m_linkSources;
             EntityList m_linkTargets;
@@ -102,6 +106,7 @@ namespace TrenchBroom {
                 const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value);
                 addPropertyToIndex(newProperty);
                 addLinks(newProperty);
+                invalidateBounds();
             }
             
             template <typename T, size_t S>
@@ -116,6 +121,7 @@ namespace TrenchBroom {
                 const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value.asString());
                 addPropertyToIndex(newProperty);
                 addLinks(newProperty);
+                invalidateBounds();
             }
             
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
@@ -129,6 +135,7 @@ namespace TrenchBroom {
             void addBrush(Brush* brush);
             void removeBrush(Brush* brush);
             Brush* findBrushByFilePosition(const size_t position) const;
+            void childBrushChanged();
             
             const EntityList& linkSources() const;
             const EntityList& linkTargets() const;
@@ -178,6 +185,9 @@ namespace TrenchBroom {
             bool doIntersects(const Entity& entity) const;
             bool doIntersects(const Brush& brush) const;
             void doVisit(ObjectVisitor& visitor);
+            
+            void invalidateBounds();
+            void validateBounds() const;
         protected:
             void addLinkSource(Entity* entity);
             void addLinkTarget(Entity* entity);

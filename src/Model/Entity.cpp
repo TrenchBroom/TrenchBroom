@@ -37,8 +37,10 @@ namespace TrenchBroom {
             m_entity->setProperties(m_properties);
         }
 
-        const String Entity::DefaultPropertyValue = "";
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
+        const String Entity::DefaultPropertyValue = "";
+        const BBox3 Entity::DefaultBounds(-8.0, 8.0);
+        
         
         Entity::~Entity() {
             VectorUtils::clearAndDelete(m_brushes);
@@ -78,18 +80,9 @@ namespace TrenchBroom {
         }
 
         BBox3 Entity::bounds() const {
-            const Assets::EntityDefinition* def = definition();
-            if (def != NULL && def->type() == Assets::EntityDefinition::PointEntity) {
-                BBox3 bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                bounds.translate(origin());
-                return bounds;
-            }
-            if (m_brushes.empty())
-                return BBox3(-8.0, +8.0);
-            BBox3 bounds = m_brushes[0]->bounds();
-            for (size_t i = 1; i < m_brushes.size(); ++i)
-                bounds.mergeWith(m_brushes[i]->bounds());
-            return bounds;
+            if (!m_boundsValid)
+                validateBounds();
+            return m_bounds;
         }
 
         void Entity::pick(const Ray3& ray, PickResult& result) {
@@ -116,6 +109,7 @@ namespace TrenchBroom {
             m_definition = definition;
             if (m_definition != NULL)
                 m_definition->incUsageCount();
+            invalidateBounds();
         }
 
         bool Entity::worldspawn() const {
@@ -143,6 +137,7 @@ namespace TrenchBroom {
         
         void Entity::setProperties(const EntityProperty::List& properties) {
             m_properties.setProperties(properties);
+            invalidateBounds();
         }
 
         bool Entity::hasProperty(const PropertyKey& key) const {
@@ -171,6 +166,7 @@ namespace TrenchBroom {
             const EntityProperty newProperty(newKey, value);
             updatePropertyIndex(oldProperty, newProperty);
             updateLinks(oldProperty, newProperty);
+            invalidateBounds();
         }
 
         void Entity::removeProperty(const PropertyKey& key) {
@@ -183,6 +179,7 @@ namespace TrenchBroom {
             const EntityProperty property(key, value);
             removePropertyFromIndex(property);
             removeLinks(property);
+            invalidateBounds();
         }
 
         const PropertyValue& Entity::classname(const PropertyValue& defaultClassname) const {
@@ -208,12 +205,14 @@ namespace TrenchBroom {
             assert(brush->parent() == NULL);
             m_brushes.push_back(brush);
             brush->setParent(this);
+            invalidateBounds();
         }
 
         void Entity::removeBrush(Brush* brush) {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
             brush->setParent(NULL);
+            invalidateBounds();
         }
 
         Brush* Entity::findBrushByFilePosition(const size_t position) const {
@@ -223,6 +222,10 @@ namespace TrenchBroom {
             if (it == m_brushes.end())
                 return NULL;
             return *it;
+        }
+        
+        void Entity::childBrushChanged() {
+            invalidateBounds();
         }
 
         const EntityList& Entity::linkSources() const {
@@ -495,6 +498,25 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
+        void Entity::invalidateBounds() {
+            m_boundsValid = false;
+        }
+        
+        void Entity::validateBounds() const {
+            const Assets::EntityDefinition* def = definition();
+            if (def != NULL && def->type() == Assets::EntityDefinition::PointEntity) {
+                m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
+                m_bounds.translate(origin());
+            } else if (!m_brushes.empty()) {
+                m_bounds = m_brushes[0]->bounds();
+                for (size_t i = 1; i < m_brushes.size(); ++i)
+                    m_bounds.mergeWith(m_brushes[i]->bounds());
+            } else {
+                m_bounds = DefaultBounds;
+            }
+            m_boundsValid = true;
+        }
+        
         void Entity::addLinkSource(Entity* entity) {
             m_linkSources.push_back(entity);
         }
@@ -531,7 +553,8 @@ namespace TrenchBroom {
         Object(OTEntity),
         m_map(NULL),
         m_definition(NULL),
-        m_model(NULL) {}
+        m_model(NULL),
+        m_boundsValid(false) {}
         
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             const Mat4x4 translation = translationMatrix(transformation);
