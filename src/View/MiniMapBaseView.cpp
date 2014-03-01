@@ -61,6 +61,15 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::OnMouseDoubleClick(wxMouseEvent& event) {
+            if (event.LeftDClick()) {
+                const Vec3f& oldPos = m_camera3D.position();
+                const Vec3f newPos = viewCamera().unproject(static_cast<float>(event.GetX()),
+                                                            static_cast<float>(event.GetY()),
+                                                            0.0f);
+                const Vec3f delta = newPos - oldPos;
+                doDrag3DCamera(delta, m_camera3D);
+                Refresh();
+            }
         }
         
         void MiniMapBaseView::OnMouseMotion(wxMouseEvent& event) {
@@ -245,6 +254,7 @@ namespace TrenchBroom {
         void MiniMapBaseView::bindEvents() {
             Bind(wxEVT_LEFT_DOWN, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_LEFT_UP, &MiniMapBaseView::OnMouseButton, this);
+            Bind(wxEVT_LEFT_DCLICK, &MiniMapBaseView::OnMouseDoubleClick, this);
             Bind(wxEVT_RIGHT_DOWN, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_RIGHT_UP, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_MOTION, &MiniMapBaseView::OnMouseMotion, this);
