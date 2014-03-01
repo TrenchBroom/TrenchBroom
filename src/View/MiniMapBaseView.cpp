@@ -107,10 +107,18 @@ namespace TrenchBroom {
         
         
         void MiniMapBaseView::OnMouseWheel(wxMouseEvent& event) {
+            const Vec3f oldWorldPos = viewCamera().unproject(static_cast<float>(event.GetX()),
+                                                              static_cast<float>(event.GetY()),
+                                                              0.0f);
             if (event.GetWheelRotation() > 0)
                 zoomView(Vec2f(1.1f, 1.1f));
             else
                 zoomView(Vec2f(1.0f, 1.0f) / 1.1f);
+
+            const Vec3f newWorldPos = viewCamera().unproject(static_cast<float>(event.GetX()),
+                                                             static_cast<float>(event.GetY()),
+                                                             0.0f);
+            panView(oldWorldPos - newWorldPos);
             Refresh();
         }
         
