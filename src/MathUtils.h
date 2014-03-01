@@ -206,6 +206,11 @@ namespace Math {
     }
     
     template <typename T>
+    T abs(const T v) {
+        return std::abs(v);
+    }
+    
+    template <typename T>
     T min(const T v1, const T v2) {
         return std::min(v1, v2);
     }

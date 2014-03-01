@@ -84,6 +84,9 @@ namespace TrenchBroom {
         Preference<FloatType> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0);
         Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         
+        Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.6f));
+        
         Preference<Color> MoveIndicatorOutlineColor(IO::Path("Renderer/Colors/Move indicator outline"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> MoveIndicatorFillColor(IO::Path("Renderer/Colors/Move indicator fill"), Color(0.0f, 0.0f, 0.0f, 0.5f));
         

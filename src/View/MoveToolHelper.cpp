@@ -19,8 +19,12 @@
 
 #include "MoveToolHelper.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
 #include "View/MovementRestriction.h"
 
@@ -70,6 +74,8 @@ namespace TrenchBroom {
             
             if (!m_delegate.startMove(inputState))
                 return false;
+            
+            addTracePoint(initialPoint);
             return true;
         }
         
@@ -81,17 +87,21 @@ namespace TrenchBroom {
             const MoveResult result = m_delegate.move(delta);
             if (result == Conclude)
                 return false;
-            if (result == Continue)
+            if (result == Continue) {
                 refPoint += delta;
+                addTracePoint(refPoint);
+            }
             return true;
         }
         
         void MoveHelper::endPlaneDrag(const InputState& inputState) {
             m_delegate.endMove(inputState);
+            m_trace.clear();
         }
         
         void MoveHelper::cancelPlaneDrag(const InputState& inputState) {
             m_delegate.cancelMove(inputState);
+            m_trace.clear();
         }
         
         void MoveHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
@@ -103,11 +113,8 @@ namespace TrenchBroom {
         }
         
         void MoveHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) {
-            const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
-            const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
-            
-            Renderer::MoveIndicatorRenderer indicatorRenderer;
-            indicatorRenderer.render(renderContext, position, direction);
+            renderMoveIndicator(inputState, renderContext);
+            renderMoveTrace(renderContext);
         }
 
         Plane3 MoveHelper::dragPlane(const InputState& inputState, const Vec3& initialPoint) const {
@@ -120,6 +127,33 @@ namespace TrenchBroom {
             return horizontalDragPlane(initialPoint);
         }
         
+        void MoveHelper::addTracePoint(const Vec3& point) {
+            if (m_trace.size() < 2) {
+                m_trace.push_back(point);
+            } else {
+                const size_t c = m_trace.size();
+                const Vec3 curVec = (point - m_trace[c-1]).normalized();
+                const Vec3 lastVec = (m_trace[c-1] - m_trace[c-2]).normalized();
+                if (Math::eq(Math::abs(curVec.dot(lastVec)), 1.0)) {
+                    if (m_trace[c - 2].equals(point)) {
+                        m_trace.pop_back();
+                    } else {
+                        m_trace[c-1] = Vec3f(point);
+                    }
+                } else {
+                    m_trace.push_back(point);
+                }
+            }
+        }
+
+        void MoveHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
+            const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
+            
+            Renderer::MoveIndicatorRenderer indicatorRenderer;
+            indicatorRenderer.render(renderContext, position, direction);
+        }
+
         Renderer::MoveIndicatorRenderer::Direction MoveHelper::getDirection() const {
             if (m_movementRestriction.isRestricted(Math::Axis::AZ))
                 return Renderer::MoveIndicatorRenderer::Vertical;
@@ -128,6 +162,26 @@ namespace TrenchBroom {
             if (m_movementRestriction.isRestricted(Math::Axis::AY))
                 return Renderer::MoveIndicatorRenderer::HorizontalY;
             return Renderer::MoveIndicatorRenderer::HorizontalXY;
+        }
+        
+        void MoveHelper::renderMoveTrace(Renderer::RenderContext& renderContext) {
+            if (m_trace.size() > 1) {
+                typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+                Vertex::List vertices = Vertex::fromLists(m_trace, m_trace.size());
+                
+                PreferenceManager& prefs = PreferenceManager::instance();
+                
+                Renderer::EdgeRenderer renderer(Renderer::VertexArray::ref(GL_LINE_STRIP, vertices));
+                renderer.setUseColor(true);
+
+                glDisable(GL_DEPTH_TEST);
+                renderer.setColor(prefs.get(Preferences::OccludedMoveTraceColor));
+                renderer.render(renderContext);
+                
+                glEnable(GL_DEPTH_TEST);
+                renderer.setColor(prefs.get(Preferences::MoveTraceColor));
+                renderer.render(renderContext);
+            }
         }
     }
 }

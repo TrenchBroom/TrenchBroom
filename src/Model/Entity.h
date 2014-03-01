@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
+            bool m_isWorldspawn;
             
             EntityList m_linkSources;
             EntityList m_linkTargets;
@@ -107,6 +108,7 @@ namespace TrenchBroom {
                 addPropertyToIndex(newProperty);
                 addLinks(newProperty);
                 invalidateBounds();
+                setIsWorldspawn();
             }
             
             template <typename T, size_t S>
@@ -122,6 +124,7 @@ namespace TrenchBroom {
                 addPropertyToIndex(newProperty);
                 addLinks(newProperty);
                 invalidateBounds();
+                setIsWorldspawn();
             }
             
             void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
@@ -188,6 +191,7 @@ namespace TrenchBroom {
             
             void invalidateBounds();
             void validateBounds() const;
+            void setIsWorldspawn();
         protected:
             void addLinkSource(Entity* entity);
             void addLinkTarget(Entity* entity);

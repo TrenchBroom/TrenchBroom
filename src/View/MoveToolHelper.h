@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Renderer/MoveIndicatorRenderer.h"
+#include "Renderer/Vbo.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
@@ -65,6 +66,7 @@ namespace TrenchBroom {
         private:
             MovementRestriction& m_movementRestriction;
             MoveDelegate& m_delegate;
+            Vec3f::List m_trace;
         public:
             MoveHelper(MovementRestriction& movementRestriction, MoveDelegate& delegate);
             
@@ -76,7 +78,11 @@ namespace TrenchBroom {
             void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext);
         private:
             Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
+            void addTracePoint(const Vec3& point);
+            
+            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext);
             Renderer::MoveIndicatorRenderer::Direction getDirection() const;
+            void renderMoveTrace(Renderer::RenderContext& renderContext);
         };
     }
 }

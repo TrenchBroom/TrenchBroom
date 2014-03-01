@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::worldspawn() const {
-            return classname() == PropertyValues::WorldspawnClassname;
+            return m_isWorldspawn;
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
@@ -138,6 +138,7 @@ namespace TrenchBroom {
         void Entity::setProperties(const EntityProperty::List& properties) {
             m_properties.setProperties(properties);
             invalidateBounds();
+            setIsWorldspawn();
         }
 
         bool Entity::hasProperty(const PropertyKey& key) const {
@@ -517,6 +518,10 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
         
+        void Entity::setIsWorldspawn() {
+            m_isWorldspawn = (classname() == PropertyValues::WorldspawnClassname);
+        }
+
         void Entity::addLinkSource(Entity* entity) {
             m_linkSources.push_back(entity);
         }
@@ -554,7 +559,8 @@ namespace TrenchBroom {
         m_map(NULL),
         m_definition(NULL),
         m_model(NULL),
-        m_boundsValid(false) {}
+        m_boundsValid(false),
+        m_isWorldspawn(false) {}
         
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             const Mat4x4 translation = translationMatrix(transformation);
