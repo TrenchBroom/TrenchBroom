@@ -53,6 +53,7 @@ namespace TrenchBroom {
             
             Model::ObjectList m_objects;
             Model::BrushFaceList m_faces;
+            bool m_keepBrushSelection;
 
             Model::ObjectList m_previouslySelectedObjects;
             Model::BrushFaceList m_previouslySelectedFaces;
@@ -61,6 +62,7 @@ namespace TrenchBroom {
         public:
             static Ptr select(View::MapDocumentWPtr document, const Model::ObjectList& objects);
             static Ptr select(View::MapDocumentWPtr document, const Model::BrushFaceList& faces);
+            static Ptr selectAndKeepBrushes(View::MapDocumentWPtr document, const Model::BrushFaceList& faces);
             static Ptr selectAllObjects(View::MapDocumentWPtr document);
             static Ptr selectAllFaces(View::MapDocumentWPtr document);
             
@@ -70,7 +72,7 @@ namespace TrenchBroom {
 
             const Model::SelectionResult& lastResult() const;
         private:
-            SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces, bool keepBrushSelection);
 
             static String makeName(const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();

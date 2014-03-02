@@ -70,13 +70,15 @@ namespace TrenchBroom {
             SelectionResult deselectObjects(const ObjectList& objects);
             SelectionResult selectAllObjects(Map& map);
             SelectionResult selectAllFaces(Map& map);
-            SelectionResult selectFaces(const BrushFaceList& faces);
+            SelectionResult selectFaces(const BrushFaceList& faces, bool keepBrushSelection);
             SelectionResult deselectFaces(const BrushFaceList& faces);
             SelectionResult deselectAll();
             void clear();
         private:
+            void convertToFaceSelection(SelectionResult& result);
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);
+            
             void applyResult(const SelectionResult& result);
             void applySelectedObjects(const ObjectSet& objects);
             void applyDeselectedObjects(const ObjectSet& objects);

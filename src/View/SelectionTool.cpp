@@ -48,10 +48,18 @@ namespace TrenchBroom {
                 if (first.matches) {
                     Model::BrushFace* face = hitAsFace(first.hit);
                     if (multi) {
-                        if (face->selected()) {
-                            controller()->deselectFace(face);
+                        const bool objects = !document()->selectedObjects().empty();
+                        if (objects) {
+                            const Model::Brush* brush = face->parent();
+                            if (brush->selected())
+                                controller()->deselectFace(face);
+                            else
+                                controller()->selectFaceAndKeepBrushes(face);
                         } else {
-                            controller()->selectFace(face);
+                            if (face->selected())
+                                controller()->deselectFace(face);
+                            else
+                                controller()->selectFace(face);
                         }
                     } else {
                         controller()->deselectAllAndSelectFace(face);
@@ -64,11 +72,10 @@ namespace TrenchBroom {
                 if (first.matches) {
                     Model::Object* object = hitAsObject(first.hit);
                     if (multi) {
-                        if (object->selected()) {
+                        if (object->selected())
                             controller()->deselectObject(object);
-                        } else {
+                        else
                             controller()->selectObject(object);
-                        }
                     } else {
                         controller()->deselectAllAndSelectObject(object);
                     }

@@ -56,7 +56,7 @@ namespace TrenchBroom {
         Preference<Color> CameraFrustumColor(IO::Path("Renderer/Colors/Camera frustum"), Color(0.0f, 1.0f, 1.0f, 1.0f));
         
         Preference<Color> FaceColor(IO::Path("Renderer/Colors/Faces"), Color(0.2f,  0.2f,  0.2f,  1.0f));
-        Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(0.6f,  0.35f, 0.35f, 1.0f));
+        Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(0.7f,  0.45f, 0.45f, 1.0f));
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.7f,  0.7f,  0.7f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.5f));

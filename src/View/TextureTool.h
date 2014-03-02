@@ -23,7 +23,6 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/MoveTool.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
@@ -36,18 +35,41 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
+        class TextureToolHelper {
+        public:
+            virtual ~TextureToolHelper();
+            
+            bool startDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool drag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void endDrag(const InputState& inputState);
+            void cancelDrag(const InputState& inputState);
+            
+            void setRenderOptions(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext) const;
+            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext);
         private:
-            Model::BrushFace* m_face;
+            virtual bool doStartDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
+            virtual void doEndDrag(const InputState& inputState) = 0;
+            virtual void doCancelDrag(const InputState& inputState) = 0;
+            
+            virtual void doSetRenderOptions(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext) const = 0;
+            virtual void doRender(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext) = 0;
+        };
+        
+        class MoveTextureHelper;
+        
+        class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
+        private:
+            MoveTextureHelper* m_moveTextureHelper;
+            TextureToolHelper* m_currentHelper;
         public:
             TextureTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
+            ~TextureTool();
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
-            void doMouseMove(const InputState& inputState);
-
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
@@ -55,25 +77,6 @@ namespace TrenchBroom {
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-            void highlightApplicableFaces(const Model::BrushFace* reference, Renderer::RenderContext& renderContext);
-            Renderer::EdgeRenderer buildEdgeRenderer(const Model::BrushFaceList& faces) const;
-
-            bool applies(const InputState& inputState) const;
-            
-            void performMove(const Vec3& delta);
-            
-            Vec3::List findApplicablePlaneNormals(const Model::BrushFaceList& faces, const Model::BrushFace* reference) const;
-            size_t countPossibleAxes(const Vec3& normal) const;
-            void countPossibleAxes(const Vec3& normal, size_t (&counts)[3]) const;
-            size_t countPossibleAxes(const size_t (&counts)[3]) const;
-            Vec3::List selectApplicablePlaneNormals(const size_t (&counts)[3], const Model::BrushFace* face) const;
-            void getPlaneNormals(const size_t (&counts)[3], Vec3::List& normals) const;
-
-            Model::BrushFaceList selectApplicableFaces(const Model::BrushFaceList& faces, const Vec3::List& normals) const;
-            
-            void performMove(const Vec3& delta, const Model::BrushFaceList& faces, const Vec3::List& normals);
-            Vec3 rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3::List& normals) const;
-            Vec3 disambiguateNormal(const Model::BrushFace* face, const Vec3::List& normals) const;
         };
     }
 }

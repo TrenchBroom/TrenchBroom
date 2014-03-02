@@ -179,7 +179,7 @@ namespace TrenchBroom {
             Model::SelectionResult deselectObjects(const Model::ObjectList& objects);
             Model::SelectionResult selectAllObjects();
             Model::SelectionResult selectAllFaces();
-            Model::SelectionResult selectFaces(const Model::BrushFaceList& faces);
+            Model::SelectionResult selectFaces(const Model::BrushFaceList& faces, bool keepBrushSelection);
             Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectAll();
             Assets::Texture* currentTexture() const;

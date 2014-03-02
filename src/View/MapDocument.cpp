@@ -577,8 +577,8 @@ namespace TrenchBroom {
             return m_selection.selectAllFaces(*m_map);
         }
         
-        Model::SelectionResult MapDocument::selectFaces(const Model::BrushFaceList& faces) {
-            return m_selection.selectFaces(faces);
+        Model::SelectionResult MapDocument::selectFaces(const Model::BrushFaceList& faces, bool keepBrushSelection) {
+            return m_selection.selectFaces(faces, keepBrushSelection);
         }
         
         Model::SelectionResult MapDocument::deselectFaces(const Model::BrushFaceList& faces) {

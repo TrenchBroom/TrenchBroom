@@ -136,7 +136,7 @@ namespace TrenchBroom {
             m_unselectedBrushRenderer.render(context);
             
             if (!context.hideSelection()) {
-                const bool applyTinting = context.tintSelection() && lock(m_document)->selectedFaces().empty();
+                const bool applyTinting = context.tintSelection(); // && lock(m_document)->selectedFaces().empty();
                 
                 m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
                 m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));

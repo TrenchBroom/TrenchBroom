@@ -53,6 +53,14 @@ namespace TrenchBroom {
             }
         };
         
+        struct CollectFaces {
+            BrushFaceList faces;
+
+            void operator()(Brush* brush) {
+                VectorUtils::append(faces, brush->faces());
+            }
+        };
+        
         class SetSelection {
         private:
             bool m_select;
@@ -308,10 +316,13 @@ namespace TrenchBroom {
             return result;
         }
 
-        SelectionResult Selection::selectFaces(const BrushFaceList& faces) {
+        SelectionResult Selection::selectFaces(const BrushFaceList& faces, const bool keepBrushSelection) {
             SelectionResult result;
             if (!faces.empty()) {
-                deselectAllObjects(result);
+                if (keepBrushSelection)
+                    convertToFaceSelection(result);
+                else
+                    deselectAllObjects(result);
                 each(faces.begin(),
                      faces.end(),
                      SetSelection(true, m_filter, result),
@@ -328,6 +339,7 @@ namespace TrenchBroom {
         SelectionResult Selection::deselectFaces(const BrushFaceList& faces) {
             SelectionResult result;
             if (!faces.empty()) {
+                convertToFaceSelection(result);
                 each(faces.begin(),
                      faces.end(),
                      SetSelection(false, m_filter, result),
@@ -360,6 +372,19 @@ namespace TrenchBroom {
             m_partiallySelectedEntities.clear(),
             m_partiallySelectedBrushes.clear();
             m_lastSelectedFace = NULL;
+        }
+
+        void Selection::convertToFaceSelection(SelectionResult& result) {
+            CollectFaces collect;
+            each(m_selectedBrushes.begin(),
+                 m_selectedBrushes.end(),
+                 collect,
+                 MatchSelected());
+            deselectAllObjects(result);
+            each(collect.faces.begin(),
+                 collect.faces.end(),
+                 SetSelection(true, m_filter, result),
+                 MatchAll());
         }
 
         void Selection::deselectAllObjects(SelectionResult& result) {

@@ -87,6 +87,7 @@ namespace TrenchBroom {
             bool deselectAllAndSelectObject(Model::Object* object);
             bool deselectObject(Model::Object* object);
             bool selectFace(Model::BrushFace* face);
+            bool selectFaceAndKeepBrushes(Model::BrushFace* face);
             bool deselectAllAndSelectFace(Model::BrushFace* face);
             bool deselectFace(Model::BrushFace* face);
             bool deselectAll();

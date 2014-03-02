@@ -177,6 +177,13 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::selectFaceAndKeepBrushes(Model::BrushFace* face) {
+            using namespace Controller;
+            
+            Command::Ptr command = SelectionCommand::selectAndKeepBrushes(m_document, Model::BrushFaceList(1, face));
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace* face) {
             using namespace Controller;
 
