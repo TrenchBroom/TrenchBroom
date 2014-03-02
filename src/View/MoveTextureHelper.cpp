@@ -90,8 +90,6 @@ namespace TrenchBroom {
         }
         
         void MoveTextureHelper::doSetRenderOptions(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) const {
-            renderContext.clearTintSelection();
-            renderContext.setForceHideSelectionGuide();
         }
         
         void MoveTextureHelper::doRender(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) {

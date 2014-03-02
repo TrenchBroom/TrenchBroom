@@ -57,9 +57,11 @@ namespace TrenchBroom {
         };
         
         class MoveTextureHelper;
+        class TextureCoordSystemHelper;
         
         class TextureTool : public Tool<ActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
+            TextureCoordSystemHelper* m_textureCoordSystemHelper;
             MoveTextureHelper* m_moveTextureHelper;
             TextureToolHelper* m_currentHelper;
         public:

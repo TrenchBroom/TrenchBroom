@@ -19,8 +19,9 @@
 
 #include "TextureTool.h"
 
-#include "CollectionUtils.h"
+#include "Renderer/RenderContext.h"
 #include "View/MoveTextureHelper.h"
+#include "View/TextureCoordSystemHelper.h"
 
 #include <cassert>
 
@@ -54,10 +55,13 @@ namespace TrenchBroom {
 
         TextureTool::TextureTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
         Tool(next, document, controller),
+        m_textureCoordSystemHelper(new TextureCoordSystemHelper(document, controller)),
         m_moveTextureHelper(new MoveTextureHelper(document, controller)),
         m_currentHelper(NULL) {}
 
         TextureTool::~TextureTool() {
+            delete m_textureCoordSystemHelper;
+            m_textureCoordSystemHelper = NULL;
             delete m_moveTextureHelper;
             m_moveTextureHelper = NULL;
             m_currentHelper = NULL;
@@ -77,7 +81,9 @@ namespace TrenchBroom {
 
         bool TextureTool::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             assert(m_currentHelper == NULL);
-            if (m_moveTextureHelper->startDrag(inputState, plane, initialPoint))
+            if (m_textureCoordSystemHelper->startDrag(inputState, plane, initialPoint))
+                m_currentHelper = m_textureCoordSystemHelper;
+            else if (m_moveTextureHelper->startDrag(inputState, plane, initialPoint))
                 m_currentHelper = m_moveTextureHelper;
 
             return m_currentHelper != NULL;
@@ -104,6 +110,9 @@ namespace TrenchBroom {
             if (m_currentHelper != NULL) {
                 m_currentHelper->setRenderOptions(inputState, dragging(), renderContext);
             } else {
+                renderContext.clearTintSelection();
+                renderContext.setForceHideSelectionGuide();
+                m_textureCoordSystemHelper->setRenderOptions(inputState, dragging(), renderContext);
                 m_moveTextureHelper->setRenderOptions(inputState, dragging(), renderContext);
             }
         }
@@ -112,6 +121,7 @@ namespace TrenchBroom {
             if (m_currentHelper != NULL) {
                 m_currentHelper->render(inputState, dragging(), renderContext);
             } else {
+                m_textureCoordSystemHelper->render(inputState, dragging(), renderContext);
                 m_moveTextureHelper->render(inputState, dragging(), renderContext);
             }
         }
