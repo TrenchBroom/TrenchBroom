@@ -18,6 +18,10 @@
  */
 
 #include "TextureCoordSystemHelper.h"
+#include "Model/Brush.h"
+#include "Model/HitFilters.h"
+#include "View/InputState.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
