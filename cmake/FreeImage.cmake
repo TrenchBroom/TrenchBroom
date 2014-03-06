@@ -9,12 +9,7 @@
 
 IF(APPLE)
 	# We want to link freeimage statically and not dynamically on OS X
-	FIND_PATH( FREEIMAGE_INCLUDE_PATH FreeImage.h
-		/usr/include
-		/usr/local/include
-		/sw/include
-		/opt/local/include
-		DOC "The directory where FreeImage.h resides")
+	FIND_PATH(FREEIMAGE_INCLUDE_PATH FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
   	SET(FREEIMAGE_LIBRARY "${LIB_BIN_DIR}/osx/libfreeimage.a")
 ELSEIF(MSVC)
 	FIND_PATH(FREEIMAGE_INCLUDE_PATH FreeImage.h "${LIB_INCLUDE_DIR}" DOC "Freeimage includes")
