@@ -43,8 +43,8 @@ namespace TrenchBroom {
             typedef Tool<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType> Super;
             MoveHelper m_helper;
         public:
-            MoveTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
-            Super(next, document, controller),
+            MoveTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
+            Super(document, controller),
             m_helper(movementRestriction, *this) {}
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {

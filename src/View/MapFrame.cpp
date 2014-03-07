@@ -978,7 +978,7 @@ namespace TrenchBroom {
                                              );
             
             m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, logger(), m_document, m_controller);
+            m_mapView = new MapView(container, logger(), m_document, m_controller, m_camera3D);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);
@@ -986,7 +986,7 @@ namespace TrenchBroom {
             container->SetSizer(containerSizer);
             
             consoleSplitter->SplitHorizontally(container, m_infoPanel, -150);
-            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources(), m_mapView->camera());
+            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources(), m_camera3D);
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
 
             m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());

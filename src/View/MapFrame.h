@@ -23,6 +23,7 @@
 #include "IO/Path.h"
 #include "Controller/Command.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/PerspectiveCamera.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewTypes.h"
 
@@ -57,6 +58,8 @@ namespace TrenchBroom {
             FrameManager* m_frameManager;
             MapDocumentSPtr m_document;
             ControllerSPtr m_controller;
+            Renderer::PerspectiveCamera m_camera3D;
+            
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
 

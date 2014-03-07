@@ -65,7 +65,7 @@ namespace TrenchBroom {
             MoveTextureHelper* m_moveTextureHelper;
             TextureToolHelper* m_currentHelper;
         public:
-            TextureTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller);
+            TextureTool(MapDocumentWPtr document, ControllerWPtr controller);
             ~TextureTool();
         private:
             bool initiallyActive() const;

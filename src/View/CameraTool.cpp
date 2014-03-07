@@ -30,8 +30,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        CameraTool::CameraTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
-        Tool(next, document, controller),
+        CameraTool::CameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
+        Tool(document, controller),
         m_camera(camera),
         m_orbit(false) {}
         

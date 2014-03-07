@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction);
+            MoveObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction);
         private:
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;

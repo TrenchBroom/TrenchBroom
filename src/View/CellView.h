@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 updateScrollBar();
             }
         public:
-            CellView(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
+            CellView(wxWindow* parent, wxWindowID windowId, const int* attribs, const wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
             m_layoutInitialized(false),
             m_glContext(new wxGLContext(this, sharedContext)),

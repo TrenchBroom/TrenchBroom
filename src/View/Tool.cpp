@@ -110,6 +110,22 @@ namespace TrenchBroom {
         void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {}
         
+        BaseTool::BaseTool() :
+        m_next(NULL) {}
+        
         BaseTool::~BaseTool() {}
+
+        BaseTool* BaseTool::next() const {
+            return m_next;
+        }
+
+        void BaseTool::appendTool(BaseTool* tool) {
+            assert(tool != NULL);
+            assert(tool != this);
+            if (m_next == NULL)
+                m_next = tool;
+            else
+                m_next->appendTool(tool);
+        }
     }
 }

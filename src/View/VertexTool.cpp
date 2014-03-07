@@ -46,8 +46,8 @@ namespace TrenchBroom {
     namespace View {
         const FloatType VertexTool::MaxVertexDistance = 0.25;
         
-        VertexTool::VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
-        MoveTool(next, document, controller, movementRestriction),
+        VertexTool::VertexTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
+        MoveTool(document, controller, movementRestriction),
         m_handleManager(font),
         m_mode(VMMove),
         m_changeCount(0),

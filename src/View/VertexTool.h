@@ -56,7 +56,7 @@ namespace TrenchBroom {
             bool m_ignoreObjectChangeNotifications;
             Vec3 m_dragHandlePosition;
         public:
-            VertexTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
+            VertexTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             
             bool hasSelectedHandles() const;
             void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);

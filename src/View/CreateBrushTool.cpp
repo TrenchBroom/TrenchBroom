@@ -42,8 +42,8 @@ namespace TrenchBroom {
             bool operator()(const Model::BrushEdge* edge) const { return true; }
         };
         
-        CreateBrushTool::CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font) :
-        Tool(next, document, controller),
+        CreateBrushTool::CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font) :
+        Tool(document, controller),
         m_brushRenderer(RendererFilter()),
         m_guideRenderer(font),
         m_brush(NULL) {}

@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsTool::MoveObjectsTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
-        MoveTool(next, document, controller, movementRestriction) {}
+        MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction) :
+        MoveTool(document, controller, movementRestriction) {}
 
         bool MoveObjectsTool::doHandleMove(const InputState& inputState) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&

@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderResources::RenderResources(const GLAttribs& glAttribs, wxGLContext* sharedContext) :
+        RenderResources::RenderResources(const GLAttribs& glAttribs, const wxGLContext* sharedContext) :
         m_glAttribs(glAttribs),
         m_sharedContext(sharedContext) {}
         
@@ -29,7 +29,7 @@ namespace TrenchBroom {
             return m_glAttribs;
         }
         
-        wxGLContext* RenderResources::sharedContext() const {
+        const wxGLContext* RenderResources::sharedContext() const {
             return m_sharedContext;
         }
         

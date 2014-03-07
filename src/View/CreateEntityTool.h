@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Renderer::EntityRenderer m_renderer;
             Model::Entity* m_entity;
         public:
-            CreateEntityTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::FontManager& fontManager);
+            CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::FontManager& fontManager);
         private:
             bool doDragEnter(const InputState& inputState, const String& payload);
             bool doDragMove(const InputState& inputState);

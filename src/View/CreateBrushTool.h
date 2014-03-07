@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Renderer::BoundsGuideRenderer m_guideRenderer;
             Model::Brush* m_brush;
         public:
-            CreateBrushTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font);
+            CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font);
         private:
             void doModifierKeyChange(const InputState& inputState);
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);

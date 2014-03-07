@@ -34,14 +34,14 @@ namespace TrenchBroom {
             typedef std::vector<int> GLAttribs;
         private:
             GLAttribs m_glAttribs;
-            wxGLContext* m_sharedContext;
+            const wxGLContext* m_sharedContext;
             FontManager m_fontManager;
             ShaderManager m_shaderManager;
         public:
-            RenderResources(const GLAttribs& glAttribs, wxGLContext* sharedContext);
+            RenderResources(const GLAttribs& glAttribs, const wxGLContext* sharedContext);
             
             const GLAttribs& glAttribs() const;
-            wxGLContext* sharedContext() const;
+            const wxGLContext* sharedContext() const;
             FontManager& fontManager();
             ShaderManager& shaderManager();
         private:

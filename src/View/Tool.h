@@ -169,7 +169,10 @@ namespace TrenchBroom {
         typedef RenderPolicy NoRenderPolicy;
         
         class BaseTool {
+        private:
+            BaseTool* m_next;
         public:
+            BaseTool();
             virtual ~BaseTool();
 
             virtual bool active() const = 0;
@@ -199,19 +202,20 @@ namespace TrenchBroom {
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
             virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
             virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
+            
+            BaseTool* next() const;
+            void appendTool(BaseTool* tool);
         };
         
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class DropPolicyType, class RenderPolicyType>
         class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected DropPolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
-            BaseTool* m_next;
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             bool m_dragging;
             bool m_active;
         public:
-            Tool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
-            m_next(next),
+            Tool(MapDocumentWPtr document, ControllerWPtr controller) :
             m_document(document),
             m_controller(controller),
             m_dragging(false),
@@ -244,53 +248,53 @@ namespace TrenchBroom {
             void pick(const InputState& inputState, Model::PickResult& pickResult) {
                 if (active())
                     static_cast<PickingPolicyType&>(*this).doPick(inputState, pickResult);
-                if (m_next != NULL)
-                    m_next->pick(inputState, pickResult);
+                if (next() != NULL)
+                    next()->pick(inputState, pickResult);
             }
 
             void modifierKeyChange(const InputState& inputState) {
                 if (active())
                     doModifierKeyChange(inputState);
-                if (m_next != NULL)
-                    m_next->modifierKeyChange(inputState);
+                if (next() != NULL)
+                    next()->modifierKeyChange(inputState);
             }
             
             bool mouseDown(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
                     return true;
-                if (m_next != NULL)
-                    return m_next->mouseDown(inputState);
+                if (next() != NULL)
+                    return next()->mouseDown(inputState);
                 return false;
             }
             
             bool mouseUp(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseUp(inputState))
                     return true;
-                if (m_next != NULL)
-                    return m_next->mouseUp(inputState);
+                if (next() != NULL)
+                    return next()->mouseUp(inputState);
                 return false;
             }
             
             bool mouseDoubleClick(const InputState& inputState) {
                 if (active() && static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState))
                     return true;
-                if (m_next != NULL)
-                    return m_next->mouseDoubleClick(inputState);
+                if (next() != NULL)
+                    return next()->mouseDoubleClick(inputState);
                 return false;
             }
             
             void scroll(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doScroll(inputState);
-                if (m_next != NULL)
-                    m_next->scroll(inputState);
+                if (next() != NULL)
+                    next()->scroll(inputState);
             }
             
             void mouseMove(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doMouseMove(inputState);
-                if (m_next != NULL)
-                    m_next->mouseMove(inputState);
+                if (next() != NULL)
+                    next()->mouseMove(inputState);
             }
 
             BaseTool* startMouseDrag(const InputState& inputState) {
@@ -298,8 +302,8 @@ namespace TrenchBroom {
                     m_dragging = true;
                     return this;
                 }
-                if (m_next != NULL)
-                    return m_next->startMouseDrag(inputState);
+                if (next() != NULL)
+                    return next()->startMouseDrag(inputState);
                 return NULL;
             }
             
@@ -326,8 +330,8 @@ namespace TrenchBroom {
             BaseTool* dragEnter(const InputState& inputState, const String& payload) {
                 if (active() && static_cast<DropPolicyType&>(*this).doDragEnter(inputState, payload))
                     return this;
-                if (m_next != NULL)
-                    return m_next->dragEnter(inputState, payload);
+                if (next() != NULL)
+                    return next()->dragEnter(inputState, payload);
                 return NULL;
             }
             
@@ -349,15 +353,15 @@ namespace TrenchBroom {
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
                 if (active())
                     static_cast<const RenderPolicyType&>(*this).doSetRenderOptions(inputState, renderContext);
-                if (m_next != NULL)
-                    m_next->setRenderOptions(inputState, renderContext);
+                if (next() != NULL)
+                    next()->setRenderOptions(inputState, renderContext);
             }
 
             void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) {
                 if (active())
                     static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
-                if (m_next != NULL)
-                    m_next->renderChain(inputState, renderContext);
+                if (next() != NULL)
+                    next()->renderChain(inputState, renderContext);
             }
 
             void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) {

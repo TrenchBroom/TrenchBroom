@@ -44,7 +44,7 @@ namespace TrenchBroom {
             MoveHelper m_moveHelper;
             RotateHelper m_rotateHelper;
         public:
-            RotateObjectsTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
+            RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);

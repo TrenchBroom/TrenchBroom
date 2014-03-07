@@ -26,9 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
         
-        CameraAnimation::CameraAnimation(MapView& view, Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, const wxLongLong duration) :
+        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, const wxLongLong duration) :
         Animation(AnimationType, EaseInEaseOutCurve, duration),
-        m_view(view),
         m_camera(camera),
         m_startPosition(m_camera.position()),
         m_startDirection(m_camera.direction()),
@@ -45,7 +44,6 @@ namespace TrenchBroom {
 
             m_camera.moveTo(position);
             m_camera.setDirection(direction, up);
-            m_view.Refresh();
         }
     }
 }

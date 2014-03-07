@@ -29,13 +29,10 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class MapView;
-        
         class CameraAnimation : public Animation {
         private:
             static const Type AnimationType;
-            
-            MapView& m_view;
+
             Renderer::Camera& m_camera;
             
             const Vec3f m_startPosition;
@@ -45,7 +42,7 @@ namespace TrenchBroom {
             const Vec3f m_targetDirection;
             const Vec3f m_targetUp;
         public:
-            CameraAnimation(MapView& view, Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, wxLongLong duration);
+            CameraAnimation(Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, wxLongLong duration);
         private:
             void doUpdate(double progress);
         };

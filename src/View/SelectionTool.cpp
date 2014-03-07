@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SelectionTool::SelectionTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller) :
-        Tool(next, document, controller) {}
+        SelectionTool::SelectionTool(MapDocumentWPtr document, ControllerWPtr controller) :
+        Tool(document, controller) {}
 
         bool SelectionTool::doMouseUp(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))

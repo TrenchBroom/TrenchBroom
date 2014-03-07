@@ -41,7 +41,7 @@ namespace TrenchBroom {
             Model::EntityBrushesMap m_backBrushes;
             size_t m_dragPointIndex;
         public:
-            ClipTool(BaseTool* next, MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera);
+            ClipTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera);
             
             bool canToggleClipSide() const;
             void toggleClipSide();

@@ -26,7 +26,6 @@
 #include "Color.h"
 #include "Notifier.h"
 #include "Assets/AssetTypes.h"
-#include "Controller/Command.h"
 #include "Renderer/GL.h"
 #include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Camera.h"
@@ -34,14 +33,13 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
+#include "View/BaseMapView.h"
 #include "View/InputState.h"
 #include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
 #include <wx/datetime.h>
-#include <wx/event.h>
-#include <wx/glcanvas.h>
 #include <wx/longlong.h>
 
 namespace TrenchBroom {
@@ -71,28 +69,19 @@ namespace TrenchBroom {
         class TextureTool;
         class VertexTool;
         
-        class MapView : public wxGLCanvas {
+        class MapView : public BaseMapView {
         private:
             Logger* m_logger;
             bool m_initialized;
-            wxGLContext* m_glContext;
             
             Renderer::Vbo m_auxVbo;
             Color m_focusColor;
             
-            View::MapDocumentWPtr m_document;
-            ControllerWPtr m_controller;
-            Renderer::Camera* m_camera;
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
             
-            AnimationManager* m_animationManager;
-            
-            InputState m_inputState;
-            MovementRestriction m_movementRestriction;
-            wxPoint m_clickPos;
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
@@ -103,27 +92,14 @@ namespace TrenchBroom {
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
-            BaseTool* m_toolChain;
-            BaseTool* m_dragReceiver;
-            BaseTool* m_modalReceiver;
-            BaseTool* m_dropReceiver;
-            BaseTool* m_savedDropReceiver;
-            
-            bool m_ignoreNextDrag;
-            bool m_ignoreNextClick;
-            wxDateTime m_lastFrameActivation;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller);
+            MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
 
-            Renderer::Camera& camera();
             Renderer::RenderResources& renderResources();
             
             void centerCameraOnSelection();
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, wxLongLong duration);
-            
-            bool anyToolActive() const;
-            void deactivateAllTools();
+
             void toggleClipTool();
             bool clipToolActive() const;
             bool canToggleClipSide() const;
@@ -145,8 +121,6 @@ namespace TrenchBroom {
             void toggleTextureTool();
             bool textureToolActive() const;
             
-            void toggleMovementRestriction();
-            
             void moveObjects(Math::Direction direction);
             void rotateObjects(RotationAxis axis, bool clockwise);
             void flipObjects(Math::Direction direction);
@@ -154,25 +128,7 @@ namespace TrenchBroom {
             void moveVertices(Math::Direction direction);
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-            
-            bool dragEnter(wxCoord x, wxCoord y, const String& text);
-            bool dragMove(wxCoord x, wxCoord y, const String& text);
-            void dragLeave();
-            bool dragDrop(wxCoord x, wxCoord y, const String& text);
-            
-            void OnKey(wxKeyEvent& event);
-            void OnMouseButton(wxMouseEvent& event);
-            void OnMouseDoubleClick(wxMouseEvent& event);
-            void OnMouseMotion(wxMouseEvent& event);
-            void OnMouseWheel(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnActivateFrame(wxActivateEvent& event);
-            
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
-            
+
             void OnPopupReparentBrushes(wxCommandEvent& event);
             void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
             void OnPopupCreatePointEntity(wxCommandEvent& event);
@@ -194,45 +150,32 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasNewed();
-            void documentWasLoaded();
-            void objectWasAdded(Model::Object* object);
             void objectDidChange(Model::Object* object);
-            void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
-            void commandDoneOrUndone(Controller::Command::Ptr command);
-            void modsDidChange();
-            void preferenceDidChange(const IO::Path& path);
-            void cameraDidChange(const Renderer::Camera* camera);
-            
-            void updatePickResults(const int x, const int y);
             
             void resetCamera();
+            
             void createTools();
             void deleteTools();
-            void toggleTool(BaseTool* tool);
-            void cancelCurrentDrag();
-            ModifierKeyState modifierKeys();
-            bool updateModifierKeys();
-            bool clearModifierKeys();
-            MouseButtonState mouseButton(wxMouseEvent& event);
-            void showPopupMenu();
-            wxMenu* makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id);
-            void bindEvents();
-            
+
+            void doResetCamera();
+            void doInitializeGL();
+
+            void doRender();
             void setupGL(Renderer::RenderContext& context);
-            void setRenderOptions(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);
             void renderSelectionGuide(Renderer::RenderContext& context);
-            void renderTools(Renderer::RenderContext& context);
             void renderCompass(Renderer::RenderContext& context);
             void renderFocusRect(Renderer::RenderContext& context);
             
-            void initializeGL();
-            
+            void doShowPopupMenu();
+            wxMenu* makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id);
+
+            void bindEvents();
+
             static const Renderer::RenderResources::GLAttribs& attribs();
             static int depthBits();
             static bool multisample();
