@@ -41,7 +41,7 @@
 namespace TrenchBroom {
     namespace View {
         CreateEntityTool::CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::FontManager& fontManager) :
-        Tool(document, controller),
+        ToolImpl(document, controller),
         m_renderer(lock(document)->entityModelManager(), fontManager, lock(document)->filter()),
         m_entity(NULL) {}
 

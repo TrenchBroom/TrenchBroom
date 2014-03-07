@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             virtual ~Object();
             
-            virtual BBox3 bounds() const = 0;
+            virtual const BBox3& bounds() const = 0;
             
             template <class T>
             static BBox3 bounds(const std::vector<T*>& objects) {

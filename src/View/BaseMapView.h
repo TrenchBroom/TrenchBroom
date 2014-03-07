@@ -42,7 +42,7 @@ namespace TrenchBroom {
     
     namespace View {
         class AnimationManager;
-        class BaseTool;
+        class Tool;
         
         class BaseMapView : public wxGLCanvas {
         public:
@@ -59,11 +59,11 @@ namespace TrenchBroom {
             
             AnimationManager* m_animationManager;
 
-            BaseTool* m_toolChain;
-            BaseTool* m_dragReceiver;
-            BaseTool* m_modalReceiver;
-            BaseTool* m_dropReceiver;
-            BaseTool* m_savedDropReceiver;
+            Tool* m_toolChain;
+            Tool* m_dragReceiver;
+            Tool* m_modalReceiver;
+            Tool* m_dropReceiver;
+            Tool* m_savedDropReceiver;
 
             wxPoint m_clickPos;
             bool m_ignoreNextDrag;
@@ -100,9 +100,9 @@ namespace TrenchBroom {
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
             bool anyToolActive() const;
         protected:
-            void addTool(BaseTool* tool);
-            bool toolActive(const BaseTool* tool) const;
-            void toggleTool(BaseTool* tool);
+            void addTool(Tool* tool);
+            bool toolActive(const Tool* tool) const;
+            void toggleTool(Tool* tool);
             void deactivateAllTools();
 
             void setRenderOptions(Renderer::RenderContext& renderContext);

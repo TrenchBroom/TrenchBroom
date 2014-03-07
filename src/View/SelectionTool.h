@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SelectionTool : public Tool<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class SelectionTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             SelectionTool(MapDocumentWPtr document, ControllerWPtr controller);
         private:

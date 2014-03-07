@@ -168,12 +168,12 @@ namespace TrenchBroom {
         
         typedef RenderPolicy NoRenderPolicy;
         
-        class BaseTool {
+        class Tool {
         private:
-            BaseTool* m_next;
+            Tool* m_next;
         public:
-            BaseTool();
-            virtual ~BaseTool();
+            Tool();
+            virtual ~Tool();
 
             virtual bool active() const = 0;
             virtual bool activate(const InputState& inputState) = 0;
@@ -189,12 +189,12 @@ namespace TrenchBroom {
             virtual void scroll(const InputState& inputState) = 0;
             virtual void mouseMove(const InputState& inputState) = 0;
             
-            virtual BaseTool* startMouseDrag(const InputState& inputState) = 0;
+            virtual Tool* startMouseDrag(const InputState& inputState) = 0;
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag(const InputState& inputState) = 0;
             
-            virtual BaseTool* dragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual Tool* dragEnter(const InputState& inputState, const String& payload) = 0;
             virtual bool dragMove(const InputState& inputState) = 0;
             virtual void dragLeave(const InputState& inputState) = 0;
             virtual bool dragDrop(const InputState& inputState) = 0;
@@ -203,19 +203,19 @@ namespace TrenchBroom {
             virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
             virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
             
-            BaseTool* next() const;
-            void appendTool(BaseTool* tool);
+            Tool* next() const;
+            void appendTool(Tool* tool);
         };
         
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class DropPolicyType, class RenderPolicyType>
-        class Tool : public BaseTool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected DropPolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
+        class ToolImpl : public Tool, protected ActivationPolicyType, protected PickingPolicyType, protected MousePolicyType, protected DropPolicyType, protected MouseDragPolicyType, protected RenderPolicyType {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             bool m_dragging;
             bool m_active;
         public:
-            Tool(MapDocumentWPtr document, ControllerWPtr controller) :
+            ToolImpl(MapDocumentWPtr document, ControllerWPtr controller) :
             m_document(document),
             m_controller(controller),
             m_dragging(false),
@@ -297,7 +297,7 @@ namespace TrenchBroom {
                     next()->mouseMove(inputState);
             }
 
-            BaseTool* startMouseDrag(const InputState& inputState) {
+            Tool* startMouseDrag(const InputState& inputState) {
                 if (active() && static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
                     m_dragging = true;
                     return this;
@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 }
             }
             
-            BaseTool* dragEnter(const InputState& inputState, const String& payload) {
+            Tool* dragEnter(const InputState& inputState, const String& payload) {
                 if (active() && static_cast<DropPolicyType&>(*this).doDragEnter(inputState, payload))
                     return this;
                 if (next() != NULL)

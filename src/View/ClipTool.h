@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ClipTool : public Tool<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class ClipTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
             static const Model::Hit::HitType HandleHit;
 

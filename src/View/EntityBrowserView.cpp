@@ -179,7 +179,7 @@ namespace TrenchBroom {
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
-                    rotatedBounds = static_cast<BBox3f>(definition->bounds());
+                    rotatedBounds = BBox3f(definition->bounds());
                     const Vec3f center = rotatedBounds.center();
                     rotatedBounds = rotateBBox(rotatedBounds, m_rotation, center);
                 }

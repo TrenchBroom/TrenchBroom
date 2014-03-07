@@ -52,7 +52,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit = Model::Hit::freeHitType();
 
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller) :
-        Tool(document, controller) {}
+        ToolImpl(document, controller) {}
 
         void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!applies(inputState))

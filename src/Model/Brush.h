@@ -79,7 +79,7 @@ namespace TrenchBroom {
             void select();
             void deselect();
             
-            BBox3 bounds() const;
+            const BBox3& bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
             const BrushFaceList& faces() const;

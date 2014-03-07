@@ -316,18 +316,18 @@ namespace TrenchBroom {
             return m_modalReceiver != NULL;
         }
         
-        void BaseMapView::addTool(BaseTool* tool) {
+        void BaseMapView::addTool(Tool* tool) {
             if (m_toolChain == NULL)
                 m_toolChain = tool;
             else
                 m_toolChain->appendTool(tool);
         }
 
-        bool BaseMapView::toolActive(const BaseTool* tool) const {
+        bool BaseMapView::toolActive(const Tool* tool) const {
             return m_modalReceiver == tool;
         }
         
-        void BaseMapView::toggleTool(BaseTool* tool) {
+        void BaseMapView::toggleTool(Tool* tool) {
             if (tool == NULL) {
                 if (m_modalReceiver != NULL) {
                     m_modalReceiver->deactivate(m_inputState);

@@ -35,7 +35,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateEntityTool : public Tool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, RenderPolicy> {
+        class CreateEntityTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, RenderPolicy> {
         private:
             Renderer::EntityRenderer m_renderer;
             Model::Entity* m_entity;

@@ -54,7 +54,7 @@ namespace TrenchBroom {
     
     namespace View {
         class AnimationManager;
-        class BaseTool;
+        class Tool;
         class CameraTool;
         class ClipTool;
         class CreateBrushTool;

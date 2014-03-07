@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
 
         TextureTool::TextureTool(MapDocumentWPtr document, ControllerWPtr controller) :
-        Tool(document, controller),
+        ToolImpl(document, controller),
         m_textureCoordSystemHelper(new TextureCoordSystemHelper(document, controller)),
         m_moveTextureHelper(new MoveTextureHelper(document, controller)),
         m_currentHelper(NULL) {}

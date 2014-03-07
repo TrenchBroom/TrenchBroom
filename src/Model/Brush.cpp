@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 m_parent->decChildSelectionCount();
         }
         
-        BBox3 Brush::bounds() const {
+        const BBox3& Brush::bounds() const {
             assert(m_geometry != NULL);
             return m_geometry->bounds;
         }

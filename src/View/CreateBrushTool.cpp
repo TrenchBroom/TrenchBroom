@@ -43,7 +43,7 @@ namespace TrenchBroom {
         };
         
         CreateBrushTool::CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font) :
-        Tool(document, controller),
+        ToolImpl(document, controller),
         m_brushRenderer(RendererFilter()),
         m_guideRenderer(font),
         m_brush(NULL) {}

@@ -79,14 +79,14 @@ namespace TrenchBroom {
             return EntitySnapshot(*this);
         }
 
-        BBox3 Entity::bounds() const {
+        const BBox3& Entity::bounds() const {
             if (!m_boundsValid)
                 validateBounds();
             return m_bounds;
         }
 
         void Entity::pick(const Ray3& ray, PickResult& result) {
-            const BBox3 myBounds = bounds();
+            const BBox3& myBounds = bounds();
             if (!myBounds.contains(ray.origin)) {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math::isnan(distance)) {

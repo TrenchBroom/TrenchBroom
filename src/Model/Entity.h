@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Entity* clone(const BBox3& worldBounds) const;
             EntitySnapshot takeSnapshot();
             
-            BBox3 bounds() const;
+            const BBox3& bounds() const;
             void pick(const Ray3& ray, PickResult& result);
             
             Assets::EntityDefinition* definition() const;
