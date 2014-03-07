@@ -28,14 +28,11 @@
 #include "Assets/AssetTypes.h"
 #include "Renderer/GL.h"
 #include "Renderer/BoundsGuideRenderer.h"
-#include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
 #include "View/BaseMapView.h"
-#include "View/InputState.h"
-#include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -72,7 +69,6 @@ namespace TrenchBroom {
         class MapView : public BaseMapView {
         private:
             Logger* m_logger;
-            bool m_initialized;
             
             Renderer::Vbo m_auxVbo;
             Color m_focusColor;
@@ -152,8 +148,6 @@ namespace TrenchBroom {
             
             void objectDidChange(Model::Object* object);
             void selectionDidChange(const Model::SelectionResult& result);
-            
-            void resetCamera();
             
             void createTools();
             void deleteTools();

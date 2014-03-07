@@ -63,7 +63,6 @@ namespace TrenchBroom {
         MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         BaseMapView(parent, document, controller, camera, attribs()),
         m_logger(logger),
-        m_initialized(false),
         m_auxVbo(0xFFF),
         m_renderResources(attribs(), glContext()),
         m_renderer(document, m_renderResources.fontManager()),
