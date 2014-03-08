@@ -25,6 +25,7 @@
 
 #include <wx/panel.h>
 
+class wxBitmap;
 class wxGridBagSizer;
 class wxStaticText;
 class SpinControl;
@@ -57,7 +58,9 @@ namespace TrenchBroom {
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
+            wxButton* m_flipXButton;
             SpinControl* m_yScaleEditor;
+            wxButton* m_flipYButton;
             SpinControl* m_rotationEditor;
             wxStaticText* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
@@ -75,7 +78,9 @@ namespace TrenchBroom {
             void OnYOffsetChanged(SpinControlEvent& event);
             void OnRotationChanged(SpinControlEvent& event);
             void OnXScaleChanged(SpinControlEvent& event);
+            void OnFlipXScaleClicked(wxCommandEvent& event);
             void OnYScaleChanged(SpinControlEvent& event);
+            void OnFlipYScaleClicked(wxCommandEvent& event);
             void OnSurfaceFlagChanged(FlagChangedCommand& command);
             void OnContentFlagChanged(FlagChangedCommand& command);
             void OnSurfaceValueChanged(SpinControlEvent& event);

@@ -20,6 +20,8 @@
 #include "FaceAttribsEditor.h"
 
 #include "Assets/AssetTypes.h"
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
@@ -33,6 +35,8 @@
 #include "View/TextureView.h"
 #include "View/ViewUtils.h"
 
+#include <wx/bitmap.h>
+#include <wx/button.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -90,12 +94,22 @@ namespace TrenchBroom {
                 event.Veto();
         }
         
+        void FaceAttribsEditor::OnFlipXScaleClicked(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->invertFaceXScale(m_faces);
+        }
+
         void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
             ControllerSPtr controller = lock(m_controller);
             if (!controller->setFaceYScale(m_faces, static_cast<float>(event.GetValue()), event.IsSpin()))
                 event.Veto();
         }
         
+        void FaceAttribsEditor::OnFlipYScaleClicked(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            controller->invertFaceYScale(m_faces);
+        }
+
         void FaceAttribsEditor::OnSurfaceFlagChanged(FlagChangedCommand& command) {
             ControllerSPtr controller = lock(m_controller);
             if (!controller->setSurfaceFlag(m_faces, command.index(), command.flagSet()))
@@ -124,6 +138,9 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::createGui(Renderer::RenderResources& resources) {
+            const wxBitmap flipXBitmap = IO::loadImageResource(IO::Path("images/InvertLR.png"));
+            const wxBitmap flipYBitmap = IO::loadImageResource(IO::Path("images/InvertUD.png"));
+
             wxPanel* textureViewPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER);
             m_textureView = new TextureView(textureViewPanel, wxID_ANY, resources);
             m_textureNameLabel = new wxStaticText(textureViewPanel, wxID_ANY, "n/a");
@@ -141,22 +158,30 @@ namespace TrenchBroom {
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             
+            m_flipXButton = new wxButton(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBU_LEFT | wxBU_EXACTFIT | wxBORDER_NONE);
+            m_flipXButton->SetBitmap(flipXBitmap);
+            m_flipXButton->SetToolTip("Flip X Scale");
+            
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
+
+            m_flipYButton = new wxButton(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBU_LEFT | wxBU_EXACTFIT | wxBORDER_NONE);
+            m_flipYButton->SetBitmap(flipYBitmap);
+            m_flipYButton->SetToolTip("Flip X Scale");
             
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
             
-            m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             
-            m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
             
-            m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
             
             wxSizer* textureLabelSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -171,35 +196,34 @@ namespace TrenchBroom {
             texturePanelSizer->SetItemMinSize(m_textureView, 128, 128);
             textureViewPanel->SetSizer(texturePanelSizer);
             
-            m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::FaceAttribsControlMargin, LayoutConstants::FaceAttribsControlMargin);
-            m_faceAttribsSizer->Add(textureViewPanel, wxGBPosition(0, 0), wxGBSpan(7, 1), wxEXPAND);
+            m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::ControlVerticalMargin);
+            m_faceAttribsSizer->Add(textureViewPanel,                             wxGBPosition(0,0), wxGBSpan(1, 6), wxEXPAND);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, ""), wxGBPosition(0, 1), wxDefaultSpan, wxALIGN_CENTER); // fake
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 3), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Offset"), wxGBPosition(1,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_xOffsetEditor,                              wxGBPosition(1,1), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Offset"), wxGBPosition(1,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_yOffsetEditor,                              wxGBPosition(1,4), wxDefaultSpan, wxEXPAND);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Offset:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 1), wxDefaultSpan, wxALIGN_RIGHT);
-            m_faceAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 3), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Scale"),  wxGBPosition(2,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_xScaleEditor,                               wxGBPosition(2,1), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
+            m_faceAttribsSizer->Add(m_flipXButton,                                wxGBPosition(2,2), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Scale"),  wxGBPosition(2,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_yScaleEditor,                               wxGBPosition(2,4), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
+            m_faceAttribsSizer->Add(m_flipYButton,                                wxGBPosition(2,5), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Scale:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 1), wxDefaultSpan, wxALIGN_RIGHT);
-            m_faceAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 3), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Angle"),    wxGBPosition(3,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_rotationEditor,                             wxGBPosition(3,1), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_surfaceValueLabel,                          wxGBPosition(3,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_surfaceValueEditor,                         wxGBPosition(3,4), wxDefaultSpan, wxEXPAND);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Angle:", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 1), wxDefaultSpan, wxEXPAND | wxALIGN_RIGHT);
-            m_faceAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,                          wxGBPosition(4,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_surfaceFlagsEditor,                         wxGBPosition(4,1), wxGBSpan(1,5), wxEXPAND);
             
-            m_faceAttribsSizer->Add(m_surfaceValueLabel, wxGBPosition(4, 1), wxDefaultSpan, wxEXPAND | wxALIGN_RIGHT);
-            m_faceAttribsSizer->Add(m_surfaceValueEditor, wxGBPosition(4, 2), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_contentFlagsLabel,                          wxGBPosition(5,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_contentFlagsEditor,                         wxGBPosition(5,1), wxGBSpan(1,5), wxEXPAND);
             
-            m_faceAttribsSizer->Add(m_surfaceFlagsLabel, wxGBPosition(5, 1), wxDefaultSpan, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-            m_faceAttribsSizer->Add(m_surfaceFlagsEditor, wxGBPosition(5, 2), wxGBSpan(1, 3), wxEXPAND);
-            
-            m_faceAttribsSizer->Add(m_contentFlagsLabel, wxGBPosition(6, 1), wxDefaultSpan, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-            m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(6, 2), wxGBSpan(1, 3), wxEXPAND);
-            
-            m_faceAttribsSizer->AddGrowableCol(2);
-            m_faceAttribsSizer->AddGrowableCol(3);
+            m_faceAttribsSizer->AddGrowableCol(1);
+            m_faceAttribsSizer->AddGrowableCol(4);
             m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
@@ -223,6 +247,8 @@ namespace TrenchBroom {
             m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYScaleChanged),
                                  this);
+            m_flipXButton->Bind(wxEVT_BUTTON, &FaceAttribsEditor::OnFlipXScaleClicked, this);
+            m_flipYButton->Bind(wxEVT_BUTTON, &FaceAttribsEditor::OnFlipYScaleClicked, this);
             m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
                                    EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
                                    this);
@@ -337,6 +363,8 @@ namespace TrenchBroom {
                 m_rotationEditor->Enable();
                 m_xScaleEditor->Enable();
                 m_yScaleEditor->Enable();
+                m_flipXButton->Enable();
+                m_flipYButton->Enable();
                 m_surfaceValueEditor->Enable();
                 m_surfaceFlagsEditor->Enable();
                 m_contentFlagsEditor->Enable();
@@ -399,6 +427,8 @@ namespace TrenchBroom {
                 m_yOffsetEditor->Disable();
                 m_xScaleEditor->SetValue("n/a");
                 m_xScaleEditor->Disable();
+                m_flipXButton->Disable();
+                m_flipYButton->Disable();
                 m_yScaleEditor->SetValue("n/a");
                 m_yScaleEditor->Disable();
                 m_rotationEditor->SetValue("n/a");

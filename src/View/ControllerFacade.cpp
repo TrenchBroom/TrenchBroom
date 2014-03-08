@@ -522,6 +522,22 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        bool ControllerFacade::invertFaceXScale(const Model::BrushFaceList& faces) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->mulXScale(-1.0f);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::invertFaceYScale(const Model::BrushFaceList& faces) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            command->mulYScale(-1.0f);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setSurfaceFlag(const Model::BrushFaceList& faces, const size_t index, const bool set) {
             using namespace Controller;
             
