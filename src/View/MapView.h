@@ -26,7 +26,6 @@
 #include "Color.h"
 #include "Notifier.h"
 #include "Assets/AssetTypes.h"
-#include "Renderer/GL.h"
 #include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"

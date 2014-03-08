@@ -23,18 +23,20 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
+#include "Hit.h"
 #include "Controller/Command.h"
 #include "Model/ModelTypes.h"
-#include "View/InputState.h"
 #include "View/MovementRestriction.h"
-#include "Renderer/RenderResources.h"
+#include "View/ToolView.h"
 #include "View/ViewTypes.h"
-
-#include <wx/glcanvas.h>
 
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace Renderer {
         class Camera;
         class RenderContext;
@@ -44,69 +46,18 @@ namespace TrenchBroom {
         class AnimationManager;
         class Tool;
         
-        class BaseMapView : public wxGLCanvas {
-        public:
-            typedef std::vector<int> GLAttribs;
+        class BaseMapView : public ToolView {
         protected:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
-            Renderer::Camera& m_camera;
-            InputState m_inputState;
             MovementRestriction m_movementRestriction;
-        private:
-            wxGLContext* m_glContext;
-            bool m_initialized;
-            
-            AnimationManager* m_animationManager;
-
-            Tool* m_toolChain;
-            Tool* m_dragReceiver;
-            Tool* m_modalReceiver;
-            Tool* m_dropReceiver;
-            Tool* m_savedDropReceiver;
-
-            wxPoint m_clickPos;
-            bool m_ignoreNextDrag;
-            bool m_ignoreNextClick;
-            wxDateTime m_lastFrameActivation;
-        public:
+        protected:
             BaseMapView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera, const GLAttribs& attribs, const wxGLContext* sharedContext = NULL);
+        public:
             virtual ~BaseMapView();
-
-            bool dragEnter(wxCoord x, wxCoord y, const String& text);
-            bool dragMove(wxCoord x, wxCoord y, const String& text);
-            void dragLeave();
-            bool dragDrop(wxCoord x, wxCoord y, const String& text);
-            
             void OnKey(wxKeyEvent& event);
-            void OnMouseButton(wxMouseEvent& event);
-            void OnMouseDoubleClick(wxMouseEvent& event);
-            void OnMouseMotion(wxMouseEvent& event);
-            void OnMouseWheel(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnActivateFrame(wxActivateEvent& event);
-            
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
 
             void toggleMovementRestriction();
-            
-            const wxGLContext* glContext() const;
-        protected:
-            void resetCamera();
-        public:
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
-            bool anyToolActive() const;
-        protected:
-            void addTool(Tool* tool);
-            bool toolActive(const Tool* tool) const;
-            void toggleTool(Tool* tool);
-            void deactivateAllTools();
-
-            void setRenderOptions(Renderer::RenderContext& renderContext);
-            void renderTools(Renderer::RenderContext& renderContext);
         private:
             void bindObservers();
             void unbindObservers();
@@ -119,27 +70,12 @@ namespace TrenchBroom {
             void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
             void cameraDidChange(const Renderer::Camera* camera);
-        private:
-            void bindEvents();
-            
-            void initializeGL();
-            void render();
-            
-            void cancelCurrentDrag();
-            
-            ModifierKeyState modifierKeys();
-            bool updateModifierKeys();
-            bool clearModifierKeys();
-            MouseButtonState mouseButton(wxMouseEvent& event);
 
-            void updateHits(const int x, const int y);
-            
-            void showPopupMenu();
+            void bindEvents();
         private:
-            virtual void doResetCamera() = 0;
-            virtual void doInitializeGL();
-            virtual void doRender() = 0;
-            virtual void doShowPopupMenu();
+            void doUpdateViewport(int x, int y, int width, int height);
+            Ray3d doGetPickRay(int x, int y) const;
+            Hits doGetHits(const Ray3d& pickRay) const;
         };
     }
 }
