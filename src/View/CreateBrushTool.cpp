@@ -22,10 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
-#include "Model/HitFilters.h"
+#include "Model/HitAdapter.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
-#include "Model/Picker.h"
 #include "Renderer/Camera.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
@@ -61,9 +60,9 @@ namespace TrenchBroom {
             if (document()->hasSelectedObjects())
                 return false;
             
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches)
-                initialPoint = first.hit.hitPoint();
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+            if (hit.isMatch())
+                initialPoint = hit.hitPoint();
             else
                 initialPoint = inputState.camera().defaultPoint(inputState.pickRay());
 

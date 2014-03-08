@@ -613,7 +613,7 @@ namespace TrenchBroom {
             m_textureManager.commitChanges();
         }
         
-        Model::PickResult MapDocument::pick(const Ray3& ray) {
+        Hits MapDocument::pick(const Ray3& ray) {
             return m_picker.pick(ray);
         }
         

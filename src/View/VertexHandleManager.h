@@ -22,9 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "Model/BrushGeometryTypes.h"
 #include "Model/ModelTypes.h"
-#include "Model/Picker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/TextRenderer.h"
@@ -40,9 +40,9 @@ namespace TrenchBroom {
     namespace View {
         class VertexHandleManager {
         public:
-            static const Model::Hit::HitType VertexHandleHit;
-            static const Model::Hit::HitType EdgeHandleHit;
-            static const Model::Hit::HitType FaceHandleHit;
+            static const Hit::HitType VertexHandleHit;
+            static const Hit::HitType EdgeHandleHit;
+            static const Hit::HitType FaceHandleHit;
         private:
             Renderer::Vbo m_vbo;
             
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             
             void deselectAllHandles();
             
-            void pick(const Ray3& ray, Model::PickResult& pickResult, bool splitMode) const;
+            void pick(const Ray3& ray, Hits& hits, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, bool splitMode);
             void renderHighlight(Renderer::RenderContext& renderContext, const Vec3& position);
         private:
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 return elementCount;
             }
 
-            Model::Hit pickHandle(const Ray3& ray, const Vec3& position, const Model::Hit::HitType type) const;
+            Hit pickHandle(const Ray3& ray, const Vec3& position, Hit::HitType type) const;
             void validateRenderState(bool splitMode);
         };
     }

@@ -139,12 +139,12 @@ namespace TrenchBroom {
             m_pickRay = pickRay;
         }
 
-        Model::PickResult& InputState::pickResult() const {
-            return m_pickResult;
+        const Hits& InputState::hits() const {
+            return m_hits;
         }
-
-        void InputState::setPickResult(Model::PickResult& pickResult) {
-            m_pickResult = pickResult;
+        
+        void InputState::setHits(const Hits& hits) {
+            m_hits = hits;
         }
 
         const Renderer::Camera& InputState::camera() const {

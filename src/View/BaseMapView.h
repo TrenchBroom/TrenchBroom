@@ -132,7 +132,7 @@ namespace TrenchBroom {
             bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
 
-            void updatePickResults(const int x, const int y);
+            void updateHits(const int x, const int y);
             
             void showPopupMenu();
         private:

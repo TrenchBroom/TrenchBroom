@@ -25,9 +25,7 @@
 #include "ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
+    class Hits;
     
     namespace Renderer {
         class RenderContext;
@@ -59,13 +57,13 @@ namespace TrenchBroom {
         class PickingPolicy {
         public:
             virtual ~PickingPolicy();
-            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) = 0;
+            virtual void doPick(const InputState& inputState, Hits& hits) = 0;
         };
         
         class NoPickingPolicy {
         public:
             ~NoPickingPolicy();
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Hits& hits);
         };
         
         class MousePolicy {
@@ -179,7 +177,7 @@ namespace TrenchBroom {
             virtual bool activate(const InputState& inputState) = 0;
             virtual void deactivate(const InputState& inputState) = 0;
             
-            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
+            virtual void pick(const InputState& inputState, Hits& hits) = 0;
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
             
@@ -245,11 +243,11 @@ namespace TrenchBroom {
                 }
             }
             
-            void pick(const InputState& inputState, Model::PickResult& pickResult) {
+            void pick(const InputState& inputState, Hits& hits) {
                 if (active())
-                    static_cast<PickingPolicyType&>(*this).doPick(inputState, pickResult);
+                    static_cast<PickingPolicyType&>(*this).doPick(inputState, hits);
                 if (next() != NULL)
-                    next()->pick(inputState, pickResult);
+                    next()->pick(inputState, hits);
             }
 
             void modifierKeyChange(const InputState& inputState) {

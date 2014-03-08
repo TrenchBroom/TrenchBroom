@@ -28,7 +28,6 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/Map.h"
 #include "Model/Picker.h"
 #include "View/ControllerFacade.h"
@@ -113,10 +112,10 @@ namespace TrenchBroom {
 
             Vec3 delta;
             const Grid& grid = document()->grid();
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches) {
-                Model::BrushFace* face = hitAsFace(first.hit);
-                delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document()->worldBounds(), inputState.pickRay(), first.hit.hitPoint());
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+            if (hit.isMatch()) {
+                const Model::BrushFace* face = Model::hitAsFace(hit);
+                delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document()->worldBounds(), inputState.pickRay(), hit.hitPoint());
             } else {
                 const Vec3 newPosition(inputState.camera().defaultPoint(inputState.pickRay()));
                 const Vec3 center = m_entity->bounds().center();

@@ -39,10 +39,10 @@ namespace TrenchBroom {
             Vec3 m_dragOrigin;
             bool m_splitBrushes;
         public:
-            static const Model::Hit::HitType ResizeHit;
+            static const Hit::HitType ResizeHit;
             ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller);
         private:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Hits& hits);
 
             void doModifierKeyChange(const InputState& inputState);
             void doMouseMove(const InputState& inputState);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             bool applies(const InputState& inputState) const;
             bool splitBrushes(const InputState& inputState) const;
             
-            void pickNearFaceHit(const InputState& inputState, Model::PickResult& pickResult) const;
+            void pickNearFaceHit(const InputState& inputState, Hits& hits) const;
             
             void updateDragFaces(const InputState& inputState);
             Model::BrushFaceList collectDragFaces(Model::BrushFace& dragFace) const;

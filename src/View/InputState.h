@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/Picker.h"
+#include "Hit.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             float m_scrollY;
             
             Ray3 m_pickRay;
-            mutable Model::PickResult m_pickResult;
+            Hits m_hits;
 
             const Renderer::Camera& m_camera;
         public:
@@ -94,8 +94,9 @@ namespace TrenchBroom {
 
             const Ray3& pickRay() const;
             void setPickRay(const Ray3& pickRay);
-            Model::PickResult& pickResult() const;
-            void setPickResult(Model::PickResult& pickResult);
+
+            const Hits& hits() const;
+            void setHits(const Hits& hits);
 
             const Renderer::Camera& camera() const;
         };

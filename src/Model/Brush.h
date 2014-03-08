@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Allocator.h"
+#include "Hit.h"
 #include "SharedPointer.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             void deselect();
             
             const BBox3& bounds() const;
-            void pick(const Ray3& ray, PickResult& result);
+            void pick(const Ray3& ray, Hits& hits);
             
             const BrushFaceList& faces() const;
             const BrushEdgeList& edges() const;

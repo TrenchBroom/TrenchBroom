@@ -19,11 +19,12 @@
 
 #include "HitAdapter.h"
 
+#include "Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/ModelFilter.h"
 #include "Model/Object.h"
-#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -53,6 +54,29 @@ namespace TrenchBroom {
             if (hit.type() == Brush::BrushHit)
                 return hit.target<BrushFace*>();
             return NULL;
+        }
+
+        bool SelectionHitFilter::matches(const Hit& hit) const {
+            if (hit.type() == Model::Entity::EntityHit)
+                return hitAsEntity(hit)->selected();
+            if (hit.type() == Model::Brush::BrushHit)
+                return hitAsBrush(hit)->selected() || hitAsFace(hit)->selected();
+            return false;
+        }
+        
+        DefaultHitFilter::DefaultHitFilter(const ModelFilter& filter) :
+        m_filter(filter) {}
+        
+        bool DefaultHitFilter::matches(const Hit& hit) const {
+            if (hit.type() == Entity::EntityHit)
+                return m_filter.pickable(hitAsEntity(hit));
+            if (hit.type() == Brush::BrushHit)
+                return m_filter.pickable(hitAsBrush(hit));
+            return false;
+        }
+
+        const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders) {
+            return hits.findFirst(chainHitFilter(TypedHitFilter(type), DefaultHitFilter(filter)), ignoreOccluders);
         }
     }
 }

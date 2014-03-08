@@ -20,6 +20,7 @@
 #include "Entity.h"
 
 #include "CollectionUtils.h"
+#include "Hit.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
@@ -85,14 +86,13 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        void Entity::pick(const Ray3& ray, PickResult& result) {
+        void Entity::pick(const Ray3& ray, Hits& hits) {
             const BBox3& myBounds = bounds();
             if (!myBounds.contains(ray.origin)) {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    Hit hit(EntityHit, distance, hitPoint, this);
-                    result.addHit(hit);
+                    hits.add(Hit(EntityHit, distance, hitPoint, this));
                 }
             }
         }

@@ -20,8 +20,6 @@
 #include "BoundsGuideRenderer.h"
 
 #include "Model/Brush.h"
-#include "Model/HitFilters.h"
-#include "Model/Picker.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexSpec.h"
@@ -197,12 +195,13 @@ namespace TrenchBroom {
         void addPoint(const Vec3& origin, const Vec3& direction, const FloatType length, View::MapDocumentSPtr document, VertexSpecs::P3::Vertex::List& vertices) {
             typedef VertexSpecs::P3::Vertex Vertex;
 
-            const Model::PickResult pickResult = document->pick(Ray3(origin, direction));
-            const Model::Hit::List hits = Model::hits(pickResult, Model::Brush::BrushHit);
-            Model::Hit::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Model::Hit& hit = *it;
-                if (std::abs(hit.distance()) < length)
+            const Hits hits = document->pick(Ray3(origin, direction));
+            const Hits::List brushHits = hits.filter(Model::Brush::BrushHit);
+
+            Hits::List::const_iterator it, end;
+            for (it = brushHits.begin(), end = brushHits.end(); it != end; ++it) {
+                const Hit& hit = *it;
+                if (Math::abs(hit.distance()) < length)
                     vertices.push_back(Vertex(hit.hitPoint() - direction / 10.0f));
             }
         }

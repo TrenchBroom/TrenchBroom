@@ -22,7 +22,6 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
@@ -45,17 +44,18 @@ namespace TrenchBroom {
             
             if (!document()->hasSelectedObjects())
                 return false;
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
-            if (!first.matches)
+
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            if (!hit.isMatch())
                 return false;
-            const Model::Object* object = Model::hitAsObject(first.hit);
+            const Model::Object* object = Model::hitAsObject(hit);
             return object->selected();
         }
         
         Vec3 MoveObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
-            assert(first.matches);
-            return first.hit.hitPoint();
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            assert(hit.isMatch());
+            return hit.hitPoint();
         }
 
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {

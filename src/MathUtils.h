@@ -83,6 +83,21 @@ namespace Math {
     }
     
     template <typename T>
+    T abs(const T v) {
+        return std::abs(v);
+    }
+    
+    template <typename T>
+    T min(const T v1, const T v2) {
+        return std::min(v1, v2);
+    }
+    
+    template <typename T>
+    T max(const T v1, const T v2) {
+        return std::max(v1, v2);
+    }
+
+    template <typename T>
     T radians(const T d) {
         return d * Constants<T>::PiOverStraightAngle;
     }
@@ -100,14 +115,14 @@ namespace Math {
     template <typename T>
     T correct(const T v, const T epsilon = Constants<T>::CorrectEpsilon) {
         const T r = round(v);
-        if (std::abs(v - r) <= epsilon)
+        if (abs(v - r) <= epsilon)
             return r;
         return v;
     }
 
     template <typename T>
     bool zero(const T v, const T epsilon = Constants<T>::AlmostZero) {
-        return std::abs(v) <= epsilon;
+        return abs(v) <= epsilon;
     }
     
     template <typename T>
@@ -122,9 +137,9 @@ namespace Math {
 
     template <typename T>
     bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
-        const T absA = std::abs(v1);
-        const T absB = std::abs(v2);
-        const T diff = std::abs(v1 - v2);
+        const T absA = abs(v1);
+        const T absB = abs(v2);
+        const T diff = abs(v1 - v2);
         
         if (v1 == v2) { // shortcut, handles infinities
             return true;
@@ -139,7 +154,7 @@ namespace Math {
 
     template <typename T>
     bool eq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
-        return std::abs(v1 - v2) < epsilon;
+        return abs(v1 - v2) < epsilon;
     }
     
     template <typename T>
@@ -176,15 +191,6 @@ namespace Math {
         return gt(v, e, epsilon) && lt(v, s, epsilon);
     }
     
-    template <typename T>
-    T selectMin(const T v1, const T v2) {
-        if (isnan(v1))
-            return v2;
-        if (isnan(v2))
-            return v1;
-        return std::min(v1, v2);
-    }
-
     template <typename T, typename C, typename O>
     T succ(const T index, const C count, const O offset) {
         return (index + offset) % count;
@@ -204,33 +210,27 @@ namespace Math {
     T pred(const T index, const T count) {
         return pred(index, count, 1);
     }
-    
-    template <typename T>
-    T abs(const T v) {
-        return std::abs(v);
-    }
-    
-    template <typename T>
-    T min(const T v1, const T v2) {
-        return std::min(v1, v2);
-    }
-    
-    template <typename T>
-    T max(const T v1, const T v2) {
-        return std::max(v1, v2);
-    }
 
     template <typename T>
     T clamp(const T v, const T minV = 0.0f, const T maxV = 1.0f) {
         return max(min(v, maxV), minV);
     }
 
+    template <typename T>
+    T selectMin(const T v1, const T v2) {
+        if (isnan(v1))
+            return v2;
+        if (isnan(v2))
+            return v1;
+        return min(v1, v2);
+    }
+    
     template <typename T, bool Abs>
     struct Cmp {
         Cmp() {}
         int operator()(const T lhs, const T rhs) const {
-            const T l = Abs ? std::abs(lhs) : lhs;
-            const T r = Abs ? std::abs(rhs) : rhs;
+            const T l = Abs ? abs(lhs) : lhs;
+            const T r = Abs ? abs(rhs) : rhs;
             if (Math::lt(l, r))
                 return -1;
             if (Math::gt(l, r))

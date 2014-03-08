@@ -24,7 +24,6 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
 #include "View/ControllerFacade.h"
@@ -34,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ClipTool::HandleHit = Model::Hit::freeHitType();
+        const Hit::HitType ClipTool::HandleHit = Hit::freeHitType();
 
         ClipTool::ClipTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera) :
         ToolImpl(document, controller),
@@ -111,7 +110,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void ClipTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ClipTool::doPick(const InputState& inputState, Hits& hits) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);
             const FloatType scaling = prefs.get(Preferences::HandleScalingFactor);
@@ -124,7 +123,7 @@ namespace TrenchBroom {
                                                                radius, scaling, maxDist);
                 if (!Math::isnan(dist)) {
                     const Vec3 hitPoint = ray.pointAtDistance(dist);
-                    pickResult.addHit(Model::Hit(HandleHit, dist, hitPoint, i));
+                    hits.add(Hit(HandleHit, dist, hitPoint, i));
                 }
             }
         }
@@ -134,11 +133,11 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
 
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches) {
-                const Vec3 point = clipPoint(first.hit);
+            const Hit& hit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+            if (hit.isMatch()) {
+                const Vec3 point = clipPoint(hit);
                 if (m_clipper.canAddClipPoint(point)) {
-                    m_clipper.addClipPoint(point, *hitAsFace(first.hit));
+                    m_clipper.addClipPoint(point, *Model::hitAsFace(hit));
                     updateBrushes();
                 }
             }
@@ -151,20 +150,20 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
             
-            const Model::PickResult::FirstHit firstHandleHit = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            if (!firstHandleHit.matches)
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            if (!hit.isMatch())
                 return false;
             
-            m_dragPointIndex = firstHandleHit.hit.target<size_t>();
+            m_dragPointIndex = hit.target<size_t>();
             return true;
         }
         
         bool ClipTool::doMouseDrag(const InputState& inputState) {
-            Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches) {
-                const Vec3 point = clipPoint(first.hit);
+            const Hit& hit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+            if (hit.isMatch()) {
+                const Vec3 point = clipPoint(hit);
                 if (m_clipper.canUpdateClipPoint(m_dragPointIndex, point)) {
-                    m_clipper.updateClipPoint(m_dragPointIndex, point, *hitAsFace(first.hit));
+                    m_clipper.updateClipPoint(m_dragPointIndex, point, *Model::hitAsFace(hit));
                     updateBrushes();
                 }
             }
@@ -189,22 +188,22 @@ namespace TrenchBroom {
             if (dragging()) {
                 m_renderer.renderHighlight(renderContext, m_dragPointIndex);
             } else {
-                const Model::PickResult::FirstHit firstBrushHit = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-                const Model::PickResult::FirstHit firstHandleHit = Model::firstHit(inputState.pickResult(), HandleHit, true);
-                
-                if (firstHandleHit.matches) {
-                    const size_t index = firstHandleHit.hit.target<size_t>();
+                const Hit& brushHit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+                const Hit& handleHit = inputState.hits().findFirst(HandleHit, true);
+
+                if (handleHit.isMatch()) {
+                    const size_t index = handleHit.target<size_t>();
                     m_renderer.renderHighlight(renderContext, index);
-                } else if (firstBrushHit.matches) {
-                    const Vec3 point = clipPoint(firstBrushHit.hit);
+                } else if (brushHit.isMatch()) {
+                    const Vec3 point = clipPoint(brushHit);
                     if (m_clipper.canAddClipPoint(point))
                         m_renderer.renderCurrentPoint(renderContext, point);
                 }
             }
         }
         
-        Vec3 ClipTool::clipPoint(const Model::Hit& hit) const {
-            const Model::BrushFace& face = *hitAsFace(hit);
+        Vec3 ClipTool::clipPoint(const Hit& hit) const {
+            const Model::BrushFace& face = *Model::hitAsFace(hit);
             const Vec3& point = hit.hitPoint();
             return document()->grid().snap(point, face.boundary());
         }

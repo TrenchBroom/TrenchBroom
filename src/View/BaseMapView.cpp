@@ -66,7 +66,7 @@ namespace TrenchBroom {
             
             deactivateAllTools();
             m_inputState.mouseMove(x, y);
-            updatePickResults(x, y);
+            updateHits(x, y);
             m_dropReceiver = m_toolChain->dragEnter(m_inputState, text);
             Refresh();
             
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return false;
             
             m_inputState.mouseMove(x, y);
-            updatePickResults(x, y);
+            updateHits(x, y);
             m_dropReceiver->dragMove(m_inputState);
             Refresh();
             
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 m_dropReceiver->dragEnter(m_inputState, text);
             }
             
-            updatePickResults(x, y);
+            updateHits(x, y);
             const bool success = m_dropReceiver->dragDrop(m_inputState);
             m_dropReceiver->deactivate(m_inputState);
             m_dropReceiver = NULL;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         void BaseMapView::OnKey(wxKeyEvent& event) {
             if (updateModifierKeys()) {
                 m_movementRestriction.setVerticalRestriction(m_inputState.modifierKeysDown(ModifierKeys::MKAlt));
-                updatePickResults(event.GetX(), event.GetY());
+                updateHits(event.GetX(), event.GetY());
                 m_toolChain->modifierKeyChange(m_inputState);
             }
             Refresh();
@@ -170,7 +170,7 @@ namespace TrenchBroom {
                 }
             }
             
-            updatePickResults(event.GetX(), event.GetY());
+            updateHits(event.GetX(), event.GetY());
             m_ignoreNextDrag = false;
             
             Refresh();
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             m_toolChain->mouseDoubleClick(m_inputState);
             m_inputState.mouseUp(button);
             
-            updatePickResults(event.GetX(), event.GetY());
+            updateHits(event.GetX(), event.GetY());
             
             Refresh();
             event.Skip();
@@ -194,7 +194,7 @@ namespace TrenchBroom {
         
         void BaseMapView::OnMouseMotion(wxMouseEvent& event) {
             updateModifierKeys();
-            updatePickResults(event.GetX(), event.GetY());
+            updateHits(event.GetX(), event.GetY());
             if (m_dragReceiver != NULL) {
                 m_inputState.mouseMove(event.GetX(), event.GetY());
                 if (!m_dragReceiver->mouseDrag(m_inputState)) {
@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 m_inputState.scroll(0.0f, delta);
             m_toolChain->scroll(m_inputState);
             
-            updatePickResults(event.GetX(), event.GetY());
+            updateHits(event.GetX(), event.GetY());
             Refresh();
             event.Skip();
         }
@@ -434,7 +434,7 @@ namespace TrenchBroom {
         void BaseMapView::commandDoneOrUndone(Controller::Command::Ptr command) {
             const wxMouseState mouseState = wxGetMouseState();
             const wxPoint clientPos = ScreenToClient(mouseState.GetPosition());
-            updatePickResults(clientPos.x, clientPos.y);
+            updateHits(clientPos.x, clientPos.y);
             Refresh();
         }
 
@@ -535,14 +535,13 @@ namespace TrenchBroom {
             }
         }
         
-        void BaseMapView::updatePickResults(const int x, const int y) {
+        void BaseMapView::updateHits(const int x, const int y) {
             MapDocumentSPtr document = lock(m_document);
             
             m_inputState.setPickRay(m_camera.pickRay(x, y));
-            Model::PickResult pickResult = document->pick(m_inputState.pickRay());
-            m_toolChain->pick(m_inputState, pickResult);
-            pickResult.sortHits();
-            m_inputState.setPickResult(pickResult);
+            Hits hits = document->pick(m_inputState.pickRay());
+            m_toolChain->pick(m_inputState, hits);
+            m_inputState.setHits(hits);
         }
 
         void BaseMapView::showPopupMenu() {

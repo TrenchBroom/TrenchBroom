@@ -28,7 +28,6 @@
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/Map.h"
 #include "Model/Object.h"
 #include "Renderer/PerspectiveCamera.h"
@@ -273,13 +272,11 @@ namespace TrenchBroom {
             const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
                 const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
-                Model::PickResult pickResult = document->pick(Ray3(pickRay));
-                pickResult.sortHits();
-                
-                const Model::PickResult::FirstHit first = Model::firstHit(pickResult, Model::Brush::BrushHit, document->filter(), true);
-                if (first.matches) {
-                    const Model::BrushFace* face = Model::hitAsFace(first.hit);
-                    const Vec3 snappedHitPoint = grid.snap(first.hit.hitPoint());
+                const Hits& hits = document->pick(Ray3(pickRay));
+                const Hit& hit = Model::findFirstHit(hits, Model::Brush::BrushHit, document->filter(), true);
+                if (hit.isMatch()) {
+                    const Model::BrushFace* face = Model::hitAsFace(hit);
+                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
                     return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
@@ -379,12 +376,12 @@ namespace TrenchBroom {
             Model::Entity* newParent = NULL;
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
-            if (first.matches) {
-                if (first.hit.type() == Model::Entity::EntityHit) {
-                    newParent = Model::hitAsEntity(first.hit);
-                } else if (first.hit.type() == Model::Brush::BrushHit) {
-                    const Model::Brush* brush = Model::hitAsBrush(first.hit);
+            const Hit& hit = Model::findFirstHit(m_inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
+            if (hit.isMatch()) {
+                if (hit.type() == Model::Entity::EntityHit) {
+                    newParent = Model::hitAsEntity(hit);
+                } else if (hit.type() == Model::Brush::BrushHit) {
+                    const Model::Brush* brush = Model::hitAsBrush(hit);
                     newParent = brush->parent();
                 }
             }
@@ -447,9 +444,9 @@ namespace TrenchBroom {
             Vec3 delta;
             View::Grid& grid = document->grid();
             
-            const Model::PickResult::FirstHit first = Model::firstHit(m_inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
-            if (first.matches) {
-                delta = grid.moveDeltaForBounds(Model::hitAsFace(first.hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), first.hit.hitPoint());
+            const Hit& hit = Model::findFirstHit(m_inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+            if (hit.isMatch()) {
+                delta = grid.moveDeltaForBounds(Model::hitAsFace(hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), hit.hitPoint());
             } else {
                 const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay()));
                 delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());

@@ -20,18 +20,38 @@
 #ifndef TrenchBroom_HitAdapter_h
 #define TrenchBroom_HitAdapter_h
 
+#include "HitFilter.h"
+#include "Hit.h"
+
 namespace TrenchBroom {
     namespace Model {
-        class Object;
-        class Entity;
         class Brush;
         class BrushFace;
-        class Hit;
+        class Entity;
+        class ModelFilter;
+        class Object;
         
         Object* hitAsObject(const Hit& hit);
         Entity* hitAsEntity(const Hit& hit);
         Brush* hitAsBrush(const Hit& hit);
         BrushFace* hitAsFace(const Hit& hit);
+        
+        
+        class SelectionHitFilter : public HitFilter {
+        public:
+            bool matches(const Hit& hit) const;
+        };
+        
+        class ModelFilter;
+        class DefaultHitFilter : public HitFilter {
+        private:
+            const ModelFilter& m_filter;
+        public:
+            DefaultHitFilter(const ModelFilter& filter);
+            bool matches(const Hit& hit) const;
+        };
+
+        const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders);
     }
 }
 

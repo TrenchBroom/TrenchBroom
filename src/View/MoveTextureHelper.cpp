@@ -26,7 +26,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/OutlineTracer.h"
 #include "Renderer/RenderContext.h"
@@ -50,12 +49,12 @@ namespace TrenchBroom {
                 return false;
             
             View::MapDocumentSPtr document = lock(m_document);
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
-            assert(first.matches);
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+            assert(hit.isMatch());
             
-            m_face = Model::hitAsFace(first.hit);
-            plane = Plane3(first.hit.hitPoint(), m_face->boundary().normal);
-            initialPoint = first.hit.hitPoint();
+            m_face = Model::hitAsFace(hit);
+            plane = Plane3(hit.hitPoint(), m_face->boundary().normal);
+            initialPoint = hit.hitPoint();
             return true;
         }
         
@@ -97,9 +96,9 @@ namespace TrenchBroom {
                 highlightApplicableFaces(m_face, renderContext);
             } else {
                 View::MapDocumentSPtr document = lock(m_document);
-                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
-                if (first.matches) {
-                    const Model::BrushFace* reference = Model::hitAsFace(first.hit);
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+                if (hit.isMatch()) {
+                    const Model::BrushFace* reference = Model::hitAsFace(hit);
                     if (reference->selected() || reference->parent()->selected())
                         highlightApplicableFaces(reference, renderContext);
                 }
@@ -157,10 +156,10 @@ namespace TrenchBroom {
                 return false;
             
             View::MapDocumentSPtr document = lock(m_document);
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
-            if (!first.matches)
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+            if (!hit.isMatch())
                 return false;
-            const Model::BrushFace* face = Model::hitAsFace(first.hit);
+            const Model::BrushFace* face = Model::hitAsFace(hit);
             const Model::Brush* brush = face->parent();
             return face->selected() || brush->selected();
         }

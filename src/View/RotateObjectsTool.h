@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/Picker.h"
+#include "Hit.h"
 #include "View/MoveToolHelper.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateToolHelper.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace View {
         class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate {
         private:
-            static const Model::Hit::HitType HandleHit;
+            static const Hit::HitType HandleHit;
 
             RotateObjectsHandle m_handle;
             PlaneDragHelper* m_helper;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Hits& hits);
 
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);

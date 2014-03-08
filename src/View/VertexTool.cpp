@@ -30,7 +30,6 @@
 #include "Controller/SplitBrushFacesCommand.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/Picker.h"
 #include "Model/Object.h"
 #include "Model/SelectionResult.h"
@@ -165,12 +164,12 @@ namespace TrenchBroom {
                    inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift))))
                 return false;
             
-            const Model::Hit hit = firstHit(inputState.pickResult());
+            const Hit& hit = firstHit(inputState.hits());
             return hit.isMatch();
         }
         
         Vec3 VertexTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Model::Hit hit = firstHit(inputState.pickResult());
+            const Hit& hit = firstHit(inputState.hits());
             assert(hit.isMatch());
             return hit.hitPoint();
         }
@@ -199,7 +198,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::doStartMove(const InputState& inputState) {
-            const Model::Hit hit = firstHit(inputState.pickResult());
+            const Hit& hit = firstHit(inputState.hits());
             assert(hit.isMatch());
             m_dragHandlePosition = hit.target<Vec3>();
             controller()->beginUndoableGroup();
@@ -208,7 +207,7 @@ namespace TrenchBroom {
         
         Vec3 VertexTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
             if (m_mode == VMSnap) {
-                const Model::Hit hit = firstHit(inputState.pickResult());
+                const Hit& hit = firstHit(inputState.hits());
                 if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
                     return hit.target<Vec3>() - m_dragHandlePosition;
                 return Vec3::Null;
@@ -282,22 +281,22 @@ namespace TrenchBroom {
             controller()->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
         }
 
-        void VertexTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            m_handleManager.pick(inputState.pickRay(), pickResult, m_mode == VMSplit);
+        void VertexTool::doPick(const InputState& inputState, Hits& hits) {
+            m_handleManager.pick(inputState.pickRay(), hits, m_mode == VMSplit);
         }
         
         bool VertexTool::doMouseDown(const InputState& inputState) {
             if (dismissClick(inputState))
                 return false;
 
-            const Model::Hit::List hits = firstHits(inputState.pickResult());
+            const Hits::List hits = firstHits(inputState.hits());
             if (hits.empty())
                 return false;
             
-            const Model::Hit& firstHit = hits.front();
-            if (firstHit.type() == VertexHandleManager::VertexHandleHit)
+            const Hit& hit = hits.front();
+            if (hit.type() == VertexHandleManager::VertexHandleHit)
                 vertexHandleClicked(inputState, hits);
-            else if (firstHit.type() == VertexHandleManager::EdgeHandleHit)
+            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
                 edgeHandleClicked(inputState, hits);
             else
                 faceHandleClicked(inputState, hits);
@@ -308,7 +307,7 @@ namespace TrenchBroom {
             if (dismissClick(inputState))
                 return false;
             
-            const Model::Hit::List hits = firstHits(inputState.pickResult());
+            const Hits::List hits = firstHits(inputState.hits());
             if (!hits.empty())
                 return true;
             
@@ -326,22 +325,22 @@ namespace TrenchBroom {
             if (dismissClick(inputState))
                 return false;
 
-            const Model::Hit::List hits = firstHits(inputState.pickResult());
+            const Hits::List hits = firstHits(inputState.hits());
             if (hits.empty())
                 return false;
             
-            const Model::Hit& firstHit = hits.front();
-            if (firstHit.type() == VertexHandleManager::VertexHandleHit) {
+            const Hit& hit = hits.front();
+            if (hit.type() == VertexHandleManager::VertexHandleHit) {
                 m_handleManager.deselectAllHandles();
-                m_handleManager.selectVertexHandle(firstHit.target<Vec3>());
+                m_handleManager.selectVertexHandle(hit.target<Vec3>());
                 m_mode = VMSnap;
-            } else if (firstHit.type() == VertexHandleManager::EdgeHandleHit) {
+            } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
                 m_handleManager.deselectAllHandles();
-                m_handleManager.selectEdgeHandle(firstHit.target<Vec3>());
+                m_handleManager.selectEdgeHandle(hit.target<Vec3>());
                 m_mode = VMSplit;
             } else {
                 m_handleManager.deselectAllHandles();
-                m_handleManager.selectFaceHandle(firstHit.target<Vec3>());
+                m_handleManager.selectFaceHandle(hit.target<Vec3>());
                 m_mode = VMSplit;
             }
             
@@ -357,14 +356,14 @@ namespace TrenchBroom {
                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)));
         }
         
-        void VertexTool::vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits) {
+        void VertexTool::vertexHandleClicked(const InputState& inputState, const Hits::List& hits) {
             m_handleManager.deselectAllEdgeHandles();
             m_handleManager.deselectAllFaceHandles();
             
             size_t selected = 0;
-            Model::Hit::List::const_iterator it, end;
+            Hits::List::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Model::Hit& hit = *it;
+                const Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isVertexHandleSelected(position))
                     ++selected;
@@ -374,14 +373,14 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
                     m_handleManager.deselectAllHandles();
                 for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Model::Hit& hit = *it;
+                    const Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectVertexHandle(position);
                 }
             } else {
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Model::Hit& hit = *it;
+                        const Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectVertexHandle(position);
                     }
@@ -389,14 +388,14 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::edgeHandleClicked(const InputState& inputState, const Model::Hit::List& hits) {
+        void VertexTool::edgeHandleClicked(const InputState& inputState, const Hits::List& hits) {
             m_handleManager.deselectAllVertexHandles();
             m_handleManager.deselectAllFaceHandles();
             
             size_t selected = 0;
-            Model::Hit::List::const_iterator it, end;
+            Hits::List::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Model::Hit& hit = *it;
+                const Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isEdgeHandleSelected(position))
                     ++selected;
@@ -406,14 +405,14 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
                     m_handleManager.deselectAllHandles();
                 for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Model::Hit& hit = *it;
+                    const Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectEdgeHandle(position);
                 }
             } else {
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Model::Hit& hit = *it;
+                        const Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectEdgeHandle(position);
                     }
@@ -421,14 +420,14 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::faceHandleClicked(const InputState& inputState, const Model::Hit::List& hits) {
+        void VertexTool::faceHandleClicked(const InputState& inputState, const Hits::List& hits) {
             m_handleManager.deselectAllVertexHandles();
             m_handleManager.deselectAllEdgeHandles();
             
             size_t selected = 0;
-            Model::Hit::List::const_iterator it, end;
+            Hits::List::const_iterator it, end;
             for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Model::Hit& hit = *it;
+                const Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isFaceHandleSelected(position))
                     selected++;
@@ -438,14 +437,14 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
                     m_handleManager.deselectAllHandles();
                 for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Model::Hit& hit = *it;
+                    const Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectFaceHandle(position);
                 }
             } else {
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Model::Hit& hit = *it;
+                        const Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectFaceHandle(position);
                     }
@@ -464,7 +463,7 @@ namespace TrenchBroom {
                 m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
                 renderMoveIndicator(inputState, renderContext);
             } else {
-                const Model::Hit hit = firstHit(inputState.pickResult());
+                const Hit& hit = firstHit(inputState.hits());
                 if (hit.isMatch()) {
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.renderHighlight(renderContext, position);
@@ -561,24 +560,24 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Hit VertexTool::firstHit(const Model::PickResult& pickResult) const {
-            const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            return Model::firstHit(pickResult, any, true).hit;
+        const Hit& VertexTool::firstHit(const Hits& hits) const {
+            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+            return hits.findFirst(any, true);
         }
 
-        Model::Hit::List VertexTool::firstHits(const Model::PickResult& pickResult) const {
-            Model::Hit::List result;
+        Hits::List VertexTool::firstHits(const Hits& hits) const {
+            Hits::List result;
             Model::BrushSet brushes;
             
-            const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            const Model::PickResult::FirstHit first = Model::firstHit(pickResult, any, true);
-            if (first.matches) {
-                const Vec3 firstHitPosition = first.hit.target<Vec3>();
+            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+            const Hit& first = hits.findFirst(any, true);
+            if (first.isMatch()) {
+                const Vec3 firstHitPosition = first.target<Vec3>();
 
-                const Model::Hit::List hits = Model::hits(pickResult, any);
-                Model::Hit::List::const_iterator hIt, hEnd;
-                for (hIt = hits.begin(), hEnd = hits.end(); hIt != hEnd; ++hIt) {
-                    const Model::Hit& hit = *hIt;
+                const Hits::List matches = hits.filter(any);
+                Hits::List::const_iterator hIt, hEnd;
+                for (hIt = matches.begin(), hEnd = matches.end(); hIt != hEnd; ++hIt) {
+                    const Hit& hit = *hIt;
                     const Vec3 hitPosition = hit.target<Vec3>();
                     
                     if (hitPosition.distanceTo(firstHitPosition) < MaxVertexDistance) {

@@ -23,7 +23,7 @@
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
-#include "Model/HitFilters.h"
+#include "Model/HitAdapter.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "Renderer/Camera.h"
@@ -51,10 +51,10 @@ namespace TrenchBroom {
 
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const Model::PickResult::FirstHit firstHit = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->filter(), true);
-                if (firstHit.matches) {
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->filter(), true);
+                if (hit.isMatch()) {
                     m_orbit = true;
-                    m_orbitCenter = firstHit.hit.hitPoint();
+                    m_orbitCenter = hit.hitPoint();
                 }
                 return true;
             } else if (look(inputState)) {

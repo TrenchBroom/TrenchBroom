@@ -17,23 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Pickable_h
-#define TrenchBroom_Pickable_h
+#include "HitFilter.h"
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
+#include "Model/HitAdapter.h"
 
 namespace TrenchBroom {
-    class Hits;
-    namespace Model {
-        
-        class Pickable {
-        public:
-            virtual ~Pickable() {}
-            virtual const BBox3& bounds() const = 0;
-            virtual void pick(const Ray3& ray, Hits& hits) = 0;
-        };
+    HitFilter::~HitFilter() {}
+    
+    bool HitFilterChain::matches(const Hit& hit) const {
+        if (!m_filter->matches(hit))
+            return false;
+        return m_next->matches(hit);
+    }
+    
+    TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
+    m_typeMask(typeMask) {}
+    
+    bool TypedHitFilter::matches(const Hit& hit) const {
+        return (hit.type() & m_typeMask) != 0;
     }
 }
-
-#endif

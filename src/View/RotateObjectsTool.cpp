@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
 #include "Renderer/Camera.h"
@@ -40,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType RotateObjectsTool::HandleHit = Model::Hit::freeHitType();
+        const Hit::HitType RotateObjectsTool::HandleHit = Hit::freeHitType();
 
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         ToolImpl(document, controller),
@@ -64,22 +63,22 @@ namespace TrenchBroom {
             return true;
         }
         
-        void RotateObjectsTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void RotateObjectsTool::doPick(const InputState& inputState, Hits& hits) {
             updateHandleAxes(inputState);
             
             const RotateObjectsHandle::Hit hit = m_handle.pick(inputState.pickRay());
             if (hit.matches())
-                pickResult.addHit(Model::Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
+                hits.add(Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
         }
         
         bool RotateObjectsTool::doMouseDown(const InputState& inputState) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            return first.matches && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            return hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
         }
         
         bool RotateObjectsTool::doMouseUp(const InputState& inputState) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            return first.matches && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            return hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
         }
 
         void RotateObjectsTool::doMouseMove(const InputState& inputState) {
@@ -123,8 +122,8 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            if (dragging() || first.matches)
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            if (dragging() || hit.isMatch())
                 renderContext.setForceShowSelectionGuide();
         }
 
@@ -133,20 +132,21 @@ namespace TrenchBroom {
             
             m_handle.renderHandle(renderContext, highlightHandleArea(inputState));
             
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (m_helper != NULL)
                 m_helper->render(inputState, dragging(), renderContext);
-            else if (first.matches && first.hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter)
+            else if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter)
                 m_moveHelper.render(inputState, dragging(), renderContext);
         }
 
         RotateObjectsHandle::HitArea RotateObjectsTool::highlightHandleArea(const InputState& inputState) const {
             if (dragging() && m_helper == &m_moveHelper)
                 return RotateObjectsHandle::HACenter;
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            if (!first.matches)
+
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            if (!hit.isMatch())
                 return RotateObjectsHandle::HANone;
-            return first.hit.target<RotateObjectsHandle::HitArea>();
+            return hit.target<RotateObjectsHandle::HitArea>();
         }
 
         void RotateObjectsTool::resetHandlePosition() {
@@ -162,10 +162,10 @@ namespace TrenchBroom {
         }
 
         bool RotateObjectsTool::doHandleMove(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            if (!first.matches)
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            if (!hit.isMatch())
                 return false;
-            return first.hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter;
+            return hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter;
         }
         
         Vec3 RotateObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
@@ -190,16 +190,16 @@ namespace TrenchBroom {
         void RotateObjectsTool::doCancelMove(const InputState& inputState) {}
 
         bool RotateObjectsTool::doHandleRotate(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            if (!first.matches)
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            if (!hit.isMatch())
                 return false;
-            return first.hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HACenter;
+            return hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HACenter;
         }
         
         RotateInfo RotateObjectsTool::doGetRotateInfo(const InputState& inputState) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            assert(first.matches);
-            const RotateObjectsHandle::HitArea area = first.hit.target<RotateObjectsHandle::HitArea>();
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            assert(hit.isMatch());
+            const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
             assert(area != RotateObjectsHandle::HANone &&
                    area != RotateObjectsHandle::HACenter);
             
@@ -214,12 +214,11 @@ namespace TrenchBroom {
         bool RotateObjectsTool::doStartRotate(const InputState& inputState) {
             controller()->beginUndoableGroup(String("Rotate ") + String(document()->selectedObjects().size() == 1 ? "object" : "objects"));
 
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), HandleHit, true);
-            assert(first.matches);
-            const RotateObjectsHandle::HitArea area = first.hit.target<RotateObjectsHandle::HitArea>();
-            _unused(area);
-            assert(area != RotateObjectsHandle::HANone &&
-                   area != RotateObjectsHandle::HACenter);
+            const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            assert(hit.isMatch());
+            
+            assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HANone &&
+                   hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HACenter);
 
             return true;
         }

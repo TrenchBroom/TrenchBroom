@@ -21,7 +21,6 @@
 
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/Entity.h"
 #include "Model/ModelFilter.h"
 #include "Model/Object.h"
@@ -44,9 +43,9 @@ namespace TrenchBroom {
             const bool faces = inputState.modifierKeysDown(ModifierKeys::MKShift);
             
             if (faces) {
-                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document()->filter(), true);
-                if (first.matches) {
-                    Model::BrushFace* face = hitAsFace(first.hit);
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+                if (hit.isMatch()) {
+                    Model::BrushFace* face = Model::hitAsFace(hit);
                     if (multi) {
                         const bool objects = !document()->selectedObjects().empty();
                         if (objects) {
@@ -68,9 +67,9 @@ namespace TrenchBroom {
                     controller()->deselectAll();
                 }
             } else {
-                const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
-                if (first.matches) {
-                    Model::Object* object = hitAsObject(first.hit);
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+                if (hit.isMatch()) {
+                    Model::Object* object = Model::hitAsObject(hit);
                     if (multi) {
                         if (object->selected())
                             controller()->deselectObject(object);
@@ -106,8 +105,8 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
-            if (first.matches && hitAsObject(first.hit)->selected())
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
+            if (hit.isMatch() && Model::hitAsObject(hit)->selected())
                 renderContext.setShowSelectionGuide();
         }
     }

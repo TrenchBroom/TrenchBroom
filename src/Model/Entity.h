@@ -24,11 +24,11 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Allocator.h"
+#include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
-#include "Model/Picker.h"
 
 #include <vector>
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             EntitySnapshot takeSnapshot();
             
             const BBox3& bounds() const;
-            void pick(const Ray3& ray, PickResult& result);
+            void pick(const Ray3& ray, Hits& hits);
             
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);

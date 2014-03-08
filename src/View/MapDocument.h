@@ -25,6 +25,7 @@
 #include "Notifier.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Hit.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/TextureManager.h"
@@ -190,7 +191,7 @@ namespace TrenchBroom {
             
             void commitPendingRenderStateChanges();
 
-            Model::PickResult pick(const Ray3& ray);
+            Hits pick(const Ray3& ray);
             
             void saveBackup(const IO::Path& path);
         private:

@@ -19,7 +19,7 @@
 
 #include "TextureCoordSystemHelper.h"
 #include "Model/Brush.h"
-#include "Model/HitFilters.h"
+#include "Model/HitAdapter.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -60,8 +60,8 @@ namespace TrenchBroom {
                 return false;
             
             View::MapDocumentSPtr document = lock(m_document);
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), Model::Brush::BrushHit, document->filter(), true);
-            if (!first.matches)
+            const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+            if (!hit.isMatch())
                 return false;
             return false;
         }

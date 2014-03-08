@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "View/MoveTool.h"
 #include "View/Tool.h"
 #include "View/VertexHandleManager.h"
@@ -84,16 +85,16 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Hits& hits);
 
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
 
             bool dismissClick(const InputState& inputState) const;
-            void vertexHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
-            void edgeHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
-            void faceHandleClicked(const InputState& inputState, const Model::Hit::List& hits);
+            void vertexHandleClicked(const InputState& inputState, const Hits::List& hits);
+            void edgeHandleClicked(const InputState& inputState, const Hits::List& hits);
+            void faceHandleClicked(const InputState& inputState, const Hits::List& hits);
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
@@ -106,8 +107,8 @@ namespace TrenchBroom {
             void commandDoFailedOrUndone(Controller::Command::Ptr command);
 
             
-            Model::Hit firstHit(const Model::PickResult& pickResult) const;
-            Model::Hit::List firstHits(const Model::PickResult& pickResult) const;
+            const Hit& firstHit(const Hits& hits) const;
+            Hits::List firstHits(const Hits& hits) const;
         };
     }
 }

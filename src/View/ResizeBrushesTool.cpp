@@ -32,7 +32,6 @@
 #include "Model/FaceEdgesIterator.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitFilters.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
@@ -49,24 +48,24 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ResizeBrushesTool::ResizeHit = Model::Hit::freeHitType();
+        const Hit::HitType ResizeBrushesTool::ResizeHit = Hit::freeHitType();
 
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller) :
         ToolImpl(document, controller) {}
 
-        void ResizeBrushesTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ResizeBrushesTool::doPick(const InputState& inputState, Hits& hits) {
             if (!applies(inputState))
                 return;
             
             using namespace Model;
-            const PickResult::FirstHit first = pickResult.firstHit(chainHitFilters(TypedHitFilter(Brush::BrushHit),
-                                                                                   SelectionHitFilter(),
-                                                                                   DefaultHitFilter(document()->filter())), true);
+            const Hit& hit = inputState.hits().findFirst(chainHitFilter(TypedHitFilter(Brush::BrushHit),
+                                                                        SelectionHitFilter(),
+                                                                        DefaultHitFilter(document()->filter())), true);
 
-            if (first.matches)
-                pickResult.addHit(Hit(ResizeHit, first.hit.distance(), first.hit.hitPoint(), hitAsFace(first.hit)));
+            if (hit.isMatch())
+                hits.add(Hit(ResizeHit, hit.distance(), hit.hitPoint(), Model::hitAsFace(hit)));
             else
-                pickNearFaceHit(inputState, pickResult);
+                pickNearFaceHit(inputState, hits);
         }
 
         void ResizeBrushesTool::doModifierKeyChange(const InputState& inputState) {
@@ -83,11 +82,11 @@ namespace TrenchBroom {
             if (!applies(inputState))
                 return false;
 
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
-            if (!first.matches)
+            const Hit& hit = inputState.hits().findFirst(ResizeHit, true);
+            if (!hit.isMatch())
                 return false;
 
-            m_dragOrigin = first.hit.hitPoint();
+            m_dragOrigin = hit.hitPoint();
             m_totalDelta = Vec3::Null;
             updateDragFaces(inputState);
             m_splitBrushes = splitBrushes(inputState);
@@ -211,13 +210,13 @@ namespace TrenchBroom {
                 return m_closestFace != NULL;
             }
             
-            Model::Hit hit() const {
+            Hit hit() const {
                 assert(success());
-                return Model::Hit(ResizeBrushesTool::ResizeHit, m_hitDistance, m_pickRay.pointAtDistance(m_hitDistance), m_closestFace);
+                return Hit(ResizeBrushesTool::ResizeHit, m_hitDistance, m_pickRay.pointAtDistance(m_hitDistance), m_closestFace);
             }
         };
         
-        void ResizeBrushesTool::pickNearFaceHit(const InputState& inputState, Model::PickResult& pickResult) const {
+        void ResizeBrushesTool::pickNearFaceHit(const InputState& inputState, Hits& hits) const {
             const Model::BrushList& brushes = document()->selectedBrushes();
             
             Model::BrushEdgesIterator::OuterIterator begin = Model::BrushEdgesIterator::begin(brushes);
@@ -227,15 +226,15 @@ namespace TrenchBroom {
             Model::each(begin, end, findHit, Model::MatchAll());
             
             if (findHit.success())
-                pickResult.addHit(findHit.hit());
+                hits.add(findHit.hit());
         }
 
         void ResizeBrushesTool::updateDragFaces(const InputState& inputState) {
-            const Model::PickResult::FirstHit first = Model::firstHit(inputState.pickResult(), ResizeHit, true);
-            if (!first.matches)
+            const Hit& hit = inputState.hits().findFirst(ResizeHit, true);
+            if (!hit.isMatch())
                 m_dragFaces.clear();
             else
-                m_dragFaces = collectDragFaces(*first.hit.target<Model::BrushFace*>());
+                m_dragFaces = collectDragFaces(*Model::hitAsFace(hit));
         }
 
         struct CollectDragFaces {

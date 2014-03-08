@@ -20,6 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Hit.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
@@ -108,7 +109,7 @@ namespace TrenchBroom {
             return m_geometry->bounds;
         }
 
-        void Brush::pick(const Ray3& ray, PickResult& result) {
+        void Brush::pick(const Ray3& ray, Hits& hits) {
             if (Math::isnan(bounds().intersectWithRay(ray)))
                 return;
             
@@ -118,8 +119,7 @@ namespace TrenchBroom {
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    Hit hit(BrushHit, distance, hitPoint, face);
-                    result.addHit(hit);
+                    hits.add(Hit(BrushHit, distance, hitPoint, face));
                     break;
                 }
             }
