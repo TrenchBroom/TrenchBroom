@@ -31,6 +31,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class TextureFont;
     }
     
@@ -39,12 +40,13 @@ namespace TrenchBroom {
         private:
             static const Hit::HitType HandleHit;
 
+            const Renderer::Camera& m_camera;
             RotateObjectsHandle m_handle;
             PlaneDragHelper* m_helper;
             MoveHelper m_moveHelper;
             RotateHelper m_rotateHelper;
         public:
-            RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
+            RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);

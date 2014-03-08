@@ -17,40 +17,40 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapViewDropTarget.h"
+#include "ToolBoxDropTarget.h"
 #include "View/DragAndDrop.h"
-#include "View/MapView.h"
+#include "View/ToolBox.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        MapViewDropTarget::MapViewDropTarget(MapView* view) :
+        ToolBoxDropTarget::ToolBoxDropTarget(ToolBox& toolBox) :
         wxTextDropTarget(),
-        m_view(view) {}
+        m_toolBox(toolBox) {}
         
-        wxDragResult MapViewDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_view->dragEnter(x, y, getDragText()))
+        wxDragResult ToolBoxDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
+            if (m_toolBox.dragEnter(x, y, getDragText()))
                 return wxTextDropTarget::OnEnter(x, y, wxDragCopy);
             return wxTextDropTarget::OnEnter(x, y, wxDragNone);
         }
         
-        wxDragResult MapViewDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_view->dragMove(x, y, getDragText()))
+        wxDragResult ToolBoxDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
+            if (m_toolBox.dragMove(x, y, getDragText()))
                 return wxTextDropTarget::OnDragOver(x, y, wxDragCopy);
             return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
         }
         
-        void MapViewDropTarget::OnLeave() {
-            m_view->dragLeave();
+        void ToolBoxDropTarget::OnLeave() {
+            m_toolBox.dragLeave();
             wxTextDropTarget::OnLeave();
         }
         
-        bool MapViewDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
-            return m_view->dragDrop(x, y, data.ToStdString());
+        bool ToolBoxDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
+            return m_toolBox.dragDrop(x, y, data.ToStdString());
         }
 
-        String MapViewDropTarget::getDragText() const {
+        String ToolBoxDropTarget::getDragText() const {
             wxDropSource* currentDropSource = DropSource::getCurrentDropSource();
             assert(currentDropSource != NULL);
             const wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(currentDropSource->GetDataObject());

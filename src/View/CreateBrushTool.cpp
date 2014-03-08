@@ -41,8 +41,9 @@ namespace TrenchBroom {
             bool operator()(const Model::BrushEdge* edge) const { return true; }
         };
         
-        CreateBrushTool::CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font) :
+        CreateBrushTool::CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::TextureFont& font) :
         ToolImpl(document, controller),
+        m_camera(camera),
         m_brushRenderer(RendererFilter()),
         m_guideRenderer(font),
         m_brush(NULL) {}
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             if (hit.isMatch())
                 initialPoint = hit.hitPoint();
             else
-                initialPoint = inputState.camera().defaultPoint(inputState.pickRay());
+                initialPoint = m_camera.defaultPoint(inputState.pickRay());
 
             plane = Plane3(initialPoint, Vec3::PosZ);
             m_initialPoint = initialPoint;

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewDropTarget__
-#define __TrenchBroom__MapViewDropTarget__
+#ifndef __TrenchBroom__ToolBoxDropTarget__
+#define __TrenchBroom__ToolBoxDropTarget__
 
 #include "StringUtils.h"
 
@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class MapView;
+        class ToolBox;
         
-        class MapViewDropTarget : public wxTextDropTarget {
+        class ToolBoxDropTarget : public wxTextDropTarget {
         private:
-            MapView* m_view;
+            ToolBox& m_toolBox;
         public:
-            MapViewDropTarget(MapView* view);
+            ToolBoxDropTarget(ToolBox& toolBox);
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
@@ -44,4 +44,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewDropTarget__) */
+#endif /* defined(__TrenchBroom__ToolBoxDropTarget__) */

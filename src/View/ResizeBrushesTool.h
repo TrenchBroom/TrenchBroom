@@ -28,19 +28,21 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class EdgeRenderer;
     }
     
     namespace View {
         class ResizeBrushesTool : public ToolImpl<NoActivationPolicy, PickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
+            const Renderer::Camera& m_camera;
             Model::BrushFaceList m_dragFaces;
             Vec3 m_totalDelta;
             Vec3 m_dragOrigin;
             bool m_splitBrushes;
         public:
             static const Hit::HitType ResizeHit;
-            ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller);
+            ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 

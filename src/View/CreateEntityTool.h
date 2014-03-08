@@ -31,16 +31,18 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class FontManager;
     }
     
     namespace View {
         class CreateEntityTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, RenderPolicy> {
         private:
+            const Renderer::Camera& m_camera;
             Renderer::EntityRenderer m_renderer;
             Model::Entity* m_entity;
         public:
-            CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::FontManager& fontManager);
+            CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::FontManager& fontManager);
         private:
             bool doDragEnter(const InputState& inputState, const String& payload);
             bool doDragMove(const InputState& inputState);

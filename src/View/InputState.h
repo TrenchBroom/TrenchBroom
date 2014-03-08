@@ -25,10 +25,6 @@
 #include "Hit.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-    
     namespace View {
         typedef unsigned int ModifierKeyState;
         namespace ModifierKeys {
@@ -61,11 +57,9 @@ namespace TrenchBroom {
             
             Ray3 m_pickRay;
             Hits m_hits;
-
-            const Renderer::Camera& m_camera;
         public:
-            InputState(const Renderer::Camera& camera);
-            InputState(const Renderer::Camera& camera, const int mouseX, const int mouseY);
+            InputState();
+            InputState(const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -97,8 +91,6 @@ namespace TrenchBroom {
 
             const Hits& hits() const;
             void setHits(const Hits& hits);
-
-            const Renderer::Camera& camera() const;
         };
     }
 }

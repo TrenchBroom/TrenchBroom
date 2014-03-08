@@ -17,34 +17,45 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolView__
-#define __TrenchBroom__ToolView__
+#ifndef __TrenchBroom__ToolBox__
+#define __TrenchBroom__ToolBox__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "StringUtils.h"
 #include "Hit.h"
-#include "Renderer/GL.h"
 #include "View/InputState.h"
 
-#include <wx/glcanvas.h>
+#include <wx/wx.h>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
         class RenderContext;
     }
-
+    
     namespace View {
-        class AnimationManager;
         class Tool;
         
-        class ToolView : public wxGLCanvas {
+        class ToolBoxHelper {
         public:
-            typedef std::vector<int> GLAttribs;
-        protected:
-            Renderer::Camera& m_camera;
-            InputState m_inputState;
+            virtual ~ToolBoxHelper();
+            
+            Ray3 pickRay(int x, int y) const;
+            Hits pick(const Ray3& pickRay) const;
+            
+            void showPopupMenu();
         private:
-            wxGLContext* m_glContext;
-            bool m_initialized;
+            virtual Ray3 doGetPickRay(int x, int y) const = 0;
+            virtual Hits doPick(const Ray3& pickRay) const = 0;
+            virtual void doShowPopupMenu();
+        };
+        
+        class ToolBox {
+        private:
+            wxWindow* m_window;
+            ToolBoxHelper* m_helper;
+            
+            InputState m_inputState;
 
             Tool* m_toolChain;
             Tool* m_dragReceiver;
@@ -55,19 +66,22 @@ namespace TrenchBroom {
             wxPoint m_clickPos;
             bool m_ignoreNextDrag;
             bool m_ignoreNextClick;
-            wxDateTime m_lastFrameActivation;
-
-            AnimationManager* m_animationManager;
-        protected:
-            ToolView(wxWindow* parent, Renderer::Camera& camera, const GLAttribs& attribs, const wxGLContext* sharedContext = NULL);
+            wxDateTime m_lastActivation;
         public:
-            virtual ~ToolView();
+            ToolBox(wxWindow* window, ToolBoxHelper* helper);
+            ~ToolBox();
             
+            const Ray3& pickRay() const;
+            const Hits& hits() const;
+            
+            void updateHits();
+            void updateLastActivation();
+
             bool dragEnter(wxCoord x, wxCoord y, const String& text);
             bool dragMove(wxCoord x, wxCoord y, const String& text);
             void dragLeave();
             bool dragDrop(wxCoord x, wxCoord y, const String& text);
-            
+
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseDoubleClick(wxMouseEvent& event);
@@ -76,52 +90,30 @@ namespace TrenchBroom {
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
-            void OnActivateFrame(wxActivateEvent& event);
             
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
-
-            const wxGLContext* glContext() const;
-        
-            bool anyToolActive() const;
-        protected:
             void addTool(Tool* tool);
+            
+            bool anyToolActive() const;
             bool toolActive(const Tool* tool) const;
             void toggleTool(Tool* tool);
             void deactivateAllTools();
-            void cancelCurrentDrag();
-            
+
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext);
-
-            void updateHits();
-
-            void resetCamera();
-        public:
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
         private:
-            void bindEvents();
+            void cancelDrag();
 
-            void initializeGL();
-            void updateViewport();
-            void render();
-            
             ModifierKeyState modifierKeys();
             bool updateModifierKeys();
             bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
             
             void showPopupMenu();
-        private:
-            virtual void doInitializeGL();
-            virtual void doUpdateViewport(int x, int y, int width, int height) = 0;
-            virtual void doRender() = 0;
-            virtual void doShowPopupMenu();
-            
-            virtual void doResetCamera() = 0;
-            virtual Hits doGetHits(const Ray3d& pickRay) const;
+
+            void bindEvents();
+            void unbindEvents();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolView__) */
+#endif /* defined(__TrenchBroom__ToolBox__) */

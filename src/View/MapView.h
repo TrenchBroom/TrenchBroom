@@ -26,12 +26,15 @@
 #include "Color.h"
 #include "Notifier.h"
 #include "Assets/AssetTypes.h"
+#include "Controller/Command.h"
 #include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
-#include "View/BaseMapView.h"
+#include "View/MovementRestriction.h"
+#include "View/RenderView.h"
+#include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -65,18 +68,17 @@ namespace TrenchBroom {
         class TextureTool;
         class VertexTool;
         
-        class MapView : public BaseMapView {
+        class MapView : public RenderView, public ToolBoxHelper {
         private:
             Logger* m_logger;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+            Renderer::Camera& m_camera;
             
-            Renderer::Vbo m_auxVbo;
-            Color m_focusColor;
+            MovementRestriction m_movementRestriction;
+            AnimationManager* m_animationManager;
             
-            Renderer::RenderResources m_renderResources;
-            Renderer::MapRenderer m_renderer;
-            Renderer::Compass m_compass;
-            Renderer::BoundsGuideRenderer m_selectionGuide;
-            
+            ToolBox m_toolBox;
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
@@ -87,6 +89,14 @@ namespace TrenchBroom {
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
+
+            Renderer::Vbo m_auxVbo;
+            Color m_focusColor;
+            
+            Renderer::RenderResources m_renderResources;
+            Renderer::MapRenderer m_renderer;
+            Renderer::Compass m_compass;
+            Renderer::BoundsGuideRenderer m_selectionGuide;
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
@@ -94,7 +104,11 @@ namespace TrenchBroom {
             Renderer::RenderResources& renderResources();
             
             void centerCameraOnSelection();
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
 
+            void toggleMovementRestriction();
+
+            bool anyToolActive() const;
             void toggleClipTool();
             bool clipToolActive() const;
             bool canToggleClipSide() const;
@@ -124,6 +138,9 @@ namespace TrenchBroom {
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
 
+            void OnKey(wxKeyEvent& event);
+
+            void OnActivateFrame(wxActivateEvent& event);
             void OnPopupReparentBrushes(wxCommandEvent& event);
             void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
             void OnPopupCreatePointEntity(wxCommandEvent& event);
@@ -142,16 +159,25 @@ namespace TrenchBroom {
             Vec3 moveDirection(Math::Direction direction) const;
             Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
             
+            void resetCamera();
+
             void bindObservers();
             void unbindObservers();
             
+            void documentWasNewedOrLoaded();
+            void objectWasAddedOrRemoved(Model::Object* object);
             void objectDidChange(Model::Object* object);
+            void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
+            void commandDoneOrUndone(Controller::Command::Ptr command);
+            void modsDidChange();
+            void preferenceDidChange(const IO::Path& path);
+            void cameraDidChange(const Renderer::Camera* camera);
             
             void createTools();
             void deleteTools();
 
-            void doResetCamera();
+            void doUpdateViewport(int x, int y, int width, int height);
             void doInitializeGL();
 
             void doRender();
@@ -164,6 +190,8 @@ namespace TrenchBroom {
             void renderCompass(Renderer::RenderContext& context);
             void renderFocusRect(Renderer::RenderContext& context);
             
+            Ray3 doGetPickRay(int x, int y) const;
+            Hits doPick(const Ray3& pickRay) const;
             void doShowPopupMenu();
             wxMenu* makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id);
 

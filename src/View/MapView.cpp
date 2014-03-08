@@ -44,7 +44,7 @@
 #include "View/CreateBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/MapDocument.h"
-#include "View/MapViewDropTarget.h"
+#include "View/ToolBoxDropTarget.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
@@ -60,13 +60,13 @@
 namespace TrenchBroom {
     namespace View {
         MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
-        BaseMapView(parent, document, controller, camera, attribs()),
+        RenderView(parent, attribs()),
         m_logger(logger),
-        m_auxVbo(0xFFF),
-        m_renderResources(attribs(), glContext()),
-        m_renderer(document, m_renderResources.fontManager()),
-        m_compass(),
-        m_selectionGuide(defaultFont(m_renderResources)),
+        m_document(document),
+        m_controller(controller),
+        m_camera(camera),
+        m_animationManager(new AnimationManager()),
+        m_toolBox(this, this),
         m_cameraTool(NULL),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
@@ -76,7 +76,12 @@ namespace TrenchBroom {
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
-        m_textureTool(NULL)  {
+        m_textureTool(NULL),
+        m_auxVbo(0xFFF),
+        m_renderResources(attribs(), glContext()),
+        m_renderer(document, m_renderResources.fontManager()),
+        m_compass(),
+        m_selectionGuide(defaultFont(m_renderResources)) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             const float r = static_cast<float>(color.Red()) / 0xFF;
             const float g = static_cast<float>(color.Green()) / 0xFF;
@@ -88,12 +93,14 @@ namespace TrenchBroom {
             bindEvents();
             bindObservers();
             
-            SetDropTarget(new MapViewDropTarget(this));
+            SetDropTarget(new ToolBoxDropTarget(m_toolBox));
         }
         
         MapView::~MapView() {
             unbindObservers();
             deleteTools();
+            m_animationManager->Delete();
+            m_animationManager = NULL;
             m_logger = NULL;
         }
 
@@ -111,12 +118,26 @@ namespace TrenchBroom {
             animateCamera(newPosition, m_camera.direction(), m_camera.up(), 150);
         }
 
+        void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
+            m_animationManager->runAnimation(animation, true);
+        }
+
+        void MapView::toggleMovementRestriction() {
+            m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            Refresh();
+        }
+
+        bool MapView::anyToolActive() const {
+            return m_toolBox.anyToolActive();
+        }
+
         void MapView::toggleClipTool() {
-            toggleTool(m_clipTool);
+            m_toolBox.toggleTool(m_clipTool);
         }
         
         bool MapView::clipToolActive() const {
-            return toolActive(m_clipTool);
+            return m_toolBox.toolActive(m_clipTool);
         }
 
         bool MapView::canToggleClipSide() const {
@@ -153,19 +174,19 @@ namespace TrenchBroom {
         }
 
         void MapView::toggleRotateObjectsTool() {
-            toggleTool(m_rotateObjectsTool);
+            m_toolBox.toggleTool(m_rotateObjectsTool);
         }
         
         bool MapView::rotateObjectsToolActive() const {
-            return toolActive(m_rotateObjectsTool);
+            return m_toolBox.toolActive(m_rotateObjectsTool);
         }
 
         void MapView::toggleVertexTool() {
-            toggleTool(m_vertexTool);
+            m_toolBox.toggleTool(m_vertexTool);
         }
         
         bool MapView::vertexToolActive() const {
-            return toolActive(m_vertexTool);
+            return m_toolBox.toolActive(m_vertexTool);
         }
         
         bool MapView::hasSelectedVertices() const {
@@ -182,11 +203,11 @@ namespace TrenchBroom {
         }
 
         void MapView::toggleTextureTool() {
-            toggleTool(m_textureTool);
+            m_toolBox.toggleTool(m_textureTool);
         }
         
         bool MapView::textureToolActive() const {
-            return toolActive(m_textureTool);
+            return m_toolBox.toolActive(m_textureTool);
         }
 
         void MapView::moveObjects(const Math::Direction direction) {
@@ -290,6 +311,16 @@ namespace TrenchBroom {
             }
         }
 
+        void MapView::OnKey(wxKeyEvent& event) {
+            m_movementRestriction.setVerticalRestriction(event.AltDown());
+            event.Skip();
+        }
+
+        void MapView::OnActivateFrame(wxActivateEvent& event) {
+            m_toolBox.updateLastActivation();
+            event.Skip();
+        }
+
         void MapView::OnPopupReparentBrushes(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushList& brushes = document->selectedBrushes();
@@ -376,7 +407,7 @@ namespace TrenchBroom {
             Model::Entity* newParent = NULL;
 
             MapDocumentSPtr document = lock(m_document);
-            const Hit& hit = Model::findFirstHit(m_inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
+            const Hit& hit = Model::findFirstHit(m_toolBox.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
             if (hit.isMatch()) {
                 if (hit.type() == Model::Entity::EntityHit) {
                     newParent = Model::hitAsEntity(hit);
@@ -444,11 +475,11 @@ namespace TrenchBroom {
             Vec3 delta;
             View::Grid& grid = document->grid();
             
-            const Hit& hit = Model::findFirstHit(m_inputState.hits(), Model::Brush::BrushHit, document->filter(), true);
+            const Hit& hit = Model::findFirstHit(m_toolBox.hits(), Model::Brush::BrushHit, document->filter(), true);
             if (hit.isMatch()) {
-                delta = grid.moveDeltaForBounds(Model::hitAsFace(hit), definition.bounds(), document->worldBounds(), m_inputState.pickRay(), hit.hitPoint());
+                delta = grid.moveDeltaForBounds(Model::hitAsFace(hit), definition.bounds(), document->worldBounds(), m_toolBox.pickRay(), hit.hitPoint());
             } else {
-                const Vec3 newPosition(m_camera.defaultPoint(m_inputState.pickRay()));
+                const Vec3 newPosition(m_camera.defaultPoint(m_toolBox.pickRay()));
                 delta = grid.moveDeltaForPoint(definition.bounds().center(), document->worldBounds(), newPosition - definition.bounds().center());
             }
             
@@ -605,18 +636,65 @@ namespace TrenchBroom {
             controller->closeGroup();
         }
 
+        void MapView::resetCamera() {
+            m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
+            m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+        }
+
         void MapView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &MapView::documentWasNewedOrLoaded);
+            document->objectWasAddedNotifier.addObserver(this, &MapView::objectWasAddedOrRemoved);
+            document->objectWasRemovedNotifier.addObserver(this, &MapView::objectWasAddedOrRemoved);
             document->objectDidChangeNotifier.addObserver(this, &MapView::objectDidChange);
+            document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+            document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+
+            ControllerSPtr controller = lock(m_controller);
+            controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
+            controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapView::preferenceDidChange);
+            
+            m_camera.cameraDidChangeNotifier.addObserver(this, &MapView::cameraDidChange);
         }
         
         void MapView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &MapView::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapView::documentWasNewedOrLoaded);
+                document->objectWasAddedNotifier.removeObserver(this, &MapView::objectWasAddedOrRemoved);
+                document->objectWasRemovedNotifier.removeObserver(this, &MapView::objectWasAddedOrRemoved);
                 document->objectDidChangeNotifier.removeObserver(this, &MapView::objectDidChange);
+                document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
+                document->modsDidChangeNotifier.removeObserver(this, &MapView::modsDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
             }
+            
+            if (!expired(m_controller)) {
+                ControllerSPtr controller = lock(m_controller);
+                controller->commandDoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+                controller->commandUndoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
+            }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView::preferenceDidChange);
+            
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
+        }
+
+        void MapView::documentWasNewedOrLoaded() {
+            resetCamera();
+        }
+        
+        void MapView::objectWasAddedOrRemoved(Model::Object* object) {
+            Refresh();
         }
 
         void MapView::objectDidChange(Model::Object* object) {
@@ -625,10 +703,32 @@ namespace TrenchBroom {
                 m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
         }
         
+        void MapView::faceDidChange(Model::BrushFace* face) {
+            Refresh();
+        }
+        
         void MapView::selectionDidChange(const Model::SelectionResult& result) {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
                 m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
+            Refresh();
+        }
+        
+        void MapView::modsDidChange() {
+            Refresh();
+        }
+        
+        void MapView::commandDoneOrUndone(Controller::Command::Ptr command) {
+            m_toolBox.updateHits();
+            Refresh();
+        }
+        
+        void MapView::preferenceDidChange(const IO::Path& path) {
+            Refresh();
+        }
+        
+        void MapView::cameraDidChange(const Renderer::Camera* camera) {
+            Refresh();
         }
 
         void MapView::createTools() {
@@ -636,25 +736,25 @@ namespace TrenchBroom {
 
             m_cameraTool = new CameraTool(m_document, m_controller, m_camera);
             m_clipTool = new ClipTool(m_document, m_controller, m_camera);
-            m_createBrushTool = new CreateBrushTool(m_document, m_controller, font);
-            m_createEntityTool = new CreateEntityTool(m_document, m_controller, m_renderResources.fontManager());
+            m_createBrushTool = new CreateBrushTool(m_document, m_controller, m_camera, font);
+            m_createEntityTool = new CreateEntityTool(m_document, m_controller, m_camera, m_renderResources.fontManager());
             m_moveObjectsTool = new MoveObjectsTool(m_document, m_controller, m_movementRestriction);
-            m_resizeBrushesTool = new ResizeBrushesTool(m_document, m_controller);
-            m_rotateObjectsTool = new RotateObjectsTool(m_document, m_controller, m_movementRestriction, font);
+            m_resizeBrushesTool = new ResizeBrushesTool(m_document, m_controller, m_camera);
+            m_rotateObjectsTool = new RotateObjectsTool(m_document, m_controller, m_camera, m_movementRestriction, font);
             m_selectionTool = new SelectionTool(m_document, m_controller);
             m_textureTool = new TextureTool(m_document, m_controller);
             m_vertexTool = new VertexTool(m_document, m_controller, m_movementRestriction, font);
             
-            addTool(m_cameraTool);
-            addTool(m_textureTool);
-            addTool(m_clipTool);
-            addTool(m_rotateObjectsTool);
-            addTool(m_vertexTool);
-            addTool(m_createEntityTool);
-            addTool(m_createBrushTool);
-            addTool(m_moveObjectsTool);
-            addTool(m_resizeBrushesTool);
-            addTool(m_selectionTool);
+            m_toolBox.addTool(m_cameraTool);
+            m_toolBox.addTool(m_textureTool);
+            m_toolBox.addTool(m_clipTool);
+            m_toolBox.addTool(m_rotateObjectsTool);
+            m_toolBox.addTool(m_vertexTool);
+            m_toolBox.addTool(m_createEntityTool);
+            m_toolBox.addTool(m_createBrushTool);
+            m_toolBox.addTool(m_moveObjectsTool);
+            m_toolBox.addTool(m_resizeBrushesTool);
+            m_toolBox.addTool(m_selectionTool);
         }
         
         void MapView::deleteTools() {
@@ -680,9 +780,9 @@ namespace TrenchBroom {
             m_vertexTool = NULL;
         }
 
-        void MapView::doResetCamera() {
-            m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
-            m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+        void MapView::doUpdateViewport(int x, int y, int width, int height) {
+            const Renderer::Camera::Viewport viewport(x, y, width, height);
+            m_camera.setViewport(viewport);
         }
         
         void MapView::doInitializeGL() {
@@ -714,11 +814,11 @@ namespace TrenchBroom {
                 const View::Grid& grid = document->grid();
                 Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                 setupGL(context);
-                setRenderOptions(context);
+                m_toolBox.setRenderOptions(context);
                 clearBackground(context);
                 renderMap(context);
                 renderSelectionGuide(context);
-                renderTools(context);
+                m_toolBox.renderTools(context);
                 renderCoordinateSystem(context);
                 renderCompass(context);
                 renderFocusRect(context);
@@ -842,6 +942,15 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
         
+        Ray3 MapView::doGetPickRay(const int x, const int y) const {
+            return m_camera.pickRay(x, y);
+        }
+        
+        Hits MapView::doPick(const Ray3& pickRay) const {
+            MapDocumentSPtr document = lock(m_document);
+            return document->pick(pickRay);
+        }
+
         void MapView::doShowPopupMenu() {
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
@@ -883,6 +992,9 @@ namespace TrenchBroom {
         }
 
         void MapView::bindEvents() {
+            Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreatePointEntity, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);

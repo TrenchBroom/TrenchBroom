@@ -33,6 +33,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class BrushRenderer;
         class RenderContext;
         class TextureFont;
@@ -41,12 +42,13 @@ namespace TrenchBroom {
     namespace View {
         class CreateBrushTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
+            const Renderer::Camera& m_camera;
             Vec3 m_initialPoint;
             Renderer::BrushRenderer m_brushRenderer;
             Renderer::BoundsGuideRenderer m_guideRenderer;
             Model::Brush* m_brush;
         public:
-            CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::TextureFont& font);
+            CreateBrushTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::TextureFont& font);
         private:
             void doModifierKeyChange(const InputState& inputState);
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);

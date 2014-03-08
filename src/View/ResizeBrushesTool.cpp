@@ -50,8 +50,9 @@ namespace TrenchBroom {
     namespace View {
         const Hit::HitType ResizeBrushesTool::ResizeHit = Hit::freeHitType();
 
-        ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller) :
-        ToolImpl(document, controller) {}
+        ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera) :
+        ToolImpl(document, controller),
+        m_camera(camera) {}
 
         void ResizeBrushesTool::doPick(const InputState& inputState, Hits& hits) {
             if (!applies(inputState))
@@ -98,7 +99,7 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::doMouseDrag(const InputState& inputState) {
             assert(!m_dragFaces.empty());
             
-            const Plane3 dragPlane = orthogonalDragPlane(m_dragOrigin, Vec3(inputState.camera().direction()));
+            const Plane3 dragPlane = orthogonalDragPlane(m_dragOrigin, Vec3(m_camera.direction()));
             
             Model::BrushFace& dragFace = *m_dragFaces.front();
             const Vec3& faceNormal3D = dragFace.boundary().normal;

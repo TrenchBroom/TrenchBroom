@@ -39,8 +39,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateEntityTool::CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::FontManager& fontManager) :
+        CreateEntityTool::CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::FontManager& fontManager) :
         ToolImpl(document, controller),
+        m_camera(camera),
         m_renderer(lock(document)->entityModelManager(), fontManager, lock(document)->filter()),
         m_entity(NULL) {}
 
@@ -117,7 +118,7 @@ namespace TrenchBroom {
                 const Model::BrushFace* face = Model::hitAsFace(hit);
                 delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document()->worldBounds(), inputState.pickRay(), hit.hitPoint());
             } else {
-                const Vec3 newPosition(inputState.camera().defaultPoint(inputState.pickRay()));
+                const Vec3 newPosition(m_camera.defaultPoint(inputState.pickRay()));
                 const Vec3 center = m_entity->bounds().center();
                 delta = grid.moveDeltaForPoint(center, document()->worldBounds(), newPosition - center);
             }
