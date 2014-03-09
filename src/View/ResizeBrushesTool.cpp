@@ -235,7 +235,7 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 m_dragFaces.clear();
             else
-                m_dragFaces = collectDragFaces(*Model::hitAsFace(hit));
+                m_dragFaces = collectDragFaces(*hit.target<Model::BrushFace*>());
         }
 
         struct CollectDragFaces {
