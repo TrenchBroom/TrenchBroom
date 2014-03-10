@@ -21,6 +21,7 @@
 
 #include <algorithm>
 
+#include "Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Picker.h"
@@ -121,18 +122,18 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             
-            PickResult pickResult1;
-            brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::PosY), pickResult1);
-            ASSERT_EQ(1u, pickResult1.allHits().size());
+            Hits hits1;
+            brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::PosY), hits1);
+            ASSERT_EQ(1u, hits1.size());
             
-            Hit hit1 = pickResult1.allHits().front();
+            Hit hit1 = hits1.all().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
             BrushFace* face1 = hit1.target<BrushFace*>();
             ASSERT_EQ(front, face1);
             
-            PickResult pickResult2;
-            brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::NegY), pickResult2);
-            ASSERT_TRUE(pickResult2.allHits().empty());
+            Hits hits2;
+            brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::NegY), hits2);
+            ASSERT_TRUE(hits2.empty());
         }
         
         TEST(BrushTest, partialSelectionAfterAdd) {

@@ -32,7 +32,7 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SpinControl.h"
-#include "View/TextureView.h"
+#include "View/TexturingView.h"
 #include "View/ViewUtils.h"
 
 #include <wx/bitmap.h>
@@ -47,12 +47,13 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
-        m_textureView(NULL),
-        m_textureNameLabel(NULL),
+        m_texturingView(NULL),
         m_xOffsetEditor(NULL),
         m_yOffsetEditor(NULL),
         m_xScaleEditor(NULL),
+        m_flipXButton(NULL),
         m_yScaleEditor(NULL),
+        m_flipYButton(NULL),
         m_rotationEditor(NULL),
         m_surfaceValueLabel(NULL),
         m_surfaceValueEditor(NULL),
@@ -141,9 +142,7 @@ namespace TrenchBroom {
             const wxBitmap flipXBitmap = IO::loadImageResource(IO::Path("images/InvertLR.png"));
             const wxBitmap flipYBitmap = IO::loadImageResource(IO::Path("images/InvertUD.png"));
 
-            wxPanel* textureViewPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER);
-            m_textureView = new TextureView(textureViewPanel, wxID_ANY, resources);
-            m_textureNameLabel = new wxStaticText(textureViewPanel, wxID_ANY, "n/a");
+            m_texturingView = new TexturingView(this, resources);
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
@@ -184,20 +183,8 @@ namespace TrenchBroom {
             m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
             
-            wxSizer* textureLabelSizer = new wxBoxSizer(wxHORIZONTAL);
-            textureLabelSizer->AddStretchSpacer();
-            textureLabelSizer->Add(m_textureNameLabel);
-            textureLabelSizer->AddStretchSpacer();
-            
-            wxSizer* texturePanelSizer = new wxBoxSizer(wxVERTICAL);
-            texturePanelSizer->Add(m_textureView, 1, wxEXPAND);
-            texturePanelSizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
-            texturePanelSizer->Add(textureLabelSizer, 0, wxEXPAND);
-            texturePanelSizer->SetItemMinSize(m_textureView, 128, 128);
-            textureViewPanel->SetSizer(texturePanelSizer);
-            
             m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::ControlVerticalMargin);
-            m_faceAttribsSizer->Add(textureViewPanel,                             wxGBPosition(0,0), wxGBSpan(1, 6), wxEXPAND);
+            m_faceAttribsSizer->Add(m_texturingView,                              wxGBPosition(0,0), wxGBSpan(1, 6), wxEXPAND);
             
             m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Offset"), wxGBPosition(1,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
             m_faceAttribsSizer->Add(m_xOffsetEditor,                              wxGBPosition(1,1), wxDefaultSpan, wxEXPAND);
@@ -224,6 +211,7 @@ namespace TrenchBroom {
             
             m_faceAttribsSizer->AddGrowableCol(1);
             m_faceAttribsSizer->AddGrowableCol(4);
+            m_faceAttribsSizer->SetItemMinSize(m_texturingView, 160, 160);
             m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
@@ -370,11 +358,9 @@ namespace TrenchBroom {
                 m_contentFlagsEditor->Enable();
                 
                 if (textureMulti) {
-                    m_textureView->setTexture(NULL);
-                    m_textureNameLabel->SetLabel("multi");
+                    // m_textureView->setTexture(NULL);
                 } else {
-                    m_textureView->setTexture(texture);
-                    m_textureNameLabel->SetLabel(textureName.empty() ? "n/a" : textureName);
+                    // m_textureView->setTexture(texture);
                 }
                 if (xOffsetMulti) {
                     m_xOffsetEditor->SetHint("multi");
@@ -435,8 +421,7 @@ namespace TrenchBroom {
                 m_rotationEditor->Disable();
                 m_surfaceValueEditor->SetValue("n/a");
                 m_surfaceValueEditor->Disable();
-                m_textureView->setTexture(NULL);
-                m_textureNameLabel->SetLabel("n/a");
+                // m_textureView->setTexture(NULL);
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
             }

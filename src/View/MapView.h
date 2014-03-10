@@ -90,9 +90,6 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
 
-            Renderer::Vbo m_auxVbo;
-            Color m_focusColor;
-            
             Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
@@ -182,13 +179,11 @@ namespace TrenchBroom {
 
             void doRender();
             void setupGL(Renderer::RenderContext& context);
-            void clearBackground(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);
             void renderSelectionGuide(Renderer::RenderContext& context);
             void renderCompass(Renderer::RenderContext& context);
-            void renderFocusRect(Renderer::RenderContext& context);
             
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;

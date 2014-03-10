@@ -56,6 +56,14 @@ namespace TrenchBroom {
         return m_hitPoint;
     }
 
+    bool Hits::empty() const {
+        return m_hits.empty();
+    }
+    
+    size_t Hits::size() const {
+        return m_hits.size();
+    }
+
     void Hits::add(const Hit& hit) {
         List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit);
         m_hits.insert(pos, hit);
@@ -95,6 +103,10 @@ namespace TrenchBroom {
         return Hit::NoHit;
     }
     
+    const Hits::List& Hits::all() const {
+        return m_hits;
+    }
+
     Hits::List Hits::filter(const Hit::HitType type) const {
         return filter(TypedHitFilter(type));
     }

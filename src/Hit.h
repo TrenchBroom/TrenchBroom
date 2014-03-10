@@ -74,11 +74,15 @@ namespace TrenchBroom {
     private:
         List m_hits;
     public:
+        bool empty() const;
+        size_t size() const;
+        
         void add(const Hit& hit);
         
         const Hit& findFirst(Hit::HitType type, bool ignoreOccluders) const;
         const Hit& findFirst(const HitFilter& filter, bool ignoreOccluders) const;
 
+        const List& all() const;
         List filter(Hit::HitType type) const;
         List filter(const HitFilter& filter) const;
     };

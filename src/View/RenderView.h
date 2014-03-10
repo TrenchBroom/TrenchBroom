@@ -20,8 +20,10 @@
 #ifndef __TrenchBroom__RenderView__
 #define __TrenchBroom__RenderView__
 
+#include "Color.h"
 #include "Hit.h"
 #include "Renderer/GL.h"
+#include "Renderer/Vbo.h"
 
 #include <wx/glcanvas.h>
 
@@ -38,6 +40,9 @@ namespace TrenchBroom {
         private:
             wxGLContext* m_glContext;
             bool m_initialized;
+            Color m_focusColor;
+        protected:
+            Renderer::Vbo m_vbo;
         protected:
             RenderView(wxWindow* parent, const GLAttribs& attribs, const wxGLContext* sharedContext = NULL);
         public:
@@ -45,6 +50,8 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
+            void OnSetFocus(wxFocusEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
 
             const wxGLContext* glContext() const;
         private:
@@ -53,9 +60,11 @@ namespace TrenchBroom {
             void initializeGL();
             void updateViewport();
             void render();
+            void clearBackground();
+            void renderFocusRect();
         private:
             virtual void doInitializeGL();
-            virtual void doUpdateViewport(int x, int y, int width, int height) = 0;
+            virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual void doRender() = 0;
         };
     }

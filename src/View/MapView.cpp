@@ -52,9 +52,7 @@
 #include "View/TextureTool.h"
 #include "View/VertexTool.h"
 
-#include <wx/dcclient.h>
 #include <wx/menu.h>
-#include <wx/settings.h>
 #include <wx/timer.h>
 
 namespace TrenchBroom {
@@ -77,18 +75,10 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
-        m_auxVbo(0xFFF),
         m_renderResources(attribs(), glContext()),
         m_renderer(document, m_renderResources.fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(m_renderResources)) {
-            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            const float r = static_cast<float>(color.Red()) / 0xFF;
-            const float g = static_cast<float>(color.Green()) / 0xFF;
-            const float b = static_cast<float>(color.Blue()) / 0xFF;
-            const float a = 1.0f;
-            m_focusColor = Color(r, g, b, a);
-
             createTools();
             bindEvents();
             bindObservers();
@@ -802,9 +792,9 @@ namespace TrenchBroom {
             if (glewState != GLEW_OK)
                 m_logger->error("Error initializing glew: %s", glewGetErrorString(glewState));
             
-            Renderer::SetVboState setVboState(m_auxVbo);
+            Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            m_compass.prepare(m_auxVbo);
+            m_compass.prepare(m_vbo);
         }
         
         void MapView::doRender() {
@@ -815,13 +805,11 @@ namespace TrenchBroom {
                 Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                 setupGL(context);
                 m_toolBox.setRenderOptions(context);
-                clearBackground(context);
                 renderMap(context);
                 renderSelectionGuide(context);
                 m_toolBox.renderTools(context);
                 renderCoordinateSystem(context);
                 renderCompass(context);
-                renderFocusRect(context);
             }
         }
         
@@ -835,13 +823,6 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
         
-        void MapView::clearBackground(Renderer::RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
-            glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        }
-        
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& xColor = prefs.get(Preferences::XAxisColor);
@@ -849,7 +830,7 @@ namespace TrenchBroom {
             const Color& zColor = prefs.get(Preferences::ZAxisColor);
             
             Renderer::ActiveShader shader(context.shaderManager(), Renderer::Shaders::VaryingPCShader);
-            Renderer::SetVboState setVboState(m_auxVbo);
+            Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
             glDisable(GL_DEPTH_TEST);
             renderCoordinateSystem(Color(xColor, 0.3f), Color(yColor, 0.3f), Color(zColor, 0.3f));
@@ -862,9 +843,9 @@ namespace TrenchBroom {
             Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(document->worldBounds(), xColor, yColor, zColor);
             Renderer::VertexArray array = Renderer::VertexArray::swap(GL_LINES, vertices);
             
-            Renderer::SetVboState setVboState(m_auxVbo);
+            Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
-            array.prepare(m_auxVbo);
+            array.prepare(m_vbo);
             setVboState.active();
             array.render();
         }
@@ -886,60 +867,9 @@ namespace TrenchBroom {
         }
         
         void MapView::renderCompass(Renderer::RenderContext& context) {
-            Renderer::SetVboState setVboState(m_auxVbo);
+            Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
             m_compass.render(context, m_movementRestriction);
-        }
-        
-        void MapView::renderFocusRect(Renderer::RenderContext& context) {
-            if (!HasFocus())
-                return;
-            
-            const Color& outer = m_focusColor;
-            const Color inner(m_focusColor, 0.7f);
-            const float w = static_cast<float>(context.camera().viewport().width);
-            const float h = static_cast<float>(context.camera().viewport().height);
-            const float t = 3.0f;
-            
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(16);
-            
-            // top
-            vertices[ 0] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[ 1] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 2] = Vertex(Vec3f(w-t, t, 0.0f), inner);
-            vertices[ 3] = Vertex(Vec3f(t, t, 0.0f), inner);
-            
-            // right
-            vertices[ 4] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 5] = Vertex(Vec3f(w, h, 0.0f), outer);
-            vertices[ 6] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
-            vertices[ 7] = Vertex(Vec3f(w-t, t, 0.0f), inner);
-            
-            // bottom
-            vertices[ 8] = Vertex(Vec3f(w, h, 0.0f), outer);
-            vertices[ 9] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
-            vertices[10] = Vertex(Vec3f(t, h-t, 0.0f), inner);
-            vertices[11] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
-            
-            // left
-            vertices[12] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
-            vertices[13] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[14] = Vertex(Vec3f(t, t, 0.0f), inner);
-            vertices[15] = Vertex(Vec3f(t, h-t, 0.0f), inner);
-            
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
-            Renderer::ReplaceTransformation ortho(context.transformation(), projection, Mat4x4f::Identity);
-            
-            glDisable(GL_DEPTH_TEST);
-            Renderer::VertexArray array = Renderer::VertexArray::swap(GL_QUADS, vertices);
-            
-            Renderer::SetVboState setVboState(m_auxVbo);
-            setVboState.mapped();
-            array.prepare(m_auxVbo);
-            setVboState.active();
-            array.render();
-            glEnable(GL_DEPTH_TEST);
         }
         
         Ray3 MapView::doGetPickRay(const int x, const int y) const {

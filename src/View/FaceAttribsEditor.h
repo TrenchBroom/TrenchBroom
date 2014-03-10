@@ -26,6 +26,7 @@
 #include <wx/panel.h>
 
 class wxBitmap;
+class wxButton;
 class wxGridBagSizer;
 class wxStaticText;
 class SpinControl;
@@ -44,16 +45,15 @@ namespace TrenchBroom {
         class ControllerFacade;
         class FlagChangedCommand;
         class FlagsPopupEditor;
-        class TextureView;
+        class TexturingView;
         
         class FaceAttribsEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             Model::BrushFaceList m_faces;
-            
-            TextureView* m_textureView;
-            wxStaticText* m_textureNameLabel;
+
+            TexturingView* m_texturingView;
             
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
