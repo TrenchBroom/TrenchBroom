@@ -29,8 +29,8 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs, const Assets::Texture* texture) const {
-            return doGetTexCoords(point, attribs, texture);
+        Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
+            return doGetTexCoords(point, attribs);
         }
         
         void TexCoordSystem::update(const Vec3& normal, const BrushFaceAttribs& attribs) {

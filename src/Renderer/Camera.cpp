@@ -29,6 +29,12 @@ namespace TrenchBroom {
         width(0),
         height(0) {}
         
+        Camera::Viewport::Viewport(const int i_x, const int i_y, const unsigned int i_width, const unsigned int i_height) :
+        x(i_x),
+        y(i_y),
+        width(i_width),
+        height(i_height) {}
+
         const float Camera::DefaultPointDistance = 256.0f;
         
         Camera::~Camera() {}
@@ -264,12 +270,6 @@ namespace TrenchBroom {
             return doPickFrustum(size, ray);
         }
 
-        Camera::Viewport::Viewport(const int i_x, const int i_y, const unsigned int i_width, const unsigned int i_height) :
-        x(i_x),
-        y(i_y),
-        width(i_width),
-        height(i_height) {}
-        
         Camera::Camera() :
         m_nearPlane(1.0f),
         m_farPlane(8000.0f),

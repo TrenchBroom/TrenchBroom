@@ -192,6 +192,8 @@ namespace TrenchBroom {
             void deselect();
 
             void addToMesh(Mesh& mesh) const;
+            Vec2f textureCoords(const Vec3& point) const;
+            
             FloatType intersectWithRay(const Ray3& ray) const;
             
             void invalidate();

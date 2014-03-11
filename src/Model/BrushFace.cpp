@@ -495,6 +495,10 @@ namespace TrenchBroom {
             mesh.endTriangleSet();
         }
         
+        Vec2f BrushFace::textureCoords(const Vec3& point) const {
+            return m_texCoordSystem->getTexCoords(point, m_attribs);
+        }
+
         void BrushFace::invalidate() {
             m_texCoordSystem->update(m_boundary.normal, m_attribs);
             invalidateVertexCache();
@@ -591,20 +595,19 @@ namespace TrenchBroom {
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
             
-            const Assets::Texture* texture = m_attribs.texture();
             const BrushVertexList& vertices = m_side->vertices;
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
             
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position,
                                                   m_boundary.normal,
-                                                  m_texCoordSystem->getTexCoords(vertices[0]->position, m_attribs, texture)));
+                                                  textureCoords(vertices[0]->position)));
                 m_cachedVertices.push_back(Vertex(vertices[i]->position,
                                                   m_boundary.normal,
-                                                  m_texCoordSystem->getTexCoords(vertices[i]->position, m_attribs, texture)));
+                                                  textureCoords(vertices[i]->position)));
                 m_cachedVertices.push_back(Vertex(vertices[i+1]->position,
                                                   m_boundary.normal,
-                                                  m_texCoordSystem->getTexCoords(vertices[i+1]->position, m_attribs, texture)));
+                                                  textureCoords(vertices[i+1]->position)));
             }
             m_vertexCacheValid = true;
         }

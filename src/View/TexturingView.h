@@ -20,24 +20,41 @@
 #ifndef __TrenchBroom__TexturingView__
 #define __TrenchBroom__TexturingView__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/RenderView.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/OrthographicCamera.h"
+#include "View/ViewTypes.h"
 
 class wxWindow;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderContext;
         class RenderResources;
     }
     
     namespace View {
         class TexturingView : public RenderView {
         private:
+            MapDocumentWPtr m_document;
+            Renderer::RenderResources& m_renderResources;
+            Renderer::OrthographicCamera m_camera;
             Model::BrushFace* m_face;
         public:
-            TexturingView(wxWindow* parent, Renderer::RenderResources& renderResources);
+            TexturingView(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& renderResources);
         private:
+            void doUpdateViewport(int x, int y, int width, int height);
             void doRender();
+            void setupGL(Renderer::RenderContext& renderContext);
+            void setupCamera(Renderer::RenderContext& renderContext, const Mat4x4& transform);
+            void renderTexture(Renderer::RenderContext& renderContext, const Mat4x4& transform);
+            void renderFace(Renderer::RenderContext& renderContext, const Mat4x4& transform);
+            
+            Mat4x4 faceCoordinateSystem() const;
+            Vec3::List transformVertices(const Mat4x4& transform) const;
+            FloatType zoomFactor(const BBox3& bounds) const;
         };
     }
 }

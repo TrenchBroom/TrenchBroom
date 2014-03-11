@@ -50,7 +50,6 @@ namespace TrenchBroom {
         }
         
         void RenderView::OnPaint(wxPaintEvent& event) {
-#ifndef TESTING
             if (!IsShownOnScreen())
                 return;
             
@@ -62,7 +61,6 @@ namespace TrenchBroom {
                 render();
                 SwapBuffers();
             }
-#endif
         }
         
         void RenderView::OnSize(wxSizeEvent& event) {

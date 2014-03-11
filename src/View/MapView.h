@@ -179,10 +179,12 @@ namespace TrenchBroom {
 
             void doRender();
             void setupGL(Renderer::RenderContext& context);
+            void setRenderOptions(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);
             void renderSelectionGuide(Renderer::RenderContext& context);
+            void renderToolBox(Renderer::RenderContext& context);
             void renderCompass(Renderer::RenderContext& context);
             
             Ray3 doGetPickRay(int x, int y) const;

@@ -787,10 +787,12 @@ namespace TrenchBroom {
             else
                 m_logger->info("Multisampling disabled");
             
+#ifndef TESTING
             glewExperimental = GL_TRUE;
             const GLenum glewState = glewInit();
             if (glewState != GLEW_OK)
                 m_logger->error("Error initializing glew: %s", glewGetErrorString(glewState));
+#endif
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
@@ -800,17 +802,17 @@ namespace TrenchBroom {
         void MapView::doRender() {
             MapDocumentSPtr document = lock(m_document);
             document->commitPendingRenderStateChanges();
-            { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                const View::Grid& grid = document->grid();
-                Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
-                setupGL(context);
-                m_toolBox.setRenderOptions(context);
-                renderMap(context);
-                renderSelectionGuide(context);
-                m_toolBox.renderTools(context);
-                renderCoordinateSystem(context);
-                renderCompass(context);
-            }
+
+            const View::Grid& grid = document->grid();
+            Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
+            
+            setupGL(context);
+            setRenderOptions(context);
+            renderMap(context);
+            renderSelectionGuide(context);
+            renderToolBox(context);
+            renderCoordinateSystem(context);
+            renderCompass(context);
         }
         
         void MapView::setupGL(Renderer::RenderContext& context) {
@@ -823,6 +825,10 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
         
+        void MapView::setRenderOptions(Renderer::RenderContext& context) {
+            m_toolBox.setRenderOptions(context);
+        }
+
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& xColor = prefs.get(Preferences::XAxisColor);
@@ -866,6 +872,10 @@ namespace TrenchBroom {
             }
         }
         
+        void MapView::renderToolBox(Renderer::RenderContext& context) {
+            m_toolBox.renderTools(context);
+        }
+
         void MapView::renderCompass(Renderer::RenderContext& context) {
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();

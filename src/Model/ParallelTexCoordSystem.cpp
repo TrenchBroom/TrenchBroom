@@ -59,7 +59,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Vec2f ParallelTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs, const Assets::Texture* texture) const {
+        Vec2f ParallelTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
+            const Assets::Texture* texture = attribs.texture();
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
             const float safeXScale = attribs.xScale() == 0.0f ? 1.0f : attribs.xScale();
