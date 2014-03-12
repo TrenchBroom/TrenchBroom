@@ -21,6 +21,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
@@ -33,37 +34,124 @@
 
 namespace TrenchBroom {
     namespace View {
+        TexturingViewState::TexturingViewState() :
+        m_face(NULL) {}
+        
+        bool TexturingViewState::valid() const {
+            return m_face != NULL;
+        }
+        
+        Model::BrushFace* TexturingViewState::face() const {
+            return m_face;
+        }
+        
+        const Vec3& TexturingViewState::origin() const {
+            assert(valid());
+            return m_origin;
+        }
+        
+        const Vec3& TexturingViewState::xAxis() const {
+            assert(valid());
+            return m_xAxis;
+        }
+        
+        const Vec3& TexturingViewState::yAxis() const {
+            assert(valid());
+            return m_yAxis;
+        }
+        
+        const Vec3& TexturingViewState::zAxis() const {
+            assert(valid());
+            return m_zAxis;
+        }
+        
+        void TexturingViewState::setFace(Model::BrushFace* face) {
+            m_face = face;
+            validate();
+        }
+        
+        void TexturingViewState::validate() {
+            if (m_face != NULL) {
+                m_origin = m_face->center();
+                m_zAxis = m_face->boundary().normal;
+                
+                if (Math::lt(Math::abs(Vec3::PosZ.dot(m_zAxis)), 1.0))
+                    m_xAxis = crossed(Vec3::PosZ, m_zAxis).normalized();
+                else
+                    m_xAxis = Vec3::PosX;
+                m_yAxis = crossed(m_zAxis, m_xAxis).normalized();
+            }
+        }
+        
         TexturingView::TexturingView(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& renderResources) :
         RenderView(parent, renderResources.glAttribs(), renderResources.sharedContext()),
         m_document(document),
-        m_renderResources(renderResources),
-        m_face(NULL) {}
-
-        void TexturingView::doUpdateViewport(int x, int y, int width, int height) {
-            m_camera.setViewport(Renderer::Camera::Viewport(-width/2, -height/2, width, height));
+        m_renderResources(renderResources) {
+            bindObservers();
+        }
+        
+        TexturingView::~TexturingView() {
+            unbindObservers();
         }
 
+        void TexturingView::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->faceDidChangeNotifier.addObserver(this, &TexturingView::faceDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &TexturingView::selectionDidChange);
+        }
+        
+        void TexturingView::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->faceDidChangeNotifier.removeObserver(this, &TexturingView::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &TexturingView::selectionDidChange);
+            }
+        }
+        
+        void TexturingView::faceDidChange(Model::BrushFace* face) {
+            Refresh();
+        }
+        
+        void TexturingView::selectionDidChange(const Model::SelectionResult& result) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushFaceList& faces = document->selectedFaces();
+            if (faces.empty())
+                m_state.setFace(NULL);
+            else
+                m_state.setFace(faces.back());
+            Refresh();
+        }
+
+        void TexturingView::doUpdateViewport(int x, int y, int width, int height) {
+            m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
+        }
+        
         void TexturingView::doRender() {
-            if (m_face != NULL) {
+            if (m_state.valid()) {
+                setupCamera();
+
                 MapDocumentSPtr document = lock(m_document);
                 document->commitPendingRenderStateChanges();
-                
+
                 const View::Grid& grid = document->grid();
                 Renderer::RenderContext renderContext(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
                 
-                const Mat4x4 transform = faceCoordinateSystem();
-                
                 setupGL(renderContext);
-                setupCamera(renderContext, transform);
-                
-                Renderer::SetVboState activateVbo(m_vbo);
-                activateVbo.active();
-                
-                renderTexture(renderContext, transform);
-                renderFace(renderContext, transform);
+                renderTexture(renderContext);
+                renderFace(renderContext);
             }
         }
-
+        
+        void TexturingView::setupCamera() {
+            assert(m_state.valid());
+            
+            m_camera.setZoom(1.0f);
+            m_camera.setNearPlane(-1.0);
+            m_camera.setFarPlane(1.0);
+            m_camera.setDirection(-m_state.zAxis(), m_state.yAxis());
+            m_camera.moveTo(Vec3f(m_state.origin()));
+        }
+        
         void TexturingView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
             glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
@@ -74,78 +162,27 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glDisable(GL_DEPTH_TEST);
         }
-
-        void TexturingView::setupCamera(Renderer::RenderContext& renderContext, const Mat4x4& transform) {
-            assert(m_face != NULL);
-
-            m_camera.setNearPlane(-1.0);
-            m_camera.setFarPlane(1.0);
-            m_camera.setDirection(Vec3f::NegZ, Vec3f::PosY);
-            
-            const Vec3 position = transform * Vec3::Null;
-            m_camera.moveTo(Vec3f(position));
+        
+        void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
         }
-
-        void TexturingView::renderTexture(Renderer::RenderContext& renderContext, const Mat4x4& transform) {
-            bool invertible = false;
-            const Mat4x4 inverted = invertedMatrix(transform, invertible);
-            assert(invertible);
+        
+        void TexturingView::renderFace(Renderer::RenderContext& renderContext) {
+            assert(m_state.valid());
             
-            const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
-            const Vec3 topLeft(viewport.x, viewport.y);
-            const Vec3 topRight(viewport.x + viewport.width, viewport.y);
-            const Vec3 bottomRight(viewport.x + viewport.width, viewport.y + viewport.height);
-            const Vec3 bottomLeft(viewport.x, viewport.y + viewport.height);
+            const Model::BrushFace* face = m_state.face();
+            const Model::BrushVertexList& faceVertices = face->vertices();
+            const size_t count = faceVertices.size();
             
-            typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-            Vertex::List vertices(4);
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List edgeVertices(count);
             
-            vertices[0] = Vertex(Vec3f(topLeft),     m_face->textureCoords(inverted * topLeft));
-            vertices[1] = Vertex(Vec3f(topRight),    m_face->textureCoords(inverted * topRight));
-            vertices[2] = Vertex(Vec3f(bottomRight), m_face->textureCoords(inverted * bottomRight));
-            vertices[3] = Vertex(Vec3f(bottomLeft),  m_face->textureCoords(inverted * bottomLeft));
+            for (size_t i = 0; i < count; ++i)
+                edgeVertices[i] = Vertex(faceVertices[i]->position);
             
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(GL_QUADS, vertices);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            vertexArray.prepare(m_vbo);
-            setVboState.active();
-            vertexArray.render();
-        }
-
-        void TexturingView::renderFace(Renderer::RenderContext& renderContext, const Mat4x4& transform) {
-        }
-
-        Mat4x4 TexturingView::faceCoordinateSystem() const {
-            assert(m_face != NULL);
-            
-            const Vec3& origin = m_face->center();
-            const Vec3& normal = m_face->boundary().normal;
-            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0)) {
-                const Vec3 x = crossed(Vec3::PosZ, normal).normalized();
-                const Vec3 y = crossed(normal, x).normalized();
-                return coordinateSystemMatrix(x, y, normal, origin);
-            } else if (normal.z() > 0.0) {
-                return coordinateSystemMatrix(Vec3::PosX, Vec3::PosY, Vec3::PosZ, origin);
-            } else {
-                return coordinateSystemMatrix(Vec3::PosX, Vec3::NegY, Vec3::NegZ, origin);
-            }
-        }
-
-        Vec3::List TexturingView::transformVertices(const Mat4x4& transform) const {
-            assert(m_face != NULL);
-            
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            const size_t vertexCount = vertices.size();
-            Vec3::List result(vertexCount);
-            
-            for (size_t i = 0; i < vertexCount; ++i) {
-                const Model::BrushVertex* vertex = vertices[i];
-                result[i] = transform * vertex->position;
-            }
-            
-            return result;
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
+            edgeRenderer.setUseColor(true);
+            edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            edgeRenderer.render(renderContext);
         }
     }
 }

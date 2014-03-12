@@ -36,25 +36,50 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class TexturingViewState {
+        private:
+            Model::BrushFace* m_face;
+            Vec3 m_origin;
+            Vec3 m_xAxis;
+            Vec3 m_yAxis;
+            Vec3 m_zAxis;
+        public:
+            TexturingViewState();
+            
+            bool valid() const;
+            Model::BrushFace* face() const;
+            const Vec3& origin() const;
+            const Vec3& xAxis() const;
+            const Vec3& yAxis() const;
+            const Vec3& zAxis() const;
+            
+            void setFace(Model::BrushFace* face);
+        private:
+            void validate();
+        };
+        
         class TexturingView : public RenderView {
         private:
             MapDocumentWPtr m_document;
             Renderer::RenderResources& m_renderResources;
             Renderer::OrthographicCamera m_camera;
-            Model::BrushFace* m_face;
+            TexturingViewState m_state;
         public:
             TexturingView(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            ~TexturingView();
         private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void faceDidChange(Model::BrushFace* face);
+            void selectionDidChange(const Model::SelectionResult& result);
+            
             void doUpdateViewport(int x, int y, int width, int height);
             void doRender();
+            void setupCamera();
             void setupGL(Renderer::RenderContext& renderContext);
-            void setupCamera(Renderer::RenderContext& renderContext, const Mat4x4& transform);
-            void renderTexture(Renderer::RenderContext& renderContext, const Mat4x4& transform);
-            void renderFace(Renderer::RenderContext& renderContext, const Mat4x4& transform);
-            
-            Mat4x4 faceCoordinateSystem() const;
-            Vec3::List transformVertices(const Mat4x4& transform) const;
-            FloatType zoomFactor(const BBox3& bounds) const;
+            void renderTexture(Renderer::RenderContext& renderContext);
+            void renderFace(Renderer::RenderContext& renderContext);
         };
     }
 }

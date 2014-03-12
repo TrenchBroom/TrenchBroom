@@ -33,6 +33,10 @@ namespace TrenchBroom {
             return m_zoom;
         }
         
+        void OrthographicCamera::setZoom(const float zoom) {
+            setZoom(Vec2f(zoom, zoom));
+        }
+
         void OrthographicCamera::setZoom(const Vec2f& zoom) {
             assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
             m_zoom = zoom;
