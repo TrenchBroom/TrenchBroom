@@ -18,6 +18,10 @@
  */
 
 #include "TexturingView.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "Hit.h"
+#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Renderer/Camera.h"
@@ -29,6 +33,7 @@
 #include "Renderer/VertexSpec.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/TexturingViewCameraTool.h"
 
 #include <cassert>
 
@@ -86,6 +91,32 @@ namespace TrenchBroom {
             return m_toWorldTransform * point;
         }
 
+        Vec2f TexturingViewState::textureCoords(const Vec3f& point) const {
+            assert(valid());
+            return m_face->textureCoords(Vec3(point));
+        }
+
+        void TexturingViewState::activateTexture(Renderer::ActiveShader& shader) {
+            assert(valid());
+            Assets::Texture* texture = m_face->texture();
+            if (texture != NULL) {
+                shader.set("ApplyTexture", true);
+                shader.set("Color", texture->averageColor());
+                texture->activate();
+            } else {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                shader.set("ApplyTexture", false);
+                shader.set("Color", prefs.get(Preferences::FaceColor));
+            }
+        }
+        
+        void TexturingViewState::deactivateTexture() {
+            assert(valid());
+            Assets::Texture* texture = m_face->texture();
+            if (texture != NULL)
+                texture->deactivate();
+        }
+
         void TexturingViewState::setFace(Model::BrushFace* face) {
             m_face = face;
             validate();
@@ -109,31 +140,59 @@ namespace TrenchBroom {
             }
         }
         
-        TexturingView::TexturingView(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& renderResources) :
+        TexturingView::TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources) :
         RenderView(parent, renderResources.glAttribs(), renderResources.sharedContext()),
         m_document(document),
-        m_renderResources(renderResources) {
+        m_controller(controller),
+        m_renderResources(renderResources),
+        m_toolBox(this, this),
+        m_cameraTool(NULL) {
+            createTools();
+            m_toolBox.disable();
             bindObservers();
         }
         
         TexturingView::~TexturingView() {
             unbindObservers();
+            destroyTools();
+        }
+
+        void TexturingView::createTools() {
+            m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
+            m_toolBox.addTool(m_cameraTool);
+        }
+        
+        void TexturingView::destroyTools() {
+            delete m_cameraTool;
+            m_cameraTool = NULL;
         }
 
         void TexturingView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->objectDidChangeNotifier.addObserver(this, &TexturingView::objectDidChange);
             document->faceDidChangeNotifier.addObserver(this, &TexturingView::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &TexturingView::selectionDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &TexturingView::preferenceDidChange);
         }
         
         void TexturingView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->objectDidChangeNotifier.removeObserver(this, &TexturingView::objectDidChange);
                 document->faceDidChangeNotifier.removeObserver(this, &TexturingView::faceDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &TexturingView::selectionDidChange);
             }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &TexturingView::preferenceDidChange);
         }
         
+        void TexturingView::objectDidChange(Model::Object* object) {
+            Refresh();
+        }
+
         void TexturingView::faceDidChange(Model::BrushFace* face) {
             Refresh();
         }
@@ -145,6 +204,18 @@ namespace TrenchBroom {
                 m_state.setFace(NULL);
             else
                 m_state.setFace(faces.back());
+
+            if (m_state.valid()) {
+                m_toolBox.enable();
+                m_camera.setZoom(computeZoomFactor());
+                m_camera.moveTo(Vec3f(m_state.origin()));
+            } else {
+                m_toolBox.disable();
+            }
+            Refresh();
+        }
+
+        void TexturingView::preferenceDidChange(const IO::Path& path) {
             Refresh();
         }
 
@@ -171,11 +242,9 @@ namespace TrenchBroom {
         void TexturingView::setupCamera() {
             assert(m_state.valid());
             
-            m_camera.setZoom(computeZoomFactor());
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-m_state.zAxis(), m_state.yAxis());
-            m_camera.moveTo(Vec3f(m_state.origin()));
         }
         
         void TexturingView::setupGL(Renderer::RenderContext& renderContext) {
@@ -190,6 +259,36 @@ namespace TrenchBroom {
         }
         
         void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
+            const Vec3f::List positions = getTextureQuad();
+            const Vec3f normal(m_state.face()->boundary().normal);
+            
+            typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
+            Vertex::List vertices(positions.size());
+            
+            for (size_t i = 0; i < positions.size(); ++i)
+                vertices[i] = Vertex(positions[i],
+                                     normal,
+                                     m_state.textureCoords(positions[i]));
+            
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
+            shader.set("RenderGrid", renderContext.gridVisible());
+            shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
+            shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
+            shader.set("Texture", 0);
+
+            m_state.activateTexture(shader);
+            vertexArray.render();
+            m_state.deactivateTexture();
         }
         
         void TexturingView::renderFace(Renderer::RenderContext& renderContext) {
@@ -224,6 +323,34 @@ namespace TrenchBroom {
             if (size.y() > h)
                 zoom = Math::min(zoom, h / size.y());
             return zoom;
+        }
+
+        Vec3f::List TexturingView::getTextureQuad() const {
+            Vec3f::List vertices(4);
+
+            const Renderer::Camera::Viewport& v = m_camera.viewport();
+            const Vec2f& z = m_camera.zoom();
+            const float w2 = static_cast<float>(v.width)  / z.x() / 2.0f;
+            const float h2 = static_cast<float>(v.height) / z.y() / 2.0f;
+
+            const Vec3f& p = m_camera.position();
+            const Vec3f& r = m_camera.right();
+            const Vec3f& u = m_camera.up();
+            
+            vertices[0] = -w2 * r +h2 * u + p;
+            vertices[1] = +w2 * r +h2 * u + p;
+            vertices[2] = +w2 * r -h2 * u + p;
+            vertices[3] = -w2 * r -h2 * u + p;
+            
+            return vertices;
+        }
+
+        Ray3 TexturingView::doGetPickRay(const int x, const int y) const {
+            return m_camera.pickRay(x, y);
+        }
+        
+        Hits TexturingView::doPick(const Ray3& pickRay) const {
+            return Hits();
         }
     }
 }

@@ -1,0 +1,91 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform float Brightness;
+uniform bool ApplyTexture;
+uniform sampler2D Texture;
+uniform bool RenderGrid;
+uniform float GridSize;
+uniform float GridAlpha;
+
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+varying vec4 faceColor;
+
+float getSoftStripes(float value, float gridSize, float stripeSize) {
+	float mainVal = value * gridSize;
+	float triangle = abs(2.0 * fract(mainVal) - 1.0);
+	float filterWidth = fwidth(value);
+	float edge = filterWidth * gridSize * 2.0;
+
+	// major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
+	float mValue = 1.0 / (64.0 * gridSize);
+	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
+	float isMajor = step(1.0 - mValue, triMajor);
+
+	float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
+	float sSize = stripeSize;
+
+	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
+}
+
+void gridLinesSoft(vec2 inCoords, float gridRatio, float baseStripeSize) {
+	float stripeRatio = baseStripeSize * gridRatio;
+	float stripeSize = 1.0 - stripeRatio;
+    
+	float theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
+	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
+
+	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
+}
+
+void main() {
+	if (ApplyTexture)
+		gl_FragColor = texture2D(Texture, gl_TexCoord[0].st);
+	else
+		gl_FragColor = faceColor;
+
+    gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
+    gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+
+	if (RenderGrid && GridAlpha > 0.0) {
+		float normX = abs(modelNormal.x);
+		float normY = abs(modelNormal.y);
+		float normZ = abs(modelNormal.z);
+
+		float gridThickness = GridSize < 4 ? 0.25 : 0.5;
+		float gridRatio = 1.0 / GridSize;
+		vec2 baseCoords; // coordinates used for overlay creation
+
+		if (normX > normY) {
+			if (normX > normZ)
+				baseCoords = modelCoordinates.yz;
+			else
+				baseCoords = modelCoordinates.xy;
+		} else if (normY > normZ) {
+			baseCoords = modelCoordinates.xz;
+		} else {
+			baseCoords = modelCoordinates.xy;
+		}
+
+		gridLinesSoft(baseCoords, gridRatio, gridThickness);
+	}
+}

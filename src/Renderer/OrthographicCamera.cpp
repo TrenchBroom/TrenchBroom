@@ -50,7 +50,7 @@ namespace TrenchBroom {
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
-        
+
         void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
             const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
             const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;

@@ -17,27 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool__
-#define __TrenchBroom__CameraTool__
+#ifndef __TrenchBroom__TexturingViewCameraTool__
+#define __TrenchBroom__TexturingViewCameraTool__
 
-#include "VecMath.h"
 #include "Model/Picker.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
+        class OrthographicCamera;
     }
     
     namespace View {
-        class CameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class TexturingViewCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Renderer::Camera& m_camera;
-            bool m_orbit;
-            Vec3f m_orbitCenter;
+            Renderer::OrthographicCamera& m_camera;
         public:
-            CameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
+            TexturingViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera);
         private:
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
@@ -45,18 +42,10 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
             
-            bool move(const InputState& inputState) const;
-            bool look(const InputState& inputState) const;
             bool pan(const InputState& inputState) const;
-            bool orbit(const InputState& inputState) const;
-            
-            float lookSpeedH() const;
-            float lookSpeedV() const;
-            float panSpeedH() const;
-            float panSpeedV() const;
-            float moveSpeed(const bool altMode) const;
+            bool zoom(const InputState& inputState) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool__) */
+#endif /* defined(__TrenchBroom__TexturingViewCameraTool__) */

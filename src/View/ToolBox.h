@@ -67,6 +67,8 @@ namespace TrenchBroom {
             bool m_ignoreNextDrag;
             bool m_ignoreNextClick;
             wxDateTime m_lastActivation;
+            
+            bool m_enabled;
         public:
             ToolBox(wxWindow* window, ToolBoxHelper* helper);
             ~ToolBox();
@@ -98,6 +100,10 @@ namespace TrenchBroom {
             void toggleTool(Tool* tool);
             void deactivateAllTools();
 
+            bool enabled() const;
+            void enable();
+            void disable();
+            
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext);
         private:

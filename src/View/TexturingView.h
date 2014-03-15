@@ -25,12 +25,18 @@
 #include "View/RenderView.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
+#include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace Renderer {
+        class ActiveShader;
         class RenderContext;
         class RenderResources;
     }
@@ -58,32 +64,49 @@ namespace TrenchBroom {
             BBox3 computeBounds() const;
             Vec3 transformToFace(const Vec3& point) const;
             Vec3 transformToWorld(const Vec3& point) const;
+            Vec2f textureCoords(const Vec3f& point) const;
+            
+            void activateTexture(Renderer::ActiveShader& shader);
+            void deactivateTexture();
             
             void setFace(Model::BrushFace* face);
         private:
             void validate();
         };
         
+        class TexturingViewCameraTool;
+        
         /**
          A view which allows the user to manipulate the texture projection interactively with the mouse. The user can 
          change texture offsets, scaling factors and rotation. If supported by the map format, the user can manipulate 
          the texture axes as well.
          */
-        class TexturingView : public RenderView {
+        class TexturingView : public RenderView, public ToolBoxHelper {
         private:
             MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+            
             Renderer::RenderResources& m_renderResources;
             Renderer::OrthographicCamera m_camera;
             TexturingViewState m_state;
+
+            ToolBox m_toolBox;
+            TexturingViewCameraTool* m_cameraTool;
         public:
-            TexturingView(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& renderResources);
+            TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources);
             ~TexturingView();
         private:
+            void createTools();
+            void destroyTools();
+            
             void bindObservers();
             void unbindObservers();
             
+            void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
+            
+            void preferenceDidChange(const IO::Path& path);
             
             void doUpdateViewport(int x, int y, int width, int height);
             void doRender();
@@ -93,6 +116,10 @@ namespace TrenchBroom {
             void renderFace(Renderer::RenderContext& renderContext);
             
             float computeZoomFactor() const;
+            Vec3f::List getTextureQuad() const;
+        private:
+            Ray3 doGetPickRay(int x, int y) const;
+            Hits doPick(const Ray3& pickRay) const;
         };
     }
 }

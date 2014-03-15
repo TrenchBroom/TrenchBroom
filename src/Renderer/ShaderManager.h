@@ -66,6 +66,7 @@ namespace TrenchBroom {
             extern const ShaderConfig CompassBackgroundShader;
             extern const ShaderConfig EntityLinkShader;
             extern const ShaderConfig TriangleShader;
+            extern const ShaderConfig TexturingViewShader;
         }
         
         class Shader;

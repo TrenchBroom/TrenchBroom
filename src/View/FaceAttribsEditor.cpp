@@ -142,7 +142,7 @@ namespace TrenchBroom {
             const wxBitmap flipXBitmap = IO::loadImageResource(IO::Path("images/InvertLR.png"));
             const wxBitmap flipYBitmap = IO::loadImageResource(IO::Path("images/InvertUD.png"));
 
-            m_texturingView = new TexturingView(this, m_document, resources);
+            m_texturingView = new TexturingView(this, m_document, m_controller, resources);
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;

@@ -92,11 +92,11 @@ namespace TrenchBroom {
         
         void MiniMapBaseView::drag3DCamera(const wxPoint& lastPos, const wxPoint& currentPos) {
             const Vec3f lastWorldPos = viewCamera().unproject(static_cast<float>(lastPos.x),
-                                                          static_cast<float>(lastPos.y),
-                                                          0.0f);
+                                                              static_cast<float>(lastPos.y),
+                                                              0.0f);
             const Vec3f currentWorldPos = viewCamera().unproject(static_cast<float>(currentPos.x),
-                                                             static_cast<float>(currentPos.y),
-                                                             0.0f);
+                                                                 static_cast<float>(currentPos.y),
+                                                                 0.0f);
             const Vec3f delta = currentWorldPos - lastWorldPos;
             doDrag3DCamera(delta, m_camera3D);
             Refresh();
@@ -104,11 +104,11 @@ namespace TrenchBroom {
         
         void MiniMapBaseView::panView(const wxPoint& lastPos, const wxPoint& currentPos) {
             const Vec3f lastWorldPos = viewCamera().unproject(static_cast<float>(lastPos.x),
-                                                          static_cast<float>(lastPos.y),
-                                                          0.0f);
+                                                              static_cast<float>(lastPos.y),
+                                                              0.0f);
             const Vec3f currentWorldPos = viewCamera().unproject(static_cast<float>(currentPos.x),
-                                                             static_cast<float>(currentPos.y),
-                                                             0.0f);
+                                                                 static_cast<float>(currentPos.y),
+                                                                 0.0f);
             
             panView(lastWorldPos - currentWorldPos);
             Refresh();
@@ -117,13 +117,13 @@ namespace TrenchBroom {
         
         void MiniMapBaseView::OnMouseWheel(wxMouseEvent& event) {
             const Vec3f oldWorldPos = viewCamera().unproject(static_cast<float>(event.GetX()),
-                                                              static_cast<float>(event.GetY()),
-                                                              0.0f);
+                                                             static_cast<float>(event.GetY()),
+                                                             0.0f);
             if (event.GetWheelRotation() > 0)
                 zoomView(Vec2f(1.1f, 1.1f));
             else
                 zoomView(Vec2f(1.0f, 1.0f) / 1.1f);
-
+            
             const Vec3f newWorldPos = viewCamera().unproject(static_cast<float>(event.GetX()),
                                                              static_cast<float>(event.GetY()),
                                                              0.0f);
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         const Renderer::Camera& MiniMapBaseView::viewCamera() const {
             return doGetViewCamera();
         }
-
+        
         void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
             doUpdateViewport(viewport);
         }
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             doComputeBounds(bounds);
             m_renderer.render(context, bounds);
         }
-
+        
         void MiniMapBaseView::fireChangeEvent() {
             wxCommandEvent event(EVT_MINIMAP_VIEW_CHANGED_EVENT);
             event.SetEventObject(this);
@@ -298,7 +298,7 @@ namespace TrenchBroom {
         float MiniMapBaseView::pick3DCamera(const Ray3f& pickRay) const {
             return doPick3DCamera(pickRay, m_camera3D);
         }
-
+        
         void MiniMapBaseView::render3DCamera(Renderer::RenderContext& context) {
             doRender3DCamera(context, m_auxVbo, m_camera3D);
         }

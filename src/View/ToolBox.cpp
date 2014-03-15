@@ -50,7 +50,8 @@ namespace TrenchBroom {
         m_savedDropReceiver(NULL),
         m_ignoreNextDrag(false),
         m_ignoreNextClick(false),
-        m_lastActivation(wxDateTime::Now()) {
+        m_lastActivation(wxDateTime::Now()),
+        m_enabled(true) {
             assert(m_window != NULL);
             assert(m_helper != NULL);
             bindEvents();
@@ -84,6 +85,9 @@ namespace TrenchBroom {
         bool ToolBox::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_dropReceiver == NULL);
             
+            if (!m_enabled)
+                return false;
+            
             deactivateAllTools();
             m_inputState.mouseMove(x, y);
             updateHits();
@@ -97,6 +101,9 @@ namespace TrenchBroom {
             if (m_dropReceiver == NULL)
                 return false;
             
+            if (!m_enabled)
+                return false;
+            
             m_inputState.mouseMove(x, y);
             updateHits();
             m_dropReceiver->dragMove(m_inputState);
@@ -107,6 +114,8 @@ namespace TrenchBroom {
         
         void ToolBox::dragLeave() {
             if (m_dropReceiver == NULL)
+                return;
+            if (!m_enabled)
                 return;
             
             // This is a workaround for a bug in wxWidgets 3.0.0 on GTK2, where a drag leave event
@@ -121,6 +130,9 @@ namespace TrenchBroom {
         
         bool ToolBox::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
             if (m_dropReceiver == NULL && m_savedDropReceiver == NULL)
+                return false;
+            
+            if (!m_enabled)
                 return false;
             
             if (m_dropReceiver == NULL) {
@@ -140,6 +152,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnKey(wxKeyEvent& event) {
+            if (!m_enabled)
+                return;
+            
             if (updateModifierKeys()) {
                 updateHits();
                 m_toolChain->modifierKeyChange(m_inputState);
@@ -149,6 +164,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseButton(wxMouseEvent& event) {
+            if (!m_enabled)
+                return;
+            
             const MouseButtonState button = mouseButton(event);
             
             if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
@@ -197,6 +215,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseDoubleClick(wxMouseEvent& event) {
+            if (!m_enabled)
+                return;
+            
             const MouseButtonState button = mouseButton(event);
             updateModifierKeys();
             
@@ -212,6 +233,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseMotion(wxMouseEvent& event) {
+            if (!m_enabled)
+                return;
+            
             updateModifierKeys();
             updateHits();
             if (m_dragReceiver != NULL) {
@@ -242,6 +266,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseWheel(wxMouseEvent& event) {
+            if (!m_enabled)
+                return;
+            
             updateModifierKeys();
             const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
@@ -256,6 +283,9 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (!m_enabled)
+                return;
+            
             cancelDrag();
             m_window->Refresh();
             event.Skip();
@@ -329,6 +359,19 @@ namespace TrenchBroom {
             toggleTool(NULL);
         }
         
+        bool ToolBox::enabled() const {
+            return m_enabled;
+        }
+        
+        void ToolBox::enable() {
+            m_enabled = true;
+        }
+        
+        void ToolBox::disable() {
+            cancelDrag();
+            m_enabled = false;
+        }
+
         void ToolBox::setRenderOptions(Renderer::RenderContext& renderContext) {
             if (m_toolChain != NULL)
                 m_toolChain->setRenderOptions(m_inputState, renderContext);
