@@ -43,6 +43,8 @@ namespace TrenchBroom {
             Vec3 m_xAxis;
             Vec3 m_yAxis;
             Vec3 m_zAxis;
+            Mat4x4 m_toFaceTransform;
+            Mat4x4 m_toWorldTransform;
         public:
             TexturingViewState();
             
@@ -52,12 +54,21 @@ namespace TrenchBroom {
             const Vec3& xAxis() const;
             const Vec3& yAxis() const;
             const Vec3& zAxis() const;
+
+            BBox3 computeBounds() const;
+            Vec3 transformToFace(const Vec3& point) const;
+            Vec3 transformToWorld(const Vec3& point) const;
             
             void setFace(Model::BrushFace* face);
         private:
             void validate();
         };
         
+        /**
+         A view which allows the user to manipulate the texture projection interactively with the mouse. The user can 
+         change texture offsets, scaling factors and rotation. If supported by the map format, the user can manipulate 
+         the texture axes as well.
+         */
         class TexturingView : public RenderView {
         private:
             MapDocumentWPtr m_document;
@@ -80,6 +91,8 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
             void renderTexture(Renderer::RenderContext& renderContext);
             void renderFace(Renderer::RenderContext& renderContext);
+            
+            float computeZoomFactor() const;
         };
     }
 }

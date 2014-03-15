@@ -44,6 +44,10 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        /**
+         Wraps an instance of CommandProcessor for executing commands and provides convenience methods for executing
+         such commands.
+         */
         class ControllerFacade {
         public:
             struct MoveVerticesResult {

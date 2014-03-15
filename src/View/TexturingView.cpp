@@ -65,6 +65,27 @@ namespace TrenchBroom {
             return m_zAxis;
         }
         
+        BBox3 TexturingViewState::computeBounds() const {
+            assert(valid());
+            
+            BBox3 result;
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            result.min = result.max = transformToFace(vertices[0]->position);
+            for (size_t i = 1; i < vertices.size(); ++i)
+                result.mergeWith(transformToFace(vertices[i]->position));
+            return result;
+        }
+        
+        Vec3 TexturingViewState::transformToFace(const Vec3& point) const {
+            assert(valid());
+            return m_toFaceTransform * point;
+        }
+        
+        Vec3 TexturingViewState::transformToWorld(const Vec3& point) const {
+            assert(valid());
+            return m_toWorldTransform * point;
+        }
+
         void TexturingViewState::setFace(Model::BrushFace* face) {
             m_face = face;
             validate();
@@ -80,6 +101,11 @@ namespace TrenchBroom {
                 else
                     m_xAxis = Vec3::PosX;
                 m_yAxis = crossed(m_zAxis, m_xAxis).normalized();
+                
+                m_toWorldTransform = coordinateSystemMatrix(m_xAxis, m_yAxis, m_zAxis, m_origin);
+                bool invertible = true;
+                m_toFaceTransform = invertedMatrix(m_toWorldTransform, invertible);
+                assert(invertible);
             }
         }
         
@@ -145,7 +171,7 @@ namespace TrenchBroom {
         void TexturingView::setupCamera() {
             assert(m_state.valid());
             
-            m_camera.setZoom(1.0f);
+            m_camera.setZoom(computeZoomFactor());
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-m_state.zAxis(), m_state.yAxis());
@@ -183,6 +209,21 @@ namespace TrenchBroom {
             edgeRenderer.setUseColor(true);
             edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
             edgeRenderer.render(renderContext);
+        }
+
+        float TexturingView::computeZoomFactor() const {
+            m_state.transformToFace(Vec3::Null);
+            const BBox3 bounds = m_state.computeBounds();
+            const Vec3f size(bounds.size());
+            const float w = static_cast<float>(m_camera.viewport().width - 20);
+            const float h = static_cast<float>(m_camera.viewport().height - 20);
+            
+            float zoom = 1.0f;
+            if (size.x() > w)
+                zoom = Math::min(zoom, w / size.x());
+            if (size.y() > h)
+                zoom = Math::min(zoom, h / size.y());
+            return zoom;
         }
     }
 }

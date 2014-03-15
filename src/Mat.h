@@ -170,8 +170,8 @@ public:
     const Vec<T,C> operator* (const Vec<T,C>& right) const {
         Vec<T,C> result;
         for (size_t r = 0; r < R; r++)
-            for (size_t i = 0; i < C; ++i)
-                result[r] += v[i][r] * right[i];
+            for (size_t c = 0; c < C; ++c)
+                result[r] += v[c][r] * right[c];
         return result;
     }
 
