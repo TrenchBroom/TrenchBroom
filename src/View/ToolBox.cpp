@@ -49,6 +49,7 @@ namespace TrenchBroom {
         m_dropReceiver(NULL),
         m_savedDropReceiver(NULL),
         m_ignoreNextDrag(false),
+        m_clickToActivate(true),
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {
@@ -59,6 +60,12 @@ namespace TrenchBroom {
         
         ToolBox::~ToolBox() {
             unbindEvents();
+        }
+
+        void ToolBox::setClickToActivate(const bool clickToActivate) {
+            m_clickToActivate = clickToActivate;
+            if (!m_clickToActivate)
+                m_ignoreNextClick = false;
         }
 
         const Ray3& ToolBox::pickRay() const {
@@ -310,9 +317,11 @@ namespace TrenchBroom {
                 m_window->ReleaseMouse();
             if (clearModifierKeys())
                 m_toolChain->modifierKeyChange(m_inputState);
-            m_ignoreNextClick = true;
+            if (m_clickToActivate) {
+                m_ignoreNextClick = true;
+                m_window->SetCursor(wxCursor(wxCURSOR_HAND));
+            }
             m_window->Refresh();
-            m_window->SetCursor(wxCursor(wxCURSOR_HAND));
             event.Skip();
         }
         

@@ -163,6 +163,7 @@ namespace TrenchBroom {
         m_toolBox(this, this),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
+            m_toolBox.setClickToActivate(false);
             createTools();
             m_toolBox.disable();
             bindObservers();
