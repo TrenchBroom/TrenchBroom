@@ -77,7 +77,7 @@ namespace TrenchBroom {
         bool empty() const;
         size_t size() const;
         
-        void add(const Hit& hit);
+        void addHit(const Hit& hit);
         
         const Hit& findFirst(Hit::HitType type, bool ignoreOccluders) const;
         const Hit& findFirst(const HitFilter& filter, bool ignoreOccluders) const;

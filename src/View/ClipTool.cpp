@@ -123,7 +123,7 @@ namespace TrenchBroom {
                                                                radius, scaling, maxDist);
                 if (!Math::isnan(dist)) {
                     const Vec3 hitPoint = ray.pointAtDistance(dist);
-                    hits.add(Hit(HandleHit, dist, hitPoint, i));
+                    hits.addHit(Hit(HandleHit, dist, hitPoint, i));
                 }
             }
         }

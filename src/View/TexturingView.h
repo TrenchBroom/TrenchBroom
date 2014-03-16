@@ -69,11 +69,14 @@ namespace TrenchBroom {
             void activateTexture(Renderer::ActiveShader& shader);
             void deactivateTexture();
             
+            Hits pick(const Ray3& pickRay) const;
+            
             void setFace(Model::BrushFace* face);
         private:
             void validate();
         };
         
+        class TexturingViewOffsetTool;
         class TexturingViewCameraTool;
         
         /**
@@ -82,6 +85,8 @@ namespace TrenchBroom {
          the texture axes as well.
          */
         class TexturingView : public RenderView, public ToolBoxHelper {
+        public:
+            static const Hit::HitType FaceHit;
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
@@ -91,6 +96,8 @@ namespace TrenchBroom {
             TexturingViewState m_state;
 
             ToolBox m_toolBox;
+            
+            TexturingViewOffsetTool* m_offsetTool;
             TexturingViewCameraTool* m_cameraTool;
         public:
             TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources);

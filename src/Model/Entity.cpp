@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.add(Hit(EntityHit, distance, hitPoint, this));
+                    hits.addHit(Hit(EntityHit, distance, hitPoint, this));
                 }
             }
         }

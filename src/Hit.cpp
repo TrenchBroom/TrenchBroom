@@ -64,7 +64,7 @@ namespace TrenchBroom {
         return m_hits.size();
     }
 
-    void Hits::add(const Hit& hit) {
+    void Hits::addHit(const Hit& hit) {
         List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit);
         m_hits.insert(pos, hit);
     }

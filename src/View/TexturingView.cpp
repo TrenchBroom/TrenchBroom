@@ -34,6 +34,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/TexturingViewCameraTool.h"
+#include "View/TexturingViewOffsetTool.h"
 
 #include <cassert>
 
@@ -117,6 +118,18 @@ namespace TrenchBroom {
                 texture->deactivate();
         }
 
+        Hits TexturingViewState::pick(const Ray3& pickRay) const {
+            assert(valid());
+            
+            Hits hits;
+            const FloatType distance = m_face->intersectWithRay(pickRay);
+            if (!Math::isnan(distance)) {
+                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                hits.addHit(Hit(TexturingView::FaceHit, distance, hitPoint, m_face));
+            }
+            return hits;
+        }
+
         void TexturingViewState::setFace(Model::BrushFace* face) {
             m_face = face;
             validate();
@@ -140,12 +153,15 @@ namespace TrenchBroom {
             }
         }
         
+        const Hit::HitType TexturingView::FaceHit = Hit::freeHitType();
+        
         TexturingView::TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources) :
         RenderView(parent, renderResources.glAttribs(), renderResources.sharedContext()),
         m_document(document),
         m_controller(controller),
         m_renderResources(renderResources),
         m_toolBox(this, this),
+        m_offsetTool(NULL),
         m_cameraTool(NULL) {
             createTools();
             m_toolBox.disable();
@@ -158,13 +174,17 @@ namespace TrenchBroom {
         }
 
         void TexturingView::createTools() {
+            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
+            m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
         }
         
         void TexturingView::destroyTools() {
             delete m_cameraTool;
             m_cameraTool = NULL;
+            delete m_offsetTool;
+            m_offsetTool = NULL;
         }
 
         void TexturingView::bindObservers() {
@@ -350,7 +370,9 @@ namespace TrenchBroom {
         }
         
         Hits TexturingView::doPick(const Ray3& pickRay) const {
-            return Hits();
+            if (!m_state.valid())
+                return Hits();
+            return m_state.pick(pickRay);
         }
     }
 }

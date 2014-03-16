@@ -64,7 +64,7 @@ namespace TrenchBroom {
                                                                         DefaultHitFilter(document()->filter())), true);
 
             if (hit.isMatch())
-                hits.add(Hit(ResizeHit, hit.distance(), hit.hitPoint(), Model::hitAsFace(hit)));
+                hits.addHit(Hit(ResizeHit, hit.distance(), hit.hitPoint(), Model::hitAsFace(hit)));
             else
                 pickNearFaceHit(inputState, hits);
         }
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             Model::each(begin, end, findHit, Model::MatchAll());
             
             if (findHit.success())
-                hits.add(findHit.hit());
+                hits.addHit(findHit.hit());
         }
 
         void ResizeBrushesTool::updateDragFaces(const InputState& inputState) {

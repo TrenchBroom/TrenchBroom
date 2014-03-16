@@ -400,7 +400,7 @@ namespace TrenchBroom {
                     const Vec3& position = vIt->first;
                     const Hit hit = pickHandle(ray, position, VertexHandleHit);
                     if (hit.isMatch())
-                        hits.add(hit);
+                        hits.addHit(hit);
                 }
             }
             
@@ -408,7 +408,7 @@ namespace TrenchBroom {
                 const Vec3& position = vIt->first;
                 const Hit hit = pickHandle(ray, position, VertexHandleHit);
                 if (hit.isMatch())
-                    hits.add(hit);
+                    hits.addHit(hit);
             }
             
             if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
@@ -416,7 +416,7 @@ namespace TrenchBroom {
                     const Vec3& position = eIt->first;
                     const Hit hit = pickHandle(ray, position, EdgeHandleHit);
                     if (hit.isMatch())
-                        hits.add(hit);
+                        hits.addHit(hit);
                 }
             }
             
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 const Vec3& position = eIt->first;
                 const Hit hit = pickHandle(ray, position, EdgeHandleHit);
                 if (hit.isMatch())
-                    hits.add(hit);
+                    hits.addHit(hit);
             }
             
             if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
@@ -432,7 +432,7 @@ namespace TrenchBroom {
                     const Vec3& position = fIt->first;
                     const Hit hit = pickHandle(ray, position, FaceHandleHit);
                     if (hit.isMatch())
-                        hits.add(hit);
+                        hits.addHit(hit);
                 }
             }
             
@@ -440,7 +440,7 @@ namespace TrenchBroom {
                 const Vec3& position = fIt->first;
                 const Hit hit = pickHandle(ray, position, FaceHandleHit);
                 if (hit.isMatch())
-                    hits.add(hit);
+                    hits.addHit(hit);
             }
         }
 

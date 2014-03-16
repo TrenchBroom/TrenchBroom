@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewCameraTool__
-#define __TrenchBroom__TexturingViewCameraTool__
+#ifndef __TrenchBroom__TexturingViewOffsetTool__
+#define __TrenchBroom__TexturingViewOffsetTool__
 
+#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
@@ -29,19 +30,18 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class TexturingViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Renderer::OrthographicCamera& m_camera;
+            Model::BrushFace* m_face;
         public:
-            TexturingViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera);
+            TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller);
         private:
-            void doScroll(const InputState& inputState);
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void doEndPlaneDrag(const InputState& inputState);
+            void doCancelPlaneDrag(const InputState& inputState);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewCameraTool__) */
+#endif /* defined(__TrenchBroom__TexturingViewOffsetTool__) */

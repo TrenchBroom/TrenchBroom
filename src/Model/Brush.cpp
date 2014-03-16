@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.add(Hit(BrushHit, distance, hitPoint, face));
+                    hits.addHit(Hit(BrushHit, distance, hitPoint, face));
                     break;
                 }
             }

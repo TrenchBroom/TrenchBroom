@@ -69,7 +69,7 @@ namespace TrenchBroom {
             
             const RotateObjectsHandle::Hit hit = m_handle.pick(inputState.pickRay());
             if (hit.matches())
-                hits.add(Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
+                hits.addHit(Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
         }
         
         bool RotateObjectsTool::doMouseDown(const InputState& inputState) {
