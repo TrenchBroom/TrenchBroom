@@ -37,6 +37,8 @@ namespace TrenchBroom {
             void setZoom(float zoom);
             void setZoom(const Vec2f& zoom);
             void zoom(const Vec2f& factors);
+            
+            Vec3::List viewportVertices() const;
         private:
             void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
             Ray3f doGetPickRay(int x, int y) const;

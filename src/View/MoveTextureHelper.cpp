@@ -62,12 +62,12 @@ namespace TrenchBroom {
             assert(m_face != NULL);
             assert(m_face->selected() || m_face->parent()->selected());
             
-            const Vec2 last = m_face->convertToTexCoordSystem(refPoint);
-            const Vec2 cur = m_face->convertToTexCoordSystem(curPoint);
+            const Vec3 last = m_face->transformToTexCoordSystem(refPoint);
+            const Vec3 cur  = m_face->transformToTexCoordSystem(curPoint);
             
             View::MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            const Vec2 offset = grid.snap(cur - last);
+            const Vec3 offset = grid.snap(cur - last);
             
             if (offset.null())
                 return true;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             const Vec3 delta = curPoint - refPoint;
             performMove(delta);
             
-            const Vec3 newRef = m_face->convertToWorldCoordSystem(last + offset);
+            const Vec3 newRef = m_face->transformFromTexCoordSystem(last + offset);
             refPoint = newRef;
             return true;
         }
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 const Vec3 actualDelta = rotateDelta(delta, face, normals);
-                const Vec2 offset = grid.snap(face->convertToTexCoordSystem(actualDelta));
+                const Vec2 offset(grid.snap(face->transformToTexCoordSystem(actualDelta)));
                 
                 const Model::BrushFaceList applyTo(1, face);
                 if (offset.x() != 0.0)

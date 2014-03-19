@@ -51,6 +51,18 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
 
+        Vec3::List OrthographicCamera::viewportVertices() const {
+            const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
+            const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;
+            
+            Vec3::List result(4);
+            result[0] = Vec3(position() - w2 * right() + h2 * up());
+            result[1] = Vec3(position() + w2 * right() + h2 * up());
+            result[2] = Vec3(position() + w2 * right() - h2 * up());
+            result[3] = Vec3(position() - w2 * right() - h2 * up());
+            return result;
+        }
+
         void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
             const float w2 = static_cast<float>(viewport().width) / m_zoom.x() / 2.0f;
             const float h2 = static_cast<float>(viewport().height) / m_zoom.y() / 2.0f;

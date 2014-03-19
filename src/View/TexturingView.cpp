@@ -87,14 +87,55 @@ namespace TrenchBroom {
             return m_toFaceTransform * point;
         }
         
-        Vec3 TexturingViewState::transformToWorld(const Vec3& point) const {
+        Vec3 TexturingViewState::transformFromFace(const Vec3& point) const {
             assert(valid());
-            return m_toWorldTransform * point;
+            return m_fromFaceTransform * point;
         }
 
         Vec2f TexturingViewState::textureCoords(const Vec3f& point) const {
             assert(valid());
             return m_face->textureCoords(Vec3(point));
+        }
+
+        Vec3::List TexturingViewState::textureSeamVertices(const Renderer::OrthographicCamera& camera) const {
+            assert(valid());
+
+            const Assets::Texture* texture = m_face->texture();
+            if (texture == NULL)
+                return Vec3::EmptyList;
+            
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            
+            const Vec3::List viewportVertices = camera.viewportVertices();
+            const Vec3::List transformedVertices = Mat4x4::ZerZ * m_face->transformToTexCoordSystem(viewportVertices, offset, scale);
+            
+            const BBox3 transformedBounds(transformedVertices);
+            const Vec3& min = transformedBounds.min;
+            const Vec3& max = transformedBounds.max;
+
+            Vec3::List seamVertices;
+            
+            const FloatType dx = min.x() / texture->width();
+            FloatType x = (dx < 0.0 ? Math::ceil(dx) : Math::floor(dx)) * texture->width();
+            while (Math::lte(x, max.x())) {
+                seamVertices.push_back(Vec3(x, min.y(), 0.0));
+                seamVertices.push_back(Vec3(x, max.y(), 0.0));
+                x += texture->width();
+            }
+            
+            const FloatType dy = min.y() / texture->height();
+            FloatType y = (dy < 0.0 ? Math::ceil(dy) : Math::floor(dy)) * texture->height();
+            while (Math::lte(y, max.y())) {
+                seamVertices.push_back(Vec3(min.x(), y, 0.0));
+                seamVertices.push_back(Vec3(max.x(), y, 0.0));
+                y += texture->height();
+            }
+            
+            const Plane3& boundary = m_face->boundary();
+            const Vec3::List transformedSeamVertices = m_face->transformFromTexCoordSystem(seamVertices);
+            const Vec3::List projectedSeamVertices = boundary.project(transformedSeamVertices);
+            return projectedSeamVertices;
         }
 
         void TexturingViewState::activateTexture(Renderer::ActiveShader& shader) {
@@ -146,9 +187,9 @@ namespace TrenchBroom {
                     m_xAxis = Vec3::PosX;
                 m_yAxis = crossed(m_zAxis, m_xAxis).normalized();
                 
-                m_toWorldTransform = coordinateSystemMatrix(m_xAxis, m_yAxis, m_zAxis, m_origin);
+                m_fromFaceTransform = coordinateSystemMatrix(m_xAxis, m_yAxis, m_zAxis, m_origin);
                 bool invertible = true;
-                m_toFaceTransform = invertedMatrix(m_toWorldTransform, invertible);
+                m_toFaceTransform = invertedMatrix(m_fromFaceTransform, invertible);
                 assert(invertible);
             }
         }
@@ -257,6 +298,7 @@ namespace TrenchBroom {
                 setupGL(renderContext);
                 renderTexture(renderContext);
                 renderFace(renderContext);
+                renderTextureSeams(renderContext);
             }
         }
         
@@ -328,6 +370,24 @@ namespace TrenchBroom {
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
             edgeRenderer.setUseColor(true);
             edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            edgeRenderer.render(renderContext);
+        }
+
+        void TexturingView::renderTextureSeams(Renderer::RenderContext& renderContext) {
+            assert(m_state.valid());
+            
+            const Vec3::List positions = m_state.textureSeamVertices(m_camera);
+            const size_t count = positions.size();
+            
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List vertices(count);
+            
+            for (size_t i = 0; i < count; ++i)
+                vertices[i] = Vertex(positions[i]);
+            
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            edgeRenderer.setUseColor(true);
+            edgeRenderer.setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
             edgeRenderer.render(renderContext);
         }
 

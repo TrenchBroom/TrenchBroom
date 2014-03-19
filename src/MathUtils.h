@@ -108,8 +108,18 @@ namespace Math {
     }
     
     template <typename T>
+    T floor(const T v) {
+        return std::floor(v);
+    }
+    
+    template <typename T>
+    T ceil(const T v) {
+        return std::ceil(v);
+    }
+    
+    template <typename T>
     T round(const T v) {
-        return v > 0.0 ? std::floor(v + static_cast<T>(0.5)) : std::ceil(v - static_cast<T>(0.5));
+        return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
     
     template <typename T>

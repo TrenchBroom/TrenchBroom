@@ -44,8 +44,10 @@ namespace TrenchBroom {
             void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, float distance, BrushFaceAttribs& attribs) const;
             void rotateTexture(const Vec3& normal, float angle, BrushFaceAttribs& attribs) const;
             
-            Vec2 convertTo(const Vec3& point) const;
-            Vec3 convertFrom(const Plane3& boundary, const Vec2& point) const;
+            Vec3 transformTo(const Vec3& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3::List transformTo(const Vec3::List& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3 transformFrom(const Vec3& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3::List transformFrom(const Vec3::List& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
         protected:
             Vec3 project(const Vec3& normal, const Vec3& vec) const;
             Vec3 project(const Plane3& plane, const Vec3& vec) const;
@@ -59,6 +61,8 @@ namespace TrenchBroom {
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const = 0;
             virtual void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs) = 0;
             virtual void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) = 0;
+
+            Mat4x4 transformationMatrix(const Vec2f& offset, const Vec2f& scale) const;
         };
     }
 }

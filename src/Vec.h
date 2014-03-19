@@ -123,6 +123,10 @@ public:
     typedef std::set<Vec<T,S>, LexicographicOrder> Set;
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
     
+    static const List EmptyList;
+    static const Set EmptySet;
+    static const Map EmptyMap;
+    
 public:
     static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
@@ -633,6 +637,13 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>(std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN());
+
+template <typename T, size_t S>
+const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
+template <typename T, size_t S>
+const typename Vec<T,S>::Set Vec<T,S>::EmptySet = Vec<T,S>::Set();
+template <typename T, size_t S>
+const typename Vec<T,S>::Map Vec<T,S>::EmptyMap = Vec<T,S>::Map();
 
 typedef Vec<float,1> Vec1f;
 typedef Vec<double,1> Vec1d;

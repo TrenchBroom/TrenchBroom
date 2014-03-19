@@ -28,6 +28,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
 #include "Model/BrushGeometryTypes.h"
+#include "Model/TexCoordSystem.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
 
@@ -38,7 +39,6 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         class BrushFaceGeometry;
-        class TexCoordSystem;
         
         class BrushFaceAttribs {
         private:
@@ -94,12 +94,12 @@ namespace TrenchBroom {
             /*
              * The order of points, when looking from outside the face:
              *
-             * 0-----------1
+             * 1
              * |
              * |
              * |
              * |
-             * 2
+             * 0-----------2
              */
             typedef Vec3 Points[3];
             
@@ -176,8 +176,10 @@ namespace TrenchBroom {
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
             
-            Vec2 convertToTexCoordSystem(const Vec3& point) const;
-            Vec3 convertToWorldCoordSystem(const Vec2& point) const;
+            Vec3 transformToTexCoordSystem(const Vec3& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3::List transformToTexCoordSystem(const Vec3::List& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3 transformFromTexCoordSystem(const Vec3& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
+            Vec3::List transformFromTexCoordSystem(const Vec3::List& p, const Vec2f& offset = Vec2f::Null, const Vec2f& scale = Vec2f(1.0f, 1.0f)) const;
             
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;

@@ -198,6 +198,13 @@ public:
     Vec<T,S> project(const Vec<T,S>& v) const {
         return v - v.dot(normal) * normal;
     }
+
+    typename Vec<T,S>::List project(const typename Vec<T,S>::List& v) const {
+        typename Vec<T,S>::List result(v.size());
+        for (size_t i = 0; i < v.size(); ++i)
+            result[i] = project(v[i]);
+        return result;
+    }
 };
 
 template <typename T>

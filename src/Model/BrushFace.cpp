@@ -26,7 +26,6 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/PlanePointFinder.h"
-#include "Model/TexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
@@ -431,14 +430,22 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        Vec2 BrushFace::convertToTexCoordSystem(const Vec3& point) const {
-            return m_texCoordSystem->convertTo(point);
+        Vec3 BrushFace::transformToTexCoordSystem(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->transformTo(p, offset, scale);
         }
 
-        Vec3 BrushFace::convertToWorldCoordSystem(const Vec2& point) const {
-            return m_texCoordSystem->convertFrom(m_boundary, point);
+        Vec3::List BrushFace::transformToTexCoordSystem(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->transformTo(p, offset, scale);
         }
-
+        
+        Vec3 BrushFace::transformFromTexCoordSystem(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->transformFrom(p, offset, scale);
+        }
+        
+        Vec3::List BrushFace::transformFromTexCoordSystem(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->transformFrom(p, offset, scale);
+        }
+        
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
             return m_side->edges;

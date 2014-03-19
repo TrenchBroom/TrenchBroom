@@ -40,6 +40,9 @@ public:
     static const Mat<T,R,C> MirX;
     static const Mat<T,R,C> MirY;
     static const Mat<T,R,C> MirZ;
+    static const Mat<T,R,C> ZerX;
+    static const Mat<T,R,C> ZerY;
+    static const Mat<T,R,C> ZerZ;
     static const Mat<T,R,C> YIQToRGB;
     static const Mat<T,R,C> RGBToYIQ;
 
@@ -668,6 +671,21 @@ template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::MirZ        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                        static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                        static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+template <typename T, size_t R, size_t C>
+const Mat<T,R,C> Mat<T,R,C>::ZerX        = Mat<T,R,C>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+template <typename T, size_t R, size_t C>
+const Mat<T,R,C> Mat<T,R,C>::ZerY        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+template <typename T, size_t R, size_t C>
+const Mat<T,R,C> Mat<T,R,C>::ZerZ        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                        static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::YIQToRGB     = Mat<T,R,C>( static_cast<T>(1.0), static_cast<T>( 0.9563), static_cast<T> (0.6210),

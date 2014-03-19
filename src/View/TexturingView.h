@@ -50,7 +50,7 @@ namespace TrenchBroom {
             Vec3 m_yAxis;
             Vec3 m_zAxis;
             Mat4x4 m_toFaceTransform;
-            Mat4x4 m_toWorldTransform;
+            Mat4x4 m_fromFaceTransform;
         public:
             TexturingViewState();
             
@@ -63,8 +63,10 @@ namespace TrenchBroom {
 
             BBox3 computeBounds() const;
             Vec3 transformToFace(const Vec3& point) const;
-            Vec3 transformToWorld(const Vec3& point) const;
+            Vec3 transformFromFace(const Vec3& point) const;
             Vec2f textureCoords(const Vec3f& point) const;
+            
+            Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
             
             void activateTexture(Renderer::ActiveShader& shader);
             void deactivateTexture();
@@ -121,6 +123,7 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
             void renderTexture(Renderer::RenderContext& renderContext);
             void renderFace(Renderer::RenderContext& renderContext);
+            void renderTextureSeams(Renderer::RenderContext& renderContext);
             
             float computeZoomFactor() const;
             Vec3f::List getTextureQuad() const;
