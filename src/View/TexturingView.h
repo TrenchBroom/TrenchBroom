@@ -114,6 +114,7 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
+            void gridDidChange();
             
             void preferenceDidChange(const IO::Path& path);
             

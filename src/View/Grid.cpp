@@ -39,16 +39,21 @@ namespace TrenchBroom {
         void Grid::setSize(const size_t size) {
             assert(size <= MaxSize);
             m_size = size;
+            gridDidChangeNotifier();
         }
         
         void Grid::incSize() {
-            if (m_size < MaxSize)
+            if (m_size < MaxSize) {
                 ++m_size;
+                gridDidChangeNotifier();
+            }
         }
         
         void Grid::decSize() {
-            if (m_size > 0)
+            if (m_size > 0) {
                 --m_size;
+                gridDidChangeNotifier();
+            }
         }
         
         size_t Grid::actualSize() const {
@@ -67,6 +72,7 @@ namespace TrenchBroom {
         
         void Grid::toggleVisible() {
             m_visible = !m_visible;
+            gridDidChangeNotifier();
         }
         
         bool Grid::snap() const {
@@ -75,6 +81,7 @@ namespace TrenchBroom {
         
         void Grid::toggleSnap() {
             m_snap = !m_snap;
+            gridDidChangeNotifier();
         }
         
         FloatType Grid::snap(const FloatType f) const {

@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Notifier.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -33,6 +34,8 @@ namespace TrenchBroom {
             size_t m_size;
             bool m_snap;
             bool m_visible;
+        public:
+            Notifier0 gridDidChangeNotifier;
         public:
             Grid(const size_t size);
             

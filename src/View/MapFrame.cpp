@@ -617,29 +617,24 @@ namespace TrenchBroom {
 
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
             m_document->grid().toggleVisible();
-            m_mapView->Refresh();
         }
         
         void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
             m_document->grid().toggleSnap();
-            m_mapView->Refresh();
         }
         
         void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
             m_document->grid().incSize();
-            m_mapView->Refresh();
         }
         
         void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
             m_document->grid().decSize();
-            m_mapView->Refresh();
         }
         
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
             const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
-            m_mapView->Refresh();
         }
 
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {

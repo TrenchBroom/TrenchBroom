@@ -234,6 +234,7 @@ namespace TrenchBroom {
             document->objectDidChangeNotifier.addObserver(this, &TexturingView::objectDidChange);
             document->faceDidChangeNotifier.addObserver(this, &TexturingView::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &TexturingView::selectionDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &TexturingView::gridDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TexturingView::preferenceDidChange);
@@ -245,6 +246,7 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier.removeObserver(this, &TexturingView::objectDidChange);
                 document->faceDidChangeNotifier.removeObserver(this, &TexturingView::faceDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &TexturingView::selectionDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &TexturingView::gridDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -274,6 +276,10 @@ namespace TrenchBroom {
             } else {
                 m_toolBox.disable();
             }
+            Refresh();
+        }
+
+        void TexturingView::gridDidChange() {
             Refresh();
         }
 

@@ -49,6 +49,8 @@ namespace TrenchBroom {
             m_face = hit.target<Model::BrushFace*>();
             plane = Plane3(hit.hitPoint(), m_face->boundary().normal);
             initialPoint = hit.hitPoint();
+
+            controller()->beginUndoableGroup("Move Texture");
             return true;
         }
         
@@ -64,24 +66,24 @@ namespace TrenchBroom {
             if (offset.null())
                 return true;
             
-            controller()->beginUndoableGroup("Move Texture");
             const Model::BrushFaceList applyTo(1, m_face);
             if (offset.x() != 0.0)
                 controller()->setFaceXOffset(applyTo, -offset.x(), true);
             if (offset.y() != 0.0)
                 controller()->setFaceYOffset(applyTo, -offset.y(), true);
-            controller()->closeGroup();
             
             refPoint = m_face->transformFromTexCoordSystem(last + offset);
             return true;
         }
         
         void TexturingViewOffsetTool::doEndPlaneDrag(const InputState& inputState) {
+            controller()->closeGroup();
             assert(m_face != NULL);
             m_face = NULL;
         }
         
         void TexturingViewOffsetTool::doCancelPlaneDrag(const InputState& inputState) {
+            controller()->rollbackGroup();
             assert(m_face != NULL);
             m_face = NULL;
         }

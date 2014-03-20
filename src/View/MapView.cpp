@@ -642,6 +642,7 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &MapView::gridDidChange);
 
             ControllerSPtr controller = lock(m_controller);
             controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
@@ -665,6 +666,7 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapView::modsDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &MapView::gridDidChange);
             }
             
             if (!expired(m_controller)) {
@@ -704,6 +706,10 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapView::gridDidChange() {
+            Refresh();
+        }
+
         void MapView::modsDidChange() {
             Refresh();
         }
