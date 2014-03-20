@@ -133,7 +133,7 @@ namespace TrenchBroom {
             }
             
             const Plane3& boundary = m_face->boundary();
-            const Vec3::List transformedSeamVertices = m_face->transformFromTexCoordSystem(seamVertices);
+            const Vec3::List transformedSeamVertices = m_face->transformFromTexCoordSystem(seamVertices, offset, scale);
             const Vec3::List projectedSeamVertices = boundary.project(transformedSeamVertices);
             return projectedSeamVertices;
         }
