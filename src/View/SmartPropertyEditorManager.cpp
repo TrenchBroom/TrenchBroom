@@ -27,7 +27,7 @@
 #include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartPropertyEditorMatcher.h"
-#include "View/SmartSpawnFlagsEditor.h"
+#include "View/SmartSpawnflagsEditor.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
