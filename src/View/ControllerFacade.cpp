@@ -376,7 +376,7 @@ namespace TrenchBroom {
 
         bool ControllerFacade::flipObjects(const Model::ObjectList& objects, const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             using namespace Controller;
-            const Mat4x4 transformation = translationMatrix(center) * mirrorMatrix<FloatType, 4>(axis) * translationMatrix(-center);
+            const Mat4x4 transformation = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
             Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Flip", objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }

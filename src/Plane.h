@@ -112,10 +112,10 @@ public:
     }
     
     T intersectWithLine(const Line<T,S>& line) const {
-        const T d = line.direction.dot(normal);
-        if (Math::zero(d))
+        const T f = line.direction.dot(normal);
+        if (Math::zero(f))
             return Math::nan<T>();
-        return ((anchor() - line.point).dot(normal)) / d;
+        return ((distance * normal - line.point).dot(normal)) / f;
     }
     
     Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::PointStatusEpsilon) const {
@@ -195,14 +195,29 @@ public:
     }
              */
     
-    Vec<T,S> project(const Vec<T,S>& v) const {
-        return v - v.dot(normal) * normal;
+    Vec<T,S> project(const Vec<T,S>& point) const {
+        return point - point.dot(normal) * normal + distance * normal;
     }
 
-    typename Vec<T,S>::List project(const typename Vec<T,S>::List& v) const {
-        typename Vec<T,S>::List result(v.size());
-        for (size_t i = 0; i < v.size(); ++i)
-            result[i] = project(v[i]);
+    Vec<T,S> project(const Vec<T,S>& point, const Vec<T,S>& direction) const {
+        const T f = direction.dot(normal);
+        if (Math::zero(f))
+            return Vec<T,S>::NaN;
+        const T d = ((distance * normal - point).dot(normal)) / f;
+        return point + direction * d;
+    }
+    
+    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points) const {
+        typename Vec<T,S>::List result(points.size());
+        for (size_t i = 0; i < points.size(); ++i)
+            result[i] = project(points[i]);
+        return result;
+    }
+
+    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
+        typename Vec<T,S>::List result(points.size());
+        for (size_t i = 0; i < points.size(); ++i)
+            result[i] = project(points[i], direction);
         return result;
     }
 };

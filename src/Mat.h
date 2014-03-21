@@ -23,6 +23,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Quat.h"
 #include "Vec.h"
 
+#include <cassert>
+
 template <typename T, size_t R, size_t C>
 class Mat {
 public:
@@ -421,6 +423,14 @@ Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat, bool& invertible) {
 }
 
 template <typename T, size_t S>
+Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat) {
+    bool invertible = true;
+    invertMatrix(mat, invertible);
+    assert(invertible);
+    return mat;
+}
+
+template <typename T, size_t S>
 const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
     const T det = matrixDeterminant(mat);
     invertible = det != 0.0;
@@ -428,6 +438,14 @@ const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
         return mat;
 
     return adjointMatrix(mat) / det;
+}
+
+template <typename T, size_t S>
+const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat) {
+    bool invertible = true;
+    const Mat<T,S,S> inverted = invertedMatrix(mat, invertible);
+    assert(invertible);
+    return inverted;
 }
 
 template <typename T>
@@ -584,17 +602,17 @@ const Mat<T,S,S> scalingMatrix(const T f) {
     return scaling;
 }
 
-template <typename T, size_t S>
-const Mat<T,S,S>& mirrorMatrix(const Math::Axis::Type axis) {
+template <typename T>
+const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
     switch (axis) {
         case Math::Axis::AX:
-            return Mat<T,S,S>::MirX;
+            return Mat<T,4,4>::MirX;
         case Math::Axis::AY:
-            return Mat<T,S,S>::MirY;
+            return Mat<T,4,4>::MirY;
         case Math::Axis::AZ:
-            return Mat<T,S,S>::MirZ;
+            return Mat<T,4,4>::MirZ;
         default:
-            return Mat<T,S,S>::Identity;
+            return Mat<T,4,4>::Identity;
     }
 }
 
@@ -604,6 +622,35 @@ const Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, co
                       x[1], y[1], z[1], o[1],
                       x[2], y[2], z[2], o[2],
                        0.0,  0.0,  0.0,  1.0);
+}
+
+/**
+ Returns the inverse of a matrix that will transform a point to a coordinate system where the X and 
+ Y axes are in the given plane and the Z axis is parallel to the given direction. This is useful for
+ projecting points onto a plane along a particular direction.
+ */
+template <typename T>
+const Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const Vec<T,3>& direction) {
+    // create some coordinate system where the X and Y axes are contained within the plane
+    // and the Z axis is the projection direction
+    Vec<T,3> xAxis;
+    
+    switch (normal.firstComponent()) {
+        case Math::Axis::AX:
+            xAxis = crossed(normal, Vec<T,3>::PosZ).normalized();
+            break;
+        default:
+            xAxis = crossed(normal, Vec<T,3>::PosX).normalized();
+            break;
+    }
+    const Vec<T,3>  yAxis = crossed(normal, xAxis).normalized();
+    const Vec<T,3>& zAxis = direction;
+    
+    assert(Math::eq(xAxis.length(), 1.0));
+    assert(Math::eq(yAxis.length(), 1.0));
+    assert(Math::eq(zAxis.length(), 1.0));
+    
+    return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
 }
 
 template <typename T, size_t R, size_t C>

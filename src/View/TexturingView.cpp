@@ -106,13 +106,20 @@ namespace TrenchBroom {
             
             const Vec2f offset(m_face->xOffset(), m_face->yOffset());
             const Vec2f scale(m_face->xScale(), m_face->yScale());
+            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
+
+            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
+            const Plane3& boundary = m_face->boundary();
+            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
+            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
+            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
             
-            const Vec3::List viewportVertices = camera.viewportVertices();
-            const Vec3::List transformedVertices = Mat4x4::ZerZ * m_face->transformToTexCoordSystem(viewportVertices, offset, scale);
+            const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
             
-            const BBox3 transformedBounds(transformedVertices);
-            const Vec3& min = transformedBounds.min;
-            const Vec3& max = transformedBounds.max;
+            const BBox3 viewportBounds(viewportVertices);
+            const Vec3& min = viewportBounds.min;
+            const Vec3& max = viewportBounds.max;
 
             Vec3::List seamVertices;
             
@@ -131,11 +138,8 @@ namespace TrenchBroom {
                 seamVertices.push_back(Vec3(max.x(), y, 0.0));
                 y += texture->height();
             }
-            
-            const Plane3& boundary = m_face->boundary();
-            const Vec3::List transformedSeamVertices = m_face->transformFromTexCoordSystem(seamVertices, offset, scale);
-            const Vec3::List projectedSeamVertices = boundary.project(transformedSeamVertices);
-            return projectedSeamVertices;
+
+            return texToWorldWithProjection * seamVertices;
         }
 
         void TexturingViewState::activateTexture(Renderer::ActiveShader& shader) {

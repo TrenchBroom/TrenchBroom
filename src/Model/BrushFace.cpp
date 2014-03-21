@@ -430,20 +430,12 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        Vec3 BrushFace::transformToTexCoordSystem(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
-            return m_texCoordSystem->transformTo(p, offset, scale);
-        }
-
-        Vec3::List BrushFace::transformToTexCoordSystem(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
-            return m_texCoordSystem->transformTo(p, offset, scale);
+        Mat4x4 BrushFace::toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->toMatrix(offset, scale);
         }
         
-        Vec3 BrushFace::transformFromTexCoordSystem(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
-            return m_texCoordSystem->transformFrom(p, offset, scale);
-        }
-        
-        Vec3::List BrushFace::transformFromTexCoordSystem(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
-            return m_texCoordSystem->transformFrom(p, offset, scale);
+        Mat4x4 BrushFace::fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale) const {
+            return m_texCoordSystem->fromMatrix(offset, scale);
         }
         
         const BrushEdgeList& BrushFace::edges() const {

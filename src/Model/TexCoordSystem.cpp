@@ -139,30 +139,21 @@ namespace TrenchBroom {
             attribs.setRotation(attribs.rotation() + actualAngle);
         }
 
-        Vec3 TexCoordSystem::transformTo(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
-            bool invertible = true;
-            const Mat4x4 transform = invertedMatrix(transformationMatrix(offset, scale), invertible);
+        Mat4x4 TexCoordSystem::toMatrix(const Vec2f& offset, const Vec2f& scale) const {
+            bool invertible = false;
+            Mat4x4 matrix = fromMatrix(offset, scale);
+            invertMatrix(matrix, invertible);
             assert(invertible);
+            return matrix;
+        }
+
+        Mat4x4 TexCoordSystem::fromMatrix(const Vec2f& offset, const Vec2f& scale) const {
+            const Vec3 xAxis(getXAxis() * scale.x());
+            const Vec3 yAxis(getYAxis() * scale.y());
+            const Vec3 zAxis(crossed(getXAxis(), getYAxis()).normalized());
+            const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
             
-            return transform * p;
-        }
-        
-        Vec3::List TexCoordSystem::transformTo(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
-            bool invertible = true;
-            const Mat4x4 transform = invertedMatrix(transformationMatrix(offset, scale), invertible);
-            assert(invertible);
-            
-            return transform * p;
-        }
-        
-        Vec3 TexCoordSystem::transformFrom(const Vec3& p, const Vec2f& offset, const Vec2f& scale) const {
-            const Mat4x4 transform = transformationMatrix(offset, scale);
-            return transform * p;
-        }
-        
-        Vec3::List TexCoordSystem::transformFrom(const Vec3::List& p, const Vec2f& offset, const Vec2f& scale) const {
-            const Mat4x4 transform = transformationMatrix(offset, scale);
-            return transform * p;
+            return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
         }
 
         Vec3 TexCoordSystem::project(const Vec3& normal, const Vec3& vec) const {
@@ -176,15 +167,6 @@ namespace TrenchBroom {
                 return Vec3::NaN;
             const Line3 line(vec, zAxis);
             return line.pointAtDistance(plane.intersectWithLine(line));
-        }
-
-        Mat4x4 TexCoordSystem::transformationMatrix(const Vec2f& offset, const Vec2f& scale) const {
-            const Vec3 xAxis(getXAxis() * scale.x());
-            const Vec3 yAxis(getYAxis() * scale.y());
-            const Vec3 zAxis(crossed(getXAxis(), getYAxis()).normalized());
-            const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
-            
-            return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             
             ASSERT_VEC_EQ(Vec3::Null, system.transformTo(Vec3::Null));
             ASSERT_VEC_EQ(Vec3::Null, system.transformTo(Vec3::Null, Vec2f::Null, Vec2f(2.0f, 2.0f)));
-            ASSERT_VEC_EQ(Vec3(-2.0, -3.0, 0.0), system.transformTo(Vec3::Null, Vec2f(2.0f, 3.0f)));
+            ASSERT_VEC_EQ(Vec3(2.0, 3.0, 0.0), system.transformTo(Vec3::Null, Vec2f(2.0f, 3.0f)));
             ASSERT_VEC_EQ(Vec3(0.5, -2.0, -1.0), system.transformTo(Vec3(1.0, 1.0, 1.0), Vec2f::Null, Vec2f(2.0f, 0.5f)));
         }
     }

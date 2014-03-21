@@ -57,8 +57,9 @@ namespace TrenchBroom {
         bool TexturingViewOffsetTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             assert(m_face != NULL);
 
-            const Vec3 last = m_face->transformToTexCoordSystem(refPoint);
-            const Vec3 cur  = m_face->transformToTexCoordSystem(curPoint);
+            const Mat4x4 toTexTransform = m_face->toTexCoordSystemMatrix();
+            const Vec3 last = toTexTransform * refPoint;
+            const Vec3 cur  = toTexTransform * curPoint;
             
             const Grid& grid = document()->grid();
             const Vec3 offset = grid.snap(cur - last);
@@ -72,7 +73,8 @@ namespace TrenchBroom {
             if (offset.y() != 0.0)
                 controller()->setFaceYOffset(applyTo, -offset.y(), true);
             
-            refPoint = m_face->transformFromTexCoordSystem(last + offset);
+            const Mat4x4 fromTexTransform = m_face->fromTexCoordSystemMatrix();
+            refPoint = fromTexTransform * (last + offset);
             return true;
         }
         
