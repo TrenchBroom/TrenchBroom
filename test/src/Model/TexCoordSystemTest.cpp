@@ -32,10 +32,11 @@ namespace TrenchBroom {
         TEST(TexCoordSystemTest, testTransformToParaxial) {
             ParaxialTexCoordSystem system(Vec3::Null, Vec3::PosY, Vec3::PosX);
             
-            ASSERT_VEC_EQ(Vec3::Null, system.transformTo(Vec3::Null));
-            ASSERT_VEC_EQ(Vec3::Null, system.transformTo(Vec3::Null, Vec2f::Null, Vec2f(2.0f, 2.0f)));
-            ASSERT_VEC_EQ(Vec3(2.0, 3.0, 0.0), system.transformTo(Vec3::Null, Vec2f(2.0f, 3.0f)));
-            ASSERT_VEC_EQ(Vec3(0.5, -2.0, -1.0), system.transformTo(Vec3(1.0, 1.0, 1.0), Vec2f::Null, Vec2f(2.0f, 0.5f)));
+            ASSERT_VEC_EQ(Vec3::Null, system.toMatrix(Vec2f::Null, Vec2f(1.0f, 1.0f)) * Vec3::Null);
+            ASSERT_VEC_EQ(Vec3::Null, system.toMatrix(Vec2f::Null, Vec2f(2.0f, 2.0f)) * Vec3::Null);
+            
+            ASSERT_VEC_EQ(Vec3(2.0, 3.0, 0.0), system.toMatrix(Vec2f(2.0f, 3.0f), Vec2f(1.0f, 1.0f)) * Vec3::Null);
+            ASSERT_VEC_EQ(Vec3(0.5, -2.0, -1.0), system.toMatrix(Vec2f::Null, Vec2f(2.0f, 0.5f)) * Vec3(1.0, 1.0, 1.0));
         }
     }
 }
