@@ -104,19 +104,41 @@ namespace TrenchBroom {
             if (texture == NULL)
                 return Vec3::EmptyList;
             
+            // We compute the texture seam lines as follows:
+            // 1. Transform the viewport vertices to the texture coordinate system.
+            // 2. Project the transformed viewport onto the XY plane (of the texture coordinate system).
+            // 3. Compute the seam vertices (by walking along the X and Y axes).
+            // 4. Transform the seam vertices to the world coordinate system.
+            // 5. Transform the seam vertices to some coordinate system on the boundary plane, but
+            //    with the Z axis parallel to the texture coordinates system Z axis (skewed).
+            // 6. Project the seam vertices onto the boundary plane in parallel to the Z axis of
+            //    the texture coordinate system.
+            // 7. Transform the seam vertices back to the world coordinate system.
+            
             const Vec2f offset(m_face->xOffset(), m_face->yOffset());
             const Vec2f scale(m_face->xScale(), m_face->yScale());
+            
+            // This matrix performs steps 1 and 2:
             const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            
+            // This matrix performs step 4:
             const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
 
+            // This matrix performs step 7:
             const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
             const Plane3& boundary = m_face->boundary();
             const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
+            
+            // This matrix performs steps 5 and 6:
             const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
+            
+            // This matrix performs steps 4 through 7:
             const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
             
+            // Steps 1 and 2:
             const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
             
+            // Step 3: Compute the seam vertices using the bounding box of the transformed viewport.
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -139,6 +161,7 @@ namespace TrenchBroom {
                 y += texture->height();
             }
 
+            // Steps 4 through 7:
             return texToWorldWithProjection * seamVertices;
         }
 
@@ -379,7 +402,7 @@ namespace TrenchBroom {
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
             edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 0.7f));
             edgeRenderer.render(renderContext);
         }
 
@@ -397,7 +420,7 @@ namespace TrenchBroom {
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
             edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
+            edgeRenderer.setColor(Color(1.0f, 1.0f, 0.0f, 0.4f));
             edgeRenderer.render(renderContext);
         }
 

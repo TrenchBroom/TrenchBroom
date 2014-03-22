@@ -148,8 +148,7 @@ public:
     void operator delete(void* block) {
         T* t = reinterpret_cast<T*>(block);
         
-        size_t poolSize = PoolSize;
-        if (poolSize > 0 && pool().size() < poolSize) {
+        if (PoolSize > 0 && pool().size() < PoolSize) {
             pool().push(t);
             return;
         }
