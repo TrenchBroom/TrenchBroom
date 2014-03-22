@@ -23,38 +23,38 @@ uniform float Brightness;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
 uniform bool RenderGrid;
-uniform float GridSize;
-uniform float GridAlpha;
+uniform vec2 GridSizes;
+uniform vec4 GridColor;
+uniform vec2 GridScales;
+uniform mat4 GridMatrix;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 
-float getSoftStripes(float value, float gridSize, float stripeSize) {
-	float mainVal = value * gridSize;
+float getSoftStripes(float value, float gridRatio, float stripeSize) {
+	float mainVal = value * gridRatio;
 	float triangle = abs(2.0 * fract(mainVal) - 1.0);
 	float filterWidth = fwidth(value);
-	float edge = filterWidth * gridSize * 2.0;
+	float edge = filterWidth * gridRatio * 2.0;
 
 	// major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
-	float mValue = 1.0 / (64.0 * gridSize);
+	float mValue = 1.0 / (64.0 * gridRatio);
 	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
 	float isMajor = step(1.0 - mValue, triMajor);
 
 	float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
-	float sSize = stripeSize;
-
-	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
+	return smoothstep(stripeSize - edge, stripeSize + edge, triangle) * outIntensity;
 }
 
-void gridLinesSoft(vec2 inCoords, float gridRatio, float baseStripeSize) {
-	float stripeRatio = baseStripeSize * gridRatio;
-	float stripeSize = 1.0 - stripeRatio;
+void gridLinesSoft(vec2 inCoords, vec2 gridRatios, vec2 baseStripeSizes) {
+	vec2 stripeRatios = baseStripeSizes * gridRatios;
+	vec2 stripeSizes = 1.0 - stripeRatios;
     
-	float theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
-	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
+	float theGrid = getSoftStripes(inCoords.x, gridRatios.x, stripeSizes.x);
+	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatios.y, stripeSizes.y));
 
-	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
+	gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor.rgb, theGrid * GridColor.a * 0.5);
 }
 
 void main() {
@@ -66,7 +66,14 @@ void main() {
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
 
-	if (RenderGrid && GridAlpha > 0.0) {
+	if (RenderGrid) {
+		vec2 gridRatios = 1.0 / GridSizes;
+        vec2 gridThickness = 1.0 / GridScales;
+
+        vec4 texCoordinates = GridMatrix * modelCoordinates;
+		gridLinesSoft(texCoordinates.xy, gridRatios, gridThickness);
+        
+        /*
 		float normX = abs(modelNormal.x);
 		float normY = abs(modelNormal.y);
 		float normZ = abs(modelNormal.z);
@@ -87,5 +94,6 @@ void main() {
 		}
 
 		gridLinesSoft(baseCoords, gridRatio, gridThickness);
+        */
 	}
 }

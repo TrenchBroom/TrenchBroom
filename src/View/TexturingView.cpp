@@ -51,6 +51,12 @@ namespace TrenchBroom {
             return m_face;
         }
         
+        const Assets::Texture* TexturingViewState::texture() const {
+            if (!valid())
+                return NULL;
+            return m_face->texture();
+        }
+
         const Vec3& TexturingViewState::origin() const {
             assert(valid());
             return m_origin;
@@ -115,10 +121,10 @@ namespace TrenchBroom {
             //    the texture coordinate system.
             // 7. Transform the seam vertices back to the world coordinate system.
             
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
             
             // This matrix performs steps 1 and 2:
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
             const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
             
             // This matrix performs step 4:
@@ -163,6 +169,13 @@ namespace TrenchBroom {
 
             // Steps 4 through 7:
             return texToWorldWithProjection * seamVertices;
+        }
+
+        Mat4x4 TexturingViewState::worldToTexMatrix() const {
+            assert(valid());
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
         }
 
         void TexturingViewState::activateTexture(Renderer::ActiveShader& shader) {
@@ -331,7 +344,7 @@ namespace TrenchBroom {
                 setupGL(renderContext);
                 renderTexture(renderContext);
                 renderFace(renderContext);
-                renderTextureSeams(renderContext);
+                // renderTextureSeams(renderContext);
             }
         }
         
@@ -374,12 +387,15 @@ namespace TrenchBroom {
             setVboState.active();
             
             PreferenceManager& prefs = PreferenceManager::instance();
+            const Assets::Texture* texture = m_state.texture();
             
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
-            shader.set("RenderGrid", renderContext.gridVisible());
-            shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
-            shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
+            shader.set("RenderGrid", texture != NULL);
+            shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
+            shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
+            shader.set("GridScales", Vec2f(m_state.face()->xScale(), m_state.face()->yScale()));
+            shader.set("GridMatrix", m_state.worldToTexMatrix());
             shader.set("Texture", 0);
 
             m_state.activateTexture(shader);

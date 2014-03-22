@@ -31,6 +31,10 @@
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace IO {
         class Path;
     }
@@ -56,6 +60,8 @@ namespace TrenchBroom {
             
             bool valid() const;
             Model::BrushFace* face() const;
+            const Assets::Texture* texture() const;
+            
             const Vec3& origin() const;
             const Vec3& xAxis() const;
             const Vec3& yAxis() const;
@@ -67,6 +73,7 @@ namespace TrenchBroom {
             Vec2f textureCoords(const Vec3f& point) const;
             
             Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
+            Mat4x4 worldToTexMatrix() const;
             
             void activateTexture(Renderer::ActiveShader& shader);
             void deactivateTexture();
