@@ -22,25 +22,7 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        StringMap makeDefaultGamePaths() {
-            StringMap result;
-#if defined __APPLE__
-            result["Quake"] = "/Applications/Quake";
-            result["Quake 2"] = "/Applications/Quake2";
-            result["Hexen 2"] = "/Applications/Hexen2";
-#elif defined _WIN32
-            result["Quake"] = "C:\\Program Files (x86)\\Quake";
-            result["Quake 2"] = "C:\\Program Files (x86)\\Quake2";
-            result["Hexen 2"] = "C:\\Program Files (x86)\\Hexen2";
-#else
-            result["Quake"] = "/home/kristian/Apps/Quake";
-            result["Quake 2"] = "/home/kristian/Apps/Quake2";
-            result["Hexen 2"] = "/home/kristian/Apps/Hexen2";
-#endif
-            return result;
-        }
-        
-        Preference<StringMap> GamePaths(IO::Path("Game Paths"), makeDefaultGamePaths());
+        Preference<StringMap> GamePaths(IO::Path("Game Paths"), StringMap());
         
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(0.25f, 0.25f, 0.25f, 1.0f));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
