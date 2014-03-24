@@ -27,6 +27,7 @@ uniform vec2 GridSizes;
 uniform vec4 GridColor;
 uniform vec2 GridScales;
 uniform mat4 GridMatrix;
+uniform float CameraZoom;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -68,7 +69,7 @@ void main() {
 
 	if (RenderGrid) {
 		vec2 gridRatios = 1.0 / GridSizes;
-        vec2 gridThickness = 1.0 / GridScales;
+        vec2 gridThickness = abs(1.5 / GridScales / CameraZoom);
 
         vec4 texCoordinates = GridMatrix * modelCoordinates;
 		gridLinesSoft(texCoordinates.xy, gridRatios, gridThickness);

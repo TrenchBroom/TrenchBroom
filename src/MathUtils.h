@@ -235,6 +235,20 @@ namespace Math {
         return min(v1, v2);
     }
     
+    template <typename T>
+    T nextPOT(T n) {
+        // see https://en.wikipedia.org/wiki/Power_of_two
+        if (!(n & (n-1)))
+            return n;
+        
+        
+        while (n & (n-1))
+            n = n & (n-1);
+        
+        n = n << 1;
+        return n;
+    }
+    
     template <typename T, bool Abs>
     struct Cmp {
         Cmp() {}
