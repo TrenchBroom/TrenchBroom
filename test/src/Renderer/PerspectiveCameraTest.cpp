@@ -314,7 +314,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Vec3f(1.0f, 1.0f, 1.0f).normalized() * 256.0f, camera.defaultPoint(Ray3f(camera.position(), Vec3f(1.0f, 1.0f, 1.0f).normalized())));
             
             const Vec3f point = camera.defaultPoint(7, 223);
-            ASSERT_EQ(Vec3f(177.85825f, 175.42659f, 55.928089f), point);
+            ASSERT_VEC_EQ(Vec3f(177.85825f, 175.42659f, 55.928089f), point);
         }
     }
 }
