@@ -29,19 +29,19 @@ namespace TrenchBroom {
         class Path {
         public:
             typedef std::vector<Path> List;
-            static const char Separator;
+            static char separator();
             
             struct ToString {
-                char separator;
-                ToString(const char i_separator = Separator) :
-                separator(i_separator) {}
+                char m_separator;
+                ToString(const char i_separator = separator()) :
+                m_separator(i_separator) {}
                 
                 String operator()(const Path& path) const {
-                    return path.asString(separator);
+                    return path.asString(m_separator);
                 }
             };
         private:
-            static const String Separators;
+            static const String& separators();
             
             StringList m_components;
             bool m_absolute;
@@ -57,8 +57,8 @@ namespace TrenchBroom {
             bool operator< (const Path& rhs) const;
             bool operator> (const Path& rhs) const;
             
-            String asString(const char separator = Separator) const;
-            static StringList asStrings(const Path::List& paths, const char separator = Separator);
+            String asString(const char sep = separator()) const;
+            static StringList asStrings(const Path::List& paths, const char sep = separator());
             
             size_t length() const;
             bool isEmpty() const;

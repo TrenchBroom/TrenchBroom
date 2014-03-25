@@ -37,7 +37,7 @@ namespace TrenchBroom {
             static const unsigned int SimpleFrameName   = 0x8;
             static const unsigned int SimpleFrameLength = 0x10;
             static const unsigned int MultiFrameTimes   = 0xC;
-            static const unsigned int FrameVertexSize   = 0x4;
+            // static const unsigned int FrameVertexSize   = 0x4;
         }
 
         const Vec3f MdlParser::Normals[] = {

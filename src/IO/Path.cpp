@@ -26,12 +26,19 @@
 
 namespace TrenchBroom {
     namespace IO {
+        char Path::separator() {
 #ifdef _WIN32
-        const char Path::Separator = '\\';
+            static const char sep = '\\';
 #else
-        const char Path::Separator = '/';
+            static const char sep = '/';
 #endif
-        const String Path::Separators("/\\");
+            return sep;
+        }
+        
+        const String& Path::separators() {
+            static const String sep("/\\");
+            return sep;
+        }
 
         Path::Path(bool absolute, const StringList& components) :
         m_components(components),
@@ -39,13 +46,13 @@ namespace TrenchBroom {
 
         Path::Path(const String& path) {
             const String trimmed = StringUtils::trim(path);
-            m_components = StringUtils::split(trimmed, Separators);
+            m_components = StringUtils::split(trimmed, separators());
 #ifdef _WIN32
             m_absolute = (hasDriveSpec(m_components) ||
                           (!trimmed.empty() && trimmed[0] == '/') ||
                           (!trimmed.empty() && trimmed[0] == '\\'));
 #else
-            m_absolute = !trimmed.empty() && trimmed[0] == Separator;
+            m_absolute = !trimmed.empty() && trimmed[0] == separator();
 #endif
         }
 

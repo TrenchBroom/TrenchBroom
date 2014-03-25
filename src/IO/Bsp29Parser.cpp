@@ -31,19 +31,19 @@ namespace TrenchBroom {
     namespace IO {
         namespace BspLayout {
             static const size_t DirTexturesAddress    = 0x14;
-            static const size_t DirTexturesSize       = 0x18;
+            // static const size_t DirTexturesSize       = 0x18;
             static const size_t DirVerticesAddress    = 0x1C;
-            static const size_t DirVerticesSize       = 0x20;
+            // static const size_t DirVerticesSize       = 0x20;
             static const size_t DirTexInfosAddress    = 0x34;
-            static const size_t DirTexInfoSize        = 0x38;
+            // static const size_t DirTexInfoSize        = 0x38;
             static const size_t DirFacesAddress       = 0x3C;
-            static const size_t DirFacesSize          = 0x40;
+            // static const size_t DirFacesSize          = 0x40;
             static const size_t DirEdgesAddress       = 0x64;
-            static const size_t DirEdgesSize          = 0x68;
+            // static const size_t DirEdgesSize          = 0x68;
             static const size_t DirFaceEdgesAddress   = 0x6C;
-            static const size_t DirFaceEdgesSize      = 0x70;
+            // static const size_t DirFaceEdgesSize      = 0x70;
             static const size_t DirModelAddress       = 0x74;
-            static const size_t DirModelSize          = 0x78;
+            // static const size_t DirModelSize          = 0x78;
             
             static const size_t TextureNameLength     = 0x10;
             
@@ -56,9 +56,9 @@ namespace TrenchBroom {
             
             static const size_t FaceEdgeSize          = 0x4;
             static const size_t ModelSize             = 0x40;
-            static const size_t ModelOrigin           = 0x18;
+            // static const size_t ModelOrigin           = 0x18;
             static const size_t ModelFaceIndex        = 0x38;
-            static const size_t ModelFaceCount        = 0x3c;
+            // static const size_t ModelFaceCount        = 0x3c;
         }
         
         Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :

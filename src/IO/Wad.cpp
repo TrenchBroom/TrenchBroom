@@ -37,9 +37,9 @@ namespace TrenchBroom {
             static const size_t DirEntryTypeOffset    = 4;
             static const size_t DirEntryNameOffset    = 3;
             static const size_t DirEntryNameSize      = 16;
-            static const size_t PalLength             = 256;
+            // static const size_t PalLength             = 256;
             static const size_t TexWidthOffset        = 16;
-            static const size_t TexDataOffset         = 24;
+            // static const size_t TexDataOffset         = 24;
             static const size_t MaxTextureSize        = 512;
         }
 
