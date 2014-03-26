@@ -160,7 +160,7 @@ namespace TrenchBroom {
                              static_cast<GLsizei>(mipWidth),
                              static_cast<GLsizei>(mipHeight),
                              0, GL_RGB, GL_UNSIGNED_BYTE, data);
-                mipWidth /= 2;
+                mipWidth  /= 2;
                 mipHeight /= 2;
             }
             

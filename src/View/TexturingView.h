@@ -25,16 +25,13 @@
 #include "View/RenderView.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
+#include "View/TexturingViewHelper.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
 class wxWindow;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-    
     namespace IO {
         class Path;
     }
@@ -46,45 +43,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewState {
-        private:
-            Model::BrushFace* m_face;
-            Vec3 m_origin;
-            Vec3 m_xAxis;
-            Vec3 m_yAxis;
-            Vec3 m_zAxis;
-            Mat4x4 m_toFaceTransform;
-            Mat4x4 m_fromFaceTransform;
-        public:
-            TexturingViewState();
-            
-            bool valid() const;
-            Model::BrushFace* face() const;
-            const Assets::Texture* texture() const;
-            
-            const Vec3& origin() const;
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
-            const Vec3& zAxis() const;
-
-            BBox3 computeBounds() const;
-            Vec3 transformToFace(const Vec3& point) const;
-            Vec3 transformFromFace(const Vec3& point) const;
-            Vec2f textureCoords(const Vec3f& point) const;
-            
-            Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
-            Mat4x4 worldToTexMatrix() const;
-            
-            void activateTexture(Renderer::ActiveShader& shader);
-            void deactivateTexture();
-            
-            Hits pick(const Ray3& pickRay) const;
-            
-            void setFace(Model::BrushFace* face);
-        private:
-            void validate();
-        };
-        
         class TexturingViewOffsetTool;
         class TexturingViewCameraTool;
         
@@ -102,7 +60,7 @@ namespace TrenchBroom {
             
             Renderer::RenderResources& m_renderResources;
             Renderer::OrthographicCamera m_camera;
-            TexturingViewState m_state;
+            TexturingViewHelper m_helper;
 
             ToolBox m_toolBox;
             
