@@ -27,7 +27,7 @@ uniform vec2 GridSizes;
 uniform vec4 GridColor;
 uniform vec2 GridScales;
 uniform mat4 GridMatrix;
-uniform int GridDivider;
+uniform vec2 GridDivider;
 uniform float CameraZoom;
 
 varying vec4 modelCoordinates;
@@ -45,7 +45,7 @@ float getSoftStripes(float value, float gridRatio, float gridSize, float stripeS
 	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
 	float isMajor = step(1.0 - mValue, triMajor);
 
-	float outIntensity = isMajor * 0.9 + 0.5; // tweak intensities here
+	float outIntensity = isMajor * 0.9 + 0.65; // tweak intensities here
 	return smoothstep(stripeSize - edge, stripeSize + edge, triangle) * outIntensity;
 }
 

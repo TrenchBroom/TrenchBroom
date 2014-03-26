@@ -203,7 +203,7 @@ namespace TrenchBroom {
             shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
             shader.set("GridScales", Vec2f(m_helper.face()->xScale(), m_helper.face()->yScale()));
             shader.set("GridMatrix", m_helper.worldToTexMatrix());
-            shader.set("GridDivider", 4);
+            shader.set("GridDivider", Vec2f(4, 8));
             shader.set("CameraZoom", m_camera.zoom().x());
             shader.set("Texture", 0);
 
